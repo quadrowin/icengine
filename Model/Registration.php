@@ -3,26 +3,25 @@
 class Registration extends Model
 {
 
-    const OK                    = 1; // Успешно
+    const OK  = 'ok';     // Успешно
     
-	const FAIL_IP_LIMIT			= 20; // Лимит на 1 ip
+    const FAIL = 'fail';      
 	
-	const FAIL_EMAIL_EMPTY		= 31; // Пустой емейл
-	const FAIL_EMAIL_INCORRECT	= 32; // Емейл некорректен
-	const FAIL_EMAIL_REPEAT		= 33; // Уже используется
-	
-	const FAIL_PASSWORD_EMPTY	= 41; // Пустой пароль
-	const FAIL_PASSWORD_SHORT	= 42; // Пустой пароль
-	
-	const FAIL_CODE_INCORRECT	= 51; // Неверный код 
-	
-	/**
-	 * Максимальное количество регистраций с 1 ip
-	 * @var integer
-	 */
-	const IP_DAY_LIMIT = 20;
-	
+    /**
+     * 
+     * @var array
+     */	
 	public static $config = array (
+	    /**
+	     * Событие после подтверждения емейла
+	     * @var function (Registration)
+	     */
+	    'after_confirm'	=> null,
+	    /**
+	     * Событие после создания регистрации
+	     * @var function (Registration, array) boolean
+	     */
+	    'after_create'	=> null,
 	    /**
 	     * Автоактивация (не требует активации по email).
 	     * @var boolean
@@ -34,10 +33,27 @@ class Registration extends Model
 	     */
 	    'sendmail'		=> true,
 	    /**
-	     * Дополнительные поля.
+	     * Ограничение на количество регистраций с одного ИП в день
+	     * @var integer
+	     */
+	    'ip_day_limit'	=> 20,
+	    /**
+	     * Поля.
 	     * @var array
 	     */
-	    'ext_fields'	=> array ()
+	    'fields'	=> array (
+	        'email'		=> 'varchar(40)',
+	        'password'	=> 'varchar(250)'
+	    ),
+	    /**
+	     * Валидаторы для проверки регистрационных данных
+	     * @var array
+	     */
+	    'validators'		=> array (
+	    	'email'     => 'Helper_Registration_Validator_Email',
+	        'password'	=> 'Helper_Registration_Validator_Password',
+	        'ip'		=> 'Helper_Registration_Validator_Ip_Limit'
+	    )
 	);
 	
 	public static $scheme = array (
@@ -49,77 +65,10 @@ class Registration extends Model
 		)
 	);
 	
-	public static function checkIp ($ip)
-	{
-	    Loader::load ('Common_Date');
-		$regs = IcEngine::$modelManager->collectionBy (
-		    'Registration',
-		    Query::instance ()
-		    ->where ('day', Common_Date::eraDayNum ())
-		    ->where ('ip', $ip)
-		);
-		
-		if ($regs->count () >= self::IP_DAY_LIMIT)
-		{
-			return self::FAIL_IP_LIMIT;
-		}
-		
-		return self::OK;
-	}
-	
-	/**
-	 * 
-	 * @param string $email
-	 * @param string $password
-	 * @param string $ip
-	 * @return integer
-	 */
-	public static function checkData ($email, $password, $ip)
-	{
-		if (empty ($email))
-		{
-			return self::FAIL_EMAIL_EMPTY;
-		}
-		
-		if (!filter_var ($email, FILTER_VALIDATE_EMAIL))
-		{
-		    return self::FAIL_EMAIL_INCORRECT;
-		}
-		
-		if (empty ($password))
-		{
-			return self::FAIL_PASSWORD_EMPTY;
-		}
-		
-		$user = IcEngine::$modelManager->modelBy (
-		    'User',
-		    Query::instance ()
-		    ->where ('email', $email)
-		);
-		
-		if ($user)
-		{
-			return self::FAIL_EMAIL_REPEAT;
-		}
-		
-		$reg = IcEngine::$modelManager->modelBy (
-		    'Registration',
-		    Query::instance ()
-		    ->where ('email', $email)
-		);
-		
-		if ($reg)
-		{
-			return self::FAIL_EMAIL_REPEAT;
-		}
-		
-		return self::checkIp ($ip);
-	}
-	
 	public static function loadConfig ()
 	{
-        Loader::load ('Config_Php');
-        $cfg = new Config_Php ('config/Registration.php');
+        Loader::load ('Config_Array');
+        $cfg = Config_Array::load ('config/Registration.php');
         self::$config = $cfg->mergeConfig (self::$config);
 	}
 	
@@ -172,6 +121,14 @@ class Registration extends Model
 			$this->User->update (array (
 				'active'	=> 1
 			));
+			
+			if (self::$config ['after_confirm'])
+			{
+			    Loader::load (self::$config ['after_confirm'][0]);
+			    call_user_func (
+			        self::$config ['after_confirm'],
+			        $this);
+			}
 		}
 		else
 		{
@@ -182,22 +139,20 @@ class Registration extends Model
 	
 	/**
 	 * 
-	 * @param stirng $email
-	 * @param string $password
+	 * @param array $data
 	 * @param boolean $send_mail
-	 * @param array $exts
 	 * @return Registration
 	 */
-	public static function register ($email, $password, $send_mail = true, array $exts)
+	public static function register (array $data, $send_mail = true)
 	{
 		$user = User::create (
-		    $email, $password, 
-		    self::$config ['autoactive'], $exts);
+		    $data ['email'], $data ['password'], 
+		    self::$config ['autoactive'], $data);
 		
 		Loader::load ('Common_Date');
 		$registration = new Registration (array (
 			'User__id'	=> $user->id,
-			'email'		=> $email,
+			'email'		=> $data ['email'],
 			'time'		=> date ('Y-m-d H:i:s'),
 			'ip'		=> Request::ip (),
 			'day'		=> Common_Date::eraDayNum (),
@@ -207,15 +162,29 @@ class Registration extends Model
 		));
 		$registration->save ();
 		
+		if (self::$config ['after_create'])
+		{
+		    Loader::load (self::$config ['after_create'][0]);
+		    if (
+		        !call_user_func (self::$config ['after_create'], 
+		            $registration, $data)
+		    )
+	        {
+	            $registration->delete ();
+	            $user->delete ();
+	            return null;
+	        };
+		}
+		
 		if ($send_mail)
 		{
     		Loader::load ('Mail_Message');
     		$message = Mail_Message::create (
     			'user_register', 
-    			$email, $email,
+    			$data ['email'], $data ['email'],
     			array (
-    				'email'		=> $email,
-    				'password'	=> $password,
+    				'email'		=> $data ['email'],
+    				'password'	=> $data ['password'],
     				'time'		=> $registration->time,
     				'code'		=> $registration->code,
     				'href'		=> $registration->confirmHref ()
@@ -230,27 +199,48 @@ class Registration extends Model
 	
 	/**
 	 * 
-	 * @param string $email
-	 * @param string $password
-	 * @param string $ip
-	 * @param array $exts
-	 * 		Дополнительные поля для пользователя
+	 * @param array $data
+	 * 		string ['email'] емейл
+	 * 		string ['password'] пароль
 	 * @return integer
 	 */
-	public static function tryRegister ($email, $password, $ip, array $exts)
+	public static function tryRegister (array $data)
 	{
-	    $result = self::checkData ($email, $password, $ip);
+	    $result = self::validate ($data);
 	    
 	    if ($result != self::OK)
 	    {
 	        return $result;
 	    }
 	    
-	    $registration = self::register (
-	        $email, $password,
-	        self::$config ['sendmail'], $exts);
+	    $ok = self::register ($data, self::$config ['sendmail']);
 	    
-	    return $registration ? self::OK : self::FAIL_EMAIL_REPEAT;
+	    return $ok ? self::OK : self::FAIL;
+	}
+	
+	/**
+	 * 
+	 * Enter description here ...
+	 * @param array $data
+	 * @return mixed
+	 * 		Registration::OK если валидация пройдена успешно,
+	 * 		иначе код ошибки.
+	 */
+	public static function validate (array $data)
+	{
+	    foreach (self::$config ['validators'] as $name => $validator)
+	    {
+	        Loader::load ($validator);
+	        $result = call_user_func (
+	            array ($validator, 'validate'),
+	            $data, $name);
+	            
+	        if ($result != self::OK)
+	        {
+	            return $result;
+	        }
+	    }
+	    return self::OK;
 	}
 	
 }

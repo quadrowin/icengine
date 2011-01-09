@@ -5,7 +5,7 @@ class View_Helper_Css extends View_Helper_Abstract
 
 	public function get (array $params)
 	{
-		$csses = $this->view->resources()->getData (View_Resource_Manager::CSS);
+		$csses = $this->_view->resources()->getData (View_Resource_Manager::CSS);
 		
 		$result = '';
 		foreach ($csses as $css)

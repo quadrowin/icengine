@@ -105,8 +105,11 @@ class Controller_Dispatcher
 		
 		$this->_onDispatchIterationStart ($controller, $iteration, $method_name);
 		
-		Loader::load ('Executor');
-		Executor::execute (array ($controller, $method_name));
+		if (!$this->_currentIteration->getIgnore ())
+		{
+    		Loader::load ('Executor');
+    		Executor::execute (array ($controller, $method_name));
+		}
 		
 		Controller_Broker::afterAction ($controller, $iteration);
 		

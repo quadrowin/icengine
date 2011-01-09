@@ -192,7 +192,7 @@ class Debug
 	 * Включение внутреннего обработчика ошибок
 	 * @param array|Config_Abstract $config
 	 */
-	public static function init ($config)
+	public static function init ($config = array ())
 	{
 		error_reporting (E_ALL);
 		ini_set ('display_errors', true);
@@ -201,7 +201,10 @@ class Debug
 
 		$memory_start = function_exists ('memory_get_usage') ? memory_get_usage(true) : 0;
 		
-		self::setOptions ($config);
+		if ($config)
+		{
+		    self::setOptions ($config);
+		}
 		
 		set_error_handler ("internalErrorHandler_DebugClass");
 	}
@@ -351,8 +354,8 @@ class Debug
 				$type = 'LOG';
 			}
 		}
-		$time = date('Y-m-d H:i:s');
-		$text = is_scalar($text) ? $text : var_export ($text, true);
+		$time = date ('Y-m-d H:i:s');
+		$text = is_scalar ($text) ? $text : var_export ($text, true);
 		
 		// В файл
 		if (self::$config ['files']['active'])

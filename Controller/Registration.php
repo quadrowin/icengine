@@ -5,6 +5,12 @@ Loader::load ('Registration');
 class Controller_Registration extends Controller_Abstract
 {
 	
+    /**
+     * Последняя обработанная регистрация
+     * @var Registration
+     */
+    public $registration;
+    
 	/**
 	 * Начало регистрации
 	 */
@@ -23,27 +29,32 @@ class Controller_Registration extends Controller_Abstract
 	
 	/**
 	 * Подтверждение email
+	 * @return boolean
+	 * 		True, если регистрация закончилась успешно.
+	 * 		Иначе false.
 	 */
 	public function emailConfirm ()
 	{
-		$this->item = Registration::byCode ($this->_input->receive ('code'));
+		$this->registration = Registration::byCode (
+		    $this->_input->receive ('code'));
 		
-		if (!$this->item)
+		if (!$this->registration)
 		{
 		    IcEngine::$application->frontController->getDispatcher ()
 		        ->currentIteration ()->setTemplate (
-		        	'Registration/emailConfirm/fail_code_uncorrect.tpl');
-		    return;    
+		        	$this->name () . '/emailConfirm/fail_code_uncorrect.tpl');
+		    return false;    
 		}
-		elseif ($this->item->finished)
+		elseif ($this->registration->finished)
 		{
 			IcEngine::$application->frontController->getDispatcher ()
 		        ->currentIteration ()->setTemplate (
-		        	'Registration/emailConfirm/fail_already_finished.tpl');
-		    return;
+		        	$this->name () . '/emailConfirm/fail_already_finished.tpl');
+		    return false;
 		}
 		
-		$this->item->finish ();
+		$this->registration->finish ();
+		return true;
 	}
 	
 }

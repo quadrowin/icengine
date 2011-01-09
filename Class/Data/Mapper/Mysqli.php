@@ -106,6 +106,12 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 		return $options->getNotEmpty () && empty ($result) ? false : true;
 	}
 	
+	public function connect ($config)
+	{
+	    mysql_connect ($config->server, $config->username, $config->password);
+	    mysql_select_db ($config->database);
+	}
+	
 	public function execute (Data_Source_Abstract $source, Query $query, $options = null)
 	{
 		if (!($query instanceof Query))
