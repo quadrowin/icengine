@@ -51,7 +51,7 @@ class Registration extends Model
 	     */
 	    'validators'		=> array (
 	    	'email'     => 'Helper_Registration_Validator_Email',
-	        'password'	=> 'Helper_Registration_Validator_Password',
+	    	'password'	=> 'Helper_Registration_Validator_Password',
 	        'ip'		=> 'Helper_Registration_Validator_Ip_Limit'
 	    )
 	);
@@ -230,10 +230,15 @@ class Registration extends Model
 	{
 	    foreach (self::$config ['validators'] as $name => $validator)
 	    {
-	        Loader::load ($validator);
+	        if (!Loader::load ($validator))
+	        {
+	            die ();
+//	            Loader::load ('Zend_Exception');
+//	            throw new Zend_Exception ('Unable to load registration validator: ' . $validator);
+	        }
 	        $result = call_user_func (
 	            array ($validator, 'validate'),
-	            $data, $name);
+	            &$data, $name);
 	            
 	        if ($result != self::OK)
 	        {

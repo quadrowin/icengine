@@ -9,7 +9,7 @@ class Helper_Registration_Validator_Email
 	
 	const EMAIL_REPEAT		= 'emailRepeat';     // Уже используется
     
-    public function validate (array &$data, $name)
+    public static function validate (array &$data, $name)
     {
 		if (empty ($data ['email']))
 		{

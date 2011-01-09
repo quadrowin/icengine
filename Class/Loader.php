@@ -125,7 +125,6 @@ class Loader
 		
 		for ($i = count (self::$pathes [$type]) - 1; $i >= 0; $i--)
 		{
-		    
 			$fn = self::$pathes [$type][$i] . $file;
 			if (file_exists ($fn))
 			{
@@ -138,10 +137,9 @@ class Loader
 		if (false)
 		{
     		echo '<pre>';
-    		debug_print_backtrace ();
-    		trigger_error('File not found: ' . $file, E_USER_NOTICE);
     		echo 'Pathes: ';
     		var_dump (self::$pathes [$type]);
+    		debug_print_backtrace ();
     		echo '</pre>';
 		}
 		
