@@ -1,7 +1,9 @@
 <?php
 
-class Common_Date
+class Helper_Date
 {
+    
+    const UNIX_FORMAT = 'Y-m-d H:i:s';
 	
     public static $daysRu = array (
         1 => array (
