@@ -194,7 +194,11 @@ class Model_Manager
 						$this->_factories [$factory_name] = new $model ();
 					}
 					$dmodel = $this->_factories [$factory_name]->delegateClass ($model, $key, $object);
-					Loader::load ($dmodel);
+					if (!Loader::load ($dmodel))
+					{
+					    Loader::load ('Zend_Exception');
+					    throw new Zend_Exception ('Delegate model not found: ' . $dmodel);
+					}
 					$result = new $dmodel (array (), !$forced);
 					$result->setModelFactory ($this->_factories [$factory_name]);
 					if (is_array ($object) && $object)
@@ -411,7 +415,7 @@ class Model_Manager
 	    $key_field = $this->modelScheme ()->keyField ($model);
 	    foreach ($data as $row)
 	    {
-	        $collection->add ($this->get ($model, $row [$key_field], $data));
+	        $collection->add ($this->get ($model, $row [$key_field], $row));
 	    }
 	    
 	    return $collection;

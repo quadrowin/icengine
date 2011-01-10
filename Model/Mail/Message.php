@@ -48,7 +48,7 @@ class Mail_Message extends Model
 	{
 	    Loader::load ('Common_Date');
 		$this->update (array (
-			'sendDay'		=> Common_Date::eraDayNum (),
+			'sendDay'		=> Helper_Date::eraDayNum (),
 			'sendTime'		=> date ('Y-m-d H:i:s'),
 			'sendTries'	    => $this->sendTries + 1
 		));

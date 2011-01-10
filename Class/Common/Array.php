@@ -89,13 +89,13 @@ class Common_Array
 	 */
 	public static function masort (&$data, $sortby)
 	{
-		static $funcs = array();
+		static $funcs = array ();
 		
-		if (empty ($funcs[$sortby]))
+		if (empty ($funcs [$sortby]))
 		{
 			//Не существует функции сравнения, создаем
 			$code = "\$c=0;";
-			foreach (split (',', $sortby) as $key)
+			foreach (explode (',', $sortby) as $key)
 			{
 				$key = trim ($key);
 				if (strlen ($key) > 5 && substr ($key, -5) == ' DESC')
@@ -124,10 +124,10 @@ class Common_Array
 			$code .= 'return $c;';
 	//		predump($code);
 			// $c=0;if ( $c = (($a['rank'] == $b['rank']) ? 0 : (($a['rank'] < $b['rank']) ? -1 : 1 )) ) return $c;return $c;
-			$funcs[$sortby] = create_function ('$a, $b', $code);
+			$funcs [$sortby] = create_function ('$a, $b', $code);
 		}
 		
-		return uasort($data, $funcs[$sortby]);
+		return uasort ($data, $funcs [$sortby]);
 	}
 	
 	/**
@@ -146,11 +146,11 @@ class Common_Array
 		
 		static $funcs = array ();
 		
-		if (empty ($funcs[$sortby]))
+		if (empty ($funcs [$sortby]))
 		{
 			//Не существует функции сравнения, создаем
 			$code = "\$c=0;";
-			foreach (split (',', $sortby) as $key)
+			foreach (explode (',', $sortby) as $key)
 			{
 				$key = trim ($key);
 				if (strlen ($key) > 5 && substr ($key, -5) == ' DESC')
@@ -179,10 +179,10 @@ class Common_Array
 			$code .= 'return $c;';
 	//		fb($code);
 	//		$c=0;if ( $c = (($a->rank == $b->rank) ? 0 : (($a->rank < $b->rank) ? -1 : 1 )) ) return $c;return $c;
-			$funcs[$sortby] = create_function ('$a, $b', $code);
+			$funcs [$sortby] = create_function ('$a, $b', $code);
 		}
 		
-		return uasort ($data, $funcs[$sortby]);
+		return uasort ($data, $funcs [$sortby]);
 	}
 	
 }

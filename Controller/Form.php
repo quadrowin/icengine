@@ -182,7 +182,7 @@ class Controller_Form extends Controller_Abstract
 		}
 		else
 		{
-			$this->_afterEdit ($mode, $params);
+			$this->_afterEdit ($model, $params);
 		}
 		
 	}

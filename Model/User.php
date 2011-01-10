@@ -13,12 +13,6 @@ class User extends Model
 	 * @var User
 	 */
 	protected static $_current    = false;
-	
-	/**
-	 * Сессия
-	 * @var User_Session
-	 */
-	protected $_session    = false;
     
 	public static $scheme = array (
 		Query::FROM	    => __CLASS__,
@@ -190,9 +184,9 @@ class User extends Model
 	
 	public function logout ()
 	{
-		$this->_session->update (array (
-		    'User__id'	=> 0
-		));
+	    User_Session::getCurrent ()->update (array (
+    		    'User__id'	=> 0
+    	));
 	}
 	
 	/**

@@ -102,7 +102,7 @@ class Acl_Role extends Model
 			$_ = func_get_args ();
 		}
 		
-		$resource = Acl_Resource::byNameParts ($_);
+		$resource = Acl_Resource::byNameCheck ($_);
 		
 		return $resource ? $this->resourceAttached ($resource) : false;
 	}

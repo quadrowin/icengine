@@ -116,7 +116,7 @@ class Password_Recovery extends Model
 	public static function queryCountOnEmail ($email)
 	{
 	    Loader::load ('Common_Date');
-		$day = Common_Date::eraDayNum ();
+		$day = Helper_Date::eraDayNum ();
 		
 		return IcEngine::$modelManager->collectionBy (
 		    __CLASS__,
@@ -134,7 +134,7 @@ class Password_Recovery extends Model
 	public static function queryCountOnIp ($ip)
 	{
 	    Loader::load ('Common_Date');
-		$day = Common_Date::eraDayNum ();
+		$day = Helper_Date::eraDayNum ();
 		
 		return IcEngine::$modelManager->collectionBy (
 		    __CLASS__,
@@ -269,7 +269,7 @@ class Password_Recovery extends Model
 		$sec_in_day = 24 * 60 * 60;
 		for ($i = $from; $i < $to; $i++)
 		{
-			$day = Common_Date::eraDayNum (time () - $i * $sec_in_day);
+			$day = Helper_Date::eraDayNum (time () - $i * $sec_in_day);
 			$recoverys = IcEngine::$modelManager->collectionBy (
 			    __CLASS__,
 			    Query::instance ()
@@ -301,7 +301,7 @@ class Password_Recovery extends Model
 			'ip'			=> Request::ip (),
 			'code'			=> $code,
 			'active'		=> 1,
-		    'day'			=> Common_Date::eraDayNum ()
+		    'day'			=> Helper_Date::eraDayNum ()
 		));
 		$recovery->save ();
 		

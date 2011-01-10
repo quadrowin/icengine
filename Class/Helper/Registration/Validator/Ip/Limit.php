@@ -11,7 +11,7 @@ class Helper_Registration_Validator_Ip_Limit
 		$regs = IcEngine::$modelManager->collectionBy (
 		    'Registration',
 		    Query::instance ()
-		    ->where ('day', Common_Date::eraDayNum ())
+		    ->where ('day', Helper_Date::eraDayNum ())
 		    ->where ('ip', Request::ip ())
 		);
 		

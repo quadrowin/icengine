@@ -65,18 +65,16 @@ class View_Helper_Widget extends View_Helper_Abstract
             if ($p)
             {
                 // Явно указан метод виджета
-                $class = substr ($call, 0, $p);
+                $widget = substr ($call, 0, $p);
                 $method = substr ($call, $p + 2);
-                $widget = $class;
             }
             else
             {
                 $p = strpos ($call, '/');
                 if ($p)
                 {
-                    $class = substr ($call, 0, $p);
+                    $widget = substr ($call, 0, $p);
                     $method = substr ($call, $p + 1);
-                    $widget = $class;    
                 }
                 else
                 {

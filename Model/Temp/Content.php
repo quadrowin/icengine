@@ -50,7 +50,7 @@ class Temp_Content extends Model
 			'controller'	=> $controller,
 			'table'			=> $table,
 			'rowId'			=> (int) $row_id,
-		    'day'			=> Common_Date::eraDayNum (),
+		    'day'			=> Helper_Date::eraDayNum (),
 			'User__id'	    => User::id ()
 		));
 		

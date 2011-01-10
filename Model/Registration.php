@@ -155,7 +155,7 @@ class Registration extends Model
 			'email'		=> $data ['email'],
 			'time'		=> date ('Y-m-d H:i:s'),
 			'ip'		=> Request::ip (),
-			'day'		=> Common_Date::eraDayNum (),
+			'day'		=> Helper_Date::eraDayNum (),
 			'finished'		=> 0,
 			'finishTime'	=> '2000-01-01 00:00:00',
 			'code'			=> self::generateUniqueCode ($user->id)

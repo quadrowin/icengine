@@ -54,7 +54,7 @@ class Subscribe_Subscriber extends Model
     public function timeLeft ()
     {
         Loader::load ('Common_Date');
-        return time - Common_Date::strToTimestamp ($this->codeSendTime);
+        return time - Helper_Date::strToTimestamp ($this->codeSendTime);
     }
     
 }

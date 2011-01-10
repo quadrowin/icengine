@@ -23,7 +23,7 @@ class Collector_Garbage_Scheme_Removal extends Collector_Garbage_Scheme_Abstract
 		
 		Loader::load ('Common_Date');	
 		
-		$day = Common_Date::eraDayNum ();
+		$day = Helper_Date::eraDayNum ();
 		
 		for ($i = 0, $icount = count ($removal); $i < $icount; $i++)
 		{

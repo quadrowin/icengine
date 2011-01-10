@@ -18,7 +18,7 @@ class Collector_Garbage_Scheme_Temp_Content extends Collector_Garbage_Scheme_Abs
 		
 		Loader::load ('Common_Date');	
 		
-		$day = Common_Date::eraDayNum ();
+		$day = Helper_Date::eraDayNum ();
 		
 		DDS::execute(
 			Query::instance ()

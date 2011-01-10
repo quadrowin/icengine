@@ -62,7 +62,7 @@ class Attribute_Manager
 	 * 
 	 * @param Model $model
 	 * 		Модель
-	 * @param string $key
+	 * @param string|array $key
 	 * 		Название атрибута
 	 * @param mixed $value
 	 * 		Значение атрибута
@@ -72,21 +72,25 @@ class Attribute_Manager
 	    $table = $model->table ();
 	    $row_id = $model->key ();
 	    
-	     $this->_source->execute (
-			Query::instance ()
+	    $query = Query::instance ()
 			->delete ()
 			->from (self::TABLE)
 			->where ('`table`=?', $table)
-			->where ('`rowId`=?', $row_id)
-			->where ('`key`=?', $key)
-		);
-	    
+			->where ('`rowId`=?', $row_id);
+			
 	    if (!is_array ($key))
 	    {
+	        $query->where ('key', $key);
 	   		$key = array (
 	   			$key => $value
 	   		);
 	    }
+	    else
+	    {
+            $query->where ('`key` IN (?)', array_keys ($key));
+	    }
+	    
+	    $this->_source->execute ($query);
 
 		foreach ($key as $k => $value)
 		{

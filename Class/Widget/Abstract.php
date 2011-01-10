@@ -38,13 +38,19 @@ abstract class Widget_Abstract
     {
         if (!$this->_template)
         {
-            $this->_template = str_replace (
-        	array ('_', '::'),
-        	'/',
-        	get_class ($this)) . '/' . $method . '.tpl';
+            $template = str_replace (
+            	array ('_', '::'),
+            	'/',
+            	get_class ($this)
+            ) . '/' . $method . '.tpl';
         }
-        	
-        return $this->_template;
+        else
+        {
+            $template = $this->_template;
+            $this->_template = null;
+        }
+        
+        return $template;
     }
     
     /**

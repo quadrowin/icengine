@@ -3,6 +3,8 @@
 class Widget_Manager 
 {
     
+    const NULL_TEMPLATE = 'NULL';
+    
 	/**
 	 * Имя файла с настройками кэширования
 	 * @param string $widget
@@ -109,7 +111,7 @@ class Widget_Manager
         
         $result ['data'] = (array) $output->get ('data');
         
-        if ($tpl)
+        if ($tpl && $tpl != self::NULL_TEMPLATE)
         {
             $view = View_Render_Broker::pushViewByName ('Smarty');
             

@@ -113,34 +113,13 @@ class Route extends Model_Child
 	 */
 	public function actions ()
 	{
-	    return $this->modelManager ()->collectionBy (
+	    $coll = $this->modelManager ()->collectionBy (
 	        'Route_Action',
 	        Query::instance ()
 	        ->where ('Route__id', $this->key ())
 	        ->order ('sort')
 	    );
-	    
-		$query = Query::instance ()
-		    ->select (array (
-				'route_action'	=> array ('sort', 'assign'),
-				'controller_action'	=> array ('id', 'controller', 'action')
-			))
-			->from ('Route_Action', 'route_action')
-			->innerJoin (
-				array ('Controller_Action' => 'controller_action'),
-				'controller_action.id=route_action.Controller_Action__id'
-			)
-			->where ('route_action.Route__id', $this->key ())
-			->where ('controller_action.active=1')
-			->order (array ('route_action.sort' => Query::ASC));
-		
-		Loader::load ('Controller_Action_Collection');
-		
-		$collection = new Controller_Action_Collection ();
-		$collection->fromQuery ($query);
-		//$query->translate ('Mysql', DDS::getDataSource()->getDataMapper()->getModelScheme());
-		
-		return $collection;
+	    return $coll;
 	}
 	
 	/**
