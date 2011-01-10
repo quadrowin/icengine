@@ -47,7 +47,7 @@ class Attribute_Manager
 	 */
 	public function get (Model $model, $key)
 	{
-		return $this->_source->execute (
+		$value = $this->_source->execute (
 			Query::instance ()
 			->select ('value')
 			->from (self::TABLE)
@@ -55,6 +55,8 @@ class Attribute_Manager
 			->where ('`rowId`=?', $model->key ())
 			->where ('`key`=?', $key)
 		)->getResult ()->asValue ();
+		
+		return json_decode ($value, true);
 	}
 	
 	/**
@@ -101,7 +103,7 @@ class Attribute_Manager
 					'table'	=> $table,
 					'rowId'	=> $row_id,
 					'key'	=> $k,
-				    'value'	=> $value
+				    'value'	=> json_encode ($value)
 				))
 			); 
 	    }

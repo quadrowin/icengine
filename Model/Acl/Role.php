@@ -41,9 +41,23 @@ class Acl_Role extends Model
 	
 	/**
 	 * 
+	 * @param string $name
+	 * @return Acl_Role|null
+	 */
+	public static function byName ($name)
+	{
+	    return IcEngine::$modelManager->modelBy (
+		    'Acl_Role',
+		    Query::instance ()
+		    ->where ('name', $name)
+		);
+	}
+	
+	/**
+	 * 
 	 * @param integer $type_id
 	 * @param string $name
-	 * @return Acl_Role
+	 * @return Acl_Role|null
 	 */
 	public static function byTypeNName ($type_id, $name)
 	{

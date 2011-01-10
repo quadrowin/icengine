@@ -58,6 +58,7 @@ class Query_Translator_Mysql extends Query_Translator
 	 */
 	public function _quote ($value)
 	{
+//	    if (is_array ($value)) debug_print_backtrace();
         return self::SQL_QUOTE . mysql_real_escape_string ($value) . self::SQL_QUOTE;
 	}
 	

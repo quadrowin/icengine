@@ -160,7 +160,13 @@ class Debug
 		 * Вывод на экран трасировки
 		 * @var boolean
 		 */
-		'print_backtrace'				=> false
+		'print_backtrace'				=> false,
+		
+		/**
+		 * Стандартный лог PHP
+		 * @var boolean
+		 */
+		'phplog'						=> true
 	);
 	
 	/**
@@ -356,6 +362,12 @@ class Debug
 		}
 		$time = date ('Y-m-d H:i:s');
 		$text = is_scalar ($text) ? $text : var_export ($text, true);
+		
+		// В стандартный лог
+		if (self::$config ['phplog'])
+		{
+		    error_log ($text . PHP_EOL, E_USER_ERROR, 3);
+		}
 		
 		// В файл
 		if (self::$config ['files']['active'])

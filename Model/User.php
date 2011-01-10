@@ -144,6 +144,10 @@ class User extends Model
 	 */
 	public function hasRole (Acl_Role $role)
 	{
+	    if (!$role)
+	    {
+	        return false;
+	    }
 		return Helper_Link::wereLinked ($this, $role);
 	}
 	

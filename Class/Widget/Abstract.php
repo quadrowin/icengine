@@ -90,6 +90,20 @@ abstract class Widget_Abstract
     	$this->_output = $output;
     	return $this;
     }
+    
+    /**
+     * Получение шаблона вида
+     * "Название/Виджета/метод/$tpl.tpl"
+     * @param string $method __METHOD__
+     * @param string $tpl Шаблон
+     * @return string
+     */
+    public function tplFor ($method, $tpl)
+    {
+        return 
+            str_replace (array ('_', '::'), '/', $method) . 
+            '/' . $tpl . '.tpl';
+    }
 
     /**
      * Название виджета (без приставки "Widget_")

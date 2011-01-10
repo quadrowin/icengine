@@ -1,6 +1,6 @@
 <?php
 
-class PostedFile
+class Request_File
 {
 	
 	/**
@@ -55,7 +55,7 @@ class PostedFile
 	 * 
 	 * @param array $file элемент из $_FILES
 	 */
-	public function __construct ($file)
+	public function __construct (array $file)
 	{
 		$this->file = $file;
 		$this->name = $file ['name'];

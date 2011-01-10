@@ -11,6 +11,21 @@ class Request
 	public static $work_charset = 'utf-8';
 
 	/**
+	 * Проверка формата входных данных
+	 * @return boolean
+	 */
+	public static function altFilesFormat ()
+	{
+	    if (empty ($_FILES))
+	    {
+	        return false;
+	    }
+	    
+	    $f = reset ($_FILES);
+	    return is_array ($f ['name']);
+	}
+	
+	/**
 	 * Получение параметра GET 
 	 * @param string $name Имя параметра
 	 * @param mixed $default Значение по умолчанию
@@ -68,7 +83,7 @@ class Request
 	{
 		return (
 			isset ($_SERVER ['REQUEST_METHOD']) &&
-			$_SERVER ['REQUEST_METHOD'] == 'POST'
+            $_SERVER ['REQUEST_METHOD'] == 'POST'
 		);
 	}
 	
@@ -168,7 +183,7 @@ class Request
 		if (isset($_FILES[$name]) && !empty($_FILES[$name]['name']))
 		{
 			Loader::loadClass('PostedFile');
-			return new PostedFile($_FILES[$name]);
+			return new Request_File($_FILES[$name]);
 		}
 		else
 		{
@@ -181,28 +196,43 @@ class Request
 	 * 
 	 * @param integer $index
 	 * 		Индекс
-	 * @return PostedFile
+	 * @return Request_File
 	 * 		Переданный файл.
 	 * 		Если файлов меньше, чем указанный индекс - null.
 	 */
 	public static function fileByIndex ($index)
 	{
-		Loader::loadClass('PostedFile');
-		$files = array_values($_FILES);
-		return isset ($files [$index]) ? new PostedFile ($files [$index]) : null;
+		Loader::load ('Request_File');
+		$files = array_values ($_FILES);
+		if (!isset ($files [$index]))
+		{
+		    return null;
+		}
+		
+		if (is_array ($files [$index]['name']))
+		{
+		    $file = array ();
+		    foreach ($files [$index] as $field => $values)
+		    {
+		        $file [$field] = reset ($values);
+		    }
+		    return new Request_File ($file);
+		}
+		
+		return new Request_File ($files [$index]);
 	}
 	
 	/**
 	 * Возвращает массив объектов переданных файлов.
-	 * @return array PostedFile
+	 * @return array Request_File
 	 */
 	public static function files ()
 	{
-		Loader::loadClass('PostedFile');
+		Loader::load ('Request_File');
 		$result = array();
 		foreach ($_FILES as $name => $file)
 		{
-			$result[$name] = new PostedFile($file);
+			$result[$name] = new Request_File ($file);
 		}
 		return $result;
 	}

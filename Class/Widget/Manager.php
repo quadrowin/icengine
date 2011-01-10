@@ -116,10 +116,25 @@ class Widget_Manager
             $view = View_Render_Broker::pushViewByName ('Smarty');
             
             $view->pushVars ();
-            
-            $view->assign ($output->getAll ());
-            $result ['html'] = $view->fetch ($tpl);
-            
+            try
+            {
+                $view->assign ($output->getAll ());
+                $result ['html'] = $view->fetch ($tpl);
+                
+            }
+            catch (Exception $e)
+            {
+    		    $msg = 
+    		    	'[' . $e->getFile () . '@' . 
+    				$e->getLine () . ':' . 
+    				$e->getCode () . '] ' .
+    				$e->getMessage () . "\r\n";
+    				
+    		    error_log ($msg . PHP_EOL, E_USER_ERROR, 3);
+		    
+                $result ['error'] = '501 Server error.';
+                $result ['html'] = '';
+            }
             $view->popVars ();
             
             View_Render_Broker::popView ();

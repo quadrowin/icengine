@@ -1,6 +1,6 @@
 <?php
 
-class Common_Image_Resize
+class Helper_Image_Resize
 {
 	
 	/**

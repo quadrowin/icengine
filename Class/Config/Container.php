@@ -4,7 +4,7 @@ class Config_Container
 {
 	/**
 	 * 
-	 * @var array
+	 * @var Config_Array
 	 */
 	private $_config;
 	
@@ -35,7 +35,7 @@ class Config_Container
 	}
 	
 	/**
-	 * @return Config_Abstract
+	 * @return Config_Array
 	 */
 	public function config ()
 	{
@@ -71,16 +71,23 @@ class Config_Container
 	 */
 	public function load ()
 	{
-		$filename = rtrim ($this->_path, '/') . '/' . $this->_type . '/' . $this->_name . '.php';
+		$filename = 
+		    rtrim ($this->_path, '/') . '/' . 
+		    str_replace ('_', '/', $this->_type) . 
+		    ($this->_name ? '/' . $this->_name : '') . 
+		    '.php';
 		if (is_file ($filename))
 		{
-		    $config = null;
-			include_once ($filename);
-			if (isset ($config))
-			{
-				$this->_config = $config;
-				unset ($config);
-			}
+    	    Loader::load ('Common_File');
+    	    $ext = ucfirst (Common_File::extention ($filename));
+    	    $class = 'Config_' . $ext;
+    	    
+    	    if (!Loader::load ($class) || !file_exists ($filename))
+    	    {
+    	        $this->_config = Config_Manager::emptyConfig ();
+    	    }
+    	    
+    	    $this->_config = new $class ($filename);
 		}
 		return $this;
 	}

@@ -42,7 +42,7 @@ class Temp_Content extends Model
 	{
 		$utcode = self::genUtcode ();
 		
-		Loader::load ('Common_Date');
+		Loader::load ('Helper_Date');
 		$tc = new Temp_Content (array (
 			'time'			=> date ('Y-m-d H:i:s'),
 			'utcode'		=> $utcode,

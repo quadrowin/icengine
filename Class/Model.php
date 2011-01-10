@@ -130,6 +130,13 @@ abstract class Model
 					return $this->joint ($field);
 				}
 			}
+			
+//			if (!array_key_exists ($field, $this->_fields))
+//			{
+//			    Loader::load ('Model_Exception');
+//			    throw new Model_Exception ('Field ' . $field . ' not found.');
+//			    return null;
+//			}
 		}
 
 	    return $this->_fields [$field];

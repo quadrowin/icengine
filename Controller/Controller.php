@@ -3,6 +3,94 @@
 class Controller_Controller extends Controller_Abstract
 {
     
+    const DEFAULT_METHOD = 'index';
+    
+	public function ajax ()
+	{
+		$call = explode ('/', $this->_input->receive ('call'));
+		
+		$controller = $call [0];
+		$method = isset ($call [1]) ? $call [1] : self::DEFAULT_METHOD;
+		
+		Loader::load ('Data_Provider_Buffer');
+		$input_buffer = new Data_Provider_Buffer ();
+		
+		$params = (array) $this->_input->receive ('params');
+	    foreach ($params as $key => $value)
+        {
+        	$input_buffer->set ($key, $value);
+        }
+		
+		$input = new Data_Transport ();
+		$input->appendProvider ($input_buffer);
+		
+		$ca = new Controller_Action (array (
+            'controller'	=> $controller,
+		    'action'		=> $method,
+		    'input'			=> $input
+		));
+		
+		IcEngine::$application->frontController->getDispatcher ()->push ($ca);
+		
+		$ca = new Controller_Action (array (
+            'controller'	=> $this->name (),
+		    'action'		=> 'ajaxFinish'
+		));
+		
+		IcEngine::$application->frontController->getDispatcher ()->push ($ca);
+	}
+	
+	public function ajaxFinish ()
+	{
+	    $iterations = Controller_Broker::iterations ();
+	    $iteration = end ($iterations);
+	    Controller_Broker::flushResults ();
+	    	    
+        /**
+	     * 
+	     * @var $transaction Data_Transport_Transaction
+	     */
+	    $transaction = $iteration->getTransaction ();
+	    
+		$tpl = $iteration->getTemplate ();
+        
+        $result ['data'] = (array) $transaction->receive ('data');
+        
+        if ($tpl)
+        {
+            $view = View_Render_Broker::pushViewByName ('Smarty');
+            
+            $view->pushVars ();
+            try
+            {
+                $view->assign ($transaction->buffer ());
+                $result ['html'] = $view->fetch ($tpl);
+            }
+            catch (Exception $e)
+            {
+    		    $msg = 
+    		    	'[' . $e->getFile () . '@' . 
+    				$e->getLine () . ':' . 
+    				$e->getCode () . '] ' .
+    				$e->getMessage () . "\r\n";
+    				
+    		    error_log ($msg . PHP_EOL, E_USER_ERROR, 3);
+		    
+                $result ['error'] = '501 Server error.';
+                $result ['html'] = '';
+            }
+            $view->popVars ();
+            
+            View_Render_Broker::popView ();
+        }
+        else
+        {
+            $result ['html'] = '';
+        }
+        
+        $this->_output->send ($result);
+	}
+    
 	/**
 	 * 
 	 * @param boolean $with_actions

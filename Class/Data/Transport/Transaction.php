@@ -24,6 +24,16 @@ class Data_Transport_Transaction
     
     /**
      * 
+     * @param string $key
+     * @return mixed
+     */
+    public function receive ($key)
+    {
+        return isset ($this->_buffer [$key]) ? $this->_buffer [$key] : null;
+    }
+    
+    /**
+     * 
      * 
      * @param array|string $key
      * 		Ключ или массив пар (Ключ => Значение)

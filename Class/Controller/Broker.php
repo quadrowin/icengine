@@ -118,11 +118,11 @@ class Controller_Broker
 			self::$_input->appendProvider (new Data_Provider_Get ());
 		}
 		
-		if (Request::isFiles ())
-		{
-			Loader::load ('Data_Provider_Files');
-			self::$_input->appendProvider (new Data_Provider_Files ());
-		}
+//		if (Request::isFiles ())
+//		{
+//			Loader::load ('Data_Provider_Files');
+//			self::$_input->appendProvider (new Data_Provider_Files ());
+//		}
 	}
 	
 	/**

@@ -53,7 +53,7 @@ class Router
 		
 		$parts = (array) explode ('/', trim (self::$_route->route, '/'));
 
-		$len = max (sizeof ($route), sizeof ($parts));
+		$len = min (sizeof ($route), sizeof ($parts));
 		
 		for ($i = 0; $i < $len; $i++)
 		{

@@ -102,6 +102,10 @@ class Controller_Dispatcher
 		
 		// Инициализация транспортов
 		Controller_Broker::beforeAction ($controller);
+		if (isset ($controller_action->input))
+		{
+		    $controller->setInput ($controller_action->input);
+		}
 		
 		$this->_onDispatchIterationStart ($controller, $iteration, $method_name);
 		
@@ -236,7 +240,8 @@ class Controller_Dispatcher
 	{
 	    if (!$actions || !is_array ($actions))
 	    {
-	        throw new Exception ('Illegal type.');
+	        Loader::load ('Zend_Exception');
+	        throw new Zend_Exception ('Illegal type.');
 	        return;
 	    }
 	    

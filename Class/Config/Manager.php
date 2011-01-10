@@ -14,14 +14,32 @@ class Config_Manager
 	 */
 	protected static $_containers;
 	
+    /**
+     * Пустой конфиг
+     * @var Config_Array
+     */
+    protected static $_emptyConfig;
+	
 	/**
 	 * 
 	 * @param Config_Container $container
-	 * @return Config_Manager
 	 */
 	public static function appendContainer (Config_Container $container)
 	{
 		self::$_containers [$container->getType ()][$container->getName ()] = $container;
+	}
+	
+	/**
+	 * Пустой конфиг
+	 * @return Config_Array
+	 */
+	public static function emptyConfig ()
+	{
+	    if (!self::$_emptyConfig)
+	    {
+            self::$_emptyConfig = new self (array ());
+	    }
+	    return self::$_emptyConfig;
 	}
 	
 	/**
@@ -54,8 +72,9 @@ class Config_Manager
 	 * 
 	 * @param string $type
 	 * @param string $name
+	 * @return Config_Array
 	 */
-	public static function load ($type, $name)
+	public static function load ($type, $name = null)
 	{
 		Loader::load ('Config_Container');
 		$container = new Config_Container (
@@ -64,5 +83,6 @@ class Config_Manager
 			self::PATH_TO_CONFIG
 		);
 		self::appendContainer ($container);
+		return $container->config ();
 	}
 }
