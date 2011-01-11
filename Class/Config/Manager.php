@@ -37,7 +37,8 @@ class Config_Manager
 	{
 	    if (!self::$_emptyConfig)
 	    {
-            self::$_emptyConfig = new self (array ());
+	        Loader::load ('Config_Array');
+            self::$_emptyConfig = new Config_Array (array ());
 	    }
 	    return self::$_emptyConfig;
 	}
