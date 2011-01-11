@@ -3,7 +3,11 @@
 class Helper_Date
 {
     
+    const UNIX_DATE_FORMAT = 'Y-m-d';
+    
     const UNIX_FORMAT = 'Y-m-d H:i:s';
+    
+    const UNIX_TIME_FORMAT = 'H:i:s';
 	
     public static $daysRu = array (
         1 => array (

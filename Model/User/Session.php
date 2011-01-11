@@ -26,7 +26,8 @@ class User_Session extends Model
 	{
 		if (empty ($session_id))
 		{
-			throw new Exception ('Empty php session id received.');
+		    Loader::load ('Zend_Exception');
+			throw new Zend_Exception ('Empty php session id received.');
 		}
 		
 		$session = IcEngine::$modelManager->modelBy (

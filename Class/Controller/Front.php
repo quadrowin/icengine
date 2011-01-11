@@ -94,7 +94,6 @@ class Controller_Front
 		{
 			$this->_dispatcher = new $this->_defaultDispatcher;
 		}
-		
 		try 
 		{
 			Loader::load ('Controller_Broker');
@@ -103,6 +102,7 @@ class Controller_Front
 			$this->_dispatcher->dispathCircle ();
 			
 			View_Render_Broker::render (Controller_Broker::iterations ());
+			
 		}
 		catch (Zend_Exception $e)
 		{

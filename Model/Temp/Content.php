@@ -98,6 +98,21 @@ class Temp_Content extends Model
 		return 'uc' . md5 (time ()) . substr ($u, 9, 5) . substr ($u, 15);
 	}
 	
+	/**
+	 * 
+	 * @param Model $item
+	 * @param array $components
+	 * @return Temp_Content
+	 */
+	public function rejoinComponents (Model $item, array $components)
+	{
+	    foreach ($components as $component)
+	    {
+	        $this->component ($component)->rejoin ($item);
+	    }
+	    return $this;
+	}
+	
 }
 
 Model_Scheme::add ('Temp_Content', Temp_Content::$scheme);

@@ -74,12 +74,15 @@ class Controller_Broker
 		if (!($controller instanceof Controller_Abstract))
 		{
 		    $file = str_replace ('_', '/', $controller_name) . '.php';
+		    
 			if (!Loader::requireOnce ($file, 'Controller'))
 			{
 				Loader::load ('Controller_Exception');
 				throw new Controller_Exception ("Controller $class_name not found.");
 			}
+			
 			$controller = new $class_name;
+			
 			IcEngine::$application->
 				behavior->
 				resourceManager->

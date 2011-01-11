@@ -31,18 +31,11 @@ class Helper_Link
 	 */
 	public static function wereLinked (Model $model1, Model $model2)
 	{
-		if (strncmp (
-			$model1->table (), 
-			$model2->table (),
-			max (
-				strlen ($model1->table ()),
-				strlen ($model2->table ())
-			)) > 0
-		)
+		if (strcmp ($model1->table (), $model2->table ()) > 0)
 	    {
 	        $tmp = $model1;
 	        $model1 = $model2;
-	        $model2 = tmp;
+	        $model2 = $tmp;
 	    }
 	    
 	    $link = self::_link (
@@ -61,14 +54,7 @@ class Helper_Link
 	 */
 	public static function link (Model $model1, Model $model2)
 	{
-		if (strncmp (
-			$model1->table (), 
-			$model2->table (),
-			max (
-				strlen ($model1->table ()),
-				strlen ($model2->table ())
-			)) > 0
-		)
+		if (strcmp ($model1->table (), $model2->table ()) > 0)
 	    {
 	        $tmp = $model1;
 	        $model1 = $model2;
@@ -110,13 +96,7 @@ class Helper_Link
 	    $key_field_2 = IcEngine::$modelManager->modelScheme ()
 	        ->keyField ($model2);
 	    
-		if (strncmp (
-			$model1->table (), 
-			$model2, 
-			max (
-				strlen ($model1->table ()),
-				strlen ($model2)
-			)) > 0)
+		if (strcmp ($model1->table (), $model2) > 0)
 	    {
 	        $result
 	        	->query ()
@@ -147,11 +127,10 @@ class Helper_Link
 	 */
 	public static function unlink (Model $model1, Model $model2)
 	{
-	    if (strncmp ($model1->table (), $model2->table ()) > 0)
+	    if (strcmp ($model1->table (), $model2->table ()) > 0)
 	    {
-	        $tmp = $model1;
-	        $model1 = $model2;
-	        $model2 = tmp;
+	        $model1 = $tmp = $model2;
+	        $model2 = $tmp;
 	    }
 	    
 	    $link = self::_link (

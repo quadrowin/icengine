@@ -87,7 +87,7 @@ class Controller_Dispatcher
 		 * @var Controller_Abstract $current
 		 */
 		$controller = Controller_Broker::get ($controller_action->controller);
-
+        
 		$method_name = $controller_action->action ? 
 		    $controller_action->action : $this->_defaultAction;
 

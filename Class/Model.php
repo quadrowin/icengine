@@ -233,17 +233,35 @@ abstract class Model
 	 * 
 	 * @param string $type
 	 * 		Тип компонентов
-	 * @param integer $index 
+	 * @param integer|null|stdClass $index 
 	 * 		Коллекция
 	 * @return Component_Collection
 	 * 		Коллекция связанных компонентов
 	 */
-	public function component ($type, $index = null)
+	public function component ($type)
 	{
+	    $index = null;
+	    
+	    if (func_num_args () > 1)
+	    {
+	        $arg1 = func_get_arg (1);
+	        if (is_null ($arg1) || ($arg1 instanceof stdClass))
+	        {
+	            $this->_components [$type] = $arg1;
+	            return ;
+	        }
+	        
+	        if (is_int ($arg1))
+	        {
+	            $index = $arg1;
+	        }
+	    }
+	    
 	    if (!isset ($this->_components [$type]))
 	    {
 	        $this->_components [$type] = Component::getFor ($this, $type);
 	    }
+	    
 	    return is_null ($index) ? 
 	        $this->_components [$type] : 
 	        $this->_components [$type]->item ($index);
@@ -450,18 +468,24 @@ abstract class Model
 	 */
 	public function save ($hard_insert = false)
 	{
+	    $kf = $this->keyField ();
+	    
 		if ($this->key () && !$hard_insert)
 		{
 			DDS::execute (
 				Query::instance ()
 				->update ($this->table ())
 				->values ($this->_fields)
-				->where ($this->keyField (), $this->key ())
+				->where ($kf, $this->key ())
 			);
 		}
 		else
 		{
-			$this->_fields [$this->keyField ()] = DDS::execute (
+		    if (isset ($this->_fields [$kf]))
+		    {
+		        unset ($this->_fields [$kf]);
+		    }
+			$this->_fields [$kf] = DDS::execute (
 				Query::instance ()
 				->insert ($this->table ())
 				->values ($this->_fields)

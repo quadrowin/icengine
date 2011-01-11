@@ -136,11 +136,12 @@ class Loader
 		
 		if (false)
 		{
-    		echo '<pre>';
+    		echo '<pre>Not found: ' . $file . "\n";
     		echo 'Pathes: ';
     		var_dump (self::$pathes [$type]);
     		debug_print_backtrace ();
     		echo '</pre>';
+    		die();
 		}
 		
 		return false;
@@ -221,22 +222,35 @@ class Loader
 		return self::requireOnce ($file, $type);
 	}
 	
+	
 	/**
 	 * 
 	 * @param string $class
 	 * @param string $type
 	 * @return boolean
 	 */
-	public static function loadExtClass($class, $type = '')
+	public static function loadExtClass ($class, $type = '')
 	{
-		$class_name = empty($type) ? $class : $type . '_' . $class;
+		$class_name = empty ($type) ? $class : $type . '_' . $class;
 		
-		if (class_exists($class_name))
+		if (class_exists ($class_name))
 		{
 			return true;
 		}
 		
 		return self::requireOnce($class . '.php', $type);
+	}
+	
+	/**
+	 * @param $class
+	 * ...
+	 */
+	public static function multiLoad ()
+	{
+	    foreach (func_get_args () as $class)
+	    {
+	        self::load ($class);
+	    }
 	}
 	
 }

@@ -5,22 +5,14 @@ class Acl_Role extends Model
 	
 	const GUEST_ROLE_NAME	= 'guest';
 	
-	public static $scheme = array(
-		Query::FROM	    => __CLASS__,
-		Query::INDEX	=> array(
-			array ('name'),
-			array ('Acl_Role_Type__id'),
-			array ('Acl_Role_Type__id', 'name')
-		)
-	);
-	
 	/**
-	 * Предоставление роли права на ресурс.
+	 * Предоставление роли права на ресурс или ресурсы.
 	 * @param Acl_Resource $resource
 	 * @return Acl_Role
 	 */
 	public function attachResource (Acl_Resource $resource)
 	{
+	    Loader::load ('Helper_Link');
 	    foreach (func_get_args () as $res)
 	    {
 	        Helper_Link::link ($this, $res);
@@ -100,7 +92,7 @@ class Acl_Role extends Model
 		    $_ = func_get_args ();
 		}
 		
-		$resource = Acl_Resource::byNameParts ($_, true);
+		$resource = Acl_Resource::byNameAuto ($_);
 		
 		$this->attachResource ($resource);
 	}
@@ -128,6 +120,7 @@ class Acl_Role extends Model
 	 */
 	public function resourceAttached (Acl_Resource $resource)
 	{
+	    Loader::load ('Helper_Link');
 		return Helper_Link::wereLinked ($this, $resource);
 	}
 	
@@ -139,11 +132,11 @@ class Acl_Role extends Model
 	{
 		if (is_array ($_))
 		{
-			$resource = Acl_Resource::byNameParts ($_);
+			$resource = Acl_Resource::byNameCheck ($_);
 		}
 		else
 		{
-			$resource = Acl_Resource::byNameParts (func_get_args ());
+			$resource = Acl_Resource::byNameCheck (func_get_args ());
 		}
 		
 		if ($resource)
@@ -163,5 +156,3 @@ class Acl_Role extends Model
     }
 	
 }
-
-Model_Scheme::add ('Acl_Role', Acl_Role::$scheme);

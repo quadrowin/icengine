@@ -76,7 +76,7 @@ class Controller_Controller extends Controller_Abstract
     				
     		    error_log ($msg . PHP_EOL, E_USER_ERROR, 3);
 		    
-                $result ['error'] = '501 Server error.';
+    		    $this->_output->send ('error', 'Произола ошибка.');
                 $result ['html'] = '';
             }
             $view->popVars ();
@@ -88,7 +88,10 @@ class Controller_Controller extends Controller_Abstract
             $result ['html'] = '';
         }
         
-        $this->_output->send ($result);
+        $this->_output->send (array (
+            'back'		=> $this->_input->receive ('back'),
+        	'result'    => $result
+        ));
 	}
     
 	/**

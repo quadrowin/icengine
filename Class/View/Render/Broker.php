@@ -160,12 +160,35 @@ abstract class View_Render_Broker
 		    $transaction->commit ();
 		    
 			$template = $item->getTemplate ();
-		    
+			
+//			$view->pushVars ();
+//            
+//			try
+//			{
+//			    $result = $view->fetch ($template);
+//			}
+//			catch (Exception $e)
+//			{
+//			    $msg = 
+//    		    	'[' . $e->getFile () . '@' . 
+//    				$e->getLine () . ':' . 
+//    				$e->getCode () . '] ' .
+//    				$e->getMessage () . "\r\n";
+//    				
+//    			Debug::vardump ($msg);
+//    				
+//    		    error_log ($msg . PHP_EOL, E_USER_ERROR, 3);
+//    		    
+//    		    $result = '';
+//			}
+//			
+//			$view->popVars ();
+
+            $result = $view->fetch ($template);
+			
 			$view->assign (
-			    // TODO :: assign ()
-				isset ($action->assign) ? $action->assign : 'content',
-				$view->fetch ($template)
-			);
+			    isset ($action->assign) ? $action->assign : 'content',
+			    $result);
 		}
 		
 		Loader::load ('Message_After_Render');

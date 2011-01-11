@@ -7,7 +7,7 @@ class Controller_Widget extends Controller_Abstract
     
 	public function ajax ()
 	{
-		$widget = explode ('/', $this->_input->receive ('widget'));
+		$widget = explode ('/', $this->_input->receive ('call'));
 		
 		$method = isset ($widget [1]) ? $widget [1] : self::DEFAULT_METHOD;
 		$widget = $widget [0]; 
