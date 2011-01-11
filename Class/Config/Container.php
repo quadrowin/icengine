@@ -86,8 +86,14 @@ class Config_Container
     	    {
     	        $this->_config = Config_Manager::emptyConfig ();
     	    }
-    	    
-    	    $this->_config = new $class ($filename);
+    	    else
+    	    {
+    	        $this->_config = new $class ($filename);
+    	    }
+		}
+		else
+		{
+		    $this->_config = Config_Manager::emptyConfig ();
 		}
 		return $this;
 	}
