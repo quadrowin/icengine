@@ -399,7 +399,7 @@ class Model_Manager
 	    {
 	        if (!$query->getPart (Query::SELECT))
 	        {
-	            $query->select ('*');
+	            $query->select ("$model.*");
 	        }
 	        if (!$query->getPart (Query::FROM))
 	        {

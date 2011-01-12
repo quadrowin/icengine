@@ -78,10 +78,11 @@ class Config_Manager
 	public static function load ($type, $name = null)
 	{
 		Loader::load ('Config_Container');
+		
 		$container = new Config_Container (
 			$name,
 			$type,
-			self::PATH_TO_CONFIG
+			Ice_Implementator::path () . '../' . self::PATH_TO_CONFIG
 		);
 		self::appendContainer ($container);
 		return $container->config ();

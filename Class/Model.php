@@ -357,6 +357,24 @@ abstract class Model
 	}
 	
 	/**
+	 * @return boolean
+	 */
+	public function hasField ($field)
+	{
+	    if (!isset ($this->_fields))
+	    {
+	        if ($this->_loaded)
+	        {
+	            return false;
+	        }
+	        
+	        $this->load ();
+	    }
+	    
+	    return isset ($this->_fields [$field]);
+	}
+	
+	/**
 	 * 
 	 * @param string $model
 	 * @param array $data

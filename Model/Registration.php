@@ -67,8 +67,8 @@ class Registration extends Model
 	
 	public static function loadConfig ()
 	{
-        Loader::load ('Config_Array');
-        $cfg = Config_Array::load ('config/Registration.php');
+        Loader::load ('Config_Manager');
+        $cfg = Config_Manager::load ('Registration');
         self::$config = $cfg->mergeConfig (self::$config);
 	}
 	
@@ -149,11 +149,11 @@ class Registration extends Model
 		    $data ['email'], $data ['password'], 
 		    self::$config ['autoactive'], $data);
 		
-		Loader::load ('Common_Date');
+		Loader::load ('Helper_Date');
 		$registration = new Registration (array (
 			'User__id'	=> $user->id,
 			'email'		=> $data ['email'],
-			'time'		=> date ('Y-m-d H:i:s'),
+			'time'		=> date (Helper_Date::UNIX_FORMAT),
 			'ip'		=> Request::ip (),
 			'day'		=> Helper_Date::eraDayNum (),
 			'finished'		=> 0,
@@ -251,4 +251,3 @@ class Registration extends Model
 }
 
 Registration::loadConfig ();
-Model_Scheme::add ('Registration', Registration::$scheme);
