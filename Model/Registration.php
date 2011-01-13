@@ -49,7 +49,7 @@ class Registration extends Model
 	    'fields'	=> array (
 	        'email'		=> array (
 	        	'type'	=> 'string',
-	            'minLenght'	=> 5,
+	            'minLength'	=> 5,
 	            'maxLength'	=> 40,
 	            'value'		=> 'input',
 	            'validators'	=> array (

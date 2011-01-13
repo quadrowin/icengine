@@ -25,7 +25,13 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 	 * Опции
 	 * @var Model_Collection_Option_Item_Collection
 	 */
-	protected $_options = null;
+	protected $_options;
+	
+	/**
+	 * 
+	 * @var Paginator
+	 */
+	protected $_paginator;
 	
 	/**
 	 * Выбираемые поля
@@ -272,6 +278,14 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
         return new ArrayIterator ($this->_items);
     }
     
+    /**
+     * @return Paginator
+     */
+    public function getPaginator ()
+    {
+        return $this->_paginator;
+    }
+    
 	/**
 	 * Возвращает модель из коллекции
 	 * @param integer $index Индекс
@@ -452,10 +466,23 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 		    }
 		}
 		
+		if ($this->_paginator)
+		{
+		    $query->calcFoundRows ();
+		    $query->limit (
+		        $this->_paginator->pageLimit,
+		        $this->_paginator->offset ());
+		}
+		
 		$this->_options->executeBefore ($this, $query);
 		$this->_lastQuery = $query;
 		$this->_queryResult = DDS::execute ($query)->getResult ();
 		$this->_items = $this->_queryResult->asTable ();
+		
+		if ($this->_paginator)
+		{
+		    $this->_paginator->fullCount = $this->queryResult ()->foundRows ();
+		}
 		
 		$model = $this->modelName ();
 		
@@ -580,6 +607,16 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
         $this->_autojoin = $value;
         return $this;
     }
+    
+	/**
+	 * 
+	 * @param Paginator $paginator
+	 */
+	public function setPaginator (Paginator $paginator)
+	{
+		$this->_paginator = $paginator;
+		$this->_paginator->fullCount = 0;
+	}
     
     /**
      * @return Model|null

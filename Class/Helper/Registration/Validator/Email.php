@@ -9,7 +9,7 @@ class Helper_Registration_Validator_Email
 	
 	const EMAIL_REPEAT		= 'emailRepeat';     // Уже используется
     
-    public static function validate (stdClass $data, $name)
+    public static function validate (stdClass $data, $name, array $info)
     {
 		if (empty ($data->email))
 		{
@@ -20,7 +20,7 @@ class Helper_Registration_Validator_Email
 		
 		if (
 		    !filter_var ($email, FILTER_VALIDATE_EMAIL) ||
-		    strlen ($email) > 40
+		    strlen ($email) > $info ['maxLength']
 		)
 		{
 		    return self::EMAIL_INCORRECT;
