@@ -226,25 +226,32 @@ class Registration extends Model
 	 * 		Registration::OK если валидация пройдена успешно,
 	 * 		иначе код ошибки.
 	 */
-	public static function validate (array $data)
+	public static function validate (array &$data)
 	{
+	    $obj_data = (object) $data;
+	    
 	    foreach (self::$config ['validators'] as $name => $validator)
 	    {
 	        if (!Loader::load ($validator))
 	        {
-	            die ();
-//	            Loader::load ('Zend_Exception');
-//	            throw new Zend_Exception ('Unable to load registration validator: ' . $validator);
+	            Loader::load ('Zend_Exception');
+	            throw new Zend_Exception (
+	            	'Unable to load registration validator: ' . $validator);
+	            return self::FAIL;
 	        }
+	        
 	        $result = call_user_func (
 	            array ($validator, 'validate'),
-	            &$data, $name);
+	            $obj_data, $name
+	        );
 	            
 	        if ($result != self::OK)
 	        {
 	            return $result;
 	        }
 	    }
+	    
+	    $data = (array) $obj_data;
 	    return self::OK;
 	}
 	

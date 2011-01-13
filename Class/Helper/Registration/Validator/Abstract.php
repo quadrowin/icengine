@@ -14,7 +14,7 @@ class Helper_Registration_Validator_Abstract
      * 		Должно вернуть Registration::OK в случае успеха,
      * 		либо код ошибки.
      */
-    public static function validate (array &$data, $name)
+    public static function validate (stdClass $data, $name)
     {
         return Registration::OK;
     }

@@ -9,15 +9,14 @@ class Helper_Registration_Validator_Email
 	
 	const EMAIL_REPEAT		= 'emailRepeat';     // Уже используется
     
-    public static function validate (array &$data, $name)
+    public static function validate (stdClass $data, $name)
     {
-		if (empty ($data ['email']))
+		if (empty ($data->email))
 		{
 			return self::EMAIL_EMPTY;
 		}
 		
-		$data ['email'] = trim ($data ['email']);
-		$email = $data ['email'];
+		$email = $data->email = trim ($data->email);
 		
 		if (
 		    !filter_var ($email, FILTER_VALIDATE_EMAIL) ||

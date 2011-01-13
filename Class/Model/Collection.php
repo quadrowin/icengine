@@ -40,6 +40,12 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 	protected $_query;
 	
 	/**
+	 * 
+	 * @var Query_Result
+	 */
+	protected $_queryResult;
+	
+	/**
 	 * Условия
 	 * @var array
 	 */
@@ -55,7 +61,7 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 	
 	/**
 	 * 
-	 * @param mixed $item
+	 * @param Model|Model_Collection|array $item
 	 * @return Model_Collection
 	 * @throws Zend_Exception
 	 */
@@ -429,8 +435,8 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 		}
 		
 		$this->_options->executeBefore ($this, $query);
-		
-		$this->_items = DDS::execute ($query)->getResult ()->asTable ();
+		$this->_queryResult = DDS::execute ($query)->getResult ();
+		$this->_items = $this->_queryResult->asTable ();
 		
 		$model = $this->modelName ();
 		
@@ -521,6 +527,7 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
     }
     
     /**
+     * Устанавливает автоджойн моделей для создаваемых объектов.
      * 
      * @param boolean $value
      * @return Model_Collection
@@ -549,6 +556,18 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 			$this->_query = Query::instance ();
 		}
 		return $this->_query;
+	}
+	
+	/**
+	 * @return Query_Result
+	 */
+	public function queryResult ()
+	{
+	    if (!$this->_queryResult)
+	    {
+	        $this->load ();
+	    }
+	    return $this->_queryResult;
 	}
 	
 	/**
