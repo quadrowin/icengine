@@ -48,7 +48,17 @@ class Query_Translator_Mysql extends Query_Translator
 	 */
 	public function _escape ($value)
 	{
-		return self::SQL_ESCAPE . mysql_real_escape_string($value) . self::SQL_ESCAPE;
+		if (
+			strpos ($value, self::SQL_WILDCARD) === false &&
+			strpos ($value, '(') === false &&
+			strpos ($value, ' ') === false && 
+			strpos ($value, '.') === false &&
+			strpos ($value, '`') === false
+		)
+		{
+			return self::SQL_ESCAPE . mysql_real_escape_string($value) . self::SQL_ESCAPE;
+		}
+		return $value;
 	}
 	
 	/**
