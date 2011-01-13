@@ -332,4 +332,34 @@ class Helper_Date
 		return mktime((int) $arr[0], (int) $arr[1], (int) $arr[2]);
 	}
 	
+	/**
+	 * @desc Преобразует дату в 24 февряли 2010 (?) года
+	 * @param string $date
+	 * @return string
+	 */
+	public static function toCasualDate ($date)
+	{
+		$date = date ('Y-m-d', strtotime ($date));
+		
+		if ($date >= 0)
+		{
+			list (
+				$year,
+				$month,
+				$day
+			) = explode ('-', $date);
+			
+			$currentYear = date ('Y');
+			
+			$result = 
+				(int) $day . 
+				'&nbsp' . 
+				self::$monthesRu [2][(int) $month] .
+				($year != $currentYear ? ' ' . $year : '');
+				
+			return $result;
+			
+		}
+	}
+	
 }
