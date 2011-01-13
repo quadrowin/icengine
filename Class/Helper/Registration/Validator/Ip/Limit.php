@@ -7,7 +7,7 @@ class Helper_Registration_Validator_Ip_Limit
     
     public static function validate ()
 	{
-	    Loader::load ('Common_Date');
+	    Loader::load ('Helper_Date');
 		$regs = IcEngine::$modelManager->collectionBy (
 		    'Registration',
 		    Query::instance ()

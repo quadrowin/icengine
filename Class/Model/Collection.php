@@ -37,6 +37,12 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 	 * 
 	 * @var Query
 	 */
+	protected $_lastQuery;
+	
+	/**
+	 * 
+	 * @var Query
+	 */
 	protected $_query;
 	
 	/**
@@ -394,6 +400,18 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 	}
 	
 	/**
+	 * @return Query
+	 */
+	public function lastQuery ()
+	{
+	    if (!$this->_lastQuery)
+	    {
+	        $this->load ();
+	    }
+	    return $this->_lastQuery;
+	}
+	
+	/**
 	 * Загрузка данных 
 	 * @return Model_Collection
 	 */
@@ -435,6 +453,7 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 		}
 		
 		$this->_options->executeBefore ($this, $query);
+		$this->_lastQuery = $query;
 		$this->_queryResult = DDS::execute ($query)->getResult ();
 		$this->_items = $this->_queryResult->asTable ();
 		
@@ -508,6 +527,30 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
     {
         return isset ($this->_items[$offset]) ? $this->_items[$offset] : null;
     }
+    
+	/**
+	 * @return Query
+	 */
+	public function query ()
+	{
+		if (!$this->_query)
+		{
+			$this->_query = Query::instance ();
+		}
+		return $this->_query;
+	}
+	
+	/**
+	 * @return Query_Result
+	 */
+	public function queryResult ()
+	{
+	    if (!$this->_queryResult)
+	    {
+	        $this->load ();
+	    }
+	    return $this->_queryResult;
+	}
 
     /**
      * Очищает коллекцию.
@@ -545,30 +588,6 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
     {
     	return array_shift ($this->_items);
     }
-	
-	/**
-	 * @return Query
-	 */
-	public function query ()
-	{
-		if (!$this->_query)
-		{
-			$this->_query = Query::instance ();
-		}
-		return $this->_query;
-	}
-	
-	/**
-	 * @return Query_Result
-	 */
-	public function queryResult ()
-	{
-	    if (!$this->_queryResult)
-	    {
-	        $this->load ();
-	    }
-	    return $this->_queryResult;
-	}
 	
 	/**
 	 * 

@@ -305,19 +305,28 @@ class Query {
 	
 	/**
 	 * 
-	 * @param string $part
+	 * @param string|array $parts
 	 * @return Query
 	 */
-	public function resetPart($part)
+	public function resetPart ($parts)
 	{
-		if (isset (self::$_defaults[$part]))
-		{
-			$this->_parts[$part] = self::$_defaults[$part];
-		}
-		else
-		{
-			unset ($this->_parts[$part]);
-		}
+	    if (!is_array ($parts))
+	    {
+	        $parts = func_get_args ();
+	    }
+	    
+	    foreach ($parts as $part)
+	    {
+    		if (isset (self::$_defaults [$part]))
+    		{
+    			$this->_parts [$part] = self::$_defaults [$part];
+    		}
+    		else
+    		{
+    			unset ($this->_parts [$part]);
+    		}
+	    }
+	    
 		return $this;
 	}
 	

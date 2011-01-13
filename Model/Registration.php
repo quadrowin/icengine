@@ -17,42 +17,61 @@ class Registration extends Model
 	     * @var function (Registration)
 	     */
 	    'after_confirm'	=> null,
+	    
 	    /**
 	     * Событие после создания регистрации
 	     * @var function (Registration, array) boolean
 	     */
 	    'after_create'	=> null,
+	    
 	    /**
 	     * Автоактивация (не требует активации по email).
 	     * @var boolean
 	     */
 	    'autoactive'	=> false,
+	    
 	    /**
 	     * Отсылать сообщение.
 	     * @var boolean
 	     */
 	    'sendmail'		=> true,
+	    
 	    /**
 	     * Ограничение на количество регистраций с одного ИП в день
 	     * @var integer
 	     */
 	    'ip_day_limit'	=> 20,
+	    
 	    /**
 	     * Поля.
 	     * @var array
 	     */
 	    'fields'	=> array (
-	        'email'		=> 'varchar(40)',
-	        'password'	=> 'varchar(250)'
-	    ),
-	    /**
-	     * Валидаторы для проверки регистрационных данных
-	     * @var array
-	     */
-	    'validators'		=> array (
-	    	'email'     => 'Helper_Registration_Validator_Email',
-	    	'password'	=> 'Helper_Registration_Validator_Password',
-	        'ip'		=> 'Helper_Registration_Validator_Ip_Limit'
+	        'email'		=> array (
+	        	'type'	=> 'string',
+	            'minLenght'	=> 5,
+	            'maxLength'	=> 40,
+	            'value'		=> 'input',
+	            'validators'	=> array (
+	            	'Helper_Registration_Validator_Email'
+	            )
+	        ),
+	        'password'	=> array (
+	        	'type'	=> 'string',
+	            'minLength'	=> 6,
+	            'maxLength'	=> 250,
+	            'value'	=> 'input',
+	            'validators'	=> array (
+	                'Helper_Registration_Validator_Password'
+	            )
+	        ),
+	        'ip'	=> array (
+	            'maxTries'	=> 10,
+	        	'value'	    => array ('Request', 'ip'),
+	            'validators'	=> array (
+	        		'Helper_Registration_Validator_Ip_Limit'
+	            )
+	        )
 	    )
 	);
 	
@@ -219,8 +238,7 @@ class Registration extends Model
 	}
 	
 	/**
-	 * 
-	 * Enter description here ...
+	 * Проверка полей формы регистрации
 	 * @param array $data
 	 * @return mixed
 	 * 		Registration::OK если валидация пройдена успешно,
@@ -230,28 +248,36 @@ class Registration extends Model
 	{
 	    $obj_data = (object) $data;
 	    
-	    foreach (self::$config ['validators'] as $name => $validator)
+	    foreach (self::$config ['fields'] as $name => $info)
 	    {
-	        if (!Loader::load ($validator))
-	        {
-	            Loader::load ('Zend_Exception');
-	            throw new Zend_Exception (
-	            	'Unable to load registration validator: ' . $validator);
-	            return self::FAIL;
-	        }
+	        $validators = isset ($info ['validators']) ? 
+	            (array) $info ['validators'] :
+	            array ();
 	        
-	        $result = call_user_func (
-	            array ($validator, 'validate'),
-	            $obj_data, $name
-	        );
-	            
-	        if ($result != self::OK)
+	        foreach ($validators as $validator)
 	        {
-	            return $result;
+    	        if (!Loader::load ($validator))
+    	        {
+    	            Loader::load ('Zend_Exception');
+    	            throw new Zend_Exception (
+    	            	'Unable to load registration validator: ' . $validator);
+    	            return self::FAIL;
+    	        }
+    	        
+    	        $result = call_user_func (
+    	            array ($validator, 'validate'),
+    	            $obj_data, $name, $info
+    	        );
+    	            
+    	        if ($result != self::OK)
+    	        {
+    	            return $result;
+    	        }
 	        }
 	    }
 	    
 	    $data = (array) $obj_data;
+	    
 	    return self::OK;
 	}
 	
