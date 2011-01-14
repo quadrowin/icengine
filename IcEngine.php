@@ -4,10 +4,16 @@ class IcEngine
 {
 	
 	/**
-	 * Путь до движка
+	 * Путь до движка.
 	 * @var string
 	 */
 	private static $_path;
+	
+	/**
+	 * Путь до корня сайта.
+	 * @var string
+	 */
+	private static $_root;
 	
 	/**
 	 * Приложение
@@ -109,7 +115,6 @@ class IcEngine
 	
 	/**
 	 * Путь до корня движка
-	 * 
 	 * @return string
 	 */
 	public static function path ()
@@ -119,11 +124,21 @@ class IcEngine
 	}
 	
 	/**
+	 * Путь до корня сайта
+	 * @return string
+	 */
+	public static function root ()
+	{
+	    return self::$_root;
+	}
+	
+	/**
 	 * Инициализация лоадера
 	 */
-	public static function init ()
+	public static function init ($path = null)
 	{
 		self::$_path = dirname (__FILE__) . '/';
+		self::$_root = $path ? $path : self::$_path . '../';
 		
 		if (!class_exists ('Loader'))
 		{

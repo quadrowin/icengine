@@ -58,7 +58,8 @@ class Controller_Dispatcher_Iteration
         
         if ($action)
         {
-            $this->_template = 
+            $this->_template =
+                'Controller/' .
     			str_replace ('_', '/', $action->controller) . '/' .
     			$action->action . '.tpl';
         }

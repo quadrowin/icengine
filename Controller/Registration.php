@@ -42,19 +42,60 @@ class Controller_Registration extends Controller_Abstract
 		{
 		    IcEngine::$application->frontController->getDispatcher ()
 		        ->currentIteration ()->setTemplate (
-		        	$this->name () . '/emailConfirm/fail_code_uncorrect.tpl');
+		            str_replace (array ('::', '_'), '/', __METHOD__) .
+		        	'/fail_code_uncorrect.tpl');
 		    return false;    
 		}
 		elseif ($this->registration->finished)
 		{
 			IcEngine::$application->frontController->getDispatcher ()
 		        ->currentIteration ()->setTemplate (
-		        	$this->name () . '/emailConfirm/fail_already_finished.tpl');
+		            str_replace (array ('::', '_'), '/', __METHOD__) .
+		        	'/fail_already_finished.tpl');
 		    return false;
 		}
 		
 		$this->registration->finish ();
 		return true;
 	}
+	
+    public function postForm ()
+    {
+        $data = array ();
+        if (Registration::$config ['fields'])
+        {
+            foreach (Registration::$config ['fields'] as $field => $info)
+            {
+                if ($info ['value'] == 'input')
+                {
+                    $data [$field] = substr (
+                        $this->_input->receive ($field), 0, 200);
+                }
+                elseif (is_array ($info ['value']))
+                {
+                    $data [$field] = call_user_func ($info ['value']);
+                }
+            }
+        }
+        
+        $result = Registration::tryRegister ($data);
+        
+        $this->_template = 
+            IcEngine::$application->frontController->getDispatcher ()
+		    ->currentIteration ()->setTemplate (
+                $this->name () . '/postForm' .
+                //str_replace (array ('_', '::'), '/', __METHOD__) . 
+                '/' . 
+                $result . '.tpl');
+        
+        $this->_output->send ('result', $result);
+        
+        if ($result == Registration::OK)
+        {
+            $this->_output->send ('data', array (
+            	'removeForm'	=> true
+            ));
+        }
+    }
 	
 }

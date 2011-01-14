@@ -21,7 +21,8 @@ class Controller_Password_Recovery extends Controller_Abstract
 				    ->getDispatcher ()
 				    ->currentIteration ()
 				    ->setTemplate (
-						'Password/Recovery/index/code_ok.tpl');
+				        str_replace (array ('::', '_'), '/', __METHOD__) .
+						'/code_ok.tpl');
 				return ;
 			}
 			else
@@ -31,7 +32,8 @@ class Controller_Password_Recovery extends Controller_Abstract
 			        ->getDispatcher ()
 			        ->currentIteration ()
 			        ->setTemplate (
-			            'Password/Recovery/index/code_fail.tpl');
+			            str_replace (array ('::', '_'), '/', __METHOD__) .
+			            '/code_fail.tpl');
 				return ;
 			}
 		}

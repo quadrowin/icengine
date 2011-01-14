@@ -211,6 +211,21 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 	}
 	
 	/**
+	 * Исключает из коллекции элемент с указанным индексом.
+	 * @param integer $index
+	 * 		Индекс элемента в списке.
+	 * @return Model_Collection
+	 */
+	public function exclude ($index)
+	{
+		if (is_array ($this->items) && isset ($this->items [$index]))
+		{
+			unset ($this->items [$index]);
+		}
+		return $this;
+	}
+	
+	/**
 	 * @return Model
 	 */
 	public function first ()

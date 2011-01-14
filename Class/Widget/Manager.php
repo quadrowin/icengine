@@ -130,7 +130,11 @@ class Widget_Manager
     				$e->getCode () . '] ' .
     				$e->getMessage () . "\r\n";
     				
-    		    error_log ($msg . PHP_EOL, E_USER_ERROR, 3);
+    		    error_log (
+    		        $msg . PHP_EOL .
+    		        $e->getTraceAsString () . PHP_EOL, 
+    		        E_USER_ERROR, 3
+    		    );
 		    
                 $result ['error'] = '501 Server error.';
                 $result ['html'] = '';

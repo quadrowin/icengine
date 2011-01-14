@@ -70,10 +70,34 @@ function internalErrorHandler_DebugClass ($errno, $errstr, $errfile, $errline)
 	return true;
 }
 
+function internalErrorHandler_hide ($errno, $errstr, $errfile, $errline)
+{
+	//echo '['.$errno.':'.$errfile.'@'.$errline.'] '.$errstr."\n<br />";
+	return true;
+}
+
+function internalErrorHandler_ignore ($errno, $errstr, $errfile, $errline)
+{
+    return true;
+}
+
+function internal_exception_handler_ignore ($exception)
+{
+    echo "Uncaught exception: " , $exception->getMessage (), "\n";
+}
+
 class Debug
 {
 	
 	const DEFAULT_TABLE = 'log';
+	
+	const ERROR_HANDLER_INNER = 'DebugClass';
+	
+	const ERROR_HANDLER_HIDE = 'hide';
+	
+	const ERROR_HANDLER_IGNORE = 'ignore';
+	
+	const EXCEPTION_HANDLER_IGNORE = 'ignore';
 	
 	public static $config = array (
 	
@@ -185,12 +209,6 @@ class Debug
 		ini_set ('html_errors', false);
 		ini_set ('track_errors', true);
 		
-		function internalErrorHandler_hide ($errno, $errstr, $errfile, $errline)
-		{
-			//echo '['.$errno.':'.$errfile.'@'.$errline.'] '.$errstr."\n<br />";
-			return true;
-		}
-		
 		set_error_handler ('internalErrorHandler_hide');
 	}
 	
@@ -215,6 +233,18 @@ class Debug
 		set_error_handler ("internalErrorHandler_DebugClass");
 	}
 	
+	public static function printr ($var)
+	{
+	    echo '<pre>';
+	    
+	    foreach (func_get_args () as $arg)
+	    {
+	        echo print_r ($arg, true);
+	    }
+	    
+	    echo '</pre>';
+	}
+	
 	/**
 	 * 
 	 * @param mixed $var
@@ -224,13 +254,13 @@ class Debug
 	{
 		echo '<pre>';
 		
-		if (!empty($name))
+		if (!empty ($name))
 		{
 			echo $name . ' =&gt; ';
 		}
 		
 		echo str_replace (
-			array(
+			array (
 				"=>\n",
 				"=> \n"
 			),
@@ -239,6 +269,31 @@ class Debug
 		);
 		
 		echo '</pre>';
+	}
+	
+	public static function popErrorHandler ()
+	{
+	    restore_error_handler ();
+	}
+	
+	public static function popExceptionHandler ()
+	{
+	    restore_exception_handler ();
+	}
+	
+	public static function pushErrorHandler ($type)
+	{
+	    error_reporting (null);
+		ini_set ('display_errors', false);
+		ini_set ('html_errors', false);
+		ini_set ('track_errors', false);
+		
+		set_error_handler ('internalErrorHandler_' . $type);
+	}
+	
+	public static function pushExceptionHandler ($type)
+	{
+	    set_exception_handler ('internal_exception_handler_' . $type);
 	}
 	
 	/**

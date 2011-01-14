@@ -9,8 +9,6 @@
 function smarty_function_Helper (array $params, Smarty $smarty)
 {
     $helper = $params ['call'];
-    $class = 'View_Helper_' . $helper;
-	Loader::load ($class);
-	$helper = new $class ();
-	return $helper->get ($params);
+    Loader::load ('View_Helper_Manager');
+    return View_Helper_Manager::get ($helper, $params);
 }

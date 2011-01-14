@@ -17,9 +17,9 @@ class View_Helper_Plural extends View_Helper_Abstract
 	{
         $plural = ($n % 10 == 1 && $n % 100 != 11 ? 0 : ($n % 10 >= 2 && $n % 10 <= 4 && ($n % 100 < 10 or $n % 100 >= 20) ? 1 : 2));
         
-        if (isset ($forms[$plural]))
+        if (isset ($forms [$plural]))
         {
-        	return $forms[$plural];
+        	return $forms [$plural];
         }
         
         reset ($forms);
@@ -53,10 +53,10 @@ class View_Helper_Plural extends View_Helper_Abstract
 		{
 			case 1:
 				$word = $morphy->castFormByGramInfo ($word, null, array ('ЕД', 'РД'));
-				return $word[0];
+				return $word [0];
 			case 2:
 				$word = $morphy->castFormByGramInfo ($word, null, array ('МН', 'РД'));
-				return $word[0];
+				return $word [0];
 		}
 		
 		return $word;
@@ -66,25 +66,25 @@ class View_Helper_Plural extends View_Helper_Abstract
 	 * Выбирает подходящую форму для числа
 	 * 
 	 * @param array $params
-	 * 		$params['value'] integer
+	 * 		$params ['value'] integer
 	 * 		Число
-	 *  	$params['forms'] string
+	 *  	$params ['forms'] string
 	 *  	Формы слова, разделенные запятой ('день,дня,дней')
 	 *  @return string
 	 *  	Слово в подходящей форме
 	 */
 	public function get (array $params)
 	{
-		$value = (int) $params['value'];
+		$value = (int) $params ['value'];
 		
-		$forms = explode (',', $params['forms']);
+		$forms = explode (',', $params ['forms']);
 		
 		if (count ($forms) > 1)
 		{
 			return $this->_pluralDefault ($value, $forms);
 		}
 		
-		return $this->_pluralMorphy ($value, $forms[0]);
+		return $this->_pluralMorphy ($value, $forms [0]);
 	}
 	
 }

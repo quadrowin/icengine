@@ -3,9 +3,10 @@
 class Authorization
 {
     
-    const LOGIN_FIELD = 'email';
-    
-    const PASSWORD_FIELD = 'password';
+    public static $config = array (
+        'login_field'	    => 'email',
+        'password_field'	=> 'password'
+    );
     
     /**
      * 
@@ -18,10 +19,10 @@ class Authorization
         return IcEngine::$modelManager->modelBy (
             'User',
             Query::instance ()
-            ->where (self::LOGIN_FIELD, $login)
-            ->where (self::PASSWORD_FIELD, $password)
+            ->where (self::$config ['login_field'], $login)
+            ->where (self::$config ['password_field'], $password)
             ->where ('active=1')
-            ->order (self::LOGIN_FIELD)
+            ->order (self::$config ['login_field'])
             ->limit (1, 0)
         );
     }
