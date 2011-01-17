@@ -17,7 +17,7 @@ class Router
 		return self::$_route;
 	}
 	
-	public static function initRoute ()
+	public static function parse () 
 	{
 		//$url = ltrim (Request::uri (), self::$_prefixPart);
 		$url = Request::uri ();
