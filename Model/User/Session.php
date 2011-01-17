@@ -8,14 +8,6 @@ class User_Session extends Model
      * @var User_Session
      */
     protected static $_current = null;
-    
-	public static $scheme = array (
-		Query::FROM	    => __CLASS__,
-		Query::INDEX	=> array (
-			array ('phpSessionId'),
-			array ('User__id')
-		)
-	);
 	
 	/**
 	 * 
@@ -73,6 +65,7 @@ class User_Session extends Model
 	 */
 	public function updateSession ()
 	{
+		Debug::vardump($this->_fields);
 	    return $this->update (array (
 	        'User__id'	    => $this->User__id,
 	        'lastActive'	=> date ('Y-m-d H:i:s')
@@ -80,5 +73,3 @@ class User_Session extends Model
 	}
 	
 }
-
-Model_Scheme::add ('User_Session', User_Session::$scheme);
