@@ -154,7 +154,7 @@ class Helper_Array
 	        foreach ($array as $key => $value)
 	        {
 	            // Numeric keyed values are added (unless already there)
-	            if (is_numeric ($key) && (!in_array ($value, $return)))
+	            if (is_numeric ($key) && !in_array ($value, $return))
 	            {
 	                if (is_array ($value))
 	                {
@@ -164,11 +164,10 @@ class Helper_Array
 	                {
 	                    $return [] = $value;
 	                }
-	               
-	            // String keyed values are replaced
 	            }
 	            else
 	            {
+	            	// String keyed values are replaced
 	                if (isset ($return [$key]) && is_array ($value) && is_array ($return [$key]))
 	                {
 	                    $return [$key] = self::mergeReplaceRecursive ($return [$key], $value);
