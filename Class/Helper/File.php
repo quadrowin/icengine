@@ -1,12 +1,12 @@
 <?php
 
-class Common_File
+class Helper_File
 {
 	
 	/**
 	 * Возвращает расширение файла
 	 * 
-	 * @param $filename
+	 * @param $filename    
 	 * 		Имя файла
 	 * @return string
 	 * 		Расширение

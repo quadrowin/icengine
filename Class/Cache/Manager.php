@@ -1,16 +1,21 @@
 <?php
 
+/**
+ * 
+ * @package IcEngine
+ *
+ */
 class Cache_Manager
 {
 
     /**
-     * Кэшеры.
+     * @desc Кэшеры.
      * @var array <Data_Provider_Abstract>
      */
     protected static $_cachers = array ();
     
     /**
-     * 
+     * @desc Получить кэшеров класса
      * @param string $class
      * @return Data_Provider_Abstract
      */
@@ -24,11 +29,11 @@ class Cache_Manager
     }
     
     /**
-     * 
+     * @desc загрузить конфиг кэшеров
      * @param string $file
      * @return Cache_Options
      */
-    public static function load ($file)
+    public static function loadConfig ($file)
     {
         if (!file_exists ($file))
         {

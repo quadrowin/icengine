@@ -1,10 +1,15 @@
 <?php
 
+/**
+ * 
+ * @package IcEngine
+ *
+ */
 class Application_Bootstrap_Abstract
 {
 	
 	/**
-	 * 
+	 * @desc Окружение
 	 * @var Application_Behavior_Abstract
 	 */
 	public $behavior;

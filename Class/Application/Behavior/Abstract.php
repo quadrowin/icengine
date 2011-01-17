@@ -1,47 +1,51 @@
 <?php
 
+/**
+ * 
+ * @package IcEngine
+ *
+ */
 class Application_Behavior_Abstract
 {
     
     /**
-     * Аттрибуты моделей
+     * @desc Аттрибуты моделей
      * @var Attribute_Manager
      */
     public $attributeManager;
 
 	/**
-	 * Загрузчик
+	 * @desc Загрузчик
 	 * @var Application_Bootstrap_Abstract
 	 */
 	public $bootstrap;
 	
 	/**
-	 * Путь до контроллеров
+	 * @desc Путь до контроллеров
 	 * @var string
 	 */
 	public $controllersPath;
 	
 	/**
-	 * Менеджер моделей
+	 * @desc Менеджер моделей
 	 * @var Model_Manager
 	 */
 	public $modelManager;
 	
 	/**
-	 * Менеджер ресурсов
+	 * @desc Менеджер ресурсов
 	 * @var Resource_Manager
 	 */
 	public $resourceManager;
 	
 	/**
-	 * Менеджер виджетов
-	 * 
+	 * @desc Менеджер виджетов
 	 * @var Widget_Manager
 	 */
 	public $widgetManager;
 	
 	/**
-	 * 
+	 * @desc Рендер по умолчанию
 	 * @var View_Render_Abstract
 	 */
 	public $view;
@@ -53,6 +57,7 @@ class Application_Behavior_Abstract
 	}
 	
 	/**
+	 * @desc Получить меня окружения
 	 * @return string
 	 */
 	public function name ()
@@ -60,6 +65,9 @@ class Application_Behavior_Abstract
 		return substr (strrchr (get_class ($this), '_'), 1);
 	}
 	
+	/**
+	 * @desc Старт окружения
+	 */
 	public function run ()
 	{	
 		$fn = dirname (__FILE__) . '/../Bootstrap/' . $this->name () . '.php';
@@ -70,8 +78,7 @@ class Application_Behavior_Abstract
 	}
 	
 	/**
-	 * Делает окружение активным.
-	 * Актуально в случае динамической смены окружения.
+	 * @desc Делает окружение активным. Актуально в случае динамической смены окружения.
 	 */
 	public function activate ()
 	{

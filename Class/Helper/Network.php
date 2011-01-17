@@ -1,6 +1,6 @@
 <?php
 
-class Common_Network
+class Helper_Network
 {
 	
 	/**

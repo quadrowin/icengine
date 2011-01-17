@@ -1,10 +1,15 @@
 <?php
 
+/**
+ * 
+ * @package IcEngine
+ *
+ */
 abstract class Background_Agent_Abstract
 {
     
     /**
-     * 
+     * @desc Процесс
      * @param array $params
      * 		Параметры.
      * 		Будут сохранены и переданы при следующей итерации.
@@ -15,7 +20,7 @@ abstract class Background_Agent_Abstract
     abstract public function process (array &$params);
     
     /**
-     * Запуск процесса.
+     * @desc Запуск процесса.
      * @return array
      * 		Параметры, с которыми будет запущена первая итерация
      */

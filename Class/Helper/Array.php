@@ -1,6 +1,6 @@
 <?php
 
-class Common_Array
+class Helper_Array
 {
 	
 	/**

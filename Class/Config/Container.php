@@ -78,8 +78,8 @@ class Config_Container
 		    '.php';
 		if (is_file ($filename))
 		{
-    	    Loader::load ('Common_File');
-    	    $ext = ucfirst (Common_File::extention ($filename));
+    	    Loader::load ('Helper_File');
+    	    $ext = ucfirst (Helper_File::extention ($filename));
     	    $class = 'Config_' . $ext;
     	    
     	    if (!Loader::load ($class) || !file_exists ($filename))

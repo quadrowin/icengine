@@ -87,7 +87,7 @@ class Registration extends Model
 	public static function loadConfig ()
 	{
         Loader::load ('Config_Manager');
-        $cfg = Config_Manager::load ('Registration');
+        $cfg = Config_Manager::loadConfig ('Registration');
         self::$config = $cfg->mergeConfig (self::$config);
 	}
 	

@@ -1,6 +1,6 @@
 <?php
 
-class Common_Uri
+class Helper_Uri
 {
     
     /**
