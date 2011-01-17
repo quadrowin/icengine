@@ -65,7 +65,6 @@ class User_Session extends Model
 	 */
 	public function updateSession ()
 	{
-		Debug::vardump($this->_fields);
 	    return $this->update (array (
 	        'User__id'	    => $this->User__id,
 	        'lastActive'	=> date ('Y-m-d H:i:s')

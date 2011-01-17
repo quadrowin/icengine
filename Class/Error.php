@@ -1,6 +1,6 @@
 <?php 
 
-class Errors
+class Error
 {
 	/**
 	 * 
@@ -38,11 +38,20 @@ class Errors
 	 */
 	public static function render (Exception $e)
 	{
-		if (!is_null (self::$_render))
+		if (!self::$_render)
 		{
-			self::$_render->assign ('e', $e);
-			self::$_render->display (self::_getTemplte ($e->getCode ()));
+			$msg = 
+		    	'[' . $e->getFile () . '@' . 
+				$e->getLine () . ':' . 
+				$e->getCode () . '] ' .
+				$e->getMessage () . "\r\n";
+				
+		    error_log ($msg . PHP_EOL, E_USER_ERROR, 3);
+		    echo '<pre>' . $msg . $e->getTraceAsString () . '</pre>';
 		}
+		
+		self::$_render->assign ('e', $e);
+		self::$_render->display (self::_getTemplte ($e->getCode ()));
 	}
 	
 	/**

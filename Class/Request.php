@@ -204,6 +204,7 @@ class Request
 	{
 		Loader::load ('Request_File');
 		$files = array_values ($_FILES);
+		
 		if (!isset ($files [$index]))
 		{
 		    return null;
