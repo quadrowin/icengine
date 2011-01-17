@@ -120,18 +120,8 @@ class Controller_Front
 		}
 		catch (Zend_Exception $e)
 		{
-		    $msg = 
-		    	'[' . $e->getFile () . '@' . 
-				$e->getLine () . ':' . 
-				$e->getCode () . '] ' .
-				$e->getMessage () . "\r\n";
-				
-		    error_log ($msg . PHP_EOL, E_USER_ERROR, 3);
-		    
-			Loader::load ('Errors');
-			Errors::render ($e);
-			
-			echo '<pre>' . $msg . $e->getTraceAsString () . '</pre>';
+			Loader::load ('Error');
+			Error::render ($e);
 		}
 	}
 	

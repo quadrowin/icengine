@@ -10,6 +10,11 @@ class Controller_Authorization extends Controller_Abstract
 		$this->_output->send ('user', User::getCurrent ());
 	}
 	
+	public function authDialog ()
+	{
+	
+	}
+	
 	public function login ()
 	{
 		$login = $this->_input->receive ('login');
@@ -21,23 +26,25 @@ class Controller_Authorization extends Controller_Abstract
 		Loader::load ('Authorization');
 		$user = Authorization::authorize ($login, $password);
 		
-		Loader::load ('Helper_Uri');
 		if ($user)
 		{
-			$redirect = Common_Uri::replaceGets (
-			    array ('autherror' => null), 
-			    false, $redirect);
+			$this->_output->send ('data', array (
+				'user'	=> array (
+		            'id'	=> $user->id,
+		            'name'	=> $user->name
+		        ),
+		        'redirect'	=> $redirect
+		    ));
 		}
 		else
 		{
-			$redirect = Common_Uri::replaceGets (
-			    array ('autherror' => 1),    
-			    false, $redirect);
+		    $this->_output->send ('data', array (
+		        'error'	=> 'Password incorrect'
+		    ));
+		    $this->_template = 
+		    	str_replace (array ('::', '_'), '/', __METHOD__) .
+		    	'/password_incorrect.tpl';
 		}
-		
-		Loader::load ('Header');
-		Header::redirect ($redirect);
-		die ();
 	}
 	
 	public function logout ()
