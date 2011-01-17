@@ -1,0 +1,188 @@
+<?php
+
+class Common_Array
+{
+	
+	/**
+	 * Помечает массив для разбиения по коллонкам.
+	 * 
+	 * @param array $content
+	 * 		Данные
+	 * @param integer $cols_count
+	 * 		На сколько колонок разбить
+	 * @param string $start_mark
+	 * 		Как отмечать начала колонки.
+	 * 		Это поле поле будет установлено в true, у записей из $content, 
+	 * 		которые являются началом колонки.
+	 * @param string $finish_mark
+	 * 		Как отмечать завершение колонки.
+	 * 		Это поле будет установлено в true, у записей из $content,
+	 * 		которые являются концом колонки
+	 * @param string $block_mark
+	 * 		Признак начала неделимого блока.
+	 * 		Если записи из $content, идущие подряд, имеют одинаковое поле $bock_mark,
+	 * 		разбиение между ними не будет. 
+	 */
+	public static function markForColumns (
+		&$content, $cols_count, 
+		$start_mark, $finish_mark, $block_mark = null
+	)
+	{
+		$rows_count = count ($content);
+		if ($rows_count < 1)
+		{
+			return;
+		}
+		if ($rows_count == 1) 
+		{
+			$content[$start_mark] = true;
+			$content[$finish_mark] = true;
+		}
+		
+		$in_column = ceil ($rows_count / $cols_count);
+		//echo "rows_count: $rows_count; ";
+		//echo "in_column: $in_column; ";
+		
+		if (empty ($block_mark))
+		{
+			// без блоков
+			$index = $in_column;
+			$content[0][$start_mark] = true;
+			while ($index < $rows_count)
+			{
+				$content[$index][$start_mark] = true;
+				$content[$index - 1][$finish_mark] = true;
+				$index += $in_column;
+			}
+			$content[$rows_count - 1][$finish_mark] = true;
+			return;
+		}
+		
+		// по блокам
+		$next_column_finish = $in_column;
+		$index = 1;
+		$content[0][$start_mark] = true;
+		$index++;
+		while ($index < $rows_count)
+		{
+			if ($index >= ($next_column_finish) && 
+			isset ($content[$index][$block_mark]))
+			{
+				$content[$index - 1][$finish_mark] = true;
+				$content[$index][$start_mark] = true;
+				//fb($index);
+				$next_column_finish += $in_column;
+			}
+			$index++;
+		}
+		$content[$rows_count - 1][$finish_mark] = true;
+		
+	}
+	
+	/**
+	 * Сортирует многомерный массив по заданным полям
+	 * 
+	 * @param array $data
+	 * 		Массив
+	 * @param string $sortby
+	 * 		Поля сортировки через запятую
+	 */
+	public static function masort (&$data, $sortby)
+	{
+		static $funcs = array ();
+		
+		if (empty ($funcs [$sortby]))
+		{
+			//Не существует функции сравнения, создаем
+			$code = "\$c=0;";
+			foreach (explode (',', $sortby) as $key)
+			{
+				$key = trim ($key);
+				if (strlen ($key) > 5 && substr ($key, -5) == ' DESC')
+				{
+					$asc = false;
+					$key = substr ($key, 0, strlen ($key) - 5);
+				} 
+				else
+				{
+					$asc = true;
+				}
+				
+				reset ($data);
+				$array = current ($data);
+				
+				if (is_numeric ($array[$key]))
+				{
+					$code .= "if ( \$c = ((\$a['$key'] == \$b['$key']) ? 0 : ((\$a['$key'] " . (($asc) ? '<' : '>') . " \$b['$key']) ? -1 : 1 )) ) return \$c;";
+				}
+				else
+				{
+					$code .= "if ( (\$c = strcasecmp(\$a['$key'], \$b['$key'])) != 0 ) return " . (($asc) ? '' : '-') . "\$c;\n";
+				}
+	
+			}
+			$code .= 'return $c;';
+	//		predump($code);
+			// $c=0;if ( $c = (($a['rank'] == $b['rank']) ? 0 : (($a['rank'] < $b['rank']) ? -1 : 1 )) ) return $c;return $c;
+			$funcs [$sortby] = create_function ('$a, $b', $code);
+		}
+		
+		return uasort ($data, $funcs [$sortby]);
+	}
+	
+	/**
+	 * Сортирует массив объектов по заданным полям
+	 * @param array $data
+	 * 		Массив объектов
+	 * @param string $sortby
+	 * 		Поля для сортировки
+	 */
+	public static function mosort (&$data, $sortby)
+	{
+		if (count ($data) <= 1)
+		{
+			return true;
+		}
+		
+		static $funcs = array ();
+		
+		if (empty ($funcs [$sortby]))
+		{
+			//Не существует функции сравнения, создаем
+			$code = "\$c=0;";
+			foreach (explode (',', $sortby) as $key)
+			{
+				$key = trim ($key);
+				if (strlen ($key) > 5 && substr ($key, -5) == ' DESC')
+				{
+					$asc = false;
+					$key = substr ($key, 0, strlen ($key) - 5);
+				}
+				else
+				{
+					$asc = true;
+				}
+				
+				reset ($data);
+				$object = current ($data);
+				
+				if (is_numeric ($object->{$key}))
+				{
+					$code .= "if ( \$c = ((\$a->$key == \$b->$key) ? 0 : ((\$a->$key " . (($asc) ? '<' : '>') . " \$b->$key) ? -1 : 1 )) ) return \$c;";
+				}
+				else
+				{
+					$code .= "if ( (\$c = strcasecmp(\$a->$key, \$b->$key)) != 0 ) return " . (($asc) ? '' : '-') . "\$c;\n";
+				}
+	
+			}
+			$code .= 'return $c;';
+	//		fb($code);
+	//		$c=0;if ( $c = (($a->rank == $b->rank) ? 0 : (($a->rank < $b->rank) ? -1 : 1 )) ) return $c;return $c;
+			$funcs [$sortby] = create_function ('$a, $b', $code);
+		}
+		
+		return uasort ($data, $funcs [$sortby]);
+	}
+	
+}
