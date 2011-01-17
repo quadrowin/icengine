@@ -53,11 +53,11 @@ class Controller_Broker
 	 */
 	public static function beforeAction ($controller)
 	{	
-	    self::$_output->beginTransaction ();
+	    self::getOutput ()->beginTransaction ();
 	    
-		$controller->
-		    setInput (self::$_input)->
-		    setOutput (self::$_output);
+		$controller
+			->setInput (self::getInput ())
+			->setOutput (self::getOutput ());
 	}
 	
 	/**
@@ -108,31 +108,46 @@ class Controller_Broker
 		return $controller;
 	}
 	
-	public static function initTransports ()
+	public static function getInput ()
 	{
-		Loader::load ('Data_Transport');
-		Loader::load ('Data_Provider_Router');
-		
-		self::$_input  = new Data_Transport ();
-		self::$_output = new Data_Transport ();
-		
-		self::$_input->appendProvider (new Data_Provider_Router ());
-		
-		Loader::load ('Data_Provider_View');
-		
-		self::$_output->appendProvider (new Data_Provider_View ()); 
-		
-		if (Request::isPost ())
+		if (!self::$_input)
 		{
-			Loader::load ('Data_Provider_Post');
-			self::$_input->appendProvider (new Data_Provider_Post ());
+			Loader::load ('Data_Transport');
+			
+			self::$_input  = new Data_Transport ();
+			
+			Loader::load ('Data_Provider_Router');
+			self::$_input->appendProvider (new Data_Provider_Router ());
+			
+			if (Request::isPost ())
+			{
+				Loader::load ('Data_Provider_Post');
+				self::$_input->appendProvider (new Data_Provider_Post ());
+			}
+			
+			if (Request::isGet ())
+			{
+				Loader::load ('Data_Provider_Get');
+				self::$_input->appendProvider (new Data_Provider_Get ());
+			}
 		}
-		
-		if (Request::isGet ())
+		return self::$_input;
+	}
+	
+	public static function getOutput ()
+	{
+		if (!self::$_output)
 		{
-			Loader::load ('Data_Provider_Get');
-			self::$_input->appendProvider (new Data_Provider_Get ());
+			Loader::load ('Data_Transport');
+			Loader::load ('Data_Provider_Router');
+			
+			self::$_output = new Data_Transport ();
+			
+			Loader::load ('Data_Provider_View');
+			
+			self::$_output->appendProvider (new Data_Provider_View ()); 
 		}
+		return self::$_output;
 	}
 	
 	/**
@@ -140,7 +155,7 @@ class Controller_Broker
 	 */
 	public static function iterations ()
 	{
-	    return self::$_iterations;
+		return self::$_iterations;
 	}
 	
 	/**
@@ -151,11 +166,6 @@ class Controller_Broker
 	public static function run ($action)
 	{
 		$iteration = new Controller_Dispatcher_Iteration ($action);
-		
-		if (!self::$_input)
-		{
-			self::initTransports ();
-		}
 		
 		IcEngine::$application
 			->frontController ()
