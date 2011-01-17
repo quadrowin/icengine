@@ -118,4 +118,13 @@ class View_Render_Smarty extends View_Render_Abstract
 	    $this->_smarty->_tpl_vars = array ();
 	}
 	
+	/**
+	 * 
+	 * @return Smarty
+	 */
+	public function smarty ()
+	{
+		return $this->_smarty;
+	}
+	
 }

@@ -1,10 +1,10 @@
 <?php
 
-class Helper_Registration_Validator_Ip_Limit
+class Data_Validator_Registration_Ip_Limit
 {
-    
-    const IP_LIMIT			= 'ipLimit'; // Лимит на 1 ip
-    
+	
+	const IP_LIMIT			= 'ipLimit'; // Лимит на 1 ip
+	
     public static function validate ()
 	{
 	    Loader::load ('Helper_Date');
@@ -20,7 +20,7 @@ class Helper_Registration_Validator_Ip_Limit
 			return self::IP_LIMIT;
 		}
 		
-		return Registration::OK;
+		return true;
 	}
     
 }

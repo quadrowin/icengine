@@ -1,6 +1,6 @@
 <?php
 
-class Helper_Registration_Validator_Abstract
+class Data_Validator_Registration_Abstract
 {
     
     /**
@@ -13,12 +13,12 @@ class Helper_Registration_Validator_Abstract
      * @param array $info
      * 		Параметры поля.
      * @return mixed
-     * 		Должно вернуть Registration::OK в случае успеха,
+     * 		Должно вернуть true в случае успеха,
      * 		либо код ошибки.
      */
     public static function validate (stdClass $data, $name, array $info)
     {
-        return Registration::OK;
+        return true;
     }
     
 }

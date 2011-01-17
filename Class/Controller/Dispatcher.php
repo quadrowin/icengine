@@ -96,6 +96,7 @@ class Controller_Dispatcher
 		if (!method_exists ($controller, $method_name))
 		{
 			Loader::load ('Controller_Exception');
+			
 			throw new Controller_Exception (
 				"Action " . $controller_action->controller . "::" . 
 				$controller_action->action . " unexists."

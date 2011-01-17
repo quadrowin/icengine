@@ -53,7 +53,7 @@ class Registration extends Model
 	            'maxLength'	=> 40,
 	            'value'		=> 'input',
 	            'validators'	=> array (
-	            	'Helper_Registration_Validator_Email'
+	            	'Registration_Email'
 	            )
 	        ),
 	        'password'	=> array (
@@ -62,14 +62,14 @@ class Registration extends Model
 	            'maxLength'	=> 250,
 	            'value'	=> 'input',
 	            'validators'	=> array (
-	                'Helper_Registration_Validator_Password'
+	                'Registration_Password'
 	            )
 	        ),
 	        'ip'	=> array (
 	            'maxTries'	=> 10,
 	        	'value'	    => array ('Request', 'ip'),
 	            'validators'	=> array (
-	        		'Helper_Registration_Validator_Ip_Limit'
+	        		'Registration_Ip_Limit'
 	            )
 	        )
 	    )
@@ -227,7 +227,7 @@ class Registration extends Model
 	{
 	    $result = self::validate ($data);
 	    
-	    if ($result != self::OK)
+	    if ($result !== true)
 	    {
 	        return $result;
 	    }
@@ -256,6 +256,8 @@ class Registration extends Model
 	        
 	        foreach ($validators as $validator)
 	        {
+	        	$validator = 'Data_Validator_' . $validator;
+	        	
     	        if (!Loader::load ($validator))
     	        {
     	            Loader::load ('Zend_Exception');
@@ -269,7 +271,7 @@ class Registration extends Model
     	            $obj_data, $name, $info
     	        );
     	            
-    	        if ($result != self::OK)
+    	        if ($result !== true)
     	        {
     	            return $result;
     	        }
@@ -278,7 +280,7 @@ class Registration extends Model
 	    
 	    $data = (array) $obj_data;
 	    
-	    return self::OK;
+	    return true;
 	}
 	
 }

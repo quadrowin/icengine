@@ -1,6 +1,6 @@
 <?php
 
-class Helper_Registration_Validator_Email
+class Data_Validator_Registration_Email
 {
 
 	const EMAIL_EMPTY		= 'emailEmpty';      // Пустой емейл
@@ -11,12 +11,12 @@ class Helper_Registration_Validator_Email
     
     public static function validate (stdClass $data, $name, array $info)
     {
-		if (empty ($data->email))
+		if (empty ($data->$name))
 		{
 			return self::EMAIL_EMPTY;
 		}
 		
-		$email = $data->email = trim ($data->email);
+		$email = $data->$name = trim ($data->$name);
 		
 		if (
 		    !filter_var ($email, FILTER_VALIDATE_EMAIL) ||
@@ -48,7 +48,7 @@ class Helper_Registration_Validator_Email
 			return self::EMAIL_REPEAT;
 		}
 		
-		return Registration::OK;
+		return true;
     }
     
 }

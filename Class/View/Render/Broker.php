@@ -128,8 +128,8 @@ abstract class View_Render_Broker
 	}
 	
 	/**
-	 * Обработка шаблонов из стека
-	 * @param array $data
+	 * @desc	Обработка шаблонов из стека.
+	 * @param	array $data
 	 */
 	public static function render (array $outputs)
 	{
@@ -160,6 +160,7 @@ abstract class View_Render_Broker
 		    $transaction->commit ();
 		    
 			$template = $item->getTemplate ();
+			$result = $view->fetch ($template);
 			
 //			$view->pushVars ();
 //            
@@ -184,7 +185,7 @@ abstract class View_Render_Broker
 //			
 //			$view->popVars ();
 
-            $result = $view->fetch ($template);
+//			$result = self::fetchIteration ($item);
 			
 			$view->assign (
 			    isset ($action->assign) ? $action->assign : 'content',
@@ -193,6 +194,58 @@ abstract class View_Render_Broker
 		
 		Loader::load ('Message_After_Render');
 		Message_After_Render::push ($view);
+	}
+	
+	/**
+	 * @desc	Рендер одной итерации диспетчера.
+	 * @param	Controller_Dispatcher_Iteration $iteration
+	 * @return	string
+	 */
+	public static function fetchIteration (
+		Controller_Dispatcher_Iteration $iteration)
+	{
+		/**
+		 * 
+		 * @var $transaction Data_Transport_Transaction
+		 */
+		$transaction = $iteration->getTransaction ();
+		
+		/**
+		 * @var $action Route_Action
+		 */
+		$action = $iteration->getRouteAction ();
+
+		$template = $iteration->getTemplate ();
+		
+		$view = self::getView ();
+		$view->assign ($transaction->buffer ());
+		
+		$result = $view->fetch ($template);
+		
+//		$view->pushVars ();
+//            
+//		try
+//		{
+//			$result = $view->fetch ($template);
+//		}
+//		catch (Exception $e)
+//		{
+//			$msg = 
+//				'[' . $e->getFile () . '@' . 
+//				$e->getLine () . ':' . 
+//				$e->getCode () . '] ' .
+//				$e->getMessage () . "\r\n";
+//			
+//			Debug::vardump ($msg);
+//    				
+//			error_log ($msg . PHP_EOL, E_USER_ERROR, 3);
+//			
+//			$result = '';
+//		}
+//		
+//		$view->popVars ();
+
+		return $result;
 	}
 	
 }

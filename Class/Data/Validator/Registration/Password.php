@@ -1,6 +1,13 @@
 <?php
 
-class Helper_Registration_Validator_Password
+/**
+ * 
+ * @desc Проверка валидности пароля.
+ * @author Юрий
+ *
+ */
+
+class Data_Validator_Registration_Password
 {
     
     const PASSWORD_EMPTY	= 'passwordEmpty'; // Пустой пароль
@@ -9,24 +16,24 @@ class Helper_Registration_Validator_Password
 	
 	const PASSWORD_LONG     = 'passwordLong'; // Короткий пароль
 	
-	public static function validate (stdClass $data, $field, array $info)
+	public static function validate (stdClass $data, $name, array $info)
 	{
-		if (empty ($data->password))
+		if (empty ($data->$name))
 		{
 			return self::PASSWORD_EMPTY;
 		}
 		
-		if (strlen ($data->password) < $info ['minLength'])
+		if (strlen ($data->$name) < $info ['minLength'])
 		{ 
 		    return self::PASSWORD_SHORT;
 		}
 		
-		if (strlen ($data->password) > $info ['maxLength'])
+		if (strlen ($data->$name) > $info ['maxLength'])
 		{
 		    return self::PASSWORD_LONG;
 		}
 	    
-	    return Registration::OK;
+	    return true;
 	}
 	
 }

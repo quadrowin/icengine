@@ -57,6 +57,20 @@ class Application
 	}
 	
 	/**
+	 * 
+	 * @return Controller_Front
+	 */
+	public function frontController ()
+	{
+		if (!$this->frontController)
+		{
+			$this->frontController = new Controller_Front (
+				$this->behavior->controllersPath);
+		}
+		return $this->frontController;
+	}
+	
+	/**
 	 * Инициализация окружения.
 	 * @param string $behavior
 	 * 		Окружение
@@ -85,8 +99,7 @@ class Application
 		{
 			$this->behavior->run ();
 		}
-		$this->frontController = new Controller_Front ($this->behavior->controllersPath);
-		$this->frontController->run ();
+		$this->frontController ()->run ();
 	}
 	
 	/**

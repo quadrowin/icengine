@@ -49,6 +49,10 @@ class Controller_Front
 	 */
 	public function getDispatcher ()
 	{
+		if (!$this->_dispatcher && Loader::load ($this->_defaultDispatcher))
+		{
+			$this->_dispatcher = new $this->_defaultDispatcher;
+		}
 		return $this->_dispatcher;
 	}
 	
@@ -90,10 +94,8 @@ class Controller_Front
 		Loader::load ('Message_After_Router_View_Set');
 		Message_After_Router_View_Set::push ($this->_router->getRoute (), $view);
 		
-		if ($this->_dispatcher === null && Loader::load ($this->_defaultDispatcher))
-		{
-			$this->_dispatcher = new $this->_defaultDispatcher;
-		}
+		$this->getDispatcher ();
+		
 		try 
 		{
 			Loader::load ('Controller_Broker');

@@ -38,10 +38,11 @@ class Controller_Broker
 	    Controller_Dispatcher_Iteration $iteration)
 	{
 	    $transaction = $controller->getOutput ()->endTransaction ();
+	    	    
+	    $iteration->setTransaction ($transaction);
 	    
 	    if (!$iteration->getIgnore ())
 	    {
-    	    $iteration->setTransaction ($transaction);
     	    self::$_iterations [] = $iteration;
 	    };
 	}
@@ -132,12 +133,6 @@ class Controller_Broker
 			Loader::load ('Data_Provider_Get');
 			self::$_input->appendProvider (new Data_Provider_Get ());
 		}
-		
-//		if (Request::isFiles ())
-//		{
-//			Loader::load ('Data_Provider_Files');
-//			self::$_input->appendProvider (new Data_Provider_Files ());
-//		}
 	}
 	
 	/**
@@ -157,8 +152,13 @@ class Controller_Broker
 	{
 		$iteration = new Controller_Dispatcher_Iteration ($action);
 		
+		if (!self::$_input)
+		{
+			self::initTransports ();
+		}
+		
 		IcEngine::$application
-			->frontController
+			->frontController ()
 			->getDispatcher ()
 			->dispatch ($iteration);
 		

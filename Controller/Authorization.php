@@ -10,8 +10,13 @@ class Controller_Authorization extends Controller_Abstract
 		$this->_output->send ('user', User::getCurrent ());
 	}
 	
-	public function login ()
-	{
+    public function authDialog ()
+    {
+        
+    }
+    
+    public function login ()
+    {
 		$login = $this->_input->receive ('login');
 		$password = $this->_input->receive ('password');
 		$redirect = $this->_input->receive ('redirect');
@@ -24,21 +29,25 @@ class Controller_Authorization extends Controller_Abstract
 		Loader::load ('Common_Uri');
 		if ($user)
 		{
-			$redirect = Common_Uri::replaceGets (
-			    array ('autherror' => null), 
-			    false, $redirect);
+		    $this->_output->send ('data', array (
+		        'user'	=> array (
+		            'id'	=> $user->id,
+		            'name'	=> $user->name
+		        ),
+		        'redirect'	=> $redirect
+		    ));
 		}
 		else
 		{
-			$redirect = Common_Uri::replaceGets (
-			    array ('autherror' => 1),    
-			    false, $redirect);
+		    $this->_output->send ('data', array (
+		        'error'	=> 'Password incorrect'
+		    ));
+		    $this->_template = 
+		    	str_replace (array ('::', '_'), '/', __METHOD__) .
+		    	'/password_incorrect.tpl';
+		    return ;
 		}
-		
-		Loader::load ('Header');
-		Header::redirect ($redirect);
-		die ();
-	}
+    }
 	
 	public function logout ()
 	{

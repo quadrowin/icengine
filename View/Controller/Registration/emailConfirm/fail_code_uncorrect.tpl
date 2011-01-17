@@ -3,4 +3,4 @@
 <p>Если Вы не знает, с чем связана эта ошибка, попробуйте воспользоваться
 <a href="/recovery/">системой восстановления пароля</a>, если решить
 проблемы не удастся, сообщите об этом администрации сайта.</p>
-{include file="Authorization/login_form.tpl"}
+{include file="Controller/Authorization/login_form.tpl"}
