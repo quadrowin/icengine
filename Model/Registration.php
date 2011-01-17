@@ -246,41 +246,8 @@ class Registration extends Model
 	 */
 	public static function validate (array &$data)
 	{
-	    $obj_data = (object) $data;
-	    
-	    foreach (self::$config ['fields'] as $name => $info)
-	    {
-	        $validators = isset ($info ['validators']) ? 
-	            (array) $info ['validators'] :
-	            array ();
-	        
-	        foreach ($validators as $validator)
-	        {
-	        	$validator = 'Data_Validator_' . $validator;
-	        	
-    	        if (!Loader::load ($validator))
-    	        {
-    	            Loader::load ('Zend_Exception');
-    	            throw new Zend_Exception (
-    	            	'Unable to load registration validator: ' . $validator);
-    	            return self::FAIL;
-    	        }
-    	        
-    	        $result = call_user_func (
-    	            array ($validator, 'validate'),
-    	            $obj_data, $name, $info
-    	        );
-    	            
-    	        if ($result !== true)
-    	        {
-    	            return $result;
-    	        }
-	        }
-	    }
-	    
-	    $data = (array) $obj_data;
-	    
-	    return true;
+		Loader::load ('Helper_Form');
+		return Helper_Form::validate ($data, self::$config ['fields']);
 	}
 	
 }

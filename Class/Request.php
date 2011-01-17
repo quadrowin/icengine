@@ -128,18 +128,18 @@ class Request
 	 */
 	public static function post ($name, $default = false)
 	{
-		if (isset($_POST[$name]))
+		if (isset($_POST [$name]))
 		{
 			if (self::$work_charset == self::$post_charset)
 			{
-				return $_POST[$name];
+				return $_POST [$name];
 			}
 			else
 			{
-				return @iconv(
+				return @iconv (
 					self::$post_charset,
 					self::$work_charset, 
-					$_POST[$name]
+					$_POST [$name]
 				);
 			}
 		}
@@ -155,21 +155,21 @@ class Request
 	 */
 	public static function postIds ()
 	{
-		if (isset($_REQUEST['id']))
+		if (isset ($_REQUEST ['id']))
 		{
-			$item_ids = array(intval($_REQUEST['id']));
+			$item_ids = array ((int) $_REQUEST ['id']);
 		}
-		elseif (isset($_REQUEST['ids']))
+		elseif (isset ($_REQUEST ['ids']))
 		{
-			$item_ids = $_REQUEST['ids'];
-			if (!is_array($item_ids))
+			$item_ids = $_REQUEST ['ids'];
+			if (!is_array ($item_ids))
 			{
-				$item_ids = explode(',', $item_ids);
+				$item_ids = explode (',', $item_ids);
 			}
 		}
 		else
 		{
-			return array();
+			return array ();
 		}
 	}
 	
@@ -180,10 +180,10 @@ class Request
 	 */
 	public static function file ($name)
 	{
-		if (isset($_FILES[$name]) && !empty($_FILES[$name]['name']))
+		if (isset($_FILES [$name]) && !empty($_FILES [$name]['name']))
 		{
-			Loader::loadClass('PostedFile');
-			return new Request_File($_FILES[$name]);
+			Loader::load ('Request_File');
+			return new Request_File($_FILES [$name]);
 		}
 		else
 		{

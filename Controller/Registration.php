@@ -61,22 +61,9 @@ class Controller_Registration extends Controller_Abstract
 	
 	public function postForm ()
 	{
-		$data = array ();
-		if (Registration::$config ['fields'])
-		{
-			foreach (Registration::$config ['fields'] as $field => $info)
-			{
-				if ($info ['value'] == 'input')
-				{
-					$data [$field] = substr (
-						$this->_input->receive ($field), 0, 200);
-				}
-				elseif (is_array ($info ['value']))
-				{
-					$data [$field] = call_user_func ($info ['value']);
-				}
-			}
-		}
+		Loader::load ('Helper_Form');
+		$data = Helper_Form::receiveFields ($this->_input, 
+			Registration::$config ['fields']);
 		
 		$result = Registration::tryRegister ($data);
 		
