@@ -70,12 +70,12 @@ class Config_Manager
 	}
 	
 	/**
-	 * 
+	 * @desc Загразить конфик из файла 
 	 * @param string $type
 	 * @param string $name
 	 * @return Config_Array
 	 */
-	public static function load ($type, $name = null)
+	public static function loadConfig ($type, $name = null)
 	{
 		Loader::load ('Config_Container');
 		

@@ -1,6 +1,6 @@
 <?php
 
-class Common_Color
+class Helper_Color
 {
 	
 	/**

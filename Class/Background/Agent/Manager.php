@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * 
+ * @package IcEgine
+ *
+ */
 class Background_Agent_Manager
 {
     
@@ -45,7 +50,7 @@ class Background_Agent_Manager
     }
     
     /**
-     * Проверка "зависших" процессов
+     * @desc Проверка "зависших" процессов
      * @return integer
      * 		Количество "зависших" процессов
      */
@@ -69,7 +74,7 @@ class Background_Agent_Manager
     }
     
     /**
-     * Перезапуск процессов, помеченных как зависшие
+     * @desc Перезапуск процессов, помеченных как зависшие
      * @return integer
      * 		Количество перезапущенных процессов
      */
@@ -96,6 +101,10 @@ class Background_Agent_Manager
         return $agents->count ();
     }
     
+    /**
+     * @desc Перезапустить агента
+     * @param Background_Agent $agent
+     */
     public function resumeAgent (Background_Agent $agent)
     {
         $type = $agent->Background_Agent_Type->name;
@@ -112,7 +121,7 @@ class Background_Agent_Manager
     }
     
     /**
-     * Перезапуск агента через командную строку
+     * @desc Перезапуск агента через командную строку
      * @param Background_Agent $agent
      */
     public function resumeAgentCmd (Background_Agent $agent)
@@ -135,7 +144,7 @@ class Background_Agent_Manager
     }
     
     /**
-     * Перезапуск агента через http
+     * @desc Перезапуск агента через http
      * @param Background_Agent $agent
      */
     public function resumeAgentHttp (Background_Agent $agent)
@@ -152,7 +161,8 @@ class Background_Agent_Manager
         
 	    $url = parse_url ($url);
 	    
-		Common_Network::callUnresultedPage (
+	    Loader::load ('Helper_File');
+		Helper_File::callUnresultedPage (
 			isset ($url ['host']) ? $url ['host'] : $_SERVER ['SERVER_NAME'],
 			$url ['path'],
 			$url ['query']

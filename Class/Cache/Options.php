@@ -1,10 +1,15 @@
 <?php
 
+/**
+ * 
+ * @package IcEngine
+ *
+ */
 class Cache_Options 
 {
     
     /**
-     * Настройки
+     * @desc Настройки
      * @var array
      */
 	protected $_config = array (
@@ -26,7 +31,7 @@ class Cache_Options
 	}
 	
 	/**
-	 * Применение конфига
+	 * @desc Применение конфига
 	 * @param Config_Abstract $config
 	 * @return Cache_Options
 	 */
@@ -37,7 +42,7 @@ class Cache_Options
 	}
 	
 	/**
-	 * Возвращает время жизни кэша.
+	 * @desc Возвращает время жизни кэша.
 	 * @return integer
 	 */
 	public function getExpiration ()
@@ -46,7 +51,7 @@ class Cache_Options
 	}
 	
 	/**
-	 * Возвращает количество использований кэша.
+	 * @desc Возвращает количество использований кэша.
 	 * @return integer
 	 */
 	public function getHits ()
@@ -55,7 +60,7 @@ class Cache_Options
 	}
     
 	/**
-	 * Задает время жизни кэша.
+	 * @desc Задает время жизни кэша.
 	 * @param integer $value
 	 * @return Cache_Options
 	 */
@@ -66,7 +71,7 @@ class Cache_Options
 	}
 	
 	/**
-	 * Задает количество использований кэша.
+	 * @desc Задает количество использований кэша.
 	 * @param integer $value
 	 * @return Cache_Options
 	 */

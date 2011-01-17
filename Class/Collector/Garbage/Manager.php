@@ -1,20 +1,26 @@
 <?php
 
+/**
+ * 
+ * @package IcEngine
+ *
+ */
 abstract class Collector_Garbage_Manager
 {
 	/**
-	 * 
+	 * @desc Контейнер схемы по умолчанию
 	 * @var string
 	 */
 	const CONTAINER = 'Collector_Garbage_Scheme';
 	
 	/**
-	 * 
+	 * @desc Коллекторы
 	 * @var array
 	 */
 	private static $_collectors = array ();
 	
 	/**
+	 * @desc Получить список коллекторов
 	 * @return array <Collector_Garbage_Scheme>
 	 */
 	public static function getCollectors ()
@@ -33,6 +39,7 @@ abstract class Collector_Garbage_Manager
 	}
 	
 	/**
+	 * @desc Запустить менеджер коллекторов
 	 * @return boolean
 	 */
 	public static function process ()

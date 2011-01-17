@@ -73,7 +73,7 @@ class Widget_Manager
         return Executor::execute (
             array ($this, 'callUncached'),
             array ($name, $method, $args, $html_only),
-            Cache_Manager::load ($cache_config_file)
+            Cache_Manager::loadConfig ($cache_config_file)
         );
     }
     

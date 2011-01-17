@@ -680,8 +680,8 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 	public function sort ($fields)
 	{
 	    $items = &$this->items ();
-		Loader::load ('Common_Array');
-		Common_Array::mosort ($items, $fields);
+		Loader::load ('Helper_Array');
+		Helper_Array::mosort ($items, $fields);
 		return $this;
 	}
 	
