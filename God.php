@@ -1,6 +1,8 @@
 <?php
 
-class God
+abstract class God
 {
     
+	abstract public function prodigy (); 
+	
 }

@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * 
+ * Менеджер атрибутов.
+ * Получает и устанавливает значения атрибутов модели.
+ * 
+ */
+
 class Attribute_Manager
 {
 	
@@ -21,7 +28,7 @@ class Attribute_Manager
 	}
 	
 	/**
-	 * Удаляет все атрибуты модели
+	 * Удаляет все атрибуты модели.
 	 * @param Model $model
 	 */
 	public function deleteFor (Model $model)
@@ -36,7 +43,7 @@ class Attribute_Manager
 	}
 	
 	/**
-	 * Получение значения атрибута
+	 * Получение значения атрибута.
 	 * 
 	 * @param Model $model
 	 * 		Модель
@@ -60,7 +67,7 @@ class Attribute_Manager
 	}
 	
 	/**
-	 * Задание значения атрибуту
+	 * Задание значения атрибуту.
 	 * 
 	 * @param Model $model
 	 * 		Модель

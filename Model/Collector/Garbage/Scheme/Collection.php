@@ -1,6 +1,6 @@
 <?php
 
-class Collector_Garbage_Collection extends Model_Collection
+class Collector_Garbage_Scheme_Collection extends Model_Collection
 {
 	
 }

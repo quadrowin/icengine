@@ -5,7 +5,6 @@ class Controller_Broker
     
     /**
      * 
-     * 
      * @var array
      */
 	protected static $_controllers;
@@ -45,6 +44,19 @@ class Controller_Broker
     	    $iteration->setTransaction ($transaction);
     	    self::$_iterations [] = $iteration;
 	    };
+	}
+
+	/**
+	 * 
+	 * @param Controller_Abstract $controller
+	 */
+	public static function beforeAction ($controller)
+	{	
+	    self::$_output->beginTransaction ();
+	    
+		$controller->
+		    setInput (self::$_input)->
+		    setOutput (self::$_output);
 	}
 	
 	/**
@@ -129,24 +141,28 @@ class Controller_Broker
 	}
 	
 	/**
-	 * 
-	 * @param Controller_Abstract $controller
-	 */
-	public static function beforeAction ($controller)
-	{	
-	    self::$_output->beginTransaction ();
-	    
-		$controller->
-		    setInput (self::$_input)->
-		    setOutput (self::$_output);
-	}
-	
-	/**
 	 * @return array
 	 */
 	public static function iterations ()
 	{
 	    return self::$_iterations;
+	}
+	
+	/**
+	 * 
+	 * @param Route_Action|Controller_Action $action
+	 * @return Controller_Dispatcher_Iteration
+	 */
+	public static function run ($action)
+	{
+		$iteration = new Controller_Dispatcher_Iteration ($action);
+		
+		IcEngine::$application
+			->frontController
+			->getDispatcher ()
+			->dispatch ($iteration);
+		
+		return $iteration;
 	}
 	
 }

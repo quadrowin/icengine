@@ -21,8 +21,8 @@ abstract class Collector_Garbage_Manager
 	{
 		if (!self::$_collectors)
 		{
-			Loader::load ('Garbage_Collector_Scheme_Collection');
-			$collection = new Garbage_Collector_Scheme_Collection ();
+			Loader::load ('Collector_Garbage_Scheme_Collection');
+			$collection = new Collector_Garbage_Scheme_Collection ();
 			self::$_collectors = $collection
 				->addOptions (array (
 					'name'	=> 'Active'

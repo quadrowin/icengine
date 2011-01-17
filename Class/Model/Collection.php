@@ -218,9 +218,9 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 	 */
 	public function exclude ($index)
 	{
-		if (is_array ($this->items) && isset ($this->items [$index]))
+		if (is_array ($this->_items) && isset ($this->_items [$index]))
 		{
-			unset ($this->items [$index]);
+			unset ($this->_items [$index]);
 		}
 		return $this;
 	}

@@ -76,6 +76,8 @@ class Controller_Dispatcher
 	 */
 	public function dispatch (Controller_Dispatcher_Iteration $iteration)
 	{
+		$parent_iteration = $this->_currentIteration;
+		
 	    $this->_currentIteration = $iteration;
 	    
 	    $controller_action = $iteration->controllerAction ();
@@ -119,7 +121,7 @@ class Controller_Dispatcher
 		
 		$this->_onDispatchIterationFinish ($controller, $iteration, $method_name);
 		
-		$this->_currentIteration = null;	
+		$this->_currentIteration = $parent_iteration;	
 	}
 	
 	public function dispathCircle ()
