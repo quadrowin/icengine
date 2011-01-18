@@ -6,11 +6,21 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 {
     
     /**
-     * Внешний путь до текущего файла
+     * Внешний путь до текущего файла ресурса
      * @var string
      */
     protected static $_currentFilePathUrl;
     
+    /**
+     * Текущий ресурс
+     * @var array
+     */
+    protected static $_currentResource;
+    
+    /**
+     * Импортируемые стили
+     * @var array
+     */
     protected static $_imports = array (); 
     
     public static function excludeImport (array $matches)
@@ -61,10 +71,11 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 		$packages = array ();
 		foreach ($resources as $resource)
 		{
-		    self::$_currentFilePathUrl = dirname ($resource) . '/';
+			self::$_currentResource = $resource;
+		    self::$_currentFilePathUrl = dirname ($resource ['href']) . '/';
 		    
 			$packed = self::packOne (file_get_contents (
-				rtrim (IcEngine::root (), '/') . $resource
+				rtrim (IcEngine::root (), '/') . $resource ['href']
 			));
 			
     		$packed = preg_replace_callback (

@@ -3,6 +3,10 @@
 class View_Helper_Js extends View_Helper_Abstract
 {
 
+	/**
+	 * Шаблон вставки
+	 * @var string
+	 */
     const TEMPLATE = 
     	"\t<script type=\"text/javascript\" src=\"{\$url}\"></script>\n";
     
@@ -25,6 +29,10 @@ class View_Helper_Js extends View_Helper_Abstract
 		if ($config ['packed_file'])
 		{
 		    Loader::load ('View_Resource_Packer_Js');
+		    View_Resource_Packer_Js::$config = array_merge (
+		    	View_Resource_Packer_Js::$config,
+		    	$config
+		    );
             View_Resource_Packer_Js::pack (
                 $jses, $config ['packed_file']
             );
@@ -36,7 +44,7 @@ class View_Helper_Js extends View_Helper_Abstract
     		foreach ($jses as $js)
     		{
     			$result .=
-    			    str_replace ('{$url}', $js, self::TEMPLATE);
+    			    str_replace ('{$url}', $js ['href'], self::TEMPLATE);
     		}
 		}
 		

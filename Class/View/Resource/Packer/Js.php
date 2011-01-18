@@ -11,6 +11,30 @@ class View_Resource_Packer_Js extends View_Resource_Packer_Abstract
 	const PACKER = 'class.JavaScriptPacker.php';
 	
 	/**
+	 * Текущий ресурс
+	 * @var array
+	 */
+	protected static $_currentResource;
+	
+	/**
+	 * Настройки
+	 * @var array
+	 */
+	public static $config = array (
+		/**
+		 * Префикс каждого скрипта
+		 * @var string
+		 */
+		'pack_item_prefix' 	=> "/* {\$source} */\n",
+	
+		/**
+		 * Постфикс каждого скрипта
+		 * @var string
+		 */
+		'pack_item_postfix'	=> "\n\n"
+	);
+	
+	/**
 	 * 
 	 * @param null|array <string> $resources
 	 * @param string $result_style
@@ -33,8 +57,9 @@ class View_Resource_Packer_Js extends View_Resource_Packer_Abstract
 		$packages = array ();
 		foreach ($resources as $resource)
 		{
+			self::$_currentResource = $resource;
 			$packages [] = self::packOne (file_get_contents (
-			    rtrim (IcEngine::root (), '/') . $resource
+			    rtrim (IcEngine::root (), '/') . $resource ['href']
 			));
 		}
 		
@@ -57,11 +82,31 @@ class View_Resource_Packer_Js extends View_Resource_Packer_Abstract
 	 */
 	public static function packOne ($script)
 	{
-	    return $script . "\n";
+		if (
+			self::$config ['pack_item_prefix'] &&
+			isset (self::$_currentResource ['options']['source'])
+		)
+		{
+			$result = str_replace (
+				'{$source}',
+				self::$_currentResource ['options']['source'],
+				self::$config ['pack_item_prefix']
+			);
+		}
+		
+		if (
+			isset (self::$_currentResource ['options']['nopack']) &&
+			self::$_currentResource ['options']['nopack']
+		)
+		{
+			$result .= $script . "\n";
+		}
+	    else
+	    {
+			$packer = new JavaScriptPacker ($script, 0);
+			$result .= $packer->pack ();
+	    }
 	    
-		$packer = new JavaScriptPacker (
-			$script, 0
-		);
-		return $packer->pack ();
+		return $result . self::$config ['pack_item_postfix'];
 	}
 }
