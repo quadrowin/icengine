@@ -31,12 +31,14 @@ class View_Resource_Packer_Js extends View_Resource_Packer_Abstract
 		);
 
 		$packages = array ();
-		for ($i = 0, $icount = sizeof ($resources); $i < $icount; $i++)
+		foreach ($resources as $resource)
 		{
-			$packages [] = self::packOne (file_get_contents ($resources [$i]));
+			$packages [] = self::packOne (file_get_contents (
+			    rtrim (IcEngine::root (), '/') . $resource
+			));
 		}
 		
-		$packed = join ('', $packages);
+		$packed = implode ("\n", $packages);
 		
 		if ($result_script)
 		{
@@ -55,6 +57,8 @@ class View_Resource_Packer_Js extends View_Resource_Packer_Abstract
 	 */
 	public static function packOne ($script)
 	{
+	    return $script . "\n";
+	    
 		$packer = new JavaScriptPacker (
 			$script, 0
 		);
