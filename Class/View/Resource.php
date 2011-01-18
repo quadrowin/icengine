@@ -4,6 +4,12 @@ class View_Resource extends Objective
 {
 	
 	/**
+	 * Время модификации файла
+	 * @var integer
+	 */
+	protected $_filemtime;
+	
+	/**
 	 * Ссылка.
 	 * @var string
 	 */
@@ -26,5 +32,42 @@ class View_Resource extends Objective
 	 * @var boolean
 	 */
 	public $nopack;
+	
+	/**
+	 * Содержимое ресурса.
+	 * @return string
+	 */
+	public function content ()
+	{
+		return file_get_contents (
+			rtrim (IcEngine::root (), '/') . $this->href
+		);
+	}
+	
+	/**
+	 * Время модификации файла.
+	 * @return integer
+	 */
+	public function filemtime ()
+	{
+		if (!$this->_filemtime)
+		{
+			$this->_filemtime = filemtime ($this->filePath ());
+		}
+		return $this->_filemtime;
+	}
+	
+	/**
+	 * Путь до файла в фс.
+	 * @return string
+	 */
+	public function filePath ()
+	{
+		if (!$this->filePath)
+		{
+			$this->filePath = rtrim (IcEngine::root (), '/') . $this->href;
+		}
+		return $this->filePath;
+	}
 	
 }

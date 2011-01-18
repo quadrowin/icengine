@@ -9,6 +9,10 @@ class Objective
 	 */
 	protected $_data = array ();
 	
+	/**
+	 * 
+	 * @param array $data
+	 */
 	public function __construct (array $data)
 	{
 		foreach ($data as $key => $value)
@@ -33,12 +37,6 @@ class Objective
 			{
 				$data [$key] = $value;
 			}
-		}
-		
-		$vars = get_class_vars (get_class ($this));
-		foreach ($vars as $var)
-		{
-			$data [$var] = $this->$var;
 		}
 		
 		return array_merge ($data, $this->_classVars ());
@@ -103,16 +101,15 @@ class Objective
 	 */
 	protected function _classVars ()
 	{
-		$result = array ();
 		$vars = get_class_vars (get_class ($this));
-		foreach ($vars as $var)
+		foreach ($vars as $key => $value)
 		{
-			if ($var [0] != '_')
+			if ($key [0] == '_')
 			{
-				$result [$var] = $this->$var;
+				unset ($vars [$key]);
 			}
 		}
-		return $result;
+		return $vars;
 	}
 	
 	/**
@@ -132,7 +129,7 @@ class Objective
 	 */
 	public function exists ($key)
 	{
-		return isset ($this->_data[$key]);
+		return isset ($this->_data [$key]);
 	}
 	
 	/**

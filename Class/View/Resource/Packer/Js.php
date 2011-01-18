@@ -15,33 +15,34 @@ class View_Resource_Packer_Js extends View_Resource_Packer_Abstract
 		Loader::requireOnce (self::PACKER, 'includes');
 	}
 	
-	public static function packOne ($resource)
+	public function packOne (View_Resource $resource)
 	{
 		if (
 			$this->config ['pack_item_prefix'] &&
-			isset ($resource ['options']['source'])
+			isset ($resource->filePath)
 		)
 		{
 			$result = str_replace (
 				'{$source}',
-				$resource ['source'],
+				$resource->filePath,
 				$this->config ['pack_item_prefix']
 			);
 		}
 		
 		if (
-			isset (self::$_currentResource ['options']['nopack']) &&
-			self::$_currentResource ['options']['nopack']
+			isset ($this->_currentResource->nopack) &&
+			$this->_currentResource->nopack
 		)
 		{
-			$result .= $resource ['href'] . "\n";
+			$result .= $resource->content () . "\n";
 		}
 	    else
 	    {
-			$packer = new JavaScriptPacker ($resource ['href'], 0);
+			$packer = new JavaScriptPacker ($resource->content (), 0);
 			$result .= $packer->pack ();
 	    }
 	    
 		return $result . $this->config ['pack_item_postfix'];
 	}
+	
 }

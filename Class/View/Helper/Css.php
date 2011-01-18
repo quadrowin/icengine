@@ -30,10 +30,15 @@ class View_Helper_Css extends View_Helper_Abstract
 		
 		if ($config ['packed_file'])
 		{
-		    Loader::load ('View_Resource_Packer_Css');
-            View_Resource_Packer_Css::pack (
-                $csses, $config ['packed_file']
-            );
+			$packer = $this
+				->_view
+				->resources ()
+				->packer (View_Resource_Manager::CSS);
+				
+			$packer->config = array_merge ($packer->config, $config);
+				
+			$packer->pack ($csses, $config ['packed_file']);
+				
             $result = 
                 str_replace ('{$url}', $config ['packed_url'], self::TEMPLATE);
 		}

@@ -16,11 +16,21 @@ class View_Resource_Manager
 	const JS = 'js';
 	
 	/**
-	 * Ресурсы
-	 * 
+	 * Ресурсы.
 	 * @var array <View_Resource_Item>
 	 */
 	protected $_resources = array ();
+	
+	/**
+	 * Упаковщики ресурсов.
+	 * @var array <View_Resrouce_Packer_Abstract>
+	 */
+	protected $_packers = array ();
+	
+	public function __construct ()
+	{
+		Loader::load ('View_Resource');
+	}
 	
 	/**
 	 * Добавление ресурса
@@ -58,20 +68,13 @@ class View_Resource_Manager
 				{
 					if ($exists->href == $data)
 					{
-						$exists ['options'] = array_merge (
-							$exists ['options'],
-							$options
-						);
 						return;
 					}
 				}
 			}
 			
-			
-			$this->_resources [$type][] = array (
-				'href'		=> $data,
-				'options'	=> $options
-			);
+			$options ['href'] = $data;
+			$this->_resources [$type][] = new View_Resource ($options);
 		}
 	}
 	
@@ -92,6 +95,22 @@ class View_Resource_Manager
 		}
 		
 		return $this->_resources [$type];
+	}
+	
+	/**
+	 * 
+	 * @param string $type
+	 * @return View_Resource_Packer_Abstract
+	 */
+	public function packer ($type)
+	{
+		if (!isset ($this->_packers [$type]))
+		{
+			$class = 'View_Resource_Packer_' . $type;
+			Loader::load ($class);
+			$this->_packers [$type] = new $class ();
+		}
+		return $this->_packers [$type];
 	}
 	
 }
