@@ -56,7 +56,7 @@ class View_Resource_Manager
 			{
 				foreach ($this->_resources [$type] as &$exists)
 				{
-					if ($exists ['href'] == $data)
+					if ($exists->href == $data)
 					{
 						$exists ['options'] = array_merge (
 							$exists ['options'],
