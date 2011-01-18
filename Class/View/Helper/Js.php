@@ -22,20 +22,23 @@ class View_Helper_Js extends View_Helper_Abstract
 	        $config ['dirs']
 	    );
 	    
-		$jses = $this->_view->resources()->getData (View_Resource_Manager::JS);
+		$jses = $this->_view->resources()->getData (
+			View_Resource_Manager::JS
+		);
 		
 		$result = '';
 		
 		if ($config ['packed_file'])
 		{
-		    Loader::load ('View_Resource_Packer_Js');
-		    View_Resource_Packer_Js::$config = array_merge (
-		    	View_Resource_Packer_Js::$config,
-		    	$config
-		    );
-            View_Resource_Packer_Js::pack (
-                $jses, $config ['packed_file']
-            );
+			$packer = $this
+				->_view
+				->resources ()
+				->packer (View_Resource_Manager::JS);
+			
+		    $packer->config = array_merge ($packer->config, $config);
+		    
+		    $packer->pack ($jses, $config ['packed_file']);
+		    
             $result = 
                 str_replace ('{$url}', $config ['packed_url'], self::TEMPLATE);
 		}

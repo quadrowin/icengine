@@ -6,105 +6,52 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 {
     
     /**
-     * Внешний путь до текущего файла ресурса
-     * @var string
-     */
-    protected static $_currentFilePathUrl;
-    
-    /**
-     * Текущий ресурс
+     * Импортируемые стили.
      * @var array
      */
-    protected static $_currentResource;
+    protected $_imports = array (); 
     
     /**
-     * Импортируемые стили
-     * @var array
+     * Callback для preg_replace вырезания @import.
+     * @param array $matches
+     * @return string
      */
-    protected static $_imports = array (); 
-    
-    public static function excludeImport (array $matches)
+    public function _excludeImport (array $matches)
     {
         if (strncmp ($matches [1], '/', 1) == 0)
         {
-            self::$_imports [] = $matches [0];
+            $this->_imports [] = $matches [0];
         }
         else
         {
-            self::$_imports [] = 
-            	'@import "' . self::$_currentFilePathUrl . $matches [1] . '";';
+            $this->_imports [] = 
+            	'@import "' . $this->_currentResource->urlPath . $matches [1] . '";';
         }
         
         return '';
     }
     
     /**
-     * 
-     * @param string $str
+     * Callback для preg_replace замены путей к изображениям.
+     * @param array $matches
      * @return string
      */
-    public static function replaceUrl (array $matches)
+    public function _replaceUrl (array $matches)
     {
         if (strncmp ($matches [1], '/', 1) == 0)
         {
             return $matches [0];
         }
         
-        return 'url("' . self::$_currentFilePathUrl . $matches [1] . '")';
+        return 'url("' . $this->_currentResource->urlPath . $matches [1] . '")';
     }
     
-	/**
-	 * 
-	 * @param null|array <string> $resources
-	 * @param string $result_style
-	 * @return string|null
-	 */
-	public static function pack ($resources = null, $result_style = '')
+	public function compile (array $packages)
 	{
-		if (is_null ($resources))
-		{
-			$resources = View_Render_Broker::getView ()
-				->resources ()
-					->getData (View_Resource_Manager::CSS);
-		}
-		
-		$packages = array ();
-		foreach ($resources as $resource)
-		{
-			self::$_currentResource = $resource;
-		    self::$_currentFilePathUrl = dirname ($resource ['href']) . '/';
-		    
-			$packed = self::packOne (file_get_contents (
-				rtrim (IcEngine::root (), '/') . $resource ['href']
-			));
-			
-    		$packed = preg_replace_callback (
-    			'/url\\([\'"]?(.*?)[\'"]?\\)/i',
-    		    array (__CLASS__, 'replaceUrl'),
-    		    $packed
-    		);
-    		
-    		$packed = preg_replace_callback (
-    		    '/@import\\s*[\'"]?(.*?)[\'"]?\\s*;/i',
-    		    array (__CLASS__, 'excludeImport'),
-    		    $packed
-    		);
-			
-			$packages [] = "\n/* $resource */\n" . $packed;
-		}
-		
-		$packed =
-		    implode ("\n", self::$_imports) . "\n" . 
+		return
+			$this->_compileFilePrefix () .
+		    implode ("\n", $this->_imports) . "\n" . 
 		    implode ("\n", $packages);
-		
-		if ($result_style)
-		{
-			file_put_contents ($result_style, $packed);
-		}
-		else
-		{
-			return $packed;
-		}
 	}
 	
 	/**
@@ -112,8 +59,22 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 	 * @param string $style
 	 * @return string
 	 */
-	public static function packOne ($style)
+	public function packOne (View_Resource $resource)
 	{
+		$resource->urlPath = dirname ($resource->href) . '/';
+		
+		$style = preg_replace_callback (
+			'/url\\([\'"]?(.*?)[\'"]?\\)/i',
+		    array ($this, '_replaceUrl'),
+		    $resource->content ()
+		);
+    		
+		$style = preg_replace_callback (
+		    '/@import\\s*[\'"]?(.*?)[\'"]?\\s*;/i',
+			array ($this, '_excludeImport'),
+			$style
+		);
+		
 		$style = preg_replace ('!/\*[^*]*\*+([^/][^*]*\*+)*/!', '', $style);
 		$style = str_replace (array ("\r", "\t", '@CHARSET "UTF-8";'), '', $style);
 		
