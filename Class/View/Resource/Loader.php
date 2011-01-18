@@ -20,6 +20,16 @@ class View_Resource_Loader
 		
 		for ($i = 0, $icount = sizeof ($dirs); $i < $icount; $i++)
 		{
+			$options = array (
+				'source'	=> $dirs [$i],
+				'nopack'	=> ($dirs [$i][0] == '-')
+			);
+			
+			if ($options ['nopack'])
+			{
+				$dirs [$i] = substr ($dirs [$i], 1);
+			}
+			
 			$dbl_star_pos = strpos ($dirs [$i], '**');
 			$star_pos = strpos ($dirs [$i], '*');
 			
@@ -77,9 +87,10 @@ class View_Resource_Loader
 				
 				for ($j = 0, $count = sizeof ($files); $j < $count; $j++)
 				{
+					$options ['source'] = $files [$j];
 					View_Render_Broker::getView ()
 						->resources ()
-							->add ($files [$j]);
+							->add ($files [$j], null, $options);
 				}
 			}
 			elseif ($star_pos !== false)
@@ -107,13 +118,14 @@ class View_Resource_Loader
 					    fnmatch ($pattern, $file)
 					)
 					{
+						$fn = 
+							rtrim ($base_url, '/') . '/' .
+							rtrim ($dir, '/') . '/' . 
+							$fn;
+						$options ['source'] = $fn;
 						View_Render_Broker::getView ()
 							->resources ()
-								->add (
-									rtrim ($base_url, '/') . '/' .
-									rtrim ($dir, '/') . '/' . 
-								  	$fn
-								);
+								->add ($fn, null, $options);
 					}
 				}
 			}
@@ -123,7 +135,7 @@ class View_Resource_Loader
 				$file = $base_url . $dirs [$i];
 				View_Render_Broker::getView ()
 					->resources ()
-						->add ($file);
+						->add ($file, null, $options);
 			}
 		}
 	}

@@ -18,7 +18,7 @@ class View_Resource_Manager
 	/**
 	 * Ресурсы
 	 * 
-	 * @var array
+	 * @var array <View_Resource_Item>
 	 */
 	protected $_resources = array ();
 	
@@ -26,17 +26,19 @@ class View_Resource_Manager
 	 * Добавление ресурса
 	 * 
 	 * @param string|array $data
-	 * 		Тип ресурса или массив пар (тип => ссылка)
+	 * 		Ссылка на ресурс или массив пар (тип => ссылка)
 	 * @param string $type [optional]
-	 * 		Ссылка 
+	 * 		Тип ресурса
+	 * @param array $flags
+	 * 		Параметры
 	 */
-	public function add ($data, $type = null)
+	public function add ($data, $type = null, array $options = array ())
 	{
 		if (is_array ($data))
 		{
 			foreach ($data as $d)
 			{
-				$this->add ($d);
+				$this->add ($d, $type, $options);
 			}
 		}
 		else
@@ -50,16 +52,32 @@ class View_Resource_Manager
 			{
 				$this->_resources [$type] = array ();
 			}
+			else 
+			{
+				foreach ($this->_resources [$type] as &$exists)
+				{
+					if ($exists ['href'] == $data)
+					{
+						$exists ['options'] = array_merge (
+							$exists ['options'],
+							$options
+						);
+						return;
+					}
+				}
+			}
 			
-			$this->_resources [$type][] = $data;
+			
+			$this->_resources [$type][] = array (
+				'href'		=> $data,
+				'options'	=> $options
+			);
 		}
 	}
 	
 	/**
 	 * @desc
 	 * 		Возвращает связанные данные по ресурсам.
-	 * 		ВАЖНО: используется функция array_unique, поэтому
-	 * 		в результирующем массиве индексы могут идти не по порядку.
 	 * 
 	 * @param string $type
 	 * 		Тип
@@ -68,12 +86,12 @@ class View_Resource_Manager
 	 */
 	public function getData ($type)
 	{
-		if (isset ($this->_resources [$type]))
+		if (!isset ($this->_resources [$type]))
 		{
-			return array_unique ($this->_resources [$type]);
+			return array ();
 		}
 		
-		return array ();
+		return $this->_resources [$type];
 	}
 	
 }

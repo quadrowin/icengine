@@ -75,7 +75,7 @@ class Config_Manager
 	 * @param string $name
 	 * @return Config_Array
 	 */
-	public static function loadConfig ($type, $name = null)
+	public static function load ($type, $name = null)
 	{
 		Loader::load ('Config_Container');
 		

@@ -42,7 +42,7 @@ class View_Helper_Css extends View_Helper_Abstract
     		foreach ($csses as $css)
     		{
     			$result .=
-    			    str_replace('{$url}', $css, self::TEMPLATE);
+    			    str_replace('{$url}', $css ['href'], self::TEMPLATE);
     		}
 		}
 		
