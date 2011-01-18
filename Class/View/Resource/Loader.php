@@ -6,7 +6,7 @@ class View_Resource_Loader
 	 * 
 	 * @param string|array <string> $dirs
 	 */
-	public function load ($base_url, $base_dir, $dirs)
+	public static function load ($base_url, $base_dir, $dirs)
 	{
 		$dirs = array_values ((array) $dirs);
 		
@@ -20,68 +20,110 @@ class View_Resource_Loader
 		
 		for ($i = 0, $icount = sizeof ($dirs); $i < $icount; $i++)
 		{
-			if (strpos ($dirs [$i], '*') === false)
+			$dbl_star_pos = strpos ($dirs [$i], '**');
+			$star_pos = strpos ($dirs [$i], '*');
+			
+			if ($dbl_star_pos !== false)
 			{
-				$iterator = new DirectoryIterator (rtrim ($base_dir, '/'). '/' .$dirs [$i]);
+			    // Путь вида "js/**.js"
+			    // Включает поддиректории.
+			    
+			    // $dirs [i] = "js/**.js"
+				$dir = trim (substr ($dirs [$i], 0, $dbl_star_pos), '/');
+			    // $dir = "js"
+				$pattern = substr ($dirs [$i], $dbl_star_pos + 1);
+				// $pattern = "*.js"
+				
+				$subdirs = scandir ($base_dir . '/' . $dir);
+				
+				$list = array (
+				    explode ('/', $dir)
+				);
+				
+				$files = array ();
+				
+				for ($p = current ($list); $p; $p = next ($list))
+				{
+					$dir = implode ('/', $p);
+					
+					$subdirs = scandir ($base_dir . $dir);
+					
+					for ($j = 0, $count = sizeof ($subdirs); $j < $count; $j++)
+					{
+					    if (
+					        $subdirs [$j][0] == '.' ||
+					        $subdirs [$j][0] == '_'
+					    )
+						{
+						    continue;
+						}
+					    
+						$fn = $base_dir . $dir . '/' . $subdirs [$j];
+						
+						if (!is_dir ($fn))
+						{
+						    if (fnmatch ($pattern, $fn))
+					        {
+						        $files [] = $base_url . $dir . '/' . $subdirs [$j];
+					        }
+							continue;
+						}
+						
+						array_push ($list, 
+							explode ('/', $dir . '/' . $subdirs [$j])
+						);
+					}
+				}
+				
+				for ($j = 0, $count = sizeof ($files); $j < $count; $j++)
+				{
+					View_Render_Broker::getView ()
+						->resources ()
+							->add ($files [$j]);
+				}
+			}
+			elseif ($star_pos !== false)
+			{
+			    // Путь вида "js/*.js"
+			    // Включает файлы, подходящие под маску в текущей директории
+			    
+			    // $dirs [i] = "js/**.js"
+				$dir = trim (substr ($dirs [$i], 0, $star_pos), '/');
+			    // $dir = "js"
+				$pattern = substr ($dirs [$i], $star_pos);
+				// $pattern = "*.js"
+			    
+				$iterator = new DirectoryIterator (
+				    rtrim ($base_dir, '/') . '/' . $dir
+				);
+				
 				foreach ($iterator as $file)
 				{
-					if (!$file->isDot () && $file->isFile ())
+				    $fn = $file->getFilename ();
+					if (
+					    $file->isFile () &&
+					    $fn [0] != '.' && 
+					    $fn [0] != '_' &&
+					    fnmatch ($pattern, $file)
+					)
 					{
-						View_Render_Broker::getView()
-							->resources()
+						View_Render_Broker::getView ()
+							->resources ()
 								->add (
 									rtrim ($base_url, '/') . '/' .
-									rtrim ($dirs [$i], '/') . '/' . 
-								  	$file->getFilename ()
+									rtrim ($dir, '/') . '/' . 
+								  	$fn
 								);
 					}
 				}
 			}
 			else
 			{
-				$dir = trim (str_replace ('*', '', $dirs [$i]), '/');
-				
-				$subdirs = scandir ($base_dir . '/' . $dir);
-				
-				$list = array ();
-				
-				$list [0] = explode ('/', $dir);
-				$st = sizeof ($list [0]) - 1;
-				
-				$n = 0;
-				
-				$files = array ();
-				
-				while ($p = current ($list))
-				{
-					$dir = join ('/', $p);
-					$subdirs = scandir ($base_dir . $dir);
-					for ($i = 0, $count = sizeof ($subdirs); $i < $count; $i++)
-					{
-						$files [] = $base_url. $dir . '/' . $subdirs [$i];
-						if (
-							$subdirs [$i][0] == '.' ||
-							$subdirs [$i] == '.' || 
-							$subdirs [$i] == '..' || 
-							!is_dir ($base_dir . $dir.'/'.$subdirs [$i])
-						)
-						{
-							continue;
-						}
-						array_push ($list, 
-							explode ('/', $dir.'/'.$subdirs [$i])
-						);
-					}
-					$n++;
-					next ($list);
-				}
-				for ($i = 0, $count = sizeof ($files); $i < $count; $i++)
-				{
-					View_Render_Broker::getView()
-						->resources()
-							->add ($files [$i]);
-				}
-				
+			    // Указан путь до файла: "js/scripts.js"
+				$file = $base_url . $dirs [$i];
+				View_Render_Broker::getView ()
+					->resources ()
+						->add ($file);
 			}
 		}
 	}
