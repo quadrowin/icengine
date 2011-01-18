@@ -14,35 +14,36 @@ class Helper_Form
 	 * @var	array
 	 */
 	private $_simpleFields = array (
-        'email'		=> array (
-        	'type'	=> 'string',
-            'minLength'	=> 5,
-            'maxLength'	=> 40,
-            'validators'	=> array (
-            	'Registration_Email'
-            ),
-            'value'		=> 'input'
-        ),
-        'password'	=> array (
-        	'type'	=> 'string',
-            'minLength'	=> 6,
-            'maxLength'	=> 250,
-            'value'	=> 'input',
-            'validators'	=> array (
-                'Registration_Password'
-            )
-        ),
-        'ip'	=> array (
-            'maxTries'	=> 10,
-        	'value'	    => array ('Request', 'ip'),
-            'validators'	=> array (
-        		'Registration_Ip_Limit'
-            )
-        )
-    );
+		'email'		=> array (
+			'type'	=> 'string',
+			'minLength'	=> 5,
+			'maxLength'	=> 40,
+			'validators'	=> array (
+				'Registration_Email'
+			),
+			'value'		=> 'input'
+		),
+		'password'	=> array (
+			'type'	=> 'string',
+			'minLength'	=> 6,
+			'maxLength'	=> 250,
+			'value'	=> 'input',
+			'validators'	=> array (
+				'Registration_Password'
+			)
+		),
+		'ip'	=> array (
+			'maxTries'	=> 10,
+			'value'		=> array ('Request', 'ip'),
+			'validators'	=> array (
+				'Registration_Ip_Limit'
+			)
+		)
+	);
 	
 	/**
-	 * @desc	Чтение данных из инпута согласно правилам
+	 * @desc	Чтение данных из инпута согласно правилам.
+	 * 
 	 * @param	Data_Transport $input
 	 * 		Входной поток.
 	 * @param array $fields
@@ -56,7 +57,10 @@ class Helper_Form
 		
 		foreach ($fields as $field => $info)
 		{
-			if ($info ['value'] == 'input')
+			if (
+				$info ['value'] == 'input' ||
+				$info ['value'] == 'input,ignore'
+			)
 			{
 				$data [$field] = $input->receive ($field);
 			}
@@ -64,17 +68,13 @@ class Helper_Form
 			{
 				$data [$field] = call_user_func ($info ['value']);
 			}
-			elseif ($info ['value'] == 'ignore')
-			{
-				$data [$field] = $input->receive ($field);
-			}
 		}
 		
 		return $data;
 	}
 	
 	/**
-	 * Убрать из выборки поля, отмеченные как игнорируемые.
+	 * Удаление из выборки полей, отмеченных как игнорируемые.
 	 * @param array $data
 	 * @param array $fields
 	 */
@@ -82,7 +82,11 @@ class Helper_Form
 	{
 		foreach ($data as $key => $value)
 		{
-			if (!isset ($fields [$key]) || $fields [$key]['value'] == 'ignore')
+			if (
+				!isset ($fields [$key]) || 
+				$fields [$key]['value'] == 'ignore' ||
+				$fields [$key]['value'] == 'input,ignore'
+			)
 			{
 				unset ($data [$key]);
 			}
@@ -112,37 +116,37 @@ class Helper_Form
 				continue ;
 			}
 			
-	        $validators = isset ($info ['validators']) ? 
-	            (array) $info ['validators'] :
-	            array ();
-	            
-	        foreach ($validators as $validator)
-	        {
-	        	$validator = 'Data_Validator_' . $validator;
-	        	
-    	        if (!Loader::load ($validator))
-    	        {
-    	            Loader::load ('Zend_Exception');
-    	            throw new Zend_Exception (
-    	            	'Unable to load registration validator: ' . $validator);
-    	            return self::FAIL;
-    	        }
-    	        
-    	        $result = call_user_func (
-    	            array ($validator, 'validate'),
-    	            $obj_data, $name, $info
-    	        );
-    	            
-    	        if ($result !== true)
-    	        {
-    	            return $result;
-    	        }
-	        }
-	    }
-	    
-	    $data = (array) $obj_data;
-	    
-	    return true;
+			$validators = isset ($info ['validators']) ? 
+				(array) $info ['validators'] :
+				array ();
+				
+			foreach ($validators as $validator)
+			{
+				$validator = 'Data_Validator_' . $validator;
+				
+				if (!Loader::load ($validator))
+				{
+					Loader::load ('Zend_Exception');
+					throw new Zend_Exception (
+						'Unable to load registration validator: ' . $validator);
+					return self::FAIL;
+				}
+				
+				$result = call_user_func (
+					array ($validator, 'validate'),
+					$obj_data, $name, $info
+				);
+				
+				if ($result !== true)
+				{
+					return $result;
+				}
+			}
+		}
+		
+		$data = (array) $obj_data;
+		
+		return true;
 	}
 	
 }
