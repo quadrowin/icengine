@@ -523,12 +523,12 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 	 * @param function $function
 	 * @param string $data
 	 */
-	public function mapToData($function, $data)
+	public function mapToData ($function, $data)
 	{
 		$items = &$this->items();
 		foreach ($items as $item)
 		{
-			$item->data($data, call_user_func($function, $item));
+			$item->data ($data, call_user_func ($function, $item));
 		}
 	}
 	

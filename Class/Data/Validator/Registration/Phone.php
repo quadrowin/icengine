@@ -10,9 +10,9 @@
 class Data_Validator_Registration_Phone
 {
 	
-	const PHONE_SHORT = 'phoneShort';
+	const SHORT	= 'short';
 	
-	const PHONE_LONG = 'phoneLong';
+	const LONG	= 'long';
 	
 	public static function validate (stdClass $data, $name, array $info)
 	{
@@ -21,12 +21,12 @@ class Data_Validator_Registration_Phone
 		
 		if ($length < $info ['minLength'])
 		{
-			return self::PHONE_SHORT;
+			return __CLASS__ . '/' . self::SHORT;
 		}
 		
 		if ($length > $info ['maxLength'])
 		{
-			return self::PHONE_LONG;
+			return __CLASS__ . '/' . self::LONG;
 		}
     	
 		return true;

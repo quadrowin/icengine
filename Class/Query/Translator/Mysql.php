@@ -187,13 +187,15 @@ class Query_Translator_Mysql extends Query_Translator
 	    {
 	        return 'NULL';
 	    }
+
+	    $result = implode (',', array_map (array ($this, '_quote'), $value));
 	    
-	    $result = $this->_quote ($value [0]);
-	    
-	    for ($i = 1, $count = count ($value); $i < $count; $i++)
-	    {
-	        $result .= ',' . $this->_quote ($value [$i]);
-	    }
+//	    $result = $this->_quote ($value [0]);
+//	    
+//	    for ($i = 1, $count = count ($value); $i < $count; $i++)
+//	    {
+//	        $result .= ',' . $this->_quote ($value [$i]);
+//	    }
 	    
 	    return $result;
 	}

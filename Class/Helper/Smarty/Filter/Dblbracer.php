@@ -52,12 +52,23 @@ class Helper_Smarty_Filter_Dblbracer
 			if (1 == $t)
 			{
 				// Заменяемая часть
+				$chunk = str_replace (
+					array ('{{', '}}'), 
+					array (self::TEMP_TAG, self::TEMP_TAG_C),
+					$chunk
+				);
+				
+				
 				$parts = array_map (
 					array (__CLASS__, '_replaceRdelim'),
 					explode ('{', $chunk)
 				);
 			
-				$chunk = implode ('{ldelim}', $parts);
+				$chunk = str_replace (
+					array (self::TEMP_TAG, self::TEMP_TAG_C),
+					array ('{', '}'),
+					implode ('{ldelim}', $parts)
+				);
 			}
 			
 			$result .= $chunk;

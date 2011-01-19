@@ -3,6 +3,10 @@
 class Model_Proxy extends Model
 {
 	
+	/**
+	 * @desc Представляемая модель.
+	 * @var string
+	 */
 	protected $_modelName;
 	
 	/**

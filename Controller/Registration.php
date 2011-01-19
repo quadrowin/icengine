@@ -16,9 +16,6 @@ class Controller_Registration extends Controller_Abstract
 	 */
 	public function index ()
 	{
-		View_Render_Broker::getView ()->resources ()->add (
-			'/js/Widget/Registration.js');
-		
 		if (User::authorized ())
 		{
 			Loader::load ('Header');
@@ -40,18 +37,18 @@ class Controller_Registration extends Controller_Abstract
 		
 		if (!$this->registration)
 		{
-			IcEngine::$application->frontController->getDispatcher ()
-				->currentIteration ()->setTemplate (
-					str_replace (array ('::', '_'), '/', __METHOD__) .
-					'/fail_code_uncorrect.tpl');
+			$this->_dispatcherIteration->setTemplate (
+				str_replace (array ('::', '_'), '/', __METHOD__) .
+				'/fail_code_uncorrect.tpl'
+			);
 			return false;	
 		}
 		elseif ($this->registration->finished)
 		{
-			IcEngine::$application->frontController->getDispatcher ()
-				->currentIteration ()->setTemplate (
-					str_replace (array ('::', '_'), '/', __METHOD__) .
-					'/fail_already_finished.tpl');
+			$this->_dispatcherIteration->setTemplate (
+				str_replace (array ('::', '_'), '/', __METHOD__) .
+				'/fail_already_finished.tpl'
+			);
 			return false;
 		}
 		
@@ -65,18 +62,17 @@ class Controller_Registration extends Controller_Abstract
 		$data = Helper_Form::receiveFields ($this->_input, 
 			Registration::$config ['fields']);
 		
-		$result = Registration::tryRegister ($data);
+		$valid = Registration::tryRegister ($data);
+		$this->_output->send ('valid', $valid);
 		
-		$this->_template = 
-			IcEngine::$application->frontController->getDispatcher ()
-			->currentIteration ()->setTemplate (
-				str_replace (array ('_', '::'), '/', __METHOD__) . 
-				'/' . 
-				$result . '.tpl');
-		
-		$this->_output->send ('result', $result);
-		
-		if ($result == Registration::OK)
+		if ($valid !== true)
+		{
+			$this->_dispatcherIteration->setTemplate ( 
+				str_replace (array ('_', '::'), '/', $valid) . 
+				'.tpl'
+			);
+		}
+		else
 		{
 			$this->_output->send ('data', array (
 				'removeForm'	=> true

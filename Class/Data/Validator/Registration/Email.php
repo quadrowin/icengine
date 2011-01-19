@@ -3,17 +3,17 @@
 class Data_Validator_Registration_Email
 {
 
-	const EMAIL_EMPTY		= 'emailEmpty';      // Пустой емейл
+	const SHORT		= 'short';      // Пустой емейл
 	
-	const EMAIL_INCORRECT	= 'emailIncorrect';  // Емейл некорректен
+	const INCORRECT	= 'incorrect';  // Емейл некорректен
 	
-	const EMAIL_REPEAT		= 'emailRepeat';     // Уже используется
+	const REPEAT	= 'repeat';     // Уже используется
     
     public static function validate (stdClass $data, $name, array $info)
     {
 		if (empty ($data->$name))
 		{
-			return self::EMAIL_EMPTY;
+			return __CLASS__ . '/' . self::SHORT;
 		}
 		
 		$email = $data->$name = trim ($data->$name);
@@ -23,7 +23,7 @@ class Data_Validator_Registration_Email
 		    strlen ($email) > $info ['maxLength']
 		)
 		{
-		    return self::EMAIL_INCORRECT;
+		    return __CLASS__ . '/' . self::INCORRECT;
 		}
 		
 		$user = IcEngine::$modelManager->modelBy (
@@ -34,7 +34,7 @@ class Data_Validator_Registration_Email
 		
 		if ($user)
 		{
-			return self::EMAIL_REPEAT;
+			return __CLASS__ . '/' . self::REPEAT;
 		}
 		
 		$reg = IcEngine::$modelManager->modelBy (
@@ -45,7 +45,7 @@ class Data_Validator_Registration_Email
 		
 		if ($reg)
 		{
-			return self::EMAIL_REPEAT;
+			return __CLASS__ . '/' . self::REPEAT;
 		}
 		
 		return true;

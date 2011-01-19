@@ -2,8 +2,6 @@
 
 class Registration extends Model
 {
-
-    const OK  = 'ok';     // Успешно
     
     const FAIL = 'fail';      
 	
@@ -234,14 +232,14 @@ class Registration extends Model
 	    
 	    $ok = self::register ($data, self::$config ['sendmail']);
 	    
-	    return $ok ? self::OK : self::FAIL;
+	    return $ok ? true : self::FAIL;
 	}
 	
 	/**
 	 * Проверка полей формы регистрации
 	 * @param array $data
 	 * @return mixed
-	 * 		Registration::OK если валидация пройдена успешно,
+	 * 		true если валидация пройдена успешно,
 	 * 		иначе код ошибки.
 	 */
 	public static function validate (array &$data)

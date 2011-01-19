@@ -177,8 +177,21 @@ class Helper_Link
 	    {
 	        return $link->delete ();
 	    }
-	    
-	    return null;
+	}
+	
+	/**
+	 * Удаление всех связей модели с моделями указанного типа.
+	 * @param Model $model1
+	 * @param string $model2
+	 */
+	public static function unlinkWith (Model $model1, $model2)
+	{
+		$query = 
+			Query::instance ()
+			->delete ()
+			->from ('Link');
+			
+		DDS::execute ($query);
 	}
 	
 }

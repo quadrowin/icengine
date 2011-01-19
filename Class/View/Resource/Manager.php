@@ -106,7 +106,7 @@ class View_Resource_Manager
 	{
 		if (!isset ($this->_packers [$type]))
 		{
-			$class = 'View_Resource_Packer_' . $type;
+			$class = 'View_Resource_Packer_' . ucfirst ($type);
 			Loader::load ($class);
 			$this->_packers [$type] = new $class ();
 		}
