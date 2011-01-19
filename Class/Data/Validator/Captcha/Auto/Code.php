@@ -3,7 +3,7 @@
 class Data_Validator_Captcha_Auto_Code
 {
 	
-	const FAIL_CAPTCHA_CODE = 'failCaptchaCode';
+	const FAIL = 'fail';
 	
 	public static function validate (stdClass $data, $name, array $info)
 	{
@@ -14,7 +14,7 @@ class Data_Validator_Captcha_Auto_Code
 			$_SESSION [Helper_Captcha::SF_AUTO_CODE] != $data->$name
 		)
 		{
-			return self::FAIL_CAPTCHA_CODE;
+			return __CLASS__ . '/' . self::FAIL;
 		}
 		
 		unset ($_SESSION [Helper_Captcha::SF_AUTO_CODE]);

@@ -382,7 +382,7 @@ abstract class Model
 	 */
 	public function joint ($model, array $data = array ())
 	{
-		if (!isset ($this->_joints [$model]))
+		if (!isset ($this->_joints [$model]) || $data)
 		{
 			Loader::load ($model);
 			
@@ -490,6 +490,21 @@ abstract class Model
 	    
 		if ($this->key () && !$hard_insert)
 		{
+//			if (
+//				$this->modelName () == 'User_Session' &&
+//				isset ($this->_fields ['User__id'])
+//			)
+//			{
+//				if ($this->_fields ['User__id'] == 0)
+//				{
+//					return;
+//				}
+//				file_put_contents (
+//					'c:/temp/' . time () . '_' . $this->_fields ['User__id'] . 'u.txt',
+//					$_SERVER ['REQUEST_URI'] . PHP_EOL . 
+//					print_r (debug_backtrace (), true)
+//				);
+//			}
 			DDS::execute (
 				Query::instance ()
 				->update ($this->table ())

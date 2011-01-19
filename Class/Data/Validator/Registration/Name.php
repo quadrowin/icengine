@@ -10,9 +10,9 @@
 class Data_Validator_Registration_Name
 {
     
-	const NAME_SHORT	= 'nameShort';
+	const SHORT	= 'short';
 	
-	const NAME_LONG		= 'nameLong';
+	const LONG	= 'long';
 	
     public static function validate (stdClass $data, $name, array $info)
     {
@@ -21,12 +21,12 @@ class Data_Validator_Registration_Name
 		
 		if ($length < $info ['minLength'])
 		{
-			return self::NAME_SHORT;
+			return __CLASS__ . '/' . self::SHORT;
 		}
 		
 		if ($length > $info ['maxLength'])
 		{
-			return self::NAME_LONG;
+			return __CLASS__ . '/' . self::LONG;
 		}
     	
 		return true;

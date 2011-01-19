@@ -132,4 +132,19 @@ class Helper_Uri
 	    return ($s === false) ? $server_name : substr ($server_name, $s + 1);
 	}
 	
+	public static function validRedirect ($uri)
+	{
+		if (empty ($uri))
+		{
+			return 'http://' . $_SERVER ['HTTP_HOST'];
+		}
+		
+		if (substr ($uri, 0, 1) == '/')
+		{
+			return 'http://' . $_SERVER ['HTTP_HOST'] . $uri;
+		}
+		
+		return $uri;
+	}
+	
 }

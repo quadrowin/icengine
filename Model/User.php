@@ -13,15 +13,6 @@ class User extends Model
 	 * @var User
 	 */
 	protected static $_current    = false;
-    
-	public static $scheme = array (
-		Query::FROM	    => __CLASS__,
-		Query::INDEX	=> array (
-			array ('name'),
-			array ('email'),
-			array ('email', 'password')
-		)
-	);
 	
 	/**
 	 * Авторизоваться этим пользователем.
@@ -29,8 +20,7 @@ class User extends Model
 	 */
 	public function authorize ()
 	{
-	    User_Session::getCurrent ()->User__id = $this->id;
-	    User_Session::getCurrent ()->updateSession ();
+	    User_Session::getCurrent ()->updateSession ($this->id);
 	    self::$_current = $this;
 		return $this;
 	}
@@ -186,13 +176,6 @@ class User extends Model
 		return self::$_current;
 	}
 	
-	public function logout ()
-	{
-	    User_Session::getCurrent ()->update (array (
-    		    'User__id'	=> 0
-    	));
-	}
-	
 	/**
 	 * @return Acl_Role
 	 */
@@ -258,6 +241,5 @@ class User extends Model
 	
 }
 
-Model_Scheme::add ('User', User::$scheme);
 Loader::load ('User_Guest');
 Loader::load ('User_Session');

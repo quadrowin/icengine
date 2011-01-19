@@ -21,9 +21,13 @@ class Controller_Authorization extends Controller_Abstract
 		$password = $this->_input->receive ('password');
 		$redirect = $this->_input->receive ('redirect');
 		
-		$redirect = $redirect ? $redirect : self::DEFAULT_REDIRECT;
+		Loader::load ('Helper_Uri');
+		$redirect = Helper_Uri::validRedirect (
+			$redirect ? $redirect : self::DEFAULT_REDIRECT
+		);
 
 		Loader::load ('Authorization');
+		
 		$user = Authorization::authorize ($login, $password);
 		
 		if ($user)
@@ -41,9 +45,10 @@ class Controller_Authorization extends Controller_Abstract
 		    $this->_output->send ('data', array (
 		        'error'	=> 'Password incorrect'
 		    ));
-		    $this->_template = 
+		    $this->_dispatcherIteration->setTemplate (
 		    	str_replace (array ('::', '_'), '/', __METHOD__) .
-		    	'/password_incorrect.tpl';
+		    	'/password_incorrect.tpl'
+		    );
 		}
 	}
 	
@@ -52,8 +57,14 @@ class Controller_Authorization extends Controller_Abstract
 	    User_Session::getCurrent ()->delete ();
 	    $redirect = $this->_input->receive ('redirect');
 	    
-	    Header::redirect ($redirect ? $redirect : self::DEFAULT_REDIRECT);
-	    die ();
+	    Loader::load ('Helper_Uri');
+	    $redirect = Helper_Uri::validRedirect (
+	    	$redirect ? $redirect : self::DEFAULT_REDIRECT
+	    );
+	    
+	    $this->_output->send ('data', array (
+	    	'redirect'	=> $redirect
+		));
 	}
 	
 }

@@ -3,7 +3,7 @@
 class Data_Validator_Registration_Ip_Limit
 {
 	
-	const IP_LIMIT			= 'ipLimit'; // Лимит на 1 ip
+	const FAIL			= 'fail'; // Лимит на 1 ip
 	
     public static function validate ()
 	{
@@ -17,7 +17,7 @@ class Data_Validator_Registration_Ip_Limit
 		
 		if ($regs->count () >= Registration::$config ['ip_day_limit'])
 		{
-			return self::IP_LIMIT;
+			return __CLASS__ . '/' . self::FAIL;
 		}
 		
 		return true;
