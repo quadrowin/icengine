@@ -121,6 +121,41 @@ class Helper_Link
 	}
 	
 	/**
+	 * @desc Возвращает первичные ключи связанных моделей.
+	 * @param Model $model1
+	 * 		Модель.
+	 * @param string $model2
+	 * 		Имя связанной модели.
+	 * @return array
+	 * 		Массив первичных ключей второй модели.
+	 */
+	public static function linkedKeys (Model $model1, $model2)
+	{
+		$query = Query::instance ();
+		
+		if (strcmp ($model1->table (), $model2) > 0)
+	    {
+	        $query
+	        	->select (array ('Link'	=> 'fromRowId'))
+	            ->from ('Link')
+	            ->where ('Link.fromTable', $model2)
+	            ->where ('Link.toTable', $model1->table ())
+	            ->where ('Link.toRowId', $model1->key ()); 
+	    }
+	    else
+	    {
+	        $query
+	        	->select (array ('Link'	=> 'toRowId'))
+	            ->from ('Link')
+	            ->where ('Link.fromTable', $model1->table ())
+	            ->where ('Link.fromRowId', $model1->key ())
+	            ->where ('Link.toTable', $model2);
+	    }
+	    
+	    return DDS::execute ($query)->getResult ()->asColumn ();
+	}
+	
+	/**
 	 * 
 	 * @param Model $model1
 	 * @param Model $model2
