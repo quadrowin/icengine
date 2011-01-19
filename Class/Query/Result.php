@@ -10,6 +10,37 @@ class Query_Result
 	}
 	
 	/**
+	 * @desc
+	 * 		Возвращает одну колонку результата.
+	 * @param string|null $name [optional]
+	 * 		Название колонки.
+	 * 		Если не указано, будет возвращен массив, содержащий
+	 * 		первую колонку.
+	 * @return array
+	 */
+	public function asColumn ($name = null)
+	{
+		$result = array ();
+		
+		if ($name)
+		{
+			foreach ($this->_result ['result'] as $row)
+			{
+				$result [] = $row [$name];
+			}
+		}
+		else
+		{
+			foreach ($this->_result ['result'] as $row)
+			{
+				$result [] = reset ($row);
+			}
+		}
+		
+		return $result;
+	}
+	
+	/**
 	 * Результат запроса - единственная запись таблицы
 	 * @return array|null
 	 */
