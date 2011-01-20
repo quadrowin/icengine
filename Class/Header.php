@@ -44,6 +44,7 @@ class Header
 		{
 			$uri = 'http://' . $_SERVER ['HTTP_HOST'] . $uri;
 		}
+		
 		if (!headers_sent ())
 		{
 			header ("Location: $uri");

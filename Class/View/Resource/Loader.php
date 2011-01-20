@@ -18,20 +18,20 @@ class View_Resource_Loader
 			$base_url = $base_dir;
 		}
 		
-		for ($i = 0, $icount = sizeof ($dirs); $i < $icount; $i++)
+		foreach ($dirs as $pattern)
 		{
 			$options = array (
-				'source'	=> $dirs [$i],
-				'nopack'	=> ($dirs [$i][0] == '-')
+				'source'	=> $pattern,
+				'nopack'	=> ($pattern [0] == '-')
 			);
 			
 			if ($options ['nopack'])
 			{
-				$dirs [$i] = substr ($dirs [$i], 1);
+				$pattern = substr ($pattern, 1);
 			}
 			
-			$dbl_star_pos = strpos ($dirs [$i], '**');
-			$star_pos = strpos ($dirs [$i], '*');
+			$dbl_star_pos = strpos ($pattern, '**');
+			$star_pos = strpos ($pattern, '*');
 			
 			if ($dbl_star_pos !== false)
 			{
@@ -39,9 +39,9 @@ class View_Resource_Loader
 			    // Включает поддиректории.
 			    
 			    // $dirs [i] = "js/**.js"
-				$dir = trim (substr ($dirs [$i], 0, $dbl_star_pos), '/');
+				$dir = trim (substr ($pattern, 0, $dbl_star_pos), '/');
 			    // $dir = "js"
-				$pattern = substr ($dirs [$i], $dbl_star_pos + 1);
+				$pattern = substr ($pattern, $dbl_star_pos + 1);
 				// $pattern = "*.js"
 				
 				$subdirs = scandir ($base_dir . '/' . $dir);
@@ -99,9 +99,9 @@ class View_Resource_Loader
 			    // Включает файлы, подходящие под маску в текущей директории
 			    
 			    // $dirs [i] = "js/**.js"
-				$dir = trim (substr ($dirs [$i], 0, $star_pos), '/');
+				$dir = trim (substr ($pattern, 0, $star_pos), '/');
 			    // $dir = "js"
-				$pattern = substr ($dirs [$i], $star_pos);
+				$pattern = substr ($pattern, $star_pos);
 				// $pattern = "*.js"
 			    
 				$iterator = new DirectoryIterator (
@@ -132,7 +132,7 @@ class View_Resource_Loader
 			else
 			{
 			    // Указан путь до файла: "js/scripts.js"
-				$file = $base_url . $dirs [$i];
+				$file = $base_url . $pattern;
 				View_Render_Broker::getView ()
 					->resources ()
 						->add ($file, null, $options);
