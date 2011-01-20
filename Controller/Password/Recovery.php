@@ -99,11 +99,12 @@ class Controller_Password_Recovery extends Controller_Abstract
 				'error'	=> true
 			));
 			
-			$this->_template = 
+			$this->_dispatcherIteration->setTemplate (
 				str_replace (array ('::', '_'), '/', __METHOD__) .
-				'/error_email_limit.tpl';
+				'/error_email_limit.tpl'
+			);
 				
-			return null;
+			return ;
 		}
 		
 		$user = IcEngine::$modelManager->modelBy (
@@ -118,21 +119,23 @@ class Controller_Password_Recovery extends Controller_Abstract
 				'error'	=> true
 			));
 			
-			$this->_template = 
+			$this->_dispatcherIteration->setTemplate ( 
 				str_replace (array ('::', '_'), '/', __METHOD__) .
-				'/error_email_not_found.tpl';
+				'/error_email_not_found.tpl'
+			);
 			
-			return null;
+			return ;
 		}
 		
 		// Всё правильно, создаем письмо с кодом
 		if (!Password_Recovery::sendRecoveryEmail ($user->id, $email))
 		{
-			$this->_template = 
+			$this->_dispatcherIteration->setTemplate ( 
 				str_replace (array ('::', '_'), '/', __METHOD__) .
-				'/error_sendmail.tpl';
+				'/error_sendmail.tpl'
+			);
 				
-			return null;
+			return ;
 		}
 	}
 	
