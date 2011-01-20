@@ -1,6 +1,6 @@
 <?php
 
-class Common_String
+class Helper_String
 {
 	
 	/**

@@ -68,7 +68,7 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 			isset ($resource->filePath)
 		)
 		{
-			$result = str_replace (
+			$prefix = str_replace (
 				'{$source}',
 				$resource->filePath,
 				$this->config ['pack_item_prefix']
@@ -76,29 +76,29 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 		}
 		else
 		{
-			$result = '';
+			$prefix = '';
 		}
 		
-		$result .= preg_replace_callback (
+		$style = preg_replace_callback (
 			'/url\\([\'"]?(.*?)[\'"]?\\)/i',
 		    array ($this, '_replaceUrl'),
 		    $resource->content ()
 		);
     		
-		$result .= preg_replace_callback (
+		$style = preg_replace_callback (
 		    '/@import\\s*[\'"]?(.*?)[\'"]?\\s*;/i',
 			array ($this, '_excludeImport'),
-			$result
+			$style
 		);
 		
-		$result = preg_replace ('!/\*[^*]*\*+([^/][^*]*\*+)*/!', '', $result);
-		$result = str_replace (array ("\r", "\t", '@CHARSET "UTF-8";'), '', $result);
+		$style = preg_replace ('!/\*[^*]*\*+([^/][^*]*\*+)*/!', '', $style);
+		$style = str_replace (array ("\r", "\t", '@CHARSET "UTF-8";'), '', $style);
 		
 		do {
-    		$length = strlen ($result);
-    		$result = str_replace ('  ', ' ', $result); 
-		} while (strlen ($result) != $length);
+    		$length = strlen ($style);
+    		$style = str_replace ('  ', ' ', $style); 
+		} while (strlen ($style) != $length);
 		
-		return $result . $this->config ['pack_item_postfix'];
+		return $prefix . $style . $this->config ['pack_item_postfix'];
 	}
 }
