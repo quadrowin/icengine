@@ -45,12 +45,12 @@ class Authorization
         return $user;
     }
     
-    public static function logout ()
+    public static function logout ($redirect = '/')
     {
-        User_Session::getCurrent ()->set ('User__id', 0);
+        User_Session::getCurrent ()->delete ();
         
         Loader::load ('Header');
-        Header::redirect ('/');
+        Header::redirect ($redirect);
     }
     
 }
