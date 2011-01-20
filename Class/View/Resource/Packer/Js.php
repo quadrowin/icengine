@@ -28,6 +28,10 @@ class View_Resource_Packer_Js extends View_Resource_Packer_Abstract
 				$this->config ['pack_item_prefix']
 			);
 		}
+		else
+		{
+			$result = '';
+		}
 		
 		if (
 			isset ($this->_currentResource->nopack) &&

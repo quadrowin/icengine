@@ -7,13 +7,13 @@ class View_Helper_Paginator extends View_Helper_Abstract
 	 * 
 	 * @param array $params
 	 * 		Параметры, переданные из шаблона.
-	 * 		$params['data'] должен быть объектом типа Paginator_Item
+	 * 		$params['data'] должен быть объектом типа Paginator
 	 * @return string
 	 */
 	public function get (array $params)
 	{
 	    /**
-		 * @var Paginator_Item $paginator
+		 * @var Paginator $paginator
 		 */
 		$paginator = $params ['data'];
 		
@@ -78,7 +78,7 @@ class View_Helper_Paginator extends View_Helper_Abstract
 		
 		$this->_view->assign ('paginator', $paginator);
 		
-		return $this->_view->fetch('View/Helper/Paginator.tpl');
+		return $this->_view->fetch ('Controller/View/Helper/Paginator.tpl');
 	}
 	
 }
