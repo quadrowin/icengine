@@ -248,25 +248,22 @@ class Debug
 	/**
 	 * 
 	 * @param mixed $var
-	 * @param string $name
 	 */
-	public static function vardump ($var, $name = '')
+	public static function vardump ($var)
 	{
 		echo '<pre>';
 		
-		if (!empty ($name))
+		foreach (func_get_args () as $var)
 		{
-			echo $name . ' =&gt; ';
+			echo str_replace (
+				array (
+					"=>\n",
+					"=> \n"
+				),
+				'=&gt;',
+				var_export ($var, true)
+			) . "\n";
 		}
-		
-		echo str_replace (
-			array (
-				"=>\n",
-				"=> \n"
-			),
-			'=&gt;',
-			var_export ($var, true)
-		);
 		
 		echo '</pre>';
 	}

@@ -40,7 +40,7 @@ class Query_Translator_CachePattern extends Query_Translator
 	 * @param Model_Scheme_Abstract $model_scheme
 	 * @return string
 	 */
-	public function translate (Query $query, Model_Scheme_Abstract $model_scheme)
+	public function translate (Query $query, Model_Scheme $model_scheme)
 	{
 	    $parts = $query->parts ();
 	    $table = '';

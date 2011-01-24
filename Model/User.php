@@ -177,6 +177,15 @@ class User extends Model
 	}
 	
 	/**
+	 * @desc Логаут.
+	 * Удаление сессии.
+	 */
+	public function logout ()
+	{
+		User_Session::getCurrent ()->delete ();
+	}
+	
+	/**
 	 * @return Acl_Role
 	 */
 	public function personalRole ()

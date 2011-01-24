@@ -32,22 +32,27 @@ class Controller_Registration extends Controller_Abstract
 	 */
 	public function emailConfirm ()
 	{
+		if (User::authorized ())
+		{
+			Loader::load ('Header');
+			Header::redirect ('/');
+			return;
+		}
+		
 		$this->registration = Registration::byCode (
 			$this->_input->receive ('code'));
 		
 		if (!$this->registration)
 		{
 			$this->_dispatcherIteration->setTemplate (
-				str_replace (array ('::', '_'), '/', __METHOD__) .
-				'/fail_code_uncorrect.tpl'
+				Helper_Action::path (__METHOD__, '/fail_code_uncorrect')
 			);
 			return false;	
 		}
 		elseif ($this->registration->finished)
 		{
 			$this->_dispatcherIteration->setTemplate (
-				str_replace (array ('::', '_'), '/', __METHOD__) .
-				'/fail_already_finished.tpl'
+				Helper_Action::path (__METHOD__, '/fail_already_finished')
 			);
 			return false;
 		}
@@ -78,6 +83,11 @@ class Controller_Registration extends Controller_Abstract
 				'removeForm'	=> true
 			));
 		}
+	}
+	
+	public function success ()
+	{
+		
 	}
 	
 }

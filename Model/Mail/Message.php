@@ -7,10 +7,6 @@ class Mail_Message extends Model
     
     const DEFAULT_FROM_EMAIL = 'info@vipgeo.ru';
 	
-	public static $scheme = array (
-		Query::FROM	=> __CLASS__
-	);
-	
 	/**
 	 * 
 	 * @param string $template_name
@@ -79,5 +75,3 @@ class Mail_Message extends Model
 	}
 	
 }
-
-Model_Scheme::add ('Mail_Message', Mail_Message::$scheme);

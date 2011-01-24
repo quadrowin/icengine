@@ -3,14 +3,6 @@
 class Temp_Content extends Model
 {
 	
-	public static $scheme = array(
-		Query::FROM	    => __CLASS__,
-		Query::INDEX	=> array (
-			array ('utcode'),
-			array ('day')
-		)
-	);
-	
 	/**
 	 * Созданные за этот запрос
 	 * @var array
@@ -114,5 +106,3 @@ class Temp_Content extends Model
 	}
 	
 }
-
-Model_Scheme::add ('Temp_Content', Temp_Content::$scheme);

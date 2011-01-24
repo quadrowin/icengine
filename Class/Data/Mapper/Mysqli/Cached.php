@@ -184,19 +184,19 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
         $from = $query->getPart (Query::FROM);
         foreach ($from as $info)
         {
-            $tags [] = $this->_modelScheme->get ($info [Query::TABLE]);
+            $tags [] = $this->_modelScheme->table ($info [Query::TABLE]);
         }
         
         $insert = $query->getPart (QUERY::INSERT);
         if ($insert)
         {
-       	    $tags [] = $this->_modelScheme->get ($insert);
+       	    $tags [] = $this->_modelScheme->table ($insert);
         }
        	
         $update = $query->getPart (QUERY::UPDATE);
         if ($update)
         {
-            $tags [] = $this->_modelScheme->get ($update);
+            $tags [] = $this->_modelScheme->table ($update);
         }
         
         
@@ -221,6 +221,21 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
     public function setCacher (Data_Provider_Abstract $cacher)
     {
         $this->_cacher = $cacher;
+    }
+    
+    public function setOption ($key, $value)
+    {
+    	switch ($key)
+    	{
+    		case "cache_provider":
+    			Loader::load ('Data_Provider_Manager');
+    			$this->setCacher (Data_Provider_Manager::get ($value));
+    			return;
+    		case "expiration":
+    			$this->getDefaultOptions ()->setExpiration ($value);
+    			return;
+    	}
+    	return parent::setOption ($key, $value);
     }
     
 }

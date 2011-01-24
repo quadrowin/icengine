@@ -34,12 +34,6 @@ class Query_Translator_Mysql extends Query_Translator
 	const SQL_WILDCARD		= '*';
 	
 	const WHERE_VALUE_CHAR	= '?';
-	
-	/**
-	 * 
-	 * @var Model_Scheme_Abstract
-	 */
-	protected $_modelScheme;
 		
 	/**
 	 * 
@@ -106,7 +100,7 @@ class Query_Translator_Mysql extends Query_Translator
 		$i = 0;
 		foreach ($query->part (Query::FROM) as $alias => $from)
 		{
-			$table = strtolower ($this->_modelScheme->get ($from [Query::TABLE]));
+			$table = strtolower ($this->_modelScheme->table ($from [Query::TABLE]));
 			
 			$table = $this->_escape ($table);
 			$alias = $this->_escape ($alias);
@@ -205,7 +199,7 @@ class Query_Translator_Mysql extends Query_Translator
 		$table = $query->part (Query::INSERT);
 		$sql = 
 			self::SQL_INSERT . ' ' .
-			strtolower ($this->_modelScheme->get ($table)) . 
+			strtolower ($this->_modelScheme->table ($table)) . 
 			' (';
 		
 		$fields = array_keys ($query->part (Query::VALUES));
@@ -370,7 +364,7 @@ class Query_Translator_Mysql extends Query_Translator
 	{
 		$sql = self::SQL_SHOW . ' ' . $this->_partDistinct ($query) . ' ';
 		
-		$sql .= $this->_modelScheme->get ($query->part (Query::SHOW));
+		$sql .= $this->_modelScheme->table ($query->part (Query::SHOW));
 		
 		return $sql . ' ' .
 			self::_renderFrom ($query) . ' ' .
@@ -385,7 +379,7 @@ class Query_Translator_Mysql extends Query_Translator
 		$table = $query->part (Query::UPDATE);
 		$sql = 
 			self::SQL_UPDATE . ' ' . 
-			strtolower ($this->_modelScheme->get ($table)) . ' ' . 
+			strtolower ($this->_modelScheme->table ($table)) . ' ' . 
 			self::SQL_SET . ' ';
 			
 		$values = $query->part (Query::VALUES);
@@ -491,31 +485,6 @@ class Query_Translator_Mysql extends Query_Translator
 	            $condition
 	        );
 		}
-	}
-	
-	/**
-	 * 
-	 * @param Query $query
-	 * @param Model_Scheme_Abstract $model_scheme
-	 * @return string
-	 */
-	public function translate (Query $query, Model_Scheme_Abstract $model_scheme)
-	{
-		$this->_modelScheme = $model_scheme;
-		
-		$type = $query->type ();
-		$type = 
-		    strtoupper (substr ($type, 0, 1)) . 
-		    strtolower (substr ($type, 1));
-		
-		$result = call_user_func (
-			array ($this, '_render' . $type),
-			$query
-		);
-		
-		//echo $result.'<br />';
-		
-		return $result;
 	}
 	
 }

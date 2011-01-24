@@ -15,14 +15,6 @@ class Acl_Resource extends Model
 	 */
 	public $_roles;
 	
-	public static $scheme = array (
-		Query::FROM	    => __CLASS__,
-		Query::INDEX	=> array (
-			array ('alias'),
-			array ('name')
-		)
-	);
-	
 	/**
 	 * Получает ресурс по алиасу
 	 * @param string $alias
@@ -117,5 +109,3 @@ class Acl_Resource extends Model
 	}
 	
 }
-
-Model_Scheme::add ('Acl_Resource', Acl_Resource::$scheme);

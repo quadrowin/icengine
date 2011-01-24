@@ -21,8 +21,8 @@ class Controller_Password_Recovery extends Controller_Abstract
 					->getDispatcher ()
 					->currentIteration ()
 					->setTemplate (
-						str_replace (array ('::', '_'), '/', __METHOD__) .
-						'/code_ok.tpl');
+						Helper_Action::path (__METHOD__, '/code_ok')
+					);
 				return ;
 			}
 			else
@@ -32,8 +32,8 @@ class Controller_Password_Recovery extends Controller_Abstract
 					->getDispatcher ()
 					->currentIteration ()
 					->setTemplate (
-						str_replace (array ('::', '_'), '/', __METHOD__) .
-						'/code_fail.tpl');
+						Helper_Action::path (__METHOD__, '/code_fail')
+					);
 				return ;
 			}
 		}
@@ -50,11 +50,11 @@ class Controller_Password_Recovery extends Controller_Abstract
 				'error'	=> true
 			));
 			
-			$this->_template = 
-				str_replace (array ('::', '_'), '/', __METHOD__) .
-				'/error_short_password.tpl';
+			$this->_dispatcherIteration->setTemplate ( 
+				Helper_Action::path (__METHOD__, '/error_short_password')
+			);
 				
-			return null;
+			return ;
 		}
 		
 		Loader::load ('Password_Recovery');
@@ -66,11 +66,11 @@ class Controller_Password_Recovery extends Controller_Abstract
 				'error'	=> true
 			));
 			
-			$this->_template = 
-				str_replace (array ('::', '_'), '/', __METHOD__) .
-				'/error_recovery_not_found.tpl';
+			$this->_dispatcherIteration->setTemplate ( 
+				Helper_Action::path (__METHOD__, '/error_recovery_not_found')
+			);
 				
-			return null;
+			return ;
 		}
 		
 		// меняем пароль и делаем неактивной смену
@@ -80,6 +80,10 @@ class Controller_Password_Recovery extends Controller_Abstract
 		
 		$recovery->User->update (array (
 			'password'	=> $password
+		));
+		
+		$this->_output->send ('data', array (
+			'removeForm'	=> true
 		));
 		
 		Password_Recovery::resetSession ();
@@ -100,8 +104,7 @@ class Controller_Password_Recovery extends Controller_Abstract
 			));
 			
 			$this->_dispatcherIteration->setTemplate (
-				str_replace (array ('::', '_'), '/', __METHOD__) .
-				'/error_email_limit.tpl'
+				Helper_Action::path (__METHOD__, '/error_email_limit')
 			);
 				
 			return ;
@@ -120,19 +123,21 @@ class Controller_Password_Recovery extends Controller_Abstract
 			));
 			
 			$this->_dispatcherIteration->setTemplate ( 
-				str_replace (array ('::', '_'), '/', __METHOD__) .
-				'/error_email_not_found.tpl'
+				Helper_Action::path (__METHOD__, '/error_email_not_found')
 			);
 			
 			return ;
 		}
 		
+		$this->_output->send ('data', array (
+			'removeForm' => true
+		));
+		
 		// Всё правильно, создаем письмо с кодом
 		if (!Password_Recovery::sendRecoveryEmail ($user->id, $email))
 		{
-			$this->_dispatcherIteration->setTemplate ( 
-				str_replace (array ('::', '_'), '/', __METHOD__) .
-				'/error_sendmail.tpl'
+			$this->_dispatcherIteration->setTemplate (
+				Helper_Action::path (__METHOD__, '/error_sendmail')
 			);
 				
 			return ;

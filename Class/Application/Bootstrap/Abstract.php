@@ -80,10 +80,21 @@ class Application_Bootstrap_Abstract
 	{
 	    Loader::load ('Model_Manager');
 	    $this->behavior->modelManager = new Model_Manager (
-	        DDS::getDataSource (),
+	        IcEngine::$modelScheme,
 	        $this->behavior->resourceManager
 	    );
 	    IcEngine::$modelManager = $this->behavior->modelManager;
+	}
+	
+	/**
+	 * 
+	 * @param string $config
+	 */
+	public function initModelScheme ($config)
+	{
+		Loader::load ('Model_Scheme');
+		IcEngine::$modelScheme = new Model_Scheme (
+			Config_Manager::load ('Model_Scheme', $config));
 	}
 	
 	public function initResourceManager ()

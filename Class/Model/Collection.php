@@ -543,7 +543,7 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 		return substr (get_class ($this), 0, -11);
 	}
 	
-    public function offsetSet($offset, $value)
+    public function offsetSet ($offset, $value)
     {
         if (is_null ($offset))
         {
@@ -567,7 +567,9 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
     
     public function offsetGet ($offset)
     {
-        return isset ($this->_items[$offset]) ? $this->_items[$offset] : null;
+        return 
+        	isset ($this->_items [$offset]) ?
+        	$this->_items [$offset] : null;
     }
     
 	/**

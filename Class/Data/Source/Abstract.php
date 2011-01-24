@@ -148,6 +148,15 @@ class Data_Source_Abstract
 	}
 	
 	/**
+	 * Проверяет доступность источника данных
+	 * @return boolean
+	 */
+	public function available ()
+	{
+		return is_object ($this->_mapper);
+	}
+	
+	/**
 	 * 
 	 * @param string $method
 	 * @param array $args

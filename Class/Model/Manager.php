@@ -2,18 +2,12 @@
 
 class Model_Manager
 {
-    
-    /**
-     * Кэширование моделей
-     * @var Data_Provider_Abstract
-     */
-    protected $_altProvider;
 	
 	/**
-	 * Источник данных об объектах
-	 * @var Data_Source_Abstract
+	 * Данные о моделях.
+	 * @var Model_Scheme
 	 */
-	protected $_dataSource;
+	protected $_modelScheme;
 	
 	/**
 	 * Менеджер объектов
@@ -34,15 +28,15 @@ class Model_Manager
 	protected $_forced = false;
 	
 	/**
-	 * @param Data_Source_Abstract $data_source
+	 * @param Model_Scheme $data_source
 	 * @param Resource_Manager $resource_manager
 	 * 		Менеджер ресурсов
 	 */
-	public function __construct (Data_Source_Abstract $data_source, 
+	public function __construct (Model_Scheme $model_scheme, 
 		Resource_Manager $resource_manager)
 	{
 		Loader::load ('Model_Factory');
-		$this->_dataSource = $data_source;
+		$this->_modelScheme = $model_scheme;
 		$this->_resourceManager = $resource_manager;
 	}
 	
@@ -89,7 +83,11 @@ class Model_Manager
 			->from ($object->table ())
 			->where ($object->keyField (), $key);
 		
-		$data = $this->_dataSource->execute ($query)->getResult ()->asRow ();
+		$data = $this->modelScheme ()
+			->dataSource ($object->table ())
+			->execute ($query)
+			->getResult ()
+			->asRow ();
 		
 		$object->set ($data);
 	}
@@ -100,15 +98,18 @@ class Model_Manager
 	 */
 	public function _remove (Model $object)
 	{
-		if ($object->key ())
+		if (!$object->key ())
 		{
-			$this->_dataSource->execute (
+			return ;
+		}
+		$this->modelScheme ()
+			->dataSource ($object->modelName ())
+			->execute (
 				Query::instance ()
 				->delete ()
 				->from ($object->table ())
 				->where ($object->keyField (), $object->key ())
 			);
-		}
 	}
 	
 	/**
@@ -117,9 +118,11 @@ class Model_Manager
 	 */
 	protected function _write (Model $object)
 	{
+		$ds = $this->modelScheme ()->dataSource ($object->table ());
+		
 		if ($object->key ())
 		{
-			$this->_dataSource->execute (
+			$ds->execute (
 				Query::instance ()
 				->delete ()
 				->from ($object->table ())
@@ -127,7 +130,7 @@ class Model_Manager
 			);
 		}
 		
-		$this->_dataSource->execute (
+		$ds->execute (
 			Query::instance ()
 			->insert ($object->table ())
 			->values ($object->asRow ())
@@ -234,15 +237,6 @@ class Model_Manager
 	
 	/**
 	 * 
-	 * @return Data_Source_Abstract
-	 */
-	public function getDataSource ()
-	{
-		return $this->_dataSource;
-	}
-	
-	/**
-	 * 
 	 * @return Resource_Manager
 	 */
 	public function getResourceManager ()
@@ -258,13 +252,14 @@ class Model_Manager
 	 */
 	public function remove (Model $object)
 	{
-	    $this->_remove ($object);
-	    
+		// из хранилища моделей
 	    $this->_resourceManager->set (
 			'Model',
 			$object->resourceKey (),
 			null
 		);
+		// Из БД (или другого источника данных)
+	    $this->_remove ($object);
 	}
 	
 	/**
@@ -297,19 +292,6 @@ class Model_Manager
 	    
 	    $data = null;
 	    
-	    if ($this->_altProvider)
-	    {
-	        $scheme = Model_Scheme::get ($model);
-	        if ($scheme)
-	        {
-    	        $conditions = $this->_prepareSelectQuery ($query);
-    	        if ($conditions)
-    	        {
-    	            //$this->_altProvider->getBy ($conditions);
-    	        }
-	        }
-	    }
-	    
 	    if (is_null ($data))
 	    {
 	        if (!$query->getPart (Query::SELECT))
@@ -320,10 +302,15 @@ class Model_Manager
 	        {
 	            $query->from ($model, $model);
 	        }
-	        $data = DDS::execute ($query)->getResult ()->asRow ();
+	        $data = 
+	        	$this->modelScheme ()
+	        	->dataSource ($model)
+	        	->execute ($query)
+	        	->getResult ()
+	        	->asRow ();
 	    }
 	    
-	    if (!$data || !Loader::load ($model))
+	    if (!$data)
 	    {
 	        return null;
 	    }
@@ -350,11 +337,11 @@ class Model_Manager
 	}
 	
 	/**
-	 * @return Model_Scheme_Abstract
+	 * @return Model_Scheme
 	 */
 	public function modelScheme ()
 	{
-	    return $this->_dataSource->getDataMapper ()->getModelScheme ();
+	    return $this->_modelScheme;
 	}
 	
 	/**
@@ -382,19 +369,6 @@ class Model_Manager
 	    
 	    $data = null;
 	    
-	    if ($this->_altProvider)
-	    {
-	        $scheme = Model_Scheme::get ($model);
-	        if ($scheme)
-	        {
-    	        $conditions = $this->_prepareSelectQuery ($query);
-    	        if ($conditions)
-    	        {
-    	            //$this->_altProvider->getBy ($conditions);
-    	        }
-	        }
-	    }
-	    
 	    if (is_null ($data))
 	    {
 	        if (!$query->getPart (Query::SELECT))
@@ -405,7 +379,11 @@ class Model_Manager
 	        {
 	            $query->from ($model);
 	        }
-	        $data = DDS::execute ($query)->getResult ()->asTable ();
+	        $data = 
+	        	$this->modelScheme ()->dataSource ($model)
+	        	->execute ($query)
+	        	->getResult ()
+	        	->asTable ();
 	    }
 	    
 	    $collection = new $class_collection ();

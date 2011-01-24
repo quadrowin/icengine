@@ -9,13 +9,6 @@ class Mail_Template extends Model_Child
      */
     protected $_smarty;
 	
-	public static $scheme = array (
-		Query::FROM	    => __CLASS__,
-		Query::INDEX	=> array (
-			array ('name')
-		)
-	);
-	
 	public static $blankTemplate = array (
 	    'id'		=> 0,
 		'name'	    => 'empty',
@@ -169,5 +162,3 @@ class Mail_Template extends Model_Child
 	}
 	
 }
-
-Model_Scheme::add ('Mail_Template', Mail_Template::$scheme);

@@ -296,13 +296,6 @@ abstract class Model
 	    if ($key)
 	    {
 	        $this->modelManager ()->remove ($this);
-	        
-	        DDS::execute (
-	            Query::instance ()
-	            ->delete ()
-	            ->from ($this->table ())
-	            ->where ($this->keyField (), $key)
-	        );
 	    }
 	}
 	
@@ -431,7 +424,7 @@ abstract class Model
 			return null;
 		}
 		
-		return (int) $this->_fields [$kf];
+		return $this->_fields [$kf];
 	}
 	
 	/**
@@ -505,7 +498,9 @@ abstract class Model
 //					print_r (debug_backtrace (), true)
 //				);
 //			}
-			DDS::execute (
+			IcEngine::$modelScheme
+			->dataSource ($this->modelName ())
+			->execute (
 				Query::instance ()
 				->update ($this->table ())
 				->values ($this->_fields)
@@ -518,11 +513,15 @@ abstract class Model
 		    {
 		        unset ($this->_fields [$kf]);
 		    }
-			$this->_fields [$kf] = DDS::execute (
-				Query::instance ()
-				->insert ($this->table ())
-				->values ($this->_fields)
-			)->getResult ()->insertId ();
+			$this->_fields [$kf] = 
+				IcEngine::$modelScheme
+				->dataSource ($this->modelName ())
+				->execute (
+					Query::instance ()
+					->insert ($this->table ())
+					->values ($this->_fields)
+				)->getResult ()
+				->insertId ();
 		}
 		
 		return $this;
