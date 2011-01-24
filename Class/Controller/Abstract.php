@@ -60,6 +60,43 @@ class Controller_Abstract
 	}
 	
 	/**
+	 * Заменить текущий экшн с передачей всех параметров
+	 */
+	public function replaceAction ($controller, $action)
+	{
+		if ($controller instanceof Controller_Abstract)
+		{
+			$other = $controller;
+			$controller = $other->name ();
+		}
+		else
+		{
+			$other = Controller_Broker::get ($controller);
+		}
+		
+		$this->_dispatcherIteration->setTemplate (
+			'Controller/' .
+			str_replace ('_', '/', $controller) .
+			'/' . $action . '.tpl'
+		);
+		
+		if ($controller == get_class ($this))
+		{
+			// Этот же контроллер
+			
+			return $this->$action ();
+		}
+		else
+		{
+			$other = Controller_Broker::get ($controller);
+			$other->setInput ($this->_input);
+			$other->setOutput ($this->_output);
+			$other->setDispatcherIteration ($this->_dispatcherIteration);
+			return $other->$action ();
+		}
+	}
+	
+	/**
 	 * 
 	 * @param Controller_Dispatcher_Iteration $iteration
 	 * @return Controller_Abstract

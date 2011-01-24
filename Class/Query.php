@@ -434,7 +434,7 @@ class Query {
 	 * @param Model_Scheme_Abstract
 	 * @return mixed
 	 */
-	public function translate ($translator = 'Mysql', Model_Scheme_Abstract $model_scheme)
+	public function translate ($translator = 'Mysql', Model_Scheme $model_scheme)
 	{
 		return Query_Translator::factory ($translator)->translate ($this, $model_scheme);
 	}

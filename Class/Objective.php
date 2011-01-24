@@ -1,6 +1,6 @@
 <?php
 
-class Objective 
+class Objective implements ArrayAccess, IteratorAggregate, Countable
 {
 		
 	/**
@@ -122,6 +122,11 @@ class Objective
 		return array_merge ($this->_data, $this->_classVars ());
 	}
 	
+	public function count ()
+	{
+		return count ($this->asArray ());
+	}
+	
 	/**
 	 * 
 	 * @param string $key
@@ -156,5 +161,41 @@ class Objective
 		}
 		return $result;
 	}
+	
+	public function getIterator ()
+	{
+        return new ArrayIterator ($this->asArray ());
+    }
+	
+    public function offsetSet ($offset, $value)
+    {
+        if (is_null ($offset))
+        {
+            $this->_data [] = $value;
+        }
+        else
+        {
+            $this->$offset = $value;
+        }
+    }
+    
+    public function offsetExists ($offset)
+    {
+        return isset ($this->$offset);
+    }
+    
+    public function offsetUnset ($offset)
+    {
+    	$this->$offset = null;
+    	if (isset ($this->_data [$offset]))
+    	{
+        	unset ($this->_data [$offset]);
+    	}
+    }
+    
+    public function offsetGet ($offset)
+    {
+        return $this->$offset;
+    }
 	
 }

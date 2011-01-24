@@ -34,6 +34,12 @@ class IcEngine
 	public static $modelManager;
 	
 	/**
+	 * Схема моделей.
+	 * @var Model_Scheme
+	 */
+	public static $modelScheme;
+	
+	/**
 	 * Менеджер ресурсов
 	 * @var Resource_Manager
 	 */

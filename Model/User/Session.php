@@ -31,6 +31,7 @@ class User_Session extends Model
 		if (!$session && $autocreate)
 		{
     		$session = new User_Session (array (
+    			'id'			=> uniqid (__CLASS__, true),
     			'User__id'		=> 0,
     			'phpSessionId'	=> $session_id,
     			'startTime'	    => date (Helper_Date::UNIX_FORMAT),
@@ -38,6 +39,7 @@ class User_Session extends Model
     			'remoteIp'		=> Request::ip (),
     			'userAgent'	    => substr (getenv ('HTTP_USER_AGENT'), 0, 100)
     		));
+    		$session->save ();
 		}
 		
 		return $session;
@@ -67,13 +69,27 @@ class User_Session extends Model
 	 */
 	public function updateSession ($new_user_id = null)
 	{
-		$upd = array (
-			'lastActive'	=> date (Helper_Date::UNIX_FORMAT)
-		);
-		
 		if (isset ($new_user_id))
 		{
-			$upd ['User__id'] = $new_user_id;
+			$upd = array (
+				'User__id'		=> $new_user_id,
+				'lastActive'	=> date (Helper_Date::UNIX_FORMAT)
+			);
+		}
+		else
+		{
+			$now = date (Helper_Date::UNIX_FORMAT);
+			
+			// Обновляем сессию не чаще, чем раз в 10 минут.
+			// strlen ('YYYY-MM-DD HH:I_:__') = 
+			if (strncmp($now, $this->lastActive, 15) == 0)
+			{
+				return $this;
+			}
+			
+			$upd = array (
+				'lastActive'	=> $now
+			);
 		}
 		
 	    $this->update ($upd);

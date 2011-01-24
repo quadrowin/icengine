@@ -17,7 +17,7 @@ abstract class Data_Mapper_Abstract
 	
 	/**
 	 * 
-	 * @var Model_Scheme_Abstract
+	 * @var Model_Scheme
 	 */
 	protected $_modelScheme;
 	
@@ -26,6 +26,11 @@ abstract class Data_Mapper_Abstract
 	 * @var Filter_Collection
 	 */
 	protected $_filters;
+	
+	public function __construct ()
+	{
+		$this->initFilters ();
+	}
 	
 	/**
 	 * Создание индексов для записи
@@ -233,7 +238,7 @@ abstract class Data_Mapper_Abstract
 	
 	/**
 	 * 
-	 * @return Model_Scheme_Abstract
+	 * @return Model_Scheme
 	 */
 	public function getModelScheme ()
 	{
@@ -258,11 +263,25 @@ abstract class Data_Mapper_Abstract
 	}
 	
 	/**
+	 * Установка параметров
+	 * @param string $key
+	 * 		Параметр
+	 * @param string $value
+	 * 		Значение
+	 * @return boolean
+	 * 		true, если удачно, иначе - false.
+	 */
+	public function setOption ($key, $value)
+	{
+		return false;
+	}
+	
+	/**
 	 * 
-	 * @param Model_Scheme_Abstract $model_scheme
+	 * @param Model_Scheme $model_scheme
 	 * @return Data_Source_Abstract $this
 	 */
-	public function setModelScheme (Model_Scheme_Abstract $model_scheme)
+	public function setModelScheme (Model_Scheme $model_scheme)
 	{
 		$this->_modelScheme = $model_scheme;
 		return $this;

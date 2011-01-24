@@ -15,6 +15,29 @@ class Controller_Authorization extends Controller_Abstract
 	
 	}
 	
+	/**
+	 * Проверка на существования пользователя с таким Email.
+	 * Используется в диалоге входа/регистрации.
+	 */
+	public function checkEmail ()
+	{
+		$email = $this->_input->receive ('email');
+		
+		$exists = DDS::execute (
+			Query::instance ()
+			->select ('id')
+			->from ('User')
+			->where ('email', $email)
+		)->getResult ()->asValue ();
+		
+		$this->_output->send ('data', array (
+			'email'		=> $email,
+			'exists'	=> (bool) $exists
+		));
+		
+		$this->_dispatcherIteration->setTemplate (null);
+	}
+	
 	public function login ()
 	{
 		$login = $this->_input->receive ('login');
@@ -50,6 +73,27 @@ class Controller_Authorization extends Controller_Abstract
 		    	'/password_incorrect.tpl'
 		    );
 		}
+	}
+	
+	public function loginOrReg ()
+	{
+		$login = $this->_input->receive ('login');
+		
+		$login_exists = DDS::execute (
+			Query::instance ()
+			->select ('id')
+			->from ('User')
+			->where ('email', $login)
+		)->getResult ()->asValue ();
+		
+		if ($login_exists)
+		{
+			// Авторизация
+			return $this->replaceAction ($this, 'login');
+		}
+
+		// Регистрация
+		return $this->replaceAction ('Registration', 'postForm');
 	}
 	
 	public function logout ()

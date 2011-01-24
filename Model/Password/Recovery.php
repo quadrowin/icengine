@@ -40,16 +40,6 @@ class Password_Recovery extends Model
 	const MAX_QUERY_PER_EMAIL	= 3;
 	const MAX_QUERY_PER_IP		= 6;
 	
-	public static $scheme = array (
-		Query::FROM	    => __CLASS__,
-		Query::INDEX	=> array (
-			array ('code'),
-			array ('day'),
-			array ('day', 'email'),
-			array ('day', 'ip')
-		)
-	);
-	
 	/**
 	 * Ссылка для изменения пароля
 	 * @var string
@@ -315,7 +305,7 @@ class Password_Recovery extends Model
 				'code'		=> $recovery->code,
 				'href'		=> $recovery->href ()
 			),
-			$user->id
+			$user_id
 		);
 		return $message->send ();
 	}

@@ -57,7 +57,7 @@ class Data_Provider_Abstract
 	 * @param array $config
 	 * 		Параметры провайдера
 	 */
-	public function __construct (array $config = array ())
+	public function __construct ($config = array ())
 	{
 		foreach ($config as $opt_name => $opt_value)
 		{
@@ -120,6 +120,15 @@ class Data_Provider_Abstract
 		
 		$v = $this->get ($key);
 		return $this->set ($key, $value . $v);
+	}
+	
+	/**
+	 * Проверка доступности провайдера.
+	 * @return boolean
+	 */
+	public function available ()
+	{
+		return true;
 	}
 	
 	/**

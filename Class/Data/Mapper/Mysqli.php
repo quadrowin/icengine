@@ -5,6 +5,22 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
     
     const SELECT_FOUND_ROWS_QUERY = 'SELECT FOUND_ROWS()';
     
+    /**
+     * Параметры соединения
+     * @var array
+     */
+    protected $_connectionOptions = array (
+    	'host'		=> 'localhost',
+    	'username'	=> '',
+    	'password'	=> '',
+    	'database'	=> 'unknown',
+    	'charset'	=> 'utf8'
+    );
+    
+    /**
+     * Последний оттранслированный запрос.
+     * @var string
+     */
     protected $_sql = '';
 	
     protected $_errno = 0;
@@ -15,6 +31,10 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
     protected $_numRows = 0;
     protected $_insertId = null;
     
+    /**
+     * Обработчики по видам запросов.
+     * @var array
+     */
     protected $_queryMethods = array (
         Query::SELECT    => '_executeSelect',
         Query::SHOW      => '_executeSelect',
@@ -106,7 +126,11 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 		return $options->getNotEmpty () && empty ($result) ? false : true;
 	}
 	
-	public function connect ($config)
+	/**
+	 * Подключение к БД
+	 * @param Config_Array $config
+	 */
+	public function connect (Config_Array $config)
 	{
 	    mysql_connect ($config->server, $config->username, $config->password);
 	    mysql_select_db ($config->database);
@@ -132,7 +156,7 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 		if (false)
 		{
 		    $f = fopen ('cache/sql.txt', 'ab');
-		    fwrite($f, $this->_sql . "\r\n");
+		    fwrite ($f, $this->_sql . "\r\n");
 		    fclose ($f);
 		}
 		
@@ -181,5 +205,16 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 			'currency'		=> $this->_isCurrency ($result, $options),
 			'source'		=> $source
 		));
+	}
+	
+	public function setOption ($key, $value)
+	{
+		if (isset ($this->_connectionOptions [$key]))
+		{
+			$this->_connectionOptions [$key] = $value;
+			return;
+		}
+		return parent::setOption ($key, $value);
+			
 	}
 }
