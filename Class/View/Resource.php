@@ -46,13 +46,15 @@ class View_Resource extends Objective
 	
 	/**
 	 * Время модификации файла.
-	 * @return integer
+	 * @return integer|null
+	 * 		Время модификации. Если файл не существует null.
 	 */
 	public function filemtime ()
 	{
 		if (!$this->_filemtime)
 		{
-			$this->_filemtime = filemtime ($this->filePath ());
+			$path = $this->filePath ();
+			$this->_filemtime = file_exists ($path) ? filemtime ($path) : null;
 		}
 		return $this->_filemtime;
 	}
