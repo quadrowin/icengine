@@ -28,46 +28,65 @@ class Application_Bootstrap_Abstract
         IcEngine::$attributeManager = $this->behavior->attributeManager;
     }
     
-	public function initDataModel ()
+//	public function initDataModel ()
+//	{
+//		$mysql = new Data_Source_Mysql ();
+//		$fileM = new Data_Source_File ();
+//		
+//		$redis = new Data_Source_Redis ();
+//		$fileR = new Data_Source_File ();
+//		
+//		$queue = new Data_Source_QueryQueue ();
+//		
+//		$mysql->setCacheScheme (array (
+//			Query::SELECT	=> new Data_Source_Collection ($fileM),
+//			Query::INSERT	=> new Data_Source_Collection ($fileM),
+//			Query::UPDATE	=> new Data_Source_Collection ($fileM),
+//			Query::DELETE	=> new Data_Source_Collection ($fileM)
+//		));
+//		
+//		$redis->setCacheScheme (array (
+//			Query::INSERT	=> new Data_Source_Collection ($fileR, $queue),
+//			Query::UPDATE	=> new Data_Source_Collection ($fileR, $queue),
+//			Query::DELETE	=> new Data_Source_Collection ($fileR, $queue),
+//		));
+//		$redis->setIndexSources (new Data_Source_Collection ($redis));
+//		
+//		$ds = new Data_Source_Mysql ();
+//		
+//		$ds->setCacheScheme (array (
+//			Query::INSERT	=> new Data_Source_Collection ($redis),
+//			Query::SELECT	=> new Data_Source_Collection ($redis, $fileR, $queue),
+//			Query::UPDATE	=> new Data_Source_Collection ($redis),
+//			Query::DELETE	=> new Data_Source_Collection ($redis)
+//		));
+//		$ds->setIndexSources (new Data_Source_Collection ($redis));
+//		
+//		Registry::set ('mysql', $mysql);
+//		Registry::set ('redis', $redis);
+//		Registry::set ('fileR', $fileR);
+//		Registry::set ('fileM', $fileM);
+//		Registry::set ('queue', $queue);
+//		Registry::set ('ds', $ds);
+//	}
+
+	public function initDds ()
 	{
-		$mysql = new Data_Source_Mysql ();
-		$fileM = new Data_Source_File ();
+		Loader::load ('Data_Provider_Abstract');
+		Loader::load ('Data_Provider_Manager');
 		
-		$redis = new Data_Source_Redis ();
-		$fileR = new Data_Source_File ();
+		Loader::load ('Query');
+		Loader::load ('Query_Options');
+		Loader::load ('Query_Result');
+		Loader::load ('Query_Translator');
 		
-		$queue = new Data_Source_QueryQueue ();
+		Loader::load ('DDS');
+		Loader::load ('Data_Mapper_Abstract');
+		Loader::load ('Data_Mapper_Mysqli');
+		Loader::load ('Data_Mapper_Mysqli_Cached');
+		Loader::load ('Data_Source_Manager');
 		
-		$mysql->setCacheScheme (array (
-			Query::SELECT	=> new Data_Source_Collection ($fileM),
-			Query::INSERT	=> new Data_Source_Collection ($fileM),
-			Query::UPDATE	=> new Data_Source_Collection ($fileM),
-			Query::DELETE	=> new Data_Source_Collection ($fileM)
-		));
-		
-		$redis->setCacheScheme (array (
-			Query::INSERT	=> new Data_Source_Collection ($fileR, $queue),
-			Query::UPDATE	=> new Data_Source_Collection ($fileR, $queue),
-			Query::DELETE	=> new Data_Source_Collection ($fileR, $queue),
-		));
-		$redis->setIndexSources (new Data_Source_Collection ($redis));
-		
-		$ds = new Data_Source_Mysql ();
-		
-		$ds->setCacheScheme (array (
-			Query::INSERT	=> new Data_Source_Collection ($redis),
-			Query::SELECT	=> new Data_Source_Collection ($redis, $fileR, $queue),
-			Query::UPDATE	=> new Data_Source_Collection ($redis),
-			Query::DELETE	=> new Data_Source_Collection ($redis)
-		));
-		$ds->setIndexSources (new Data_Source_Collection ($redis));
-		
-		Registry::set ('mysql', $mysql);
-		Registry::set ('redis', $redis);
-		Registry::set ('fileR', $fileR);
-		Registry::set ('fileM', $fileM);
-		Registry::set ('queue', $queue);
-		Registry::set ('ds', $ds);
+		DDS::setDataSource (Data_Source_Manager::get ('default'));
 	}
 	
 	public function initMessageQueue ()
