@@ -166,3 +166,14 @@ var Debug = {
 	}
 	
 };
+$(document).ready (function () {
+	// Заглушка для браузеров, где нет console
+	if (typeof (console) == "undefined")
+	{
+		window.console = {
+			log: function ()
+			{
+			}
+		};
+	}
+});
