@@ -90,7 +90,7 @@ class Model_Scheme
 	 */
 	public function generateKey (Model $model)
 	{
-		$name = $model->modelName ();
+		$name = strtolower ($model->modelName ());
 		
 		if (!isset (
 			$this->models, $this->models [$name], 

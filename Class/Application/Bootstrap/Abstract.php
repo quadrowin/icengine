@@ -69,7 +69,7 @@ class Application_Bootstrap_Abstract
 //		Registry::set ('queue', $queue);
 //		Registry::set ('ds', $ds);
 //	}
-
+	
 	public function initDds ()
 	{
 		Loader::load ('Data_Provider_Abstract');
@@ -82,8 +82,6 @@ class Application_Bootstrap_Abstract
 		
 		Loader::load ('DDS');
 		Loader::load ('Data_Mapper_Abstract');
-		Loader::load ('Data_Mapper_Mysqli');
-		Loader::load ('Data_Mapper_Mysqli_Cached');
 		Loader::load ('Data_Source_Manager');
 		
 		DDS::setDataSource (Data_Source_Manager::get ('default'));
