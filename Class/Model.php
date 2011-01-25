@@ -408,18 +408,13 @@ abstract class Model
 	
 	/**
 	 * Возвращает значение первичного ключа
-	 * @return integer|null
+	 * @return string|null
 	 */
 	public function key ()
 	{
 		$kf = $this->keyField ();
 		
-		if (!is_array ($this->_fields))
-		{
-			return null;
-		}
-		
-		if (!isset ($this->_fields [$kf]))
+		if (!is_array ($this->_fields) || !isset ($this->_fields [$kf]))
 		{
 			return null;
 		}
@@ -509,19 +504,34 @@ abstract class Model
 		}
 		else
 		{
-		    if (isset ($this->_fields [$kf]))
-		    {
-		        unset ($this->_fields [$kf]);
-		    }
-			$this->_fields [$kf] = 
+			$new_key = IcEngine::$modelScheme->generateKey ($this);
+			if ($new_key)
+			{
+				$this->_fields [$kf] = $new_key;
 				IcEngine::$modelScheme
-				->dataSource ($this->modelName ())
-				->execute (
-					Query::instance ()
-					->insert ($this->table ())
-					->values ($this->_fields)
-				)->getResult ()
-				->insertId ();
+					->dataSource ($this->modelName ())
+					->execute (
+						Query::instance ()
+						->insert ($this->table ())
+						->values ($this->_fields)
+					);
+			}
+			else
+			{
+				if (isset ($this->_fields [$kf]))
+			    {
+			        unset ($this->_fields [$kf]);
+			    }
+				$this->_fields [$kf] = 
+					IcEngine::$modelScheme
+					->dataSource ($this->modelName ())
+					->execute (
+						Query::instance ()
+						->insert ($this->table ())
+						->values ($this->_fields)
+					)->getResult ()
+					->insertId ();
+		    }
 		}
 		
 		return $this;

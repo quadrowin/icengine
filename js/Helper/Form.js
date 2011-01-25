@@ -67,7 +67,12 @@ var Helper_Form = {
 	
 	defaultCallback: function ($form, result)
 	{
-		if (result && result.html)
+		if (!result)
+		{
+			return;
+		}
+		
+		if (result.html)
 		{
 			if (result.data && result.data.removeForm)
 			{
@@ -79,23 +84,23 @@ var Helper_Form = {
 				$div.html (result.html);
 				$div.removeClass ('hidden');
 			};
-		};
-		
-		if (result && result.data)
+		}
+		else
 		{
-			if (result.data.removeForm && !result.html)
+			if (result.data.removeForm)
 			{
 				$form.parent ().remove ();
-			};
-			if (result.data.redirect)
-			{
-				setTimeout (
-					function () {
-						window.location.href = result.data.redirect;
-					},
-					1000
-				);
-			};
+			}
+		}
+		
+		if (result.data && result.data.redirect)
+		{
+			setTimeout (
+				function () {
+					window.location.href = result.data.redirect;
+				},
+				1000
+			);
 		};
 	},
 	

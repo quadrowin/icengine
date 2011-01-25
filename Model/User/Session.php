@@ -31,7 +31,6 @@ class User_Session extends Model
 		if (!$session && $autocreate)
 		{
     		$session = new User_Session (array (
-    			'id'			=> uniqid (__CLASS__, true),
     			'User__id'		=> 0,
     			'phpSessionId'	=> $session_id,
     			'startTime'	    => date (Helper_Date::UNIX_FORMAT),

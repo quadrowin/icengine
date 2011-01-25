@@ -83,6 +83,36 @@ class Model_Scheme
 	}
 	
 	/**
+	 * Генерирует новый ID для модели, если для этого в схеме заданы правила.
+	 * @param Model $model
+	 * @return string|null.
+	 * 		Сгенерированный ключ или null, если правила не заданы.
+	 */
+	public function generateKey (Model $model)
+	{
+		$name = $model->modelName ();
+		
+		if (!isset (
+			$this->models, $this->models [$name], 
+			$this->models [$name]['keyGen']
+		))
+		{
+			return null;
+		}
+		
+		$keygen = explode ('::', $this->models [$name]['keyGen'], 2);
+		
+		if (count ($keygen) != 2)
+		{
+			return null;
+		}
+		
+		Loader::load ($keygen [0]);
+		
+		return call_user_func ($keygen, $model);
+	}
+	
+	/**
 	 * Получение реального имени таблицы в БД
 	 * 
 	 * @param string|Model $model
