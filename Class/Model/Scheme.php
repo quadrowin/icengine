@@ -29,9 +29,10 @@ class Model_Scheme
 	public $models = array (
 		/**
 		 * Класс модели.
+		 * Обязательно в нижнем регистре.
 		 * @var array
 		 */
-		'Abstract'	=> array (
+		'abstract'	=> array (
 			/**
 			 * Ключевое поле.
 			 * @var string
@@ -54,7 +55,18 @@ class Model_Scheme
 			'indexes'	=> array (
 				array ('phpSessionId')
 			)
-		)
+		),
+		/**
+		 * Название таблицы, которое не должно изменяться 
+		 * при построении запроса.
+		 * @var string
+		 */
+		'table'	=> '',
+		/**
+		 * Альтернативное название модели.
+		 * @var string
+		 */
+		'alt_name'	=> 'abstract'
 	);
 	
 	public function __construct (Config_Array $config)
@@ -73,17 +85,28 @@ class Model_Scheme
 	/**
 	 * Получение реального имени таблицы в БД
 	 * 
-	 * @param string $model
+	 * @param string|Model $model
 	 * 		Имя модели или экземпляр класса модели
 	 * @return string
 	 * 		Действительное имя таблицы
 	 */
 	public function table ($model)
 	{	
-	    $model = strtolower ($model);
+	    $model = strtolower (
+	    	is_object ($model) ? $model->modelName () : $model
+	    );
 
 		if (isset ($this->models [$model]))
 		{
+			if (is_string ($this->models [$model]))
+			{
+				if (empty ($this->models [$model]))
+				{
+					return $model;
+				} 
+				$model = $this->models [$model];
+			}
+			
 			if (isset ($this->models [$model]['table']))
 			{
 				return $this->models [$model]['table'];
@@ -146,19 +169,12 @@ class Model_Scheme
 	 */
 	public function keyField ($model)
 	{
-		if (isset ($this->keyFields [$model]))
+		if (!isset ($this->models [$model], $this->models [$model]['key']))
 		{
-			return $this->keyFields [$model];
+			return self::DEFAULT_KEY_FIELD;
 		}
 		
-		$model = $this->table ($model);
-		
-		if (isset ($this->keyFields [$model]))
-		{
-			return $this->keyFields [$model];
-		}
-		
-		return self::DEFAULT_KEY_FIELD;
+		return $this->models [$model]['key'];
 	}
     
 }

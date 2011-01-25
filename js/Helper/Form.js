@@ -25,15 +25,43 @@ var Helper_Form = {
 		return $input;
 	},
 	
+	ajaxPost: function ($form, url, callback)
+	{
+		var data = Helper_Form.asArray ($form);
+		
+		JsHttpRequest.query (url, data, callback, true);
+	},
+	
 	asArray: function ($form)
 	{
 		var data = {};
+		
 		$form
 			.find ('input,select,textarea')
 			.filter (':not(.nosubmit)')
 			.each (function () {
-				data [this.name] = this.value;
+				var a;
+				if (this.tagName.toLowerCase() == 'input')
+				{
+					if (this.type == "file")
+					{
+						data [this.name] = this;
+					}
+					else if (this.type == "checkbox" && this.checked)
+					{
+						data [this.name] = 'on';
+					}
+					else
+					{
+						data [this.name] = this.value;
+					}
+				}
+				else
+				{
+					data [this.name] = this.value;
+				}
 			});
+		
 		return data;
 	},
 	
