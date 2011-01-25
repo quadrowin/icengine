@@ -199,6 +199,8 @@ class Model_Scheme
 	 */
 	public function keyField ($model)
 	{
+		$model = strtolower ($model);
+		
 		if (!isset ($this->models [$model], $this->models [$model]['key']))
 		{
 			return self::DEFAULT_KEY_FIELD;
