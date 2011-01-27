@@ -333,6 +333,16 @@ class Helper_Date
 	}
 	
 	/**
+	 * Перевод даты из любого распознаваемого форматав формат Unix;
+	 * @param string $date
+	 * @return string
+	 */
+	public static function strToUnix ($date)
+	{
+		return date (self::UNIX_FORMAT, self::strToTimestamp ($date));
+	}
+	
+	/**
 	 * @desc Преобразует дату в 24 февряли 2010 (?) года
 	 * @param string $date
 	 * @return string
