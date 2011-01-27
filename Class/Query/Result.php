@@ -2,6 +2,7 @@
 
 class Query_Result 
 {
+	
 	private $_result;
 	
 	public function __construct ($result)
@@ -130,7 +131,9 @@ class Query_Result
 	 */
 	public function isNull ()
 	{
-		return (isset($this->_result ['is_null']) && $this->_result ['is_null']);
+		return 
+			isset ($this->_result ['is_null']) &&
+			$this->_result ['is_null'];
 	}
 	
 	/**
@@ -144,7 +147,7 @@ class Query_Result
 	}
 	
 	/**
-	 * @return DataSource
+	 * @return Data_Source_Abstract
 	 */
 	public function getSource ()
 	{

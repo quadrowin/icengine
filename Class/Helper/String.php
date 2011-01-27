@@ -84,6 +84,22 @@ class Helper_String
 	}
 	
 	/**
+	 * Приводит строку к кодировке windows-1251.
+	 * Для конвертирования используется внешний модуль a.charset.php
+	 *
+	 * @param string $str
+	 * 		Строка в windows-1251, koi-8 or utf-8
+	 * @return string
+	 * 		Строка в кодировке windows-1251
+	 */
+	public static function charset_x_windows1251 ($str)
+	{
+		Loader::requireOnce ('a.charset.php', 'includes');
+	
+		return charset_x_win ($str);
+	}
+	
+	/**
 	 * Возвращает только цифры из строки
 	 * 
 	 * @param string $str
