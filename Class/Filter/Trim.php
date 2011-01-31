@@ -1,9 +1,19 @@
 <?php
 
-class Filter_Trim implements Filter_Interface
+class Filter_Trim
 {
-	public function apply ($data, $characters = null)
+	
+	public function filter ($data)
 	{
-		return trim ($data, $characters);
+		return trim ($data);
 	}
+	
+	public function filterEx ($field, stdClass $data, stdClass $scheme)
+	{
+		$chars = 
+			isset ($scheme->field ['trimChars']) ? 
+			$scheme->field ['trimChars'] : null;
+		return trim ($data->$field, $chars);
+	}
+	
 }

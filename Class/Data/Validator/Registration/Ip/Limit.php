@@ -1,13 +1,12 @@
 <?php
 
-class Data_Validator_Registration_Ip_Limit
+class Data_Validator_Registration_Ip_Limit extends Data_Validator_Abstract
 {
 	
 	const FAIL			= 'fail'; // Лимит на 1 ip
 	
-    public static function validate ()
+    public static function validate ($data)
 	{
-	    Loader::load ('Helper_Date');
 		$regs = IcEngine::$modelManager->collectionBy (
 		    'Registration',
 		    Query::instance ()

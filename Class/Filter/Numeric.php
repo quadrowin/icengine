@@ -1,8 +1,8 @@
 <?php
 
-class Filter_Numeric implements Filter_Interface
+class Filter_Numeric
 {
-	public function apply ($data)
+	public function filter ($data)
 	{
 		return (int) $data;
 	}

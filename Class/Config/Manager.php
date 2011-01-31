@@ -82,7 +82,7 @@ class Config_Manager
 		$container = new Config_Container (
 			$name,
 			$type,
-			Ice_Implementator::path () . '../' . self::PATH_TO_CONFIG
+			IcEngine::root () . self::PATH_TO_CONFIG
 		);
 		self::appendContainer ($container);
 		return $container->config ();

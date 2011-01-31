@@ -1,11 +1,11 @@
 <?php
 
-class Filter_UpperCase
+class Filter_Boolean
 {
 	
 	public function filter ($data)
 	{
-		return mb_strtoupper ($data);
+		return (bool) $data;
 	}
 	
 }

@@ -26,7 +26,7 @@ class Filter_Collection
 		{
 			for ($i = 0, $count = sizeof ($this->_filters); $i < $count; $i++)
 			{
-				$data = $this->_filters [$i]->apply ($data);
+				$data = $this->_filters [$i]->filter ($data);
 			}
 		}
 		else
@@ -39,7 +39,7 @@ class Filter_Collection
 				}
 				for ($i = 0, $count = sizeof ($this->_filters); $i < $count; $i++)
 				{
-					$value = $this->_filters [$i]->apply ($value);
+					$value = $this->_filters [$i]->filter ($value);
 				}
 			}
 		}

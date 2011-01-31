@@ -48,6 +48,8 @@ class Error
 				
 		    error_log ($msg . PHP_EOL, E_USER_ERROR, 3);
 		    echo '<pre>' . $msg . $e->getTraceAsString () . '</pre>';
+		    
+		    return;
 		}
 		
 		self::$_render->assign ('e', $e);

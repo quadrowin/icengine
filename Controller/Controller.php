@@ -93,6 +93,14 @@ class Controller_Controller extends Controller_Abstract
         	'result'    => $result
         ));
 	}
+	
+	public function auto ()
+	{
+		$controller = $this->_input->receive ('controller');
+		$action = $this->_input->receive ('action');
+		
+		return $this->replaceAction ($controller, $action);
+	}
     
 	/**
 	 * 
