@@ -42,6 +42,46 @@ class Helper_Form
 	);
 	
 	/**
+	 * Фильтрация значений
+	 * @param array $data
+	 * @param array $scheme
+	 */
+	public static function filter (array &$data, array $scheme)
+	{
+		Loader::load ('Filter_Manager');
+		$obj_data = (object) $data;
+		$obj_scheme = (object) $scheme;
+		
+		foreach ($scheme as $field => $info)
+		{
+			if ($info ['value'] == 'ignore')
+			{
+				continue ;
+			}
+			
+			$filters = isset ($info ['filters']) ? 
+				(array) $info ['filters'] :
+				array ();
+				
+			foreach ($filters as $filter)
+			{
+				$result = Filter_Manager::filterEx (
+					$filter, $field, $obj_data, $obj_scheme
+				);
+				
+				if ($result !== true)
+				{
+					return $result;
+				}
+			}
+		}
+		
+		$data = (array) $obj_data;
+		
+		return true;
+	}
+	
+	/**
 	 * @desc	Чтение данных из инпута согласно правилам.
 	 * 
 	 * @param	Data_Transport $input
@@ -100,16 +140,17 @@ class Helper_Form
 	 * 		Данные, полученные с формы.
 	 * @param array $fields
 	 * 		Данные по полям.
-	 * @throws Zend_Exception
 	 * @return true|string
 	 * 		true если данные прошли валидацию полностью.
 	 * 		Иначе - код ошибки.
 	 */
-	public static function validate (array &$data, array $fields)
+	public static function validate (array &$data, array $scheme)
 	{
+		Loader::load ('Data_Validator_Manager');
 		$obj_data = (object) $data;
+		$obj_scheme = (object) $scheme;
 		
-		foreach ($fields as $name => $info)
+		foreach ($scheme as $field => $info)
 		{
 			if ($info ['value'] == 'ignore')
 			{
@@ -122,19 +163,8 @@ class Helper_Form
 				
 			foreach ($validators as $validator)
 			{
-				$validator = 'Data_Validator_' . $validator;
-				
-				if (!Loader::load ($validator))
-				{
-					Loader::load ('Zend_Exception');
-					throw new Zend_Exception (
-						'Unable to load registration validator: ' . $validator);
-					return self::FAIL;
-				}
-				
-				$result = call_user_func (
-					array ($validator, 'validate'),
-					$obj_data, $name, $info
+				$result = Data_Validator_Manager::validateEx (
+					$validator, $field, $obj_data, $obj_scheme
 				);
 				
 				if ($result !== true)
@@ -143,8 +173,6 @@ class Helper_Form
 				}
 			}
 		}
-		
-		$data = (array) $obj_data;
 		
 		return true;
 	}

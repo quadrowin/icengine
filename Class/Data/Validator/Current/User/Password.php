@@ -1,18 +1,23 @@
 <?php
 
-class Data_Validator_Current_User_Password 
+/**
+ * 
+ * Проверка текущего пароля пользователя
+ * @author Юрий
+ *
+ */
+
+class Data_Validator_Current_User_Password extends Data_Validator_Abstract
 {
 	
 	const INCORRECT = 'incorrect';
 	
-	public static function validate (stdClass $data, $field, $info)
+	public function validate ($data)
 	{
-		if ($data->$field != User::getCurrent ()->password)
+		if ($data != User::getCurrent ()->password)
 		{
 			return __CLASS__ . '/' . self::INCORRECT;
 		}
-		
-		unset ($data->$field);
 		
 		return true;
 	}

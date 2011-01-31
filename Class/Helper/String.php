@@ -68,6 +68,29 @@ class Helper_String
 	}
 	
 	/**
+	 * Возврщает подстроку между $start и $end
+	 * @param string $string
+	 * @param string $start
+	 * @param string $end
+	 * @return string
+	 */
+	public static function between ($string, $start, $end = null)
+	{
+		$ini = strpos ($string, $start);
+		if ($ini === false)
+		{
+			return '';
+		}
+		$ini += strlen ($start);
+		if ($end === null)
+		{
+			return substr ($string, $ini);
+		}
+		$len = strpos ($string, $end, $ini) - $ini;
+		return substr ($string, $ini, $len);
+	}
+	
+	/**
 	 * Приводит строку к кодировке utf-8.
 	 * Для конвертирования используется внешний модуль a.charset.php
 	 *
@@ -203,6 +226,27 @@ class Helper_String
 	    }
 	    
 	    return $result;
+	}
+	
+	/**
+	 * Получение превью для текста.
+	 * @param string $text
+	 * @param integer $length
+	 * 		Ориентировочно ожидаемая длина превью.
+	 * @return string
+	 */
+	public static function smartPreview ($text, $length = 100)
+	{
+		$text =  stripslashes ($text) . ' ';
+		
+		if (!isset ($text {$length}))
+		{
+			return $text;
+		}
+		
+		$space_pos = strpos ($text, ' ', $length);
+		$result = substr ($text, 0, $space_pos);
+		return $result;
 	}
 	
 	/**

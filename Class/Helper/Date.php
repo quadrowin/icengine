@@ -335,11 +335,17 @@ class Helper_Date
 	/**
 	 * Перевод даты из любого распознаваемого форматав формат Unix;
 	 * @param string $date
+	 * 		Если параметр не будет передан или будет передано null,
+	 * 		будет использована текущая дата.
 	 * @return string
+	 * 		Дата в формате UNIX "YYYY-MM-DD HH:II:SS"
 	 */
-	public static function strToUnix ($date)
+	public static function toUnix ($date = null)
 	{
-		return date (self::UNIX_FORMAT, self::strToTimestamp ($date));
+		return date (
+			self::UNIX_FORMAT, 
+			$date ? self::strToTimestamp ($date) : time ()
+		);
 	}
 	
 	/**

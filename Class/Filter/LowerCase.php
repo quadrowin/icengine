@@ -1,9 +1,11 @@
 <?php
 
-class Filter_LowerCase implements Filter_Interface
+class Filter_LowerCase
 {
-	public function apply ($data)
+	
+	public function filter ($data)
 	{
 		return mb_strtolower ($data);
 	}
+	
 }

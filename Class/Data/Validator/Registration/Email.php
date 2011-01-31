@@ -9,18 +9,18 @@ class Data_Validator_Registration_Email
 	
 	const REPEAT	= 'repeat';     // Уже используется
     
-    public static function validate (stdClass $data, $name, array $info)
+    public static function validateEx ($field, stdClass $data, stdClass $scheme)
     {
-		if (empty ($data->$name))
+		if (empty ($data->$field))
 		{
 			return __CLASS__ . '/' . self::SHORT;
 		}
 		
-		$email = $data->$name = trim ($data->$name);
+		$email = $data->$field;
 		
 		if (
 		    !filter_var ($email, FILTER_VALIDATE_EMAIL) ||
-		    strlen ($email) > $info ['maxLength']
+		    strlen ($email) > $scheme->$field ['maxLength']
 		)
 		{
 		    return __CLASS__ . '/' . self::INCORRECT;

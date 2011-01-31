@@ -14,17 +14,16 @@ class Data_Validator_Registration_Phone
 	
 	const LONG	= 'long';
 	
-	public static function validate (stdClass $data, $name, array $info)
+	public static function validateEx ($field, stdClass $data, stdClass $scheme)
 	{
-		$value = $data->$name = trim ($data->$name);
-		$length = strlen ($value);
+		$length = strlen ($data->$field);
 		
-		if ($length < $info ['minLength'])
+		if ($length < $scheme->$field ['minLength'])
 		{
 			return __CLASS__ . '/' . self::SHORT;
 		}
 		
-		if ($length > $info ['maxLength'])
+		if ($length > $scheme->$field ['maxLength'])
 		{
 			return __CLASS__ . '/' . self::LONG;
 		}

@@ -1,9 +1,9 @@
 <?php
 
-class Filter_AddSlashes implements Filter_Interface
+class Filter_AddSlashes
 {
 	
-	public function apply ($data)
+	public function filter ($data)
 	{
 		return addslashes ($data);
 	}
