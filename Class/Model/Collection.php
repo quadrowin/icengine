@@ -308,17 +308,17 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 	 */
 	public function item ($index)
 	{
+		if (!is_array ($this->_items))
+		{
+			$this->load ();
+		}
+		
 	    if ($index < 0)
 	    {
 	        $index += count ($this->_items);
 	    }
-	    
-		if (!isset ($this->_items [$index]))
-		{
-		    return null;
-		}
 		
-		return $this->_items [$index];
+		return isset ($this->_items [$index]) ? $this->_items [$index] : null;
 	}
     
 	/**
@@ -467,7 +467,7 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 		
 		$query->select (array ($this->table () => $key_field));
 		
-		$query->from ($this->table ());
+		$query->from ($this->modelName ());
 		
 		foreach ($this->_where as $where)
 		{

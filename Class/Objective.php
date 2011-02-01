@@ -13,7 +13,7 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	 * 
 	 * @param array $data
 	 */
-	public function __construct (array $data)
+	public function __construct (array $data = array ())
 	{
 		foreach ($data as $key => $value)
 		{
@@ -39,7 +39,7 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 			}
 		}
 		
-		return array_merge ($data, $this->_classVars ());
+		return $data + $this->_classVars ();
 	}
 	
 	/**
@@ -47,7 +47,7 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function __isset ($key)
 	{
-		return $this->exists ($key);
+		return isset ($this->_data [$key]);
 	}
 	
 	public function __clone ()
@@ -119,7 +119,7 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function asArray ()
 	{
-		return array_merge ($this->_data, $this->_classVars ());
+		return $this->_data + $this->_classVars ();
 	}
 	
 	public function count ()
@@ -187,7 +187,7 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
     public function offsetUnset ($offset)
     {
     	$this->$offset = null;
-    	if (isset ($this->_data [$offset]))
+    	if (array_key_exists ($offset, $this->_data))
     	{
         	unset ($this->_data [$offset]);
     	}

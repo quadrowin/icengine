@@ -1,5 +1,7 @@
 <?php
 
+Loader::load ('Data_Validator_Abstract');
+
 class Data_Validator_Manager
 {
 	
@@ -45,15 +47,15 @@ class Data_Validator_Manager
 	 * 		Валидатор.
 	 * @param string $field
 	 * 		Проверяемое поле
-	 * @param StdClass $data
-	 * @param StdClass $scheme
+	 * @param stdClass $data
+	 * @param stdClass $scheme
 	 * @return true|string
 	 * 		true, если данные прошли валидацию.
 	 * 		Иначе - строкове представление ошибки в виде: 
 	 * 		"Имя_Валидатора/ошибка"
 	 */
-	public static function validateEx ($name, $field, StdClass $data, 
-		StdClass $scheme)
+	public static function validateEx ($name, $field, $data, 
+		stdClass $scheme)
 	{
 		return self::get ($name)->validateEx ($field, $data, $scheme);
 	}

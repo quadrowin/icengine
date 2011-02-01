@@ -9,7 +9,7 @@ abstract class Model_Collection_Option_Abstract extends Model_Collection_Option
     }
 	
     /**
-     * Вызывается после выполения запроса
+     * Вызывается после выполения запроса.
      * @param Model_Collection $collection
      * @param Query $query
      * @param array $params
@@ -21,7 +21,10 @@ abstract class Model_Collection_Option_Abstract extends Model_Collection_Option
     }
         
     /**
-     * Вызывается перед выполнением запроса
+     * Вызывается перед выполнением запроса.
+     * Переменная <i>$query</i> отличается от запроса, возвращаемого методом
+     * <i>$colleciton->query()</i>. По умолчанию эта переменная - клон
+     * изначального запроса коллекции, на который наложены опции.
      * @param Model_Collection $collection
      * @param Query $query
      * @param array $params

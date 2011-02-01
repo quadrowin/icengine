@@ -50,6 +50,7 @@ class Registration extends Model
 	            'minLength'	=> 5,
 	            'maxLength'	=> 40,
 	            'value'		=> 'input',
+				'filters'	=> 'Trim',
 	            'validators'	=> array (
 	            	'Registration_Email'
 	            )
@@ -166,11 +167,10 @@ class Registration extends Model
 		    $data ['email'], $data ['password'], 
 		    self::$config ['autoactive'], $data);
 		
-		Loader::load ('Helper_Date');
 		$registration = new Registration (array (
 			'User__id'	=> $user->id,
 			'email'		=> $data ['email'],
-			'time'		=> date (Helper_Date::UNIX_FORMAT),
+			'time'		=> Helper_Date::toUnix (),
 			'ip'		=> Request::ip (),
 			'day'		=> Helper_Date::eraDayNum (),
 			'finished'		=> 0,
@@ -216,36 +216,26 @@ class Registration extends Model
 	
 	/**
 	 * 
-	 * @param array $data
+	 * @param Objective $data
 	 * 		string ['email'] емейл
 	 * 		string ['password'] пароль
 	 * @return integer
 	 */
-	public static function tryRegister (array $data)
+	public static function tryRegister (Objective $data)
 	{
-	    $result = self::validate ($data);
+		Helper_Form::filter ($data, self::$config ['fields']);
+		$result = Helper_Form::validate ($data, self::$config ['fields']);
 	    
-	    if ($result !== true)
+	    if (is_array ($result))
 	    {
 	        return $result;
 	    }
 	    
-	    $ok = self::register ($data, self::$config ['sendmail']);
+	    Helper_Form::unsetIngored ($data, self::$config ['fields']);
+	    
+	    $ok = self::register ($data->asArray (), self::$config ['sendmail']);
 	    
 	    return $ok ? true : self::FAIL;
-	}
-	
-	/**
-	 * Проверка полей формы регистрации
-	 * @param array $data
-	 * @return mixed
-	 * 		true если валидация пройдена успешно,
-	 * 		иначе код ошибки.
-	 */
-	public static function validate (array &$data)
-	{
-		Loader::load ('Helper_Form');
-		return Helper_Form::validate ($data, self::$config ['fields']);
 	}
 	
 }

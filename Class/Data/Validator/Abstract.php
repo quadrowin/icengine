@@ -10,6 +10,8 @@
 abstract class Data_Validator_Abstract 
 {
 	
+	const INVALID = 'invalid';
+	
 	/**
 	 * Валидация строки
 	 * @param string $data
@@ -35,9 +37,11 @@ abstract class Data_Validator_Abstract
 	 * 		true, если данные прошли валидацию или
 	 * 		строка ошибки.
 	 */
-	public function validateEx ($field, stdClass $data, stdClass $scheme)
+	public function validateEx ($field, $data, stdClass $scheme)
 	{
-		return $this->validate ($data->$field);
+		return
+			$this->validate ($data->$field) ? 
+			true : get_class ($this) . '/' . self::INVALID;
 	}
 	
 }

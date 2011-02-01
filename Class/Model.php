@@ -3,6 +3,13 @@
 include dirname (__FILE__) . '/Object/Pool.php';
 include dirname (__FILE__) . '/Object/Interface.php';
 
+/**
+ * 
+ * Базовая модель для всех сущностей.
+ * @author Юрий
+ *
+ */
+
 abstract class Model
 {
 	
@@ -13,7 +20,8 @@ abstract class Model
     protected    $_autojoin;
     
 	/**
-	 * 
+	 * Компоненты для модели.
+	 * Прикрепленные к модели изображения, видео, комментарии и пр.
 	 * @var array <Coponent_Collection>
 	 */
 	protected    $_components = array ();

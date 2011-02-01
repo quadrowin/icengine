@@ -15,4 +15,14 @@ class Controller_Error extends Controller_Abstract
 		Header::setStatus(Header::E404);
 	}
 	
+	public function notFound ()
+	{
+		
+	}
+	
+	public function obsolete ()
+	{
+		$this->_output->send ('error', 'Page obsolete.');
+	}
+	
 }

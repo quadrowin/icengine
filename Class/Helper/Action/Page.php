@@ -1,8 +1,18 @@
 <?php
 
+/**
+ * 
+ * Стандартные реакции контроллера на ошибки
+ * @author Юрий
+ *
+ */
+
 class Helper_Action_Page
 {
     
+	/**
+	 * Страница не найдена
+	 */
     public static function notFound ()
     {
 		IcEngine::$application
@@ -10,11 +20,14 @@ class Helper_Action_Page
 			->getDispatcher ()
 			->flushStack (true)
 			->pushArray (array (
-				'controller'	=> 'Authorization',
-				'action'		=> 'accessDenied'
+				'controller'	=> 'Error',
+				'action'		=> 'notFound'
 			));
     }
     
+    /**
+     * Страница устарела
+     */
     public static function obsolete ()
     {
 		IcEngine::$application
@@ -22,8 +35,8 @@ class Helper_Action_Page
 			->getDispatcher ()
 			->flushStack (true)
 			->pushArray (array (
-				'controller'	=> 'Authorization',
-				'action'		=> 'accessDenied'
+				'controller'	=> 'Error',
+				'action'		=> 'obsolete'
 			));
     }
     

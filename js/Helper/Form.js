@@ -80,9 +80,14 @@ var Helper_Form = {
 			}
 			else
 			{
+				if (result.data && result.data.error && result.data.field)
+				{
+					$('[name=' + result.data.field + ']').addClass ("err");
+				}
+				
 				var $div = $('.result-msg', $form.parent ());
 				$div.html (result.html);
-				$div.removeClass ('hidden');
+				$div.show ();
 			};
 		}
 		else
@@ -115,7 +120,7 @@ var Helper_Form = {
 			is_new = true;			
 		};
 		
-		$input.css({
+		$input.css ({
 			position: "absolute",
 			opacity: 0.0,
 			cursor: "pointer",

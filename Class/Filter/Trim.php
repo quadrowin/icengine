@@ -8,7 +8,7 @@ class Filter_Trim
 		return trim ($data);
 	}
 	
-	public function filterEx ($field, stdClass $data, stdClass $scheme)
+	public function filterEx ($field, $data, stdClass $scheme)
 	{
 		$chars = 
 			isset ($scheme->field ['trimChars']) ? 
