@@ -320,6 +320,14 @@ class Controller_Form extends Controller_Abstract
 		));
 	}
 	
+	/**
+	 * Форма устарела
+	 */
+	public function obsolete ()
+	{
+		
+	}
+	
 	
 	
 }
