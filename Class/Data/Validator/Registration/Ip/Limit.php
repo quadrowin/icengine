@@ -5,7 +5,7 @@ class Data_Validator_Registration_Ip_Limit extends Data_Validator_Abstract
 	
 	const FAIL			= 'fail'; // Лимит на 1 ip
 	
-    public static function validate ($data)
+    public function validate ($data)
 	{
 		$regs = IcEngine::$modelManager->collectionBy (
 		    'Registration',

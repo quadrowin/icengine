@@ -1,11 +1,11 @@
 <?php
 
-class Data_Validator_Captcha_Auto_Code
+class Data_Validator_Captcha_Auto_Code extends Data_Validator_Abstract
 {
 	
 	const FAIL = 'fail';
 	
-	public static function validate ($data)
+	public function validate ($data)
 	{
 		Loader::load ('Helper_Captcha');
 		

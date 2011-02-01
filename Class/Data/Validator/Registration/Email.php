@@ -9,7 +9,7 @@ class Data_Validator_Registration_Email
 	
 	const REPEAT	= 'repeat';     // Уже используется
     
-    public static function validateEx ($field, stdClass $data, stdClass $scheme)
+    public function validateEx ($field, $data, stdClass $scheme)
     {
 		if (empty ($data->$field))
 		{
@@ -17,10 +17,11 @@ class Data_Validator_Registration_Email
 		}
 		
 		$email = $data->$field;
+		$param = $scheme->$field;
 		
 		if (
 		    !filter_var ($email, FILTER_VALIDATE_EMAIL) ||
-		    strlen ($email) > $scheme->$field ['maxLength']
+		    strlen ($email) > $param ['maxLength']
 		)
 		{
 		    return __CLASS__ . '/' . self::INCORRECT;

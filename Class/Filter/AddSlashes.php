@@ -1,5 +1,10 @@
 <?php
-
+/**
+ * 
+ * Экранирование добавление слэшей
+ * @author Morph
+ *
+ */
 class Filter_AddSlashes
 {
 	

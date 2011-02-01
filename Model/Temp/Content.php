@@ -69,7 +69,7 @@ class Temp_Content extends Model
 	    if (!isset (self::$_created [$mname][$mkey]))
 	    {
 	        self::$_created [$mname][$mkey] = self::create (
-	            $controller ? $controller->name () : 'unknown',
+	            $controller ? $controller->name () : '',
 	            $model->table (),
 	            $mkey
 	        );

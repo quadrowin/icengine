@@ -28,7 +28,7 @@ abstract class Filter_Abstract
 	 * @param stdClass $scheme
 	 * 		Схема.
 	 */
-	public function filterEx ($field, stdClass $data, 
+	public function filterEx ($field, $data, 
 		stdClass $scheme)
 	{
 		return $this->filter ($data->$field);

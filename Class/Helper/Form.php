@@ -18,6 +18,10 @@ class Helper_Form
 			'type'	=> 'string',
 			'minLength'	=> 5,
 			'maxLength'	=> 40,
+			'filters'		=> array (
+				'Trim',
+				'LowerCase'
+			),
 			'validators'	=> array (
 				'Registration_Email'
 			),
@@ -28,6 +32,9 @@ class Helper_Form
 			'minLength'	=> 6,
 			'maxLength'	=> 250,
 			'value'	=> 'input',
+			'filters'		=> array (
+				'Trim'
+			),
 			'validators'	=> array (
 				'Registration_Password'
 			)
@@ -38,18 +45,26 @@ class Helper_Form
 			'validators'	=> array (
 				'Registration_Ip_Limit'
 			)
+		),
+		'date'	=> array (
+			'value'	=> array (
+				// При добавлении
+				'add'	=> array ('Helper_Date', 'toUnix'),
+				// При редактировании
+				'edit'	=> 'ignore'
+			)
 		)
 	);
 	
 	/**
 	 * Фильтрация значений
-	 * @param array $data
+	 * @param Objective $data
+	 * 		Данные для фильтрации
 	 * @param array $scheme
 	 */
-	public static function filter (array &$data, array $scheme)
+	public static function filter (Objective $data, array $scheme)
 	{
 		Loader::load ('Filter_Manager');
-		$obj_data = (object) $data;
 		$obj_scheme = (object) $scheme;
 		
 		foreach ($scheme as $field => $info)
@@ -65,20 +80,11 @@ class Helper_Form
 				
 			foreach ($filters as $filter)
 			{
-				$result = Filter_Manager::filterEx (
-					$filter, $field, $obj_data, $obj_scheme
+				$data->$field = Filter_Manager::filterEx (
+					$filter, $field, $data, $obj_scheme
 				);
-				
-				if ($result !== true)
-				{
-					return $result;
-				}
 			}
 		}
-		
-		$data = (array) $obj_data;
-		
-		return true;
 	}
 	
 	/**
@@ -88,26 +94,50 @@ class Helper_Form
 	 * 		Входной поток.
 	 * @param array $fields
 	 * 		Поля.
-	 * @return array
+	 * @param Temp_Content $tc
+	 * 		Временный контент
+	 * @return Objective
 	 * 		Прочитанные поля.
 	 */
-	public static function receiveFields (Data_Transport $input, array $fields)
+	public static function receiveFields (Data_Transport $input, array $fields, 
+		Temp_Content $tc = null)
 	{
-		$data = array ();
+		$data = new Objective ();
 		
 		foreach ($fields as $field => $info)
 		{
-			if (
+			$value = &$info ['value'];
+			
+			if (is_array ($value))
+			{
+				if (count ($value) == 2 && isset ($value [0], $value [1]))
+				{
+					$data [$field] = call_user_func ($info ['value']);
+				}
+				elseif (isset ($value ['add']) && $tc && !$tc->rowId)
+				{
+					$data [$field] = call_user_func (
+						$value ['add'][0],
+						$value ['add'][1]
+					);
+				}
+				elseif (isset ($value ['edit']) && $tc && $tc->rowId)
+				{
+					$data [$field] = call_user_func (
+						$value ['edit'][0],
+						$value ['edit'][1]
+					);
+				}
+			}
+			elseif (
 				$info ['value'] == 'input' ||
 				$info ['value'] == 'input,ignore'
 			)
 			{
 				$data [$field] = $input->receive ($field);
 			}
-			elseif (is_array ($info ['value']))
-			{
-				$data [$field] = call_user_func ($info ['value']);
-			}
+			
+			unset ($value);
 		}
 		
 		return $data;
@@ -115,19 +145,20 @@ class Helper_Form
 	
 	/**
 	 * Удаление из выборки полей, отмеченных как игнорируемые.
-	 * @param array $data
-	 * @param array $fields
+	 * @param Objective $data
+	 * @param array $scheme
 	 */
-	public static function unsetIngored (array &$data, array $fields)
+	public static function unsetIngored (Objective $data, array $scheme)
 	{
 		foreach ($data as $key => $value)
 		{
 			if (
-				!isset ($fields [$key]) || 
-				$fields [$key]['value'] == 'ignore' ||
-				$fields [$key]['value'] == 'input,ignore'
+				!isset ($scheme [$key]) || 
+				$scheme [$key]['value'] == 'ignore' ||
+				$scheme [$key]['value'] == 'input,ignore'
 			)
 			{
+				Debug::vardump ($key, $scheme [$key]);
 				unset ($data [$key]);
 			}
 		}
@@ -136,18 +167,18 @@ class Helper_Form
 	/**
 	 * Проверка корректности данных с формы.
 	 * 
-	 * @param array $data
+	 * @param Objective $data
 	 * 		Данные, полученные с формы.
 	 * @param array $fields
 	 * 		Данные по полям.
-	 * @return true|string
+	 * @return true|array
 	 * 		true если данные прошли валидацию полностью.
-	 * 		Иначе - код ошибки.
+	 * 		Иначе - массив
+	 * 		array ("Поле" => "Ошибка")
 	 */
-	public static function validate (array &$data, array $scheme)
+	public static function validate (Objective $data, array $scheme)
 	{
 		Loader::load ('Data_Validator_Manager');
-		$obj_data = (object) $data;
 		$obj_scheme = (object) $scheme;
 		
 		foreach ($scheme as $field => $info)
@@ -164,12 +195,12 @@ class Helper_Form
 			foreach ($validators as $validator)
 			{
 				$result = Data_Validator_Manager::validateEx (
-					$validator, $field, $obj_data, $obj_scheme
+					$validator, $field, $data, $obj_scheme
 				);
 				
 				if ($result !== true)
 				{
-					return $result;
+					return array ($field => $result);
 				}
 			}
 		}

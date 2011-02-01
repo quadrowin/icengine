@@ -70,12 +70,16 @@ class Controller_Registration extends Controller_Abstract
 		$valid = Registration::tryRegister ($data);
 		$this->_output->send ('valid', $valid);
 		
-		if ($valid !== true)
+		if (is_array ($valid))
 		{
-			$this->_dispatcherIteration->setTemplate ( 
-				str_replace (array ('_', '::'), '/', $valid) . 
+			$this->_dispatcherIteration->setTemplate (
+				str_replace (array ('::', '_'), '/', reset ($valid)) . 
 				'.tpl'
 			);
+			$this->_output->send ('data', array (
+				'field'	=> key ($valid),
+				'error'	=> current ($valid)
+			));
 		}
 		else
 		{

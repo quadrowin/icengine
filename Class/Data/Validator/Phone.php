@@ -2,6 +2,7 @@
 
 class Data_Validator_Phone extends Data_Validator_Abstract
 {
+	
 	public function validate ($data)
 	{
 		if (preg_match ('/^\+?(?:\d|\s|(?:\(\d+\))|-)+$/', $data))
@@ -10,4 +11,5 @@ class Data_Validator_Phone extends Data_Validator_Abstract
 		}
 		return false;
 	}
+	
 }

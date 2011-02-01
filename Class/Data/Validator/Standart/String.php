@@ -22,22 +22,17 @@ class Data_Validator_Standart_String
 	 */
 	const LONG	= 'long';
 	
-    public function validateEx ($field, stdClass $data, stdClass $scheme)
+    public function validateEx ($field, $data, stdClass $scheme)
     {
 		$length = strlen ($data->$field);
+		$param = $scheme->$field;
 		
-		if (
-			isset ($scheme->$field ['minLength']) &&
-			$length < $scheme->$field ['minLength']
-		)
+		if (isset ($param ['minLength']) && $length < $param ['minLength'])
 		{
 			return __CLASS__ . '/' . self::SHORT;
 		}
 		
-		if (
-			isset ($scheme->$field ['maxLength']) &&
-			$length > $scheme->$field ['maxLength']
-		)
+		if (isset ($param ['maxLength']) && $length > $param ['maxLength'])
 		{
 			return __CLASS__ . '/' . self::LONG;
 		}

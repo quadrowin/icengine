@@ -83,7 +83,6 @@ class Controller_Abstract
 		if ($controller == get_class ($this))
 		{
 			// Этот же контроллер
-			
 			return $this->$action ();
 		}
 		else

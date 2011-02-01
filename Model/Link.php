@@ -3,6 +3,4 @@
 class Link extends Model
 {
     
-    
-    
 }

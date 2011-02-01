@@ -22,20 +22,17 @@ class Data_Validator_Standart_Integer
 	 */
 	const BIG	= 'big';
 	
-    public function validateEx ($field, stdClass $data, stdClass $scheme)
+    public function validateEx ($field, $data, stdClass $scheme)
     {
-		if (
-			isset ($scheme->$field ['min']) &&
-			$data->$field < $scheme->$field ['min']
-		)
+    	$val = $data->$field;
+    	$param = $scheme->$field;
+    	
+		if (isset ($param ['min']) && $val < $param ['min'])
 		{
 			return __CLASS__ . '/' . self::SMALL;
 		}
 		
-		if (
-			isset ($scheme->$field ['max']) && 
-			$data->$field > $scheme->$field ['max']
-		)
+		if (isset ($param ['max']) && $val > $param ['max'])
 		{
 			return __CLASS__ . '/' . self::BIG;
 		}

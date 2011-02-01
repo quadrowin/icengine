@@ -1,5 +1,7 @@
 <?php
 
+Loader::load ('Filter_Abstract');
+
 class Filter_Manager
 {
 	
@@ -22,6 +24,7 @@ class Filter_Manager
 		}
 		
 		$class = 'Filter_' . $name;
+		Loader::load ($class);
 		return self::$_filters [$name] = new $class ();
 	}
 	
@@ -46,7 +49,7 @@ class Filter_Manager
 	 * @param stdClass $scheme
 	 * @return mixed
 	 */
-	public static function filterEx ($name, $field, stdClass $data, 
+	public static function filterEx ($name, $field, $data, 
 		stdClass $scheme)
 	{
 		return self::get ($name)->filterEx ($field, $data, $scheme);
