@@ -2,7 +2,7 @@
 
 class Application
 {
-    
+	
 	/**
 	 * Окружение
 	 * 

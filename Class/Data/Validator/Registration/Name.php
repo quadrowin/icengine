@@ -9,13 +9,13 @@
 
 class Data_Validator_Registration_Name
 {
-    
+
 	const SHORT	= 'short';
 	
 	const LONG	= 'long';
 	
-    public function validateEx ($field, $data, stdClass $scheme)
-    {
+	public function validateEx ($field, $data, stdClass $scheme)
+	{
 		$length = strlen ($data->$field);
 		$param = $scheme->$field;
 		
@@ -28,8 +28,8 @@ class Data_Validator_Registration_Name
 		{
 			return __CLASS__ . '/' . self::LONG;
 		}
-    	
+		
 		return true;
-    }
-    
+	}
+
 }

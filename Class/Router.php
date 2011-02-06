@@ -113,7 +113,7 @@ class Router
 		}
 		
 		Loader::load ('Route');
-		return new Route ($row);		
+		return new Route ($row);
 	}
 	
 }

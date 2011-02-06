@@ -78,12 +78,12 @@ function internalErrorHandler_hide ($errno, $errstr, $errfile, $errline)
 
 function internalErrorHandler_ignore ($errno, $errstr, $errfile, $errline)
 {
-    return true;
+	return true;
 }
 
 function internal_exception_handler_ignore ($exception)
 {
-    echo "Uncaught exception: " , $exception->getMessage (), "\n";
+	echo "Uncaught exception: " , $exception->getMessage (), "\n";
 }
 
 class Debug
@@ -156,7 +156,7 @@ class Debug
 			 * Активно
 			 * @var boolean
 			 */
-			'active'	            => false,
+			'active'				=> false,
 		
 			/**
 			 * Следим за количеством дебаг сообщений, чтобы 
@@ -227,7 +227,7 @@ class Debug
 		
 		if ($config)
 		{
-		    self::setOptions ($config);
+			self::setOptions ($config);
 		}
 		
 		set_error_handler ("internalErrorHandler_DebugClass");
@@ -235,14 +235,14 @@ class Debug
 	
 	public static function printr ($var)
 	{
-	    echo '<pre>';
-	    
-	    foreach (func_get_args () as $arg)
-	    {
-	        echo print_r ($arg, true);
-	    }
-	    
-	    echo '</pre>';
+		echo '<pre>';
+		
+		foreach (func_get_args () as $arg)
+		{
+			echo print_r ($arg, true);
+		}
+		
+		echo '</pre>';
 	}
 	
 	/**
@@ -270,17 +270,17 @@ class Debug
 	
 	public static function popErrorHandler ()
 	{
-	    restore_error_handler ();
+		restore_error_handler ();
 	}
 	
 	public static function popExceptionHandler ()
 	{
-	    restore_exception_handler ();
+		restore_exception_handler ();
 	}
 	
 	public static function pushErrorHandler ($type)
 	{
-	    error_reporting (null);
+		error_reporting (null);
 		ini_set ('display_errors', false);
 		ini_set ('html_errors', false);
 		ini_set ('track_errors', false);
@@ -290,7 +290,7 @@ class Debug
 	
 	public static function pushExceptionHandler ($type)
 	{
-	    set_exception_handler ('internal_exception_handler_' . $type);
+		set_exception_handler ('internal_exception_handler_' . $type);
 	}
 	
 	/**
@@ -418,7 +418,7 @@ class Debug
 		// В стандартный лог
 		if (self::$config ['phplog'])
 		{
-		    error_log ($text . PHP_EOL, E_USER_ERROR, 3);
+			error_log ($text . PHP_EOL, E_USER_ERROR, 3);
 		}
 		
 		// В файл
@@ -502,35 +502,46 @@ class Debug
 	 */
 	public static function arrayMergeReplaceRecursive ()
 	{
-	    // Holds all the arrays passed
-	    $params = &func_get_args ();
-	   
-	    // First array is used as the base, everything else overwrites on it
-	    $return = array_shift ($params);
-	   
-	    // Merge all arrays on the first array
-	    foreach ( $params as $array ) {
-	        foreach ( $array as $key => $value ) {
-	            // Numeric keyed values are added (unless already there)
-	            if (is_numeric ( $key ) && (! in_array ( $value, $return ))) {
-	                if (is_array ( $value )) {
-	                    $return [] = self::arrayMergeReplaceRecursive ( $return [$key], $value );
-	                } else {
-	                    $return [] = $value;
-	                }
-	               
-	            // String keyed values are replaced
-	            } else {
-	                if (isset ( $return [$key] ) && is_array ( $value ) && is_array ( $return [$key] )) {
-	                    $return [$key] = self::arrayMergeReplaceRecursive ( $return [$key], $value );
-	                } else {
-	                    $return [$key] = $value;
-	                }
-	            }
-	        }
-	    }
-	   
-	    return $return;
+		// Holds all the arrays passed
+		$params = &func_get_args ();
+		
+		// First array is used as the base, everything else overwrites on it
+		$return = array_shift ($params);
+		
+		// Merge all arrays on the first array
+		foreach ($params as $array)
+		{
+			foreach ($array as $key => $value)
+			{
+				// Numeric keyed values are added (unless already there)
+				if (is_numeric ($key) && (!in_array ($value, $return)))
+				{
+					if (is_array ($value))
+					{
+						$return [] = self::arrayMergeReplaceRecursive ($return [$key], $value);
+					}
+					else
+					{
+						$return [] = $value;
+					}
+					
+				// String keyed values are replaced
+				}
+				else
+				{
+					if (isset ($return [$key]) && is_array ($value) && is_array ($return [$key]))
+					{
+						$return [$key] = self::arrayMergeReplaceRecursive ($return [$key], $value);
+					}
+					else
+					{
+						$return [$key] = $value;
+					}
+				}
+			}
+		}
+		
+		return $return;
 	}
 	
 }

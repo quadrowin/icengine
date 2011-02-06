@@ -2,8 +2,8 @@
 
 class Request
 {
-    
-    const NONE_IP = '0.0.0.0';
+	
+	const NONE_IP = '0.0.0.0';
 	
 	public static $_params = array();
 	
@@ -16,13 +16,13 @@ class Request
 	 */
 	public static function altFilesFormat ()
 	{
-	    if (empty ($_FILES))
-	    {
-	        return false;
-	    }
-	    
-	    $f = reset ($_FILES);
-	    return is_array ($f ['name']);
+		if (empty ($_FILES))
+		{
+			return false;
+		}
+		
+		$f = reset ($_FILES);
+		return is_array ($f ['name']);
 	}
 	
 	/**
@@ -50,7 +50,7 @@ class Request
 	public static function ip ()
 	{
 		return isset ($_SERVER ['REMOTE_ADDR']) ? 
-		    $_SERVER ['REMOTE_ADDR'] : self::NONE_IP;
+			$_SERVER ['REMOTE_ADDR'] : self::NONE_IP;
 	}
 	
 	/**
@@ -83,7 +83,7 @@ class Request
 	{
 		return (
 			isset ($_SERVER ['REQUEST_METHOD']) &&
-            $_SERVER ['REQUEST_METHOD'] == 'POST'
+			$_SERVER ['REQUEST_METHOD'] == 'POST'
 		);
 	}
 	
@@ -207,17 +207,17 @@ class Request
 		
 		if (!isset ($files [$index]))
 		{
-		    return null;
+			return null;
 		}
 		
 		if (is_array ($files [$index]['name']))
 		{
-		    $file = array ();
-		    foreach ($files [$index] as $field => $values)
-		    {
-		        $file [$field] = reset ($values);
-		    }
-		    return new Request_File ($file);
+			$file = array ();
+			foreach ($files [$index] as $field => $values)
+			{
+				$file [$field] = reset ($values);
+			}
+			return new Request_File ($file);
 		}
 		
 		return new Request_File ($files [$index]);
@@ -284,16 +284,16 @@ class Request
 	 */
 	public static function sessionId ()
 	{
-    	if (isset ($_COOKIE ['PHPSESSID']))
-    	{
-    		session_id ($_COOKIE ['PHPSESSID']);
-    	}
-    	elseif (isset ($_GET ['PHPSESSID']))
-    	{
-    		session_id ($_GET ['PHPSESSID']);
-    	}
-    	
-    	return session_id ();
+		if (isset ($_COOKIE ['PHPSESSID']))
+		{
+			session_id ($_COOKIE ['PHPSESSID']);
+		}
+		elseif (isset ($_GET ['PHPSESSID']))
+		{
+			session_id ($_GET ['PHPSESSID']);
+		}
+		
+		return session_id ();
 	}
 	
 }

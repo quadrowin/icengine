@@ -2,18 +2,18 @@
 
 class Header
 {
-    
+	
 	const E403 = 403;
 	const E404 = 404;
 	
 	const CONTENT_ENCODING_GZIP = 'gzip';
 	
 	public static $statuses = array(
-        self::E403 => array (
-            "HTTP/1.0 403 Permission Denied",
-            "Status: 403 Permission Denied"
-        ),
-        self::E404 => array(
+		self::E403 => array (
+			"HTTP/1.0 403 Permission Denied",
+			"Status: 403 Permission Denied"
+		),
+		self::E404 => array(
 			"HTTP/1.0 404 Not Found",
 			"Status: 404 Not Found"
 		)

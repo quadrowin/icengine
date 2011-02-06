@@ -2,7 +2,7 @@
 
 class Paginator
 {
-    
+	
 	/**
 	 * Текущая страница
 	 * @var integer
@@ -69,11 +69,11 @@ class Paginator
 	 */
 	public static function fromInput (Data_Transport $input, $full_count = 0)
 	{
-	    return new self (
+		return new self (
 			max ($input->receive ('page'), 1),
 			max ($input->receive ('limit'), 10),
 			$full_count
-	    );
+		);
 	}
 	
 	/**

@@ -41,15 +41,15 @@ class Error
 		if (!self::$_render)
 		{
 			$msg = 
-		    	'[' . $e->getFile () . '@' . 
+				'[' . $e->getFile () . '@' . 
 				$e->getLine () . ':' . 
 				$e->getCode () . '] ' .
 				$e->getMessage () . "\r\n";
 				
-		    error_log ($msg . PHP_EOL, E_USER_ERROR, 3);
-		    echo '<pre>' . $msg . $e->getTraceAsString () . '</pre>';
-		    
-		    return;
+			error_log ($msg . PHP_EOL, E_USER_ERROR, 3);
+			echo '<pre>' . $msg . $e->getTraceAsString () . '</pre>';
+			
+			return;
 		}
 		
 		self::$_render->assign ('e', $e);

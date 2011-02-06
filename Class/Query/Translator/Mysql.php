@@ -3,7 +3,7 @@
 class Query_Translator_Mysql extends Query_Translator
 {
 	
-    // Для построения SQL запроса
+	// Для построения SQL запроса
 	const SQL_AND			= 'AND';
 	const SQL_ASC			= 'ASC';
 	const SQL_COMMA			= ',';

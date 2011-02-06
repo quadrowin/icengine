@@ -3,7 +3,7 @@
 class Query {
 	
 	const ASC				= 'ASC';
-	const CALC_FOUND_ROWS   = 'CALC_FOUND_ROWS';
+	const CALC_FOUND_ROWS	= 'CALC_FOUND_ROWS';
 	const DELETE			= 'DELETE';
 	const DESC				= 'DESC';
 	const DISTINCT			= 'DISTINCT';
@@ -22,18 +22,18 @@ class Query {
 	const TABLE				= 'TABLE';
 	const TYPE				= 'TYPE';
 	const LIMIT_COUNT		= 'LIMITCOUNT';
-    const LIMIT_OFFSET		= 'LIMITOFFSET';
-    const VALUE				= 'VALUE';
-    const VALUES			= 'VALUES';
-    const WHERE				= 'WHERE';
-    const UPDATE			= 'UPDATE';
-    
-    const SQL_AND			= 'AND';
-    const SQL_OR			= 'OR';
-    
-    // Части выборки по умолчанию
+	const LIMIT_OFFSET		= 'LIMITOFFSET';
+	const VALUE				= 'VALUE';
+	const VALUES			= 'VALUES';
+	const WHERE				= 'WHERE';
+	const UPDATE			= 'UPDATE';
+	
+	const SQL_AND			= 'AND';
+	const SQL_OR			= 'OR';
+	
+	// Части выборки по умолчанию
 	public static $_defaults = array (
-	    self::CALC_FOUND_ROWS   => false,
+		self::CALC_FOUND_ROWS	=> false,
 		self::DISTINCT			=> false,
 		self::FROM				=> array(),
 		self::SELECT			=> array(),
@@ -310,23 +310,23 @@ class Query {
 	 */
 	public function resetPart ($parts)
 	{
-	    if (!is_array ($parts))
-	    {
-	        $parts = func_get_args ();
-	    }
-	    
-	    foreach ($parts as $part)
-	    {
-    		if (isset (self::$_defaults [$part]))
-    		{
-    			$this->_parts [$part] = self::$_defaults [$part];
-    		}
-    		else
-    		{
-    			unset ($this->_parts [$part]);
-    		}
-	    }
-	    
+		if (!is_array ($parts))
+		{
+			$parts = func_get_args ();
+		}
+		
+		foreach ($parts as $part)
+		{
+			if (isset (self::$_defaults [$part]))
+			{
+				$this->_parts [$part] = self::$_defaults [$part];
+			}
+			else
+			{
+				unset ($this->_parts [$part]);
+			}
+		}
+		
 		return $this;
 	}
 	
@@ -380,13 +380,13 @@ class Query {
 	public function set ($column, $value)
 	{
 	   	if (isset ($this->_parts [self::VALUES]))
-    	{
-	    	$this->_parts [self::VALUES][$column] = $value;
-    	}
-    	else
-    	{
-    		$this->_parts [self::VALUES] = array ($column => $value);
-    	}
+		{
+			$this->_parts [self::VALUES][$column] = $value;
+		}
+		else
+		{
+			$this->_parts [self::VALUES] = array ($column => $value);
+		}
 		return $this;
 	}
 	
@@ -414,19 +414,19 @@ class Query {
 	 * @return Query
 	 * 		Новый запрос
 	 */
-    public function toCountQuery ()
-    {
-        $count_query = clone $this;
-        
-        $count_query
-        	->resetPart (self::SELECT)
-        	->select ('COUNT(1) AS `count`')
-        	->resetPart (self::LIMIT_COUNT)
-        	->resetPart (self::LIMIT_OFFSET)
-        	->resetPart (self::ORDER);
+	public function toCountQuery ()
+	{
+		$count_query = clone $this;
 		
-        return $count_query;
-    }
+		$count_query
+			->resetPart (self::SELECT)
+			->select ('COUNT(1) AS `count`')
+			->resetPart (self::LIMIT_COUNT)
+			->resetPart (self::LIMIT_OFFSET)
+			->resetPart (self::ORDER);
+		
+		return $count_query;
+	}
 	
 	/**
 	 * 
@@ -448,65 +448,65 @@ class Query {
 		return $this->_type;
 	}
 	
-    /**
-     * Sets a limit count and offset to the query.
-     * 10x Zend
-     *
-     * @param integer $count OPTIONAL The number of rows to return.
-     * @param integer $offset OPTIONAL Start returning after this many rows.
-     * @return Query
-     */
-    public function limit ($count = null, $offset = null)
-    {
-        $this->_parts [self::LIMIT_COUNT]  = (int) $count;
-        $this->_parts [self::LIMIT_OFFSET] = (int) $offset;
-        return $this;
-    }
-    
-    /**
-     * 
-     * @param string $table
-     * @return Query
-     */
-    public function update($table)
-    {
-    	$this->_type = self::UPDATE;
-    	$this->_parts [self::UPDATE] = $table;
-    	return $this;
-    }
-    
-    /**
-     * Использовать индекс
-     * @param string $index Название индекса
-     * @return Query
-     */
-    public function useIndex($index)
-    {
-    	$this->_parts [self::INDEX][] = $index;
-    	return $this;
-    }
-    
-    /**
-     * Установка значений для INSERT/UPDATE
-     * @param array $values
-     * @return Query
-     */
-    public function values (array $values)
-    {
-    	if (isset ($this->_parts [self::VALUES]))
-    	{
-	    	$this->_parts [self::VALUES] = array_merge (
-	    		$this->_parts [self::VALUES],
-	    		$values
-	    	);
-    	}
-    	else
-    	{
-    		$this->_parts [self::VALUES] = $values;
-    	}
-    	return $this;
-    }
-    
+	/**
+	 * Sets a limit count and offset to the query.
+	 * 10x Zend
+	 *
+	 * @param integer $count OPTIONAL The number of rows to return.
+	 * @param integer $offset OPTIONAL Start returning after this many rows.
+	 * @return Query
+	 */
+	public function limit ($count = null, $offset = null)
+	{
+		$this->_parts [self::LIMIT_COUNT]  = (int) $count;
+		$this->_parts [self::LIMIT_OFFSET] = (int) $offset;
+		return $this;
+	}
+	
+	/**
+	 * 
+	 * @param string $table
+	 * @return Query
+	 */
+	public function update($table)
+	{
+		$this->_type = self::UPDATE;
+		$this->_parts [self::UPDATE] = $table;
+		return $this;
+	}
+	
+	/**
+	 * Использовать индекс
+	 * @param string $index Название индекса
+	 * @return Query
+	 */
+	public function useIndex($index)
+	{
+		$this->_parts [self::INDEX][] = $index;
+		return $this;
+	}
+	
+	/**
+	 * Установка значений для INSERT/UPDATE
+	 * @param array $values
+	 * @return Query
+	 */
+	public function values (array $values)
+	{
+		if (isset ($this->_parts [self::VALUES]))
+		{
+			$this->_parts [self::VALUES] = array_merge (
+				$this->_parts [self::VALUES],
+				$values
+			);
+		}
+		else
+		{
+			$this->_parts [self::VALUES] = $values;
+		}
+		return $this;
+	}
+	
 	/**
 	 * 
 	 * @param string $condition
@@ -529,5 +529,5 @@ class Query {
 		
 		return $this;
 	}
-    
+	
 }

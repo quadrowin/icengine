@@ -14,11 +14,11 @@ class Config_Manager
 	 */
 	protected static $_containers;
 	
-    /**
-     * Пустой конфиг
-     * @var Config_Array
-     */
-    protected static $_emptyConfig;
+	/**
+	 * Пустой конфиг
+	 * @var Config_Array
+	 */
+	protected static $_emptyConfig;
 	
 	/**
 	 * 
@@ -35,12 +35,12 @@ class Config_Manager
 	 */
 	public static function emptyConfig ()
 	{
-	    if (!self::$_emptyConfig)
-	    {
-	        Loader::load ('Config_Array');
-            self::$_emptyConfig = new Config_Array (array ());
-	    }
-	    return self::$_emptyConfig;
+		if (!self::$_emptyConfig)
+		{
+			Loader::load ('Config_Array');
+			self::$_emptyConfig = new Config_Array (array ());
+		}
+		return self::$_emptyConfig;
 	}
 	
 	/**

@@ -2,56 +2,56 @@
 
 class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 {
-    
-    const SELECT_FOUND_ROWS_QUERY = 'SELECT FOUND_ROWS()';
-    
-    /**
-     * Параметры соединения
-     * @var array
-     */
-    protected $_connectionOptions = array (
-    	'host'		=> 'localhost',
-    	'username'	=> '',
-    	'password'	=> '',
-    	'database'	=> 'unknown',
-    	'charset'	=> 'utf8'
-    );
-    
-    /**
-     * Последний оттранслированный запрос.
-     * @var string
-     */
-    protected $_sql = '';
 	
-    protected $_errno = 0;
-    protected $_error = '';
-    
-    protected $_affectedRows = 0;
-    protected $_foundRows = 0;
-    protected $_numRows = 0;
-    protected $_insertId = null;
-    
-    /**
-     * Обработчики по видам запросов.
-     * @var array
-     */
-    protected $_queryMethods = array (
-        Query::SELECT    => '_executeSelect',
-        Query::SHOW      => '_executeSelect',
-        Query::DELETE    => '_executeChange',
-        Query::UPDATE    => '_executeChange',
-        Query::INSERT    => '_executeInsert'
-    );
-    
-    protected function _executeChange (Query $query, Query_Options $options)
-    {
-        if (!mysql_query ($this->_sql))
-        {
-            $this->_errno = mysql_errno ();
-            $this->_error = mysql_error ();
-            return false;
-        }
-        
+	const SELECT_FOUND_ROWS_QUERY = 'SELECT FOUND_ROWS()';
+	
+	/**
+	 * Параметры соединения
+	 * @var array
+	 */
+	protected $_connectionOptions = array (
+		'host'		=> 'localhost',
+		'username'	=> '',
+		'password'	=> '',
+		'database'	=> 'unknown',
+		'charset'	=> 'utf8'
+	);
+	
+	/**
+	 * Последний оттранслированный запрос.
+	 * @var string
+	 */
+	protected $_sql = '';
+	
+	protected $_errno = 0;
+	protected $_error = '';
+	
+	protected $_affectedRows = 0;
+	protected $_foundRows = 0;
+	protected $_numRows = 0;
+	protected $_insertId = null;
+	
+	/**
+	 * Обработчики по видам запросов.
+	 * @var array
+	 */
+	protected $_queryMethods = array (
+		Query::SELECT	=> '_executeSelect',
+		Query::SHOW	  => '_executeSelect',
+		Query::DELETE	=> '_executeChange',
+		Query::UPDATE	=> '_executeChange',
+		Query::INSERT	=> '_executeInsert'
+	);
+	
+	protected function _executeChange (Query $query, Query_Options $options)
+	{
+		if (!mysql_query ($this->_sql))
+		{
+			$this->_errno = mysql_errno ();
+			$this->_error = mysql_error ();
+			return false;
+		}
+		
 		$this->_affectedRows = mysql_affected_rows ();
 				
 		return true;
@@ -59,39 +59,39 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 	
 	protected function _executeInsert (Query $query, Query_Options $options)
 	{
-        if (!mysql_query ($this->_sql))
-        {
-            $this->_errno = mysql_errno ();
-            $this->_error = mysql_error ();
-            return false;
-        }
-        
+		if (!mysql_query ($this->_sql))
+		{
+			$this->_errno = mysql_errno ();
+			$this->_error = mysql_error ();
+			return false;
+		}
+		
 		$this->_affectedRows = mysql_affected_rows ();
 		
-        $this->_insertId = mysql_insert_id ();
+		$this->_insertId = mysql_insert_id ();
 		
 		return true;
 	}
-    
+	
 	/**
 	 * 
 	 * 
 	 * @param Query $query
 	 * @param Query_Options $options
 	 */
-    protected function _executeSelect (Query $query, Query_Options $options)
-    {
-        $result = mysql_query ($this->_sql);
-        
-        if (!$result)
-        {
-            $this->_errno = mysql_errno ();
-            $this->_error = mysql_error ();
-            return;
-        }
-        
-        $rows = array ();
-    	while (false != ($row = mysql_fetch_assoc ($result)))
+	protected function _executeSelect (Query $query, Query_Options $options)
+	{
+		$result = mysql_query ($this->_sql);
+		
+		if (!$result)
+		{
+			$this->_errno = mysql_errno ();
+			$this->_error = mysql_error ();
+			return;
+		}
+		
+		$rows = array ();
+		while (false != ($row = mysql_fetch_assoc ($result)))
 		{
 			$rows [] = $row;
 		}
@@ -101,15 +101,15 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 		
 		if ($query->part (Query::CALC_FOUND_ROWS))
 		{
-		    $result = mysql_query (self::SELECT_FOUND_ROWS_QUERY);
-		    $row = mysql_fetch_row ($result);
-		    $this->_foundRows = reset ($row);
-		    mysql_free_result ($result);
+			$result = mysql_query (self::SELECT_FOUND_ROWS_QUERY);
+			$row = mysql_fetch_row ($result);
+			$this->_foundRows = reset ($row);
+			mysql_free_result ($result);
 		}
 		
-        return $rows;
-    }
-    
+		return $rows;
+	}
+	
 	/**
 	 * 
 	 * @param mixed $result
@@ -128,12 +128,12 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 	
 	/**
 	 * Подключение к БД
-	 * @param Config_Array $config
+	 * @param Objective $config
 	 */
-	public function connect (Config_Array $config)
+	public function connect (Objective $config)
 	{
-	    mysql_connect ($config->server, $config->username, $config->password);
-	    mysql_select_db ($config->database);
+		mysql_connect ($config->server, $config->username, $config->password);
+		mysql_select_db ($config->database);
 	}
 	
 	public function execute (Data_Source_Abstract $source, Query $query, $options = null)
@@ -155,9 +155,9 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 		
 		if (false)
 		{
-		    $f = fopen ('cache/sql.txt', 'ab');
-		    fwrite ($f, $this->_sql . "\r\n");
-		    fclose ($f);
+			$f = fopen ('cache/sql.txt', 'ab');
+			fwrite ($f, $this->_sql . "\r\n");
+			fclose ($f);
 		}
 		
 		$result = null;
@@ -170,7 +170,7 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 		
 		if (!$options)
 		{
-		    $options = $this->getDefaultOptions ();
+			$options = $this->getDefaultOptions ();
 		}
 		
 		$m = $this->_queryMethods [$query->type ()];
@@ -180,8 +180,8 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 		{
 			Loader::load ('Data_Mapper_Mysqli_Exception');
 			throw new Data_Mapper_Mysqli_Exception (
-			    $this->_error . "\n" . $this->_sql,
-			    $this->_errno
+				$this->_error . "\n" . $this->_sql,
+				$this->_errno
 			);
 		}
 		
@@ -198,7 +198,7 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 			'query'			=> $clone,
 			'startAt'		=> $start,
 			'finishedAt'	=> $finish,
-		    'foundRows'		=> $this->_foundRows,
+			'foundRows'		=> $this->_foundRows,
 			'result'		=> $result,
 			'touchedRows'	=> $this->_numRows + $this->_affectedRows,
 			'insertKey'		=> $this->_insertId,
