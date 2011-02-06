@@ -28,8 +28,7 @@ class Data_Source_Manager
 		if (!isset (self::$_sources [$name]))
 		{
 			$config = 
-				Config_Manager::load ('Data_Source', $name)
-				->asArray ();
+				Config_Manager::load ('Data_Source', $name);
 				
 			foreach ($config as $conf)
 			{

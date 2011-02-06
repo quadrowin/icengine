@@ -119,7 +119,7 @@ class Loader
 		
 		if (!isset (self::$pathes [$type]))
 		{
-		    throw new Exception ('Path not found: ' . $type, E_USER_NOTICE);
+			throw new Exception ('Path not found: ' . $type, E_USER_NOTICE);
 			return false;
 		}
 		
@@ -136,12 +136,12 @@ class Loader
 		
 		if (false)
 		{
-    		echo '<pre>Not found: ' . $file . "\n";
-    		echo 'Pathes: ';
-    		var_dump (self::$pathes [$type]);
-    		debug_print_backtrace ();
-    		echo '</pre>';
-    		die();
+			echo '<pre>Not found: ' . $file . "\n";
+			echo 'Pathes: ';
+			var_dump (self::$pathes [$type]);
+			debug_print_backtrace ();
+			echo '</pre>';
+			die();
 		}
 		
 		return false;
@@ -247,10 +247,10 @@ class Loader
 	 */
 	public static function multiLoad ()
 	{
-	    foreach (func_get_args () as $class)
-	    {
-	        self::load ($class);
-	    }
+		foreach (func_get_args () as $class)
+		{
+			self::load ($class);
+		}
 	}
 	
 }

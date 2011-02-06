@@ -349,7 +349,7 @@ class Helper_Date
 	}
 	
 	/**
-	 * @desc Преобразует дату в 24 февряли 2010 (?) года
+	 * @desc Преобразует дату в 24 февряля 2010 (?) года
 	 * @param string $date
 	 * @return string
 	 */

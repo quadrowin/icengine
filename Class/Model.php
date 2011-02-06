@@ -13,37 +13,37 @@ include dirname (__FILE__) . '/Object/Interface.php';
 abstract class Model
 {
 	
-    /**
-     * Автосоздание связанных объектов.
-     * @var boolean
-     */
-    protected    $_autojoin;
-    
+	/**
+	 * Автосоздание связанных объектов.
+	 * @var boolean
+	 */
+	protected	$_autojoin;
+	
 	/**
 	 * Компоненты для модели.
 	 * Прикрепленные к модели изображения, видео, комментарии и пр.
 	 * @var array <Coponent_Collection>
 	 */
-	protected    $_components = array ();
+	protected	$_components = array ();
 	
 	/**
 	 * Связанные данные
 	 * @var array
 	 */
-	protected    $_data = array ();
+	protected	$_data = array ();
 	
 	/**
 	 * Индекс объекта для подсчета количества
 	 * загруженных моделей
 	 * @var integer
 	 */
-	protected static    $_objectIndex = 0;
+	protected static	$_objectIndex = 0;
 	
 	/**
 	 * Подгруженные объекты
 	 * @var array
 	 */
-	protected    $_joints;  
+	protected	$_joints;  
 	
 	/**
 	 * Данные модели
@@ -55,7 +55,7 @@ abstract class Model
 	 * Все данные загружены
 	 * @var boolean
 	 */
-	protected    $_loaded;
+	protected	$_loaded;
 	
 	/**
 	 * 
@@ -85,13 +85,13 @@ abstract class Model
 	 * 		Если false, поля вида Model__id не будут преобразованы в объекты
 	 */
 	public function __construct (array $fields = array (), 
-	    $autojoin = true)
+		$autojoin = true)
 	{
-	    self::$_objectIndex++;
-	    
+		self::$_objectIndex++;
+		
 		if (!is_array ($fields))
 		{
-		    Loader::load ('Model_Exception');
+			Loader::load ('Model_Exception');
 			throw new Model_Exception ('Construct parameter must be an array.');
 		}
 		
@@ -101,7 +101,7 @@ abstract class Model
 		
 		if ($fields)
 		{
-		    $this->set ($fields);
+			$this->set ($fields);
 		}
 		
 		$this->_afterConstruct ();
@@ -141,13 +141,13 @@ abstract class Model
 			
 //			if (!array_key_exists ($field, $this->_fields))
 //			{
-//			    Loader::load ('Model_Exception');
-//			    throw new Model_Exception ('Field ' . $field . ' not found.');
-//			    return null;
+//				Loader::load ('Model_Exception');
+//				throw new Model_Exception ('Field ' . $field . ' not found.');
+//				return null;
 //			}
 		}
 
-	    return $this->_fields [$field];
+		return $this->_fields [$field];
 	}
 	
 	/**
@@ -186,7 +186,7 @@ abstract class Model
 	
 	protected function _afterConstruct ()
 	{
-	    
+		
 	}
 	
 	/**
@@ -248,31 +248,31 @@ abstract class Model
 	 */
 	public function component ($type)
 	{
-	    $index = null;
-	    
-	    if (func_num_args () > 1)
-	    {
-	        $arg1 = func_get_arg (1);
-	        if (is_null ($arg1) || ($arg1 instanceof stdClass))
-	        {
-	            $this->_components [$type] = $arg1;
-	            return ;
-	        }
-	        
-	        if (is_int ($arg1))
-	        {
-	            $index = $arg1;
-	        }
-	    }
-	    
-	    if (!isset ($this->_components [$type]))
-	    {
-	        $this->_components [$type] = Component::getFor ($this, $type);
-	    }
-	    
-	    return is_null ($index) ? 
-	        $this->_components [$type] : 
-	        $this->_components [$type]->item ($index);
+		$index = null;
+		
+		if (func_num_args () > 1)
+		{
+			$arg1 = func_get_arg (1);
+			if (is_null ($arg1) || ($arg1 instanceof stdClass))
+			{
+				$this->_components [$type] = $arg1;
+				return ;
+			}
+			
+			if (is_int ($arg1))
+			{
+				$index = $arg1;
+			}
+		}
+		
+		if (!isset ($this->_components [$type]))
+		{
+			$this->_components [$type] = Component::getFor ($this, $type);
+		}
+		
+		return is_null ($index) ? 
+			$this->_components [$type] : 
+			$this->_components [$type]->item ($index);
 	}
 	
 	/**
@@ -300,11 +300,11 @@ abstract class Model
 	 */
 	public function delete ()
 	{
-	    $key = $this->key ();
-	    if ($key)
-	    {
-	        $this->modelManager ()->remove ($this);
-	    }
+		$key = $this->key ();
+		if ($key)
+		{
+			$this->modelManager ()->remove ($this);
+		}
 	}
 	
 	/**
@@ -346,7 +346,7 @@ abstract class Model
 	 */
 	public function getAttribute ($key)
 	{
-	    return IcEngine::$attributeManager->get ($this, $key);
+		return IcEngine::$attributeManager->get ($this, $key);
 	}
 	
 	/**
@@ -354,7 +354,7 @@ abstract class Model
 	 */
 	public function getAutojoin ()
 	{
-	    return $this->_autojoin;
+		return $this->_autojoin;
 	}
 	
 	/**
@@ -362,17 +362,17 @@ abstract class Model
 	 */
 	public function hasField ($field)
 	{
-	    if (!isset ($this->_fields))
-	    {
-	        if ($this->_loaded)
-	        {
-	            return false;
-	        }
-	        
-	        $this->load ();
-	    }
-	    
-	    return isset ($this->_fields [$field]);
+		if (!isset ($this->_fields))
+		{
+			if ($this->_loaded)
+			{
+				return false;
+			}
+			
+			$this->load ();
+		}
+		
+		return isset ($this->_fields [$field]);
 	}
 	
 	/**
@@ -389,25 +389,25 @@ abstract class Model
 			
 			if (!class_exists ($model))
 			{
-			    Loader::load ('Zend_Exception');
-			    throw new Zend_Exception ("Model $model not found.");
-			    return null;
+				Loader::load ('Zend_Exception');
+				throw new Zend_Exception ("Model $model not found.");
+				return null;
 			}
 			
 			$key_field = $this->modelManager ()->modelScheme ()->keyField ($model);
 			
 			if (!$data || !isset ($data [$key_field]))
 			{
-			    var_dump ($data);
-			    Loader::load ('Zend_Exception');
-			    throw new Zend_Exception ("No key field for model $model received.");
-			    return null;
+				var_dump ($data);
+				Loader::load ('Zend_Exception');
+				throw new Zend_Exception ("No key field for model $model received.");
+				return null;
 			}
 			
 			$this->_joints [$model] = $this->modelManager ()->get (
-			    $model,
-			    $data [$key_field],
-			    $data
+				$model,
+				$data [$key_field],
+				$data
 			);
 		}
 		
@@ -437,7 +437,7 @@ abstract class Model
 	public function keyField ()
 	{
 		return $this->modelManager ()->modelScheme ()->keyField (
-		    $this->modelName ());
+			$this->modelName ());
 	}
 	
 	/**
@@ -454,7 +454,7 @@ abstract class Model
 	 */
 	public function modelManager ()
 	{
-	    return IcEngine::$modelManager;
+		return IcEngine::$modelManager;
 	}
 	
 	public function reset ()
@@ -471,7 +471,7 @@ abstract class Model
 	 */
 	public function resourceKey ()
 	{
-	    return $this->modelName () . '__' . $this->key ();
+		return $this->modelName () . '__' . $this->key ();
 	}
 	
 	/**
@@ -482,8 +482,8 @@ abstract class Model
 	 */
 	public function save ($hard_insert = false)
 	{
-	    $kf = $this->keyField ();
-	    
+		$kf = $this->keyField ();
+		
 		if ($this->key () && !$hard_insert)
 		{
 //			if (
@@ -527,9 +527,9 @@ abstract class Model
 			else
 			{
 				if (isset ($this->_fields [$kf]) && !$this->_fields [$kf])
-			    {
-			        unset ($this->_fields [$kf]);
-			    }
+				{
+					unset ($this->_fields [$kf]);
+				}
 				$this->_fields [$kf] = 
 					IcEngine::$modelScheme
 					->dataSource ($this->modelName ())
@@ -539,7 +539,7 @@ abstract class Model
 						->values ($this->_fields)
 					)->getResult ()
 					->insertId ();
-		    }
+			}
 		}
 		
 		return $this;
@@ -559,10 +559,10 @@ abstract class Model
 	 */
 	public function set ($field, $value = null)
 	{
-	    $fields = is_array ($field) ? $field : array ($field => $value);
-	    
-	    $this_model = $this->modelName ();
-	    
+		$fields = is_array ($field) ? $field : array ($field => $value);
+		
+		$this_model = $this->modelName ();
+		
 		foreach ($fields as $key => $value)
 		{
 			$p = strpos ($key, '__');
@@ -584,8 +584,8 @@ abstract class Model
 					$this->_fields [$key] = $value;
 					if ($this->_autojoin)
 					{
-    					$field = $this->modelManager ()->modelScheme ()->keyField ($model);
-    					$this->joint ($model, array ($field => $value));
+						$field = $this->modelManager ()->modelScheme ()->keyField ($model);
+						$this->joint ($model, array ($field => $value));
 					}
 				}
 			}
@@ -599,7 +599,7 @@ abstract class Model
 	 */
 	public function setAttribute ($key, $value = null)
 	{
-	    IcEngine::$attributeManager->set ($this, $key, $value);
+		IcEngine::$attributeManager->set ($this, $key, $value);
 	}
 	
 	/**
@@ -609,8 +609,8 @@ abstract class Model
 	 */
 	public function setAutojoin ($value)
 	{
-	    $this->_autojoin = $value;
-	    return $this;
+		$this->_autojoin = $value;
+		return $this;
 	}
 	
 	/**
@@ -631,13 +631,13 @@ abstract class Model
 	{
 		if (is_null ($key))
 		{
-		    $this->modelManager ()->get (
-		        $this->modelName (), $this->key (), $this);
+			$this->modelManager ()->get (
+				$this->modelName (), $this->key (), $this);
 		}
 		else
 		{
-		    $this->modelManager ()->get (
-		        $this->modelName (), $key, $this);
+			$this->modelManager ()->get (
+				$this->modelName (), $key, $this);
 		}
 		
 		return $this;

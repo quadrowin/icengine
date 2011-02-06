@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * 
+ * Объект с динамически создаваемыми полями.
+ * Может быть исопльзован как массив.
+ * @author Morph
+ *
+ */
 class Objective implements ArrayAccess, IteratorAggregate, Countable
 {
 		
@@ -15,6 +22,18 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function __construct (array $data = array ())
 	{
+		// Переносим все поля класса в массив _data
+		$vars = get_class_vars (get_class ($this));
+		
+		foreach ($vars as $key => $value)
+		{
+			if ($key [0] != '_')
+			{
+				$this->_data [$key] = $value;
+				unset ($this->$key);
+			}
+		}
+		
 		foreach ($data as $key => $value)
 		{
 			$this->$key = $value;
@@ -22,11 +41,14 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
+	 * Данные объекта в виде массива.
+	 * Данные типа Objective рекурсивно будут приведены к массивам.
 	 * @return array
 	 */
 	public function __toArray ()
 	{
 		$data = array ();
+		
 		foreach ($this->_data as $key => $value) 
 		{
 			if ($value instanceof Objective) 
@@ -39,7 +61,7 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 			}
 		}
 		
-		return $data + $this->_classVars ();
+		return $data;
 	}
 	
 	/**
@@ -50,6 +72,9 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 		return isset ($this->_data [$key]);
 	}
 	
+	/**
+	 * Клонирование
+	 */
 	public function __clone ()
 	{
 		$data = array ();
@@ -75,7 +100,7 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function __get ($key)
 	{
-	    return isset ($this->_data [$key]) ? $this->_data [$key] : null;
+		return isset ($this->_data [$key]) ? $this->_data [$key] : null;
 	}
 	
 	/**
@@ -96,39 +121,27 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * Значения полей объекта в виде массива.
-	 * @return array
-	 */
-	protected function _classVars ()
-	{
-		$vars = get_class_vars (get_class ($this));
-		foreach ($vars as $key => $value)
-		{
-			if ($key [0] == '_')
-			{
-				unset ($vars [$key]);
-			}
-		}
-		return $vars;
-	}
-	
-	/**
 	 * Данные объекта как массив.
-	 * Поля не будут переведены.
+	 * Если существуют данные типа Objective, они будут переданны как 
+	 * объект без приведения к массиву (в отличие от __toArray)
 	 * @return array
 	 */
 	public function asArray ()
 	{
-		return $this->_data + $this->_classVars ();
-	}
-	
-	public function count ()
-	{
-		return count ($this->asArray ());
+		return $this->_data;
 	}
 	
 	/**
-	 * 
+	 * (non-PHPdoc)
+	 * @see Countable::count()
+	 */
+	public function count ()
+	{
+		return count ($this->_data);
+	}
+	
+	/**
+	 * Проверка на существование поля.
 	 * @param string $key
 	 * @return boolean
 	 */
@@ -164,38 +177,37 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	
 	public function getIterator ()
 	{
-        return new ArrayIterator ($this->asArray ());
-    }
+		return new ArrayIterator ($this->_data);
+	}
 	
-    public function offsetSet ($offset, $value)
-    {
-        if (is_null ($offset))
-        {
-            $this->_data [] = $value;
-        }
-        else
-        {
-            $this->$offset = $value;
-        }
-    }
-    
-    public function offsetExists ($offset)
-    {
-        return isset ($this->$offset);
-    }
-    
-    public function offsetUnset ($offset)
-    {
-    	$this->$offset = null;
-    	if (array_key_exists ($offset, $this->_data))
-    	{
-        	unset ($this->_data [$offset]);
-    	}
-    }
-    
-    public function offsetGet ($offset)
-    {
-        return $this->$offset;
-    }
+	public function offsetSet ($offset, $value)
+	{
+		if (is_null ($offset))
+		{
+			$this->_data [] = $value;
+		}
+		else
+		{
+			$this->__set ($offset, $value);
+		}
+	}
+	
+	public function offsetExists ($offset)
+	{
+		return isset ($this->_data [$offset]);
+	}
+	
+	public function offsetUnset ($offset)
+	{
+		if (array_key_exists ($offset, $this->_data))
+		{
+			unset ($this->_data [$offset]);
+		}
+	}
+	
+	public function offsetGet ($offset)
+	{
+		return $this->__get ($offset);
+	}
 	
 }

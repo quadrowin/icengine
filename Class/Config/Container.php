@@ -72,28 +72,28 @@ class Config_Container
 	public function load ()
 	{
 		$filename = 
-		    rtrim ($this->_path, '/') . '/' . 
-		    str_replace ('_', '/', $this->_type) . 
-		    ($this->_name ? '/' . $this->_name : '') . 
-		    '.php';
+			rtrim ($this->_path, '/') . '/' . 
+			str_replace ('_', '/', $this->_type) . 
+			($this->_name ? '/' . $this->_name : '') . 
+			'.php';
 		if (is_file ($filename))
 		{
-    	    Loader::load ('Helper_File');
-    	    $ext = ucfirst (Helper_File::extention ($filename));
-    	    $class = 'Config_' . $ext;
-    	    
-    	    if (!Loader::load ($class) || !file_exists ($filename))
-    	    {
-    	        $this->_config = Config_Manager::emptyConfig ();
-    	    }
-    	    else
-    	    {
-    	        $this->_config = new $class ($filename);
-    	    }
+			Loader::load ('Helper_File');
+			$ext = ucfirst (Helper_File::extention ($filename));
+			$class = 'Config_' . $ext;
+			
+			if (!Loader::load ($class) || !file_exists ($filename))
+			{
+				$this->_config = Config_Manager::emptyConfig ();
+			}
+			else
+			{
+				$this->_config = new $class ($filename);
+			}
 		}
 		else
 		{
-		    $this->_config = Config_Manager::emptyConfig ();
+			$this->_config = Config_Manager::emptyConfig ();
 		}
 		return $this;
 	}

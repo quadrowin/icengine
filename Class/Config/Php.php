@@ -20,7 +20,7 @@ class Config_Php extends Config_Array
 		
 		if (is_file ($path))
 		{
-		    include $path;
+			include $path;
 		}
 		
 		if (isset ($config))

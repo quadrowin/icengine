@@ -20,55 +20,13 @@ class Application_Bootstrap_Abstract
 	}
 	
 	public function initAttributeManager ()
-    {
-        Loader::load ('Attribute_Manager');
-        $this->behavior->attributeManager = new Attribute_Manager (
-            DDS::getDataSource ()
-        );
-        IcEngine::$attributeManager = $this->behavior->attributeManager;
-    }
-    
-//	public function initDataModel ()
-//	{
-//		$mysql = new Data_Source_Mysql ();
-//		$fileM = new Data_Source_File ();
-//		
-//		$redis = new Data_Source_Redis ();
-//		$fileR = new Data_Source_File ();
-//		
-//		$queue = new Data_Source_QueryQueue ();
-//		
-//		$mysql->setCacheScheme (array (
-//			Query::SELECT	=> new Data_Source_Collection ($fileM),
-//			Query::INSERT	=> new Data_Source_Collection ($fileM),
-//			Query::UPDATE	=> new Data_Source_Collection ($fileM),
-//			Query::DELETE	=> new Data_Source_Collection ($fileM)
-//		));
-//		
-//		$redis->setCacheScheme (array (
-//			Query::INSERT	=> new Data_Source_Collection ($fileR, $queue),
-//			Query::UPDATE	=> new Data_Source_Collection ($fileR, $queue),
-//			Query::DELETE	=> new Data_Source_Collection ($fileR, $queue),
-//		));
-//		$redis->setIndexSources (new Data_Source_Collection ($redis));
-//		
-//		$ds = new Data_Source_Mysql ();
-//		
-//		$ds->setCacheScheme (array (
-//			Query::INSERT	=> new Data_Source_Collection ($redis),
-//			Query::SELECT	=> new Data_Source_Collection ($redis, $fileR, $queue),
-//			Query::UPDATE	=> new Data_Source_Collection ($redis),
-//			Query::DELETE	=> new Data_Source_Collection ($redis)
-//		));
-//		$ds->setIndexSources (new Data_Source_Collection ($redis));
-//		
-//		Registry::set ('mysql', $mysql);
-//		Registry::set ('redis', $redis);
-//		Registry::set ('fileR', $fileR);
-//		Registry::set ('fileM', $fileM);
-//		Registry::set ('queue', $queue);
-//		Registry::set ('ds', $ds);
-//	}
+	{
+		Loader::load ('Attribute_Manager');
+		$this->behavior->attributeManager = new Attribute_Manager (
+			DDS::getDataSource ()
+		);
+		IcEngine::$attributeManager = $this->behavior->attributeManager;
+	}
 	
 	public function initDds ()
 	{
@@ -82,6 +40,7 @@ class Application_Bootstrap_Abstract
 		
 		Loader::load ('DDS');
 		Loader::load ('Data_Mapper_Abstract');
+		Loader::load ('Data_Source_Abstract');
 		Loader::load ('Data_Source_Manager');
 		
 		DDS::setDataSource (Data_Source_Manager::get ('default'));
@@ -95,12 +54,12 @@ class Application_Bootstrap_Abstract
 	
 	public function initModelManager ()
 	{
-	    Loader::load ('Model_Manager');
-	    $this->behavior->modelManager = new Model_Manager (
-	        IcEngine::$modelScheme,
-	        $this->behavior->resourceManager
-	    );
-	    IcEngine::$modelManager = $this->behavior->modelManager;
+		Loader::load ('Model_Manager');
+		$this->behavior->modelManager = new Model_Manager (
+			IcEngine::$modelScheme,
+			$this->behavior->resourceManager
+		);
+		IcEngine::$modelManager = $this->behavior->modelManager;
 	}
 	
 	/**
@@ -116,17 +75,27 @@ class Application_Bootstrap_Abstract
 	
 	public function initResourceManager ()
 	{
-	    Loader::load ('Resource_Manager');
-	    $this->behavior->resourceManager = new Resource_Manager ();
-	    IcEngine::$resourceManager = $this->behavior->resourceManager;
+		Loader::load ('Resource_Manager');
+		$this->behavior->resourceManager = new Resource_Manager ();
+		IcEngine::$resourceManager = $this->behavior->resourceManager;
+	}
+	
+	/**
+	 * Инициализация пользователя и сессии.
+	 */
+	public function initUser ()
+	{
+		Loader::load ('User');
+		Loader::load ('User_Session');
+		User::init ();
 	}
 	
 	public function initWidgetManager ()
 	{
-	    Loader::load ('Widget_Abstract');
-	    Loader::load ('Widget_Manager');
-	    $this->behavior->widgetManager = new Widget_Manager ();
-	    IcEngine::$widgetManager = $this->behavior->widgetManager;
+		Loader::load ('Widget_Abstract');
+		Loader::load ('Widget_Manager');
+		$this->behavior->widgetManager = new Widget_Manager ();
+		IcEngine::$widgetManager = $this->behavior->widgetManager;
 	}
 	
 	public function makeInclude ()
