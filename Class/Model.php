@@ -486,21 +486,6 @@ abstract class Model
 		
 		if ($this->key () && !$hard_insert)
 		{
-//			if (
-//				$this->modelName () == 'User_Session' &&
-//				isset ($this->_fields ['User__id'])
-//			)
-//			{
-//				if ($this->_fields ['User__id'] == 0)
-//				{
-//					return;
-//				}
-//				file_put_contents (
-//					'c:/temp/' . time () . '_' . $this->_fields ['User__id'] . 'u.txt',
-//					$_SERVER ['REQUEST_URI'] . PHP_EOL . 
-//					print_r (debug_backtrace (), true)
-//				);
-//			}
 			IcEngine::$modelScheme
 			->dataSource ($this->modelName ())
 			->execute (
@@ -526,10 +511,14 @@ abstract class Model
 			}
 			else
 			{
-				if (isset ($this->_fields [$kf]) && !$this->_fields [$kf])
+				if (
+					array_key_exists ($kf, $this->_fields) && 
+					!$this->_fields [$kf]
+				)
 				{
 					unset ($this->_fields [$kf]);
 				}
+				
 				$this->_fields [$kf] = 
 					IcEngine::$modelScheme
 					->dataSource ($this->modelName ())
