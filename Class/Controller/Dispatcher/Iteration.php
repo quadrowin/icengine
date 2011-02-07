@@ -114,6 +114,23 @@ class Controller_Dispatcher_Iteration
     }
     
     /**
+     * Задать шаблон на основе названия класса
+     * @param string $class
+     * 		Класс или метод (контроллера)
+     * @param string $template
+     * 		Шаблон
+     * $param string $ext
+     * 		Расшираение
+     */
+    public function setClassTpl ($class, $template, $ext = '.tpl')
+    {
+    	$this->setTemplate (
+    		str_replace (array ('_', '::'), '/', $class) .
+    		$template . '.tpl'
+    	);
+    }
+    
+    /**
      * 
      * @param boolean $value
      */
@@ -141,7 +158,7 @@ class Controller_Dispatcher_Iteration
 	/**
      * @param string $value
      */
-    public function setTemplate ($value)
+    public function setTemplate ($value, $ext = '')
     {
         $this->_template = $value;
     }

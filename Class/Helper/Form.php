@@ -57,6 +57,55 @@ class Helper_Form
 	);
 	
 	/**
+	 * Получение значения для поля
+	 * @param Objective $data
+	 * 		Объект для получения данных
+	 * @param string $field 
+	 * 		Получаемое поле
+	 * @param Data_Transport $input
+	 * 		Транспорт - источник данных
+	 * @param string|array $value
+	 * 		Правило получения
+	 * @param boolean $is_edit
+	 * 		Это новая запись (может использоваться в правиле)
+	 */
+	protected static function _recieveValue (Objective $data, $field,
+		Data_Transport $input, $value, $is_new = false)
+	{
+		if (is_array ($value))
+		{
+			if (count ($value) == 2 && isset ($value [0], $value [1]))
+			{
+				$data->$field = call_user_func ($value, $input);
+			}
+			elseif (isset ($value ['add']) && $is_new)
+			{
+				self::_recieveValue (
+					$data, $field,
+					$input, 
+					$value ['add'], $is_new
+				);
+			}
+			elseif (isset ($value ['edit']) && !$is_new)
+			{
+				self::_recieveValue (
+					$data, $field,
+					$input,
+					$value ['edit'], $is_new
+				);
+			}
+			elseif (isset ($value ['set']) || array_key_exists ('set', $value))
+			{
+				$data->$field = $value ['set'];
+			}
+		}
+		elseif ($value == 'input' || $value == 'input,ignore')
+		{
+			$data->$field = $input->receive ($field);
+		}
+	}
+	
+	/**
 	 * Фильтрация значений
 	 * @param Objective $data
 	 * 		Данные для фильтрации
@@ -106,38 +155,12 @@ class Helper_Form
 		
 		foreach ($fields as $field => $info)
 		{
-			$value = &$info ['value'];
-			
-			if (is_array ($value))
-			{
-				if (count ($value) == 2 && isset ($value [0], $value [1]))
-				{
-					$data [$field] = call_user_func ($info ['value']);
-				}
-				elseif (isset ($value ['add']) && $tc && !$tc->rowId)
-				{
-					$data [$field] = call_user_func (
-						$value ['add'][0],
-						$value ['add'][1]
-					);
-				}
-				elseif (isset ($value ['edit']) && $tc && $tc->rowId)
-				{
-					$data [$field] = call_user_func (
-						$value ['edit'][0],
-						$value ['edit'][1]
-					);
-				}
-			}
-			elseif (
-				$info ['value'] == 'input' ||
-				$info ['value'] == 'input,ignore'
-			)
-			{
-				$data [$field] = $input->receive ($field);
-			}
-			
-			unset ($value);
+			self::_recieveValue (
+				$data, $field,
+				$input,
+				$info ['value'],
+				!$tc || !$tc->rowId
+			);
 		}
 		
 		return $data;
@@ -158,7 +181,6 @@ class Helper_Form
 				$scheme [$key]['value'] == 'input,ignore'
 			)
 			{
-				Debug::vardump ($key, $scheme [$key]);
 				unset ($data [$key]);
 			}
 		}
