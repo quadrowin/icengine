@@ -7,6 +7,8 @@
  *
  */
 
+Loader::load ('Data_Validator_Abstract');
+
 class Data_Validator_Current_User_Password extends Data_Validator_Abstract
 {
 	

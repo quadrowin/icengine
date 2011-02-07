@@ -40,7 +40,7 @@ abstract class Data_Validator_Abstract
 	public function validateEx ($field, $data, stdClass $scheme)
 	{
 		return
-			$this->validate ($data->$field) ? 
+			$this->validate ($data->$field) === true ? 
 			true : get_class ($this) . '/' . self::INVALID;
 	}
 	
