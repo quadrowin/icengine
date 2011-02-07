@@ -221,7 +221,7 @@ class Model_Manager
 				if (!method_exists ($result, 'set'))
 				{
 					Loader::load ('Zend_Exception');
-					throw new Zend_Exception('Error model class: ' . get_class ($result));
+					throw new Zend_Exception ('Error model class: ' . get_class ($result));
 					return;
 				}
 				

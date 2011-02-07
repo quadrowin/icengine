@@ -47,9 +47,12 @@ var Helper_Form = {
 					{
 						data [this.name] = this;
 					}
-					else if (this.type == "checkbox" && this.checked)
+					else if (this.type == "checkbox")
 					{
-						data [this.name] = 'on';
+						if (this.checked)
+						{
+							data [this.name] = 'on';
+						}
 					}
 					else
 					{
