@@ -181,7 +181,6 @@ class Helper_Form
 				$scheme [$key]['value'] == 'input,ignore'
 			)
 			{
-				Debug::vardump ($key, $scheme [$key]);
 				unset ($data [$key]);
 			}
 		}

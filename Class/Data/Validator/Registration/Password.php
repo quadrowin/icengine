@@ -19,12 +19,12 @@ class Data_Validator_Registration_Password
 		$length = strlen ($data->$field);
 		$param = $scheme->$field;
 		
-		if ($length < $param ['minLength'])
+		if (isset ($param ['minLength']) && $length < $param ['minLength'])
 		{ 
 		    return __CLASS__ . '/' . self::SHORT;
 		}
 		
-		if ($length > $param ['maxLength'])
+		if (isset ($param ['maxLength']) && $length > $param ['maxLength'])
 		{
 		    return __CLASS__ . '/' . self::LONG;
 		}
