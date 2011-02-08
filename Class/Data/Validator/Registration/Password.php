@@ -10,21 +10,24 @@
 class Data_Validator_Registration_Password
 {
     
-	const SHORT	= 'short'; // Короткий пароль
+	const SHORT	= 'short';	// Короткий пароль
 	
-	const LONG	= 'long'; // Короткий пароль
+	const LONG	= 'long';	// Короткий пароль
 	
 	public function validateEx ($field, $data, stdClass $scheme)
 	{
 		$length = strlen ($data->$field);
 		$param = $scheme->$field;
 		
-		if (isset ($param ['minLength']) && $length < $param ['minLength'])
+		$min = isset ($param ['minLength']) ? $param ['minLength'] : 6;
+		$max = isset ($param ['maxLength']) ? $param ['maxLength'] : 50;
+		
+		if ($length < $min)
 		{ 
 		    return __CLASS__ . '/' . self::SHORT;
 		}
 		
-		if (isset ($param ['maxLength']) && $length > $param ['maxLength'])
+		if ($length > $max)
 		{
 		    return __CLASS__ . '/' . self::LONG;
 		}

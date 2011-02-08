@@ -23,6 +23,10 @@ class Controller_Abstract
 	 */
 	protected $_output;
 	
+	public function __construct ()
+	{
+	}
+	
 	/**
 	 * Метод выполняется после вызова метода $action из диспетчера
 	 * 
@@ -45,8 +49,70 @@ class Controller_Abstract
 		
 	}
 	
-	public function __construct ()
+	/**
+	 * Временный контент для сохраняемых данных.
+	 * @return Temp_Content|null
+	 */
+	public function _inputTempContent ()
 	{
+		Loader::load ('Temp_Content');
+		$tc = Temp_Content::byUtcode ($this->_input->receive ('utcode'));
+		
+		if (!$tc)
+		{
+			Loader::load ('Helper_Action_Page');
+			Helper_Action_Page::obsolete ();
+			return;
+		}
+		
+		return $tc;
+	}
+	
+	/**
+	 * Сохранение данных с формы
+	 * @param Temp_Content $tc
+	 * @param array $scheme
+	 * @param string $model_class [optional]
+	 * 		Имя класса модели. Если не задано, будет использвано имя
+	 * 		контроллера.
+	 * 		Пример: для контроллера <i>Controller_Sample</i>, результатом
+	 * 		будет модель класса <i>Sample</i>.
+	 * @return Model|null
+	 */
+	public function _savePostModel (Temp_Content $tc, $scheme, 
+		$model_class = '')
+	{
+		Loader::load ('Helper_Form');
+		$data = Helper_Form::receiveFields ($this->_input, $scheme);
+		
+		Helper_Form::filter ($data, $scheme);
+		
+		$valid = Helper_Form::validate ($data, $scheme);
+		
+		if (is_array ($valid))
+		{
+			$this->_dispatcherIteration->setTemplate (
+				str_replace (array ('::', '_'), '/', reset ($valid)) . 
+				'.tpl'
+			);
+			$this->_output->send ('data', array (
+				'field'	=> key ($valid),
+				'error'	=> current ($valid)
+			));
+			return null;
+		}
+		
+		if (!$model_class)
+		{
+			$model_class = $this->name ();
+		}
+		
+		$model = IcEngine::$modelManager->get (
+			$model_class,
+			$tc->attr ('editingItemId')
+		);
+		
+		return $model->update ($data->asArray ());
 	}
 	
 	/**

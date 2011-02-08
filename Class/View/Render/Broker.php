@@ -162,31 +162,6 @@ abstract class View_Render_Broker
 			$template = $item->getTemplate ();
 			$result = $view->fetch ($template);
 			
-//			$view->pushVars ();
-//            
-//			try
-//			{
-//			    $result = $view->fetch ($template);
-//			}
-//			catch (Exception $e)
-//			{
-//			    $msg = 
-//    		    	'[' . $e->getFile () . '@' . 
-//    				$e->getLine () . ':' . 
-//    				$e->getCode () . '] ' .
-//    				$e->getMessage () . "\r\n";
-//    				
-//    			Debug::vardump ($msg);
-//    				
-//    		    error_log ($msg . PHP_EOL, E_USER_ERROR, 3);
-//    		    
-//    		    $result = '';
-//			}
-//			
-//			$view->popVars ();
-
-//			$result = self::fetchIteration ($item);
-			
 			$view->assign (
 			    isset ($action->assign) ? $action->assign : 'content',
 			    $result);
@@ -221,29 +196,6 @@ abstract class View_Render_Broker
 		$view->assign ($transaction->buffer ());
 		
 		$result = $view->fetch ($template);
-		
-//		$view->pushVars ();
-//            
-//		try
-//		{
-//			$result = $view->fetch ($template);
-//		}
-//		catch (Exception $e)
-//		{
-//			$msg = 
-//				'[' . $e->getFile () . '@' . 
-//				$e->getLine () . ':' . 
-//				$e->getCode () . '] ' .
-//				$e->getMessage () . "\r\n";
-//			
-//			Debug::vardump ($msg);
-//    				
-//			error_log ($msg . PHP_EOL, E_USER_ERROR, 3);
-//			
-//			$result = '';
-//		}
-//		
-//		$view->popVars ();
 
 		return $result;
 	}
