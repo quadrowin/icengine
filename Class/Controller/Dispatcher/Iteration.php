@@ -122,7 +122,7 @@ class Controller_Dispatcher_Iteration
      * $param string $ext
      * 		Расшираение
      */
-    public function setClassTpl ($class, $template, $ext = '.tpl')
+    public function setClassTpl ($class, $template = '', $ext = '.tpl')
     {
     	$this->setTemplate (
     		str_replace (array ('_', '::'), '/', $class) .
