@@ -94,6 +94,9 @@ class Controller_Controller extends Controller_Abstract
         ));
 	}
 	
+	/**
+	 * Вызов экшена контроллера по названию из входных параметров
+	 */
 	public function auto ()
 	{
 		$controller = $this->_input->receive ('controller');
@@ -107,7 +110,7 @@ class Controller_Controller extends Controller_Abstract
 	 * @param boolean $with_actions
 	 * @return array
 	 */
-	public static function getControllersList($with_actions = true)
+	public static function getControllersList ($with_actions = true)
 	{
 		$controllers = array();
 		$postfix = '.php';
@@ -201,31 +204,29 @@ class Controller_Controller extends Controller_Abstract
 			}
 		}
 		
-		// Несуществующие контроллеры и действия		
+		// Несуществующие контроллеры и действия	
 		$reses = new Acl_Resource_Collection ();
-		Loader::requireOnce ('ExcludeIds.php', 'filter');
-		Sn_Filter_ExcludeIds::filter ($reses, $founded_res_ids);
-		//Selector_AclResourceExcludeId::select($founded_res_ids);
+		$reses->where ('id NOT IN (?)', $founded_res_ids);
 		
-		foreach ($reses->items() as $resource)
+		foreach ($reses->items () as $resource)
 		{
 			$controller = $resource->controller;
-			if (!isset($controller_name2index[$controller]))
+			if (!isset ($controller_name2index [$controller]))
 			{
-				$n = count($controllers); 
-				$controller_name2index[$controller] = $n;
-				$controllers[$n] = array(
+				$n = count ($controllers);
+				$controller_name2index [$controller] = $n;
+				$controllers[$n] = array (
 					'name'		=> $controller,
-					'resources'	=> array(),
+					'resources'	=> array (),
 					'unexists'	=> true
 				);
 			}
 			else
 			{
-				$n = $controller_name2index[$controller];
+				$n = $controller_name2index [$controller];
 			}
 			
-			$controllers[$n]['resources'][] = $resource; 
+			$controllers [$n]['resources'][] = $resource; 
 		}
 		
 		

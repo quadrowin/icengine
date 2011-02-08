@@ -24,6 +24,21 @@ class Message_Queue
 	 */
 	protected $_handlers = array ();
 	
+	public function __construct ()
+	{
+		$config = Config_Manager::load (__CLASS__);
+		if ($config->callbacks)
+		{
+			foreach ($config->callbacks as $name => $callback)
+			{
+				$this->setCallback (
+					$callback->type, $callback->function->asArray (),
+					is_numeric ($name) ? null : $name
+				);
+			}
+		}
+	}
+	
 	/**
 	 * 
 	 * @param integer $type
