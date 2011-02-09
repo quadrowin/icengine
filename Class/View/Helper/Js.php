@@ -16,11 +16,25 @@ class View_Helper_Js extends View_Helper_Abstract
 			->__toArray ();
 		
 		Loader::load ('View_Resource_Loader');
-		View_Resource_Loader::load (
-			$config ['base_url'],
-			$config ['base_dir'],
-			$config ['dirs']
-		);
+		if (isset ($config ['dirs']))
+		{
+			View_Resource_Loader::load (
+				$config ['base_url'],
+				$config ['base_dir'],
+				$config ['dirs']
+			);
+		}
+		else
+		{
+			foreach ($config ['sources'] as $source)
+			{
+				View_Resource_Loader::load (
+					$source ['base_url'],
+					$source ['base_dir'],
+					$source ['patterns']
+				);
+			}
+		}
 		
 		$jses = $this->_view->resources()->getData (
 			View_Resource_Manager::JS

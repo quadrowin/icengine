@@ -124,6 +124,16 @@ class User extends Model
 	    
 	    return self::$_current->id;
 	}
+	
+	/**
+	 * Проверяет, является ли этот пользователем текущим.
+	 * Т.е. авторизован от имени этого пользователя.
+	 * @return boolean
+	 */
+	public function isCurrent ()
+	{
+		return self::authorized () && (self::id () == $this->key ());
+	}
 
 	/**
 	 * Проверка принадлежности пользователя ролям.

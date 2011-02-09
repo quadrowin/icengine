@@ -39,9 +39,8 @@ class View_Resource extends Objective
 	 */
 	public function content ()
 	{
-		return file_get_contents (
-			rtrim (IcEngine::root (), '/') . $this->href
-		);
+		$path = $this->filePath;
+		return file_exists($path) ? file_get_contents ($path) : null;
 	}
 	
 	/**
@@ -53,23 +52,10 @@ class View_Resource extends Objective
 	{
 		if (!$this->_filemtime)
 		{
-			$path = $this->filePath ();
+			$path = $this->filePath;
 			$this->_filemtime = file_exists ($path) ? filemtime ($path) : null;
 		}
 		return $this->_filemtime;
-	}
-	
-	/**
-	 * Путь до файла в фс.
-	 * @return string
-	 */
-	public function filePath ()
-	{
-		if (!$this->filePath)
-		{
-			$this->filePath = rtrim (IcEngine::root (), '/') . $this->href;
-		}
-		return $this->filePath;
 	}
 	
 }

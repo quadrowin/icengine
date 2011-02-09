@@ -140,11 +140,16 @@ class IcEngine
 	
 	/**
 	 * Инициализация лоадера
+	 * @param string $root
+	 * 		Путь до корня сайта
 	 */
-	public static function init ($path = null)
+	public static function init ($root = null)
 	{
 		self::$_path = dirname (__FILE__) . '/';
-		self::$_root = $path ? $path : self::$_path . '../';
+		self::$_root =
+			$root ? 
+			$root : 
+			rtrim ($_SERVER ['DOCUMENT_ROOT'], '/') . '/';
 		
 		if (!class_exists ('Loader'))
 		{

@@ -22,7 +22,8 @@ class View_Resource_Loader
 		{
 			$options = array (
 				'source'	=> $pattern,
-				'nopack'	=> ($pattern [0] == '-')
+				'nopack'	=> ($pattern [0] == '-'),
+				'filePath'	=> ''
 			);
 			
 			if ($options ['nopack'])
@@ -44,18 +45,14 @@ class View_Resource_Loader
 				$pattern = substr ($pattern, $dbl_star_pos + 1);
 				// $pattern = "*.js"
 				
-				$subdirs = scandir ($base_dir . '/' . $dir);
-				
 				$list = array (
-				    explode ('/', $dir)
+				    $dir
 				);
 				
 				$files = array ();
 				
-				for ($p = current ($list); $p; $p = next ($list))
+				for ($dir = current ($list); $dir; $dir = next ($list))
 				{
-					$dir = implode ('/', $p);
-					
 					$subdirs = scandir ($base_dir . $dir);
 					
 					for ($j = 0, $count = sizeof ($subdirs); $j < $count; $j++)
@@ -70,27 +67,27 @@ class View_Resource_Loader
 					    
 						$fn = $base_dir . $dir . '/' . $subdirs [$j];
 						
-						if (!is_dir ($fn))
+						if (is_dir ($fn))
 						{
-						    if (fnmatch ($pattern, $fn))
-					        {
-						        $files [] = $base_url . $dir . '/' . $subdirs [$j];
-					        }
-							continue;
+							array_push ($list, $dir . '/' . $subdirs [$j]);
 						}
-						
-						array_push ($list, 
-							explode ('/', $dir . '/' . $subdirs [$j])
-						);
+						elseif (fnmatch ($pattern, $fn))
+				        {
+					        $files [] = array (
+					        	$base_url . $dir . '/' . $subdirs [$j],
+					        	$base_dir . $dir . '/' . $subdirs [$j]
+					        );
+				        }
 					}
 				}
 				
 				for ($j = 0, $count = sizeof ($files); $j < $count; $j++)
 				{
-					$options ['source'] = $files [$j];
+					$options ['source'] = $files [$j][0];
+					$options ['filePath'] = $files [$j][1];
 					View_Render_Broker::getView ()
 						->resources ()
-							->add ($files [$j], null, $options);
+							->add ($files [$j][0], null, $options);
 				}
 			}
 			elseif ($star_pos !== false)
@@ -98,15 +95,13 @@ class View_Resource_Loader
 			    // Путь вида "js/*.js"
 			    // Включает файлы, подходящие под маску в текущей директории
 			    
-			    // $dirs [i] = "js/**.js"
+			    // $dirs [i] = "js/*.js"
 				$dir = trim (substr ($pattern, 0, $star_pos), '/');
 			    // $dir = "js"
 				$pattern = substr ($pattern, $star_pos);
 				// $pattern = "*.js"
 			    
-				$iterator = new DirectoryIterator (
-				    rtrim ($base_dir, '/') . '/' . $dir
-				);
+				$iterator = new DirectoryIterator ($base_dir . '/' . $dir);
 				
 				foreach ($iterator as $file)
 				{
@@ -115,17 +110,17 @@ class View_Resource_Loader
 					    $file->isFile () &&
 					    $fn [0] != '.' && 
 					    $fn [0] != '_' &&
-					    fnmatch ($pattern, $file)
+					    fnmatch ($pattern, $fn)
 					)
 					{
-						$fn = 
-							rtrim ($base_url, '/') . '/' .
-							rtrim ($dir, '/') . '/' . 
-							$fn;
-						$options ['source'] = $fn;
+						$options ['source'] = $base_url . $dir . '/' . $fn;
+						$options ['filePath'] = $base_dir . $dir . '/' . $fn;
 						View_Render_Broker::getView ()
 							->resources ()
-								->add ($fn, null, $options);
+								->add (
+									$base_url . $dir . '/' . $fn,
+									null, $options
+								);
 					}
 				}
 			}
@@ -133,6 +128,7 @@ class View_Resource_Loader
 			{
 			    // Указан путь до файла: "js/scripts.js"
 				$file = $base_url . $pattern;
+				$options ['filePath'] = $base_dir . $pattern;
 				View_Render_Broker::getView ()
 					->resources ()
 						->add ($file, null, $options);

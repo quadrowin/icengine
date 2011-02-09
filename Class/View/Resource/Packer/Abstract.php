@@ -106,7 +106,7 @@ abstract class View_Resource_Packer_Abstract
 		{
 			if (
 				$res ['filemtime'] != $resources [$i]->filemtime () ||
-				$res ['file_path'] != $resources [$i]->filePath () 
+				$res ['file_path'] != $resources [$i]->filePath 
 			)
 			{
 				return false;
@@ -149,13 +149,15 @@ abstract class View_Resource_Packer_Abstract
 		
 		foreach ($resources as $resource)
 		{
-			if (!$resource->filePath)
-			{
-				$resource->filePath = 
-					rtrim (IcEngine::root (), '/') . $resource->href;
-				$resource->filemtime = filemtime ($resource->filePath);
-			}
-			
+//			if (!$resource->filePath)
+//			{
+//				$resource->filePath = 
+//					rtrim (IcEngine::root (), '/') . $resource->href;
+//				$resource->filemtime =
+//					file_exists ($resource->filePath) ? 
+//					filemtime ($resource->filePath) : 0;
+//			}
+//			
 			$this->_currentResource = $resource;
 			
 			$packages [] = $this->packOne ($resource);
@@ -205,7 +207,7 @@ abstract class View_Resource_Packer_Abstract
 		foreach ($resources as $resource)
 		{
 			$state ['resources'][] = array (
-				'file_path'	=> $resource->filePath (),
+				'file_path'	=> $resource->filePath,
 				'filemtime'	=> $resource->filemtime ()
 			);
 		}

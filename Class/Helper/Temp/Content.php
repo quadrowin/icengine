@@ -18,7 +18,7 @@ class Helper_Temp_Content
     public static function rejoinMedia (Temp_Content $tc, Model $comment, 
         Data_Transport $input)
     {
-        $media = $this->_input->receive ('media');
+        $media = $input->receive ('media');
         
         foreach (self::$types as $type)
         {
