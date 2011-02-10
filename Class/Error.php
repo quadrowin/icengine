@@ -44,7 +44,7 @@ class Error
 				'[' . $e->getFile () . '@' . 
 				$e->getLine () . ':' . 
 				$e->getCode () . '] ' .
-				$e->getMessage () . "\r\n";
+				$e->getMessage () . PHP_EOL;
 				
 			error_log ($msg . PHP_EOL, E_USER_ERROR, 3);
 			echo '<pre>' . $msg . $e->getTraceAsString () . '</pre>';
