@@ -68,7 +68,7 @@ class Data_Mapper_Mysql extends Data_Mapper_Abstract
 		
 		$result = null;
 		$insert_id = null;
-		$tags = implode ('.', $this->_getTags ($clone));
+		$tags = 'ic.' . implode ('.', $this->_getTags ($clone));
 		switch ($query->type ())
 		{
 			case Query::DELETE:
