@@ -31,6 +31,35 @@ abstract class Widget_Abstract
 	
 	/**
 	 * 
+	 * @param string $text
+	 * 		Системный текст ошибки (не должен отображаться пользователю)
+	 * @param string $method
+	 * 		Метод, в котором произошла ошибка (используется при формировании
+	 * 		имени шаблона. Если не указан, шаблон использован не будет.
+	 * @param string $sub
+	 * 		Дополнительный шаблон ошибки.
+	 */
+	public function _error ($text, $method = null, $sub = null)
+	{
+		$this->_output->send (array (
+			'error'	=> $text,
+			'data'	=> array (
+				'error'	=> $text
+			)
+		));
+		if ($method)
+		{
+			Loader::load ('Helper_Action');
+			$this->_template = Helper_Action::path ($method, $sub);
+		}
+		else
+		{
+			$method = Widget_Manager::NULL_TEMPLATE; 
+		}
+	}
+	
+	/**
+	 * 
 	 * @param string $method
 	 * @return string
 	 */
