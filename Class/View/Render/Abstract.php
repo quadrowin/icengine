@@ -120,11 +120,26 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	    return $this->_templatesPathes;
 	}
 	
+	/**
+	 * Получение значение переменной шаблонизатора
+	 * @param string $key
+	 */
+	public function getVar ($key)
+	{
+		return $this->_vars [$key];
+	}
+	
+	/**
+	 * Восстанавливает значения переменных шаблонизатора
+	 */
 	public function popVars ()
 	{
 	    $this->_vars = array_pop ($this->_varsStack);
 	}
 	
+	/**
+	 * Сохраняет текущие значения переменных шаблонизатора и очищает их
+	 */
 	public function pushVars ()
 	{
 	    $this->_varsStack [] = $this->_vars;

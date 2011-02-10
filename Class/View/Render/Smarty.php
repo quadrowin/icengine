@@ -107,6 +107,11 @@ class View_Render_Smarty extends View_Render_Abstract
 		return $this->_smarty->fetch ($tpl);
 	}
 	
+	public function getVar ($key)
+	{
+		return $this->_smarty->_tpl_vars [$key];
+	}
+	
 	public function popVars ()
 	{
 	    $this->_smarty->_tpl_vars = array_pop ($this->_varsStack);
@@ -115,7 +120,7 @@ class View_Render_Smarty extends View_Render_Abstract
 	public function pushVars ()
 	{
 	    $this->_varsStack [] = $this->_smarty->_tpl_vars;
-	    $this->_smarty->_tpl_vars = array ();
+	    $this->_smarty->_tpl_vars = null;
 	}
 	
 	/**

@@ -4,6 +4,12 @@ class Helper_Image_Resize
 {
 	
 	/**
+	 * Качество сохранения JPEG изображений (от 1 до 100).
+	 * @var integer
+	 */
+	public static $jpegQuality = 90;
+	
+	/**
 	 * Изменение размера изображения
 	 * 
 	 * @param string $input
@@ -40,7 +46,7 @@ class Helper_Image_Resize
 		{
 			return false;
 		}
-		$info = getimagesize($input);
+		$info = getimagesize ($input);
 		$image = '';
 		$final_width = 0;
 		$final_height = 0;
@@ -85,7 +91,8 @@ class Helper_Image_Resize
 			$final_height = ($height <= 0) ? $height_old : $height;
 		}
 		
-		switch ($info[2]) {
+		switch ($info[2])
+		{
 			case IMAGETYPE_GIF:
 				$image = imagecreatefromgif ($input);
 				break;
@@ -99,24 +106,24 @@ class Helper_Image_Resize
 				return false;
 		}
 		
-		$image_resized = imagecreatetruecolor($final_width, $final_height);
-		if (($info[2] == IMAGETYPE_GIF) || ($info[2] == IMAGETYPE_PNG))
+		$image_resized = imagecreatetruecolor ($final_width, $final_height);
+		if (($info [2] == IMAGETYPE_GIF) || ($info [2] == IMAGETYPE_PNG))
 		{
-			$trnprt_indx = imagecolortransparent($image);
+			$trnprt_indx = imagecolortransparent ($image);
 			// If we have a specific transparent color
 			if ($trnprt_indx >= 0)
 			{
 				// Get the original image's transparent color's RGB values
-				$trnprt_color = imagecolorsforindex($image, $trnprt_indx);
+				$trnprt_color = imagecolorsforindex ($image, $trnprt_indx);
 				// Allocate the same color in the new image resource
-				$trnprt_indx = imagecolorallocate(
+				$trnprt_indx = imagecolorallocate (
 					$image_resized, 
 					$trnprt_color ['red'], 
 					$trnprt_color ['green'], 
 					$trnprt_color ['blue']
 				);
 				// Completely fill the background of the new image with allocated color.
-				imagefill($image_resized, 0, 0, $trnprt_indx);
+				imagefill ($image_resized, 0, 0, $trnprt_indx);
 				// Set the background color for new image to transparent
 				imagecolortransparent ($image_resized, $trnprt_indx);
 			}
@@ -124,19 +131,19 @@ class Helper_Image_Resize
 			elseif ($info[2] == IMAGETYPE_PNG)
 			{
 				// Turn off transparency blending (temporarily)
-				imagealphablending($image_resized, false);
+				imagealphablending ($image_resized, false);
 				// Create a new transparent color for image
-				$color = imagecolorallocatealpha($image_resized, 0, 0, 0, 100);
+				$color = imagecolorallocatealpha ($image_resized, 0, 0, 0, 100);
 				// Completely fill the background of the new image with allocated color.
-				imagefill($image_resized, 0, 0, $color);
+				imagefill ($image_resized, 0, 0, $color);
 				// Restore transparency blending
-				imagesavealpha($image_resized, true);
+				imagesavealpha ($image_resized, true);
 			}
 		}
 
 		if ($crop)
 		{
-			// ����������� ���� �� ��� �
+			// растягиваем фото по оси Х
 			$scalex = //($width_old > $height_old);
 				($height_old / $final_height) < ($width_old / $final_width);
 			if ($crop == 'up')
@@ -176,7 +183,7 @@ class Helper_Image_Resize
 			{
 				$src_height = ($width_old / $final_width) * $final_height;
 				$src_y = $height_old / 2 - $src_height / 2;
-				imagecopyresampled(
+				imagecopyresampled (
 					$image_resized, $image, 
 					0, 0, 0, $src_y, 
 					$final_width, $final_height, $width_old, $src_height
@@ -185,19 +192,20 @@ class Helper_Image_Resize
 		}
 		else
 		{
-			imagecopyresampled(
+			imagecopyresampled (
 				$image_resized, $image, 
 				0, 0, 0, 0, 
 				$final_width, $final_height, $width_old, $height_old
 			);
 		}
 		
-		switch ($info [2]) {
+		switch ($info [2])
+		{
 			case IMAGETYPE_GIF:
 				imagegif ($image_resized, $output);
 				break;
 			case IMAGETYPE_JPEG:
-				imagejpeg ($image_resized, $output, 90);
+				imagejpeg ($image_resized, $output, self::$jpegQuality);
 				break;
 			case IMAGETYPE_PNG:
 				imagepng ($image_resized, $output);
@@ -205,11 +213,8 @@ class Helper_Image_Resize
 			default:
 				return false;
 		}
-		return array (
-		    $final_width,
-		    $final_height,
-		    $info [2]
-		);
+		
+		return array ($final_width, $final_height, $info [2]);
 	}
 	
 }
