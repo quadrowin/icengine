@@ -3,6 +3,36 @@
 class Data_Mapper_Mysql extends Data_Mapper_Abstract
 {
 	
+    /**
+     * 
+     * @param Query $query
+     * @return array
+     */
+    public function _getTags (Query $query)
+    {
+        $tags = array ();
+        
+        $from = $query->getPart (Query::FROM);
+        foreach ($from as $info)
+        {
+            $tags [] = $this->_modelScheme->table ($info [Query::TABLE]);
+        }
+        
+        $insert = $query->getPart (QUERY::INSERT);
+        if ($insert)
+        {
+       	    $tags [] = $this->_modelScheme->table ($insert);
+        }
+       	
+        $update = $query->getPart (QUERY::UPDATE);
+        if ($update)
+        {
+            $tags [] = $this->_modelScheme->table ($update);
+        }
+        
+        return array_unique ($tags);
+    }
+	
 	/**
 	 * 
 	 * @param mixed $result
@@ -38,22 +68,23 @@ class Data_Mapper_Mysql extends Data_Mapper_Abstract
 		
 		$result = null;
 		$insert_id = null;
+		$tags = implode ('.', $this->_getTags ($clone));
 		switch ($query->type ())
 		{
 			case Query::DELETE:
-				Mysql::delete (time (), $sql);
+				Mysql::delete ($tags, $sql);
 				$touched_rows = Mysql::affectedRows ();
 				break;
 			case Query::INSERT:
-				$insert_id = Mysql::insert (time (), $sql);
+				$insert_id = Mysql::insert ($tags, $sql);
 				$touched_rows = Mysql::affectedRows ();
 				break;
 			case Query::SELECT; case Query::SHOW:
-				$result = Mysql::select (time (), $sql);
+				$result = Mysql::select ($tags, $sql);
 				$touched_rows = Mysql::numRows ();
 				break;
 			case Query::UPDATE:
-				Mysql::update (time (), $sql);
+				Mysql::update ($tags, $sql);
 				$touched_rows = Mysql::affectedRows ();
 				break;
 		}
