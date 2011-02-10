@@ -2,7 +2,7 @@
 
 /**
  * 
- * 
+ * Абстрактный класс провайдера данных.
  * 
  * @author Goorus
  * @package IcEngine
@@ -505,6 +505,11 @@ class Data_Provider_Abstract
 			$class = 'Tracer_' . $value;
 			Loader::load ($class);
 			$this->tracer = new $class ();
+			return true;
+		}
+		elseif ($key == 'prefix')
+		{
+			$this->prefix = $value;
 			return true;
 		}
 		return false;

@@ -1,8 +1,17 @@
 <?php
 
+/**
+ * Мэппер данных через провайдер.
+ * @author Юрий
+ *
+ */
 class Data_Mapper_Provider extends Data_Mapper_Abstract
 {
 	
+	/**
+	 * Используемый транслятор
+	 * @var string
+	 */
 	const TRANSLATOR = 'KeyValue';
 	
     protected $_errno = 0;
