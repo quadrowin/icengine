@@ -17,7 +17,12 @@ class Tracer_File extends Tracer_Abstract
 	public function add ($info)
 	{
 		$f = fopen ($this->file, 'a');
-		fwrite ($f, Helper_Date::toUnix () . ' ' . $info . PHP_EOL);
+		fwrite (
+			$f, 
+			Helper_Date::toUnix () . ' ' . 
+			implode (' ', func_get_args ()) . 
+			PHP_EOL
+		);
 		fclose ($f);
 	}
 	
