@@ -460,7 +460,8 @@ class Debug
 		if (
 			self::$config ['firebug']['active'] &&
 			(self::$debug_messages_count++ < self::$config ['firebug']['messages_limit']) &&
-			function_exists ('fb')
+			function_exists ('fb') &&
+			!headers_sent ()
 		)
 		{
 			fb ($text, $type);
