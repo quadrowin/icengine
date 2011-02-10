@@ -3,35 +3,35 @@
 class Data_Mapper_Mysql extends Data_Mapper_Abstract
 {
 	
-    /**
-     * 
-     * @param Query $query
-     * @return array
-     */
-    public function _getTags (Query $query)
-    {
-        $tags = array ();
-        
-        $from = $query->getPart (Query::FROM);
-        foreach ($from as $info)
-        {
-            $tags [] = $this->_modelScheme->table ($info [Query::TABLE]);
-        }
-        
-        $insert = $query->getPart (QUERY::INSERT);
-        if ($insert)
-        {
-       	    $tags [] = $this->_modelScheme->table ($insert);
-        }
-       	
-        $update = $query->getPart (QUERY::UPDATE);
-        if ($update)
-        {
-            $tags [] = $this->_modelScheme->table ($update);
-        }
-        
-        return array_unique ($tags);
-    }
+	/**
+	 * 
+	 * @param Query $query
+	 * @return array
+	 */
+	public function _getTags (Query $query)
+	{
+		$tags = array ();
+		
+		$from = $query->getPart (Query::FROM);
+		foreach ($from as $info)
+		{
+			$tags [] = $this->_modelScheme->table ($info [Query::TABLE]);
+		}
+		
+		$insert = $query->getPart (QUERY::INSERT);
+		if ($insert)
+		{
+	   		$tags [] = $this->_modelScheme->table ($insert);
+		}
+	   	
+		$update = $query->getPart (QUERY::UPDATE);
+		if ($update)
+		{
+			$tags [] = $this->_modelScheme->table ($update);
+		}
+		
+		return array_unique ($tags);
+	}
 	
 	/**
 	 * 

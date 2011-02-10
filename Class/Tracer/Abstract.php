@@ -1,5 +1,10 @@
 <?php
-
+/**
+ * 
+ * Абстрактный класс для ведения трейс лога.
+ * @author Юрий
+ *
+ */
 abstract class Tracer_Abstract
 {
 	
