@@ -120,7 +120,6 @@ class Widget_Manager
 			{
 				$view->assign ($output->getAll ());
 				$result ['html'] = $view->fetch ($tpl);
-				
 			}
 			catch (Exception $e)
 			{
