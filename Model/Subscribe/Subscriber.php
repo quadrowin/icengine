@@ -37,7 +37,7 @@ class Subscribe_Subscriber extends Model
     public function subscribed ($subscribe)
     {
         Loader::load ('Subscribe_Abstract');
-        if (!is_a ($subscribe, 'Subscribe_Abstract'))
+        if (!($subscribe instanceof Subscribe_Abstract))
         {
             $subscribe = IcEngine::$modelManager->get ('Subscribe', 
                 (int) $subscribe);

@@ -329,7 +329,7 @@ class Debug
 			return;
 		}
 		
-		if (is_a ($config, 'Config_Abstract'))
+		if (is_object ($config) && get_class ($config) == 'Config_Array')
 		{
 			$config = $config->__toArray ();
 		}
