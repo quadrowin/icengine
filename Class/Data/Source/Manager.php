@@ -45,7 +45,7 @@ class Data_Source_Manager
 				 */
 				$mapper = self::$_sources [$name]->getDataMapper ();
 				
-				if (!is_a ($mapper, $mapper_class))
+				if (!($mapper instanceof $mapper_class))
 				{
 					// Мэппер источника отличается от указанного в конфигах
 					$mapper = new $mapper_class ($conf->mapper_params);
