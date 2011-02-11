@@ -68,7 +68,7 @@ class User_Session extends Model
 	 */
 	public function updateSession ($new_user_id = null)
 	{
-		if (isset ($new_user_id))
+		if (isset ($new_user_id) && $new_user_id)
 		{
 			$upd = array (
 				'User__id'		=> $new_user_id,
@@ -81,7 +81,7 @@ class User_Session extends Model
 			
 			// Обновляем сессию не чаще, чем раз в 10 минут.
 			// strlen ('YYYY-MM-DD HH:I_:__') = 
-			if (strncmp($now, $this->lastActive, 15) == 0)
+			if (strncmp ($now, $this->lastActive, 15) == 0)
 			{
 				return $this;
 			}
