@@ -148,7 +148,7 @@ class Redis
  {
   $value = json_encode($value);
   $r = $this->requestByKey($key,'SET '.$key.' '.strlen($value)."\r\n".$value);
-  if ($TTL !== NULL) {$this->expire($key,$TTL);}
+  if ($TTL) {$this->expire($key,$TTL);}
   if ($r === NULL) {return FALSE;}
   return $r;
  }
