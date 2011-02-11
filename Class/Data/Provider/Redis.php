@@ -275,7 +275,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	{
 		if ($this->tracer)
 		{
-			$this->tracer->add ('set', $key, $this->_valDump ($value), $expiration);
+			$this->tracer->add ('set', $key, $value, $expiration);
 		}
 		
 		if ($expiration < 0)
