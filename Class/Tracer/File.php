@@ -19,7 +19,7 @@ class Tracer_File extends Tracer_Abstract
 		$text = Helper_Date::toUnix () . ' ' . $info;
 		for ($i = 1; $i < func_num_args (); ++$i)
 		{
-			$text .= ' ' . json_encode ($text);
+			$text .= ' ' . json_encode (func_get_arg ($i));
 		}
 		$f = fopen ($this->file, 'a');
 		fwrite ($f, $text . PHP_EOL);
