@@ -16,13 +16,13 @@ class Tracer_File extends Tracer_Abstract
 	
 	public function add ($info)
 	{
+		$text = Helper_Date::toUnix () . ' ' . $info;
+		for ($i = 1; $i < func_num_args (); ++$i)
+		{
+			$text .= ' ' . json_encode ($text);
+		}
 		$f = fopen ($this->file, 'a');
-		fwrite (
-			$f, 
-			Helper_Date::toUnix () . ' ' . 
-			implode (' ', func_get_args ()) . 
-			PHP_EOL
-		);
+		fwrite ($f, $text . PHP_EOL);
 		fclose ($f);
 	}
 	
