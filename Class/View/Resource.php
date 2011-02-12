@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * 
+ * Ресурс представления.
+ * Информация о файле Js или Css.
+ * @author Юрий
+ *
+ */
 class View_Resource extends Objective
 {
 	
@@ -40,7 +46,7 @@ class View_Resource extends Objective
 	public function content ()
 	{
 		$path = $this->filePath;
-		return file_exists($path) ? file_get_contents ($path) : null;
+		return file_exists ($path) ? file_get_contents ($path) : null;
 	}
 	
 	/**

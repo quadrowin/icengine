@@ -4,16 +4,25 @@ class View_Resource_Manager
 {
 	
 	/**
-	 * Тип ресурса - CSS
+	 * Тип ресурса - CSS.
+	 * Файл стилей.
 	 * @var string
 	 */
 	const CSS = 'css';
 	
 	/**
-	 * Тип ресурса - JS
+	 * Тип ресурса - JS.
+	 * Файл javascript.
 	 * @var string
 	 */
 	const JS = 'js';
+	
+	/**
+	 * Тип ресурса - JTPL.
+	 * Шаблоны для javascript.
+	 * @var string
+	 */
+	const JTPL = 'jtpl';
 	
 	/**
 	 * Ресурсы.

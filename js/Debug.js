@@ -2,7 +2,7 @@ var Debug = {
 	
 	alert: function (data)
 	{
-		this.vardump (data);
+		Debug.vardump (data);
 	},
 
 	vardump: function (data)
@@ -145,24 +145,25 @@ var Debug = {
 		
 		if (d.body)
 		{
-			this.echo(output);
+			Debug.echo(output);
 		}
 		else
 		{
 			try
 			{
 				d = XULDocument; // We're in XUL, so appending as plain text won't work
-				this.echo('<pre xmlns="http://www.w3.org/1999/xhtml" style="white-space:pre;">'+output+'</pre>');
+				Debug.echo('<pre xmlns="http://www.w3.org/1999/xhtml" style="white-space:pre;">'+output+'</pre>');
 			}
 			catch (e)
 			{
-				this.echo(output); // Outputting as plain text may work in some plain XML
+				Debug.echo(output); // Outputting as plain text may work in some plain XML
 			}
 		}
 	},
 	
-	echo: function (text) {
-		alert (text);
+	echo: function ()
+	{
+		console.log (arguments);
 	}
 	
 };

@@ -1,7 +1,12 @@
 <?php
 
 Loader::load ('View_Resource_Packer_Abstract');
-
+/**
+ * 
+ * Упаковщик Css ресурсов представления 
+ * @author Юрий
+ *
+ */
 class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 {
     
