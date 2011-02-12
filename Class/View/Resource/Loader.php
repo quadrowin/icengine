@@ -6,10 +6,8 @@ class View_Resource_Loader
 	 * 
 	 * @param string|array <string> $dirs
 	 */
-	public static function load ($base_url, $base_dir, $dirs)
+	public static function load ($base_url, $base_dir, $dirs, $type = null)
 	{
-		$dirs = array_values ((array) $dirs);
-		
 		$base_dir = str_replace ('\\', '/', $base_dir);
 		$base_dir = rtrim ($base_dir, '/') . '/' ;
 		
@@ -51,7 +49,7 @@ class View_Resource_Loader
 				
 				$files = array ();
 				
-				for ($dir = current ($list); $dir; $dir = next ($list))
+				for ($dir = reset ($list); $dir; $dir = next ($list))
 				{
 					$subdirs = scandir ($base_dir . $dir);
 					
@@ -81,13 +79,18 @@ class View_Resource_Loader
 					}
 				}
 				
+				$base_dir_len = strlen ($base_dir);
 				for ($j = 0, $count = sizeof ($files); $j < $count; $j++)
 				{
 					$options ['source'] = $files [$j][0];
 					$options ['filePath'] = $files [$j][1];
+					$options ['localPath'] = substr (
+						$files [$j][1],
+						$base_dir_len
+					);
 					View_Render_Broker::getView ()
 						->resources ()
-							->add ($files [$j][0], null, $options);
+							->add ($files [$j][0], $type, $options);
 				}
 			}
 			elseif ($star_pos !== false)
@@ -113,13 +116,15 @@ class View_Resource_Loader
 					    fnmatch ($pattern, $fn)
 					)
 					{
-						$options ['source'] = $base_url . $dir . '/' . $fn;
-						$options ['filePath'] = $base_dir . $dir . '/' . $fn;
+						$local_path = $dir . '/' . $fn;
+						$options ['source'] = $base_url . $local_path;
+						$options ['filePath'] = $base_dir . $local_path;
+						$options ['localPath' ] = $local_path;
 						View_Render_Broker::getView ()
 							->resources ()
 								->add (
-									$base_url . $dir . '/' . $fn,
-									null, $options
+									$base_url . $local_path,
+									$type, $options
 								);
 					}
 				}
@@ -129,9 +134,10 @@ class View_Resource_Loader
 			    // Указан путь до файла: "js/scripts.js"
 				$file = $base_url . $pattern;
 				$options ['filePath'] = $base_dir . $pattern;
+				$options ['localPath'] = $pattern;
 				View_Render_Broker::getView ()
 					->resources ()
-						->add ($file, null, $options);
+						->add ($file, $type, $options);
 			}
 		}
 	}

@@ -1,5 +1,9 @@
 <?php
-
+/**
+ * Абстрактный упаковщик ресурсов представления.
+ * @author Юрий
+ *
+ */
 abstract class View_Resource_Packer_Abstract
 {
 	

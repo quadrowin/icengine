@@ -3,11 +3,11 @@
 Loader::load ('View_Resource_Packer_Abstract');
 /**
  * 
- * Упаковщик Js ресурсов представления.
+ * Упаковщик Jtpl ресурсов представления.
  * @author Юрий
  *
  */
-class View_Resource_Packer_Js extends View_Resource_Packer_Abstract
+class View_Resource_Packer_Jtpl extends View_Resource_Packer_Abstract
 {
 	/**
 	 * @desc Класс Packer'a
@@ -38,16 +38,26 @@ class View_Resource_Packer_Js extends View_Resource_Packer_Abstract
 			$result = '';
 		}
 		
+		$content = $resource->content ();
+		$content = str_replace (
+			array ('\\',	'"',	"\r\n",			"\n",			"\r"),
+			array ('\\\\',	'\\"',	'"+"\\r\\n"+"',	'"+"\\n"+"',	'"+"\\r"+"'),
+			$content
+		);
+		
+		$content = 
+			'View_Render.templates[\'' . $resource->localPath . '\']="' . $content . '";';
+		
 		if (
 			isset ($this->_currentResource->nopack) &&
 			$this->_currentResource->nopack
 		)
 		{
-			$result .= $resource->content () . "\n";
+			$result .= $content . "\n";
 		}
 	    else
 	    {
-			$packer = new JavaScriptPacker ($resource->content (), 0);
+			$packer = new JavaScriptPacker ($content, 0);
 			$result .= $packer->pack ();
 	    }
 	    

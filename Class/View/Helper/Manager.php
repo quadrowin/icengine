@@ -14,7 +14,7 @@ abstract class View_Helper_Manager
 	 * @param array $params
 	 * @return View_Helper_Abstract
 	 */
-	public static function get ($name, $params)
+	public static function get ($name, $params = array ())
 	{
 		if (!isset (self::$_helpers [$name]))
 		{
