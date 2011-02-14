@@ -2,7 +2,15 @@
 
 include dirname (__FILE__) . '/Type.php';
 include dirname (__FILE__) . '/Abstract.php';
-
+/**
+ * 
+ * @desc
+ * 		Класс управления сообщениями внутри процесса.
+ * 		Настройки по умолчанию считываются из config/Message/Queue.php
+ * @author Юрий
+ * @package IcEngine
+ *
+ */
 class Message_Queue
 {
 	
@@ -19,7 +27,7 @@ class Message_Queue
 	protected $_byType = array ();
 	
 	/**
-	 * Обработчки событий
+	 * Обработчики событий
 	 * @var array <callback>
 	 */
 	protected $_handlers = array ();
@@ -40,9 +48,11 @@ class Message_Queue
 	}
 	
 	/**
-	 * 
+	 * Возвращает массив сообщений указанного типа.
 	 * @param integer $type
+	 * 		Необходимый тип сообщений.
 	 * @return array <Message_Queue_Abstract>
+	 * 		Массив сообщений.
 	 */
 	public function byType ($type)
 	{
@@ -55,6 +65,8 @@ class Message_Queue
 	}
 	
 	/**
+	 * @desc
+	 * 		Вызывается сторонними методами при наступлении события.
 	 * 
 	 * @param string $type
 	 * 		Тип
@@ -66,7 +78,7 @@ class Message_Queue
 	public function push ($type, array $data)
 	{
 		$class = 'Message_' . $type;
-		if (!Loader::load ($class))
+		if (strpos ($class, '::') !== false || !Loader::load ($class))
 		{
 		    $class = 'Message_Abstract';
 		}
@@ -147,11 +159,17 @@ class Message_Queue
 	}
 	
 	/**
-	 * 
+	 * Устновка нового callback'a для события.
 	 * @param integer $type
+	 * 		Тип события
 	 * @param callback $function
+	 * 		Функция, которая будет вызвана при наступлении события.
 	 * @param string|null $name
+	 * 		Названия колбэка (предотвращает повторное добавление обработчика)
 	 * @param boolean $call_for_old
+	 * 		Вызов для предыдущих.
+	 * 		В случае, если события данного типа уже наступали (до добавления
+	 * 		обработчика), для каждого из них колбэк будет вызван.
 	 */
 	public function setCallback ($type, $function, $name = null, 
 		$call_for_old = false)

@@ -1,3 +1,6 @@
+/**
+ * Помошник работы с формой.
+ */
 var Helper_Form = {
 	
 	_toggleTextForPassword: function ($password)
@@ -32,6 +35,11 @@ var Helper_Form = {
 		JsHttpRequest.query (url, data, callback, true);
 	},
 	
+	/**
+	 * Все поля формы как поля объекта
+	 * @param jQuery $form
+	 * @returns {___anonymous819_820}
+	 */
 	asArray: function ($form)
 	{
 		var data = {};

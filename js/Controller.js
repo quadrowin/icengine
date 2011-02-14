@@ -27,13 +27,7 @@ var Controller = {
 	{
 		var back = js.back;
 		
-		if (js.error)
-		{
-			alert (js.error);
-			return;
-		}
-		
-		if (!js.result)
+		if (!js.result || js.error)
 		{
 			if (console && console.log)
 			{
@@ -47,6 +41,42 @@ var Controller = {
 			Controller.callbacksData [back] ? 
 			Controller.callbacksData [back] : null;
 		callback (js.result, text);
+	},
+	
+	removeSelected: function (item)
+	{
+		var ids = {};
+		var n = 0;
+		var l = (item + '_del_').length;
+		$('input[type="checkbox"]:checked.' + item + '_del').each (
+			function () {
+				ids[n] = $(this).attr('name').substr(l);
+				n++;
+			}
+		);
+		
+		function callback (result)
+		{
+			if (result.code == 200)
+			{
+				alert ("Удалено: " + result.count);
+			}
+			else if (result.msg)
+			{
+				alert (result.msg);
+			}
+		}
+		
+		if (confirm ("Будет удалено " + n + " позиций.\nПродолжить?"))
+		{
+			Controller.call (
+				item + '/remove',
+				{
+					"ids": ids
+				},
+				callback, true
+			);
+		}
 	}
 		
 };

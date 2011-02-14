@@ -10,6 +10,25 @@ class Helper_Form
 {
 	
 	/**
+	 * Игнорировать данные.
+	 * @var string
+	 */
+	const IGNORE = 'ignore';
+	
+	/**
+	 * Поле будет прочитано из входных данных контроллера.
+	 * @var string
+	 */
+	const INPUT = 'input';
+	
+	/**
+	 * Поле будет прочитано из входных данных контроллера, но после
+	 * проверки удалено.
+	 * @var string
+	 */
+	const INPUT_IGNORE = 'input,ignore';
+	
+	/**
 	 * @desc	Пример полей
 	 * @var	array
 	 */
@@ -99,10 +118,88 @@ class Helper_Form
 				$data->$field = $value ['set'];
 			}
 		}
-		elseif ($value == 'input' || $value == 'input,ignore')
+		elseif ($value == self::INPUT || $value == self::INPUT_IGNORE)
 		{
 			$data->$field = $input->receive ($field);
 		}
+	}
+	
+	/**
+	 * Возвращает только атрибуты
+	 * @param Objective $data
+	 * @param array $scheme
+	 * @return array
+	 */
+	public static function extractAttributes (Objective $data, array $scheme)
+	{
+		$result = array ();
+		foreach ($data as $field => $value)
+		{
+			if (
+				isset ($scheme [$field]['@attribute']) &&
+				$scheme [$field]['@attribute']
+			)
+			{
+				$result [$field] = $value;
+			}
+		}
+		return $result;
+	}
+	
+	/**
+	 * Возвращает только поля
+	 * @param Objective $data
+	 * @param array $scheme
+	 * @return array
+	 */
+	public static function extractFields (Objective $data, array $scheme)
+	{
+		$result = array ();
+		foreach ($data as $field => $value)
+		{
+			if (
+				!isset ($scheme [$field]['@attribute']) ||
+				!$scheme [$field]['@attribute']
+			)
+			{
+				$result [$field] = $value;
+			}
+		}
+		return $result;
+	}
+	
+	/**
+	 * Разделяет атрибуты и поля.
+	 * @param Objective $data
+	 * @param array $scheme
+	 * @return array
+	 * 		$result ['fields'] array поля
+	 * 		@retult ['attributes'] array атрибуты
+	 */
+	public static function extractParts (Objective $data, array $scheme)
+	{
+		$attrs = array ();
+		$fields = array ();
+		
+		foreach ($data as $field => $value)
+		{
+			if (
+				isset ($scheme [$field]['@attribute']) &&
+				$scheme [$field]['@attribute']
+			)
+			{
+				$attrs [$field] = $value;
+			}
+			else
+			{
+				$fields [$field] = $value;
+			}
+		}
+		
+		return array (
+			'fields'		=> $fields,
+			'attributes'	=> $attrs
+		);
 	}
 	
 	/**
@@ -118,7 +215,7 @@ class Helper_Form
 		
 		foreach ($scheme as $field => $info)
 		{
-			if ($info ['value'] == 'ignore')
+			if (isset ($info ['value']) && $info ['value'] == self::IGNORE)
 			{
 				continue ;
 			}
@@ -137,9 +234,10 @@ class Helper_Form
 	}
 	
 	/**
-	 * @desc	Чтение данных из инпута согласно правилам.
+	 * @desc
+	 * 		Чтение данных из инпута согласно правилам.
 	 * 
-	 * @param	Data_Transport $input
+	 * @param Data_Transport $input
 	 * 		Входной поток.
 	 * @param array $fields
 	 * 		Поля.
@@ -158,7 +256,7 @@ class Helper_Form
 			self::_recieveValue (
 				$data, $field,
 				$input,
-				$info ['value'],
+				isset ($info ['value']) ? $info ['value'] : self::INPUT,
 				!$tc || !$tc->rowId
 			);
 		}
@@ -177,8 +275,8 @@ class Helper_Form
 		{
 			if (
 				!isset ($scheme [$key]) || 
-				$scheme [$key]['value'] == 'ignore' ||
-				$scheme [$key]['value'] == 'input,ignore'
+				$scheme [$key]['value'] == self::IGNORE ||
+				$scheme [$key]['value'] == self::INPUT_IGNORE
 			)
 			{
 				unset ($data [$key]);
@@ -205,7 +303,7 @@ class Helper_Form
 		
 		foreach ($scheme as $field => $info)
 		{
-			if ($info ['value'] == 'ignore')
+			if (isset ($info ['value']) && $info ['value'] == self::IGNORE)
 			{
 				continue ;
 			}

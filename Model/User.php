@@ -4,7 +4,14 @@ if (!defined ('RESOURCE_ALLOW_ALL'))
 {
 	define ('RESOURCE_ALLOW_ALL', false);
 }
-
+/**
+ * 
+ * Модель пользователя.
+ * Для корректной работы необходима модель User_Session.
+ * @author Юрий
+ * @package IcEngine
+ *
+ */
 class User extends Model
 {
 	
@@ -152,7 +159,7 @@ class User extends Model
 	}
 	
 	/**
-	 * @dest Проверяет имеет ли пользователь роль с указаным типом
+	 * @desc Проверяет имеет ли пользователь роль с указаным типом
 	 * @param integer $type_id
 	 */
 	public function hasRoleWithType ($type_id)

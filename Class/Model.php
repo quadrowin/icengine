@@ -198,11 +198,12 @@ abstract class Model
 	}
 	
 	/**
+	 * @desc Возвращает или устанавливает значение атрибута.
 	 * 
-	 * @param string $key
-	 * 		
+	 * @param string|array $key
+	 * 		Название атрибута или массив пар (название => значение)
 	 * @param mixed $value [optional]
-	 * 
+	 * 		Новое значение атрибута.
 	 * @return mixed
 	 * 		Если не задан второй параметр, возвращает значение аттрибута,
 	 * 		иначе null
@@ -582,9 +583,12 @@ abstract class Model
 	}
 	
 	/**
+	 * Устанавливает значение аттрибута.
 	 * 
-	 * @param string $key
-	 * @param mixed $value
+	 * @param string|array $key
+	 * 		Название аттрибута или массив пар (название => значение)
+	 * @param mixed $value [optional]
+	 * 		Новое значение аттрибута.
 	 */
 	public function setAttribute ($key, $value = null)
 	{
