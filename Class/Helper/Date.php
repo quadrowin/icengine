@@ -1,14 +1,35 @@
 <?php
-
+/**
+ * 
+ * Хелпер для работы с датами.
+ * @author Юрий
+ *
+ */
 class Helper_Date
 {
     
+	/**
+	 * Unix формат представления даты.
+	 * @var string
+	 */
     const UNIX_DATE_FORMAT = 'Y-m-d';
     
+    /**
+     * Unix формат представления даты и времени.
+     * @var string
+     */
     const UNIX_FORMAT = 'Y-m-d H:i:s';
     
+    /**
+     * Unix формат времени
+     * @var string
+     */
     const UNIX_TIME_FORMAT = 'H:i:s';
 	
+    /**
+     * Названия дней недели
+     * @var array
+     */
     public static $daysRu = array (
         1 => array (
             0 => 'воскресенье',
@@ -32,6 +53,10 @@ class Helper_Date
         )
     );
     
+    /**
+     * Русские названия месяцев.
+     * @var array
+     */
     public static $monthesRu = array (
 		1 => array (
 			1 => 'январь',
@@ -349,7 +374,8 @@ class Helper_Date
 	}
 	
 	/**
-	 * @desc Преобразует дату в 24 февряля 2010 (?) года
+	 * @desc Преобразует дату в "24 февраля 2010" (?) года.
+	 * Без года, если дата соответсвует текущему году.
 	 * @param string $date
 	 * @return string
 	 */
