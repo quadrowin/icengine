@@ -3,6 +3,7 @@
 /**
  * Событие после загрузки контента контроллером.
  * @author Юрий
+ * @package IcEngine
  *
  */
 class Message_After_Load_Content extends Message_Abstract

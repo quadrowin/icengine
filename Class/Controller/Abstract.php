@@ -1,8 +1,18 @@
 <?php
-
+/**
+ * 
+ * Базовый класс контроллера.
+ * @author Юрий
+ * @package IcEngine
+ *
+ */
 class Controller_Abstract
 {	
     
+	/**
+	 * Последний вызванный экшен.
+	 * @var string
+	 */
 	protected $_currentAction;
 	
 	/**
@@ -12,13 +22,13 @@ class Controller_Abstract
 	protected $_dispatcherIteration;
 	
 	/**
-	 * 
+	 * Входные данные
 	 * @var Data_Transport
 	 */
 	protected $_input;
 		
 	/**
-	 * 
+	 * Выходные данные.
 	 * @var Data_Transport
 	 */
 	protected $_output;
@@ -72,12 +82,13 @@ class Controller_Abstract
 	 * Сохранение данных с формы
 	 * @param Temp_Content $tc
 	 * @param array $scheme
-	 * @param string $model_class [optional]
-	 * 		Имя класса модели. Если не задано, будет использвано имя
-	 * 		контроллера.
+	 * @param string|Model $model_class [optional]
+	 * 		Имя класса модели или модель.
+	 * 		Если не задано, будет использвано имя контроллера.
 	 * 		Пример: для контроллера <i>Controller_Sample</i>, результатом
 	 * 		будет модель класса <i>Sample</i>.
 	 * @return Model|null
+	 * 		Сохраненная модель, либо null в случае ошибки.
 	 */
 	public function _savePostModel (Temp_Content $tc, $scheme, 
 		$model_class = '')
@@ -107,12 +118,25 @@ class Controller_Abstract
 			$model_class = $this->name ();
 		}
 		
-		$model = IcEngine::$modelManager->get (
-			$model_class,
-			$tc->attr ('editingItemId')
-		);
+		if ($model_class instanceof Model)
+		{
+			$model = $model_class;
+		}
+		else
+		{
+			$model = IcEngine::$modelManager->get (
+				$model_class,
+				$tc->attr ('editingItemId')
+			);
+		}
 		
-		return $model->update ($data->asArray ());
+		$parts = Helper_Form::extractParts ($data, $scheme);
+
+		$model->update ($parts ['fields']);
+		
+		return 
+			$parts ['attributes'] ? 
+			$model->attr ($parts ['attributes']) : $model;
 	}
 	
 	/**

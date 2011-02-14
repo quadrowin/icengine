@@ -87,6 +87,20 @@ class Helper_Date
 			12 => 'декабря'
 		)
 	);
+	
+	/**
+	 * Сравнение двух дат в формате UNIX.
+	 * @param string $now
+	 * @param string $then
+	 * @return integer
+	 * 		-1 если $now < $then
+	 * 		 0 если $now == $then
+	 * 		+1 если $now > $then
+	 */
+	public static function cmpUnix ($now, $then)
+	{
+		return strcmp ($now, $then); // :D
+	}
     
     /**
      * Получение даты по номеру недели в году
@@ -271,23 +285,23 @@ class Helper_Date
 		
 		for ($i = 0; $i < strlen ($str); $i++)
 		{
-			if (strpos ('-0123456789', $str[$i]) == 0)
+			if (strpos ('-0123456789', $str [$i]) == 0)
 			{
 				if (strlen ($arr[$n]) > 0)
 				{
-					$arr[$n] = (int) $arr[$n];
+					$arr [$n] = (int) $arr [$n];
 					$n++;
 				}
 			}
 			else
 			{
-				$arr[$n] .= $str[$i];
+				$arr [$n] .= $str[$i];
 			}
 		}
 	
 		for ($i = $n; $i <= 5; $i++)
 		{
-			$arr[$i] = (int) $arr[$i];
+			$arr [$i] = (int) $arr[$i];
 		}
 	
 		if (strlen ($arr[0]) == 4)
@@ -325,25 +339,25 @@ class Helper_Date
 	 * 		Время в unix timestamp.
 	 * 		Если не удалось определить время, возвращается $def
 	 */
-	public static function strToTimeDef($str, $def = 0)
+	public static function strToTimeDef ($str, $def = 0)
 	{
 		if (is_numeric ($str))
 		{
 			return $str;
 		}
-		if (strlen($str) < 3)
+		if (strlen ($str) < 3)
 		{
 			return $def;
 		}
 	
 		$n = 0;
 	
-		$arr = array('', '', '');
-		for ($i = 0; $i < strlen($str); $i++)
+		$arr = array ('', '', '');
+		for ($i = 0; $i < strlen ($str); $i++)
 		{
-			if (strpos('-0123456789', $str[$i]) == 0)
+			if (strpos ('-0123456789', $str [$i]) == 0)
 			{
-				if (strlen($arr[$n]) > 0)
+				if (strlen ($arr[$n]) > 0)
 				{
 					$n++;
 				}
@@ -354,7 +368,7 @@ class Helper_Date
 			}
 		}
 	
-		return mktime((int) $arr[0], (int) $arr[1], (int) $arr[2]);
+		return mktime ((int) $arr[0], (int) $arr[1], (int) $arr[2]);
 	}
 	
 	/**

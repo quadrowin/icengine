@@ -1,20 +1,33 @@
 <?php
-
+/**
+ * 
+ * Базовый класс для сообщений
+ * @author Юрий
+ * @package IcEngine
+ *
+ */
 class Message_Abstract
 {
 	
 	/**
-	 * 
+	 * Дополнительные параметры сообщений
 	 * @var array
 	 */
 	protected $_data = array ();
 	
 	/**
-	 * 
+	 * Тип сообщения
 	 * @var string
 	 */
 	protected $_type;
 	
+	/**
+	 * 
+	 * @param array $data
+	 * 		Дополнитльные параметры
+	 * @param string $type
+	 * 		Тип сообщений
+	 */
 	public function __construct (array $data = array (), $type = null)
 	{
 		$this->_data = $data;
@@ -35,13 +48,18 @@ class Message_Abstract
 		return $this->_data [$key];
 	}
 	
+	/**
+	 * 
+	 * @param string $key
+	 * @param mixed $value
+	 */
 	public function __set ($key, $value)
 	{
 		$this->_data [$key] = $value;
 	}
 	
 	/**
-	 * 
+	 * Вызвать обработчик
 	 * @param callback $callback
 	 */
 	public function notify ($callback)
@@ -50,7 +68,7 @@ class Message_Abstract
 	}
 	
 	/**
-	 * 
+	 * Тип сообщения
 	 * @return string
 	 */
 	public function type ()
