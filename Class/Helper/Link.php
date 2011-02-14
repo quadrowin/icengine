@@ -191,6 +191,21 @@ class Helper_Link
 			->delete ()
 			->from ('Link');
 			
+		if (strcmp ($model1->table (), $model2) > 0)
+	    {
+	        $query
+	            ->where ('fromTable', $model2)
+	            ->where ('toTable', $model1->table ())
+	            ->where ('toRowId', $model1->key ()); 
+	    }
+	    else
+	    {
+	        $query
+	            ->where ('fromTable', $model1->table ())
+	            ->where ('fromRowId', $model1->key ())
+	            ->where ('toTable', $model2);
+	    }
+			
 		DDS::execute ($query);
 	}
 	
