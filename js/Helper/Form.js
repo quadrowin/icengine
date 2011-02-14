@@ -139,10 +139,13 @@ var Helper_Form = {
 		};
 		
 		$owner.data ('input_file_upload', $input);
-		$owner.css ({
-			overflow: "hidden",
-			position: "relative"
-		});
+		$owner.css ('overflow', 'hidden');
+		
+		var pos = $owner.css ('position');
+		if (pos != "relative" && pos != "absolute")
+		{
+			$owner.css ('position', 'relative');
+		};
 		
 		$owner.bind ('mousemove', function (event) {
 			var $input = $(event.currentTarget).data ('input_file_upload');
