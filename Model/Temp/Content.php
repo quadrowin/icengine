@@ -34,9 +34,8 @@ class Temp_Content extends Model
 	{
 		$utcode = self::genUtcode ();
 		
-		Loader::load ('Helper_Date');
 		$tc = new Temp_Content (array (
-			'time'			=> date ('Y-m-d H:i:s'),
+			'time'			=> Helper_Date::toUnix (),
 			'utcode'		=> $utcode,
 			'ip'			=> Request::ip (),
 			'controller'	=> $controller,

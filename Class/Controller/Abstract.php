@@ -45,7 +45,9 @@ class Controller_Abstract
 	 */
 	public function _afterAction ($action)
 	{
-		
+		IcEngine::$application->messageQueue->push (
+			'after::' . get_class ($this) . '::' . $action
+		);
 	}
 	
 	/**
@@ -56,7 +58,9 @@ class Controller_Abstract
 	 */
 	public function _beforeAction ($action)
 	{
-		
+		IcEngine::$application->messageQueue->push (
+			'before::' . get_class ($this) . '::' . $action
+		);
 	}
 	
 	/**
@@ -91,7 +95,7 @@ class Controller_Abstract
 	 * 		Сохраненная модель, либо null в случае ошибки.
 	 */
 	public function _savePostModel (Temp_Content $tc, $scheme, 
-		$model_class = '')
+		$model_class = null)
 	{
 		Loader::load ('Helper_Form');
 		$data = Helper_Form::receiveFields ($this->_input, $scheme);
@@ -113,20 +117,19 @@ class Controller_Abstract
 			return null;
 		}
 		
-		if (!$model_class)
-		{
-			$model_class = $this->name ();
-		}
-		
 		if ($model_class instanceof Model)
 		{
 			$model = $model_class;
 		}
 		else
 		{
+			if (!$model_class)
+			{
+				$model_class = $this->name ();
+			}
 			$model = IcEngine::$modelManager->get (
 				$model_class,
-				$tc->attr ('editingItemId')
+				$tc->rowId
 			);
 		}
 		
@@ -134,9 +137,13 @@ class Controller_Abstract
 
 		$model->update ($parts ['fields']);
 		
-		return 
-			$parts ['attributes'] ? 
-			$model->attr ($parts ['attributes']) : $model;
+		
+		if ($parts ['attributes'])
+		{ 
+			$model->attr ($parts ['attributes']);
+		};
+			
+		return $model;
 	}
 	
 	/**

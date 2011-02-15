@@ -64,6 +64,15 @@ class Message_Abstract
 	 */
 	public function notify ($callback)
 	{
+		if (
+			is_array ($callback) && 
+			isset ($callback [0], $callback [1]) &&
+			is_string ($callback [0])
+		)
+		{
+			// Подгружаем класс для вызова статического метода.
+			Loader::load ($callback [0]);
+		}
 	    return call_user_func ($callback, $this);
 	}
 	

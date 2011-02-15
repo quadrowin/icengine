@@ -1,10 +1,23 @@
 <?php
-
+/**
+ * 
+ * @desc Контроллер авторизации
+ * @author Юрий
+ * @package IcEngine
+ *
+ */
 class Controller_Authorization extends Controller_Abstract
 {
     
+	/**
+	 * Редиректо по умолчанию после авторизация/логаута.
+	 * @var unknown_type
+	 */
     const DEFAULT_REDIRECT = '/';
 	
+    /**
+     * Досутп закрыт для текущего пользователя
+     */
 	function accessDenied ()
 	{
 		$this->_output->send ('user', User::getCurrent ());
@@ -38,6 +51,16 @@ class Controller_Authorization extends Controller_Abstract
 		$this->_dispatcherIteration->setTemplate (null);
 	}
 	
+	/**
+	 * Авторизация.
+	 * 
+	 * @param string login
+	 * 		Логин.
+	 * @param string password
+	 * 		Пароль.
+	 * @param string redirect [optional]
+	 * 		Редирект после успешной авторизации.
+	 */
 	public function login ()
 	{
 		$login = $this->_input->receive ('login');
@@ -75,6 +98,9 @@ class Controller_Authorization extends Controller_Abstract
 		}
 	}
 	
+	/**
+	 * Авторизация или регистрация.
+	 */
 	public function loginOrReg ()
 	{
 		$login = $this->_input->receive ('login');
@@ -96,6 +122,9 @@ class Controller_Authorization extends Controller_Abstract
 		return $this->replaceAction ('Registration', 'postForm');
 	}
 	
+	/**
+	 * Выход.
+	 */
 	public function logout ()
 	{
 	    User_Session::getCurrent ()->delete ();

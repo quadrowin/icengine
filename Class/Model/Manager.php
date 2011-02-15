@@ -80,16 +80,18 @@ class Model_Manager
 		
 		$query = Query::instance ()
 			->select ('*')
-			->from ($object->table ())
+			->from ($object->modelName ())
 			->where ($object->keyField (), $key);
 		
-		$data = $this->modelScheme ()
-			->dataSource ($object->table ())
+		$data = $this->_modelScheme
+			->dataSource ($object->modelName ())
 			->execute ($query)
-			->getResult ()
-			->asRow ();
+			->getResult ()->asRow ();
 		
-		$object->set ($data);
+		if ($data)
+		{
+			$object->set ($data);
+		}
 	}
 	
 	/**
@@ -113,28 +115,57 @@ class Model_Manager
 	}
 	
 	/**
-	 * 
+	 * Сохранение модели в источник данных
 	 * @param Model $object
+	 * @param boolean $hard_insert
 	 */
-	protected function _write (Model $object)
+	protected function _write (Model $object, $hard_insert = false)
 	{
-		$ds = $this->modelScheme ()->dataSource ($object->table ());
+		$ds = $this->_modelScheme->dataSource ($object->modelName ());
+
+		$kf = $object->keyField ();
+		$id = $object->key ();
 		
-		if ($object->key ())
+		if ($id && !$hard_insert)
 		{
+			// Обновление данных
 			$ds->execute (
 				Query::instance ()
-				->delete ()
-				->from ($object->table ())
-				->where ($object->keyField (), $object->key ())
+				->update ($object->modelName ())
+				->values ($object->asRow ())
+				->where ($kf, $id)
 			);
 		}
-		
-		$ds->execute (
-			Query::instance ()
-			->insert ($object->table ())
-			->values ($object->asRow ())
-		);
+		else
+		{
+			// Вставка
+			$new_id = $this->_modelScheme->generateKey ($object);
+			if ($new_id)
+			{
+				// Ключ указан
+				$object->set ($kf, $new_id);
+				$ds->execute (
+					Query::instance ()
+					->insert ($object->modelName ())
+					->values ($object->asRow ())
+				);
+			}
+			else
+			{
+				if (!$id)
+				{
+					$object->unsetField ($kf);
+				}
+				
+				$id = $ds->execute (
+					Query::instance ()
+					->insert ($object->modelName ())
+					->values ($object->asRow ())
+				)->getResult ()->insertId ();
+					
+				$object->set ($kf, $id);
+			}
+		}
 	}
 	
 	/**
@@ -266,11 +297,13 @@ class Model_Manager
 	 * Сохранение данных модели
 	 * 
 	 * @param Model $object
-	 * 		Объект
+	 * 		Объект.
+	 * @param boolean $hard_insert
+	 * 		Объект будет вставлен в источник данных.
 	 */
-	public function set (Model $object)
+	public function set (Model $object, $hard_insert = false)
 	{
-	    $this->_write ($object);
+	    $this->_write ($object, $hard_insert);
 	    
 		$this->_resourceManager->set (
 			'Model',
@@ -298,16 +331,17 @@ class Model_Manager
 	        {
 	            $query->select (array ($model => '*'));
 	        }
+	        
 	        if (!$query->getPart (Query::FROM))
 	        {
 	            $query->from ($model, $model);
 	        }
+	        
 	        $data = 
-	        	$this->modelScheme ()
+	        	$this->_modelScheme
 	        	->dataSource ($model)
 	        	->execute ($query)
-	        	->getResult ()
-	        	->asRow ();
+	        	->getResult ()->asRow ();
 	    }
 	    
 	    if (!$data)

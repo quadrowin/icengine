@@ -255,6 +255,72 @@ class Helper_Date
 	
 	/**
 	 * Получение даты и времени из строки.
+	 * @param mixed $date
+	 * @return DateTime|null
+	 */
+	public static function parseDateTime ($str)
+	{
+		if (is_numeric ($str))
+		{
+			return new DateTime ('@' . $str);
+		}
+		
+		if (strlen ($str) < 8)
+		{
+			return null;
+		}
+		$n = 0;
+		
+		$arr = array_fill (0, 6, '');
+		
+		for ($i = 0; $i < strlen ($str); ++$i)
+		{
+			if (strpos ('-0123456789', $str [$i]) == 0)
+			{
+				if (strlen ($arr[$n]) > 0)
+				{
+					$arr [$n] = (int) $arr [$n];
+					$n++;
+				}
+			}
+			else
+			{
+				$arr [$n] .= $str[$i];
+			}
+		}
+	
+		for ($i = $n; $i <= 5; ++$i)
+		{
+			$arr [$i] = (int) $arr [$i];
+		}
+		
+		$str = implode ('.', $arr);
+		if (strlen ($arr [0]) == 4)
+		{
+			// Y-m-d H:i:s
+			return DateTime::createFromFormat ('Y.m.d.H.i.s', $str);
+		}
+		elseif (strlen ($arr [2]) == 4)
+		{
+			// d.m.Y H:i:s
+			return DateTime::createFromForamt ('d.m.Y.H.i.s', $str);
+		}
+		elseif (strlen ($arr[3]) == 4)
+		{
+			// H:i:s Y-m-d
+			return DateTime::createFromForamt ('H.i.s.Y.m.d', $str);
+		}
+		elseif (strlen ($arr[5]) == 4)
+		{
+			// H:i:s d.m.Y
+			return DateTime::createFromForamt ('H.i.s.d.m.Y', $str);
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Получение даты и времени из строки.
 	 * В качестве исходной строки может выступать запись
 	 * даты и времени практически в любом формате, не зависимо от разделителя
 	 * и порядка данных.
@@ -283,7 +349,7 @@ class Helper_Date
 			'', '', ''
 		);
 		
-		for ($i = 0; $i < strlen ($str); $i++)
+		for ($i = 0; $i < strlen ($str); ++$i)
 		{
 			if (strpos ('-0123456789', $str [$i]) == 0)
 			{
@@ -295,13 +361,13 @@ class Helper_Date
 			}
 			else
 			{
-				$arr [$n] .= $str[$i];
+				$arr [$n] .= $str [$i];
 			}
 		}
 	
-		for ($i = $n; $i <= 5; $i++)
+		for ($i = $n; $i <= 5; ++$i)
 		{
-			$arr [$i] = (int) $arr[$i];
+			$arr [$i] = (int) $arr [$i];
 		}
 	
 		if (strlen ($arr[0]) == 4)
@@ -353,7 +419,7 @@ class Helper_Date
 		$n = 0;
 	
 		$arr = array ('', '', '');
-		for ($i = 0; $i < strlen ($str); $i++)
+		for ($i = 0; $i < strlen ($str); ++$i)
 		{
 			if (strpos ('-0123456789', $str [$i]) == 0)
 			{
@@ -369,22 +435,6 @@ class Helper_Date
 		}
 	
 		return mktime ((int) $arr[0], (int) $arr[1], (int) $arr[2]);
-	}
-	
-	/**
-	 * Перевод даты из любого распознаваемого форматав формат в Unix.
-	 * @param string $date [optional]
-	 * 		Если параметр не будет передан или будет передано null,
-	 * 		будет использована текущая дата.
-	 * @return string
-	 * 		Дата в формате UNIX "YYYY-MM-DD HH:II:SS"
-	 */
-	public static function toUnix ($date = null)
-	{
-		return date (
-			self::UNIX_FORMAT, 
-			$date ? self::strToTimestamp ($date) : time ()
-		);
 	}
 	
 	/**
@@ -416,6 +466,35 @@ class Helper_Date
 			return $result;
 			
 		}
+	}
+	
+	/**
+	 * 
+	 * @param string $date
+	 * 		Дата в формате UNIX.
+	 * @return DateTime
+	 */
+	public static function toDateTime ($date)
+	{
+		return DateTime::createFromFormat (self::UNIX_FORMAT, $date);
+	}
+	
+	/**
+	 * Перевод даты из любого распознаваемого форматав формат в Unix.
+	 * @param string $date [optional]
+	 * 		Если параметр не будет передан или будет передано null,
+	 * 		будет использована текущая дата.
+	 * @return string
+	 * 		Дата в формате UNIX "YYYY-MM-DD HH:II:SS"
+	 */
+	public static function toUnix ($date = null)
+	{
+		if (!$date)
+		{
+			return date (self::UNIX_FORMAT);
+		}
+		$date = self::parseDateTime ($date);
+		return $date->format (self::UNIX_FORMAT);
 	}
 	
 }

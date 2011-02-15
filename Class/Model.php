@@ -190,6 +190,7 @@ abstract class Model
 	}
 	
 	/**
+	 * Возвращает массив, создержащий все поля модели.
 	 * @return array
 	 */
 	public function asRow ()
@@ -468,6 +469,8 @@ abstract class Model
 	}
 	
 	/**
+	 * Название ресурса модели.
+	 * Состоит из название модели и первичного ключа.
 	 * @return string
 	 */
 	public function resourceKey ()
@@ -483,54 +486,7 @@ abstract class Model
 	 */
 	public function save ($hard_insert = false)
 	{
-		$kf = $this->keyField ();
-		
-		if ($this->key () && !$hard_insert)
-		{
-			IcEngine::$modelScheme
-			->dataSource ($this->modelName ())
-			->execute (
-				Query::instance ()
-				->update ($this->table ())
-				->values ($this->_fields)
-				->where ($kf, $this->key ())
-			);
-		}
-		else
-		{
-			$new_key = IcEngine::$modelScheme->generateKey ($this);
-			if ($new_key)
-			{
-				$this->_fields [$kf] = $new_key;
-				IcEngine::$modelScheme
-					->dataSource ($this->modelName ())
-					->execute (
-						Query::instance ()
-						->insert ($this->table ())
-						->values ($this->_fields)
-					);
-			}
-			else
-			{
-				if (
-					array_key_exists ($kf, $this->_fields) && 
-					!$this->_fields [$kf]
-				)
-				{
-					unset ($this->_fields [$kf]);
-				}
-				
-				$this->_fields [$kf] = 
-					IcEngine::$modelScheme
-					->dataSource ($this->modelName ())
-					->execute (
-						Query::instance ()
-						->insert ($this->table ())
-						->values ($this->_fields)
-					)->getResult ()
-					->insertId ();
-			}
-		}
+		$this->modelManager ()->set ($this, $hard_insert);
 		
 		return $this;
 	}
@@ -633,6 +589,24 @@ abstract class Model
 				$this->modelName (), $key, $this);
 		}
 		
+		return $this;
+	}
+	
+	/**
+	 * Удаляет поле из объекта.
+	 * Используется в Model_Manager для удаления первичного ключа перед 
+	 * вставкой.
+	 * @param string $name
+	 * 		Имя поля.
+	 * @return Model
+	 * 		Эта модель.
+	 */
+	public function unsetField ($name)
+	{
+		if (array_key_exists ($name, $this->_fields))
+		{
+			unset ($this->_fields [$name]);
+		}
 		return $this;
 	}
 	

@@ -69,13 +69,13 @@ class Message_Queue
 	 * 		Вызывается сторонними методами при наступлении события.
 	 * 
 	 * @param string $type
-	 * 		Тип
-	 * @param array $data
-	 * 		Данные
+	 * 		Тип события.
+	 * @param array $data [optional]
+	 * 		Дополнительные данные 
 	 * @return Message_Abstract
 	 * 		
 	 */
-	public function push ($type, array $data)
+	public function push ($type, array $data = array ())
 	{
 		$class = 'Message_' . $type;
 		if (strpos ($class, '::') !== false || !Loader::load ($class))
