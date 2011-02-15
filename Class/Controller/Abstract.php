@@ -116,6 +116,27 @@ class Controller_Abstract
 	}
 	
 	/**
+	 * @return Data_Transport
+	 */
+	public function getInput ()
+	{
+		return $this->_input;
+	}
+	
+	/**
+	 * @return Data_Transport
+	 */
+	public function getOutput ()
+	{
+		return $this->_output;
+	}
+	
+	public function index ()
+	{
+		
+	}
+	
+	/**
 	 * Имя контроллера (без приставки Controller_)
 	 * 
 	 * @return string
@@ -183,27 +204,6 @@ class Controller_Abstract
 	{
 		$this->_output = $output;
 		return $this;
-	}
-	
-	public function index ()
-	{
-		
-	}
-	
-	/**
-	 * @return Data_Transport
-	 */
-	public function getInput ()
-	{
-		return $this->_input;
-	}
-	
-	/**
-	 * @return Data_Transport
-	 */
-	public function getOutput ()
-	{
-		return $this->_output;
 	}
 
 }
