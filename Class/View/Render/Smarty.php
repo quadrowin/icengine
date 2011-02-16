@@ -1,19 +1,13 @@
 <?php
-
+/**
+ * 
+ * Рендер с использованием шаблонизатора Smarty.
+ * @author Гурус
+ * @package IcEngine
+ *
+ */
 class View_Render_Smarty extends View_Render_Abstract
 {
-	
-	/**
-	 * Вшений шаблон по умолчанию
-	 * @var string
-	 */
-	const DEFAULT_LAYOUT = 'main.tpl';
-	
-	/**
-	 * Директория для скопилированных шаблонов Smarty
-	 * @var string
-	 */
-	const DEFAULT_COMPILE_DIR = 'cache/templates';
 	
 	/**
 	 * Объект шаблонизатора
@@ -22,31 +16,51 @@ class View_Render_Smarty extends View_Render_Abstract
 	protected $_smarty;
 	
 	/**
-	 * Директория Smarty
-	 * @var string
+	 * Конфиг
+	 * @var array
 	 */
-	protected $_pathToSmarty = 'smarty/Smarty.class.php';
+	public $config = array (
+		/**
+		 * Внешний шаблон.
+		 * Будет использоватья при выводе в браузер через метод display.
+		 * @var string
+		 */
+		'layout'			=> 'main.tpl',
+		/**
+		 * Директория для скопилированных шаблонов Smarty
+		 * @var string
+		 */
+		'compile_path'		=> 'cache/templates',
+		/**
+		 * Путь для лоадера до смарти
+		 * @var string
+		 */
+		'smarty_path'		=> 'smarty/Smarty.class.php',
+		/**
+		 * Пути до шаблонов
+		 * @var array
+		 */
+		'templates_path'	=> array (),
+		/**
+		 * Пути до плагинов
+		 * @var array
+		 */
+		'plugins_path'		=> array ()
+	);
 	
 	protected function _afterConstruct()
 	{
-		$this->_layout = isset ($this->_fields ['layout']) ? 
-			$this->_fields ['layout'] : 
-			self::DEFAULT_LAYOUT;
-			
-		if (
-			class_exists ('Smarty') ||
-			Loader::requireOnce ($this->_pathToSmarty, 'includes')
-		)
+		$this->loadConfig ();
+		if (!class_exists ('Smarty'))
 		{
-			$this->_smarty = new Smarty();
-			
-			$compile_dir = isset($this->_fields ['compile_dir']) ? 
-				$this->_fields ['compile_dir'] : 
-				self::DEFAULT_COMPILE_DIR;
-				
-			$this->_smarty->compile_dir = rtrim ($compile_dir, '\\/') . '/';
-			$this->_smarty->template_dir = $this->_templatesPathes;
+			Loader::requireOnce ($this->config ['smarty_path'], 'includes');
 		}
+		
+		$this->_smarty = new Smarty ();
+		
+		$this->_smarty->compile_dir = $this->config ['compile_path'];
+		$this->_smarty->template_dir = (array) $this->config ['templates_path'];
+		$this->_smarty->plugins_dir = (array) $this->config ['plugins_path'];
 		
 		Loader::load ('Helper_Smarty_Filter_Dblbracer');
 		Helper_Smarty_Filter_Dblbracer::register ($this->_smarty);
@@ -54,8 +68,8 @@ class View_Render_Smarty extends View_Render_Abstract
 	
 	/**
 	 * Добавление пути до директории с плагинами Smarty
-	 * @param string $path
-	 * 		Директория с плагинами
+	 * @param string|array $path
+	 * 		Директории с плагинами
 	 */
 	public function addPluginsPath ($path)
 	{
@@ -72,12 +86,10 @@ class View_Render_Smarty extends View_Render_Abstract
 	 */
 	public function addTemplatesPath ($path)
 	{
-		$dir = rtrim ($path, '/');
-		$this->_templatesPathes [] = $dir . '/';
-		if ($this->_smarty)
-		{
-			$this->_smarty->template_dir = $this->_templatesPathes;
-		}
+		$this->_smarty->template_dir = array_merge (
+			(array) $this->_smarty->template_dir,
+			(array) $path
+		);
 	}
 	
 	public function addHelper ($helper, $method)
@@ -98,7 +110,7 @@ class View_Render_Smarty extends View_Render_Abstract
 	
 	public function display ($tpl = null)
 	{
-		$tpl = $tpl ? $tpl : $this->_layout;
+		$tpl = $tpl ? $tpl : $this->config ['layout'];
 		return $this->_smarty->display ($tpl);
 	}
 	
@@ -114,13 +126,13 @@ class View_Render_Smarty extends View_Render_Abstract
 	
 	public function popVars ()
 	{
-	    $this->_smarty->_tpl_vars = array_pop ($this->_varsStack);
+		$this->_smarty->_tpl_vars = array_pop ($this->_varsStack);
 	}
 	
 	public function pushVars ()
 	{
-	    $this->_varsStack [] = $this->_smarty->_tpl_vars;
-	    $this->_smarty->_tpl_vars = null;
+		$this->_varsStack [] = $this->_smarty->_tpl_vars;
+		$this->_smarty->_tpl_vars = null;
 	}
 	
 	/**

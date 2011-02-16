@@ -16,7 +16,7 @@ class Sex extends Model
 	const MALE = 1;
 	
 	/**
-	 * Женский пло
+	 * Женский пол
 	 * @var integer
 	 */
 	const FEMALE = 2;

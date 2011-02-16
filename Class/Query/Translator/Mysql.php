@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * 
+ * @desc Транслятор в SQL запрос
+ * @author Гурус
+ * @package IcEngine
+ *
+ */
 class Query_Translator_Mysql extends Query_Translator
 {
 	
@@ -62,18 +68,18 @@ class Query_Translator_Mysql extends Query_Translator
 	 */
 	public function _quote ($value)
 	{
-//	    if (is_array ($value)) debug_print_backtrace();
-        return self::SQL_QUOTE . mysql_real_escape_string ($value) . self::SQL_QUOTE;
+//		if (is_array ($value)) debug_print_backtrace();
+		return self::SQL_QUOTE . mysql_real_escape_string ($value) . self::SQL_QUOTE;
 	}
 	
 	public function _partCalcFoundRows (Query $query)
 	{
-	    if (!$query->part (Query::CALC_FOUND_ROWS))
-	    {
-	        return '';
-	    }
-	    
-	    return 'SQL_CALC_FOUND_ROWS';
+		if (!$query->part (Query::CALC_FOUND_ROWS))
+		{
+			return '';
+		}
+		
+		return 'SQL_CALC_FOUND_ROWS';
 	}
 	
 	/**
@@ -100,7 +106,10 @@ class Query_Translator_Mysql extends Query_Translator
 		$i = 0;
 		foreach ($query->part (Query::FROM) as $alias => $from)
 		{
-			$table = strtolower ($this->_modelScheme->table ($from [Query::TABLE]));
+			$table =
+				strpos ($from [Query::TABLE], self::SQL_ESCAPE) !== false ? 
+				$from [Query::TABLE] :
+				strtolower ($this->_modelScheme->table ($from [Query::TABLE]));
 			
 			$table = $this->_escape ($table);
 			$alias = $this->_escape ($alias);
@@ -114,52 +123,52 @@ class Query_Translator_Mysql extends Query_Translator
 			}
 			else
 			{
-				if (is_array ($from[Query::WHERE]))
+				if (is_array ($from [Query::WHERE]))
 				{
 					$where = 
-						$this->_escape ($from[Query::WHERE][0]) . 
+						$this->_escape ($from [Query::WHERE][0]) . 
 						self::SQL_DOT .
-						$this->_escape ($from[Query::WHERE][1]) .
+						$this->_escape ($from [Query::WHERE][1]) .
 						'=' .
-						$this->_escape ($from[Query::WHERE][2]) .
+						$this->_escape ($from [Query::WHERE][2]) .
 						self::SQL_DOT .
-						$this->_escape ($from[Query::WHERE][3]);
+						$this->_escape ($from [Query::WHERE][3]);
 				}
 				else
 				{
 					$where = $from [Query::WHERE];
 				}
 				$sql .= ' ' . 
-					$from[Query::JOIN] . ' ' . 
+					$from [Query::JOIN] . ' ' . 
 					$table . ' AS ' . $alias . ' ' .
 					self::SQL_ON .
-					'(' . $from[Query::WHERE] . ')';
+					'(' . $from [Query::WHERE] . ')';
 			}
 			$i++;
 		}
 		return $sql;
 	}
 	
-	public function _renderGroup(Query $query)
+	public function _renderGroup (Query $query)
 	{
 		$groups = $query->part (Query::GROUP);
 		
-		if (empty($groups))
+		if (empty ($groups))
 		{
 			return '';
 		}
 		
-		$columns = array();
+		$columns = array ();
 		foreach ($groups as $column)
 		{
-		    if (
-		        strpos ($column, '(') !== false ||
+			if (
+				strpos ($column, '(') !== false ||
 				strpos ($column, '`') !== false
 			)
 			{
-			    $columns [] = $column;
+				$columns [] = $column;
 			}
-			elseif (strpos($column, self::SQL_DOT) !== false)
+			elseif (strpos ($column, self::SQL_DOT) !== false)
 			{
 				$column = explode (self::SQL_DOT, $column);
 				$column = array_map (array($this, '_escape'), $column);
@@ -177,21 +186,14 @@ class Query_Translator_Mysql extends Query_Translator
 	
 	public function _renderInArray (array $value)
 	{
-	    if (empty ($value))
-	    {
-	        return 'NULL';
-	    }
+		if (empty ($value))
+		{
+			return 'NULL';
+		}
 
-	    $result = implode (',', array_map (array ($this, '_quote'), $value));
-	    
-//	    $result = $this->_quote ($value [0]);
-//	    
-//	    for ($i = 1, $count = count ($value); $i < $count; $i++)
-//	    {
-//	        $result .= ',' . $this->_quote ($value [$i]);
-//	    }
-	    
-	    return $result;
+		$result = implode (',', array_map (array ($this, '_quote'), $value));
+		
+		return $result;
 	}
 	
 	public function _renderInsert (Query $query)
@@ -247,20 +249,20 @@ class Query_Translator_Mysql extends Query_Translator
 		{
 			return '';
 		}
-		$columns = array();
+		$columns = array ();
 		foreach ($orders as $order)
 		{
-			$field = explode (self::SQL_DOT, $order[0]);
+			$field = explode (self::SQL_DOT, $order [0]);
 			$field = array_map (array($this, '_escape'), $field);
 			$field = implode (self::SQL_DOT, $field);
 			
-			if ($order[1] == self::SQL_DESC)
+			if ($order [1] == self::SQL_DESC)
 			{
-				$columns[] = $field . ' ' . self::SQL_DESC;
+				$columns [] = $field . ' ' . self::SQL_DESC;
 			}
 			else
 			{
-				$columns[] = $field;
+				$columns [] = $field;
 			}
 		}
 		
@@ -272,9 +274,9 @@ class Query_Translator_Mysql extends Query_Translator
 	public function _renderSelect (Query $query)
 	{
 		$sql =
-		    self::SQL_SELECT . ' ' .
-		    self::_partCalcFoundRows ($query) . ' ' . 
-		    self::_partDistinct ($query) . ' ';
+			self::SQL_SELECT . ' ' .
+			self::_partCalcFoundRows ($query) . ' ' . 
+			self::_partDistinct ($query) . ' ';
 		$parts = $query->parts ();
 		
 		$columns = array ();
@@ -291,26 +293,26 @@ class Query_Translator_Mysql extends Query_Translator
 					else
 					{
 						$source = 
-							$this->_escape ($sparts[0]) . 
+							$this->_escape ($sparts [0]) . 
 							self::SQL_DOT;
 					}
 							
 					if (
-						strpos ($sparts[1], self::SQL_WILDCARD) !== false ||
-						strpos ($sparts[1], '(') === false ||
-						strpos ($sparts[1], ' ') === false ||
-						strpos ($sparts[1], '.') === false ||
-						strpos ($sparts[1], '`') === false
+						strpos ($sparts [1], self::SQL_WILDCARD) !== false ||
+						strpos ($sparts [1], '(') === false ||
+						strpos ($sparts [1], ' ') === false ||
+						strpos ($sparts [1], '.') === false ||
+						strpos ($sparts [1], '`') === false
 					)
 					{
-						$source .= $sparts[1];
+						$source .= $sparts [1];
 					}
 					else
 					{
-						$source .= $this->_escape ($sparts[1]);
+						$source .= $this->_escape ($sparts [1]);
 					}
 				}
-				elseif (strpos ($sparts[0], self::SQL_WILDCARD) !== false)
+				elseif (strpos ($sparts [0], self::SQL_WILDCARD) !== false)
 				{
 					$source = $sparts [0];
 				}
@@ -336,7 +338,7 @@ class Query_Translator_Mysql extends Query_Translator
 			
 			if (is_numeric ($alias))
 			{
-				$columns[] = $source;
+				$columns [] = $source;
 			}
 			elseif (
 				strpos ($alias, self::SQL_WILDCARD) !== false ||
@@ -360,7 +362,7 @@ class Query_Translator_Mysql extends Query_Translator
 			self::_renderLimitoffset ($query);
 	}
 	
-	public function _renderShow(Query $query)
+	public function _renderShow (Query $query)
 	{
 		$sql = self::SQL_SHOW . ' ' . $this->_partDistinct ($query) . ' ';
 		
@@ -374,7 +376,7 @@ class Query_Translator_Mysql extends Query_Translator
 			self::_renderGroup ($query);
 	}
 	
-	public function _renderUpdate(Query $query)
+	public function _renderUpdate (Query $query)
 	{
 		$table = $query->part (Query::UPDATE);
 		$sql = 
@@ -387,17 +389,17 @@ class Query_Translator_Mysql extends Query_Translator
 		
 		foreach ($values as $field => $value)
 		{
-		    if (
-		        strpos ($field, '?') !== false ||
-		        strpos ($field, '=') !== false
-		    )
-		    {
-		        $sets [] = str_replace ('?', $this->_quote ($value), $field);
-		    }
-		    else
-		    {
-			    $sets [] = self::_escape ($field) . '=' . $this->_quote ($value);
-		    }
+			if (
+				strpos ($field, '?') !== false ||
+				strpos ($field, '=') !== false
+			)
+			{
+				$sets [] = str_replace ('?', $this->_quote ($value), $field);
+			}
+			else
+			{
+				$sets [] = self::_escape ($field) . '=' . $this->_quote ($value);
+			}
 		}
 		
 		return $sql . implode (', ', $sets) . ' ' . $this->_renderWhere ($query);
@@ -456,15 +458,15 @@ class Query_Translator_Mysql extends Query_Translator
 		
 		if (strpos ($condition, self::WHERE_VALUE_CHAR) === false)
 		{
-		    if (is_array ($value))
-		    {
-		        $value = ' IN (' . $this->_renderInArray ($value) . ')';
-		    }
-		    else
-		    {
-		        $value = '=' . $this->_quote ($value); 
-		    }
-		    
+			if (is_array ($value))
+			{
+				$value = ' IN (' . $this->_renderInArray ($value) . ')';
+			}
+			else
+			{
+				$value = '=' . $this->_quote ($value); 
+			}
+			
 			if (
 				strpos ($condition, '(') === false &&
 				strpos ($condition, ' ') === false &&
@@ -479,11 +481,11 @@ class Query_Translator_Mysql extends Query_Translator
 		}
 		else
 		{
-		    return str_replace (
-	            self::WHERE_VALUE_CHAR, 
-	            is_array ($value) ? $this->_renderInArray ($value) : $this->_quote ($value),
-	            $condition
-	        );
+			return str_replace (
+				self::WHERE_VALUE_CHAR, 
+				is_array ($value) ? $this->_renderInArray ($value) : $this->_quote ($value),
+				$condition
+			);
 		}
 	}
 	
