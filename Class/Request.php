@@ -207,6 +207,19 @@ class Request
 		
 		if (!isset ($files [$index]))
 		{
+			$f = '@file:' . $index;
+			if (isset ($_POST [$f]))
+			{
+				Loader::load ('Request_File_Test');
+				return new Request_File_Test ($_POST [$f]);
+			}
+			
+			if (isset ($_POST ['params'], $_POST ['params'][$f]))
+			{
+				Loader::load ('Request_File_Test');
+				return new Request_File_Test ($_POST ['params'][$f]);
+			}
+			
 			return null;
 		}
 		

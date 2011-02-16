@@ -1,7 +1,12 @@
 /**
- * Помошник работы с формой.
+ * Помощник работы с формой.
  */
 var Helper_Form = {
+	
+	/**
+	 * Последняя форма, на которой запущен лоадинг
+	 */
+	$lastLoadings: null,
 	
 	_toggleTextForPassword: function ($password)
 	{
@@ -80,6 +85,7 @@ var Helper_Form = {
 	{
 		if (!result)
 		{
+			Helper_Form.stopLoading ($form);
 			return;
 		}
 		
@@ -99,6 +105,7 @@ var Helper_Form = {
 				var $div = $('.result-msg', $form.parent ());
 				$div.html (result.html);
 				$div.show ();
+				Helper_Form.stopLoading ($form);
 			};
 		}
 		else
@@ -119,7 +126,12 @@ var Helper_Form = {
 			);
 		};
 	},
-	
+	/**
+	 * 
+	 * @param jQuery $owner
+	 * @returns jQuery
+	 * 		input[type=file]
+	 */
 	initFileUpload: function ($owner)
 	{
 		var $input = $('input[type="file"]', $owner);
@@ -223,6 +235,42 @@ var Helper_Form = {
 			var id = "u" + new Date ().getTime () + "m" + m;
 			$(this).attr ('id', id);
 		});
+	},
+	
+	/**
+	 * Заменить элементы управления на див загрузки
+	 * @param jQuery $controls
+	 */
+	startLoading: function ($controls)
+	{
+		Helper_Form.$lastLoadings = $controls;
+		$controls.each (function () {
+			$(this).append ('<div class="loading"></div>');
+		});
+	},
+	
+	/**
+	 * Окончание процесса загрузки
+	 * @param jQuery $form
+	 */
+	stopLoading: function ($form)
+	{
+		if (!$form)
+		{
+			$form = Helper_Form.$lastLoadings;
+		}
+		
+		if (
+			typeof ($form) != 'object' ||
+			typeof ($form.find) != 'function'
+		)
+		{
+			return ;
+		}
+		
+		$form.find ('div.loading').remove ();
+		
+		Helper_Form.$lastLoadings = null;
 	},
 	
 	/**

@@ -64,6 +64,20 @@ class Controller_Abstract
 	}
 	
 	/**
+	 * Результатом работы контроллера будет вызов метода хелпера.
+	 * @param string $helper
+	 * 		Название хелпера без перфикса "Helper_Action_"
+	 * @param string $method
+	 * 		Название метода хелпера.
+	 */
+	public function _helperReturn ($helper, $method)
+	{
+		$helper = 'Helper_Action_' . $helper;
+		Loader::load ($helper);
+		call_user_func (array ($helper, $method));
+	}
+	
+	/**
 	 * Временный контент для сохраняемых данных.
 	 * @return Temp_Content|null
 	 */

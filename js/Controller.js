@@ -31,8 +31,9 @@ var Controller = {
 		{
 			if (console && console.log)
 			{
-				console.log ('error js', js);
+				console.log ('error_js:', js);
 			}
+			Helper_Form.stopLoading ();
 			return;
 		}
 		

@@ -165,7 +165,7 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	 */
 	public function setLayout ($value)
 	{
-		$this->_layout = $value;
+		$this->config ['layout'] = $value;
 		return $this;
 	}
 	

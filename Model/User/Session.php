@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * 
+ * @desc Сессия пользователя
+ * @author Юрий
+ * @package IcEngine
+ *
+ */
 class User_Session extends Model
 {
 	
