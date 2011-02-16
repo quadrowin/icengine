@@ -1,6 +1,6 @@
 <?php
 
-abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Countable 
+class Model_Collection implements ArrayAccess, IteratorAggregate, Countable 
 {
 	
 	/**
@@ -223,6 +223,37 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 			unset ($this->_items [$index]);
 		}
 		return $this;
+	}
+	
+	/**
+	 * 
+	 * @desc Фильтрация
+	 * @param array<string> $fields
+	 * @return Model_Collection
+	 */
+	public function filter ($fields)
+	{
+		$collection = new self;
+		$collection->reset ();
+		
+		foreach ($this as $item)
+		{
+			$valid = true;
+			foreach ($fields as $field=>$value)
+			{
+				if ($item->$field != $value)
+				{
+					$valid = false;
+					break;
+				}
+			}
+			if ($valid)
+			{
+				$collection->add ($item);
+			}
+		}
+		
+		return $collection;
 	}
 	
 	/**
