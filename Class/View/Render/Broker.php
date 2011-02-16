@@ -18,13 +18,19 @@ abstract class View_Render_Broker
 	 * 
 	 * @var string
 	 */
-	private static $_defaultView = 'Smarty';
+	private static $_templateExtension = '.tpl';
 	
 	/**
-	 * 
-	 * @var string
+	 * Конфиг
+	 * @var array
 	 */
-	private static $_templateExtension = '.tpl';
+	public static $config = array (
+		/**
+		 * Рендер по умолчанию
+		 * @var string
+		 */
+		'default_view'		=> 'Smarty'
+	);
 	
 	/**
 	 * Выводит результат работы шаблонизатора в браузер
@@ -43,19 +49,11 @@ abstract class View_Render_Broker
 		if (!self::$_views)
 		{
 			Loader::load ('View_Render');
-			self::pushViewByName (self::$_defaultView);
+			self::pushViewByName (self::$config ['default_view']);
 			//self::$_view = new View_Render (array('name' => self::$_defaultView));
 		} 
 		
 		return end (self::$_views);
-	}
-	
-	/**
-	 * @return string
-	 */
-	public static function getDefaultView ()
-	{
-		return self::$_defautlView;
 	}
 	
 	/**
@@ -71,8 +69,8 @@ abstract class View_Render_Broker
 	 */
 	public static function popView ()
 	{
-//	    echo 'pop' . count (self::$_views) . ' ' . end (self::$_views)->name;
-	    return array_pop (self::$_views);
+//		echo 'pop' . count (self::$_views) . ' ' . end (self::$_views)->name;
+		return array_pop (self::$_views);
 	}
 	
 	/**
@@ -82,8 +80,8 @@ abstract class View_Render_Broker
 	 */
 	public static function pushView (View_Render_Abstract $view)
 	{
-	    self::$_views [] = $view;
-	    return $view;
+		self::$_views [] = $view;
+		return $view;
 	}
 	
 	/**
@@ -93,8 +91,8 @@ abstract class View_Render_Broker
 	 */
 	public static function pushViewById ($id)
 	{
-	    $view = IcEngine::$modelManager->get ('View_Render', $id);
-	    return self::pushView ($view);
+		$view = IcEngine::$modelManager->get ('View_Render', $id);
+		return self::pushView ($view);
 	}
 	
 	/**
@@ -105,17 +103,8 @@ abstract class View_Render_Broker
 	 */
 	public static function pushViewByName ($name)
 	{
-	    $view = View_Render::byName ($name);    
-	    return self::pushView ($view);
-	}
-	
-	/**
-	 * 
-	 * @param string $view
-	 */
-	public static function setDefaultView ($view)
-	{
-		self::$_defaultView = $view;
+		$view = View_Render::byName ($name);	
+		return self::pushView ($view);
 	}
 	
 	/**
@@ -146,25 +135,25 @@ abstract class View_Render_Broker
 		 */
 		foreach ($outputs as $item)
 		{
-		    /**
-		     * 
-		     * @var $transaction Data_Transport_Transaction
-		     */
-		    $transaction = $item->getTransaction ();
-		    
-		    /**
-		     * @var $action Route_Action
-		     */
-		    $action = $item->getRouteAction ();
-		    
-		    $transaction->commit ();
-		    
+			/**
+			 * 
+			 * @var $transaction Data_Transport_Transaction
+			 */
+			$transaction = $item->getTransaction ();
+			
+			/**
+			 * @var $action Route_Action
+			 */
+			$action = $item->getRouteAction ();
+			
+			$transaction->commit ();
+			
 			$template = $item->getTemplate ();
 			$result = $view->fetch ($template);
 			
 			$view->assign (
-			    isset ($action->assign) ? $action->assign : 'content',
-			    $result);
+				isset ($action->assign) ? $action->assign : 'content',
+				$result);
 		}
 		
 		Loader::load ('Message_After_Render');
