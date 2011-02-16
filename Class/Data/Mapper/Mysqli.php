@@ -134,6 +134,10 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 	{
 		mysql_connect ($config->server, $config->username, $config->password);
 		mysql_select_db ($config->database);
+		if ($config->charset)
+		{
+			mysql_query ('SET NAMES ' . $config->charset);
+		}
 	}
 	
 	public function execute (Data_Source_Abstract $source, Query $query, $options = null)
