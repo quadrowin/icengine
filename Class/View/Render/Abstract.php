@@ -5,7 +5,6 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	
 	/**
 	 * Менеджер ресурсов
-	 * 
 	 * @var View_Resrouce_Manager
 	 */
 	protected $_resources;
@@ -15,13 +14,6 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	 * @var array <string>
 	 */
 	protected $_templatesPathes = array ();
-	
-	/**
-	 * Внешний шаблон. Будет использоватья при выводе в браузер
-	 * через метод display
-	 * @var string
-	 */
-	protected $_layout;
 	
 	
 	/**
@@ -35,6 +27,12 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	 * @var array
 	 */
 	protected $_varsStack = array ();
+	
+	/**
+	 * Конфиг
+	 * @var array
+	 */
+	public $config = array ();
 	
 	protected function _afterConstruct ()
 	{
@@ -150,7 +148,7 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	 * 
 	 * @return View_Resource_Manager
 	 */
-	public function resources()
+	public function resources ()
 	{
 		if (!$this->_resources)
 		{
@@ -167,13 +165,26 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	 */
 	public function setLayout ($value)
 	{
-	    $this->_layout = $value;
-	    return $this;
+		$this->_layout = $value;
+		return $this;
 	}
 	
 	public function table ()
 	{
 		return 'View_Render';
+	}
+	
+	/**
+	 * Загрузка конфига
+	 * @return View_Render_Abstract
+	 * 		Этот рендер
+	 */
+	public function loadConfig ()
+	{
+		$this->config = Config_Manager::load (get_class ($this))
+			->mergeConfig ($this->config);
+		// пути до шаблонов
+		return $this;
 	}
 	
 }

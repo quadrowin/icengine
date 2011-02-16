@@ -3,12 +3,12 @@
 abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Countable 
 {
 	
-    /**
-     * Для создаваемых моделей включен autojoin.
-     * @var boolean
-     */
-    protected $_autojoin = true;
-    
+	/**
+	 * Для создаваемых моделей включен autojoin.
+	 * @var boolean
+	 */
+	protected $_autojoin = true;
+	
 	/**
 	 * Связанные данные
 	 * @var array
@@ -65,10 +65,10 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 	
 	public function __construct ()
 	{
-       	Loader::load ('Model_Collection_Option_Item_Collection');
-    	$this->_options =
-    	    new Model_Collection_Option_Item_Collection ($this->modelName ());
-    	Loader::load ($this->modelName ());
+		Loader::load ('Model_Collection_Option_Item_Collection');
+		$this->_options =
+			new Model_Collection_Option_Item_Collection ($this->modelName ());
+		Loader::load ($this->modelName ());
 	}
 	
 	/**
@@ -92,30 +92,30 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 		}
 		elseif (is_array ($item))
 		{
-		    $key_field = $this->keyField ();
-		    
-		    if (isset ($item [$key_field]))
-		    {
-		        // Ести ключевое поле
-		        $item = IcEngine::$modelManager->get (
-		            $this->modelName (),
-		            $item [$key_field],
-		            $item
-		        );
-		    }
-		    else
-		    {
-		        // Ключевое поле не задано
-		        $class = $this->modelName ();
-		        $item = new $class ($item);
-		    }
-		    
-		    $this->_items [] = $item;
+			$key_field = $this->keyField ();
+			
+			if (isset ($item [$key_field]))
+			{
+				// Ести ключевое поле
+				$item = IcEngine::$modelManager->get (
+					$this->modelName (),
+					$item [$key_field],
+					$item
+				);
+			}
+			else
+			{
+				// Ключевое поле не задано
+				$class = $this->modelName ();
+				$item = new $class ($item);
+			}
+			
+			$this->_items [] = $item;
 		}
 		else
 		{
 			Loader::load ('Zend_Exception');
-		    throw new Zend_Exception ('Model create error');
+			throw new Zend_Exception ('Model create error');
 		}
 		return $this;
 	}
@@ -129,34 +129,34 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 	public function addOptions ($options)
 	{
 		if (
-        	(is_array ($options) && !empty ($options ['name'])) ||
-        	!is_array ($options)
-        )
-        {
-            $options = func_get_args ();
-        }
-	    
-	    foreach ($options as $option)
-	    {
-		    $this->_options->add ($option);
-	    }
-        
+			(is_array ($options) && !empty ($options ['name'])) ||
+			!is_array ($options)
+		)
+		{
+			$options = func_get_args ();
+		}
+		
+		foreach ($options as $option)
+		{
+			$this->_options->add ($option);
+		}
+		
 		return $this;
 	}
 	
-    /**
-     * 
-     * @param string $name
-     * @return array
-     */
+	/**
+	 * 
+	 * @param string $name
+	 * @return array
+	 */
 	public function column ($name)
 	{
-	    $result = $this->items ();
-    	foreach ($result as &$item)
-    	{
-    	    $item = $item->field ($name);
-    	}
-    	return $result;
+		$result = $this->items ();
+		foreach ($result as &$item)
+		{
+			$item = $item->field ($name);
+		}
+		return $result;
 	}
 	
 	/**
@@ -284,23 +284,23 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 	 */
 	public function getAutojoin ()
 	{
-	    return $this->_autojoin;
+		return $this->_autojoin;
 	}
 
 	public function getIterator ()
 	{
-	    $this->items ();
-        return new ArrayIterator ($this->_items);
-    }
-    
-    /**
-     * @return Paginator
-     */
-    public function getPaginator ()
-    {
-        return $this->_paginator;
-    }
-    
+		$this->items ();
+		return new ArrayIterator ($this->_items);
+	}
+	
+	/**
+	 * @return Paginator
+	 */
+	public function getPaginator ()
+	{
+		return $this->_paginator;
+	}
+	
 	/**
 	 * Возвращает модель из коллекции
 	 * @param integer $index Индекс
@@ -313,14 +313,14 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 			$this->load ();
 		}
 		
-	    if ($index < 0)
-	    {
-	        $index += count ($this->_items);
-	    }
+		if ($index < 0)
+		{
+			$index += count ($this->_items);
+		}
 		
 		return isset ($this->_items [$index]) ? $this->_items [$index] : null;
 	}
-    
+	
 	/**
 	 * @return array <Model>
 	 */
@@ -338,10 +338,10 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 	 */
 	public function isEmpty ()
 	{
-	    if (!is_array ($this->_items))
-	    {
-	        $this->load ();
-	    }
+		if (!is_array ($this->_items))
+		{
+			$this->load ();
+		}
 		return empty ($this->_items);
 	}
 	
@@ -354,16 +354,16 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 	 */
 	public function isJoinedSome (Model $model)
 	{
-	    Loader::load ('Helper_Link');
-	    foreach ($this as $item)
-	    {
-	        if (Helper_Link::wereLinked ($item, $model))
-	        {
-	            return true;
-	        }
-	    }
-	    
-	    return false;
+		Loader::load ('Helper_Link');
+		foreach ($this as $item)
+		{
+			if (Helper_Link::wereLinked ($item, $model))
+			{
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	/**
@@ -374,16 +374,16 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 	 */
 	public function isJoinedAll (Model $model)
 	{
-	    Loader::load ('Helper_Link');
-	    foreach ($this as $item)
-	    {
-	        if (!Helper_Link::wereLinked ($item, $model))
-	        {
-	            return false;
-	        }
-	    }
-	    
-	    return true;
+		Loader::load ('Helper_Link');
+		foreach ($this as $item)
+		{
+			if (!Helper_Link::wereLinked ($item, $model))
+			{
+				return false;
+			}
+		}
+		
+		return true;
 	}
 	
 	/**
@@ -393,12 +393,12 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 	 */
 	public function join (Model $model)
 	{
-	    Loader::load ('Helper_Link');
-	    foreach ($this as $item)
-	    {
-	        Helper_Link::link ($item, $model);
-	    }
-	    return $this;
+		Loader::load ('Helper_Link');
+		foreach ($this as $item)
+		{
+			Helper_Link::link ($item, $model);
+		}
+		return $this;
 	}
 	
 	/**
@@ -408,7 +408,7 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 	public function keyField ()
 	{
 		return IcEngine::$modelManager->modelScheme ()->keyField (
-		    $this->modelName ());
+			$this->modelName ());
 	}
 	
 	/**
@@ -433,11 +433,11 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 	 */
 	public function lastQuery ()
 	{
-	    if (!$this->_lastQuery)
-	    {
-	        $this->load ();
-	    }
-	    return $this->_lastQuery;
+		if (!$this->_lastQuery)
+		{
+			$this->load ();
+		}
+		return $this->_lastQuery;
 	}
 	
 	/**
@@ -446,7 +446,7 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 	 */
 	public function load ($colums = array ())
 	{
-	    $key_field = $this->keyField ();
+		$key_field = $this->keyField ();
 		$query = clone $this->query ();
 		
 		if (!$colums)
@@ -471,22 +471,22 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 		
 		foreach ($this->_where as $where)
 		{
-		    if (count ($where) > 1)
-		    {
-		        $query->where ($where [0], $where [1]);
-		    }
-		    else
-		    {
-			    $query->where ($where [0]);
-		    }
+			if (count ($where) > 1)
+			{
+				$query->where ($where [0], $where [1]);
+			}
+			else
+			{
+				$query->where ($where [0]);
+			}
 		}
 		
 		if ($this->_paginator)
 		{
-		    $query->calcFoundRows ();
-		    $query->limit (
-		        $this->_paginator->pageLimit,
-		        $this->_paginator->offset ());
+			$query->calcFoundRows ();
+			$query->limit (
+				$this->_paginator->pageLimit,
+				$this->_paginator->offset ());
 		}
 		
 		$this->_options->executeBefore ($this, $query);
@@ -496,7 +496,7 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 		
 		if ($this->_paginator)
 		{
-		    $this->_paginator->fullCount = $this->queryResult ()->foundRows ();
+			$this->_paginator->fullCount = $this->queryResult ()->foundRows ();
 		}
 		
 		$model = $this->modelName ();
@@ -507,8 +507,8 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 		{
 			$key = $item [$key_field];
 			$item = $this->_autojoin ? 
-			    $mmanager->get ($model, $key, $item) :
-			    $mmanager->forced ()->get ($model, $key, $item);
+				$mmanager->get ($model, $key, $item) :
+				$mmanager->forced ()->get ($model, $key, $item);
 		}
 		
 		$this->_options->executeAfter ($this, $query);
@@ -543,35 +543,35 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 		return substr (get_class ($this), 0, -11);
 	}
 	
-    public function offsetSet ($offset, $value)
-    {
-        if (is_null ($offset))
-        {
-            $this->_items [] = $value;
-        }
-        else
-        {
-            $this->_items [$offset] = $value;
-        }
-    }
-    
-    public function offsetExists ($offset)
-    {
-        return isset ($this->_items [$offset]);
-    }
-    
-    public function offsetUnset ($offset)
-    {
-        unset ($this->_items [$offset]);
-    }
-    
-    public function offsetGet ($offset)
-    {
-        return 
-        	isset ($this->_items [$offset]) ?
-        	$this->_items [$offset] : null;
-    }
-    
+	public function offsetSet ($offset, $value)
+	{
+		if (is_null ($offset))
+		{
+			$this->_items [] = $value;
+		}
+		else
+		{
+			$this->_items [$offset] = $value;
+		}
+	}
+	
+	public function offsetExists ($offset)
+	{
+		return isset ($this->_items [$offset]);
+	}
+	
+	public function offsetUnset ($offset)
+	{
+		unset ($this->_items [$offset]);
+	}
+	
+	public function offsetGet ($offset)
+	{
+		return 
+			isset ($this->_items [$offset]) ?
+			$this->_items [$offset] : null;
+	}
+	
 	/**
 	 * @return Query
 	 */
@@ -589,42 +589,42 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 	 */
 	public function queryResult ()
 	{
-	    if (!$this->_queryResult)
-	    {
-	        $this->load ();
-	    }
-	    return $this->_queryResult;
+		if (!$this->_queryResult)
+		{
+			$this->load ();
+		}
+		return $this->_queryResult;
 	}
 
-    /**
-     * Очищает коллекцию.
-     */
+	/**
+	 * Очищает коллекцию.
+	 */
 	public function reset ()
 	{
 		$this->items = array ();
 	}
-    
-    /**
-     * @return Model_Collection
-     */
-    public function reverse ()
-    {
-        $this->_items = array_reverse ($this->_items);
-        return $this;
-    }
-    
-    /**
-     * Устанавливает автоджойн моделей для создаваемых объектов.
-     * 
-     * @param boolean $value
-     * @return Model_Collection
-     */
-    public function setAutojoin ($value)
-    {
-        $this->_autojoin = $value;
-        return $this;
-    }
-    
+	
+	/**
+	 * @return Model_Collection
+	 */
+	public function reverse ()
+	{
+		$this->_items = array_reverse ($this->_items);
+		return $this;
+	}
+	
+	/**
+	 * Устанавливает автоджойн моделей для создаваемых объектов.
+	 * 
+	 * @param boolean $value
+	 * @return Model_Collection
+	 */
+	public function setAutojoin ($value)
+	{
+		$this->_autojoin = $value;
+		return $this;
+	}
+	
 	/**
 	 * 
 	 * @param Paginator $paginator
@@ -634,14 +634,14 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 		$this->_paginator = $paginator;
 		$this->_paginator->fullCount = 0;
 	}
-    
-    /**
-     * @return Model|null
-     */
-    public function shift ()
-    {
-    	return array_shift ($this->_items);
-    }
+	
+	/**
+	 * @return Model|null
+	 */
+	public function shift ()
+	{
+		return array_shift ($this->_items);
+	}
 	
 	/**
 	 * 
@@ -681,7 +681,7 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 	 */
 	public function sort ($fields)
 	{
-	    $items = &$this->items ();
+		$items = &$this->items ();
 		Loader::load ('Helper_Array');
 		Helper_Array::mosort ($items, $fields);
 		return $this;
@@ -730,11 +730,11 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 					$parents_count = count ($parents);
 					if ($parents_count > 0)
 					{
-					    $full_index = $full_index [$parents_count - 1] . $index [count ($parents)];
+						$full_index = $full_index [$parents_count - 1] . $index [count ($parents)];
 					}
 					else
 					{
-					    $full_index = (string) $index [count ($parents)];
+						$full_index = (string) $index [count ($parents)];
 					}
 					$result[$n]->data ('full_index', $full_index);
 					$result[$n]->data ('broken_parent', false);
@@ -783,11 +783,11 @@ abstract class Model_Collection implements ArrayAccess, IteratorAggregate, Count
 	 */
 	public function update (array $data)
 	{
-	   $items = &$this->items ();
-	   foreach ($items as $item)
-	   {
-	       $item->update ($data);
-	   } 
+		$items = &$this->items ();
+		foreach ($items as $item)
+		{
+			$item->update ($data);
+		} 
 	}
 	
 	/**
