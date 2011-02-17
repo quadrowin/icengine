@@ -1,3 +1,6 @@
+/**
+ * Базовый класс контроллера
+ */
 var Controller = {
 		
 	callbacks: {},
@@ -5,7 +8,13 @@ var Controller = {
 	callbacksData: {},
 	
 	lastback: 0,
-		
+	/**
+	 * Вызов метода контроллера на сервере
+	 * @param controller
+	 * @param params
+	 * @param callback
+	 * @param nocache
+	 */
 	call: function (controller, params, callback, nocache)
 	{
 		var back = Controller.lastback++;
@@ -22,7 +31,11 @@ var Controller = {
 			nocache ? true : false
 		);
 	},
-	
+	/**
+	 * Ответ сервера
+	 * @param js
+	 * @param text
+	 */
 	callback: function (js, text)
 	{
 		var back = js.back;
@@ -41,6 +54,7 @@ var Controller = {
 		js.result.back = 
 			Controller.callbacksData [back] ? 
 			Controller.callbacksData [back] : null;
+		
 		callback (js.result, text);
 	},
 	

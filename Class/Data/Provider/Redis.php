@@ -4,7 +4,13 @@ if (!class_exists ('Data_Provider_Abstract'))
 {
 	include dirname (__FILE__) . '/Abstract.php';
 }
-
+/**
+ * 
+ * @desc Провайдер данны Redis
+ * @author Юрий
+ * @package IcEngine
+ *
+ */
 class Data_Provider_Redis extends Data_Provider_Abstract
 {
 	/**
@@ -46,7 +52,10 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 			$expiration = 0;
 		}
 		
-		return $this->conn->add ($this->prefix . $key, $value, $expiration);
+		return $this->conn->add (
+			$this->keyEncode ($key),
+			$value, $expiration
+		);
 	}
 	
 	public function addServer ($host, $port = null, $weight = null)
@@ -71,7 +80,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 			$this->tracer->add ('append', $key);
 		}
 		
-		return $this->conn->append ($this->prefix . $key, $value);
+		return $this->conn->append ($this->keyEncode ($key), $value);
 	}
 	
 	public function decrement ($key, $value = 1)
@@ -81,7 +90,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 			$this->tracer->add ('decrement', $key);
 		}
 		
-		return $this->conn->decrement ($this->prefix . $key, $value);
+		return $this->conn->decrement ($this->keyEncode ($key), $value);
 	}
 	
 	public function delete ($keys, $time = 0, $set_deleted = false)
@@ -100,13 +109,16 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 		{
 			if ($set_deleted)
 			{
-				$this->conn->set ($this->prefix_deleted . $keys, time ());
+				$this->conn->set (
+					$this->keyEncode ($this->prefix_deleted . $keys),
+					time ()
+				);
 			}
 			if (isset ($this->locks [$keys]))
 			{
 				unset ($this->locks [$keys]);
 			}
-			return $this->conn->delete ($this->prefix . $keys, $time);
+			return $this->conn->delete ($this->keyEncode ($keys), $time);
 		}
 		
 		foreach ($keys as $key)
@@ -128,9 +140,12 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 			
 			if ($set_deleted)
 			{
-				$this->conn->set ($this->prefix_deleted . $key, time ());
+				$this->conn->set (
+					$this->keyEncode ($this->prefix_deleted . $key),
+					time ()
+				);
 			}
-			$this->conn->delete ($this->prefix . $key, $tt);
+			$this->conn->delete ($this->keyEncode ($key), $tt);
 		}
 	}
 	
@@ -151,7 +166,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 			$this->tracer->add ('get', $key);
 		}
 		
-		return $this->conn->get ($this->prefix . $key, $plain);
+		return $this->conn->get ($this->keyEncode ($key), $plain);
 	}
 	
 	public function getMulti (array $keys, $numeric_index = false)
@@ -165,7 +180,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 		{
 			foreach ($keys as &$v)
 			{
-				$v = $this->prefix . $v;
+				$v = $this->keyEncode ($v);
 			}
 		}
 		
@@ -190,28 +205,19 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 		{
 			$r = $this->conn->getMulti ($keys);
 		}
-		$l = strlen ($this->prefix);
-		
-		if ($l == 0 && !$numeric_index)
-		{
-			return $r;
-		}
-		
-		$result = array ();
+//		$l = strlen ($this->prefix);
 		
 		if ($numeric_index)
 		{
-			foreach ($r as $v)
-			{
-				$result [] = $v;
-			}
+			$result = array_values ($r);
 		}
 		else
 		{
-			foreach ($r as $s => $v)
-			{
-				$result [substr ($s, $l)] = $v;
-			}
+			$result = array_combine ($keys, array_values ($r));
+//			foreach ($r as $s => $v)
+//			{
+//				$result [substr ($s, $l)] = $v;
+//			}
 		}
 		
 		return $result;
@@ -229,7 +235,27 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 			$this->tracer->add ('increment', $key);
 		}
 		
-		return $this->conn->increment ($this->prefix . $key, $value);
+		return $this->conn->increment ($this->keyEncode ($key), $value);
+	}
+	
+	/**
+	 * @desc Кодирование ключа для корректного сохранения в редисе.
+	 * @param string $key
+	 * @return string
+	 */
+	public function keyEncode ($key)
+	{
+		return urlencode ($this->prefix . $key);
+	}
+	
+	/**
+	 * @desc Декодирование ключа.
+	 * @param string $key
+	 * @return string
+	 */
+	public function keyDecode ($key)
+	{
+		return substr (urldecode ($key), strlen ($this->prefix));
 	}
 	
 	public function keys ($pattern, $server = NULL)
@@ -239,26 +265,26 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 			$this->tracer->add ('keys', $pattern);
 		}
 		
-		$r = $this->conn->keys (
-			$this->prefix . $pattern, 
-			empty ($server) ? '' : $server
-		);
+		$mask = $this->keyEncode ($pattern);
+		$mask = str_replace ('%2A', '*', $mask);
+		$r = $this->conn->keys ($mask, empty ($server) ? '' : $server);
 		
 		if (empty ($r) || (count ($r) == 1 && empty ($r [0])))
 		{
 			return array ();
 		}
 		
-		$l = strlen ($this->prefix);
-		if ($l > 0 && is_array ($r))
-		{
-			foreach ($r as &$k)
-			{
-				$k = substr ($k, $l);
-			}
-		}
-		
-		return $r;
+		return array_map (array ($this, 'keyDecode'), $r);
+//		$l = strlen ($this->prefix);
+//		if ($l > 0 && is_array ($r))
+//		{
+//			foreach ($r as &$k)
+//			{
+//				$k = substr ($k, $l);
+//			}
+//		}
+//		
+//		return $r;
 	}
 	
 	public function prepend ($key, $value)
@@ -268,7 +294,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 			$this->tracer->add ('prepend', $key);
 		}
 		
-		return $this->conn->prepend ($this->prefix . $key, $value);
+		return $this->conn->prepend ($this->keyEncode ($key), $value);
 	}
 	
 	public function set ($key, $value, $expiration = 0, $tags = array ())
@@ -282,7 +308,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 		{
 			$expiration = 0;
 		}
-		return $this->conn->set ($this->prefix . $key, $value, $expiration, $tags);
+		return $this->conn->set ($this->keyEncode ($key), $value, $expiration, $tags);
 	}
 	
 	public function setOption ($key, $value)
@@ -292,6 +318,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 			case 'mget_limit':
 				$this->mget_limit = $value;
 				return;
+				
 			case 'servers':
 				if ($value instanceof Objective)
 				{
