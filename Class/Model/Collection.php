@@ -1,64 +1,71 @@
 <?php
 
+/**
+ * 
+ * @desc Базовый класс коллекции моделей
+ * @author Юрий
+ * @package IcEngine
+ *
+ */
 class Model_Collection implements ArrayAccess, IteratorAggregate, Countable 
 {
 	
 	/**
-	 * Для создаваемых моделей включен autojoin.
+	 * @desc Для создаваемых моделей включен autojoin.
 	 * @var boolean
 	 */
 	protected $_autojoin = true;
 	
 	/**
-	 * Связанные данные
+	 * @desc Связанные данные
 	 * @var array
 	 */
 	protected $_data = array ();
 	
 	/**
-	 * Элементы коллекции
+	 * @desc Элементы коллекции
 	 * @var array
 	 */
 	protected $_items;
 	
 	/**
-	 * Опции
+	 * @desc Опции
 	 * @var Model_Collection_Option_Item_Collection
 	 */
 	protected $_options;
 	
 	/**
-	 * 
+	 * @desc Текущий паджинатор
 	 * @var Paginator
 	 */
 	protected $_paginator;
 	
 	/**
-	 * Выбираемые поля
+	 * @desc Выбираемые поля
 	 * @var array
 	 */
 	protected $_select = array ();
 	
 	/**
-	 * 
+	 * @desc Последний выполненный запрос
 	 * @var Query
 	 */
 	protected $_lastQuery;
 	
 	/**
-	 * 
+	 * @desc Текущий запрос
 	 * @var Query
 	 */
 	protected $_query;
 	
 	/**
-	 * 
+	 * @desc Результат последнего выполненного запроса
 	 * @var Query_Result
 	 */
 	protected $_queryResult;
 	
 	/**
-	 * Условия
+	 * @desc Условия
 	 * @var array
 	 */
 	protected $_where = array ();
@@ -73,6 +80,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	
 	/**
 	 * 
+	 * @desc Добавить модель в коллекцию
 	 * @param Model|Model_Collection|array $item
 	 * @return Model_Collection
 	 * @throws Zend_Exception
@@ -146,6 +154,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	
 	/**
 	 * 
+	 * @desc Получить значение поля для всех моделей коллеции
 	 * @param string $name
 	 * @return array
 	 */
@@ -160,6 +169,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
+	 * @desc Количество моделей коллеции
 	 * @return integer
 	 */
 	public function count ()
@@ -168,7 +178,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * Имя базового класса (без суффикса "_Collection")
+	 * @desc Имя базового класса (без суффикса "_Collection")
 	 * @return string
 	 */
 	public function className ()
@@ -178,7 +188,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * Устанавливает или получает связанные данные объекта
+	 * @desc Устанавливает или получает связанные данные объекта
 	 * 
 	 * @param string $key
 	 * 		Ключ
@@ -198,7 +208,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * Удаление всех объектов коллекции
+	 * @desc Удаление всех объектов коллекции
 	 */
 	public function delete ()
 	{
@@ -211,7 +221,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * Исключает из коллекции элемент с указанным индексом.
+	 * @desc Исключает из коллекции элемент с указанным индексом.
 	 * @param integer $index
 	 * 		Индекс элемента в списке.
 	 * @return Model_Collection
@@ -227,7 +237,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	
 	/**
 	 * 
-	 * @desc Фильтрация
+	 * @desc Фильтрация. Возвращает экземпляр новой коллекции
 	 * @param array<string> $fields
 	 * @return Model_Collection
 	 */
@@ -239,15 +249,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		foreach ($this as $item)
 		{
 			$valid = true;
-			foreach ($fields as $field=>$value)
-			{
-				if ($item->$field != $value)
-				{
-					$valid = false;
-					break;
-				}
-			}
-			if ($valid)
+			if ($item->validate ($fields))
 			{
 				$collection->add ($item);
 			}
@@ -257,6 +259,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
+	 * @desc Получить первый элемент коллекции
 	 * @return Model
 	 */
 	public function first ()
@@ -275,6 +278,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	
 	/**
 	 * 
+	 * @desc Создать коллекцию из хэша
 	 * @param array $rows
 	 * @param boolean $clear
 	 * 		Очистить коллекцию перед добавлением
@@ -299,6 +303,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	
 	/**
 	 * 
+	 * @desc Создать коллекцию из запроса
 	 * @param Query $query
 	 * @param boolean $clear
 	 * 		Очистить коллекцию, перед добавлением
@@ -311,13 +316,27 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 
 	/**
+	 * @desc Включен ли автоджоин
 	 * @return boolean
 	 */
 	public function getAutojoin ()
 	{
 		return $this->_autojoin;
 	}
+	
+	/**
+	 * @see items 
+	 * @return array
+	 */
+	public function getItems ()
+	{
+		return $this->_items;
+	}
 
+	/**
+	 * (non-PHPdoc)
+	 * @see IteratorAggregate::getIterator()
+	 */
 	public function getIterator ()
 	{
 		$this->items ();
@@ -325,6 +344,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
+	 * @desc Вернуть текущий пагинатор
 	 * @return Paginator
 	 */
 	public function getPaginator ()
@@ -333,7 +353,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * Возвращает модель из коллекции
+	 * @desc Возвращает модель из коллекции
 	 * @param integer $index Индекс
 	 * @return Model|null
 	 */
@@ -353,6 +373,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
+	 * @desc Получить элементы модели
 	 * @return array <Model>
 	 */
 	public function &items ()
@@ -365,6 +386,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
+	 * @desc Пустая ли коллекция
 	 * @return boolean
 	 */
 	public function isEmpty ()
@@ -377,7 +399,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * Проверяет, чтобы модель была приджойнен хотя бы к одному элементу 
+	 * @desc Проверяет, чтобы модель была приджойнен хотя бы к одному элементу 
 	 * коллекции.
 	 * @param Model $model
 	 * 		Модель.
@@ -398,7 +420,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * Проверяет, чтобы модель была приджойнена ко всем элеметам коллекции.
+	 * @desc Проверяет, чтобы модель была приджойнена ко всем элеметам коллекции.
 	 * @param Model $model
 	 * 		Модель.
 	 * @return boolean
@@ -418,7 +440,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * Приджойнить модель ко всем элементам коллекции
+	 * @desc Приджойнить модель ко всем элементам коллекции
 	 * @param Model $model
 	 * @return Model_Collection
 	 */
@@ -433,7 +455,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * Имя ключевого поля
+	 * @desc Имя ключевого поля
 	 * @return string
 	 */
 	public function keyField ()
@@ -443,6 +465,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
+	 * @desc Получить последнюю модель коллекции
 	 * @return Model
 	 */
 	public function last ()
@@ -460,6 +483,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
+	 * @desc Последний выполенный запрос коллекции
 	 * @return Query
 	 */
 	public function lastQuery ()
@@ -472,7 +496,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * Загрузка данных 
+	 * @desc Загрузка данных 
 	 * @return Model_Collection
 	 */
 	public function load ($colums = array ())
@@ -548,7 +572,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * Для каждого объекта коллекции будет вызвана функция $function 
+	 * @desc Для каждого объекта коллекции будет вызвана функция $function 
 	 * и результат выполнения записан в данные объекта под именем $data
 	 * 
 	 * @param function $function
@@ -564,16 +588,18 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * Название модели (без суффикса "_Collection")
-	 * 
+	 * @desc Название модели (без суффикса "_Collection")
 	 * @return string
 	 */
 	public function modelName ()
 	{
-//		return substr (get_class ($this), 0, -strlen('_Collection'));
 		return substr (get_class ($this), 0, -11);
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see ArrayAccess::offsetSet()
+	 */
 	public function offsetSet ($offset, $value)
 	{
 		if (is_null ($offset))
@@ -586,16 +612,28 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		}
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see ArrayAccess::offsetExists()
+	 */
 	public function offsetExists ($offset)
 	{
 		return isset ($this->_items [$offset]);
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see ArrayAccess::offsetUnset()
+	 */
 	public function offsetUnset ($offset)
 	{
 		unset ($this->_items [$offset]);
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see ArrayAccess::offsetGet()
+	 */
 	public function offsetGet ($offset)
 	{
 		return 
@@ -604,6 +642,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
+	 * @desc Получить запрос коллекции
 	 * @return Query
 	 */
 	public function query ()
@@ -616,6 +655,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
+	 * @desc Получить результат запроса коллекции
 	 * @return Query_Result
 	 */
 	public function queryResult ()
@@ -628,7 +668,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 
 	/**
-	 * Очищает коллекцию.
+	 * @desc Очищает коллекцию.
 	 */
 	public function reset ()
 	{
@@ -636,6 +676,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
+	 * @desc Реверсировать последовательность моделей коллекции
 	 * @return Model_Collection
 	 */
 	public function reverse ()
@@ -645,7 +686,21 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * Устанавливает автоджойн моделей для создаваемых объектов.
+	 * 
+	 * @desc Сохраняет модели коллекции
+	 * @return Model_Collection
+	 */
+	public function save ()
+	{
+		foreach ($this as $item)
+		{
+			$item->save ();
+		}
+		return $this;
+	}
+	
+	/**
+	 * @desc Устанавливает автоджойн моделей для создаваемых объектов.
 	 * 
 	 * @param boolean $value
 	 * @return Model_Collection
@@ -657,7 +712,18 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * 
+	 * @desc Заменить модели коллекции
+	 * @param array<Model> $items
+	 * @return Model_Collection
+	 */
+	public function setItems ($items)
+	{
+		$this->_items = (array) $items;
+		return $this;
+	}
+	
+	/**
+	 * @desc Изменить паджинатор коллекции
 	 * @param Paginator $paginator
 	 */
 	public function setPaginator (Paginator $paginator)
@@ -667,6 +733,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
+	 * @desc Вернуть первый элемент коллекции, удалив его из коллекции
 	 * @return Model|null
 	 */
 	public function shift ()
@@ -676,6 +743,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	
 	/**
 	 * 
+	 * @desc Установить select-часть запроса коллекции
 	 * @param string|array $columns
 	 * @return Model_Collection
 	 */
@@ -692,6 +760,29 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	
 	/**
 	 * 
+	 * @desc Меняет поля модели
+	 * @param mixed (string,sting|array<string>) $fields
+	 * @return Model_Collection
+	 */
+	public function set ($fields)
+	{
+		$args = func_get_args ();
+		if (count ($args) == 2)
+		{
+			$args = array ($args [0] => $args [1]);
+		}
+		foreach ($this as $item)
+		{
+			foreach ((array) $args as $field=>$value)
+			{
+				$item->field ($field, $value);
+			}
+		}
+		return $this;
+	}
+	
+	/**
+	 * @desc Оставить часть элементов коллекции
 	 * @param integer $offset
 	 * @param integer $length
 	 * @return Model_Collection
@@ -703,7 +794,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * Сортировка коллекции.
+	 * @desc Сортировка коллекции.
 	 * @param string $fields
 	 * 		Список полей для сортировки.
 	 * 		Примеры: "id", "id DESC", "id, rating DESC".
@@ -719,7 +810,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * Упорядочивание списка для вывода дерева по полю parentId
+	 * @desc Упорядочивание списка для вывода дерева по полю parentId
 	 * 
 	 * @param boolean $include_unparented
 	 * 		Оставить элементы без предка.
@@ -801,6 +892,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
+	 * @desc Имя таблицы по умолчанию для коллекции
 	 * @return string
 	 */
 	public function table ()
@@ -809,7 +901,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * Обновление всех элементов коллекции
+	 * @desc Обновление всех элементов коллекции
 	 * @param array $data
 	 */
 	public function update (array $data)
@@ -822,7 +914,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * Добавление условия отбора
+	 * @desc Добавление условия отбора
 	 * 
 	 * @param string $condition
 	 * @param string $value [optional]
@@ -830,27 +922,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function where ($condition)
 	{
-		$this->_where [] = func_get_args ();//array ($condition, $value);
+		$this->_where [] = func_get_args ();
 		return $this;
 	}
-	
-	/**
-	 * @return array
-	 */
-	public function getItems ()
-	{
-		return $this->_items;
-	}
-	
-	/**
-	 * 
-	 * @param array $items
-	 * @return Model_Collection
-	 */
-	public function setItems ($items)
-	{
-		$this->_items = (array) $items;
-		return $this;
-	}
-	
 }

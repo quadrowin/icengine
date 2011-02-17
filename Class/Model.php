@@ -5,63 +5,63 @@ include dirname (__FILE__) . '/Object/Interface.php';
 
 /**
  * 
- * Базовая модель для всех сущностей.
+ * @desc Базовая модель для всех сущностей.
  * @author Юрий
- *
+ * @package IcEngine
  */
 
 abstract class Model
 {
 	
 	/**
-	 * Автосоздание связанных объектов.
+	 * @desc Автосоздание связанных объектов.
 	 * @var boolean
 	 */
 	protected	$_autojoin;
 	
 	/**
-	 * Компоненты для модели.
+	 * @desc Компоненты для модели.
 	 * Прикрепленные к модели изображения, видео, комментарии и пр.
 	 * @var array <Coponent_Collection>
 	 */
 	protected	$_components = array ();
 	
 	/**
-	 * Связанные данные
+	 * @desc Связанные данные
 	 * @var array
 	 */
 	protected	$_data = array ();
 	
 	/**
-	 * Индекс объекта для подсчета количества
+	 * @desc Индекс объекта для подсчета количества
 	 * загруженных моделей
 	 * @var integer
 	 */
 	protected static	$_objectIndex = 0;
 	
 	/**
-	 * Подгруженные объекты
+	 * @desc Подгруженные объекты
 	 * @var array
 	 */
 	protected	$_joints;  
 	
 	/**
-	 * Данные модели
+	 * @desc Данные модели
 	 * @var array
 	 */
 	protected	$_fields;
 	
 	/**
-	 * Все данные загружены
+	 * @desc Все данные загружены
 	 * @var boolean
 	 */
 	protected	$_loaded;
 	
 	/**
-	 * 
 	 * @param string $method
 	 * @param mixed $params
 	 * @return mixed
+	 * @throws Model_Exception
 	 */
 	public function __call ($method, $params)
 	{
@@ -108,7 +108,6 @@ abstract class Model
 	}
 	
 	/**
-	 * Возвращает значение поля
 	 * 
 	 * @param string $field
 	 * 		Поле
@@ -138,13 +137,6 @@ abstract class Model
 					return $this->joint ($field);
 				}
 			}
-			
-//			if (!array_key_exists ($field, $this->_fields))
-//			{
-//				Loader::load ('Model_Exception');
-//				throw new Model_Exception ('Field ' . $field . ' not found.');
-//				return null;
-//			}
 		}
 
 		return $this->_fields [$field];
@@ -159,7 +151,6 @@ abstract class Model
 	}
 	
 	/**
-	 * Устанавливает значение поля
 	 * 
 	 * @param string $field
 	 * 		Поле
@@ -190,7 +181,7 @@ abstract class Model
 	}
 	
 	/**
-	 * Возвращает массив, создержащий все поля модели.
+	 * @desc Возвращает массив, создержащий все поля модели.
 	 * @return array
 	 */
 	public function asRow ()
@@ -229,7 +220,7 @@ abstract class Model
 	}
 	
 	/**
-	 * Имя класса модели
+	 * @desc Имя класса модели
 	 * @return string
 	 */
 	public function className ()
@@ -238,7 +229,7 @@ abstract class Model
 	}
 	
 	/**
-	 * Возвращает коллекцию связанных компонентов или
+	 * @desc Возвращает коллекцию связанных компонентов или
 	 * элемент коллекции с указанным индексом.
 	 * 
 	 * @param string $type
@@ -278,7 +269,7 @@ abstract class Model
 	}
 	
 	/**
-	 * Устанавливает или получает связанные данные объекта
+	 * @desc Устанавливает или получает связанные данные объекта
 	 * 
 	 * @param string $key
 	 * 		Ключ
@@ -298,7 +289,7 @@ abstract class Model
 	}
 	
 	/**
-	 * Удаление модели
+	 * @desc Удаление модели
 	 */
 	public function delete ()
 	{
@@ -310,7 +301,7 @@ abstract class Model
 	}
 	
 	/**
-	 * Получение или установка значения
+	 * @desc Получение или установка значения
 	 * 
 	 * @param string $key
 	 * 		Поле
@@ -332,13 +323,17 @@ abstract class Model
 		}
 	}
 	
+	/**
+	 * 
+	 * @desc Освободить модель и поместить ее в пул моделей
+	 */
 	public function free ()
 	{
 		Object_Pool::push ($this);
 	}
 	
 	/**
-	 * Получение значения атрибута
+	 * @desc Получение значения атрибута
 	 * 
 	 * @param string $key
 	 * 		Название атрибута
@@ -352,6 +347,7 @@ abstract class Model
 	}
 	
 	/**
+	 * @desc Установлен ли автоджоин
 	 * @return boolean
 	 */
 	public function getAutojoin ()
@@ -360,6 +356,7 @@ abstract class Model
 	}
 	
 	/**
+	 * @desc Имеется ли поле?
 	 * @return boolean
 	 */
 	public function hasField ($field)
@@ -379,9 +376,11 @@ abstract class Model
 	
 	/**
 	 * 
+	 * @desc Присоединить сущность
 	 * @param string $model
 	 * @param array $data
 	 * @return Model
+	 * @throws Zend_Exception
 	 */
 	public function joint ($model, array $data = array ())
 	{
@@ -417,7 +416,7 @@ abstract class Model
 	}
 	
 	/**
-	 * Возвращает значение первичного ключа
+	 * @desc Возвращает значение первичного ключа
 	 * @return string|null
 	 */
 	public function key ()
@@ -433,7 +432,7 @@ abstract class Model
 	}
 	
 	/**
-	 * Имя поля первичного ключа
+	 * @desc Имя поля первичного ключа
 	 * @return string
 	 */
 	public function keyField ()
@@ -443,7 +442,7 @@ abstract class Model
 	}
 	
 	/**
-	 * Имя класса модели
+	 * @desc Имя класса модели
 	 * @return string
 	 */
 	public function modelName ()
@@ -452,6 +451,7 @@ abstract class Model
 	}
 	
 	/**
+	 * @desc Получить текущий менеджер моделей
 	 * @return Model_Manager
 	 */
 	public function modelManager ()
@@ -459,6 +459,10 @@ abstract class Model
 		return IcEngine::$modelManager;
 	}
 	
+	/**
+	 * 
+	 * @desc Сбросить модель
+	 */
 	public function reset ()
 	{
 		$this->_attributes = array ();
@@ -469,7 +473,7 @@ abstract class Model
 	}
 	
 	/**
-	 * Название ресурса модели.
+	 * @desc Название ресурса модели.
 	 * Состоит из название модели и первичного ключа.
 	 * @return string
 	 */
@@ -479,7 +483,7 @@ abstract class Model
 	}
 	
 	/**
-	 * Сохранение данных модели
+	 * @desc Сохранение данных модели
 	 * @param boolean $hard_insert
 	 * 		
 	 * @return Model
@@ -492,7 +496,7 @@ abstract class Model
 	}
 	
 	/**
-	 * Установка значений полей без обновления источника.
+	 * @desc Установка значений полей без обновления источника.
 	 * При использовании этого метод не проверяется сущестовование полей
 	 * у модели. Это позволяет установить поля для создаваемой модели,
 	 * однако может привести к ошибкам в дальнейшем при сохранее, если 
@@ -539,7 +543,7 @@ abstract class Model
 	}
 	
 	/**
-	 * Устанавливает значение аттрибута.
+	 * @desc Устанавливает значение аттрибута.
 	 * 
 	 * @param string|array $key
 	 * 		Название аттрибута или массив пар (название => значение)
@@ -552,7 +556,7 @@ abstract class Model
 	}
 	
 	/**
-	 * 
+	 * @desc Установить автоджоин
 	 * @param boolean $value
 	 * @return Model
 	 */
@@ -563,7 +567,7 @@ abstract class Model
 	}
 	
 	/**
-	 * Таблица БД
+	 * @desc Таблица БД
 	 * @return string
 	 */
 	public function table ()
@@ -572,7 +576,7 @@ abstract class Model
 	}
 	
 	/**
-	 * Загрузка данных модели
+	 * @desc Загрузка данных модели
 	 * @param mixed $key
 	 * @return Model
 	 */
@@ -593,7 +597,45 @@ abstract class Model
 	}
 	
 	/**
-	 * Удаляет поле из объекта.
+	 * 
+	 * @desc Проверить модель на валидность по полям
+	 * @param mixed (string,string|array<string>|Query) $fields
+	 * @return boolean
+	 */
+	public function validate ($fields)
+	{
+		$args = func_get_args ();
+		if (sizeof ($args) == 2)
+		{
+			$args = array ($args [0] => $args [1]);
+		}
+		else
+		{
+			$args = $args [0];
+			if ($args instanceof Query)
+			{
+				$tmp = array ();
+				$args = $args->getPart (Query::WHERE);
+				for ($i = 0, $icount = sizeof ($args); $i < $icount; $i++)
+				{
+					$tmp [$args [$i][Query::WHERE]] = $args [$i][Query::VALUE];
+				}
+			}
+		}
+		$valid = true;
+		foreach ((array) $args as $field=>$value)
+		{
+			if ($this->_fields [$field] != $value)
+			{
+				$valid = false;
+				break;
+			}
+		}
+		return $valid;
+	}
+	
+	/**
+	 * @desc Удаляет поле из объекта.
 	 * Используется в Model_Manager для удаления первичного ключа перед 
 	 * вставкой.
 	 * @param string $name
@@ -611,7 +653,7 @@ abstract class Model
 	}
 	
 	/**
-	 * Обновление данных модели и полей в БД
+	 * @desc Обновление данных модели и полей в БД
 	 * @param array $data
 	 * 		Массив пар (поле => значение)
 	 * @return Model
