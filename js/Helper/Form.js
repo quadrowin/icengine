@@ -54,7 +54,7 @@ var Helper_Form = {
 			.filter (':not(.nosubmit)')
 			.each (function () {
 				var a;
-				if (this.tagName.toLowerCase() == 'input')
+				if (this.tagName.toLowerCase () == 'input')
 				{
 					if (this.type == "file")
 					{
@@ -261,7 +261,7 @@ var Helper_Form = {
 		}
 		
 		if (
-			typeof ($form) != 'object' ||
+			typeof ($form) != 'object' || $form == null ||
 			typeof ($form.find) != 'function'
 		)
 		{
