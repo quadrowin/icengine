@@ -546,6 +546,13 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		
 		$this->_options->executeBefore ($this, $query);
 		$this->_lastQuery = $query;
+		
+//		if ($this->modelName () == 'Resort')
+//		{
+//			Debug::vardump ($query->translate ('Mysql', DDS::modelScheme ()));
+//			die (); 
+//		}
+		
 		$this->_queryResult = DDS::execute ($query)->getResult ();
 		$this->_items = $this->_queryResult->asTable ();
 		
@@ -636,13 +643,13 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function offsetGet ($offset)
 	{
-		return 
-			isset ($this->_items [$offset]) ?
-			$this->_items [$offset] : null;
+		return $this->item ($offset);
+//			isset ($this->_items [$offset]) ?
+//			$this->_items [$offset] : null;
 	}
 	
 	/**
-	 * @desc Получить запрос коллекции
+	 * @desc Возвращает текущий запрос.
 	 * @return Query
 	 */
 	public function query ()
@@ -730,6 +737,16 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	{
 		$this->_paginator = $paginator;
 		$this->_paginator->fullCount = 0;
+	}
+	
+	/**
+	 * @desd Подмена запроса коллекции.
+	 * @param Query $query Новый запрос
+	 * @return Model_Collection Эта коллекция
+	 */
+	public function setQuery (Query $query)
+	{
+		$this->_query = $query;
 	}
 	
 	/**
