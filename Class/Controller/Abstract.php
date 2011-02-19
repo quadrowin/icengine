@@ -124,9 +124,13 @@ class Controller_Abstract
 				str_replace (array ('::', '_'), '/', reset ($valid)) . 
 				'.tpl'
 			);
-			$this->_output->send ('data', array (
-				'field'	=> key ($valid),
-				'error'	=> current ($valid)
+			$this->_output->send (array (
+						'field'	=> key ($valid),
+						'field_title'=>isset($scheme['fio']['title']) ? $scheme['fio']['title'] : null,
+						'data'	=> array (
+							'field'	=> key ($valid),
+							'error'	=> current ($valid)
+						)
 			));
 			return null;
 		}

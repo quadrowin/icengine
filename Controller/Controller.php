@@ -63,7 +63,9 @@ class Controller_Controller extends Controller_Abstract
             $view->pushVars ();
             try
             {
-                $view->assign ($transaction->buffer ());
+            	$vals = $transaction->buffer ();
+            	$this->_output->getFilters()->apply ($vals);
+                $view->assign ($vals);
                 $result ['html'] = $view->fetch ($tpl);
             }
             catch (Exception $e)

@@ -95,7 +95,7 @@ class Helper_Form
 		{
 			if (count ($value) == 2 && isset ($value [0], $value [1]))
 			{
-				$data->$field = call_user_func ($value, $input);
+				$data->$field = call_user_func ($value);//, $input);
 			}
 			elseif (isset ($value ['add']) && $is_new)
 			{
