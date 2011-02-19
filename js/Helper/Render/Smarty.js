@@ -40,7 +40,7 @@ var Helper_Render_Smarty;
         if (func != null)
             return new optEtc.Template(optTmplName, tmplContent, funcSrc, func, optEtc);
         return null;
-    }
+    };
     
     try
     {
@@ -55,7 +55,7 @@ var Helper_Render_Smarty;
     catch (e)
     {
     	// Swallow exception, such as when String.prototype is sealed.
-    }
+    };
     
     Helper_Render_Smarty.parseTemplate_etc = {};            // Exposed for extensibility.
     Helper_Render_Smarty.parseTemplate_etc.statementTag = "foreachelse|foreach|if|elseif|else|var|macro";
@@ -191,14 +191,14 @@ var Helper_Render_Smarty;
         	delta: -1,
         	prefix: " return _OUT_arr.join(''); };"
         }
-    }
+    };
     
     Helper_Render_Smarty.parseTemplate_etc.modifierDef = {
         "eat"        : function(v)    { return ""; },
         "escape"     : function(s)    { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); },
         "capitalize" : function(s)    { return String(s).toUpperCase(); },
         "default"    : function(s, d) { return s != null ? s : d; }
-    }
+    };
     
     Helper_Render_Smarty.parseTemplate_etc.modifierDef.h = Helper_Render_Smarty.parseTemplate_etc.modifierDef.escape;
 
@@ -252,7 +252,7 @@ var Helper_Render_Smarty;
                 var result = new String (resultArr.join ("") + "[ERROR: " + e.toString () + (e.message ? '; ' + e.message : '') + "]");
                 result["exception"] = e;
                 return result;
-            }
+            };
             return resultArr.join ("");
         }
         this.name       = tmplName;
@@ -266,12 +266,12 @@ var Helper_Render_Smarty;
         this.name    = name;
         this.line    = line;
         this.message = message;
-    }
+    };
     
     Helper_Render_Smarty.parseTemplate_etc.ParseError.prototype.toString = function()
     { 
         return ("Helper_Render_Smarty template ParseError in " + this.name + ": line " + this.line + ", " + this.message);
-    }
+    };
     
     var parse = function(body, tmplName, etc)
     {
@@ -366,7 +366,7 @@ var Helper_Render_Smarty;
         }
         funcText.push("}}; Helper_Render_Smarty_Template_TEMP");
         return funcText.join("");
-    }
+    };
     
     var emitStatement = function(stmtStr, state, funcText, tmplName, etc) {
         var parts = stmtStr.slice(1, -1).split(' ');
@@ -405,7 +405,7 @@ var Helper_Render_Smarty;
             }
             funcText.push(stmt.suffix);
         }
-    }
+    };
 
     var emitSectionText = function(text, funcText) {
         if (text.length <= 0)
@@ -440,7 +440,7 @@ var Helper_Render_Smarty;
             funcText.push(s);
             funcText.push('");');
         }
-    }
+    };
     
     var emitSectionTextLine = function(line, funcText) {
         var endMarkPrev = '}';
@@ -483,7 +483,7 @@ var Helper_Render_Smarty;
         funcText.push('_OUT.write("');
         funcText.push(text);
         funcText.push('");');
-    }
+    };
     
     var emitExpression = function(exprArr, index, funcText) {
         // Ex: foo|a:x|b:y1,y2|c:z1,z2 is emitted as c(b(a(foo,x),y1,y2),z1,z2)
@@ -502,7 +502,7 @@ var Helper_Render_Smarty;
             funcText.push(parts[1]);
         }
         funcText.push(')');
-    }
+    };
 
     var cleanWhiteSpace = function(result) {
         result = result.replace(/\t/g,   "    ");
@@ -510,7 +510,7 @@ var Helper_Render_Smarty;
         result = result.replace(/\r/g,   "\n");
         result = result.replace(/^(\s*\S*(\s+\S+)*)\s*$/, '$1'); // Right trim by Igor Poteryaev.
         return result;
-    }
+    };
 
     var scrubWhiteSpace = function(result) {
         result = result.replace(/^\s+/g,   "");
@@ -518,7 +518,7 @@ var Helper_Render_Smarty;
         result = result.replace(/\s+/g,   " ");
         result = result.replace(/^(\s*\S*(\s+\S+)*)\s*$/, '$1'); // Right trim by Igor Poteryaev.
         return result;
-    }
+    };
 
     // The DOM helper functions depend on DOM/DHTML, so they only work in a browser.
     // However, these are not considered core to the engine.
@@ -533,7 +533,7 @@ var Helper_Render_Smarty;
 		content = elementId;
         content = content.replace(/&lt;/g, "<").replace(/&gt;/g, ">");
         return Helper_Render_Smarty.parseTemplate(content, elementId, optEtc);
-    }
+    };
 
     Helper_Render_Smarty.processDOMTemplate = function(elementId, context, optFlags, optDocument, optEtc) {
         return Helper_Render_Smarty.parseDOMTemplate(elementId, optDocument, optEtc).process(context, optFlags);

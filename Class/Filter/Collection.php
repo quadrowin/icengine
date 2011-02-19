@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * 
+ * @desc Коллекция фильтров
+ * @author Илья
+ * @package IcEngine
+ *
+ */
 class Filter_Collection 
 {
 	protected $_filters;
