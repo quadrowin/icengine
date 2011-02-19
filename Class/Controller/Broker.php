@@ -1,8 +1,20 @@
 <?php
-
+/**
+ * 
+ * @desc Брокер контроллеров.
+ * @author Юрий
+ * @package IcEngine
+ *
+ */
 class Controller_Broker
 {
     
+	/**
+	 * Конфиг уже загружен
+	 * @var boolean
+	 */
+	protected static $_configLoaded = false;
+	
     /**
      * 
      * @var array
@@ -27,6 +39,18 @@ class Controller_Broker
 	 * @var array
 	 */
 	protected static $_iterations = array ();
+	
+	/**
+	 * 
+	 * @var array
+	 */
+	public static $config = array (
+		/**
+		 * Фильтры для выходных данных
+		 * @var array
+		 */
+		'output_filters'	=> array ()
+	);
 	
 	/**
 	 * Сохранение результата работы контроллера
@@ -108,6 +132,9 @@ class Controller_Broker
 		return $controller;
 	}
 	
+	/**
+	 * @return Data_Transport
+	 */
 	public static function getInput ()
 	{
 		if (!self::$_input)
@@ -134,6 +161,9 @@ class Controller_Broker
 		return self::$_input;
 	}
 	
+	/**
+	 * @return Data_Transport
+	 */
 	public static function getOutput ()
 	{
 		if (!self::$_output)
@@ -143,6 +173,17 @@ class Controller_Broker
 			
 			self::$_output = new Data_Transport ();
 			
+			self::loadConfig ();
+			if (self::$config ['output_filters'])
+			{
+				foreach (self::$config ['output_filters'] as $filter)
+				{
+					$filter_class = 'Filter_' . $filter;
+					Loader::load ($filter_class);
+					$filter = new $filter_class ();
+					self::$_output->getFilters ()->append ($filter);
+				}
+			}
 			Loader::load ('Data_Provider_View');
 			
 			self::$_output->appendProvider (new Data_Provider_View ()); 
@@ -156,6 +197,19 @@ class Controller_Broker
 	public static function iterations ()
 	{
 		return self::$_iterations;
+	}
+	
+	/**
+	 * Загрузка конфига
+	 */
+	public static function loadConfig ()
+	{
+		if (self::$_configLoaded)
+		{
+			return;
+		}
+		self::$config = Config_Manager::load (__CLASS__)
+			->mergeConfig (self::$config);
 	}
 	
 	/**
