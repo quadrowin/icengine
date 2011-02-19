@@ -13,10 +13,20 @@ class Model_Component extends Model
      */
     public function rejoin (Model $model)
     {
-        $this->update (array (
-            'table'	=> $model->table (),
-            'rowId'	=> $model->key ()
-        ));
+    	if ($model)
+    	{
+    		$this->update (array (
+	            'table'	=> $model->table (),
+	            'rowId'	=> $model->key ()
+	        ));
+    	}
+    	else
+    	{
+	        $this->update (array (
+	            'table'	=> '',
+	            'rowId'	=> 0
+	        ));
+    	}
         return $this;
     }
     

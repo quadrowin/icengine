@@ -67,13 +67,17 @@ abstract class Component_Collection extends Model_Collection
 	        /**
 	         * @var $item Model
 	         */
-	        $item->update (array (
-	            'table'	=> $this->_model->table (),
-	            'rowId'	=> $this->_model->key ()
-	        ));
+	        $item->rejoin ($this->_model);
+//	        update (array (
+//	            'table'	=> $this->_model->table (),
+//	            'rowId'	=> $this->_model->key ()
+//	        ));
 	    }
 	    
-	    $this->_model->component ($this->type (), $this);
+	    if ($this->_model)
+	    {
+	    	$this->_model->component ($this->type (), $this);
+	    }
 	    
 	    return $this;
 	}
