@@ -8,8 +8,8 @@ include dirname (__FILE__) . '/Object/Interface.php';
  * @desc Базовая модель для всех сущностей.
  * @author Юрий
  * @package IcEngine
+ *
  */
-
 abstract class Model
 {
 	
@@ -298,6 +298,25 @@ abstract class Model
 		{
 			$this->modelManager ()->remove ($this);
 		}
+	}
+	
+	/**
+	 * @desc Возвращает коллекцию моделей типа $model,
+	 * 		связанных по первичному ключу с этой моделью.
+	 * 		В модели $model должно существовать поле "THISMODEL__id",
+	 * 		где THISMODEl - название этой модели.
+	 * @param string $model_name
+	 * @return Model_Collection
+	 */
+	public function external ($model)
+	{
+		$coll = Helper_Model_Collection::byQuery (
+			$model,
+			Query::instance ()
+			->where ($this->modelName () . '__id', $this->key ())
+		);
+		
+		return $coll;
 	}
 	
 	/**

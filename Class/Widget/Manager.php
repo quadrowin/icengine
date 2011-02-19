@@ -135,7 +135,7 @@ class Widget_Manager
 					E_USER_ERROR, 3
 				);
 			
-				$result ['error'] = '501 Server error.';
+				$result ['error'] = 'Widget_Manager: Error in template.';
 				$result ['html'] = '';
 			}
 			$view->popVars ();
