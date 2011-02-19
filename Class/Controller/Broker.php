@@ -210,6 +210,7 @@ class Controller_Broker
 		}
 		self::$config = Config_Manager::load (__CLASS__)
 			->mergeConfig (self::$config);
+		self::$_configLoaded = true;
 	}
 	
 	/**

@@ -17,11 +17,12 @@ class Filter_Unicode_Cp1251
 	 */
 	public function filter ($data)
 	{
-		if (strncmp ($data, 'u://', 4) != 0)
+		if (!is_string($data) || (strncmp ($data, 'u://', 4) != 0 ))
 		{
 			return $data;
 		}
-		return iconv ('UTF-8', 'CP1251', substr ($data, 2));
+		
+		return iconv ('UTF-8', 'CP1251', substr ($data, 4));
 	}
 	
 }
