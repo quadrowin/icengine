@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * 
+ * @desc Транспорт данных
+ * @author Юрий
+ * @package IcEngine
+ *
+ */
 class Data_Transport
 {
 	
@@ -76,7 +82,7 @@ class Data_Transport
 	
     /**
      *
-     * @return array
+     * @return Filter_Collection
      */
 	public function getFilters ()
 	{

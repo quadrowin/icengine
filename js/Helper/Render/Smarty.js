@@ -55,7 +55,7 @@ var Helper_Render_Smarty;
     catch (e)
     {
     	// Swallow exception, such as when String.prototype is sealed.
-    }
+    };
     
     Helper_Render_Smarty.parseTemplate_etc = {};            // Exposed for extensibility.
     Helper_Render_Smarty.parseTemplate_etc.statementTag = "foreachelse|foreach|if|elseif|else|var|macro";
@@ -252,7 +252,7 @@ var Helper_Render_Smarty;
                 var result = new String (resultArr.join ("") + "[ERROR: " + e.toString () + (e.message ? '; ' + e.message : '') + "]");
                 result["exception"] = e;
                 return result;
-            }
+            };
             return resultArr.join ("");
         };
         this.name       = tmplName;
