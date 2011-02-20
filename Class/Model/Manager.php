@@ -408,34 +408,35 @@ class Model_Manager
 			return null;
 		}
 		
-		$data = null;
-		
-		if (is_null ($data))
-		{
-			if (!$query->getPart (Query::SELECT))
-			{
-				$query->select ("`$model`.*");
-			}
-			if (!$query->getPart (Query::FROM))
-			{
-				$query->from ($model);
-			}
-			$data = 
-				$this->modelScheme ()->dataSource ($model)
-				->execute ($query)
-				->getResult ()
-				->asTable ();
-		}
+//		$data = null;
+//		
+//		if (is_null ($data))
+//		{
+//			if (!$query->getPart (Query::SELECT))
+//			{
+//				$query->select ("`$model`.*");
+//			}
+//			if (!$query->getPart (Query::FROM))
+//			{
+//				$query->from ($model);
+//			}
+//			$data = 
+//				$this->modelScheme ()->dataSource ($model)
+//				->execute ($query)
+//				->getResult ()
+//				->asTable ();
+//		}
 		
 		$collection = new $class_collection ();
-		$collection->setItems (array ());
+		//$collection->setItems (array ());
 		$collection->setAutojoin (!$forced);
+		$collection->setQuery ($query);
 		
-		$key_field = $this->modelScheme ()->keyField ($model);
-		foreach ($data as $row)
-		{
-			$collection->add ($this->get ($model, $row [$key_field], $row));
-		}
+//		$key_field = $this->modelScheme ()->keyField ($model);
+//		foreach ($data as $row)
+//		{
+//			$collection->add ($this->get ($model, $row [$key_field], $row));
+//		}
 		
 		return $collection;
 	}
