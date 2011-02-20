@@ -44,15 +44,17 @@ class Controller_Registration extends Controller_Abstract
 		
 		if (!$this->registration)
 		{
-			$this->_dispatcherIteration->setTemplate (
-				Helper_Action::path (__METHOD__, '/fail_code_uncorrect')
+			$this->_dispatcherIteration->setClassTpl (
+				__METHOD__,
+				'/fail_code_uncorrect'
 			);
 			return false;	
 		}
 		elseif ($this->registration->finished)
 		{
-			$this->_dispatcherIteration->setTemplate (
-				Helper_Action::path (__METHOD__, '/fail_already_finished')
+			$this->_dispatcherIteration->setClassTpl (
+				__METHOD__,
+				'/fail_already_finished'
 			);
 			return false;
 		}

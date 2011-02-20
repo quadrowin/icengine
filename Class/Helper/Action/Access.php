@@ -8,7 +8,7 @@ class Helper_Action_Access
 		$dispatcher = IcEngine::$application->frontController->getDispatcher ();
 		$dispatcher
 			->flushStack (true)
-			->pushArray (array (
+			->push (array (
 				'controller'	=> 'Authorization',
 				'action'		=> 'accessDenied'
 			));

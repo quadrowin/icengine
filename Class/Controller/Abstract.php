@@ -124,13 +124,14 @@ class Controller_Abstract
 				str_replace (array ('::', '_'), '/', reset ($valid)) . 
 				'.tpl'
 			);
+			$field = key ($valid);
 			$this->_output->send (array (
-						'field'	=> key ($valid),
-						'field_title'=>isset($scheme['fio']['title']) ? $scheme['fio']['title'] : null,
-						'data'	=> array (
-							'field'	=> key ($valid),
-							'error'	=> current ($valid)
-						)
+				'field'		=> $field,
+				'field_title'	=>isset ($scheme [$field]['title']) ? $scheme [$field]['title'] : null,
+				'data'		=> array (
+					'field'	=> key ($valid),
+					'error'	=> current ($valid)
+				)
 			));
 			return null;
 		}
@@ -180,6 +181,9 @@ class Controller_Abstract
 		return $this->_output;
 	}
 	
+	/**
+	 * @desc Экшн по умолчанию
+	 */
 	public function index ()
 	{
 		

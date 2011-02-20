@@ -73,7 +73,7 @@ class Message_Abstract
 			// Подгружаем класс для вызова статического метода.
 			Loader::load ($callback [0]);
 		}
-	    return call_user_func ($callback, $this);
+		return call_user_func ($callback, $this);
 	}
 	
 	/**

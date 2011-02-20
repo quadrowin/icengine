@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * 
+ * @desc Помощник работы с сетью.
+ * @author Гурус
+ * @package IcEngine
+ *
+ */
 class Helper_Network
 {
 	
@@ -19,7 +25,7 @@ class Helper_Network
 	 * @param string	$userAgent
 	 * 		Представиться браузером
 	 */
-	public static function callUnresultedPage($host = 'localhost', $page = '/index.php',
+	public static function callUnresultedPage ($host = 'localhost', $page = '/index.php',
 		$gets = array(), $posts = array(),
 		$refer = 'http://localhost', $userAgent = 'Mozilla 4.0')
 	{
@@ -87,9 +93,9 @@ class Helper_Network
 	 * @return boolean
 	 * 		true, если загрузка завершена успешно, иначе false.
 	 */
-	public static function wgetFile($url, $dst_file)
+	public static function wgetFile ($url, $dst_file)
 	{
-		$fsrc = fopen($url, "r");
+		$fsrc = fopen ($url, "r");
 		if (!$fsrc)
 		{
 			return false;

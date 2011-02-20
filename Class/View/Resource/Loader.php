@@ -34,17 +34,17 @@ class View_Resource_Loader
 			
 			if ($dbl_star_pos !== false)
 			{
-			    // Путь вида "js/**.js"
-			    // Включает поддиректории.
-			    
-			    // $dirs [i] = "js/**.js"
+				// Путь вида "js/**.js"
+				// Включает поддиректории.
+				
+				// $dirs [i] = "js/**.js"
 				$dir = trim (substr ($pattern, 0, $dbl_star_pos), '/');
-			    // $dir = "js"
+				// $dir = "js"
 				$pattern = substr ($pattern, $dbl_star_pos + 1);
 				// $pattern = "*.js"
 				
 				$list = array (
-				    $dir
+					$dir
 				);
 				
 				$files = array ();
@@ -55,14 +55,14 @@ class View_Resource_Loader
 					
 					for ($j = 0, $count = sizeof ($subdirs); $j < $count; $j++)
 					{
-					    if (
-					        $subdirs [$j][0] == '.' ||
-					        $subdirs [$j][0] == '_'
-					    )
+						if (
+							$subdirs [$j][0] == '.' ||
+							$subdirs [$j][0] == '_'
+						)
 						{
-						    continue;
+							continue;
 						}
-					    
+						
 						$fn = $base_dir . $dir . '/' . $subdirs [$j];
 						
 						if (is_dir ($fn))
@@ -70,12 +70,12 @@ class View_Resource_Loader
 							array_push ($list, $dir . '/' . $subdirs [$j]);
 						}
 						elseif (fnmatch ($pattern, $fn))
-				        {
-					        $files [] = array (
-					        	$base_url . $dir . '/' . $subdirs [$j],
-					        	$base_dir . $dir . '/' . $subdirs [$j]
-					        );
-				        }
+						{
+							$files [] = array (
+								$base_url . $dir . '/' . $subdirs [$j],
+								$base_dir . $dir . '/' . $subdirs [$j]
+							);
+						}
 					}
 				}
 				
@@ -95,25 +95,25 @@ class View_Resource_Loader
 			}
 			elseif ($star_pos !== false)
 			{
-			    // Путь вида "js/*.js"
-			    // Включает файлы, подходящие под маску в текущей директории
-			    
-			    // $dirs [i] = "js/*.js"
+				// Путь вида "js/*.js"
+				// Включает файлы, подходящие под маску в текущей директории
+				
+				// $dirs [i] = "js/*.js"
 				$dir = trim (substr ($pattern, 0, $star_pos), '/');
-			    // $dir = "js"
+				// $dir = "js"
 				$pattern = substr ($pattern, $star_pos);
 				// $pattern = "*.js"
-			    
+				
 				$iterator = new DirectoryIterator ($base_dir . '/' . $dir);
 				
 				foreach ($iterator as $file)
 				{
-				    $fn = $file->getFilename ();
+					$fn = $file->getFilename ();
 					if (
-					    $file->isFile () &&
-					    $fn [0] != '.' && 
-					    $fn [0] != '_' &&
-					    fnmatch ($pattern, $fn)
+						$file->isFile () &&
+						$fn [0] != '.' && 
+						$fn [0] != '_' &&
+						fnmatch ($pattern, $fn)
 					)
 					{
 						$local_path = $dir . '/' . $fn;
@@ -131,7 +131,7 @@ class View_Resource_Loader
 			}
 			else
 			{
-			    // Указан путь до файла: "js/scripts.js"
+				// Указан путь до файла: "js/scripts.js"
 				$file = $base_url . $pattern;
 				$options ['filePath'] = $base_dir . $pattern;
 				$options ['localPath'] = $pattern;

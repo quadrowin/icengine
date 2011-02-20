@@ -28,7 +28,7 @@ class Controller_Dispatcher
 	 * @var array
 	 */
 	public $_dispatchStack = array ();
-    
+	
 	public function __construct ()
 	{
 		
@@ -41,7 +41,7 @@ class Controller_Dispatcher
 	 * @param string $method_name
 	 */
 	private function _onDispatchIterationFinish (Controller_Abstract $current, 
-	    Controller_Dispatcher_Iteration $iteration, $method_name)
+		Controller_Dispatcher_Iteration $iteration, $method_name)
 	{
 		$current->_afterAction ($method_name);
 		$this->onDispatchIterationFinish ($current, $iteration, $method_name);
@@ -54,11 +54,11 @@ class Controller_Dispatcher
 	 * @param string $method_name
 	 */
 	private function _onDispatchIterationStart (Controller_Abstract $current, 
-	    Controller_Dispatcher_Iteration $iteration, $method_name)
+		Controller_Dispatcher_Iteration $iteration, $method_name)
 	{
-	    $current
-	        ->setDispatcherIteration ($iteration)
-		    ->_beforeAction ($method_name);
+		$current
+			->setDispatcherIteration ($iteration)
+			->_beforeAction ($method_name);
 		$this->onDispatchIterationStart ($current, $iteration, $method_name); 
 	}
 	
@@ -67,7 +67,7 @@ class Controller_Dispatcher
 	 */
 	public function currentIteration ()
 	{
-	    return $this->_currentIteration;
+		return $this->_currentIteration;
 	}
 	
 	/**
@@ -78,9 +78,9 @@ class Controller_Dispatcher
 	{
 		$parent_iteration = $this->_currentIteration;
 		
-	    $this->_currentIteration = $iteration;
-	    
-	    $controller_action = $iteration->controllerAction ();
+		$this->_currentIteration = $iteration;
+		
+		$controller_action = $iteration->controllerAction ();
 		// Инициализация объекта контроллера
 		Loader::load ('Controller_Broker');
 		
@@ -89,9 +89,9 @@ class Controller_Dispatcher
 		 * @var Controller_Abstract $current
 		 */
 		$controller = Controller_Broker::get ($controller_action->controller);
-        
+		
 		$method_name = $controller_action->action ? 
-		    $controller_action->action : $this->_defaultAction;
+			$controller_action->action : $this->_defaultAction;
 
 		if (!method_exists ($controller, $method_name))
 		{
@@ -107,15 +107,15 @@ class Controller_Dispatcher
 		Controller_Broker::beforeAction ($controller);
 		if (isset ($controller_action->input))
 		{
-		    $controller->setInput ($controller_action->input);
+			$controller->setInput ($controller_action->input);
 		}
 		
 		$this->_onDispatchIterationStart ($controller, $iteration, $method_name);
 		
 		if (!$this->_currentIteration->getIgnore ())
 		{
-    		Loader::load ('Executor');
-    		Executor::execute (array ($controller, $method_name));
+			Loader::load ('Executor');
+			Executor::execute (array ($controller, $method_name));
 		}
 		
 		Controller_Broker::afterAction ($controller, $iteration);
@@ -149,7 +149,7 @@ class Controller_Dispatcher
 		Controller_Broker::flushResults ();
 		if ($current && $this->_currentIteration)
 		{
-		    $this->_currentIteration->setIgnore (true);
+			$this->_currentIteration->setIgnore (true);
 		}
 		return $this;
 	}
@@ -186,7 +186,7 @@ class Controller_Dispatcher
 	 * @param string $method_name
 	 */
 	public function onDispatchIterationFinish (Controller_Abstract $current, 
-	    Controller_Dispatcher_Iteration $iteration, $method_name)
+		Controller_Dispatcher_Iteration $iteration, $method_name)
 	{
 		
 	}
@@ -198,70 +198,58 @@ class Controller_Dispatcher
 	 * @param string $method_name
 	 */
 	public function onDispatchIterationStart (Controller_Abstract $current, 
-	    Controller_Dispatcher_Iteration $iteration, $method_name)
+		Controller_Dispatcher_Iteration $iteration, $method_name)
 	{
 	
 	}
 	
 	/**
-	 * 
-	 * @param Controller_Action_Collection|Controller_Action $resources
+	 * @desc Добавление задания в очередь диспетчера.
+	 * @param Controller_Action_Collection|Controller_Action|array $resources
 	 */
 	public function push ($resources)
 	{
-	    if (
-	        $resources instanceof Route_Action_Collection ||
-	        $resources instanceof Controller_Action_Collection
-	    )
-	    {
-    	    foreach ($resources as $resource)
-    	    {
-                $this->_dispatchStack [] = 
-                    new Controller_Dispatcher_Iteration ($resource);
-    	    }
-	    }
-	    elseif (
-	        $resources instanceof Controller_Action ||
-	        $resources instanceof Route_Action
-	    )
-	    {
-            $this->_dispatchStack [] = 
-                new Controller_Dispatcher_iteration ($resources);
-	    }
-	    else
-	    {
-	        throw new Exception ('Illegal type.');
-	    }
-	}
-	
-	/**
-	 * 
-	 * @param array $resources
-	 * 		
-	 */
-	public function pushArray (array $actions)
-	{
-	    if (!$actions || !is_array ($actions))
-	    {
-	        Loader::load ('Zend_Exception');
-	        throw new Zend_Exception ('Illegal type.');
-	        return;
-	    }
-	    
-	    if (isset ($actions ['controller']))
-	    {
-	        $actions = array (
-	            $actions
-	        );
-	    }
-	    
-	    foreach ($actions as $action)
-	    {
-	        $this->push (new Controller_Action (array (
-	            'controller'	=> $action ['controller'],
-	            'action'		=> $action ['action']
-	        )));
-	    }
+		if (
+			$resources instanceof Route_Action_Collection ||
+			$resources instanceof Controller_Action_Collection
+		)
+		{
+			foreach ($resources as $resource)
+			{
+				$this->_dispatchStack [] = 
+					new Controller_Dispatcher_Iteration ($resource);
+			}
+		}
+		elseif (
+			$resources instanceof Controller_Action ||
+			$resources instanceof Route_Action
+		)
+		{
+			$this->_dispatchStack [] = 
+				new Controller_Dispatcher_iteration ($resources);
+		}
+		elseif (is_array ($resources))
+		{
+			if (isset ($resources ['controller']))
+			{
+				$resources = array (
+					$resources
+				);
+			}
+			
+			foreach ($resources as $action)
+			{
+				$this->push (new Controller_Action (array (
+					'controller'	=> $action ['controller'],
+					'action'		=> $action ['action']
+				)));
+			}
+		}
+		else
+		{
+			Loader::load ('Zend_Exception');
+			throw new Zend_Exception ('Illegal type.');
+		}
 	}
 	
 	/**

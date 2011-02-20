@@ -47,22 +47,22 @@ class Model_Manager
 	 */
 	protected function _prepareSelectQuery (Query $query)
 	{
-	    $where = $query->getPart (Query::WHERE);
-        $conditions = array ();
-        foreach ($where as $w)
-        {
-            $condition = $w [Query::WHERE];
-            $value = $w [Query::VALUE];
-            
-            $p = strpos ($condition, '=?');
-            if ($p)
-            {
-                $condition = substr ($condition, 0, $p);
-            }
-            
-            $conditions [$condition] = $value;
-        }
-        return $conditions;
+		$where = $query->getPart (Query::WHERE);
+		$conditions = array ();
+		foreach ($where as $w)
+		{
+			$condition = $w [Query::WHERE];
+			$value = $w [Query::VALUE];
+			
+			$p = strpos ($condition, '=?');
+			if ($p)
+			{
+				$condition = substr ($condition, 0, $p);
+			}
+			
+			$conditions [$condition] = $value;
+		}
+		return $conditions;
 	}
 	
 	/**
@@ -155,15 +155,22 @@ class Model_Manager
 				if (!$id)
 				{
 					$object->unsetField ($kf);
-				}
-				
-				$id = $ds->execute (
-					Query::instance ()
-					->insert ($object->modelName ())
-					->values ($object->asRow ())
-				)->getResult ()->insertId ();
+					$id = $ds->execute (
+						Query::instance ()
+						->insert ($object->modelName ())
+						->values ($object->asRow ())
+					)->getResult ()->insertId ();
 					
-				$object->set ($kf, $id);
+					$object->set ($kf, $id);
+				}
+				else
+				{
+					$ds->execute (
+						Query::instance ()
+						->insert ($object->modelName ())
+						->values ($object->asRow ())
+					);
+				}
 			}
 		}
 	}
@@ -174,8 +181,8 @@ class Model_Manager
 	 */
 	public function forced ()
 	{
-	    $this->_forced = true;
-	    return $this;
+		$this->_forced = true;
+		return $this;
 	}
 	
 	/**
@@ -193,9 +200,9 @@ class Model_Manager
 	 */
 	public function get ($model, $key, $object = null)
 	{
-	    $forced = $this->_forced;
-	    $this->_forced = false;
-	    
+		$forced = $this->_forced;
+		$this->_forced = false;
+		
 		if ($object instanceof Model)
 		{
 			$result = $object;
@@ -222,7 +229,7 @@ class Model_Manager
 				$parent = reset ($parents);
 				if ('Model_Factory' == $parent)
 				{
-				    $factory_name = $model;
+					$factory_name = $model;
 					if (!isset ($this->_factories [$factory_name]))
 					{
 						$this->_factories [$factory_name] = new $model ();
@@ -230,23 +237,23 @@ class Model_Manager
 					$dmodel = $this->_factories [$factory_name]->delegateClass ($model, $key, $object);
 					if (!Loader::load ($dmodel))
 					{
-					    Loader::load ('Zend_Exception');
-					    throw new Zend_Exception ('Delegate model not found: ' . $dmodel);
+						Loader::load ('Zend_Exception');
+						throw new Zend_Exception ('Delegate model not found: ' . $dmodel);
 					}
 					$result = new $dmodel (array (), !$forced);
 					$result->setModelFactory ($this->_factories [$factory_name]);
 					if (is_array ($object) && $object)
 					{
-					    $result->set ($object);
+						$result->set ($object);
 					}
 				}
 				else
 				{
-				    $result = new $model (
-				        is_array ($object) ? $object : array (),
-				        !$forced
-				    );
-				    $this->_forced = false;
+					$result = new $model (
+						is_array ($object) ? $object : array (),
+						!$forced
+					);
+					$this->_forced = false;
 				}
 				
 				if (!method_exists ($result, 'set'))
@@ -284,13 +291,13 @@ class Model_Manager
 	public function remove (Model $object)
 	{
 		// из хранилища моделей
-	    $this->_resourceManager->set (
+		$this->_resourceManager->set (
 			'Model',
 			$object->resourceKey (),
 			null
 		);
 		// Из БД (или другого источника данных)
-	    $this->_remove ($object);
+		$this->_remove ($object);
 	}
 	
 	/**
@@ -303,8 +310,8 @@ class Model_Manager
 	 */
 	public function set (Model $object, $hard_insert = false)
 	{
-	    $this->_write ($object, $hard_insert);
-	    
+		$this->_write ($object, $hard_insert);
+		
 		$this->_resourceManager->set (
 			'Model',
 			$object->resourceKey (),
@@ -320,54 +327,54 @@ class Model_Manager
 	 */
 	public function modelBy ($model, Query $query)
 	{
-        $forced = $this->_forced;
-	    $this->_forced = false;
-	    
-	    $data = null;
-	    
-	    if (is_null ($data))
-	    {
-	        if (!$query->getPart (Query::SELECT))
-	        {
-	            $query->select (array ($model => '*'));
-	        }
-	        
-	        if (!$query->getPart (Query::FROM))
-	        {
-	            $query->from ($model, $model);
-	        }
-	        
-	        $data = 
-	        	$this->_modelScheme
-	        	->dataSource ($model)
-	        	->execute ($query)
-	        	->getResult ()->asRow ();
-	    }
-	    
-	    if (!$data)
-	    {
-	        return null;
-	    }
-	    
-	    $mm = $forced ? $this->forced () : $this;
-	    
-	    return $mm->get (
-	        $model, $data [$this->modelScheme ()->keyField ($model)], $data);
+		$forced = $this->_forced;
+		$this->_forced = false;
+		
+		$data = null;
+		
+		if (is_null ($data))
+		{
+			if (!$query->getPart (Query::SELECT))
+			{
+				$query->select (array ($model => '*'));
+			}
+			
+			if (!$query->getPart (Query::FROM))
+			{
+				$query->from ($model, $model);
+			}
+			
+			$data = 
+				$this->_modelScheme
+				->dataSource ($model)
+				->execute ($query)
+				->getResult ()->asRow ();
+		}
+		
+		if (!$data)
+		{
+			return null;
+		}
+		
+		$mm = $forced ? $this->forced () : $this;
+		
+		return $mm->get (
+			$model, $data [$this->modelScheme ()->keyField ($model)], $data);
 	}
 	
-    /**
-     * 
-     * @param string $model
-     * @param integer $key
-     * @return Model|null
-     */
+	/**
+	 * 
+	 * @param string $model
+	 * @param integer $key
+	 * @return Model|null
+	 */
 	public function modelByKey ($model, $key)
 	{
-	    return $this->modelBy (
-	        $model,
-	        Query::instance ()
-	        ->where ($this->modelScheme ()->keyField ($model), $key)
-	    );
+		return $this->modelBy (
+			$model,
+			Query::instance ()
+			->where ($this->modelScheme ()->keyField ($model), $key)
+		);
 	}
 	
 	/**
@@ -375,7 +382,7 @@ class Model_Manager
 	 */
 	public function modelScheme ()
 	{
-	    return $this->_modelScheme;
+		return $this->_modelScheme;
 	}
 	
 	/**
@@ -386,51 +393,51 @@ class Model_Manager
 	 */
 	public function collectionBy ($model, Query $query)
 	{
-	    $forced = $this->_forced;
-	    $this->_forced = false;
-	    
-	    if (!Loader::load ($model))
-	    {
-	        return null;
-	    }
-	    
-	    $class_collection = $model . '_Collection';
-	    
-	    if (!Loader::load ($class_collection))
-	    {
-	        return null;
-	    }
-	    
-	    $data = null;
-	    
-	    if (is_null ($data))
-	    {
-	        if (!$query->getPart (Query::SELECT))
-	        {
-	            $query->select ("`$model`.*");
-	        }
-	        if (!$query->getPart (Query::FROM))
-	        {
-	            $query->from ($model);
-	        }
-	        $data = 
-	        	$this->modelScheme ()->dataSource ($model)
-	        	->execute ($query)
-	        	->getResult ()
-	        	->asTable ();
-	    }
-	    
-	    $collection = new $class_collection ();
-	    $collection->setItems (array ());
-	    $collection->setAutojoin (!$forced);
-	    
-	    $key_field = $this->modelScheme ()->keyField ($model);
-	    foreach ($data as $row)
-	    {
-	        $collection->add ($this->get ($model, $row [$key_field], $row));
-	    }
-	    
-	    return $collection;
+		$forced = $this->_forced;
+		$this->_forced = false;
+		
+		if (!Loader::load ($model))
+		{
+			return null;
+		}
+		
+		$class_collection = $model . '_Collection';
+		
+		if (!Loader::load ($class_collection))
+		{
+			return null;
+		}
+		
+		$data = null;
+		
+		if (is_null ($data))
+		{
+			if (!$query->getPart (Query::SELECT))
+			{
+				$query->select ("`$model`.*");
+			}
+			if (!$query->getPart (Query::FROM))
+			{
+				$query->from ($model);
+			}
+			$data = 
+				$this->modelScheme ()->dataSource ($model)
+				->execute ($query)
+				->getResult ()
+				->asTable ();
+		}
+		
+		$collection = new $class_collection ();
+		$collection->setItems (array ());
+		$collection->setAutojoin (!$forced);
+		
+		$key_field = $this->modelScheme ()->keyField ($model);
+		foreach ($data as $row)
+		{
+			$collection->add ($this->get ($model, $row [$key_field], $row));
+		}
+		
+		return $collection;
 	}
 	
 }

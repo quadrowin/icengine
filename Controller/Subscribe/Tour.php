@@ -4,8 +4,8 @@ class Controller_Subscribe_Tour extends Controller_Abstract
 {
 	public function add ()
 	{
-		Loader::load ('Subscriber');
-		$subscriber = new Subscriber ();
+		Loader::load ('Subscribe');
+		$subscriber = new Subscribe ();
 		
 		$subscriber->name = Request::post ('name');
 		$subscriber->email = Request::post ('email');

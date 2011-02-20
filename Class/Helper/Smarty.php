@@ -14,28 +14,28 @@ class Helper_Smarty
 	 * @var array
 	 */
 	public static $config = array (
-	    
-    	/**
-    	 * Директория для скопилированных шаблонов Smarty
-    	 * @var string
-    	 */
-	    'compile_dir'	    => 'cache/templates',
-	
-	    'plugins_pahes'		=> array (
 		
-	    ),
+		/**
+		 * Директория для скопилированных шаблонов Smarty
+		 * @var string
+		 */
+		'compile_dir'		=> 'cache/templates',
 	
-    	/**
-    	 * Директория Smarty
-    	 * @var string
-    	 */
-	    'smarty_class_path'	=> 'smarty/Smarty.class.php',
+		'plugins_pahes'		=> array (
+		
+		),
 	
-	    /**
-	     * Пути до шаблонов
-	     * @var array
-	     */
-	    'templates_pathes'	=> array ()
+		/**
+		 * Директория Smarty
+		 * @var string
+		 */
+		'smarty_class_path'	=> 'smarty/Smarty.class.php',
+	
+		/**
+		 * Пути до шаблонов
+		 * @var array
+		 */
+		'templates_pathes'	=> array ()
 	);
 	
 	/**
@@ -43,7 +43,7 @@ class Helper_Smarty
 	 */
 	public static function newSmarty ()
 	{
-        if (
+		if (
 			class_exists ('Smarty') ||
 			Loader::requireOnce (self::$config ['smarty_class_path'], 'includes')
 		)
@@ -56,10 +56,10 @@ class Helper_Smarty
 			$smarty->template_dir = self::$config ['templates_pathes'];
 			
 			$smarty->plugins_dir = array (
-			    IcEngine::path () . 'includes/smarty_plugins/',
-		        Ice_Implementator::path () . 'includes/smarty_plugins/',
-		        IcSocialnet_Implementator::path () . 'includes/smarty_plugins/'
-		    );
+				IcEngine::path () . 'includes/smarty_plugins/',
+				Ice_Implementator::path () . 'includes/smarty_plugins/',
+				IcSocialnet_Implementator::path () . 'includes/smarty_plugins/'
+			);
 		}
 		
 		Loader::load ('Helper_Smarty_Filter_Dblbracer');
@@ -67,17 +67,17 @@ class Helper_Smarty
 		
 		return $smarty;
 	}
-    
-    /**
-     * @return Smarty
-     */
-    public static function get ()
-    {
-        if (!self::$_smarty)
-        {
-            self::$_smarty = self::newSmarty ();
-        }
-        return self::$_smarty;
-    }
-    
+	
+	/**
+	 * @return Smarty
+	 */
+	public static function get ()
+	{
+		if (!self::$_smarty)
+		{
+			self::$_smarty = self::newSmarty ();
+		}
+		return self::$_smarty;
+	}
+	
 }

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Событие после загрузки контента контроллером.
  * @author Юрий
@@ -8,18 +7,18 @@
  */
 class Message_After_Load_Content extends Message_Abstract
 {
-    
-    /**
-     * @return Model
-     */
-    public function model ()
-    {
-        return $this->model;
-    }
-    
-    /**
-     * @return mixed
-     */
+	
+	/**
+	 * @return Model
+	 */
+	public function model ()
+	{
+		return $this->model;
+	}
+	
+	/**
+	 * @return mixed
+	 */
 	public function key ()
 	{
 		return $this->model ()->key ();
@@ -33,17 +32,17 @@ class Message_After_Load_Content extends Message_Abstract
 	 */
 	public static function push (Model $model, array $params = array ())
 	{
-	    return IcEngine::$application->messageQueue->push (
-	    	'After_Load_Content',
-	        array_merge (
+		return IcEngine::$application->messageQueue->push (
+			'After_Load_Content',
+			array_merge (
 				$params,
 				array (
-					'model'    => $model
+					'model'	=> $model
 				)
 			)
-	    );
+		);
 	}
-    
+	
 	/**
 	 * @return string
 	 */
@@ -51,5 +50,5 @@ class Message_After_Load_Content extends Message_Abstract
 	{
 		return $this->model ()->table ();
 	}
-    
+	
 }

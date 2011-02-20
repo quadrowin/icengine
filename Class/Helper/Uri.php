@@ -1,35 +1,41 @@
 <?php
-
+/**
+ * 
+ * @desc Помощник работы с URI
+ * @author Гурус
+ * @package IcEngine
+ *
+ */
 class Helper_Uri
 {
-    
-    /**
-     * Возвращает домен верхнего уровня
-     * 
-     * @param string $server_name [optional]
-     * 		Адрес домена (www.vipgeo.ru, vipgeo.com, localhost)
-     * 		Если адрес домена не задан, будет использована
-     * 		переменная $_SERVER['SERVER_NAME']
-     * @return string
-     * 		Домен верхнего уровня (ru, com, localhost)
-     */
+	
+	/**
+	 * Возвращает домен верхнего уровня
+	 * 
+	 * @param string $server_name [optional]
+	 * 		Адрес домена (www.vipgeo.ru, vipgeo.com, localhost)
+	 * 		Если адрес домена не задан, будет использована
+	 * 		переменная $_SERVER['SERVER_NAME']
+	 * @return string
+	 * 		Домен верхнего уровня (ru, com, localhost)
+	 */
 	public static function highDomain ($server_name = null)
 	{
-	    if (!$server_name)
-	    {
-	        $server_name = $_SERVER ['SERVER_NAME'];
-	    }
-	    
-	    $p = strrchr ($server_name, '.');
-	    
-	    if ($p === false)
-	    {
-	        return $server_name;
-	    }
-	    
-	    return strtolower (substr ($p, 1));
+		if (!$server_name)
+		{
+			$server_name = $_SERVER ['SERVER_NAME'];
+		}
+		
+		$p = strrchr ($server_name, '.');
+		
+		if ($p === false)
+		{
+			return $server_name;
+		}
+		
+		return strtolower (substr ($p, 1));
 	}
-    
+	
 	/**
 	 * Формирование URL с заданными GET параметрами
 	 * 
@@ -45,7 +51,8 @@ class Helper_Uri
 	 * @return string
 	 * 		Адрес страницы с заданными GET параметрами
 	 */
-	public static function replaceGets (array $gets = array (), $clear = false, $url = null)
+	public static function replaceGets (array $gets = array (), $clear = false, 
+		$url = null)
 	{
 		if (is_null ($url))
 		{
@@ -113,25 +120,30 @@ class Helper_Uri
 	
 	public static function mainDomain ($server_name = null)
 	{
-	    if (!$server_name)
-	    {
-	        $server_name = $_SERVER['SERVER_NAME'];
-	    }
-	    
-	    $f = strrpos ($server_name, '.');
-	    
-	    if (!$f)
-	    {
-	        return $server_name;
-	    }
-	    
-	    $f = strlen ($server_name) - $f;
-	    
-	    $s = strrpos ($server_name, '.', - $f - 1);
-	    
-	    return ($s === false) ? $server_name : substr ($server_name, $s + 1);
+		if (!$server_name)
+		{
+			$server_name = $_SERVER ['SERVER_NAME'];
+		}
+		
+		$f = strrpos ($server_name, '.');
+		
+		if (!$f)
+		{
+			return $server_name;
+		}
+		
+		$f = strlen ($server_name) - $f;
+		
+		$s = strrpos ($server_name, '.', - $f - 1);
+		
+		return ($s === false) ? $server_name : substr ($server_name, $s + 1);
 	}
 	
+	/**
+	 * @desc Возвращает полный адрес для редиректа.
+	 * @param string $uri Полный или относительный адрес редиректа.
+	 * @return string Полный адрес перехода.
+	 */
 	public static function validRedirect ($uri)
 	{
 		if (empty ($uri))

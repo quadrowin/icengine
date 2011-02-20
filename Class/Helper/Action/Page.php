@@ -19,7 +19,7 @@ class Helper_Action_Page
 			->frontController
 			->getDispatcher ()
 			->flushStack (true)
-			->pushArray (array (
+			->push (array (
 				'controller'	=> 'Error',
 				'action'		=> 'notFound'
 			));
@@ -34,7 +34,7 @@ class Helper_Action_Page
 			->frontController
 			->getDispatcher ()
 			->flushStack (true)
-			->pushArray (array (
+			->push (array (
 				'controller'	=> 'Error',
 				'action'		=> 'obsolete'
 			));
