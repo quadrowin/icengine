@@ -6,6 +6,12 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 	const SELECT_FOUND_ROWS_QUERY = 'SELECT FOUND_ROWS()';
 	
 	/**
+	 * Подключение уже установлено
+	 * @var boolean
+	 */
+	protected $_connected = false;
+	
+	/**
 	 * Параметры соединения
 	 * @var array
 	 */
@@ -43,6 +49,12 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 		Query::INSERT	=> '_executeInsert'
 	);
 	
+	/**
+	 * 
+	 * @param Query $query
+	 * @param Query_Options $options
+	 * @return boolean
+	 */
 	protected function _executeChange (Query $query, Query_Options $options)
 	{
 		if (!mysql_query ($this->_sql))
@@ -57,6 +69,12 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 		return true;
 	}
 	
+	/**
+	 * 
+	 * @param Query $query
+	 * @param Query_Options $options
+	 * @return boolean
+	 */
 	protected function _executeInsert (Query $query, Query_Options $options)
 	{
 		if (!mysql_query ($this->_sql))
@@ -78,6 +96,7 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 	 * 
 	 * @param Query $query
 	 * @param Query_Options $options
+	 * @return array|null
 	 */
 	protected function _executeSelect (Query $query, Query_Options $options)
 	{
@@ -87,7 +106,7 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 		{
 			$this->_errno = mysql_errno ();
 			$this->_error = mysql_error ();
-			return;
+			return null;
 		}
 		
 		$rows = array ();
@@ -128,24 +147,49 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 	
 	/**
 	 * Подключение к БД
-	 * @param Objective $config
+	 * @param Objective|array $config [optional]
 	 */
-	public function connect (Objective $config)
+	public function connect ($config = null)
 	{
-		mysql_connect ($config->server, $config->username, $config->password);
-		mysql_select_db ($config->database);
-		if ($config->charset)
+		if ($this->_connected)
 		{
-			mysql_query ('SET NAMES ' . $config->charset);
+			return ;
+		}
+		
+		if ($config)
+		{
+			$this->setOption ($config);
+		}
+		
+		$this->_connected = true;
+		
+		mysql_connect (
+			$this->_connectionOptions ['host'],
+			$this->_connectionOptions ['username'],
+			$this->_connectionOptions ['password']
+		);
+		
+		mysql_select_db ($this->_connectionOptions ['database']);
+		
+		if ($this->_connectionOptions ['charset'])
+		{
+			mysql_query (
+				'SET NAMES ' . $this->_connectionOptions ['charset']
+			);
 		}
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see Data_Mapper_Abstract::execute()
+	 */
 	public function execute (Data_Source_Abstract $source, Query $query, $options = null)
 	{
 		if (!($query instanceof Query))
 		{
 			return new Query_Result (null);
 		}
+		$this->connect ();
 		
 		$start = microtime (true);
 		
@@ -156,13 +200,6 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 		$clone->setPart (Query::WHERE, $where);
 		
 		$this->_sql = $clone->translate ('Mysql', $this->_modelScheme);
-		
-		if (false)
-		{
-			$f = fopen ('cache/sql.txt', 'ab');
-			fwrite ($f, $this->_sql . "\r\n");
-			fclose ($f);
-		}
 		
 		$result = null;
 		$this->_errno = 0;
@@ -211,8 +248,21 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 		));
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see Data_Mapper_Abstract::setOption()
+	 */
 	public function setOption ($key, $value)
 	{
+		if (is_array ($key) || !is_scalar ($key))
+		{
+			foreach ($key as $k => $v)
+			{
+				$this->setOption ($k, $v);
+			}
+			return;
+		}
+		
 		if (isset ($this->_connectionOptions [$key]))
 		{
 			$this->_connectionOptions [$key] = $value;
