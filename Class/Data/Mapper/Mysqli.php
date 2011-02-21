@@ -252,7 +252,7 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 	 * (non-PHPdoc)
 	 * @see Data_Mapper_Abstract::setOption()
 	 */
-	public function setOption ($key, $value)
+	public function setOption ($key, $value = null)
 	{
 		if (is_array ($key) || !is_scalar ($key))
 		{

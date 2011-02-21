@@ -11,19 +11,25 @@ class Data_Validator_Standart_String
 {
 	
 	/**
-	 * Слишком короткая строка
+	 * @desc Слишком короткая строка
 	 * @var string
 	 */
 	const SHORT	= 'short';
 	
 	/**
-	 * Слишком длинная строка
+	 * @desc Слишком длинная строка
 	 * @var string
 	 */
 	const LONG	= 'long';
 	
-    public function validateEx ($field, $data, stdClass $scheme)
-    {
+	/**
+	 * @desc Не соответсвует маске
+	 * @var string
+	 */
+	const REGEXP = 'regexp';
+	
+	public function validateEx ($field, $data, stdClass $scheme)
+	{
 		$length = strlen ($data->$field);
 		$param = $scheme->$field;
 		
@@ -36,8 +42,16 @@ class Data_Validator_Standart_String
 		{
 			return __CLASS__ . '/' . self::LONG;
 		}
-    	
+		
+		if (isset ($param ['pattern']))
+		{
+			if (!preg_match ($param ['pattern'], $data->$field))
+			{
+				return __CLASS__ . '/' . self::REGEXP;
+			}
+		}
+		
 		return true;
-    }
+	}
 	
 }

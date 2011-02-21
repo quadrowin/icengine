@@ -223,7 +223,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 		$this->_cacher = $cacher;
 	}
 	
-	public function setOption ($key, $value)
+	public function setOption ($key, $value = null)
 	{
 		switch ($key)
 		{
