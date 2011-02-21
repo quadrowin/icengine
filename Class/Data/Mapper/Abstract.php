@@ -266,12 +266,12 @@ abstract class Data_Mapper_Abstract
 	 * Установка параметров
 	 * @param string|Objective $key
 	 * 		Параметр
-	 * @param string $value
+	 * @param string $value [optional]
 	 * 		Значение
 	 * @return boolean
 	 * 		true, если удачно, иначе - false.
 	 */
-	public function setOption ($key, $value)
+	public function setOption ($key, $value = null)
 	{
 		return false;
 	}

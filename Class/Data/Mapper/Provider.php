@@ -263,7 +263,7 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 	 * (non-PHPdoc)
 	 * @see Data_Mapper_Abstract::setOption()
 	 */
-	public function setOption ($key, $value)
+	public function setOption ($key, $value = null)
 	{
 		switch ($key)
 		{

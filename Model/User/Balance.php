@@ -47,20 +47,21 @@ class User_Balance extends Model
 	/**
 	 * @desc Увеличить баланс пользователя
 	 * @param integer|User $user Пользователь или id
-	 * @param integer $value
-	 * @return User_Balance
+	 * @param integer $value Значение.
+	 * @param string $comment Комментарий.
+	 * @return User_Balance_Log
 	 */
-	public static function incrementFor ($user, $value)
+	public static function incrementFor ($user, $value, $comment = '')
 	{
 		Loader::load ('User_Balance_Log');
 		$balance = self::getFor ($user);
 		
-		User_Balance_Log::addLog ($user->key (), $value);
+		$log = User_Balance_Log::addLog ($user->key (), $value, $comment);
 		$balance->update (array (
 			'value'	=> $balance->value + $value
 		));
 		
-		return $balance;
+		return $log;
 	}
 	
 }
