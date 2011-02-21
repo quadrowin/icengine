@@ -1,7 +1,29 @@
 <?php
-
+/**
+ * 
+ * @desc Помощник работы с массивами
+ * @author Юрий
+ * @package IcEngine
+ *
+ */
 class Helper_Array
 {
+	
+	/**
+	 * @desc Возвращает массив. 
+	 * @param array $input Двумерный массив.
+	 * @param string $column Название колонки.
+	 * @return array Колонка $column исходного массива
+	 */
+	public static function column (array $input, $column)
+	{
+		$result = array ();
+		foreach ($input as $row)
+		{
+			$result [] = $row [$column];
+		}
+		return $result;
+	}
 	
 	/**
 	 * Помечает массив для разбиения по коллонкам.
@@ -142,45 +164,45 @@ class Helper_Array
 	 */
 	public static function mergeReplaceRecursive ()
 	{
-	    // Holds all the arrays passed
-	    $params = func_get_args ();
+		// Holds all the arrays passed
+		$params = func_get_args ();
 	   
-	    // First array is used as the base, everything else overwrites on it
-	    $return = array_shift ($params);
+		// First array is used as the base, everything else overwrites on it
+		$return = array_shift ($params);
 	   
-	    // Merge all arrays on the first array
-	    foreach ($params as $array)
-	    {
-	        foreach ($array as $key => $value)
-	        {
-	            // Numeric keyed values are added (unless already there)
-	            if (is_numeric ($key) && !in_array ($value, $return))
-	            {
-	                if (is_array ($value))
-	                {
-	                    $return [] = self::mergeReplaceRecursive ($return [$key], $value);
-	                }
-	                else
-	                {
-	                    $return [] = $value;
-	                }
-	            }
-	            else
-	            {
-	            	// String keyed values are replaced
-	                if (isset ($return [$key]) && is_array ($value) && is_array ($return [$key]))
-	                {
-	                    $return [$key] = self::mergeReplaceRecursive ($return [$key], $value);
-	                }
-	                else
-	                {
-	                    $return [$key] = $value;
-	                }
-	            }
-	        }
-	    }
+		// Merge all arrays on the first array
+		foreach ($params as $array)
+		{
+			foreach ($array as $key => $value)
+			{
+				// Numeric keyed values are added (unless already there)
+				if (is_numeric ($key) && !in_array ($value, $return))
+				{
+					if (is_array ($value))
+					{
+						$return [] = self::mergeReplaceRecursive ($return [$key], $value);
+					}
+					else
+					{
+						$return [] = $value;
+					}
+				}
+				else
+				{
+					// String keyed values are replaced
+					if (isset ($return [$key]) && is_array ($value) && is_array ($return [$key]))
+					{
+						$return [$key] = self::mergeReplaceRecursive ($return [$key], $value);
+					}
+					else
+					{
+						$return [$key] = $value;
+					}
+				}
+			}
+		}
 	   
-	    return $return;
+		return $return;
 	}
 	
 	/**
@@ -236,6 +258,26 @@ class Helper_Array
 		}
 		
 		return uasort ($data, $funcs [$sortby]);
+	}
+	
+	/**
+	 * @desc Установить в качестве ключей массива значения из колонки $column
+	 * @param array $input
+	 * 		Входной массив.
+	 * @param string $column
+	 * 		Колонка, значения которой будут использованы в качестве ключей.
+	 * @return array
+	 */
+	public static function setKeyColumn (array $input, $column)
+	{
+		if (!$input)
+		{
+			return array ();
+		}
+		return array_combine (
+			self::column ($input, $column),
+			$input
+		);
 	}
 	
 }
