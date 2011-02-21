@@ -264,7 +264,7 @@ abstract class Data_Mapper_Abstract
 	
 	/**
 	 * Установка параметров
-	 * @param string $key
+	 * @param string|Objective $key
 	 * 		Параметр
 	 * @param string $value
 	 * 		Значение

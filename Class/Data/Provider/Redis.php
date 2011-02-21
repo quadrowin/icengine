@@ -17,7 +17,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	 * Подключение к редису
 	 * @var Redis
 	 */
-	public $conn = NULL;
+	public $conn = null;
 	
 	/**
 	 * Сервера
@@ -33,6 +33,10 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	 */
 	public $mget_limit = 15; 
 	
+	/**
+	 * 
+	 * @param array $config
+	 */
 	public function __construct ($config = array ())
 	{
 		Loader::requireOnce ('imemcacheclient/Redis.class.php', 'includes');
@@ -40,6 +44,10 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 		parent::__construct ($config);
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see Data_Provider_Abstract::add()
+	 */
 	public function add ($key, $value, $expiration = 0, $tags = array ())
 	{
 		if ($this->tracer)
@@ -58,13 +66,24 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 		);
 	}
 	
+	/**
+	 * @desc Добавление сервера
+	 * @param string $host
+	 * @param integer $port
+	 * @param integer $weight
+	 * @return boolean
+	 */
 	public function addServer ($host, $port = null, $weight = null)
 	{
 		$this->servers [] = array ($host, $port, $weight);
 		return $this->conn->addServer ($host, $port, $weight);
 	}
 	
-	public function addServers ($a)
+	/**
+	 * @desc Добавление списка серверов
+	 * @param array $a
+	 */
+	public function addServers (array $a)
 	{
 		foreach ($a as $s)
 		{
@@ -73,6 +92,10 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 		return true;
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see Data_Provider_Abstract::append()
+	 */
 	public function append ($key, $value)
 	{
 		if ($this->tracer)
@@ -83,6 +106,10 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 		return $this->conn->append ($this->keyEncode ($key), $value);
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see Data_Provider_Abstract::decrement()
+	 */
 	public function decrement ($key, $value = 1)
 	{
 		if ($this->tracer)
@@ -93,6 +120,10 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 		return $this->conn->decrement ($this->keyEncode ($key), $value);
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see Data_Provider_Abstract::delete()
+	 */
 	public function delete ($keys, $time = 0, $set_deleted = false)
 	{
 		if ($this->tracer)
@@ -149,6 +180,10 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 		}
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see Data_Provider_Abstract::flush()
+	 */
 	public function flush ($delay = 0)
 	{
 		if ($this->tracer)
@@ -159,6 +194,10 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 		return $this->conn->flush ($delay);
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see Data_Provider_Abstract::get()
+	 */
 	public function get ($key, $plain = false)
 	{
 		if ($this->tracer)
@@ -169,6 +208,10 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 		return $this->conn->get ($this->keyEncode ($key), $plain);
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see Data_Provider_Abstract::getMulti()
+	 */
 	public function getMulti (array $keys, $numeric_index = false)
 	{
 		if ($this->tracer)
@@ -176,13 +219,10 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 			$this->tracer->add ('getMulti', implode (',', $keys));
 		}
 		
-		if (!empty ($this->prefix))
-		{
-			foreach ($keys as &$v)
-			{
-				$v = $this->keyEncode ($v);
-			}
-		}
+		$keys = array_map (
+			array ($this, 'keyEncode'),
+			$keys
+		);
 		
 		if ($this->mget_limit && count ($keys) > $this->mget_limit)
 		{
@@ -205,29 +245,28 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 		{
 			$r = $this->conn->getMulti ($keys);
 		}
-//		$l = strlen ($this->prefix);
 		
 		if ($numeric_index)
 		{
-			$result = array_values ($r);
-		}
-		else
-		{
-			$result = array_combine ($keys, array_values ($r));
-//			foreach ($r as $s => $v)
-//			{
-//				$result [substr ($s, $l)] = $v;
-//			}
+			return array_values ($r);
 		}
 		
-		return $result;
+		return array_combine ($keys, array_values ($r));
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see Data_Provider_Abstract::getStats()
+	 */
 	public function getStats ()
 	{
 		return $this->conn->getStats ();
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see Data_Provider_Abstract::increment()
+	 */
 	public function increment ($key, $value = 1)
 	{
 		if ($this->tracer)
@@ -258,6 +297,10 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 		return substr (urldecode ($key), strlen ($this->prefix));
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see Data_Provider_Abstract::keys()
+	 */
 	public function keys ($pattern, $server = NULL)
 	{
 		if ($this->tracer)
@@ -287,6 +330,10 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 //		return $r;
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see Data_Provider_Abstract::prepend()
+	 */
 	public function prepend ($key, $value)
 	{
 		if ($this->tracer)
@@ -297,6 +344,10 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 		return $this->conn->prepend ($this->keyEncode ($key), $value);
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see Data_Provider_Abstract::set()
+	 */
 	public function set ($key, $value, $expiration = 0, $tags = array ())
 	{
 		if ($this->tracer)
@@ -311,34 +362,28 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 		return $this->conn->set ($this->keyEncode ($key), $value, $expiration, $tags);
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see Data_Provider_Abstract::setOption()
+	 */
 	public function setOption ($key, $value)
 	{
 		switch ($key)
 		{
 			case 'mget_limit':
 				$this->mget_limit = $value;
-				return;
+				return true;
 				
 			case 'servers':
-				if ($value instanceof Objective)
-				{
-					$value = $value->__toArray ();
-				}
-				
 				foreach ($value as $server)
 				{
-					if ($server instanceof Objective)
-					{
-						$server = $server->__toArray ();
-					}
-					
 					$this->addServer (
 						$server ['host'],
 						isset ($server ['port']) ? $server ['port'] : null,
 						isset ($server ['weight']) ? $server ['weight'] : null
 					);
 				}
-				return;
+				return true;
 		}
 		return parent::setOption ($key, $value);
 		//return $this->conn->setOption ($key, $value);
