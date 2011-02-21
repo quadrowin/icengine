@@ -10,14 +10,12 @@ class User_Balance extends Model
 {
 	
 	/**
-	 * @desc Увеличить баланс пользователя
-	 * @param integer|User $user Пользователь или id
-	 * @param integer $value
+	 * 
+	 * @param integer|User $user
 	 * @return User_Balance
 	 */
-	public static function incrementFor ($user, $value)
+	public static function getFor ($user)
 	{
-		Loader::load ('User_Balance_Log');
 		$balance = IcEngine::$modelManager->modelByKey (
 			'User_Balance', 
 			is_object ($user) ? $user->key () : $user
@@ -42,6 +40,20 @@ class User_Balance extends Model
 			));
 			$balance->save (true);
 		}
+		
+		return $balance;
+	}
+	
+	/**
+	 * @desc Увеличить баланс пользователя
+	 * @param integer|User $user Пользователь или id
+	 * @param integer $value
+	 * @return User_Balance
+	 */
+	public static function incrementFor ($user, $value)
+	{
+		Loader::load ('User_Balance_Log');
+		$balance = self::getFor ($user);
 		
 		User_Balance_Log::addLog ($user->key (), $value);
 		$balance->update (array (
