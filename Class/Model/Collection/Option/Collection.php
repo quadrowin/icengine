@@ -146,7 +146,10 @@ class Model_Collection_Option_Collection
 		Loader::load ('Executor');
 		if (Loader::load ($className))
 		{
-			return Executor::execute (new $className ($option), $methodName, $args);
+			return Executor::execute (
+				array (new $className ($option), $methodName),
+				$args
+			);
 		}
 		else
 		{

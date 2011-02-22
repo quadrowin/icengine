@@ -4,21 +4,34 @@ if (!class_exists ('Data_Provider_Abstract'))
 {
 	include dirname (__FILE__) . '/Abstract.php';
 }
-
+/**
+ * 
+ * @desc Буфер данных. Используется для хранения данных в пределах 
+ * 		текущего процесса.
+ * @author Юрий
+ * @package IcEngine
+ *
+ */
 class Data_Provider_Buffer extends Data_Provider_Abstract
 {
+	
+	/**
+	 * Содержимое буфера.
+	 * @var array
+	 */
 	private $_buffer;
 	
+	/**
+	 * Возвращает объект буфера данных.
+	 */
 	public function __construct ()
 	{
 		$this->_buffer = array ();
 	}
 		
 	/**
-	 * 
-	 * @param string $key
-	 * @param boolean $plain
-	 * @return string
+	 * (non-PHPdoc)
+	 * @see Data_Provider_Abstract::get()
 	 */
 	public function get ($key, $plain = false)
 	{
@@ -26,6 +39,7 @@ class Data_Provider_Buffer extends Data_Provider_Abstract
 	}
 	
 	/**
+	 * @desc Всё содержимое буфера.
 	 * @return array
 	 */
 	public function getAll ()
@@ -34,8 +48,8 @@ class Data_Provider_Buffer extends Data_Provider_Abstract
 	}
 	
 	/**
-	 * 
-	 * @param integer $delay
+	 * (non-PHPdoc)
+	 * @see Data_Provider_Abstract::flush()
 	 */
 	public function flush ($delay = 0)
 	{
@@ -43,11 +57,8 @@ class Data_Provider_Buffer extends Data_Provider_Abstract
 	}
 	
 	/**
-	 * 
-	 * @param string $key
-	 * @param mixed $value
-	 * @param integer $expiration
-	 * @param array $tags
+	 * (non-PHPdoc)
+	 * @see Data_Provider_Abstract::set()
 	 */
 	public function set ($key, $value, $expiration = 0, $tags = array ())
 	{

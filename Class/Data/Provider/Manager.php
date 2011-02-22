@@ -28,8 +28,7 @@ class Data_Provider_Manager
 		if (!isset (self::$_providers [$name]))
 		{
 			$config = 
-				Config_Manager::load ('Data_Provider', $name)
-				->asArray ();
+				Config_Manager::load ('Data_Provider', $name);
 				
 			foreach ($config as $conf)
 			{
