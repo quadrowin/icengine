@@ -14,29 +14,12 @@ strToDate = function (str, def)
 	{
 		return new Date (def ? def : 0);
 	}
-	var n = 0;
 	
-	var arr = ['', '', '', '', '', ''];
-	
-	for (var i = 0; i < str.length; i++)
-	{
-		if ('0123456789'.indexOf (str.charAt (i)) < 0)
-		{
-			if (arr[n].length > 0)
-			{
-				arr[n] = parseInt (arr[n]);
-				n++;
-			}
-		}
-		else
-		{
-			arr[n] += "" + str[i];
-		}
-	}
+	var arr = str.split (/[\D]/);
 
-	for (var i = n; i <= 5; i++)
+	for (var i = 0; i <= 5; ++i)
 	{
-		arr[i] = parseInt (arr[i] ? arr[i] : 0);
+		arr [i] = arr [i] ? parseInt (arr [i] * 1) : 0;
 	}
 
 	if (arr[0] > 999)
@@ -44,17 +27,17 @@ strToDate = function (str, def)
 		// Y-m-d H:i:s
 		return new Date (arr[0], arr[1] - 1, arr[2], arr[3], arr[4], arr[5]);
 	}
-	else if (arr[2] > 999)
+	else if (arr [2] > 999)
 	{
 		// d.m.Y H:i:s
 		return new Date (arr[2], arr[1] - 1, arr[0], arr[3], arr[4], arr[5]);
 	}
-	else if (arr[3] > 999)
+	else if (arr [3] > 999)
 	{
 		// H:i:s Y-m-d
 		return new Date (arr[3], arr[4] - 1, arr[5], arr[0], arr[1], arr[2]);
 	}
-	else if (arr[5] > 999)
+	else if (arr [5] > 999)
 	{
 		// H:i:s d.m.Y
 		return new Date (arr[5], arr[4] - 1, arr[3], arr[0], arr[1], arr[2]);
