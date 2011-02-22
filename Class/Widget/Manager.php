@@ -1,18 +1,45 @@
 <?php
-
+/**
+ * 
+ * @desc Менеджер виджетов.
+ * @author Юрий
+ * @package IcEngine
+ *
+ */
 class Widget_Manager 
 {
 	
+	/**
+	 * Шаблон, не передающийся в рендер.
+	 * @var string
+	 */
 	const NULL_TEMPLATE = 'NULL';
 	
 	/**
-	 * Имя файла с настройками кэширования
-	 * @param string $widget
-	 * @return string
+	 * Конфиг
+	 * @var array|Objective
 	 */
-	protected function _cacheName ($widget)
+	public static $config = array (
+		
+		'widgets'	=> array ()
+		
+	);
+	
+	/**
+	 * @desc Настройки кэширования для виджета
+	 * @param string $widget
+	 * @param string $method
+	 * @return Objective
+	 */
+	protected function _cacheConfig ($widget, $method)
 	{
-		return 'config/Widget/' . $widget . '_Cache.php';
+		if (is_array (self::$config))
+		{
+			self::$config = Config_Manager::load (__CLASS__, self::$config);
+		}
+		
+		$config = self::$config->widgets [$widget . '::' . $method];
+		return $config ? $config : self::$config->widgets [$widget];
 	}
 	
 	/**
@@ -68,12 +95,12 @@ class Widget_Manager
 	public function call ($name, $method = 'index', array $args = array (), 
 		$html_only = true)
 	{
-		$cache_config_file = $this->_cacheName ($name);
+		$cache_config = $this->_cacheConfig ($name, $method);
 		
 		return Executor::execute (
 			array ($this, 'callUncached'),
 			array ($name, $method, $args, $html_only),
-			Cache_Manager::loadConfig ($cache_config_file)
+			$cache_config
 		);
 	}
 	

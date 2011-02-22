@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * 
+ * @desc Мэнеджер конфигов.
+ * @author Юрий
+ * @package IcEngine
+ *
+ */
 class Config_Manager
 {
 	/**
@@ -70,21 +76,27 @@ class Config_Manager
 	}
 	
 	/**
-	 * @desc Загразить конфик из файла 
+	 * @desc Загразить конфик из файла.
 	 * @param string $type
-	 * @param string $name
-	 * @return Config_Array
+	 * 		Тип конфига.
+	 * @param string|array $config
+	 * 		Название конфига или конфиг по умолчанию.
+	 * @return Config_Array Загруженный конфиг.
 	 */
-	public static function load ($type, $name = null)
+	public static function load ($type, $config = null)
 	{
 		Loader::load ('Config_Container');
 		
 		$container = new Config_Container (
-			$name,
+			is_string ($config) ? $config : '',
 			$type,
 			IcEngine::root () . self::PATH_TO_CONFIG
 		);
 		self::appendContainer ($container);
-		return $container->config ();
+		
+		return 
+			is_array ($config) ? 
+			$container->config ()->merge ($config) :
+			$container->config ();
 	}
 }

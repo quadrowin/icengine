@@ -1,9 +1,21 @@
 <?php
-
+/**
+ * 
+ * @desc Исполнитель.
+ * Предназначени для запуска функций/методов и кэширования результатов
+ * их работы.
+ * @author Юрий
+ * @package IcEngine
+ *
+ */
 class Executor 
 {
 	
-	const DELIM = '\\';
+	/**
+	 * Разделитель частей при формировании ключа для кэширования
+	 * @var string
+	 */
+	const DELIM = '/';
 	
 	/**
 	 * Кэшер
@@ -12,34 +24,58 @@ class Executor
 	protected static $_cacher;
 	
 	/**
-	 * 
-	 * @param function $function
-	 * @param array $args
+	 * Конфиг.
+	 * @var array
+	 */
+	public static $config = array (
+		/**
+		 * @desc Провайдер данных, используемый для кэширования по умолчанию
+		 * 		(Data_Provider).
+		 * @var string
+		 */
+		'cache_provider'	=> null,
+		/**
+		 * @desc Описание кэширования для отдельных функций
+		 * @var array
+		 */
+		'functions'			=> array (
+		)
+	);
+	
+	/**
+	 * @desc Возвращает название функции.
+	 * @param function $function Функция.
 	 * @return string
 	 */
-	protected static function _getCacheKey ($function, array $args)
+	protected static function _functionName ($function)
 	{
 		if (is_array ($function)) 
 		{
 			if (is_object ($function [0]))
 			{
-				$key = get_class ($function [0]) . self::DELIM . $function [1];
+				return get_class ($function [0]) . self::DELIM . $function [1];
 			}
-			else
-			{
-				$key = $function [0] . self::DELIM . $function [1];
-			}
-		}
-		elseif (is_string ($function))
-		{
-			$key = $function;
-		}
-		else
-		{
-			$key = md5 ($function);
+			
+			return $function [0] . self::DELIM . $function [1];
 		}
 		
-		$key .= self::DELIM;
+		if (is_string ($function))
+		{
+			return $function;
+		}
+		
+		return md5 ($function);
+	}
+	
+	/**
+	 * @desc Возвращает ключ для кэширования
+	 * @param function $function Кэшируемая функция.
+	 * @param array $args Аргкументы функции.
+	 * @return string Ключ кэша.
+	 */
+	protected static function _getCacheKey ($function, array $args)
+	{
+		$key = self::_functionName ($function) . self::DELIM;
 		
 		if ($args)
 		{
@@ -50,22 +86,22 @@ class Executor
 	}
 	
 	/**
-	 * 
-	 * @param function $function
-	 * @param array $args
-	 * @param Cache_Options $options
-	 * @return mixed
+	 * @desc Выполнение функции подлежащей кэшированию.
+	 * @param function $function Функция.
+	 * @param array $args Аргументы функции.
+	 * @param Objective $options Опции кэширования.
+	 * @return mixed Результат выполнения функции.
 	 */
 	protected static function _executeCaching ($function, array $args, 
-		Cache_Options $options)
+		Objective $options)
 	{
 		$key = self::_getCacheKey ($function, $args);
 		$key_hits = $key . '_h';
 		
-		$expiration = $options->getExpiration ();
-		$hits = $options->getHits ();
+		$expiration = (int) $options->expiration;
+		$hits = (int) $options->hits;
 		
-		$cache = self::$_cacher->get ($key);
+		$cache = self::getCacher ()->get ($key);
 		
 		if ($cache)
 		{
@@ -116,10 +152,10 @@ class Executor
 	}
 	
 	/**
-	 * 
-	 * @param function $function
-	 * @param array $args
-	 * @return mixed
+	 * @desc Выполнение функции без кэширования.
+	 * @param function $function Функция.
+	 * @param array $args Аргументы функции.
+	 * @return mixed Результат выполнения функции.
 	 */
 	protected static function _executeUncaching ($function, array $args)
 	{
@@ -127,34 +163,74 @@ class Executor
 	}
 	
 	/**
-	 * 
-	 * @param function $function
-	 * @param array $args
-	 * @param Cache_Options $options
-	 * @return mixed
+	 * @desc Возвращает конфиг. Загружет, если он не был загружен ранее.
+	 * @return Objective
+	 */
+	public static function config ()
+	{
+		if (is_array (self::$config))
+		{
+			self::$config = Config_Manager::load (__CLASS__, self::$config);
+		}
+		return self::$config;
+	}
+	
+	/**
+	 * @desc Выполняет переданную функцию.
+	 * @param function $function Функция.
+	 * @param array $args Аргументы функции.
+	 * @param Objective $options [optional] Опции кэширования.
+	 * 		Если не переданы, будут использованы настройки из конфига.
+	 * @return mixed Результат выполнения функции.
 	 */
 	public static function execute ($function, array $args = array (), 
 		$options = null)
 	{
-		if ($options instanceof Cache_Options && self::$_cacher)
+		// Переданы опции
+		if ($options)
 		{
 			return self::_executeCaching ($function, $args, $options);
 		}
 		
+		// опции заданы в конфиге
+		$fn = self::_functionName ($function);
+		if (self::config ()->functions && self::$config->functions [$fn])
+		{
+			return self::_executeCaching (
+				$function, $args,
+				self::$config->functions [$fn]
+			);
+		}
+		
+		// без кэширования
 		return self::_executeUncaching ($function, $args);
 	}
 	
 	/**
-	 * Возвращает текущий кэшер.
+	 * @desc Возвращает текущий кэшер.
 	 * @return Data_Provider_Abstract|null
 	 */
 	public static function getCacher ()
 	{
+		if (!self::$_cacher)
+		{
+			if (self::config ()->cache_provider)
+			{
+				self::$_cacher = Data_Provider_Manager::get (
+					self::config ()->cache_provider
+				);
+			}
+			else
+			{
+				Loader::load ('Data_Provider_Buffer');
+				self::$_cacher = new Data_Provider_Buffer ();
+			}
+		}
 		return self::$_cacher;
 	}
 	
 	/**
-	 * Устаналвивает кэшер.
+	 * @desc Устаналвивает кэшер.
 	 * @param Data_Provider_Abstract $cacher
 	 */
 	public static function setCacher ($cacher)
