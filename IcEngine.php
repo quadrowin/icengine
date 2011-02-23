@@ -157,13 +157,18 @@ class IcEngine
 		}
 		
 		Loader::addPathes (array (
-			'Class'		=> array (
+			'Class'			=> array (
 				self::$_path . 'Class/',
 				self::$_path . 'Model/',
 				self::$_path
 			),
-			'includes'	=> self::$_path . 'includes/'
+			'Controller'	=> array (
+				self::$_path . 'Controller/'
+			),
+			'includes'		=> self::$_path . 'includes/'
 		));
+		
+		Loader::load ('Config_Manager');
 	}
 	
 	/**

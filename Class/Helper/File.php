@@ -1,15 +1,18 @@
 <?php
-
+/**
+ * 
+ * @desc Помощник работы с файлами
+ * @author Юрий
+ * @package IcEngine
+ *
+ */
 class Helper_File
 {
 	
 	/**
-	 * Возвращает расширение файла
-	 * 
-	 * @param $filename    
-	 * 		Имя файла
-	 * @return string
-	 * 		Расширение
+	 * @desc Возвращает расширение файла
+	 * @param $filename Имя файла
+	 * @return string Расширение
 	 */
 	public static function extention ($filename)
 	{
@@ -17,13 +20,10 @@ class Helper_File
 	}
 	
 	/**
-	 * Удаляет переданные файлы
-	 * @param string|array $file
-	 * 		Путь до файла.
-	 * @param $_
-	 * 		Произвольное количество путей до файлов.
-	 * @return integer;
-	 * 		Количество удаленных файлов
+	 * @desc Удаляет переданные файлы
+	 * @param string|array $file Путь до файла (файлов).
+	 * @param $_ Произвольное количество путей до файлов.
+	 * @return integer Количество удаленных файлов
 	 */
 	public static function delete ($file)
 	{
