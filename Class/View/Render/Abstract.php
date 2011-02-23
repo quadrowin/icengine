@@ -181,7 +181,7 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	 */
 	public function loadConfig ()
 	{
-		$this->config = Config_Manager::load (get_class ($this))
+		$this->config = Config_Manager::get (get_class ($this))
 			->mergeConfig ($this->config);
 		// пути до шаблонов
 		return $this;

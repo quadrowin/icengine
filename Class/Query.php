@@ -35,6 +35,7 @@ class Query {
 	public static $_defaults = array (
 		self::CALC_FOUND_ROWS	=> false,
 		self::DISTINCT			=> false,
+		self::JOIN				=> false,
 		self::FROM				=> array(),
 		self::SELECT			=> array(),
 		self::SHOW				=> array(),

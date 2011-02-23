@@ -170,7 +170,7 @@ class Executor
 	{
 		if (is_array (self::$config))
 		{
-			self::$config = Config_Manager::load (__CLASS__, self::$config);
+			self::$config = Config_Manager::get (__CLASS__, self::$config);
 		}
 		return self::$config;
 	}

@@ -12,8 +12,7 @@ class View_Helper_Js extends View_Helper_Abstract
 	
 	public function get (array $params)
 	{
-		$config = (array) Config_Manager::load ('View_Resource', 'js')
-			->__toArray ();
+		$config = Config_Manager::get ('View_Resource', 'js');
 		
 		Loader::load ('View_Resource_Loader');
 		if (isset ($config ['dirs']))
@@ -49,7 +48,7 @@ class View_Helper_Js extends View_Helper_Abstract
 				->resources ()
 				->packer (View_Resource_Manager::JS);
 			
-			$packer->config = array_merge ($packer->config, $config);
+			$packer->config = $config->mergeConfig ($packer->config);
 			
 			$packer->pack ($jses, $config ['packed_file']);
 			

@@ -243,14 +243,14 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function filter ($fields)
 	{
-		$collection = new self;
+		$collection = new $this;
 		$collection->reset ();
 		
 		foreach ($this as $item)
 		{
 			$valid = true;
 			if ($item->validate ($fields))
-			{
+		 	{
 				$collection->add ($item);
 			}
 		}
@@ -324,6 +324,11 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		return $this->_autojoin;
 	}
 	
+	public function getOptions ()
+	{
+		return $this->_options;
+	}
+	
 	/**
 	 * @see items 
 	 * @return array
@@ -350,6 +355,24 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	public function getPaginator ()
 	{
 		return $this->_paginator;
+	}
+	
+	/**
+	 * 
+	 * @desc Ищет в коллекции эквивалентную заданой модель, и,
+	 * если находит, то возвращает ее
+	 * @param Model $item
+	 * @return null|Model
+	 */
+	public function has (Model $item)
+	{
+		foreach ($this as $i)
+		{
+			if ($i === $item)
+			{
+				return $i;
+			}
+		}
 	}
 	
 	/**
@@ -553,14 +576,19 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 //			die (); 
 //		}
 		
-		$this->_queryResult = DDS::execute ($query)->getResult ();
-		$this->_items = $this->_queryResult->asTable ();
+		//$this->_queryResult = DDS::execute ($query)->getResult ();
+		//$this->_items = $this->_queryResult->asTable ();
+		
+		Loader::load ('Model_Collection_Manager');
+		Model_Collection_Manager::restoreByQuery (
+			$this, $query
+		);
 		
 		if ($this->_paginator)
 		{
 			$this->_paginator->fullCount = $this->queryResult ()->foundRows ();
 		}
-		
+		/*
 		$model = $this->modelName ();
 		
 		$mmanager = IcEngine::$modelManager;
@@ -573,7 +601,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 				$mmanager->forced ()->get ($model, $key, $item);
 		}
 		
-		$this->_options->executeAfter ($this, $query);
+		$this->_options->executeAfter ($this, $query);*/
 		
 		return $this;
 	}
@@ -665,21 +693,38 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 * @desc Получить результат запроса коллекции
 	 * @return Query_Result
 	 */
-	public function queryResult ()
+	public function queryResult ($result = 0)
 	{
-		if (!$this->_queryResult)
+		if ($result)
 		{
-			$this->load ();
+			$this->_queryResult = $result;
 		}
-		return $this->_queryResult;
+		else 
+		{
+			if (!$this->_queryResult)
+			{
+				$this->load ();
+			}
+			return $this->_queryResult;
+		}
 	}
-
+	
+	/**
+	 * 
+	 * @desc Удаляет опшин по имени
+	 * @param unknown_type $name
+	 */
+	public function removeOption ($name)
+	{
+		$this->_options->remove ($name);
+	}
+	
 	/**
 	 * @desc Очищает коллекцию.
 	 */
 	public function reset ()
 	{
-		$this->items = array ();
+		$this->_items = array ();
 	}
 	
 	/**
@@ -727,6 +772,11 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	{
 		$this->_items = (array) $items;
 		return $this;
+	}
+	
+	public function setOption ($option)
+	{
+		$this->_options->setOption ($option);
 	}
 	
 	/**
@@ -906,6 +956,17 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		$this->_items = $result;
 		
 		return $this;
+	}
+	
+	/**
+	 * 
+	 * @desc сохранить модель в хранилище
+	 * @param string $name
+	 * @param boolean $force
+	 */
+	public function store ($name, $force=true)
+	{
+		Resource_Manager::store ($name, $this, $force);
 	}
 	
 	/**
