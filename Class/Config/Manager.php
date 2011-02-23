@@ -8,6 +8,7 @@
  */
 class Config_Manager
 {
+	
 	/**
 	 * 
 	 * @var string
@@ -15,28 +16,42 @@ class Config_Manager
 	const PATH_TO_CONFIG = 'config/';
 	
 	/**
-	 * 
-	 * @var array <Config_Container>
-	 */
-	protected static $_containers;
-	
-	/**
-	 * Пустой конфиг
+	 * @desc Пустой конфиг
 	 * @var Config_Array
 	 */
 	protected static $_emptyConfig;
 	
 	/**
-	 * 
-	 * @param Config_Container $container
+	 * @desc Загружает конфиг из файла и возвращает класс конфига.
+	 * @param string|array $config Название конфига или конфиг по умолчанию.
+	 * @param string $type Тип конфига.
+	 * @return Config_Array|Objective Заруженный конфиг.
 	 */
-	public static function appendContainer (Config_Container $container)
+	public static function _load ($type, $config = null)
 	{
-		self::$_containers [$container->getType ()][$container->getName ()] = $container;
+		$filename = 
+			IcEngine::root () . self::PATH_TO_CONFIG .
+			str_replace ('_', '/', $type) . 
+			(is_string ($config) && $config ? '/' . $config : '') . 
+			'.php';
+			
+		if (is_file ($filename))
+		{
+			$ext = ucfirst (strtolower (substr (strrchr ($filename, '.'), 1)));
+			$class = 'Config_' . $ext;
+			Loader::load ($class);
+			$result = $class ($filename);
+		}
+		else
+		{
+			$result = self::emptyConfig ();
+		}
+		
+		return is_array ($config) ? $result->merge ($config) : $result;
 	}
 	
 	/**
-	 * Пустой конфиг
+	 * @desc Пустой конфиг.
 	 * @return Config_Array
 	 */
 	public static function emptyConfig ()
@@ -50,53 +65,21 @@ class Config_Manager
 	}
 	
 	/**
-	 * 
-	 * @param string $type
-	 * @param string $name
-	 * @return boolean
+	 * @desc Загружает и возвращает конфиг.
+	 * @param string $type Тип конфига.
+	 * @param string $name [optional] Название.
+	 * @return Objective
 	 */
-	public static function exists ($type, $name)
+	public static function get ($type, $config = null)
 	{
-		return (bool) !empty (self::$_containers [$type][$name]);
-	}
-	
-	/**
-	 * 
-	 * @param string $type
-	 * @param string $name
-	 * @return Config_Container
-	 */
-	public static function get ($type, $name)
-	{
-		if (!self::exists ($type, $name))
+		$rname = $type . (is_string ($config) ? '/' . $config : '');
+		$cfg = Resource_Manager::get ('Config', $rname);
+		if (!$cfg)
 		{
-			self::load ($type, $name);
+			$cfg = self::_load ($type, $config);
+			Resource_Manager::set ('Config', $rname, $cfg);
 		}
-		return self::$_containers [$type][$name];
+		return $cfg;
 	}
 	
-	/**
-	 * @desc Загразить конфик из файла.
-	 * @param string $type
-	 * 		Тип конфига.
-	 * @param string|array $config
-	 * 		Название конфига или конфиг по умолчанию.
-	 * @return Config_Array Загруженный конфиг.
-	 */
-	public static function load ($type, $config = null)
-	{
-		Loader::load ('Config_Container');
-		
-		$container = new Config_Container (
-			is_string ($config) ? $config : '',
-			$type,
-			IcEngine::root () . self::PATH_TO_CONFIG
-		);
-		self::appendContainer ($container);
-		
-		return 
-			is_array ($config) ? 
-			$container->config ()->merge ($config) :
-			$container->config ();
-	}
 }

@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * 
+ * @desc Менеджер моделей.
+ * @author Юрий
+ * @package IcEngine
+ *
+ */
 class Model_Manager
 {
 	
@@ -8,12 +14,6 @@ class Model_Manager
 	 * @var Model_Scheme
 	 */
 	protected $_modelScheme;
-	
-	/**
-	 * Менеджер объектов
-	 * @var Resource_Manager
-	 */
-	protected $_resourceManager;
 	
 	/**
 	 * Фабрики моделей
@@ -29,15 +29,11 @@ class Model_Manager
 	
 	/**
 	 * @param Model_Scheme $data_source
-	 * @param Resource_Manager $resource_manager
-	 * 		Менеджер ресурсов
 	 */
-	public function __construct (Model_Scheme $model_scheme, 
-		Resource_Manager $resource_manager)
+	public function __construct (Model_Scheme $model_scheme)
 	{
 		Loader::load ('Model_Factory');
 		$this->_modelScheme = $model_scheme;
-		$this->_resourceManager = $resource_manager;
 	}
 	
 	/**
@@ -209,10 +205,7 @@ class Model_Manager
 		}
 		else
 		{
-			$result = $this->_resourceManager->get (
-				'Model',
-				$model . '__' . $key
-			);
+			$result = Resource_Manager::get ('Model', $model . '__' . $key);
 			
 			if ($result instanceof Model)
 			{
@@ -264,7 +257,7 @@ class Model_Manager
 				}
 				
 				$result->set ($result->keyField (), $key);
-				$this->_resourceManager->set ('Model', $model . '__' . $key, $result);
+				Resource_Manager::set ('Model', $model . '__' . $key, $result);
 			}
 		}
 		
@@ -274,49 +267,26 @@ class Model_Manager
 	}
 	
 	/**
-	 * 
-	 * @return Resource_Manager
-	 */
-	public function getResourceManager ()
-	{
-		return $this->_resourceManager;
-	}
-	
-	/**
-	 * Удаление модели
-	 * 
-	 * @param Model $object
-	 * 		Объект
+	 * @desc Удаление модели.
+	 * @param Model $object Объект модели.
 	 */
 	public function remove (Model $object)
 	{
 		// из хранилища моделей
-		$this->_resourceManager->set (
-			'Model',
-			$object->resourceKey (),
-			null
-		);
+		Resource_Manager::set ('Model', $object->resourceKey (), null);
 		// Из БД (или другого источника данных)
 		$this->_remove ($object);
 	}
 	
 	/**
-	 * Сохранение данных модели
-	 * 
-	 * @param Model $object
-	 * 		Объект.
-	 * @param boolean $hard_insert
-	 * 		Объект будет вставлен в источник данных.
+	 * @desc Сохранение данных модели
+	 * @param Model $object Объект модели.
+	 * @param boolean $hard_insert Объект будет вставлен в источник данных.
 	 */
 	public function set (Model $object, $hard_insert = false)
 	{
 		$this->_write ($object, $hard_insert);
-		
-		$this->_resourceManager->set (
-			'Model',
-			$object->resourceKey (),
-			$object
-		);
+		Resource_Manager::set ('Model', $object->resourceKey (), $object);
 	}
 	
 	/**

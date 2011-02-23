@@ -1,10 +1,19 @@
 <?php
-
+/**
+ * 
+ * @desc Контроллер контроллеров.
+ * @author Юрий
+ * @package IcEngine
+ *
+ */
 class Controller_Controller extends Controller_Abstract
 {
     
     const DEFAULT_METHOD = 'index';
     
+    /**
+     * @desc 
+     */
 	public function ajax ()
 	{
 		$call = explode ('/', $this->_input->receive ('call'));
@@ -40,6 +49,9 @@ class Controller_Controller extends Controller_Abstract
 		IcEngine::$application->frontController->getDispatcher ()->push ($ca);
 	}
 	
+	/**
+	 * @desc Экшен после обработки ajax запроса целевым контроллером.
+	 */
 	public function ajaxFinish ()
 	{
 	    $iterations = Controller_Broker::iterations ();
@@ -64,7 +76,7 @@ class Controller_Controller extends Controller_Abstract
             try
             {
             	$vals = $transaction->buffer ();
-            	$this->_output->getFilters()->apply ($vals);
+            	$this->_output->outputFilters ()->apply ($vals);
                 $view->assign ($vals);
                 $result ['html'] = $view->fetch ($tpl);
             }
@@ -97,7 +109,7 @@ class Controller_Controller extends Controller_Abstract
 	}
 	
 	/**
-	 * Вызов экшена контроллера по названию из входных параметров
+	 * @desc Вызов экшена контроллера по названию из входных параметров
 	 */
 	public function auto ()
 	{

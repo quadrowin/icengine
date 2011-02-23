@@ -181,7 +181,7 @@ class Controller_Broker
 					$filter_class = 'Filter_' . $filter;
 					Loader::load ($filter_class);
 					$filter = new $filter_class ();
-					self::$_output->getFilters ()->append ($filter);
+					self::$_output->outputFilters ()->append ($filter);
 				}
 			}
 			Loader::load ('Data_Provider_View');

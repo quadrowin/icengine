@@ -1,14 +1,11 @@
 <?php
-
 /**
  * 
- * Абстрактный класс провайдера данных.
- * 
+ * @desc Абстрактный класс провайдера данных.
  * @author Goorus
  * @package IcEngine
  *
  */
-
 class Data_Provider_Abstract
 {
     

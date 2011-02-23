@@ -8,19 +8,37 @@
  */
 class Filter_Collection 
 {
+	
+	/**
+	 * @desc Фильтры
+	 * @var array <Filter_Abstract>
+	 */
 	protected $_filters;
 	
+	/**
+	 * @desc Возвращает экземпляр коллекции фильтров.
+	 */
 	public function __construct ()
 	{
 		$this->_filters = array ();
 	}
 	
+	/**
+	 * @desc Добавляет фильтр в коллекцию.
+	 * @param Filter_Abstract $filter
+	 */
 	public function append ($filter)
 	{
 		$this->_filters [] = $filter;
 		return $this;
 	}
 	
+	/**
+	 * @desc Последовательно применяет фильтры на данные.
+	 * @param mixed $data
+	 * @param array|null $fields
+	 * @return Filter_Collection
+	 */
 	public function apply (&$data, $fields = null)
 	{
 		if (!is_null ($fields))

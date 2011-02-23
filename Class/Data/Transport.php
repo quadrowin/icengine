@@ -9,19 +9,26 @@
 class Data_Transport
 {
 	
-    /**    
-     *
-     * @var Filter_Collection
-     */
-	protected $_filters;
+	/**
+	 * @desc Фильтры применяемые только на вход транспорта.
+	 * @var Filter_Collection
+	 */
+	protected $_inputFilters;
+	
+	/**
+	 * @desc Фильтры применяемые только на выход транспорта.
+	 * @var Filter_Collection
+	 */
+	protected $_outputFilters;
 
     /**
-     *
+     * @desc Поставщики данных.
      * @var array <Data_Provider_Abstract>
      */
 	protected $_providers = array ();
 
     /**
+     * @desc Валидаторы выхода.
      * @var Data_Validator_Collection
      */
 	protected $_validators;
@@ -32,10 +39,13 @@ class Data_Transport
 	 */
 	protected $_transactions = array ();
 	
+	/**
+	 * @desc Возвращает экземпляр коллекции фильтров
+	 */
 	public function __construct ()
 	{
-		$this->initFilters ();
-		$this->initValidators ();
+		$this->resetFilters ();
+		$this->resetValidators ();
 	}
 	
     /**
@@ -81,14 +91,14 @@ class Data_Transport
 	}
 	
     /**
-     *
+     * @desc Входные фильтры.
      * @return Filter_Collection
      */
-	public function getFilters ()
+	public function inputFilters ()
 	{
 		return $this->_filters;
 	}
-
+	
 	/**
 	 * 
 	 * @param integer $index
@@ -117,20 +127,35 @@ class Data_Transport
 		return $this->_validators;
 	}
 
-	public function initFilters ()
+	/**
+	 * @desc Инициализация или сброс фильтров.
+	 */
+	public function resetFilters ()
 	{
 		Loader::load ('Filter_Collection');
-		$this->_filters = new Filter_Collection ();
+		$this->_inputFilters = new Filter_Collection ();
+		$this->_outputFilters = new Filter_Collection ();
 	}
 	
-	public function initValidators ()
+	/**
+	 * @desc Инициализация или сброс валидаторов.
+	 */
+	public function resetValidators ()
 	{
 		Loader::load ('Data_Validator_Collection');
-		$this->_validators = new Data_Validator_Collection();
+		$this->_validators = new Data_Validator_Collection ();
 	}
 
+	/**
+	 * @desc Выходные фильтры
+	 */
+	public function outputFilters ()
+	{
+		return $this->_outputFilters;
+	}
+	
     /**
-     *
+     * @desc Получение данных.
      * @param mixed $_
      * @return mixed
      */
@@ -139,10 +164,10 @@ class Data_Transport
 		$keys = func_get_args ();
 		$results = array ();
 		
-		for ($i = 0, $icount = sizeof ($keys); $i < $icount; $i++)
+		for ($i = 0, $icount = count ($keys); $i < $icount; $i++)
 		{
 			$data = null;
-			for ($j = 0, $jcount = sizeof ($this->_providers); $j < $jcount; $j++)
+			for ($j = 0, $jcount = count ($this->_providers); $j < $jcount; ++$j)
 			{
 			    /**
 			     * 
@@ -150,6 +175,7 @@ class Data_Transport
 			     */
 				$provider = $this->_providers [$j];
 				$chunk = $provider->get ($keys [$i]);
+				$this->_outputFilters->apply ($chunk);
 				if (!is_null ($chunk) && $this->_validators->validate ($chunk))
 				{
 					$data = $chunk;
@@ -158,16 +184,17 @@ class Data_Transport
 			$results [] = $data;
 		}
 		
-		return sizeof ($results) == 1 ? $results [0] : $results;
+		return count ($results) == 1 ? $results [0] : $results;
 	}
 	
 	/**
+	 * @desc Очистка данных всех провайдеров и сброс транзаций.
 	 * @return Data_Transport
 	 */
 	public function reset ()
 	{
 		$this->_transactions = array ();
-		for ($i = 0, $count = sizeof ($this->_providers); $i < $count; $i++)
+		for ($i = 0, $count = sizeof ($this->_providers); $i < $count; ++$i)
 		{
 			$this->_providers [$i]->clear ();
 		}
@@ -208,7 +235,7 @@ class Data_Transport
 		
 		foreach ($key as $k => $v)
 		{
-			$this->_filters->apply ($v);
+			$this->_inputFilters->apply ($v);
 			for ($i = 0, $count = sizeof ($this->_providers); $i < $count; $i++)
 			{
 				$this->_providers [$i]->set ($k, $v);
