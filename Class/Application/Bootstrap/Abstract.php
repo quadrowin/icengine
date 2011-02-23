@@ -70,7 +70,7 @@ class Application_Bootstrap_Abstract
 	{
 		Loader::load ('Model_Scheme');
 		IcEngine::$modelScheme = new Model_Scheme (
-			Config_Manager::load ('Model_Scheme', $config));
+			Config_Manager::get ('Model_Scheme', $config));
 	}
 	
 	public function initResourceManager ()

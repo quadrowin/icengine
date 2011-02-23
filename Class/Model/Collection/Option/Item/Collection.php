@@ -13,7 +13,7 @@ class Model_Collection_Option_Item_Collection
 	 * 
 	 * @var array <Model_Collection_Option_Item>
 	 */
-	protected $_items;
+	protected $_items = array ();
 	
 	/**
 	 * 
@@ -85,6 +85,8 @@ class Model_Collection_Option_Item_Collection
 			return false;
 		}
 		
+		$this->_items = array_values ($this->_items);
+		
 		for ($i = 0, $count = sizeof ($this->_items); $i < $count; $i++)
 		{
 		    $this->_items [$i]->execute (
@@ -96,17 +98,6 @@ class Model_Collection_Option_Item_Collection
 				    $this->_items [$i]->getParams ()
 				) 
 		    );
-//			$option = $this->_items [$i]->getName ();
-//			$this->_results [$option][$beforeAfter] = $this->_execute (
-//				$this->_modelName, 
-//				$option, 
-//				$beforeAfter,
-//				array (
-//				    $collection,
-//				    $query,
-//				    $this->_items [$i]->getParams ()
-//				)
-//			);
 		}
 	}
 	
@@ -132,7 +123,7 @@ class Model_Collection_Option_Item_Collection
 	}
     	
 	/**
-<<<<<<< .mine
+
 	 * 
 	 * @param string $modelName
 	 * @param string $option
@@ -144,6 +135,7 @@ class Model_Collection_Option_Item_Collection
 	{
 		$className = $this->_className ($modelName);	
 		$methodName = $this->_methodName ($option, $beforeAfter);
+
 		Loader::load ('Executor');
 		if (Loader::load ($className))
 		{
@@ -161,8 +153,17 @@ class Model_Collection_Option_Item_Collection
 	}
 	
 	/**
-=======
->>>>>>> .r35
+	 * 
+	 * @desc Получить элементы
+	 * @return array<Model_Collection_Option_Item>
+	 */
+	public function getItems ()
+	{
+		return $this->_items;
+	}
+	
+	/**
+	 * @desc Получить имя модели
 	 * @return string
 	 */
 	public function getModel ()
@@ -179,6 +180,7 @@ class Model_Collection_Option_Item_Collection
 	}
 	
 	/**
+	 * 
 	 * @return mixed
 	 */
 	public function getResults ()
@@ -202,6 +204,22 @@ class Model_Collection_Option_Item_Collection
 	}
 
 	/**
+	 * 
+	 * @desc Удалить опшин по имени
+	 * @param string $name
+	 */
+	public function remove ($name)
+	{
+		foreach ($this->_items as $i=>$item);
+		{
+			if ($item->getName () == $name)
+			{
+				unset ($this->_items [$i]);
+			}
+		}
+	}
+	
+	/**
 	 *
 	 * @param string $modelName
 	 */
@@ -209,6 +227,23 @@ class Model_Collection_Option_Item_Collection
 	{
 		$this->_modelName = $modelName;
 		return $this;
+	}
+	
+	public function setOption ($option)
+	{
+		if ($this->_items)
+		{
+			foreach ($this->_items as $i=>$item)
+			{
+		    	if ($item->getName () == $option ['name'])
+		    	{
+		    		$this->_items [$i]
+		    			= new Model_Collection_Option_Item ($option ['name'], $option);
+		    		return;
+		    	}
+			}
+		}
+		$this->_items [] = new Model_Collection_Option_Item ($option ['name'], $option);
 	}
 	
 	public function setOptions ($options)

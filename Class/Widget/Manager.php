@@ -35,7 +35,7 @@ class Widget_Manager
 	{
 		if (is_array (self::$config))
 		{
-			self::$config = Config_Manager::load (__CLASS__, self::$config);
+			self::$config = Config_Manager::get (__CLASS__, self::$config);
 		}
 		
 		$config = self::$config->widgets [$widget . '::' . $method];

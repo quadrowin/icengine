@@ -66,6 +66,11 @@ class Model_Collection_Option_Item
     
 	public function execute ($model_name, $before_after, array $args)
 	{
+		if (!$this->_name)
+		{
+			return;	
+		}
+		
 	    if (!$this->_option)
 	    {
 	        $this->_loadOption ($model_name, $this->_name, $before_after);
@@ -80,18 +85,32 @@ class Model_Collection_Option_Item
 		}
 		elseif (is_object ($this->_option))
 		{
-		    return Executor::execute (
-		        array (
-		            $this->_option,
-		            $this->_methodName ($this->_name, $before_after)
-		        ),
-		        $args
-		    );
+			$method_name = $this->_methodName ($this->_name, $before_after);
+			if ($method_name)
+			{
+			    return Executor::execute (
+			        array (
+			            $this->_option,
+			            $method_name
+			        ),
+			        $args
+			    );
+			}
 		}
 		
 		include_once ('Zend/Exception.php');
 		throw new Zend_Exception ('Models loading error');
 		return null;
+	}
+	
+	/**
+	 * 
+	 * @desc Получить имя опшина
+	 * @return string
+	 */
+	public function getName ()
+	{
+		return $this->_name;
 	}
 	
 	public function getParams ()

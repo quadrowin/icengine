@@ -12,7 +12,7 @@ class View_Helper_Jtpl extends View_Helper_Abstract
 	
 	public function get (array $params)
 	{
-		$config = Config_Manager::load ('View_Resource', 'jtpl');
+		$config = Config_Manager::get ('View_Resource', 'jtpl');
 		
 		Loader::load ('View_Resource_Loader');
 		

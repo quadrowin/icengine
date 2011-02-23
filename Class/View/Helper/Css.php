@@ -12,8 +12,7 @@ class View_Helper_Css extends View_Helper_Abstract
 	
 	public function get (array $params)
 	{
-		$config = (array) Config_Manager::load ('View_Resource', 'css')
-			->__toArray ();
+		$config = Config_Manager::get ('View_Resource', 'css');
 		
 		Loader::load ('View_Resource_Loader');
 		
@@ -50,7 +49,7 @@ class View_Helper_Css extends View_Helper_Abstract
 				->resources ()
 				->packer (View_Resource_Manager::CSS);
 				
-			$packer->config = array_merge ($packer->config, $config);
+			$packer->config = $config->mergeConfig ($packer->config);
 				
 			$packer->pack ($csses, $config ['packed_file']);
 				
