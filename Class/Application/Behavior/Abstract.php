@@ -1,18 +1,19 @@
 <?php
-
 /**
  * 
+ * @desc Абстрактный класс окружения.
+ * @author Ilya
  * @package IcEngine
  *
  */
 class Application_Behavior_Abstract
 {
-    
-    /**
-     * @desc Аттрибуты моделей
-     * @var Attribute_Manager
-     */
-    public $attributeManager;
+	
+	/**
+	 * @desc Аттрибуты моделей
+	 * @var Attribute_Manager
+	 */
+	public $attributeManager;
 
 	/**
 	 * @desc Загрузчик
@@ -31,12 +32,6 @@ class Application_Behavior_Abstract
 	 * @var Model_Manager
 	 */
 	public $modelManager;
-	
-	/**
-	 * @desc Менеджер ресурсов
-	 * @var Resource_Manager
-	 */
-	public $resourceManager;
 	
 	/**
 	 * @desc Менеджер виджетов
@@ -82,10 +77,9 @@ class Application_Behavior_Abstract
 	 */
 	public function activate ()
 	{
-	    IcEngine::$attributeManager = $this->attributeManager;
-	    IcEngine::$modelManager = $this->modelManager;
-	    IcEngine::$resourceManager = $this->resourceManager;
-	    IcEngine::$widgetManager = $this->widgetManager;
+		IcEngine::$attributeManager = $this->attributeManager;
+		IcEngine::$modelManager = $this->modelManager;
+		IcEngine::$widgetManager = $this->widgetManager;
 	}
 	
 }

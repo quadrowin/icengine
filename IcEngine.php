@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * 
+ * @desc Класс движка. Необходим для инициализации фреймворка.
+ * @author Юрий
+ * @package IcEngine
+ *
+ */
 class IcEngine
 {
 	
@@ -40,12 +46,6 @@ class IcEngine
 	public static $modelScheme;
 	
 	/**
-	 * Менеджер ресурсов
-	 * @var Resource_Manager
-	 */
-	public static $resourceManager;
-	
-	/**
 	 * Менеджер виджетов
 	 * @var Widget_Manager
 	 */
@@ -64,11 +64,11 @@ class IcEngine
 	 */
 	public static function checkImplementation ($route_table = 'route', $select = null)
 	{
-	    if (!isset ($_SERVER ['REQUEST_URI']))
-	    {
-	        return false;
-	    }
-	    
+		if (!isset ($_SERVER ['REQUEST_URI']))
+		{
+			return false;
+		}
+		
 		// Отрезаем GET
 		$request = $_SERVER ['REQUEST_URI'];
 		$p = strpos ($request, '?');
@@ -95,7 +95,7 @@ class IcEngine
 			 FROM `" . mysql_real_escape_string ($route_table) . "` AS router
 			 WHERE 
 			 	'" . mysql_real_escape_string ($base_req) .
-                        "' RLIKE router.template AND
+						"' RLIKE router.template AND
 			 	active = 1";
 
 		if ($select)
@@ -126,7 +126,7 @@ class IcEngine
 	public static function path ()
 	{
 		$path = dirname (__FILE__);
-	    return $path ? ($path . '/') : $path;
+		return $path ? ($path . '/') : $path;
 	}
 	
 	/**
@@ -135,7 +135,7 @@ class IcEngine
 	 */
 	public static function root ()
 	{
-	    return self::$_root;
+		return self::$_root;
 	}
 	
 	/**
@@ -181,7 +181,7 @@ class IcEngine
 	 */
 	public static function initApplication ($behavior, $path = '')
 	{
-	    Loader::load ('Application');
+		Loader::load ('Application');
 		
 		self::$application = new Application ();
 		self::$application->init ($behavior, $path);
