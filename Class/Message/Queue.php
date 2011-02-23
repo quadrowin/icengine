@@ -34,7 +34,7 @@ class Message_Queue
 	
 	public function __construct ()
 	{
-		$config = Config_Manager::load (__CLASS__);
+		$config = Config_Manager::get (__CLASS__);
 		if ($config->callbacks)
 		{
 			foreach ($config->callbacks as $name => $callback)

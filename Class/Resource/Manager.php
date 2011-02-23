@@ -49,6 +49,7 @@ class Resource_Manager
 				$providers = array ($providers);
 			}
 			
+			Loader::load ('Data_Provider_Manager');
 			foreach ($providers as $name)
 			{
 				$transport->appendProvider (

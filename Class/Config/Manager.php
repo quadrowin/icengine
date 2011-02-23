@@ -40,7 +40,8 @@ class Config_Manager
 			$ext = ucfirst (strtolower (substr (strrchr ($filename, '.'), 1)));
 			$class = 'Config_' . $ext;
 			Loader::load ($class);
-			$result = $class ($filename);
+			
+			$result = new $class ($filename);
 		}
 		else
 		{
@@ -72,6 +73,13 @@ class Config_Manager
 	 */
 	public static function get ($type, $config = null)
 	{
+		Loader::load ('Resource_Manager');
+		
+		if ($type == 'Resource_Manager')
+		{
+			return self::_load ($type, $config);
+		}
+		
 		$rname = $type . (is_string ($config) ? '/' . $config : '');
 		$cfg = Resource_Manager::get ('Config', $rname);
 		if (!$cfg)

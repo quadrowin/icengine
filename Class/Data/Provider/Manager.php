@@ -1,5 +1,4 @@
 <?php
-
 /**
  * 
  * @desc Менеджер провайдеров данных.
@@ -8,7 +7,6 @@
  * @package IcEngine
  *
  */
-
 class Data_Provider_Manager
 {
 	
@@ -34,9 +32,8 @@ class Data_Provider_Manager
 	{
 		if (is_array (self::$_config))
 		{
-			self::$_config = Config_Manager::load (__CLASS__, self::$_config);
+			self::$_config = Config_Manager::get (__CLASS__, self::$_config);
 		}
-		
 		return self::$_config;
 	}
 	

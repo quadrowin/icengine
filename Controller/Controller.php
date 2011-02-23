@@ -9,6 +9,10 @@
 class Controller_Controller extends Controller_Abstract
 {
     
+	/**
+	 * @desc Метод по умолчанию
+	 * @var string
+	 */
     const DEFAULT_METHOD = 'index';
     
     /**
