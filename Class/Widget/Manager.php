@@ -51,7 +51,7 @@ class Widget_Manager
 	 */
 	protected function _get ($name)
 	{
-		$widget = IcEngine::$resourceManager->get ('Widget', $name);
+		$widget = Resource_Manager::get ('Widget', $name);
 		
 		if (!$widget)
 		{
@@ -66,7 +66,7 @@ class Widget_Manager
 			$widget
 				->getOutput ()->appendProvider (new Data_Provider_Buffer ());
 			
-			IcEngine::$resourceManager->set ('Widget', $name, $widget);
+			Resource_Manager::set ('Widget', $name, $widget);
 		}
 		
 		if (!$widget)

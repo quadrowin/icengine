@@ -55,9 +55,9 @@ class Application_Bootstrap_Abstract
 	public function initModelManager ()
 	{
 		Loader::load ('Model_Manager');
+		Loader::load ('Model_Collection_Manager');
 		$this->behavior->modelManager = new Model_Manager (
-			IcEngine::$modelScheme,
-			$this->behavior->resourceManager
+			IcEngine::$modelScheme
 		);
 		IcEngine::$modelManager = $this->behavior->modelManager;
 	}
@@ -71,13 +71,6 @@ class Application_Bootstrap_Abstract
 		Loader::load ('Model_Scheme');
 		IcEngine::$modelScheme = new Model_Scheme (
 			Config_Manager::get ('Model_Scheme', $config));
-	}
-	
-	public function initResourceManager ()
-	{
-		Loader::load ('Resource_Manager');
-		$this->behavior->resourceManager = new Resource_Manager ();
-		IcEngine::$resourceManager = $this->behavior->resourceManager;
 	}
 	
 	/**
