@@ -570,38 +570,17 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		$this->_options->executeBefore ($this, $query);
 		$this->_lastQuery = $query;
 		
-//		if ($this->modelName () == 'Resort')
-//		{
-//			Debug::vardump ($query->translate ('Mysql', DDS::modelScheme ()));
-//			die (); 
-//		}
-		
-		//$this->_queryResult = DDS::execute ($query)->getResult ();
-		//$this->_items = $this->_queryResult->asTable ();
-		
 		Loader::load ('Model_Collection_Manager');
-		Model_Collection_Manager::restoreByQuery (
+		$this->_items = Model_Collection_Manager::getByQuery (
 			$this, $query
 		);
+		
+		$this->_options->executeAfter ($this, $query);
 		
 		if ($this->_paginator)
 		{
 			$this->_paginator->fullCount = $this->queryResult ()->foundRows ();
 		}
-		/*
-		$model = $this->modelName ();
-		
-		$mmanager = IcEngine::$modelManager;
-		
-		foreach ($this->_items as &$item)
-		{
-			$key = $item [$key_field];
-			$item = $this->_autojoin ? 
-				$mmanager->get ($model, $key, $item) :
-				$mmanager->forced ()->get ($model, $key, $item);
-		}
-		
-		$this->_options->executeAfter ($this, $query);*/
 		
 		return $this;
 	}
@@ -770,7 +749,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function setItems ($items)
 	{
-		$this->_items = (array) $items;
+		$this->_items = $items;
 		return $this;
 	}
 	
