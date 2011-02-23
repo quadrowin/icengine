@@ -100,13 +100,10 @@ class Controller_Broker
 	public static function get ($controller_name)
 	{
 		$class_name = 'Controller_' . $controller_name;
-		$controller = IcEngine::$application->
-			behavior->
-			resourceManager->
-			get (
-				'Controller', 
-				$class_name
-			);
+		$controller = Resource_Manager::get (
+			'Controller', 
+			$class_name
+		);
 			
 		if (!($controller instanceof Controller_Abstract))
 		{
@@ -120,14 +117,11 @@ class Controller_Broker
 			
 			$controller = new $class_name;
 			
-			IcEngine::$application->
-				behavior->
-				resourceManager->
-				set (
-					'Controller',
-					$class_name, 
-					$controller
-				);
+			Resource_Manager::set (
+				'Controller',
+				$class_name, 
+				$controller
+			);
 		}
 		return $controller;
 	}
@@ -208,7 +202,7 @@ class Controller_Broker
 		{
 			return;
 		}
-		self::$config = Config_Manager::load (__CLASS__)
+		self::$config = Config_Manager::get (__CLASS__)
 			->mergeConfig (self::$config);
 		self::$_configLoaded = true;
 	}
