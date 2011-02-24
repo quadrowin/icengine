@@ -102,7 +102,9 @@ abstract class Model_Collection_Manager
 		
 		if (is_null ($items))
 		{
-			$items = DDS::execute ($query)->getResult ()->asTable ();
+			$query_result = DDS::execute ($query)->getResult ();
+			$collection->queryResult ($query_result);
+			$items = $query_result->asTable ();
 			self::set ($key, $items);
 		}
 			
