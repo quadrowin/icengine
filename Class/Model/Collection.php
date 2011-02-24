@@ -568,11 +568,12 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		}
 		
 		$this->_options->executeBefore ($this, $query);
+		
 		$this->_lastQuery = $query;
 		
 		Loader::load ('Model_Collection_Manager');
 		$this->_items = Model_Collection_Manager::getByQuery (
-			$this, $query
+			$this, $query, $this->_autojoin
 		);
 		
 		$this->_options->executeAfter ($this, $query);
