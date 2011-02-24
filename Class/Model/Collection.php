@@ -593,7 +593,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		
 		if ($this->_paginator)
 		{
-			$this->_paginator->fullCount = $this->_queryResult->foundRows ();
+			$this->_paginator->fullCount = $this->_data ['foundRows'];
 		}
 		
 		return $this;

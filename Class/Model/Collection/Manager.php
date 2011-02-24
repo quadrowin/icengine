@@ -93,7 +93,12 @@ abstract class Model_Collection_Manager
 		{
 			$query_result = DDS::execute ($query)->getResult ();
 			$collection->queryResult ($query_result);
-
+			
+			if ($query->getPart (Query::CALC_FOUND_ROWS))
+			{
+				$collection->data ('foundRows', $query_result->foundRows ());
+			}
+			
 			Resource_Manager::set ('Model_Collection', $key, $collection);
 			
 			$pack = array (
