@@ -48,7 +48,7 @@ class Resource_Manager
 		Loader::load ('Data_Transport');
 		$transport = new Data_Transport ();
 		
-		$providers = $conf ['providers'];
+		$providers = $conf->providers;
 		if ($providers)
 		{
 			if (is_string ($providers))
@@ -62,6 +62,30 @@ class Resource_Manager
 				$transport->appendProvider (
 					Data_Provider_Manager::get ($name)
 				);
+			}
+			
+			Loader::load ('Filter_Manager');
+			
+			// Входные фильтры
+			if ($conf->inputFilters)
+			{
+				foreach ($conf->inputFilters as $filter)
+				{
+					$transport->inputFilters ()->append (
+						Filter_Manager::get ($filter)
+					);
+				}
+			}
+			
+			// Выходные фильтры
+			if ($conf->outputFilters)
+			{
+				foreach ($conf->outputFilters as $filter)
+				{
+					$transport->outputFilters ()->append (
+						Filter_Manager::get ($filter)
+					);
+				}
 			}
 		}
 		

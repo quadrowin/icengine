@@ -96,7 +96,7 @@ class Data_Transport
      */
 	public function inputFilters ()
 	{
-		return $this->_filters;
+		return $this->_inputFilters;
 	}
 	
 	/**

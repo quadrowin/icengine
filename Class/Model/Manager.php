@@ -10,13 +10,13 @@ class Model_Manager
 {
 	
 	/**
-	 * Данные о моделях.
+	 * @desc Данные о моделях.
 	 * @var Model_Scheme
 	 */
 	protected $_modelScheme;
 	
 	/**
-	 * Фабрики моделей
+	 * @desc Фабрики моделей
 	 * @var array
 	 */
 	protected $_factories;
@@ -111,7 +111,7 @@ class Model_Manager
 	}
 	
 	/**
-	 * Сохранение модели в источник данных
+	 * @desc Сохранение модели в источник данных
 	 * @param Model $object
 	 * @param boolean $hard_insert
 	 */
@@ -182,17 +182,12 @@ class Model_Manager
 	}
 	
 	/**
-	 * Получение данных модели
-	 * 
-	 * @param string $model
-	 * 		Название модели
-	 * @param string $key
-	 * 		Ключ (id)
-	 * @param Model|array $object
-	 * 		Объект или данные
+	 * @desc Получение данных модели
+	 * @param string $model Название модели
+	 * @param string $key Ключ (id)
+	 * @param Model|array $object Объект или данные
 	 * @throws Zend_Exception
-	 * @return Model
-	 * 		В случае успеха объект, иначе null.
+	 * @return Model В случае успеха объект, иначе null.
 	 */
 	public function get ($model, $key, $object = null)
 	{

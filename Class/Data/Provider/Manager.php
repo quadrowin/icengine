@@ -48,17 +48,25 @@ class Data_Provider_Manager
 		{
 			$config = self::_config ()->$name;
 			
-			foreach ($config as $conf)
+			if ($config)
 			{
-				$class = 'Data_Provider_' . $conf->provider;
-				
-				Loader::load ($class);
-				
-				self::$_providers [$name] = new $class ($conf->params);
-				
-				if (self::$_providers [$name]->available ())
+				foreach ($config as $conf)
 				{
-					break;
+					$class = 'Data_Provider_' . $conf->provider;
+					
+					Loader::load ($class);
+					
+					/**
+					 * @desc Новый провайдер данных
+					 * @var Data_Provider_Abstract
+					 */
+					$provider = new $class ($conf->params);
+					
+					if ($provider->available ())
+					{
+						self::$_providers [$name] = $provider;
+						break;
+					}
 				}
 			}
 		}

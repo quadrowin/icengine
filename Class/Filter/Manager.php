@@ -1,4 +1,11 @@
 <?php
+/**
+ * 
+ * @desc Менеджер фильтров
+ * @author Юрий
+ * @package IcEngine
+ *
+ */
 
 Loader::load ('Filter_Abstract');
 
@@ -6,14 +13,13 @@ class Filter_Manager
 {
 	
 	/**
-	 * 
+	 * @desc Подключенные фильтры.
 	 * @var array <Filter_Abstract>
 	 */
 	protected static $_filters = array ();
 	
 	/**
-	 * @param string $name
-	 * 		Фильтр.
+	 * @param string $name Фильтр.
 	 * @return Filter_Abstract
 	 */
 	public static function get ($name)
@@ -29,9 +35,8 @@ class Filter_Manager
 	}
 	
 	/**
-	 * Фильтрация
-	 * @param string $name
-	 * 		Фильтр
+	 * @desc Фильтрация
+	 * @param string $name Фильтр
 	 * @param mixed $data
 	 * @return mixed
 	 */
@@ -41,9 +46,8 @@ class Filter_Manager
 	}
 	
 	/**
-	 * Фильтрация с использованием схемы
-	 * @param string $name
-	 * 		Фильтр
+	 * @desc Фильтрация с использованием схемы
+	 * @param string $name Фильтр
 	 * @param string $field
 	 * @param stdClass $data
 	 * @param stdClass|Objective $scheme

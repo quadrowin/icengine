@@ -22,12 +22,20 @@ class Config_Manager
 	protected static $_emptyConfig;
 	
 	/**
+	 * @desc Флаг означающий, что идет процесс загрузки конфига,
+	 * необходим для предотвращения бесконечной рекурсии при
+	 * загрузке конфигов для менеджера ресурсов.
+	 * @var boolean
+	 */
+	protected static $_inLoading = false;
+	
+	/**
 	 * @desc Загружает конфиг из файла и возвращает класс конфига.
 	 * @param string $type Тип конфига.
 	 * @param string|array $config Название конфига или конфиг по умолчанию.
 	 * @return Config_Array|Objective Заруженный конфиг.
 	 */
-	public static function _load ($type, $config = null)
+	protected static function _load ($type, $config = '')
 	{
 		$filename = 
 			IcEngine::root () . self::PATH_TO_CONFIG .
@@ -73,18 +81,32 @@ class Config_Manager
 	 * 		результатом функции будет смержованный конфиг.
 	 * @return Objective
 	 */
-	public static function get ($type, $config = null)
+	public static function get ($type, $config = '')
 	{
-		$rname = $type . (is_string ($config) ? '/' . $config : '');
+		$rname = $type . (is_string ($config) && $config ? '/' . $config : '');
+		
+		if (self::$_inLoading)
+		{
+			return self::_load ($type, $config);
+		}
 		
 		Loader::load ('Resource_Manager');
+		
+		self::$_inLoading = true;
 		$cfg = Resource_Manager::get ('Config', $rname);
+		self::$_inLoading = false;
 		
 		if (!$cfg)
 		{
+			echo "filecfg:$rname; ";
 			$cfg = self::_load ($type, $config);
 			Resource_Manager::set ('Config', $rname, $cfg);
 		}
+		else
+		{
+			echo "cachecfg:$rname; ";
+		}
+		
 		return $cfg;
 	}
 	
