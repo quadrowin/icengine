@@ -67,10 +67,10 @@ var Helper_Date = {
 
 strToDate = function (str, def)
 {
-	Helper_Date.parse(str, def);
+	return Helper_Date.parse (str, def);
 };
 
 dateFormat_ddmmyyyy = function (time, sep)
 {
-	Helper_Date.format_ddmmyyyy(time, sep);
+	return Helper_Date.format_ddmmyyyy (time, sep);
 };
