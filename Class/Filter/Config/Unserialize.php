@@ -16,6 +16,10 @@ class Filter_Config_Unserialize
 	 */
 	public function filter ($data)
 	{
+		if (!$data)
+		{
+			return null;
+		}
 		$p = strpos ($data, ':');
 		return new Config_Array (json_decode (substr ($data, $p + 1), true));
 	}
