@@ -1,14 +1,21 @@
 <?php
 
 /**
- * 
  * @desc Менеджер коллекций
  * @author Илья
- *
+ * @package IcEngine
  */
 
 abstract class Model_Collection_Manager
 {
+	
+	/**
+	 * 
+	 * @desc Сохраненные коллекции
+	 * @var array <Model_Collection>
+	 */
+	private static $_collections = array ();
+	
 	/**
 	 * Возвращает коллекцию по запросу.
 	 * @author Goorus
@@ -115,16 +122,48 @@ abstract class Model_Collection_Manager
 	
 	/**
 	 * 
+	 * @desc Востановить коллекцию
+	 * @param string $name
+	 * @return Model_Collection
+	 */
+	public static function restore ($name)
+	{
+		return isset (self::$_collections [$name]) ?
+			self::$_collections [$name] :
+			null;
+	}
+	
+	/**
+	 * 
 	 * @desc Сохранить коллекцию в хранилище
 	 * @param string $name
 	 * @param array $items
 	 */
 	public static function set ($name, array $items)
 	{
+		for ($i = 0, $icount = sizeof ($items); $i < $icount; $i++)
+		{
+			if ($items [$i] instanceof Model)
+			{
+				$items [$i] = $items [$i]->getFields ();
+			}
+		}
+		
 		Resource_Manager::set (
 			'Model_Collection',
 			$name,
 			$items
 		);
+	}
+	
+	/**
+	 * 
+	 * @desc Сохранить коллекцию
+	 * @param string $name
+	 * @param Model_Collection $collection
+	 */
+	public static function store ($name, $collection)
+	{
+		self::$_collections [$name] = $collection;
 	}
 }

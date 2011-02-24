@@ -183,7 +183,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function className ()
 	{
-//		return substr (get_class ($this), 0, -strlen('_Collection'));
 		return substr (get_class ($this), 0, -11);
 	}
 	
@@ -324,6 +323,11 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		return $this->_autojoin;
 	}
 	
+	/**
+	 * 
+	 * @desc Получить коллекцию опшинов
+	 * @return Model_Collection_Option_Item_Collection
+	 */
 	public function getOptions ()
 	{
 		return $this->_options;
@@ -331,7 +335,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	
 	/**
 	 * @see items 
-	 * @return array
 	 */
 	public function getItems ()
 	{
@@ -568,11 +571,12 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		}
 		
 		$this->_options->executeBefore ($this, $query);
+		
 		$this->_lastQuery = $query;
 		
 		Loader::load ('Model_Collection_Manager');
 		$this->_items = Model_Collection_Manager::getByQuery (
-			$this, $query
+			$this, $query, $this->_autojoin
 		);
 		
 		$this->_options->executeAfter ($this, $query);
@@ -651,8 +655,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	public function offsetGet ($offset)
 	{
 		return $this->item ($offset);
-//			isset ($this->_items [$offset]) ?
-//			$this->_items [$offset] : null;
 	}
 	
 	/**
@@ -753,6 +755,11 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		return $this;
 	}
 	
+	/**
+	 * 
+	 * @desc Изменить опшин
+	 * @param unknown_type $option
+	 */
 	public function setOption ($option)
 	{
 		$this->_options->setOption ($option);
@@ -943,9 +950,9 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 * @param string $name
 	 * @param boolean $force
 	 */
-	public function store ($name, $force=true)
+	public function store ($name)
 	{
-		Resource_Manager::store ($name, $this, $force);
+		Model_Collection_Manager::store ($name, $this);
 	}
 	
 	/**
