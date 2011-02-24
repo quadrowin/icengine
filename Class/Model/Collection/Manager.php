@@ -75,13 +75,12 @@ abstract class Model_Collection_Manager
 			)
 		);
 		
-		$pack = Resource_Manager::get ('Model_Collection', $key);
+		$pack = null;//Resource_Manager::get ('Model_Collection', $key);
 		
 		if ($pack instanceof Model_Collection)
 		{
-			$collection->setItems ($pack->items);
+			$collection->setItems ($pack->items ());
 			$collection->data ($pack->data ());
-			
 			return ;
 		}
 		
@@ -105,7 +104,7 @@ abstract class Model_Collection_Manager
 				'items'	=> $query_result->asTable (),
 			);
 		}
-			
+		
 		$model_manager = IcEngine::$modelManager;
 		$key_field = $collection->keyField ();
 

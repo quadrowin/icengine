@@ -46,6 +46,36 @@ class Model_Collection_Option_Item_Collection
 		return $modelName.'_Collection_Option';
 	}
 	
+/**
+
+	 * 
+	 * @param string $modelName
+	 * @param string $option
+	 * @param string $beforeAfter
+	 * @param array $args
+	 * @throws Zend_Exception
+	 */
+	private function _execute ($modelName, $option, $beforeAfter, array $args)
+	{
+		$className = $this->_className ($modelName);	
+		$methodName = $this->_methodName ($option, $beforeAfter);
+
+		Loader::load ('Executor');
+		if (Loader::load ($className))
+		{
+			return Executor::execute (
+				array (new $className ($option), $methodName),
+				$args
+			);
+		}
+		else
+		{
+			include_once ('Zend/Exception.php');
+			throw new Zend_Exception ('Models loading error');
+			return null;
+		}
+	}
+	
 	/**
 	 * 
 	 * @param mixed $item
@@ -54,15 +84,27 @@ class Model_Collection_Option_Item_Collection
 	{
 	    if ($item instanceof Model_Collection_Option_Item)
 	    {
+		    if ($this->exists ($item->getName ()))
+			{
+				return;
+			}
 	        $this->_items [] = $item;
 	    }
 	    elseif (is_array ($item))
 	    {
+		    if ($this->exists ($item ['name']))
+			{
+				return;
+			}
 	        $this->_items [] = new Model_Collection_Option_Item (
 	            $item ['name'], $item); 
 	    }
 	    else
 	    {
+		    if ($this->exists ($item))
+			{
+				return;
+			}
 	        $this->_items [] = new Model_Collection_Option_Item ($item);
 	    }
 	}
@@ -121,36 +163,20 @@ class Model_Collection_Option_Item_Collection
 	{
 		return $this->execute (self::BEFORE, $collection, $query);
 	}
-    	
-	/**
-
-	 * 
-	 * @param string $modelName
-	 * @param string $option
-	 * @param string $beforeAfter
-	 * @param array $args
-	 * @throws Zend_Exception
-	 */
-	private function _execute ($modelName, $option, $beforeAfter, array $args)
-	{
-		$className = $this->_className ($modelName);	
-		$methodName = $this->_methodName ($option, $beforeAfter);
-
-		Loader::load ('Executor');
-		if (Loader::load ($className))
-		{
-			return Executor::execute (
-				array (new $className ($option), $methodName),
-				$args
-			);
-		}
-		else
-		{
-			include_once ('Zend/Exception.php');
-			throw new Zend_Exception ('Models loading error');
-			return null;
-		}
-	}
+	
+	
+    public function exists ($item)
+    {
+    	foreach ($this->_items as $_item)
+    	{
+    		if ($_item->getName () == $item)
+    		{
+    			return true;
+    		}
+    	}
+    	return false;
+    }
+	
 	
 	/**
 	 * 
