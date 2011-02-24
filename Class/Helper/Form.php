@@ -1,36 +1,36 @@
 <?php
-
 /**
  * 
- * @desc	Обработка данных с формы.
+ * @desc Обработка данных с формы.
+ * @author Goorus
+ * @package IcEngine
  *
  */
-
 class Helper_Form
 {
 	
 	/**
-	 * Игнорировать данные.
+	 * @desc Игнорировать данные.
 	 * @var string
 	 */
 	const IGNORE = 'ignore';
 	
 	/**
-	 * Поле будет прочитано из входных данных контроллера.
+	 * @desc Поле будет прочитано из входных данных контроллера.
 	 * @var string
 	 */
 	const INPUT = 'input';
 	
 	/**
-	 * Поле будет прочитано из входных данных контроллера, но после
+	 * @desc Поле будет прочитано из входных данных контроллера, но после
 	 * проверки удалено.
 	 * @var string
 	 */
 	const INPUT_IGNORE = 'input,ignore';
 	
 	/**
-	 * @desc	Пример полей
-	 * @var	array
+	 * @desc Пример полей
+	 * @var array
 	 */
 	private $_simpleFields = array (
 		'email'		=> array (
@@ -76,17 +76,13 @@ class Helper_Form
 	);
 	
 	/**
-	 * Получение значения для поля
-	 * @param Objective $data
-	 * 		Объект для получения данных
-	 * @param string $field 
-	 * 		Получаемое поле
-	 * @param Data_Transport $input
-	 * 		Транспорт - источник данных
-	 * @param string|array $value
-	 * 		Правило получения
-	 * @param boolean $is_edit
-	 * 		Это новая запись (может использоваться в правиле)
+	 * @desc Получение значения для поля.
+	 * @param Objective $data Объект для получения данных.
+	 * @param string $field Получаемое поле
+	 * @param Data_Transport $input Транспорт - источник данных
+	 * @param string|array $value Правило получения
+	 * @param boolean $is_edit Это новая запись
+	 * 		(может использоваться в правиле)
 	 */
 	protected static function _recieveValue (Objective $data, $field,
 		Data_Transport $input, $value, $is_new = false)
@@ -125,7 +121,7 @@ class Helper_Form
 	}
 	
 	/**
-	 * Возвращает только атрибуты
+	 * @desc Возвращает только атрибуты.
 	 * @param Objective $data
 	 * @param array $scheme
 	 * @return array
@@ -147,7 +143,7 @@ class Helper_Form
 	}
 	
 	/**
-	 * Возвращает только поля
+	 * @desc Возвращает только поля.
 	 * @param Objective $data
 	 * @param array $scheme
 	 * @return array
@@ -169,12 +165,12 @@ class Helper_Form
 	}
 	
 	/**
-	 * Разделяет атрибуты и поля.
+	 * @desc Разделяет атрибуты и поля.
 	 * @param Objective $data
 	 * @param array $scheme
 	 * @return array
 	 * 		$result ['fields'] array поля
-	 * 		@retult ['attributes'] array атрибуты
+	 * 		$result ['attributes'] array атрибуты
 	 */
 	public static function extractParts (Objective $data, array $scheme)
 	{
@@ -203,12 +199,11 @@ class Helper_Form
 	}
 	
 	/**
-	 * Фильтрация значений
-	 * @param Objective $data
-	 * 		Данные для фильтрации
-	 * @param array $scheme
+	 * @desc Фильтрация значений.
+	 * @param Objective $data Данные для фильтрации.
+	 * @param array|Objective $scheme
 	 */
-	public static function filter (Objective $data, array $scheme)
+	public static function filter (Objective $data, $scheme)
 	{
 		Loader::load ('Filter_Manager');
 		$obj_scheme = (object) $scheme;
@@ -220,10 +215,20 @@ class Helper_Form
 				continue ;
 			}
 			
-			$filters = isset ($info ['filters']) ? 
-				(array) $info ['filters'] :
-				array ();
-				
+			$filters = array ();
+			
+			if (isset ($info ['filters']))
+			{
+				if ($info ['filters'] instanceof Objective)
+				{
+					$filters = $info ['filters']->__toArray ();
+				}
+				else
+				{
+					$filters = (array) $info ['filters'];
+				}
+			} 
+			
 			foreach ($filters as $filter)
 			{
 				$data->$field = Filter_Manager::filterEx (
@@ -234,19 +239,13 @@ class Helper_Form
 	}
 	
 	/**
-	 * @desc
-	 * 		Чтение данных из инпута согласно правилам.
-	 * 
-	 * @param Data_Transport $input
-	 * 		Входной поток.
-	 * @param array $fields
-	 * 		Поля.
-	 * @param Temp_Content $tc
-	 * 		Временный контент
-	 * @return Objective
-	 * 		Прочитанные поля.
+	 * @desc Чтение данных из инпута согласно правилам.
+	 * @param Data_Transport $input Входной поток.
+	 * @param array|Objective $fields Поля.
+	 * @param Temp_Content $tc Временный контент
+	 * @return Objective Прочитанные поля.
 	 */
-	public static function receiveFields (Data_Transport $input, array $fields, 
+	public static function receiveFields (Data_Transport $input, $fields, 
 		Temp_Content $tc = null)
 	{
 		$data = new Objective ();
@@ -265,11 +264,11 @@ class Helper_Form
 	}
 	
 	/**
-	 * Удаление из выборки полей, отмеченных как игнорируемые.
+	 * @desc Удаление из выборки полей, отмеченных как игнорируемые.
 	 * @param Objective $data
-	 * @param array $scheme
+	 * @param array|Objective $scheme
 	 */
-	public static function unsetIngored (Objective $data, array $scheme)
+	public static function unsetIngored (Objective $data, $scheme)
 	{
 		foreach ($data as $key => $value)
 		{
@@ -285,18 +284,17 @@ class Helper_Form
 	}
 	
 	/**
-	 * Проверка корректности данных с формы.
-	 * 
+	 * @desc Проверка корректности данных с формы.
 	 * @param Objective $data
 	 * 		Данные, полученные с формы.
-	 * @param array $fields
+	 * @param array|Objective $scheme
 	 * 		Данные по полям.
 	 * @return true|array
 	 * 		true если данные прошли валидацию полностью.
 	 * 		Иначе - массив
 	 * 		array ("Поле" => "Ошибка")
 	 */
-	public static function validate (Objective $data, array $scheme)
+	public static function validate (Objective $data, $scheme)
 	{
 		Loader::load ('Data_Validator_Manager');
 		$obj_scheme = (object) $scheme;
@@ -308,9 +306,15 @@ class Helper_Form
 				continue ;
 			}
 			
-			$validators = isset ($info ['validators']) ? 
-				(array) $info ['validators'] :
-				array ();
+			$validators = array ();
+			
+			if (isset ($info ['validators']))
+			{ 
+				$validators = 
+					$info ['validators'] instanceof Objective ? 
+					$info ['validators']->__toArray () : 
+					(array) $info ['validators'];
+			}
 				
 			foreach ($validators as $validator)
 			{

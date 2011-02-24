@@ -46,11 +46,10 @@ class Filter_Manager
 	 * 		Фильтр
 	 * @param string $field
 	 * @param stdClass $data
-	 * @param stdClass $scheme
+	 * @param stdClass|Objective $scheme
 	 * @return mixed
 	 */
-	public static function filterEx ($name, $field, $data, 
-		stdClass $scheme)
+	public static function filterEx ($name, $field, $data, $scheme)
 	{
 		return self::get ($name)->filterEx ($field, $data, $scheme);
 	}

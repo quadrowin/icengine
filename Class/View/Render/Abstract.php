@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * 
+ * @desc Абстрактный класс рендера.
+ * @author Гурус
+ * @package IcEngine
+ *
+ */
 abstract class View_Render_Abstract extends Model_Factory_Delegate
 {
 	
@@ -107,7 +113,7 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	 */
 	public function getLayout ()
 	{
-	    return $this->_layout;
+		return $this->_layout;
 	}
 	
 	/**
@@ -115,7 +121,7 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	 */
 	public function getTemplatesPathes ()
 	{
-	    return $this->_templatesPathes;
+		return $this->_templatesPathes;
 	}
 	
 	/**
@@ -132,7 +138,7 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	 */
 	public function popVars ()
 	{
-	    $this->_vars = array_pop ($this->_varsStack);
+		$this->_vars = array_pop ($this->_varsStack);
 	}
 	
 	/**
@@ -140,8 +146,8 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	 */
 	public function pushVars ()
 	{
-	    $this->_varsStack [] = $this->_vars;
-	    $this->_vars = array ();
+		$this->_varsStack [] = $this->_vars;
+		$this->_vars = array ();
 	}
 	
 	/**
@@ -169,22 +175,29 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 		return $this;
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see Model_Factory_Delegate::table()
+	 */
 	public function table ()
 	{
 		return 'View_Render';
 	}
 	
 	/**
-	 * Загрузка конфига
-	 * @return View_Render_Abstract
-	 * 		Этот рендер
+	 * @desc Загрузка конфига
+	 * @return View_Render_Abstract Этот рендер.
 	 */
-	public function loadConfig ()
+	public function config ()
 	{
-		$this->config = Config_Manager::get (get_class ($this))
-			->mergeConfig ($this->config);
-		// пути до шаблонов
-		return $this;
+		if (is_array ($this->config))
+		{
+			$this->config = Config_Manager::get (
+				get_class ($this),
+				$this->config
+			);
+		}
+		return $this->config;
 	}
 	
 }

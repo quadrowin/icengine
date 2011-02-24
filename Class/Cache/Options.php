@@ -1,5 +1,4 @@
 <?php
-
 /**
  * 
  * @package IcEngine
@@ -37,8 +36,8 @@ class Cache_Options
 	 */
 	public function applyConfig (Config_Array $config)
 	{
-	    $this->_config = $config->mergeConfig ($this->_config);
-	    return $this;
+		$this->_config = $config->merge ($this->_config);
+		return $this;
 	}
 	
 	/**

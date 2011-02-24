@@ -9,11 +9,11 @@
 class Data_Validator_Standart_Date
 {
 	
-    public function validateEx ($field, $data, stdClass $scheme)
-    {
-    	$val = $data->$field;
-    	$param = $scheme->$field;
-    	
+	public function validateEx ($field, $data, $scheme)
+	{
+		$val = $data->$field;
+		$param = $scheme->$field;
+		
 		if (
 			isset ($param ['min']) && 
 			Helper_Date::cmpUnix ($val, $param ['min']) < 0
@@ -29,8 +29,8 @@ class Data_Validator_Standart_Date
 		{
 			return __CLASS__ . '/' . self::BIG;
 		}
-    	
+		
 		return true;
-    }
+	}
 	
 }

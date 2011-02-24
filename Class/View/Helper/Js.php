@@ -48,7 +48,7 @@ class View_Helper_Js extends View_Helper_Abstract
 				->resources ()
 				->packer (View_Resource_Manager::JS);
 			
-			$packer->config = $config->mergeConfig ($packer->config);
+			$packer->config = $config->merge ($packer->config);
 			
 			$packer->pack ($jses, $config ['packed_file']);
 			

@@ -38,8 +38,8 @@ class Data_Provider_Manager
 	}
 	
 	/**
-	 * Получение данных провайдера.
-	 * @param string $name
+	 * @desc Возвращает провайдера.
+	 * @param string $name Название провайдера в конфиге.
 	 * @return Data_Provider_Abstract
 	 */
 	public static function get ($name)

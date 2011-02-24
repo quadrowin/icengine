@@ -1,12 +1,11 @@
 <?php
-
 /**
  * 
  * @desc Проверка валидности пароля.
  * @author Юрий
+ * @package IcEngine
  *
  */
-
 class Data_Validator_Registration_Password
 {
     
@@ -14,7 +13,7 @@ class Data_Validator_Registration_Password
 	
 	const LONG	= 'long';	// Короткий пароль
 	
-	public function validateEx ($field, $data, stdClass $scheme)
+	public function validateEx ($field, $data, $scheme)
 	{
 		$length = strlen ($data->$field);
 		$param = $scheme->$field;

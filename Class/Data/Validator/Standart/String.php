@@ -28,7 +28,13 @@ class Data_Validator_Standart_String
 	 */
 	const REGEXP = 'regexp';
 	
-	public function validateEx ($field, $data, stdClass $scheme)
+	/**
+	 * @desc Валидация.
+	 * @param strin $field
+	 * @param stcClass $data
+	 * @param stdClass $scheme
+	 */
+	public function validateEx ($field, $data, $scheme)
 	{
 		$length = strlen ($data->$field);
 		$param = $scheme->$field;

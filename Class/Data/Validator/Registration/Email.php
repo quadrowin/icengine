@@ -3,14 +3,14 @@
 class Data_Validator_Registration_Email
 {
 
-	const SHORT		= 'short';      // Пустой емейл
+	const SHORT		= 'short';		// Пустой емейл
 	
-	const INCORRECT	= 'incorrect';  // Емейл некорректен
+	const INCORRECT	= 'incorrect';	// Емейл некорректен
 	
-	const REPEAT	= 'repeat';     // Уже используется
-    
-    public function validateEx ($field, $data, stdClass $scheme)
-    {
+	const REPEAT	= 'repeat';		// Уже используется
+	
+	public function validateEx ($field, $data, $scheme)
+	{
 		if (empty ($data->$field))
 		{
 			return __CLASS__ . '/' . self::SHORT;
@@ -20,17 +20,17 @@ class Data_Validator_Registration_Email
 		$param = $scheme->$field;
 		
 		if (
-		    !filter_var ($email, FILTER_VALIDATE_EMAIL) ||
-		    strlen ($email) > $param ['maxLength']
+			!filter_var ($email, FILTER_VALIDATE_EMAIL) ||
+			strlen ($email) > $param ['maxLength']
 		)
 		{
-		    return __CLASS__ . '/' . self::INCORRECT;
+			return __CLASS__ . '/' . self::INCORRECT;
 		}
 		
 		$user = IcEngine::$modelManager->modelBy (
-		    'User',
-		    Query::instance ()
-		    ->where ('email', $email)
+			'User',
+			Query::instance ()
+			->where ('email', $email)
 		);
 		
 		if ($user)
@@ -39,9 +39,9 @@ class Data_Validator_Registration_Email
 		}
 		
 		$reg = IcEngine::$modelManager->modelBy (
-		    'Registration',
-		    Query::instance ()
-		    ->where ('email', $email)
+			'Registration',
+			Query::instance ()
+			->where ('email', $email)
 		);
 		
 		if ($reg)
@@ -50,6 +50,6 @@ class Data_Validator_Registration_Email
 		}
 		
 		return true;
-    }
-    
+	}
+	
 }

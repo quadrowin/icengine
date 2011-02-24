@@ -1,23 +1,23 @@
 <?php
-
 /**
  * 
- * Объект с динамически создаваемыми полями.
- * Может быть исопльзован как массив.
+ * @desc Объект с динамически создаваемыми полями.
+ * Может быть использован как массив.
  * @author Morph
+ * @package IcEngine
  *
  */
 class Objective implements ArrayAccess, IteratorAggregate, Countable
 {
 		
 	/**
-	 * Данные объекта.
+	 * @desc Данные объекта.
 	 * @var array
 	 */
 	protected $_data = array ();
 	
 	/**
-	 * 
+	 * @desc Возвращает экземпляр Objective
 	 * @param array $data
 	 */
 	public function __construct (array $data = array ())
@@ -41,7 +41,7 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * Данные объекта в виде массива.
+	 * @desc Данные объекта в виде массива.
 	 * Данные типа Objective рекурсивно будут приведены к массивам.
 	 * @return array
 	 */
@@ -65,6 +65,7 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
+	 * @param string $key
 	 * @return boolean
 	 */
 	public function __isset ($key)
@@ -73,7 +74,7 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * Клонирование
+	 * @desc Клонирование (выполняется рекурсивно)
 	 */
 	public function __clone ()
 	{
@@ -175,11 +176,19 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 		return $result;
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see IteratorAggregate::getIterator()
+	 */
 	public function getIterator ()
 	{
 		return new ArrayIterator ($this->_data);
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see ArrayAccess::offsetSet()
+	 */
 	public function offsetSet ($offset, $value)
 	{
 		if (is_null ($offset))
@@ -192,11 +201,43 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 		}
 	}
 	
+	/**
+	 * Checks if a value exists in an array
+	 * @link http://www.php.net/manual/en/function.in-array.php
+	 * @param needle mixed <p>
+	 * The searched value.
+	 * </p>
+	 * <p>
+	 * If needle is a string, the comparison is done
+	 * in a case-sensitive manner.
+	 * </p>
+	 * @param strict bool[optional] <p>
+	 * If the third parameter strict is set to true
+	 * then the in_array function will also check the
+	 * types of the
+	 * needle in the haystack.
+	 * </p>
+	 * @return bool true if needle is found in the array,
+	 * false otherwise.
+	 */
+	public function indexOf ($needle, $strict = false)
+	{
+		return in_array ($needle, $this->_data, $strict);
+	}
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see ArrayAccess::offsetExists()
+	 */
 	public function offsetExists ($offset)
 	{
 		return isset ($this->_data [$offset]);
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see ArrayAccess::offsetUnset()
+	 */
 	public function offsetUnset ($offset)
 	{
 		if (array_key_exists ($offset, $this->_data))
@@ -205,6 +246,10 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 		}
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see ArrayAccess::offsetGet()
+	 */
 	public function offsetGet ($offset)
 	{
 		return $this->__get ($offset);

@@ -19,7 +19,7 @@ class User extends Model
 	 * Текущий пользователь.
 	 * @var User
 	 */
-	protected static $_current    = false;
+	protected static $_current	= false;
 	
 	/**
 	 * Авторизоваться этим пользователем.
@@ -27,8 +27,8 @@ class User extends Model
 	 */
 	public function authorize ()
 	{
-	    User_Session::getCurrent ()->updateSession ($this->id);
-	    self::$_current = $this;
+		User_Session::getCurrent ()->updateSession ($this->id);
+		self::$_current = $this;
 		return $this;
 	}
 
@@ -62,52 +62,51 @@ class User extends Model
 		{
 			$resource = IcEngine::$modelManager->modelBy (
 				'Acl_Resource',
-			    Query::instance ()
-			        ->where ('alias', $alias)
+				Query::instance ()
+					->where ('alias', $alias)
 			);
 		}
 		
 		if (!$resource)
 		{
-		    return false;
+			return false;
 		}
 		
 		return $resource->userCan ($this);
 	}
 	
 	/**
-	 * 
+	 * @desc Создание пользователя.
 	 * @param string $email
 	 * @param string $password
 	 * @param integer $active
-	 * @param array $exts
-	 * 		Дополнительные поля
+	 * @param array|Objective $exts Дополнительные поля
 	 * @return User
 	 */
 	public static function create ($email, $password, $active, 
-	    array $exts = array ())
+		$exts = array ())
 	{
-	    $exts = array_merge (
-	        $exts,
-	        array (
-    			'email'		=> $email,
-    			'password'	=> $password,
-    			'active'	=> (int) $active
-    		)
-	    );
+		$exts = array_merge (
+			is_array ($exts) ? $exts : $exts->__toArray (),
+			array (
+				'email'		=> $email,
+				'password'	=> $password,
+				'active'	=> (int) $active
+			)
+		);
 		$user = new User ($exts);
 		
 		return $user->save ();
 	}
 	
 	/**
-	 * Генерация пароля заданной длинны.
+	 * @desc Генерация пароля заданной длинны.
 	 * @param integer $length
 	 * @return string
 	 */
 	public static function genPassword ($length = 8)
 	{
-	    $result = substr (md5 (time), 0, $length);
+		$result = substr (md5 (time), 0, $length);
 	}
 	
 	/**
@@ -115,7 +114,7 @@ class User extends Model
 	 */
 	public static function getCurrent ()
 	{
-	    return self::$_current;
+		return self::$_current;
 	}
 	
 	/**
@@ -124,12 +123,12 @@ class User extends Model
 	 */
 	public static function id ()
 	{
-	    if (!self::$_current || !self::$_current->id)
-	    {
-		    return 0;
-	    }
-	    
-	    return self::$_current->id;
+		if (!self::$_current || !self::$_current->id)
+		{
+			return 0;
+		}
+		
+		return self::$_current->id;
 	}
 	
 	/**
@@ -151,10 +150,10 @@ class User extends Model
 	 */
 	public function hasRole (Acl_Role $role)
 	{
-	    if (!$role)
-	    {
-	        return false;
-	    }
+		if (!$role)
+		{
+			return false;
+		}
 		return Helper_Link::wereLinked ($this, $role);
 	}
 	
@@ -181,13 +180,13 @@ class User extends Model
 	 */
 	public static function init ($session_id = null)
 	{
-	    $session_id = $session_id ? $session_id : Request::sessionId ();
-	    User_Session::setCurrent (
-	        User_Session::byPhpSessionId (
-	            $session_id ? $session_id : 'unknown')
-	    );
-	    
-	    self::$_current = User_Session::getCurrent ()->User;
+		$session_id = $session_id ? $session_id : Request::sessionId ();
+		User_Session::setCurrent (
+			User_Session::byPhpSessionId (
+				$session_id ? $session_id : 'unknown')
+		);
+		
+		self::$_current = User_Session::getCurrent ()->User;
 		User_Session::getCurrent ()->updateSession ();
 		
 		return self::$_current;
@@ -207,25 +206,25 @@ class User extends Model
 	 */
 	public function personalRole ()
 	{
-	    Loader::load ('Acl_Role_Type_Personal');
-	    
-	    $role_name = 'User' . $this->id . 'Personal';
-	    
-	    $role = Acl_Role::byTypeNName (
-	        Acl_Role_Type_Personal::ID,
-	        $role_name
-	    );
-	    
-	    if (!$role)
-	    {
-	        $role = new Acl_Role (array (
-	            'name'	            => $role_name,
-	            'Acl_Role_Type__id'	=> Acl_Role_Type_Personal::ID
-	        ));
-	        $role->save ();
-	    }
-	    
-	    return $role;
+		Loader::load ('Acl_Role_Type_Personal');
+		
+		$role_name = 'User' . $this->id . 'Personal';
+		
+		$role = Acl_Role::byTypeNName (
+			Acl_Role_Type_Personal::ID,
+			$role_name
+		);
+		
+		if (!$role)
+		{
+			$role = new Acl_Role (array (
+				'name'				=> $role_name,
+				'Acl_Role_Type__id'	=> Acl_Role_Type_Personal::ID
+			));
+			$role->save ();
+		}
+		
+		return $role;
 	}
 	
 	/**
@@ -251,18 +250,18 @@ class User extends Model
 				));
 			$role = $role->first ();
 		}
-	    
-	    if (!$role && $autocreate)
-	    {
-	        $role = new Acl_Role (array (
-	            'name'				=> 'u' . $this->id . 'rt' . $role_type_id,
-	            'Acl_Role_Type__id'	=> $role_type_id
-	        ));
-	        $role->save ();
-	        Helper_Link::link ($role, $this);
-	    }
-	    
-	    return $role;
+		
+		if (!$role && $autocreate)
+		{
+			$role = new Acl_Role (array (
+				'name'				=> 'u' . $this->id . 'rt' . $role_type_id,
+				'Acl_Role_Type__id'	=> $role_type_id
+			));
+			$role->save ();
+			Helper_Link::link ($role, $this);
+		}
+		
+		return $role;
 	}
 	
 }
