@@ -143,6 +143,7 @@ abstract class Model
 	}
 	
 	/**
+	 * (non-PHPDoc)
 	 * @return boolean
 	 */
 	public function __isset ($key)
@@ -151,7 +152,7 @@ abstract class Model
 	}
 	
 	/**
-	 * 
+	 * (non-PHPDoc)
 	 * @param string $field
 	 * 		Поле
 	 * @param mixed $value
@@ -175,6 +176,10 @@ abstract class Model
 		}
 	}
 	
+	/**
+	 * 
+	 * (non-PHPDoc)
+	 */
 	protected function _afterConstruct ()
 	{
 		
@@ -372,6 +377,16 @@ abstract class Model
 	public function getAutojoin ()
 	{
 		return $this->_autojoin;
+	}
+	
+	/**
+	 * 
+	 * @desc Получить значения полей
+	 * @return array<string>
+	 */
+	public function getFields ()
+	{
+		return $this->_fields;
 	}
 	
 	/**
