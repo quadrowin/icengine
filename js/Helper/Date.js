@@ -47,7 +47,7 @@ var Helper_Date = {
 		return new Date (def);
 	},
 
-	dateFormat_ddmmyyyy : function (time, sep)
+	format_ddmmyyyy : function (time, sep)
 	{
 		var date = strToDate (time);
 		var d = date.getDate () + "";
@@ -68,4 +68,9 @@ var Helper_Date = {
 strToDate = function (str, def)
 {
 	Helper_Date.parse(str, def);
+};
+
+dateFormat_ddmmyyyy = function (time, sep)
+{
+	Helper_Date.format_ddmmyyyy(time, sep);
 };
