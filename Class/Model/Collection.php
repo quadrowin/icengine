@@ -674,7 +674,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 * @desc Получить результат запроса коллекции
 	 * @return Query_Result
 	 */
-	public function queryResult ($result = 0)
+	public function queryResult ($result = null)
 	{
 		if ($result)
 		{
@@ -693,7 +693,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	/**
 	 * 
 	 * @desc Удаляет опшин по имени
-	 * @param unknown_type $name
+	 * @param string $name
 	 */
 	public function removeOption ($name)
 	{
@@ -776,7 +776,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * @desd Подмена запроса коллекции.
+	 * @desc Подмена запроса коллекции.
 	 * @param Query $query Новый запрос
 	 * @return Model_Collection Эта коллекция
 	 */
