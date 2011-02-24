@@ -421,7 +421,7 @@ abstract class Model
 		if (!isset ($this->_joints [$model]) || $data)
 		{
 			Loader::load ($model);
-			
+						
 			if (!class_exists ($model))
 			{
 				Loader::load ('Zend_Exception');
