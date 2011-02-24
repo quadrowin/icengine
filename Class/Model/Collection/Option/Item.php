@@ -51,7 +51,10 @@ class Model_Collection_Option_Item
 		    return ;
 		}
 	    
-	    Loader::load ($class_name);
+	    if (!Loader::load ($class_name))
+	    {
+	    	debug_print_backtrace();
+	    }
 	    $this->_option = new $class_name ($option);
 	}
     
