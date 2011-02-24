@@ -98,13 +98,8 @@ class Config_Manager
 		
 		if (!$cfg)
 		{
-			echo "filecfg:$rname; ";
 			$cfg = self::_load ($type, $config);
 			Resource_Manager::set ('Config', $rname, $cfg);
-		}
-		else
-		{
-			echo "cachecfg:$rname; ";
 		}
 		
 		return $cfg;

@@ -141,7 +141,7 @@ class Redis
  public function get($key,$plain = FALSE)
  {
   $r = $this->requestByKey($key,'GET '.$key);
-  if ($r === NULL) {return FALSE;}
+  if ($r === NULL) {return null;}
   return $plain?$r:json_decode($r,TRUE);
  }
  public function set($key,$value,$TTL = NULL)
