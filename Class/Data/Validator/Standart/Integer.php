@@ -22,7 +22,7 @@ class Data_Validator_Standart_Integer
 	 */
 	const BIG	= 'big';
 	
-    public function validateEx ($field, $data, stdClass $scheme)
+    public function validateEx ($field, $data, $scheme)
     {
     	$val = $data->$field;
     	$param = $scheme->$field;

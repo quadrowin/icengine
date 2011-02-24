@@ -39,7 +39,7 @@ class View_Helper_Jtpl extends View_Helper_Abstract
 			->resources ()
 			->packer (View_Resource_Manager::JTPL);
 		
-		$packer->config = $config->mergeConfig ($packer->config);
+		$packer->config = $config->merge ($packer->config);
 		
 		$packer->pack ($tpls, $config ['packed_file']);
 		

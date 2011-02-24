@@ -1,11 +1,22 @@
 <?php
-
+/**
+ * 
+ * @desc Помощник блокировки сайта.
+ * @author Гурус
+ * @package IcEngine
+ *
+ */
 class Helper_Site_Block
 {
 	
+	/**
+	 * @desc Поле в $_SESSION для идентификации пользователя.
+	 * @var string
+	 */
 	const SESSION_FIELD = 'Helper_Site_Block_Auth';
 	
 	/**
+	 * @desc Конфиг
 	 * @var array
 	 */
 	public static $config = array (
@@ -23,6 +34,12 @@ class Helper_Site_Block
 		'basicRealm'	=> 'Admin Zone'
 	);
 	
+	/**
+	 * @desc Авторизация через HTML страницу.
+	 * @param string $login Логин.
+	 * @param string $password Пароль.
+	 * @return boolean Успешность авторизации.
+	 */
 	public function authWithHtml ($login, $password)
 	{
 		$key = md5 ($login . '@' . $password);
@@ -79,11 +96,11 @@ class Helper_Site_Block
 	}
 	
 	/**
-	 * Авторизация средствами HTTP, не работает, если php установлен
+	 * @desc Авторизация средствами HTTP. Не работает, если php установлен
 	 * не как модуль апача. 
-	 * @param string $login
-	 * @param string $password
-	 * @return boolean
+	 * @param string $login Логин.
+	 * @param string $password Пароль.
+	 * @return boolean 
 	 */
 	public function authWithHttp ($login, $password)
 	{
@@ -118,16 +135,13 @@ class Helper_Site_Block
 	}
 	
 	/**
-	 * Блокирует сайт
+	 * @desc Блокирует сайт в соответсвии с настройками.
 	 * @return boolean
 	 */
 	public static function execute ()
 	{
-		Loader::load ('Config_Manager');
 		Loader::load ('Request');
-		self::$config = Config_Manager::load (__CLASS__)->mergeConfig (
-			self::$config
-		);
+		self::$config = Config_Manager::get (__CLASS__)->merge (self::$config);
 		
 		if (!self::$config ['enable'])
 		{

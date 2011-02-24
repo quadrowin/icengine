@@ -1,7 +1,8 @@
 <?php
-
 /**
  * 
+ * @desc Абстрактный загрузчик.
+ * @author Goorus
  * @package IcEngine
  *
  */
@@ -14,11 +15,18 @@ class Application_Bootstrap_Abstract
 	 */
 	public $behavior;
 	
+	/**
+	 * @desc Возвращает загрузчик.
+	 * @param Application_Behavior_Abstract $behavior Окружение загрузичка.
+	 */
 	public function __construct (Application_Behavior_Abstract $behavior)
 	{
 		$this->behavior = $behavior;
 	}
 	
+	/**
+	 * @desc Инициализация менеджера атрибутов.
+	 */
 	public function initAttributeManager ()
 	{
 		Loader::load ('Attribute_Manager');
@@ -28,6 +36,9 @@ class Application_Bootstrap_Abstract
 		IcEngine::$attributeManager = $this->behavior->attributeManager;
 	}
 	
+	/**
+	 * @desc Инициализация источника данных по умолчанию.
+	 */
 	public function initDds ()
 	{
 		Loader::load ('Data_Provider_Abstract');
@@ -46,12 +57,18 @@ class Application_Bootstrap_Abstract
 		DDS::setDataSource (Data_Source_Manager::get ('default'));
 	}
 	
+	/**
+	 * @desc Инициализация очереди событий.
+	 */
 	public function initMessageQueue ()
 	{
 		Loader::load ('Message_Queue');
 		IcEngine::$application->messageQueue = new Message_Queue ();
 	}
 	
+	/**
+	 * @desc Инициализация менеджера моделей и менеджера коллекций.
+	 */
 	public function initModelManager ()
 	{
 		Loader::load ('Model_Manager');
@@ -63,7 +80,7 @@ class Application_Bootstrap_Abstract
 	}
 	
 	/**
-	 * 
+	 * @desc Инициализация схемы моделей.
 	 * @param string $config
 	 */
 	public function initModelScheme ($config)
@@ -74,7 +91,7 @@ class Application_Bootstrap_Abstract
 	}
 	
 	/**
-	 * Инициализация пользователя и сессии.
+	 * @desc Инициализация пользователя и сессии.
 	 */
 	public function initUser ()
 	{
@@ -83,29 +100,24 @@ class Application_Bootstrap_Abstract
 		User::init ();
 	}
 	
+	/**
+	 * @desc Инициализация рендера.
+	 */
+	public function initView ()
+	{
+		$view = View_Render_Broker::getView ();
+		$this->behavior->view = $view;
+	}
+	
+	/**
+	 * @desc Инициализация менеджера виджета.
+	 */
 	public function initWidgetManager ()
 	{
 		Loader::load ('Widget_Abstract');
 		Loader::load ('Widget_Manager');
 		$this->behavior->widgetManager = new Widget_Manager ();
 		IcEngine::$widgetManager = $this->behavior->widgetManager;
-	}
-	
-	public function makeInclude ()
-	{
-		include ('Observer.php');
-		include ('Query.php');
-		include ('Query/Translator.php');
-		include ('Query/Translator/Mysql.php');
-		include ('Query/Translator/CachePattern.php');
-
-		include ('Mysql.php');
-		
-		include ('Registry.php');
-		
-		include ('Cacher_template.php');
-		include ('Cacher_file.php');
-		include ('ItemScheme.php');
 	}
 	
 	public function run ()

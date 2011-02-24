@@ -10,7 +10,7 @@ class Config_Manager
 {
 	
 	/**
-	 * 
+	 * @desc Путь до конфигов от корня сайта
 	 * @var string
 	 */
 	const PATH_TO_CONFIG = 'config/';
@@ -23,8 +23,8 @@ class Config_Manager
 	
 	/**
 	 * @desc Загружает конфиг из файла и возвращает класс конфига.
-	 * @param string|array $config Название конфига или конфиг по умолчанию.
 	 * @param string $type Тип конфига.
+	 * @param string|array $config Название конфига или конфиг по умолчанию.
 	 * @return Config_Array|Objective Заруженный конфиг.
 	 */
 	public static function _load ($type, $config = null)
@@ -68,26 +68,34 @@ class Config_Manager
 	/**
 	 * @desc Загружает и возвращает конфиг.
 	 * @param string $type Тип конфига.
-	 * @param string $name [optional] Название.
+	 * @param string|array $config [optional] Название или конфиг по умолчанию.
+	 * 		Если параметром $config переданы настройки по умолчанию,
+	 * 		результатом функции будет смержованный конфиг.
 	 * @return Objective
 	 */
 	public static function get ($type, $config = null)
 	{
-		Loader::load ('Resource_Manager');
-		
-		if ($type == 'Resource_Manager')
-		{
-			return self::_load ($type, $config);
-		}
-		
 		$rname = $type . (is_string ($config) ? '/' . $config : '');
+		
+		Loader::load ('Resource_Manager');
 		$cfg = Resource_Manager::get ('Config', $rname);
+		
 		if (!$cfg)
 		{
 			$cfg = self::_load ($type, $config);
 			Resource_Manager::set ('Config', $rname, $cfg);
 		}
 		return $cfg;
+	}
+	
+	/**
+	 * @desc Загрузка реального конфига, игнорируя менеджер ресурсов.
+	 * @param string $type Тип конфига.
+	 * @param string|array $config [optional] Название или конфиг по умолчанию.
+	 */
+	public static function getReal ($type, $config = null)
+	{
+		return self::_load ($type, $config);
 	}
 	
 }

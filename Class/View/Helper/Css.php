@@ -49,7 +49,7 @@ class View_Helper_Css extends View_Helper_Abstract
 				->resources ()
 				->packer (View_Resource_Manager::CSS);
 				
-			$packer->config = $config->mergeConfig ($packer->config);
+			$packer->config = $config->merge ($packer->config);
 				
 			$packer->pack ($csses, $config ['packed_file']);
 				

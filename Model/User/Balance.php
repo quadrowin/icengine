@@ -56,7 +56,7 @@ class User_Balance extends Model
 		Loader::load ('User_Balance_Log');
 		$balance = self::getFor ($user);
 		
-		$log = User_Balance_Log::addLog ($user->key (), $value, $comment);
+		$log = User_Balance_Log::addLog ($balance->User__id, $value, $comment);
 		$balance->update (array (
 			'value'	=> $balance->value + $value
 		));

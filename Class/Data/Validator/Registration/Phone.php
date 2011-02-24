@@ -14,7 +14,7 @@ class Data_Validator_Registration_Phone
 	
 	const LONG	= 'long';
 	
-	public function validateEx ($field, $data, stdClass $scheme)
+	public function validateEx ($field, $data, $scheme)
 	{
 		$length = strlen ($data->$field);
 		$param = $scheme->$field;

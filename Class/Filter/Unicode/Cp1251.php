@@ -11,7 +11,7 @@ class Filter_Unicode_Cp1251
 {
 	
 	/**
-	 * Обычная фильтрация
+	 * @desc Обычная фильтрация
 	 * @param string $data
 	 * @return string
 	 */

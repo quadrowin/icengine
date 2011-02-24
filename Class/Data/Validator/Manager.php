@@ -48,14 +48,13 @@ class Data_Validator_Manager
 	 * @param string $field
 	 * 		Проверяемое поле
 	 * @param stdClass $data
-	 * @param stdClass $scheme
+	 * @param stdClass|Objective $scheme
 	 * @return true|string
 	 * 		true, если данные прошли валидацию.
 	 * 		Иначе - строкове представление ошибки в виде: 
 	 * 		"Имя_Валидатора/ошибка"
 	 */
-	public static function validateEx ($name, $field, $data, 
-		stdClass $scheme)
+	public static function validateEx ($name, $field, $data, $scheme)
 	{
 		return self::get ($name)->validateEx ($field, $data, $scheme);
 	}

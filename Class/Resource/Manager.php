@@ -26,9 +26,16 @@ class Resource_Manager
 	 * @var array
 	 */
 	public static $config = array (
-		'default'		=> array (
-			
-		)
+		/**
+		 * @desc По умолчанию
+		 * @var array
+		 */
+		'default'	=> array (),
+		/**
+		 * @desc Во избезажании рекурсивного вызова Config_Manager'a
+		 * @var array
+		 */
+		'Resource_Manager'	=> array ()
 	);
 	
 	/**
@@ -69,7 +76,7 @@ class Resource_Manager
 	{
 		if (is_array (self::$config))
 		{
-			self::$config = Config_Manager::get (__CLASS__, self::$config);
+			self::$config = Config_Manager::getReal (__CLASS__, self::$config);
 		}
 		
 		return self::$config;

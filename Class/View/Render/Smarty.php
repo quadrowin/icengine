@@ -50,7 +50,7 @@ class View_Render_Smarty extends View_Render_Abstract
 	
 	protected function _afterConstruct()
 	{
-		$this->loadConfig ();
+		$this->config ();
 		if (!class_exists ('Smarty'))
 		{
 			Loader::requireOnce ($this->config ['smarty_path'], 'includes');
@@ -59,8 +59,8 @@ class View_Render_Smarty extends View_Render_Abstract
 		$this->_smarty = new Smarty ();
 		
 		$this->_smarty->compile_dir = $this->config ['compile_path'];
-		$this->_smarty->template_dir = (array) $this->config ['templates_path'];
-		$this->_smarty->plugins_dir = (array) $this->config ['plugins_path'];
+		$this->_smarty->template_dir = $this->config ['templates_path']->__toArray ();
+		$this->_smarty->plugins_dir = $this->config ['plugins_path']->__toArray ();
 		
 		Loader::load ('Helper_Smarty_Filter_Dblbracer');
 		Helper_Smarty_Filter_Dblbracer::register ($this->_smarty);

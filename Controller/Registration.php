@@ -1,23 +1,30 @@
 <?php
 
 Loader::load ('Registration');
-
+/**
+ * 
+ * @desc Контроллер регистрации
+ * @author Гурус
+ * @package IcEngine
+ *
+ */
 class Controller_Registration extends Controller_Abstract
 {
 	
 	/**
-	 * Последняя обработанная регистрация
+	 * @desc Последняя обработанная регистрация
 	 * @var Registration
 	 */
 	public $registration;
 	
 	/**
-	 * Начало регистрации
+	 * @desc Начало регистрации
 	 */
 	public function index ()
 	{
 		if (User::authorized ())
 		{
+			// Пользователь уже зарегистрирован
 			Loader::load ('Header');
 			Header::redirect ('/');
 			die ();
@@ -25,10 +32,8 @@ class Controller_Registration extends Controller_Abstract
 	}
 	
 	/**
-	 * Подтверждение email
-	 * @return boolean
-	 * 		True, если регистрация закончилась успешно.
-	 * 		Иначе false.
+	 * @desc Подтверждение email
+	 * @return boolean true, если регистрация закончилась успешно. Иначе false.
 	 */
 	public function emailConfirm ()
 	{
@@ -39,10 +44,11 @@ class Controller_Registration extends Controller_Abstract
 			return;
 		}
 		
-		$this->registration = Registration::byCode (
-			$this->_input->receive ('code'));
+		$registration = Registration::byCode (
+			$this->_input->receive ('code')
+		);
 		
-		if (!$this->registration)
+		if (!$registration)
 		{
 			$this->_dispatcherIteration->setClassTpl (
 				__METHOD__,
@@ -50,7 +56,7 @@ class Controller_Registration extends Controller_Abstract
 			);
 			return false;	
 		}
-		elseif ($this->registration->finished)
+		elseif ($registration->finished)
 		{
 			$this->_dispatcherIteration->setClassTpl (
 				__METHOD__,
@@ -59,36 +65,45 @@ class Controller_Registration extends Controller_Abstract
 			return false;
 		}
 		
-		$this->registration->finish ();
+		$registration->finish ();
+		
 		return true;
 	}
 	
 	public function postForm ()
 	{
 		Loader::load ('Helper_Form');
-		$data = Helper_Form::receiveFields ($this->_input, 
-			Registration::$config ['fields']);
+		$data = Helper_Form::receiveFields (
+			$this->_input, 
+			Registration::config ()->fields
+		);
 		
-		$valid = Registration::tryRegister ($data);
-		$this->_output->send ('valid', $valid);
+		$registration = Registration::tryRegister ($data);
+		$this->_output->send ('registration', $registration);
 		
-		if (is_array ($valid))
+		if (is_array ($registration))
 		{
-			$this->_dispatcherIteration->setTemplate (
-				str_replace (array ('::', '_'), '/', reset ($valid)) . 
-				'.tpl'
-			);
-			$this->_output->send ('data', array (
-				'field'	=> key ($valid),
-				'error'	=> current ($valid)
+			// произошла ошибка
+			
+			$this->_dispatcherIteration->setClassTpl (reset ($registration));
+			
+			$this->_output->send (array (
+				'registration'	=> $registration,
+				'data'			=> array (
+					'field'			=> key ($registration),
+					'error'			=> current ($registration)
+				)
 			));
+			
+			return ;
 		}
-		else
-		{
-			$this->_output->send ('data', array (
+		
+		$this->_output->send (array (
+			'registration'	=> $registration,
+			'data'			=> array (
 				'removeForm'	=> true
-			));
-		}
+			)
+		));
 	}
 	
 	public function success ()

@@ -8,23 +8,17 @@
  */
 class Controller_Broker
 {
-    
-	/**
-	 * Конфиг уже загружен
-	 * @var boolean
-	 */
-	protected static $_configLoaded = false;
 	
-    /**
-     * 
-     * @var array
-     */
+	/**
+	 * 
+	 * @var array
+	 */
 	protected static $_controllers;
-    
-    /**
-     * 
-     * @var Data_Transport
-     */
+	
+	/**
+	 * 
+	 * @var Data_Transport
+	 */
 	protected static $_input;
 	
 	/**
@@ -59,16 +53,16 @@ class Controller_Broker
 	 * @param Controller_Dispatcher_Iteration $iteration
 	 */
 	public static function afterAction (Controller_Abstract $controller, 
-	    Controller_Dispatcher_Iteration $iteration)
+		Controller_Dispatcher_Iteration $iteration)
 	{
-	    $transaction = $controller->getOutput ()->endTransaction ();
-	    	    
-	    $iteration->setTransaction ($transaction);
-	    
-	    if (!$iteration->getIgnore ())
-	    {
-    	    self::$_iterations [] = $iteration;
-	    };
+		$transaction = $controller->getOutput ()->endTransaction ();
+				
+		$iteration->setTransaction ($transaction);
+		
+		if (!$iteration->getIgnore ())
+		{
+			self::$_iterations [] = $iteration;
+		};
 	}
 
 	/**
@@ -77,11 +71,24 @@ class Controller_Broker
 	 */
 	public static function beforeAction ($controller)
 	{	
-	    self::getOutput ()->beginTransaction ();
-	    
+		self::getOutput ()->beginTransaction ();
+		
 		$controller
 			->setInput (self::getInput ())
 			->setOutput (self::getOutput ());
+	}
+	
+	/**
+	 * @desc Загрузка конфига
+	 * @return Objective
+	 */
+	public static function config ()
+	{
+		if (is_array (self::$config))
+		{
+			self::$config = Config_Manager::get (__CLASS__, self::$config);
+		}
+		return self::$config;
 	}
 	
 	/**
@@ -89,7 +96,7 @@ class Controller_Broker
 	 */
 	public static function flushResults ()
 	{
-	    self::$_iterations = array ();
+		self::$_iterations = array ();
 	}
 	
 	/**
@@ -107,8 +114,8 @@ class Controller_Broker
 			
 		if (!($controller instanceof Controller_Abstract))
 		{
-		    $file = str_replace ('_', '/', $controller_name) . '.php';
-		    
+			$file = str_replace ('_', '/', $controller_name) . '.php';
+			
 			if (!Loader::requireOnce ($file, 'Controller'))
 			{
 				Loader::load ('Controller_Exception');
@@ -156,6 +163,7 @@ class Controller_Broker
 	}
 	
 	/**
+	 * @desc Возвращает транспорт для выходных данных по умолчанию.
 	 * @return Data_Transport
 	 */
 	public static function getOutput ()
@@ -167,16 +175,12 @@ class Controller_Broker
 			
 			self::$_output = new Data_Transport ();
 			
-			self::loadConfig ();
-			if (self::$config ['output_filters'])
+			foreach (self::config ()->output_filters as $filter)
 			{
-				foreach (self::$config ['output_filters'] as $filter)
-				{
-					$filter_class = 'Filter_' . $filter;
-					Loader::load ($filter_class);
-					$filter = new $filter_class ();
-					self::$_output->outputFilters ()->append ($filter);
-				}
+				$filter_class = 'Filter_' . $filter;
+				Loader::load ($filter_class);
+				$filter = new $filter_class ();
+				self::$_output->outputFilters ()->append ($filter);
 			}
 			Loader::load ('Data_Provider_View');
 			
@@ -191,20 +195,6 @@ class Controller_Broker
 	public static function iterations ()
 	{
 		return self::$_iterations;
-	}
-	
-	/**
-	 * Загрузка конфига
-	 */
-	public static function loadConfig ()
-	{
-		if (self::$_configLoaded)
-		{
-			return;
-		}
-		self::$config = Config_Manager::get (__CLASS__)
-			->mergeConfig (self::$config);
-		self::$_configLoaded = true;
 	}
 	
 	/**

@@ -1,7 +1,7 @@
 <?php
 /**
  * 
- * Фильтр получения даты
+ * @desc Фильтр получения даты
  * @author Юрий
  * @package IcEngine
  *
@@ -23,10 +23,10 @@ class Filter_Date
 	 * 
 	 * @param string $field
 	 * @param stdClass $data
-	 * @param stdClass $scheme
+	 * @param stdClass|Objective $scheme
 	 * @return mixed
 	 */
-	public function filterEx ($field, $data, stdClass $scheme)
+	public function filterEx ($field, $data, $scheme)
 	{
 		$timestamp = 
 			(isset ($scheme->input) && $scheme->input == 'php') ?

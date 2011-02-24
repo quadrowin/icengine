@@ -10,7 +10,7 @@ abstract class Filter_Abstract
 {
 	
 	/**
-	 * Обычная фильтрация
+	 * @desc Обычная фильтрация.
 	 * @param string $data
 	 * @return string
 	 */
@@ -20,16 +20,12 @@ abstract class Filter_Abstract
 	}
 	
 	/**
-	 * Фильтрация с использование схемы
-	 * @param string $field
-	 * 		Имя поля.
-	 * @param stdClass $data
-	 * 		Все данные.
-	 * @param stdClass $scheme
-	 * 		Схема.
+	 * @desc Фильтрация с использование схемы
+	 * @param string $field Имя поля.
+	 * @param stdClass $data Все данные.
+	 * @param stdClass|Objective $scheme Схема.
 	 */
-	public function filterEx ($field, $data, 
-		stdClass $scheme)
+	public function filterEx ($field, $data, $scheme)
 	{
 		return $this->filter ($data->$field);
 	}

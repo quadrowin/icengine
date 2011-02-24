@@ -1,7 +1,6 @@
 <?php
-
 /**
- * Внутренний обработчик ошибок
+ * @desc Внутренний обработчик ошибок
  * @param string $errno Код ошибки
  * @param string $errstr Текст ошибки
  * @param string $errfile Файл
@@ -214,7 +213,7 @@ class Debug
 	
 	/**
 	 * Включение внутреннего обработчика ошибок
-	 * @param array|Config_Abstract $config
+	 * @param array|Objective $config
 	 */
 	public static function init ($config = array ())
 	{
@@ -329,15 +328,12 @@ class Debug
 			return;
 		}
 		
-		if (is_object ($config) && get_class ($config) == 'Config_Array')
+		if (is_object ($config) && $config instanceof Objective)
 		{
 			$config = $config->__toArray ();
 		}
 		
 		self::$config = self::arrayMergeReplaceRecursive (self::$config, $config);
-//		
-//		self::vardump (self::$config);
-//		die();
 	}
 	
 	/**

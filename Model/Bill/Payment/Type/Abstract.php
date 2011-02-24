@@ -31,13 +31,16 @@ class Bill_Payment_Type_Abstract extends Model_Factory_Delegate
 	 * 		$params ['transactionNo'] string
 	 * 		$params ['waller'] string
 	 * 		$params ['details'] string
+	 * 		$params ['Bill__id'] integer
 	 * @return Bill_Payment
 	 */
 	public function instantPayment (array $params)
 	{
 		Loader::load ('Bill_Payment');
 		$payment = new Bill_Payment (array (
-			'Bill__id'				=> 0,
+			'Bill__id'				=> 
+				isset ($params ['Bill__id']) ?
+				(int) $params ['Bill__id'] : 0,
 			'value'					=> $params ['value'],
 			'Bill_Payment_Type__id'	=> $this->key (),
 			'wallet'				=> 

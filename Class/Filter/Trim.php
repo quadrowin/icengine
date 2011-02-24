@@ -8,7 +8,14 @@ class Filter_Trim
 		return trim ($data);
 	}
 	
-	public function filterEx ($field, $data, stdClass $scheme)
+	/**
+	 * 
+	 * Enter description here ...
+	 * @param string $field
+	 * @param Objective $data
+	 * @param Objective $scheme
+	 */
+	public function filterEx ($field, $data, $scheme)
 	{
 		$chars = 
 			isset ($scheme->field ['trimChars']) ? 
