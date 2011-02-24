@@ -108,6 +108,7 @@ class Application
 	 */
 	public function shutdown ()
 	{
+		Resource_Manager::save ();
 		View_Render_Broker::display ();
 	}
 	

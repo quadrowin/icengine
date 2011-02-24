@@ -123,6 +123,20 @@ class Resource_Manager
 	}
 	
 	/**
+	 * @desc Слить объекты хранилища
+	 */
+	public function save ()
+	{
+		foreach (self::$_resources as $type=>$resources)
+		{
+			foreach ($resources as $name=>$resource)
+			{
+				self::transport ($type)->send ($name, $resource);
+			}
+		}
+	}
+	
+	/**
 	 * @desc Сохраняет ресурс
 	 * @param string $type
 	 * @param string $name
@@ -131,7 +145,7 @@ class Resource_Manager
 	public static function set ($type, $name, $resource)
 	{
 		self::$_resources [$type][$name] = $resource;
-		self::transport ($type)->send ($name, $resource);
+		//self::transport ($type)->send ($name, $resource);
 	}
 	
 	/**

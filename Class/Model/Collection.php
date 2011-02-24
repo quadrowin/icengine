@@ -188,18 +188,30 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	
 	/**
 	 * @desc Устанавливает или получает связанные данные объекта
-	 * 
-	 * @param string $key
-	 * 		Ключ
+	 * @param string $key [optional] Ключ
 	 * @param mixed $value [optional]
 	 * 		Значение (не обязательно)
 	 * @return mixed
 	 * 		Текущее значение
 	 */
-	public function data ($key)
+	public function data ($key = null)
 	{
+		if (func_num_args () == 0 || $key === null)
+		{
+			return $this->_data;
+		}
+		
 		if (func_num_args () == 1)
 		{
+			if (is_array ($key))
+			{
+				$this->_data = array_merge (
+					$this->_data,
+					$key
+				);
+				return;
+			}
+			
 			return isset ($this->_data [$key]) ? $this->_data [$key] : null;
 		}
 		
@@ -575,15 +587,13 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		$this->_lastQuery = $query;
 		
 		Loader::load ('Model_Collection_Manager');
-		$this->_items = Model_Collection_Manager::getByQuery (
-			$this, $query, !$this->_autojoin
-		);
+		Model_Collection_Manager::load ($this, $query, !$this->_autojoin);
 		
 		$this->_options->executeAfter ($this, $query);
 		
 		if ($this->_paginator)
 		{
-			$this->_paginator->fullCount = $this->queryResult ()->foundRows ();
+			$this->_paginator->fullCount = $this->_queryResult->foundRows ();
 		}
 		
 		return $this;
@@ -942,17 +952,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		$this->_items = $result;
 		
 		return $this;
-	}
-	
-	/**
-	 * 
-	 * @desc сохранить модель в хранилище
-	 * @param string $name
-	 * @param boolean $force
-	 */
-	public function store ($name)
-	{
-		Model_Collection_Manager::store ($name, $this);
 	}
 	
 	/**

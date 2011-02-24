@@ -1,28 +1,17 @@
 <?php
-
 /**
  * @desc Менеджер коллекций
  * @author Илья
  * @package IcEngine
  */
-
 abstract class Model_Collection_Manager
 {
 	
 	/**
-	 * 
-	 * @desc Сохраненные коллекции
-	 * @var array <Model_Collection>
-	 */
-	private static $_collections = array ();
-	
-	/**
 	 * Возвращает коллекцию по запросу.
 	 * @author Goorus
-	 * @param string $model
-	 * 		Модель коллекции.
-	 * @param Query $query
-	 * 		Запрос.
+	 * @param string $model Модель коллекции.
+	 * @param Query $query Запрос.
 	 * @param boolean $forced [optional]
 	 * 		Отключение автоджайна для моделей коллекции.
 	 * @return Model_Collection
@@ -53,7 +42,7 @@ abstract class Model_Collection_Manager
 	 * @desc Включать ли автожоин
 	 * @return Model_Collection
 	 */
-	public static function get ($className, $forced = false)
+	public static function create ($className, $forced = false)
 	{
 		Loader::load ($className);
 		$collection = new $className;
@@ -66,24 +55,12 @@ abstract class Model_Collection_Manager
 	
 	/**
 	 * 
-	 * @desc Получить из хранилища коллекцию
-	 * @param string $name
-	 * @return Model_Collection
-	 */
-	public static function getByName ($name)
-	{
-		return Resource_Manager::get ('Model_Collection', $name);
-	}
-	
-	/**
-	 * 
 	 * @desc получить коллекцию из хранилища по запросу и опшинам
 	 * @param Model_Collection
 	 * @param Query $query
 	 * @param boolean $forced
-	 * @return Model_Collection
 	 */
-	public static function getByQuery (Model_Collection $collection, 
+	public static function load (Model_Collection $collection, 
 		Query $query, $forced = false)
 	{
 		$model = $collection->modelName ();
@@ -94,78 +71,48 @@ abstract class Model_Collection_Manager
 				'Mysql',
 				DDS::modelScheme ()
 			) . serialize (
-					$collection->getOptions ()->getItems ()
-				)
+				$collection->getOptions ()->getItems ()
+			)
 		);
 		
-		$items = self::getByName ($key);
+		$pack = Resource_Manager::get ('Model_Collection', $key);
 		
-		if (is_null ($items))
+		if ($pack instanceof Model_Collection)
+		{
+			$collection->setItems ($pack->items);
+			$collection->data ($pack->data ());
+			
+			return ;
+		}
+		
+		if (is_array ($pack))
+		{
+			$collection->data ($pack ['data']);
+		}
+		else
 		{
 			$query_result = DDS::execute ($query)->getResult ();
 			$collection->queryResult ($query_result);
-			$items = $query_result->asTable ();
-			self::set ($key, $items);
+
+			Resource_Manager::set ('Model_Collection', $key, $collection);
+			
+			$pack = array (
+				'items'	=> $query_result->asTable (),
+			);
 		}
 			
 		$model_manager = IcEngine::$modelManager;
 		$key_field = $collection->keyField ();
 
-		foreach ($items as &$item)
+		foreach ($pack ['items'] as &$item)
 		{
 			$key = $item [$key_field];
 			$item = !$forced ? 
 				$model_manager->get ($model, $key, $item) :
 				$model_manager->forced ()->get ($model, $key, $item);
 		}
-			
-		return $items;
-	}
-	
-	/**
-	 * 
-	 * @desc Востановить коллекцию
-	 * @param string $name
-	 * @return Model_Collection
-	 */
-	public static function restore ($name)
-	{
-		return isset (self::$_collections [$name]) ?
-			self::$_collections [$name] :
-			null;
-	}
-	
-	/**
-	 * 
-	 * @desc Сохранить коллекцию в хранилище
-	 * @param string $name
-	 * @param array $items
-	 */
-	public static function set ($name, array $items)
-	{
-		for ($i = 0, $icount = sizeof ($items); $i < $icount; $i++)
-		{
-			if ($items [$i] instanceof Model)
-			{
-				$items [$i] = $items [$i]->getFields ();
-			}
-		}
 		
-		Resource_Manager::set (
-			'Model_Collection',
-			$name,
-			$items
-		);
+		$collection->setItems ($pack ['items']);
 	}
 	
-	/**
-	 * 
-	 * @desc Сохранить коллекцию
-	 * @param string $name
-	 * @param Model_Collection $collection
-	 */
-	public static function store ($name, $collection)
-	{
-		self::$_collections [$name] = $collection;
-	}
 }
