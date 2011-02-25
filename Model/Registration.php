@@ -170,7 +170,7 @@ class Registration extends Model
 			'finishTime'	=> date ('Y-m-d H:i:s')
 		));
 		
-		if ($this->config ()->auto_active)
+		if ($this->config ()->auto_user)
 		{
 			$this->_autoUserActivate ();
 		}
