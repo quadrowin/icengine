@@ -89,7 +89,7 @@ class Registration extends Model
 	 */
 	public function _autoUserActivate ()
 	{
-		if ($this->User)
+		if (!$this->User || !$this->User->key ())
 		{
 			Loader::load ('Zend_Exception');
 			throw new Zend_Exception ('User unexists.');
