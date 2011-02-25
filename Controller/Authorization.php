@@ -52,14 +52,10 @@ class Controller_Authorization extends Controller_Abstract
 	}
 	
 	/**
-	 * Авторизация.
-	 * 
-	 * @param string login
-	 * 		Логин.
-	 * @param string password
-	 * 		Пароль.
-	 * @param string redirect [optional]
-	 * 		Редирект после успешной авторизации.
+	 * @desc Авторизация.
+	 * @param string login Логин.
+	 * @param string password Пароль.
+	 * @param string redirect [optional] Редирект после успешной авторизации.
 	 */
 	public function login ()
 	{
@@ -91,8 +87,8 @@ class Controller_Authorization extends Controller_Abstract
 		    $this->_output->send ('data', array (
 		        'error'	=> 'Password incorrect'
 		    ));
-		    $this->_dispatcherIteration->setTemplate (
-		    	str_replace (array ('::', '_'), '/', __METHOD__) .
+		    $this->_dispatcherIteration->setClassTpl (
+		    	__METHOD__,
 		    	'/password_incorrect.tpl'
 		    );
 		}
