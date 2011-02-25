@@ -91,7 +91,8 @@ class User extends Model
 			array (
 				'email'		=> $email,
 				'password'	=> $password,
-				'active'	=> (int) $active
+				'active'	=> (int) $active,
+				'ip'		=> Request::ip ()
 			)
 		);
 		$user = new User ($exts);
