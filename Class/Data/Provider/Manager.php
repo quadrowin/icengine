@@ -28,7 +28,7 @@ class Data_Provider_Manager
 	 * @desc Загружает и возвращает конфиг
 	 * @return Objective
 	 */
-	protected function _config ()
+	protected static function _config ()
 	{
 		if (is_array (self::$_config))
 		{
