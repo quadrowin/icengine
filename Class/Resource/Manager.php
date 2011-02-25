@@ -125,7 +125,7 @@ class Resource_Manager
 	/**
 	 * @desc Слить объекты хранилища
 	 */
-	public function save ()
+	public static function save ()
 	{
 		foreach (self::$_resources as $type=>$resources)
 		{
