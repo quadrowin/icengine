@@ -332,40 +332,49 @@ class Query {
 	}
 	
 	/**
-	 * 
-	 * @param string|array $columns 
+	 * @desc Добавить в запрос SELECT часть.
+	 * @param string|array $columns
+	 * @tutorial
+	 * 		select (
+	 * 			'table1'	=> array ('field11' => 'alias11', 'field12'), 
+	 * 			'table2'	=> array ('field21', 'field22')
+	 * 		)
+	 * 		select ('field1', 'field2')
+	 * 		select ('COUNT(*)')
+	 * 		select (
 	 * @return Query
 	 */
 	public function select ($columns)
 	{	
-		if (is_array ($columns))
+		foreach (func_get_args () as $columns)
 		{
-			foreach ($columns as $table => $fields)
+			if (is_array ($columns))
 			{
-				$fields = (array) $fields;
-				foreach ($fields as $name => $aliases)
+				// Передано название таблицы
+				foreach ($columns as $table => $fields)
 				{
-					$aliases = (array) $aliases;
-					foreach ($aliases as $alias)
+					$fields = (array) $fields;
+					foreach ($fields as $name => $aliases)
 					{
-						if (is_numeric ($name))
+						$aliases = (array) $aliases;
+						foreach ($aliases as $alias)
 						{
-							$this->_parts [self::SELECT] [$alias] = array ($table, $alias);
+							// реальное название столбца
+							$rname = is_numeric ($name) ? $alias : $name;
+							
+							$this->_parts [self::SELECT] [$alias] = array ($table, $rname);
 						}
-						else
-						{
-							$this->_parts [self::SELECT] [$alias] = array ($table, $name);
-						}	
 					}
 				}
 			}
-		}
-		elseif (!empty ($columns))
-		{
-			$args = func_get_args ();
-			for ($i = 0, $count = count ($args); $i < $count; $i++)
+			elseif ($columns)
 			{
-				$this->_parts [self::SELECT] [$args [$i]] = $args [$i];
+				// переданы только поля
+				$args = func_get_args ();
+				for ($i = 0, $count = count ($args); $i < $count; $i++)
+				{
+					$this->_parts [self::SELECT] [$args [$i]] = $args [$i];
+				}
 			}
 		}
 		
