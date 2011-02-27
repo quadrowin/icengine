@@ -8,10 +8,12 @@
  */
 class Data_Validator_Registration_Password
 {
-    
+	
 	const SHORT	= 'short';	// Короткий пароль
 	
 	const LONG	= 'long';	// Короткий пароль
+	
+	const BAD = 'bad'; // не подходит по маске
 	
 	public function validateEx ($field, $data, $scheme)
 	{
@@ -28,10 +30,18 @@ class Data_Validator_Registration_Password
 		
 		if ($length > $max)
 		{
-		    return __CLASS__ . '/' . self::LONG;
+			return __CLASS__ . '/' . self::LONG;
 		}
-	    
-	    return true;
+		
+		if (isset ($param ['pattern']))
+		{
+			if (!preg_match ($param ['pattern'], $data->$field))
+			{
+				return __CLASS__ . '/' . self::BAD;
+			}
+		}
+		
+		return true;
 	}
 	
 }

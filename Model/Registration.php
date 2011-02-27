@@ -288,7 +288,9 @@ class Registration extends Model
 		
 		$reg = self::register ($data);
 		
-		return $reg ? $reg : array ('unknown' => 'unknown');
+		return 
+			$reg ? 
+			$reg : array ('unknown' => 'Data_Validator_Registration/unknown');
 	}
 	
 }

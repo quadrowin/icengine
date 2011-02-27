@@ -1,14 +1,12 @@
 <?php
-
 /**
  * 
  * @desc Менеджер источников данных.
  * По переданному названию загружает конфиг из директории
  * "{$config}/Data/Source/" и создает соответсвующего провайдера.
  * @author Юрий
- *
+ * @package IcEngine
  */
-
 class Data_Source_Manager
 {
 	
@@ -19,6 +17,27 @@ class Data_Source_Manager
 	protected static $_sources = array ();
 	
 	/**
+	 * @desc Конфиг
+	 * @var array
+	 */
+	public static $config = array (
+		'sources'	=> array ()
+	);
+	
+	/**
+	 * @desc Загружает и возвращает конфиг
+	 * @return Objective
+	 */
+	public static function config ()
+	{
+		if (is_array (self::$config))
+		{
+			self::$config = Config_Manager::get (__CLASS__, self::$config);
+		}
+		return self::$config;
+	}
+	
+	/**
 	 * Получение данных провайдера.
 	 * @param string $name
 	 * @return Data_Source_Abstract
@@ -27,8 +46,11 @@ class Data_Source_Manager
 	{	
 		if (!isset (self::$_sources [$name]))
 		{
-			$config = 
-				Config_Manager::get ('Data_Source', $name);
+			$config = self::config ()->sources->$name;
+			if (!$config)
+			{
+				$config = Config_Manager::get ('Data_Source', $name);
+			}
 				
 			foreach ($config as $conf)
 			{
@@ -49,6 +71,10 @@ class Data_Source_Manager
 				{
 					// Мэппер источника отличается от указанного в конфигах
 					$mapper = new $mapper_class ($conf->mapper_params);
+					if (IcEngine::$modelScheme)
+					{
+						$mapper->setModelScheme (IcEngine::$modelScheme);
+					}
 					self::$_sources [$name]->setDataMapper ($mapper);
 				}
 				

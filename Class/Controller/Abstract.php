@@ -8,7 +8,7 @@
  */
 class Controller_Abstract
 {	
-    
+	
 	/**
 	 * Последний вызванный экшен.
 	 * @var string
@@ -78,7 +78,7 @@ class Controller_Abstract
 	}
 	
 	/**
-	 * Временный контент для сохраняемых данных.
+	 * @desc Временный контент для сохраняемых данных.
 	 * @return Temp_Content|null
 	 */
 	public function _inputTempContent ()
@@ -94,6 +94,66 @@ class Controller_Abstract
 		}
 		
 		return $tc;
+	}
+	
+	/**
+	 * @desc Получение данных с формы
+	 * @param array|Objective $scheme
+	 * @param boolean|Temp_Content Использовать ли временный контент или 
+	 * 		сам временный котенты
+	 * @param boolean $by_parts Вернуть разбитым по частям (данные и атрибуты)
+	 * @return Objective
+	 */
+	public function _inputFormData ($scheme, $use_tc = null, $by_parts = true)
+	{
+		Loader::load ('Helper_Form');
+		
+		// временный контент
+		if ($use_tc)
+		{
+			Loader::load ('Temp_Content');
+			if (!($use_tc instanceof Temp_Content))
+			{
+				$use_tc = Temp_Content::byUtcode (
+					$this->_input->receive ('utcode')
+				);
+				
+				if (!$use_tc)
+				{
+					$this->_helperReturn ('Page', 'obsolete');
+					return false;
+				}
+			}
+		}
+		
+		$data = Helper_Form::receiveFields (
+			$this->_input,
+			$scheme,
+			$use_tc
+		);
+		
+		Helper_Form::filter ($data, $scheme);
+		
+		$valid = Helper_Form::validate ($data, $scheme);
+		if (is_array ($valid))
+		{
+			// ошибка валидации
+			$this->_dispatcherIteration->setClassTpl (reset ($valid));
+			
+			$this->_output->send (array (
+				'registration'	=> $valid,
+				'data'			=> array (
+					'field'			=> key ($valid),
+					'error'			=> current ($valid)
+				)
+			));
+			
+			return false;
+		}
+		
+		Helper_Form::unsetIngored ($data, $scheme);
+		
+		return Helper_Form::extractParts ($data, $scheme);
 	}
 	
 	/**
@@ -190,8 +250,7 @@ class Controller_Abstract
 	}
 	
 	/**
-	 * Имя контроллера (без приставки Controller_)
-	 * 
+	 * @desc Имя контроллера (без приставки Controller_)
 	 * @return string
 	 */
 	public function name ()
@@ -200,7 +259,7 @@ class Controller_Abstract
 	}
 	
 	/**
-	 * Заменить текущий экшн с передачей всех параметров
+	 * @desc Заменить текущий экшн с передачей всех параметров
 	 */
 	public function replaceAction ($controller, $action)
 	{
@@ -241,10 +300,10 @@ class Controller_Abstract
 	 * @return Controller_Abstract
 	 */
 	public function setDispatcherIteration (
-	    Controller_Dispatcher_Iteration $iteration)
+		Controller_Dispatcher_Iteration $iteration)
 	{
-	    $this->_dispatcherIteration = $iteration;
-	    return $this;
+		$this->_dispatcherIteration = $iteration;
+		return $this;
 	}
 	
 	public function setInput (Data_Transport $input)

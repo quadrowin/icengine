@@ -8,7 +8,7 @@ abstract class Model_Collection_Manager
 {
 	
 	/**
-	 * Возвращает коллекцию по запросу.
+	 * @desc Возвращает коллекцию по запросу.
 	 * @author Goorus
 	 * @param string $model Модель коллекции.
 	 * @param Query $query Запрос.
@@ -35,7 +35,6 @@ abstract class Model_Collection_Manager
 	}
 	
 	/**
-	 * 
 	 * @desc Создает коллекцию по именю
 	 * @param string $className
 	 * @param boolean $forced
@@ -54,7 +53,6 @@ abstract class Model_Collection_Manager
 	}
 	
 	/**
-	 * 
 	 * @desc получить коллекцию из хранилища по запросу и опшинам
 	 * @param Model_Collection
 	 * @param Query $query
@@ -67,12 +65,8 @@ abstract class Model_Collection_Manager
 		
 		$key = md5 (
 			$model .
-			$query->translate (
-				'Mysql',
-				DDS::modelScheme ()
-			) . serialize (
-				$collection->getOptions ()->getItems ()
-			)
+			$query->translate ('Mysql', IcEngine::$modelScheme) .
+			serialize ($collection->getOptions ()->getItems ())
 		);
 		
 		$pack = null;//Resource_Manager::get ('Model_Collection', $key);
@@ -90,7 +84,11 @@ abstract class Model_Collection_Manager
 		}
 		else
 		{
-			$query_result = DDS::execute ($query)->getResult ();
+			$query_result = 
+				IcEngine::$modelScheme
+					->dataSource ($model)
+						->execute ($query)->getResult ();
+						
 			$collection->queryResult ($query_result);
 			
 			if ($query->getPart (Query::CALC_FOUND_ROWS))
