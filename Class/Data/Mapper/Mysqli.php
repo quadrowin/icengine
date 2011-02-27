@@ -1,22 +1,28 @@
 <?php
-
+/**
+ * 
+ * @desc Мэппер для соеденения с mysql
+ * @author Гурус
+ * @package IcEngine
+ *
+ */
 class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 {
 	
 	const SELECT_FOUND_ROWS_QUERY = 'SELECT FOUND_ROWS()';
 	
 	/**
-	 * Подключение уже установлено
+	 * @desc Соединение с mysql
 	 * @var boolean
 	 */
-	protected $_connected = false;
+	protected $_linkIdentifier = null;
 	
 	/**
-	 * Параметры соединения
+	 * @desc Параметры соединения
 	 * @var array
 	 */
-	protected $_connectionOptions = array (
-		'host'		=> 'localhost',
+	public $_connectionOptions = array (
+		'server'	=> 'localhost',
 		'username'	=> '',
 		'password'	=> '',
 		'database'	=> 'unknown',
@@ -43,69 +49,68 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 	 */
 	protected $_queryMethods = array (
 		Query::SELECT	=> '_executeSelect',
-		Query::SHOW	  => '_executeSelect',
+		Query::SHOW		=> '_executeSelect',
 		Query::DELETE	=> '_executeChange',
 		Query::UPDATE	=> '_executeChange',
 		Query::INSERT	=> '_executeInsert'
 	);
 	
 	/**
-	 * 
-	 * @param Query $query
-	 * @param Query_Options $options
-	 * @return boolean
+	 * @desc Запрос на изменение данных (Update или Delete).
+	 * @param Query $query Запрос
+	 * @param Query_Options $options Параметры запроса.
+	 * @return boolean 
 	 */
 	protected function _executeChange (Query $query, Query_Options $options)
 	{
-		if (!mysql_query ($this->_sql))
+		if (!mysql_query ($this->_sql, $this->_linkIdentifier))
 		{
-			$this->_errno = mysql_errno ();
-			$this->_error = mysql_error ();
+			$this->_errno = mysql_errno ($this->_linkIdentifier);
+			$this->_error = mysql_error ($this->_linkIdentifier);
 			return false;
 		}
 		
-		$this->_affectedRows = mysql_affected_rows ();
-				
+		$this->_affectedRows = mysql_affected_rows ($this->_linkIdentifier);
+		
 		return true;
 	}
 	
 	/**
-	 * 
-	 * @param Query $query
-	 * @param Query_Options $options
+	 * @desc Запрос на вставку.
+	 * @param Query $query Запрос.
+	 * @param Query_Options $options Параметры запроса.
 	 * @return boolean
 	 */
 	protected function _executeInsert (Query $query, Query_Options $options)
 	{
-		if (!mysql_query ($this->_sql))
+		if (!mysql_query ($this->_sql, $this->_linkIdentifier))
 		{
-			$this->_errno = mysql_errno ();
-			$this->_error = mysql_error ();
+			$this->_errno = mysql_errno ($this->_linkIdentifier);
+			$this->_error = mysql_error ($this->_linkIdentifier);
 			return false;
 		}
 		
-		$this->_affectedRows = mysql_affected_rows ();
+		$this->_affectedRows = mysql_affected_rows ($this->_linkIdentifier);
 		
-		$this->_insertId = mysql_insert_id ();
+		$this->_insertId = mysql_insert_id ($this->_linkIdentifier);
 		
 		return true;
 	}
 	
 	/**
-	 * 
-	 * 
-	 * @param Query $query
-	 * @param Query_Options $options
+	 * @desc Запрос на выборку.
+	 * @param Query $query Запрос.
+	 * @param Query_Options $options Параметры запроса.
 	 * @return array|null
 	 */
 	protected function _executeSelect (Query $query, Query_Options $options)
 	{
-		$result = mysql_query ($this->_sql);
+		$result = mysql_query ($this->_sql, $this->_linkIdentifier);
 		
 		if (!$result)
 		{
-			$this->_errno = mysql_errno ();
-			$this->_error = mysql_error ();
+			$this->_errno = mysql_errno ($this->_linkIdentifier);
+			$this->_error = mysql_error ($this->_linkIdentifier);
 			return null;
 		}
 		
@@ -120,7 +125,10 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 		
 		if ($query->part (Query::CALC_FOUND_ROWS))
 		{
-			$result = mysql_query (self::SELECT_FOUND_ROWS_QUERY);
+			$result = mysql_query (
+				self::SELECT_FOUND_ROWS_QUERY,
+				$this->_linkIdentifier
+			);
 			$row = mysql_fetch_row ($result);
 			$this->_foundRows = reset ($row);
 			mysql_free_result ($result);
@@ -151,7 +159,7 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 	 */
 	public function connect ($config = null)
 	{
-		if ($this->_connected)
+		if ($this->_linkIdentifier)
 		{
 			return ;
 		}
@@ -161,20 +169,22 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 			$this->setOption ($config);
 		}
 		
-		$this->_connected = true;
-		
-		mysql_connect (
-			$this->_connectionOptions ['host'],
+		$this->_linkIdentifier = mysql_connect (
+			$this->_connectionOptions ['server'],
 			$this->_connectionOptions ['username'],
 			$this->_connectionOptions ['password']
 		);
 		
-		mysql_select_db ($this->_connectionOptions ['database']);
+		mysql_select_db (
+			$this->_connectionOptions ['database'],
+			$this->_linkIdentifier
+		);
 		
 		if ($this->_connectionOptions ['charset'])
 		{
 			mysql_query (
-				'SET NAMES ' . $this->_connectionOptions ['charset']
+				'SET NAMES ' . $this->_connectionOptions ['charset'],
+				$this->_linkIdentifier
 			);
 		}
 	}
