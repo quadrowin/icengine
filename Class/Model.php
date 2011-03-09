@@ -10,7 +10,7 @@ include dirname (__FILE__) . '/Object/Interface.php';
  * @package IcEngine
  *
  */
-abstract class Model
+abstract class Model implements ArrayAccess
 {
 	
 	/**
@@ -108,9 +108,8 @@ abstract class Model
 	}
 	
 	/**
-	 * 
-	 * @param string $field
-	 * 		Поле
+	 * @desc Возвращает поле.
+	 * @param string $field Поле
 	 * @return mixed
 	 */
 	public function __get ($field)
@@ -158,7 +157,7 @@ abstract class Model
 	 * @param mixed $value
 	 * 		Значение
 	 */
-	public function __set($field, $value)
+	public function __set ($field, $value)
 	{
 		if (!array_key_exists ($field, $this->_fields) && !$this->_loaded)
 		{
@@ -172,13 +171,12 @@ abstract class Model
 		else
 		{
 			Loader::load ('Model_Exception');
-			throw new Model_Exception ('Field unexists "' . $field . '".', E_USER_WARNING);
+			throw new Model_Exception ('Field unexists "' . $field . '".');
 		}
 	}
 	
 	/**
-	 * 
-	 * (non-PHPDoc)
+	 * @desc Метод вызывается из конструктора после завершения инициализации.
 	 */
 	protected function _afterConstruct ()
 	{
@@ -196,7 +194,6 @@ abstract class Model
 	
 	/**
 	 * @desc Возвращает или устанавливает значение атрибута.
-	 * 
 	 * @param string|array $key
 	 * 		Название атрибута или массив пар (название => значение)
 	 * @param mixed $value [optional]
@@ -275,13 +272,9 @@ abstract class Model
 	
 	/**
 	 * @desc Устанавливает или получает связанные данные объекта
-	 * 
-	 * @param string $key
-	 * 		Ключ
-	 * @param mixed $value [optional]
-	 * 		Значение (не обязательно)
-	 * @return mixed
-	 * 		Текущее значение
+	 * @param string $key Ключ.
+	 * @param mixed $value [optional] Значение (не обязательно).
+	 * @return mixed Текущее значение или null.
 	 */
 	public function data ($key)
 	{
@@ -326,7 +319,6 @@ abstract class Model
 	
 	/**
 	 * @desc Получение или установка значения
-	 * 
 	 * @param string $key
 	 * 		Поле
 	 * @param mixed $value
@@ -348,7 +340,6 @@ abstract class Model
 	}
 	
 	/**
-	 * 
 	 * @desc Освободить модель и поместить ее в пул моделей
 	 */
 	public function free ()
@@ -380,7 +371,6 @@ abstract class Model
 	}
 	
 	/**
-	 * 
 	 * @desc Получить значения полей
 	 * @return array<string>
 	 */
@@ -390,7 +380,7 @@ abstract class Model
 	}
 	
 	/**
-	 * @desc Имеется ли поле?
+	 * @desc Проверяет существование поля в модели.
 	 * @return boolean
 	 */
 	public function hasField ($field)
@@ -409,7 +399,6 @@ abstract class Model
 	}
 	
 	/**
-	 * 
 	 * @desc Присоединить сущность
 	 * @param string $model
 	 * @param array $data
@@ -494,6 +483,41 @@ abstract class Model
 	}
 	
 	/**
+	 * @desc Проверяет существование поля.
+	 * @param string $offset Название поля
+	 * @return boolean true если поле существует
+	 */
+	public function offsetExists ($offset)
+	{
+		return isset ($this->_fields [$offset]);
+	}
+
+	/**
+	 * @see Model::__get
+	 */
+	public function offsetGet ($offset)
+	{
+		return $this->__get ($offset);
+	}
+
+	/**
+	 * @see Model::__set
+	 */
+	public function offsetSet ($offset, $value)
+	{
+		$this->__set ($offset, $value);
+	}
+
+	/**
+	 * @desc Исключение поля из модели.
+	 * @param string $offset название поля
+	 */
+	public function offsetUnset ($offset)
+	{
+		unset ($this->_fields [$offset]);
+	}
+	
+	/**
 	 * 
 	 * @desc Сбросить модель
 	 */
@@ -519,7 +543,6 @@ abstract class Model
 	/**
 	 * @desc Сохранение данных модели
 	 * @param boolean $hard_insert
-	 * 		
 	 * @return Model
 	 */
 	public function save ($hard_insert = false)
@@ -631,7 +654,6 @@ abstract class Model
 	}
 	
 	/**
-	 * 
 	 * @desc Проверить модель на валидность по полям
 	 * @param mixed (string,string|array<string>|Query) $fields
 	 * @return boolean
@@ -672,10 +694,8 @@ abstract class Model
 	 * @desc Удаляет поле из объекта.
 	 * Используется в Model_Manager для удаления первичного ключа перед 
 	 * вставкой.
-	 * @param string $name
-	 * 		Имя поля.
-	 * @return Model
-	 * 		Эта модель.
+	 * @param string $name Имя поля.
+	 * @return Model Эта модель.
 	 */
 	public function unsetField ($name)
 	{
