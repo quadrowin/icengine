@@ -86,8 +86,8 @@ class IcEngine
 		// приводил к одному запросу к БД
 		
 		// Замеянем /12345678/ на /?/
-		$base_req = preg_replace ('#/[0-9]{1,}/#i', '/?/', $request);
-		$base_req = preg_replace ('#/[0-9]{1,}/#i', '/?/', $base_req);
+		$base_req = preg_replace ('#/[0-9]{1,}/#i', '/0/', $request);
+		$base_req = preg_replace ('#/[0-9]{1,}/#i', '/0/', $base_req);
 		
 		// Находим подходящие роутеры
 		$query =
