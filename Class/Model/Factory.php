@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * 
+ * @desc Модель, реализующая паттерн factory.
+ * Используется в случаях, когда модели могут быть реализованы разными классами.
+ * @author Юрий
+ *
+ */
 class Model_Factory 
 {
 	
@@ -26,7 +32,7 @@ class Model_Factory
 	}
 	
 	/**
-	 * 
+	 * @desc Возвращает таблицу
 	 * @return string
 	 */
 	public function table ()

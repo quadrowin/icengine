@@ -1,10 +1,16 @@
 <?php
-
+/**
+ * 
+ * @desc Помощник для подключения js скриптов
+ * @author Юрий
+ * @package IcEngine
+ *
+ */
 class View_Helper_Js extends View_Helper_Abstract
 {
 
 	/**
-	 * Шаблон вставки
+	 * @desc Шаблон вставки
 	 * @var string
 	 */
 	const TEMPLATE = 

@@ -1,7 +1,7 @@
 <?php
 /**
  * 
- * Базовый класс контроллера.
+ * @desc Базовый класс контроллера.
  * @author Юрий
  * @package IcEngine
  *
@@ -10,38 +10,42 @@ class Controller_Abstract
 {	
 	
 	/**
-	 * Последний вызванный экшен.
+	 * @desc Последний вызванный экшен.
 	 * @var string
 	 */
 	protected $_currentAction;
 	
 	/**
-	 * Текущая итерация диспетчера
+	 * @desc Текущая итерация диспетчера
 	 * @var Controller_Dispatcher_Iteration
 	 */
 	protected $_dispatcherIteration;
 	
 	/**
-	 * Входные данные
+	 * @desc Входные данные
 	 * @var Data_Transport
 	 */
 	protected $_input;
 		
 	/**
-	 * Выходные данные.
+	 * @desc Выходные данные.
 	 * @var Data_Transport
 	 */
 	protected $_output;
+	
+	/**
+	 * @desc Конфиг контроллера
+	 * @var array
+	 */
+	public $config = array ();
 	
 	public function __construct ()
 	{
 	}
 	
 	/**
-	 * Метод выполняется после вызова метода $action из диспетчера
-	 * 
-	 * @param string $action
-	 * 		Вызываемый метод
+	 * @desc Метод выполняется после вызова метода $action из диспетчера
+	 * @param string $action Вызываемый метод.
 	 */
 	public function _afterAction ($action)
 	{
@@ -51,10 +55,8 @@ class Controller_Abstract
 	}
 	
 	/**
-	 * Метод выполняется перед вызовом метода $action из диспетчера
-	 * 
-	 * @param string $action
-	 * 		Вызываемый метод
+	 * @desc Метод выполняется перед вызовом метода $action из диспетчера
+	 * @param string $action Вызываемый метод.
 	 */
 	public function _beforeAction ($action)
 	{
@@ -64,7 +66,7 @@ class Controller_Abstract
 	}
 	
 	/**
-	 * Результатом работы контроллера будет вызов метода хелпера.
+	 * @desc Результатом работы контроллера будет вызов метода хелпера.
 	 * @param string $helper
 	 * 		Название хелпера без перфикса "Helper_Action_"
 	 * @param string $method
@@ -223,6 +225,19 @@ class Controller_Abstract
 		};
 			
 		return $model;
+	}
+	
+	/**
+	 * @desc Загружает и возвращает конфиг для контроллера
+	 * @return Objective
+	 */
+	public function config ()
+	{
+		if (is_array ($this->config))
+		{
+			$this->config = Config_Manager::get (__CLASS__, $this->config);
+		}
+		return $this->config;
 	}
 	
 	/**

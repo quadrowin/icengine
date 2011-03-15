@@ -35,7 +35,9 @@ class Header
 	}
 	
 	/**
-	 * 
+	 * @desc Редирект по указанному адресу.
+	 * К переданному $uri при необходимости будет добавлено имя сервера
+	 * и "http://".
 	 * @param string $uri
 	 */
 	public static function redirect ($uri)

@@ -1,28 +1,29 @@
 <?php
-
-if (!defined ('RESOURCE_ALLOW_ALL'))
-{
-	define ('RESOURCE_ALLOW_ALL', false);
-}
 /**
  * 
- * Модель пользователя.
+ * @desc Модель пользователя.
  * Для корректной работы необходима модель User_Session.
  * @author Юрий
  * @package IcEngine
  *
  */
+
+if (!defined ('RESOURCE_ALLOW_ALL'))
+{
+	define ('RESOURCE_ALLOW_ALL', false);
+}
+
 class User extends Model
 {
 	
 	/**
-	 * Текущий пользователь.
+	 * @desc Текущий пользователь.
 	 * @var User
 	 */
 	protected static $_current	= false;
 	
 	/**
-	 * Авторизоваться этим пользователем.
+	 * @desc Авторизоваться этим пользователем.
 	 * @return User
 	 */
 	public function authorize ()
@@ -33,7 +34,8 @@ class User extends Model
 	}
 
 	/**
-	 * @return boolean
+	 * @desc Проверяет, авторизован ли пользователь.
+	 * @return boolean True, если пользователь авторизован, иначе false.
 	 */
 	public static function authorized ()
 	{
@@ -41,7 +43,7 @@ class User extends Model
 	}
 	
 	/**
-	 * 
+	 * @desc Проверяет, имеет ли пользователь доступ.
 	 * @param string|integer $alias
 	 * 		Алиас или id ресурса
 	 * @return boolean
@@ -111,7 +113,9 @@ class User extends Model
 	}
 	
 	/**
-	 * @return User
+	 * @desc Возвращает модель текущего пользователя.
+	 * Если пользователь не авторизован, будет возвращает экземпляр User_Guest.
+	 * @return User Текущий пользователь.
 	 */
 	public static function getCurrent ()
 	{
@@ -119,8 +123,8 @@ class User extends Model
 	}
 	
 	/**
-	 * @return integer 
-	 * 		id текущего пользователя.
+	 * @desc Возвращает id текущего пользователя.
+	 * @return integer id текущего пользователя.
 	 */
 	public static function id ()
 	{
@@ -133,7 +137,16 @@ class User extends Model
 	}
 	
 	/**
-	 * Проверяет, является ли этот пользователем текущим.
+	 * @desc Проверяет, имеет ли пользователь роль админа.
+	 * @return boolean true, если имеет, иначе false.
+	 */
+	public function isAdmin ()
+	{
+		return $this->hasRole (Acl_Role::byName ('admin'));
+	}
+	
+	/**
+	 * @desc Проверяет, является ли этот пользователем текущим.
 	 * Т.е. авторизован от имени этого пользователя.
 	 * @return boolean
 	 */
@@ -143,11 +156,9 @@ class User extends Model
 	}
 
 	/**
-	 * Проверка принадлежности пользователя ролям.
-	 *
-	 * @param Acl_Role $role Названия ролей
-	 * @return boolean
-	 * 		Относится ли пользователь хотя бы к одной из ролей
+	 * @desc Проверяет, имеет ли пользователь указанную роль.
+	 * @param Acl_Role $role Роль
+	 * @return boolean Имеет ли пользователь роль.
 	 */
 	public function hasRole (Acl_Role $role)
 	{
@@ -175,9 +186,10 @@ class User extends Model
 	}
 	
 	/**
-	 * 
-	 * @param string $session_id Идентификатор сессии
-	 * @return User
+	 * @desc Инициализация пользователя.
+	 * Создание моделей сессии и пользователя.
+	 * @param string $session_id Идентификатор сессии.
+	 * @return User Пользователь.
 	 */
 	public static function init ($session_id = null)
 	{
@@ -229,10 +241,12 @@ class User extends Model
 	}
 	
 	/**
-	 * 
-	 * @param integer $role_type_id
-	 * @param boolean $autocreate
-	 * @return Acl_Role
+	 * @desc Получение роли указанного типа, которую имеет пользователь.
+	 * Если пользователь не имеет роли указанного типа и $autocreate,
+	 * такая роль будет создана и присвоена пользователю.
+	 * @param integer $role_type_id Тип роли.
+	 * @param boolean $autocreate Создавать ли роль в случае отсутсвтия.
+	 * @return Acl_Role Роль.
 	 */
 	public function role ($role_type_id, $autocreate = false)
 	{

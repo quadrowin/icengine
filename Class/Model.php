@@ -77,9 +77,8 @@ abstract class Model implements ArrayAccess
 	}
 	
 	/**
-	 * 
-	 * @param array $fields
-	 * 		Данные модели.
+	 * @desc Создает и возвращает модель.
+	 * @param array $fields Данные модели.
 	 * @param boolean $autojoin=true
 	 * 		Автосоздание связанны объектов.
 	 * 		Если false, поля вида Model__id не будут преобразованы в объекты
@@ -601,7 +600,6 @@ abstract class Model implements ArrayAccess
 	
 	/**
 	 * @desc Устанавливает значение аттрибута.
-	 * 
 	 * @param string|array $key
 	 * 		Название аттрибута или массив пар (название => значение)
 	 * @param mixed $value [optional]
@@ -693,7 +691,7 @@ abstract class Model implements ArrayAccess
 	/**
 	 * @desc Удаляет поле из объекта.
 	 * Используется в Model_Manager для удаления первичного ключа перед 
-	 * вставкой.
+	 * вставкой в БД.
 	 * @param string $name Имя поля.
 	 * @return Model Эта модель.
 	 */
