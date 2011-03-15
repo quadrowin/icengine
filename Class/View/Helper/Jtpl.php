@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * 
+ * @desc Помощник для подключения js шаблонов
+ * @author Юрий
+ * @package IcEngine
+ *
+ */
 class View_Helper_Jtpl extends View_Helper_Abstract
 {
 

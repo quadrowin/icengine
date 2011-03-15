@@ -77,9 +77,8 @@ abstract class Model
 	}
 	
 	/**
-	 * 
-	 * @param array $fields
-	 * 		Данные модели.
+	 * @desc Создает и возвращает модель.
+	 * @param array $fields Данные модели.
 	 * @param boolean $autojoin=true
 	 * 		Автосоздание связанны объектов.
 	 * 		Если false, поля вида Model__id не будут преобразованы в объекты
@@ -108,9 +107,8 @@ abstract class Model
 	}
 	
 	/**
-	 * 
-	 * @param string $field
-	 * 		Поле
+	 * @desc Магик метод, возвращает поле объекта
+	 * @param string $field Поле
 	 * @return mixed
 	 */
 	public function __get ($field)
@@ -578,7 +576,6 @@ abstract class Model
 	
 	/**
 	 * @desc Устанавливает значение аттрибута.
-	 * 
 	 * @param string|array $key
 	 * 		Название аттрибута или массив пар (название => значение)
 	 * @param mixed $value [optional]
@@ -631,7 +628,6 @@ abstract class Model
 	}
 	
 	/**
-	 * 
 	 * @desc Проверить модель на валидность по полям
 	 * @param mixed (string,string|array<string>|Query) $fields
 	 * @return boolean
@@ -671,11 +667,9 @@ abstract class Model
 	/**
 	 * @desc Удаляет поле из объекта.
 	 * Используется в Model_Manager для удаления первичного ключа перед 
-	 * вставкой.
-	 * @param string $name
-	 * 		Имя поля.
-	 * @return Model
-	 * 		Эта модель.
+	 * вставкой в БД.
+	 * @param string $name Имя поля.
+	 * @return Model Эта модель.
 	 */
 	public function unsetField ($name)
 	{
