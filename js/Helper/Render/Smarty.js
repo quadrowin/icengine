@@ -36,7 +36,9 @@ var Helper_Render_Smarty;
         if (optEtc == null)
             optEtc = Helper_Render_Smarty.parseTemplate_etc;
         var funcSrc = parse(tmplContent, optTmplName, optEtc);
+	
         var func = Helper_Render_Smarty.evalEx(funcSrc, optTmplName, 1);
+
         if (func != null)
             return new optEtc.Template(optTmplName, tmplContent, funcSrc, func, optEtc);
         return null;
@@ -524,14 +526,7 @@ var Helper_Render_Smarty;
     // However, these are not considered core to the engine.
     //
     Helper_Render_Smarty.parseDOMTemplate = function(elementId, optDocument, optEtc) {
-        /*if (optDocument == null)
-            optDocument = document;
-        var element = optDocument.getElementById(elementId);
-        var content = element.value;     // Like textarea.value.
-        if (content == null)
-            content = element.innerHTML; // Like textarea.innerHTML.*/
-		content = elementId;
-        content = content.replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+        var content = elementId.replace(/&lt;/g, "<").replace(/&gt;/g, ">");
         return Helper_Render_Smarty.parseTemplate(content, elementId, optEtc);
     };
 

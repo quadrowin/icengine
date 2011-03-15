@@ -27,19 +27,27 @@ class Router
 		{
 			$url = substr ($url, strlen (self::$_prefixPart));
 		}
-		
-		$quest = strpos ($url, '?');
-		if ($quest !== false)
+
+		$gets = Request::stringGet ();
+
+		if ($gets)
 		{
-			$url = substr ($url, 0, $quest);
+		    $gets = (array) explode ('&', $gets);
+		    
+		    foreach ($gets as $get)
+		    {
+			if (strpos ($get, '=') === false)
+			{
+			    $_GET ['get'] = 1;
+			}
+			else
+			{
+			    $tmp = explode ('=', $get);
+			    $_GET [$tmp [0]] = $tmp [1];
+			}
+		    }
 		}
-		
-		$p = strpos ($url, '?');
-		if ($p !== false)
-		{
-			$url = substr ($url, 0, $p);
-		}
-		
+
 		$url = $url ? $url : '/';
 		
 		$route = (array) explode ('/', trim ($url, '/'));
@@ -91,8 +99,8 @@ class Router
 		$url = '/' . trim ($url, '/') . '/';
 		
 		// Заменяем /12345678/ на /?/
-		$template = preg_replace ('#/[0-9]{1,}/#i', '/?/', $url);
-		$template = preg_replace ('#/[0-9]{1,}/#i', '/?/', $template);
+		$template = preg_replace ('#/[0-9]{1,}/#i', '/0/', $url);
+		$template = preg_replace ('#/[0-9]{1,}/#i', '/0/', $template);
 		
 		$select = new Query ();
 		$select
@@ -111,7 +119,7 @@ class Router
 		{
 			return null;
 		}
-		
+
 		Loader::load ('Route');
 		return new Route ($row);
 	}

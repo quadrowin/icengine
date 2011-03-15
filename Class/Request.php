@@ -265,7 +265,24 @@ class Request
 	 */
 	public static function uri ()
 	{
-		return $_SERVER ['REQUEST_URI'];
+		$url = $_SERVER ['REQUEST_URI'];
+		$p = strpos ($url, '?');
+		if ($p !== false)
+		{
+		    return substr ($url, 0, $p);
+		}
+		return $url;
+	}
+
+	public static function stringGet ()
+	{
+	    $url = $_SERVER ['REQUEST_URI'];
+	    $p = strpos ($url, '?');
+	    if ($p !== false)
+	    {
+		return substr ($url, $p + 1);
+	    }
+	    return '';
 	}
 	
 	/**
