@@ -1,47 +1,51 @@
 <?php
 /**
  * 
- * Базовый класс контроллера.
+ * @desc Базовый класс контроллера.
  * @author Юрий
  * @package IcEngine
  *
  */
 class Controller_Abstract
 {	
-    
+	
 	/**
-	 * Последний вызванный экшен.
+	 * @desc Последний вызванный экшен.
 	 * @var string
 	 */
 	protected $_currentAction;
 	
 	/**
-	 * Текущая итерация диспетчера
+	 * @desc Текущая итерация диспетчера
 	 * @var Controller_Dispatcher_Iteration
 	 */
 	protected $_dispatcherIteration;
 	
 	/**
-	 * Входные данные
+	 * @desc Входные данные
 	 * @var Data_Transport
 	 */
 	protected $_input;
 		
 	/**
-	 * Выходные данные.
+	 * @desc Выходные данные.
 	 * @var Data_Transport
 	 */
 	protected $_output;
+	
+	/**
+	 * @desc Конфиг контроллера
+	 * @var array
+	 */
+	public $config = array ();
 	
 	public function __construct ()
 	{
 	}
 	
 	/**
-	 * Метод выполняется после вызова метода $action из диспетчера
-	 * 
-	 * @param string $action
-	 * 		Вызываемый метод
+	 * @desc Метод выполняется после вызова метода $action из диспетчера
+	 * @param string $action Вызываемый метод.
 	 */
 	public function _afterAction ($action)
 	{
@@ -51,10 +55,8 @@ class Controller_Abstract
 	}
 	
 	/**
-	 * Метод выполняется перед вызовом метода $action из диспетчера
-	 * 
-	 * @param string $action
-	 * 		Вызываемый метод
+	 * @desc Метод выполняется перед вызовом метода $action из диспетчера
+	 * @param string $action Вызываемый метод.
 	 */
 	public function _beforeAction ($action)
 	{
@@ -64,7 +66,7 @@ class Controller_Abstract
 	}
 	
 	/**
-	 * Результатом работы контроллера будет вызов метода хелпера.
+	 * @desc Результатом работы контроллера будет вызов метода хелпера.
 	 * @param string $helper
 	 * 		Название хелпера без перфикса "Helper_Action_"
 	 * @param string $method
@@ -78,7 +80,7 @@ class Controller_Abstract
 	}
 	
 	/**
-	 * Временный контент для сохраняемых данных.
+	 * @desc Временный контент для сохраняемых данных.
 	 * @return Temp_Content|null
 	 */
 	public function _inputTempContent ()
@@ -94,6 +96,66 @@ class Controller_Abstract
 		}
 		
 		return $tc;
+	}
+	
+	/**
+	 * @desc Получение данных с формы
+	 * @param array|Objective $scheme
+	 * @param boolean|Temp_Content Использовать ли временный контент или 
+	 * 		сам временный котенты
+	 * @param boolean $by_parts Вернуть разбитым по частям (данные и атрибуты)
+	 * @return Objective
+	 */
+	public function _inputFormData ($scheme, $use_tc = null, $by_parts = true)
+	{
+		Loader::load ('Helper_Form');
+		
+		// временный контент
+		if ($use_tc)
+		{
+			Loader::load ('Temp_Content');
+			if (!($use_tc instanceof Temp_Content))
+			{
+				$use_tc = Temp_Content::byUtcode (
+					$this->_input->receive ('utcode')
+				);
+				
+				if (!$use_tc)
+				{
+					$this->_helperReturn ('Page', 'obsolete');
+					return false;
+				}
+			}
+		}
+		
+		$data = Helper_Form::receiveFields (
+			$this->_input,
+			$scheme,
+			$use_tc
+		);
+		
+		Helper_Form::filter ($data, $scheme);
+		
+		$valid = Helper_Form::validate ($data, $scheme);
+		if (is_array ($valid))
+		{
+			// ошибка валидации
+			$this->_dispatcherIteration->setClassTpl (reset ($valid));
+			
+			$this->_output->send (array (
+				'registration'	=> $valid,
+				'data'			=> array (
+					'field'			=> key ($valid),
+					'error'			=> current ($valid)
+				)
+			));
+			
+			return false;
+		}
+		
+		Helper_Form::unsetIngored ($data, $scheme);
+		
+		return Helper_Form::extractParts ($data, $scheme);
 	}
 	
 	/**
@@ -166,6 +228,19 @@ class Controller_Abstract
 	}
 	
 	/**
+	 * @desc Загружает и возвращает конфиг для контроллера
+	 * @return Objective
+	 */
+	public function config ()
+	{
+		if (is_array ($this->config))
+		{
+			$this->config = Config_Manager::get (__CLASS__, $this->config);
+		}
+		return $this->config;
+	}
+	
+	/**
 	 * @return Data_Transport
 	 */
 	public function getInput ()
@@ -190,8 +265,7 @@ class Controller_Abstract
 	}
 	
 	/**
-	 * Имя контроллера (без приставки Controller_)
-	 * 
+	 * @desc Имя контроллера (без приставки Controller_)
 	 * @return string
 	 */
 	public function name ()
@@ -200,7 +274,7 @@ class Controller_Abstract
 	}
 	
 	/**
-	 * Заменить текущий экшн с передачей всех параметров
+	 * @desc Заменить текущий экшн с передачей всех параметров
 	 */
 	public function replaceAction ($controller, $action)
 	{
@@ -241,10 +315,10 @@ class Controller_Abstract
 	 * @return Controller_Abstract
 	 */
 	public function setDispatcherIteration (
-	    Controller_Dispatcher_Iteration $iteration)
+		Controller_Dispatcher_Iteration $iteration)
 	{
-	    $this->_dispatcherIteration = $iteration;
-	    return $this;
+		$this->_dispatcherIteration = $iteration;
+		return $this;
 	}
 	
 	public function setInput (Data_Transport $input)
