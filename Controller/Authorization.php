@@ -8,16 +8,16 @@
  */
 class Controller_Authorization extends Controller_Abstract
 {
-    
+	
 	/**
 	 * Редиректо по умолчанию после авторизация/логаута.
 	 * @var unknown_type
 	 */
-    const DEFAULT_REDIRECT = '/';
+	const DEFAULT_REDIRECT = '/';
 	
-    /**
-     * Досутп закрыт для текущего пользователя
-     */
+	/**
+	 * Досутп закрыт для текущего пользователя
+	 */
 	function accessDenied ()
 	{
 		$this->_output->send ('user', User::getCurrent ());
@@ -76,21 +76,21 @@ class Controller_Authorization extends Controller_Abstract
 		{
 			$this->_output->send ('data', array (
 				'user'	=> array (
-		            'id'	=> $user->id,
-		            'name'	=> $user->name
-		        ),
-		        'redirect'	=> $redirect
-		    ));
+					'id'	=> $user->id,
+					'name'	=> $user->name
+				),
+				'redirect'	=> $redirect
+			));
 		}
 		else
 		{
-		    $this->_output->send ('data', array (
-		        'error'	=> 'Password incorrect'
-		    ));
-		    $this->_dispatcherIteration->setClassTpl (
-		    	__METHOD__,
-		    	'/password_incorrect.tpl'
-		    );
+			$this->_output->send ('data', array (
+				'error'	=> 'Password incorrect'
+			));
+			$this->_dispatcherIteration->setClassTpl (
+				__METHOD__,
+				'/password_incorrect'
+			);
 		}
 	}
 	
@@ -123,16 +123,16 @@ class Controller_Authorization extends Controller_Abstract
 	 */
 	public function logout ()
 	{
-	    User_Session::getCurrent ()->delete ();
-	    $redirect = $this->_input->receive ('redirect');
-	    
-	    Loader::load ('Helper_Uri');
-	    $redirect = Helper_Uri::validRedirect (
-	    	$redirect ? $redirect : self::DEFAULT_REDIRECT
-	    );
-	    
-	    $this->_output->send ('data', array (
-	    	'redirect'	=> $redirect
+		User_Session::getCurrent ()->delete ();
+		$redirect = $this->_input->receive ('redirect');
+		
+		Loader::load ('Helper_Uri');
+		$redirect = Helper_Uri::validRedirect (
+			$redirect ? $redirect : self::DEFAULT_REDIRECT
+		);
+		
+		$this->_output->send ('data', array (
+			'redirect'	=> $redirect
 		));
 	}
 	

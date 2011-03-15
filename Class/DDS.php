@@ -1,5 +1,4 @@
 <?php
-
 /**
  * DDS Default Data Source
  * 
@@ -7,10 +6,9 @@
  * DDS::execute ($query)
  * 
  * @author yury.s
- *
+ * @package IcEngine
+ * 
  */
-
-
 class DDS
 {
 

@@ -33,7 +33,7 @@ abstract class Data_Mapper_Abstract
 	}
 	
 	/**
-	 * Создание индексов для записи
+	 * @desc Создание индексов для записи
 	 * @param string $source
 	 * @param array $record
 	 */
@@ -221,11 +221,11 @@ abstract class Data_Mapper_Abstract
 	 */
 	public function getDefaultOptions ()
 	{
-	    if (!$this->_defaultOptions)
-	    {
-	        $this->_defaultOptions = new Query_Options ();
-	    }
-	    return $this->_defaultOptions;
+		if (!$this->_defaultOptions)
+		{
+			$this->_defaultOptions = new Query_Options ();
+		}
+		return $this->_defaultOptions;
 	}
 	
 	/**
@@ -258,8 +258,8 @@ abstract class Data_Mapper_Abstract
 	 */
 	public function setDefaultOptions (Query_Options $options)
 	{
-	    $this->_defaultOptions = $options;
-	    return $this;
+		$this->_defaultOptions = $options;
+		return $this;
 	}
 	
 	/**
