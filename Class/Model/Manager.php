@@ -22,7 +22,7 @@ class Model_Manager
 	protected $_factories;
 	
 	/**
-	 * Следующая модель будет создана с выключенным autojoin.
+	 * @desc Следующая модель будет создана с выключенным autojoin.
 	 * @var boolean
 	 */
 	protected $_forced = false;
@@ -37,7 +37,7 @@ class Model_Manager
 	}
 	
 	/**
-	 * Получение условий выборки из запроса
+	 * @desc Получение условий выборки из запроса
 	 * @param Query $query
 	 * @return array|null
 	 */
@@ -62,7 +62,7 @@ class Model_Manager
 	}
 	
 	/**
-	 * 
+	 * @desc Получение данных модели из источника данных.
 	 * @param Model $object
 	 */
 	protected function _read (Model $object)
@@ -91,7 +91,7 @@ class Model_Manager
 	}
 	
 	/**
-	 * 
+	 * @desc Удаление данных модели из источника.
 	 * @param Model $object
 	 */
 	public function _remove (Model $object)
@@ -172,7 +172,7 @@ class Model_Manager
 	}
 	
 	/**
-	 * Следующая модель будет создана без autojoin.
+	 * @desc Следующая модель будет создана без autojoin.
 	 * @return Model_Manager
 	 */
 	public function forced ()
@@ -285,7 +285,7 @@ class Model_Manager
 	}
 	
 	/**
-	 * 
+	 * @desc Получение модели по запросу.
 	 * @param string $model
 	 * @param Query $query
 	 * @return Model|null
@@ -328,7 +328,7 @@ class Model_Manager
 	}
 	
 	/**
-	 * 
+	 * @desc Получение модели по первичному ключу.
 	 * @param string $model
 	 * @param integer $key
 	 * @return Model|null

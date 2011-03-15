@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * 
+ * @desc Менеджер ресурсов представления
+ * @author Юрий
+ * @package IcEngine
+ * 
+ */
 class View_Resource_Manager
 {
 	
@@ -42,14 +48,11 @@ class View_Resource_Manager
 	}
 	
 	/**
-	 * Добавление ресурса
-	 * 
+	 * @desc Добавление ресурса
 	 * @param string|array $data
 	 * 		Ссылка на ресурс или массив пар (тип => ссылка)
-	 * @param string $type [optional]
-	 * 		Тип ресурса
-	 * @param array $flags
-	 * 		Параметры
+	 * @param string $type [optional] Тип ресурса
+	 * @param array $flags Параметры
 	 */
 	public function add ($data, $type = null, array $options = array ())
 	{
@@ -88,13 +91,9 @@ class View_Resource_Manager
 	}
 	
 	/**
-	 * @desc
-	 * 		Возвращает ресурсы указанного типа.
-	 * 
-	 * @param string $type
-	 * 		Тип
-	 * @return array
-	 * 		Ресурсы
+	 * @desc Возвращает ресурсы указанного типа.
+	 * @param string $type Тип
+	 * @return array Ресурсы
 	 */
 	public function getData ($type)
 	{
@@ -107,7 +106,7 @@ class View_Resource_Manager
 	}
 	
 	/**
-	 * 
+	 * @desc Возвращает упаковщик ресурсов для указанного типа.
 	 * @param string $type
 	 * @return View_Resource_Packer_Abstract
 	 */
