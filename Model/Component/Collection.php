@@ -1,19 +1,33 @@
 <?php
-
+/**
+ * 
+ * @desc Абстрактный класс коллекции компонентов.
+ * @author Юрий Шведов
+ * @package IcEngine
+ *
+ */
 abstract class Component_Collection extends Model_Collection
 { 
 	
 	/**
-	 * 
+	 * @desc Модель, для которой выбрана коллекция.
 	 * @var Model
 	 */
 	protected $_model;
 	
+	/**
+	 * @desc Возвращает первичный ключ модели.
+	 * @return mixed
+	 */
 	public function forRowId ()
 	{
 	    return $this->_model->key ();
 	}
 	
+	/**
+	 * @desc Возвращает таблицу модели
+	 * @return string
+	 */
 	public function forTable ()
 	{
 	    return $this->_model->table ();
@@ -36,7 +50,8 @@ abstract class Component_Collection extends Model_Collection
 	}
 	
 	/**
-	 * @return Model
+	 * @desc Возвращает модель для которой выбрана коллекция.
+	 * @return Model Модель.
 	 */
 	public function model ()
 	{
@@ -44,7 +59,7 @@ abstract class Component_Collection extends Model_Collection
 	}
 	
 	/**
-	 * Привязывает элементы коллекции к заданной сущности.
+	 * @desc Привязывает элементы коллекции к заданной сущности.
 	 * Существующая ранее связь будет утеряна.
 	 * 
 	 * @param Model $model
@@ -80,7 +95,7 @@ abstract class Component_Collection extends Model_Collection
 	}
 	
 	/**
-	 * Возвращает тип коллекции компонентов.
+	 * @desc Возвращает тип коллекции компонентов.
 	 * @return string
 	 * 		Имя класса без приставки "Component_" и без суффикса "_Collection"
 	 */

@@ -1,7 +1,8 @@
 <?php
 /**
  * 
- * @package IcEgine
+ * @desc Менеджер фоновых процессов.
+ * @package IcEngine
  *
  */
 class Background_Agent_Manager

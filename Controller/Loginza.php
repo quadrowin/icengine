@@ -1,9 +1,9 @@
 <?php
 /**
  * 
- * @desc Контроллер для работы с Loginza
+ * @desc Контроллер для работы с Loginza.
  * @author Юрий Шведов
- * @package Ice_Vipgeo
+ * @package IcEngine
  *
  */
 class Controller_Loginza extends Controller_Abstract
@@ -17,7 +17,7 @@ class Controller_Loginza extends Controller_Abstract
 		// Адрес логинзы, где хранится результат авторизации
 		'loginza_url'				=> 'http://loginza.ru/api/authinfo?token={$token}',
 		// Редирект при регистрации нового пользователя
-		'registration_redirect'		=> '/registration/?token={$token}',
+		'registration_redirect'		=> '/registration/?lztoken={$token}',
 		// Редирект после авторизации существующего пользователя
 		'authorization_redirect'	=> null
 	);

@@ -1,7 +1,4 @@
 <?php
-
-include dirname (__FILE__) . '/Type.php';
-include dirname (__FILE__) . '/Abstract.php';
 /**
  * 
  * @desc
@@ -11,23 +8,27 @@ include dirname (__FILE__) . '/Abstract.php';
  * @package IcEngine
  *
  */
+
+include dirname (__FILE__) . '/Type.php';
+include dirname (__FILE__) . '/Abstract.php';
+
 class Message_Queue
 {
 	
 	/**
-	 * Все сообщения.
+	 * @desc Все сообщения.
 	 * @var array <Message_Queue_Abstract>
 	 */
 	protected $_items;
 	
 	/**
-	 * Сообщения по типам.
+	 * @desc Сообщения по типам.
 	 * @var array <array <Message_Queue_Abstract>>
 	 */
 	protected $_byType = array ();
 	
 	/**
-	 * Обработчики событий
+	 * @desc Обработчики событий
 	 * @var array <callback>
 	 */
 	protected $_handlers = array ();
@@ -48,7 +49,7 @@ class Message_Queue
 	}
 	
 	/**
-	 * Возвращает массив сообщений указанного типа.
+	 * @desc Возвращает массив сообщений указанного типа.
 	 * @param integer $type
 	 * 		Необходимый тип сообщений.
 	 * @return array <Message_Queue_Abstract>
@@ -65,13 +66,9 @@ class Message_Queue
 	}
 	
 	/**
-	 * @desc
-	 * 		Вызывается сторонними методами при наступлении события.
-	 * 
-	 * @param string $type
-	 * 		Тип события.
-	 * @param array $data [optional]
-	 * 		Дополнительные данные 
+	 * @desc Вызывается сторонними методами при наступлении события.
+	 * @param string $type Тип события.
+	 * @param array $data [optional] Дополнительные данные 
 	 * @return Message_Abstract
 	 * 		
 	 */
@@ -103,7 +100,7 @@ class Message_Queue
 	}
 	
 	/**
-	 * 
+	 * @desc Сообщение о загрузке контента.
 	 * @param Model $model
 	 * @param array $extends
 	 * @return Message_After_Load_Content
@@ -159,7 +156,7 @@ class Message_Queue
 	}
 	
 	/**
-	 * Устновка нового callback'a для события.
+	 * @desc Устновка нового callback'a для события.
 	 * @param integer $type
 	 * 		Тип события
 	 * @param callback $function

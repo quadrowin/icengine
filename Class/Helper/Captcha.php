@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * 
+ * @desc Помощник для каптчи.
+ * @author Юрий Шведов
+ * @package IcEngine
+ *
+ */
 class Helper_Captcha
 {
 	

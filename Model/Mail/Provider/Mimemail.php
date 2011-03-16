@@ -1,4 +1,11 @@
 <?php
+/**
+ * 
+ * @desc Провайдер для отправки сообщений по почте.
+ * @author Юрий Шведов
+ * @package IcEngine
+ *
+ */
 
 if (!class_exists ('Mail_Provider_Abstract'))
 {
@@ -8,12 +15,16 @@ if (!class_exists ('Mail_Provider_Abstract'))
 class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 {
 	/**
-	 * 
+	 * @desc Путь до PHPMailer
 	 * @var string
 	 */
 	const MIME_MAIL_PATH 	 = 'PHPMailer/class.phpmailer.php';
 	
-	public function send ($mails, $message, $config)
+	/**
+	 * (non-PHPdoc)
+	 * @see Mail_Provider_Abstract::send()
+	 */
+	public function send ($addresses, $message, $config)
 	{
 		Loader::requireOnce (self::MIME_MAIL_PATH, 'includes');
 		
@@ -21,9 +32,9 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 		{
 			$mail = new PHPMailer ();
 			
-			foreach ((array) $mails as $email)
+			foreach ((array) $addresses as $address)
 			{
-				$mail->addAddress ($email, '');
+				$mail->addAddress ($address, '');
 			}
 			
 			$mail->From =

@@ -1,4 +1,14 @@
+/**
+ * @desc Помощник для работы с датой
+ */
 var Helper_Date = {
+		
+	/**
+	 * @desc Преобразование строки в дату
+	 * @param string str Исходная стока, содержащая дату
+	 * @param mixed def Возвращаемое по умолчанию значение.
+	 * @returns Дата
+	 */
 	parse : function (str, def)
 	{
 		if (typeof (str) == "object" && str instanceof Date)
@@ -46,7 +56,13 @@ var Helper_Date = {
 
 		return new Date (def);
 	},
-
+	
+	/**
+	 * @desc Приводит дату к формату "dd.mm.yyyy"
+	 * @param mixed time Дата в произвольном формате.
+	 * @param string sep разделитель.
+	 * @returns string Дата в формате "dd.mm.yyyy"
+	 */
 	format_ddmmyyyy : function (time, sep)
 	{
 		var date = strToDate (time);

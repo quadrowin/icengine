@@ -1,6 +1,4 @@
 <?php
-
-Loader::load ('Registration');
 /**
  * 
  * @desc Контроллер регистрации
@@ -8,14 +6,10 @@ Loader::load ('Registration');
  * @package IcEngine
  *
  */
+Loader::load ('Registration');
+
 class Controller_Registration extends Controller_Abstract
 {
-	
-	/**
-	 * @desc Последняя обработанная регистрация
-	 * @var Registration
-	 */
-	public $registration;
 	
 	/**
 	 * @desc Начало регистрации

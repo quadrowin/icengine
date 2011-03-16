@@ -1,12 +1,11 @@
 <?php
-
 /**
  * 
  * @desc Генерация уникальный идентификаторов.
  * @author Юрий
+ * @package IcEngine
  *
  */
-
 class Helper_Unique
 {
 	

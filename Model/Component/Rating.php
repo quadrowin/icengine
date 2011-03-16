@@ -19,6 +19,7 @@ class Component_Rating extends Model_Component
 	{
 		$this->update (array (
 			'value'			=> $this->value + $change,
+			'votes'			=> $this->votes + 1,
 			'changeTime'	=> Helper_Date::toUnix ()
 		));
 		

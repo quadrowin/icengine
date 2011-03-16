@@ -23,7 +23,7 @@ class Controller_Component_Rating extends Controller_Abstract
 			$row_id,
 			$value
 		) = $this->_input->receive (
-			'input',
+			'table',
 			'row_id',
 			'value'
 		);
@@ -37,6 +37,20 @@ class Controller_Component_Rating extends Controller_Abstract
 		$rating = $scheme->vote ($table, $row_id, $value);
 		
 		$this->_output->send (array (
+			'rating'	=> $rating
+		));
+	}
+	
+	/**
+	 * @desc Кнопки голосования.
+	 * @param Model $model Оцениваемая модель.
+	 */
+	public function pollBar ()
+	{
+		$model = $this->_input->receive ('model');
+		$rating = $model->component ('Rating');
+		$this->_output->send (array (
+			'model'		=> $model,
 			'rating'	=> $rating
 		));
 	}

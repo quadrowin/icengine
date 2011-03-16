@@ -1,33 +1,34 @@
 <?php
 /**
  * 
- * Хелпер для работы с датами.
+ * @desc Хелпер для работы с датами.
  * @author Юрий
+ * @package IcEngine
  *
  */
 class Helper_Date
 {
     
 	/**
-	 * Unix формат представления даты.
+	 * @desc Unix формат представления даты.
 	 * @var string
 	 */
     const UNIX_DATE_FORMAT = 'Y-m-d';
     
     /**
-     * Unix формат представления даты и времени.
+     * @desc Unix формат представления даты и времени.
      * @var string
      */
     const UNIX_FORMAT = 'Y-m-d H:i:s';
     
     /**
-     * Unix формат времени
+     * @desc Unix формат времени
      * @var string
      */
     const UNIX_TIME_FORMAT = 'H:i:s';
 	
     /**
-     * Названия дней недели
+     * @desc Названия дней недели
      * @var array
      */
     public static $daysRu = array (
@@ -54,7 +55,7 @@ class Helper_Date
     );
     
     /**
-     * Русские названия месяцев.
+     * @desc Русские названия месяцев.
      * @var array
      */
     public static $monthesRu = array (
@@ -89,7 +90,7 @@ class Helper_Date
 	);
 	
 	/**
-	 * Сравнение двух дат в формате UNIX.
+	 * @desc Сравнение двух дат в формате UNIX.
 	 * @param string $now
 	 * @param string $then
 	 * @return integer
@@ -121,13 +122,13 @@ class Helper_Date
     }
     
 	/**
-	 * Номер дня от начала эры
-	 * @param integer $date
-	 * @return integer
+	 * @desc Возвращает номер дня от начала эры.
+	 * @param integer $date Дата.
+	 * @return integer Номер дня.
 	 */
-	public static function eraDayNum ($date = false)
+	public static function eraDayNum ($date = null)
 	{
-		if ($date === false)
+		if ($date === null)
 		{
 			$date = time ();
 		}
@@ -149,9 +150,9 @@ class Helper_Date
 	}
 	
 	/**
-	 * Номер недели от начала эры
-	 * @param integer $date
-	 * @return intger
+	 * @desc Возвращает номер недели от начала эры
+	 * @param integer $date Дата.
+	 * @return intger Номер недели.
 	 */
 	public static function eraWeekNum ($date = false)
 	{
@@ -172,29 +173,24 @@ class Helper_Date
 	}
 	
 	/**
-	 * Сравнение месяцев двух дат
-	 * 
-	 * @param integer $date1
-	 * 		Первая дата
-	 * @param integer $date2
-	 * 		Вторая дата
+	 * @desc Сравнение месяцев двух дат.
+	 * @param integer $date1 Первая дата.
+	 * @param integer $date2 Вторая дата.
 	 * @return boolean
 	 * 		true, если даты относятся к одному месяцу, иначе false
 	 */
 	public static function monthEqual ($date1, $date2)
 	{
-		return (date('m', $date1) == date('m', $date2));
+		return date ('m', $date1) == date ('m', $date2);
 	}
 	
 	/**
-	 * Возвращает название месяца
+	 * @desc Возвращает название месяца
 	 * 
-	 * @param integer $month_num
-	 * 		Номер месяца (от 1 до 12)
-	 * @param integer $form
-	 * 		Возвращаемая форма. 1 - именительный патеж, 2 - родительный.
-	 * @return string
-	 * 		Название месяца
+	 * @param integer $month_num Номер месяца (от 1 до 12).
+	 * @param integer $form Возвращаемая форма. 1 - именительный патеж, 
+	 * 	2 - родительный.
+	 * @return string Название месяца.
 	 */
 	public static function monthName ($month_num, $form = 1)
 	{	
@@ -213,7 +209,7 @@ class Helper_Date
 	 * 		Следующая метка времени (unix timestamp).
 	 * 		Если период указан неверно, возвращается false
 	 */
-	public static function nextTime($time, $period)
+	public static function nextTime ($time, $period)
 	{
 		if (is_numeric ($period))
 		{
@@ -254,7 +250,7 @@ class Helper_Date
 	}
 	
 	/**
-	 * Получение даты и времени из строки.
+	 * @desc Получение даты и времени из строки.
 	 * @param mixed $date
 	 * @return DateTime|null
 	 */
@@ -277,7 +273,7 @@ class Helper_Date
 		{
 			if (strpos ('-0123456789', $str [$i]) == 0)
 			{
-				if (strlen ($arr[$n]) > 0)
+				if (strlen ($arr [$n]) > 0)
 				{
 					$arr [$n] = (int) $arr [$n];
 					$n++;
@@ -285,7 +281,7 @@ class Helper_Date
 			}
 			else
 			{
-				$arr [$n] .= $str[$i];
+				$arr [$n] .= $str [$i];
 			}
 		}
 	
@@ -305,12 +301,12 @@ class Helper_Date
 			// d.m.Y H:i:s
 			return DateTime::createFromForamt ('d.m.Y.H.i.s', $str);
 		}
-		elseif (strlen ($arr[3]) == 4)
+		elseif (strlen ($arr [3]) == 4)
 		{
 			// H:i:s Y-m-d
 			return DateTime::createFromForamt ('H.i.s.Y.m.d', $str);
 		}
-		elseif (strlen ($arr[5]) == 4)
+		elseif (strlen ($arr [5]) == 4)
 		{
 			// H:i:s d.m.Y
 			return DateTime::createFromForamt ('H.i.s.d.m.Y', $str);
@@ -395,12 +391,9 @@ class Helper_Date
 	} # function str_to_timestamp
 	
 	/**
-	 * Перевод строки в unix timestamp
-	 * 
-	 * @param string $str
-	 * 		Исходная строка
-	 * @param integer $def
-	 * 		Возвращаемое значение по умолчанию
+	 * @desc Перевод строки в unix timestamp
+	 * @param string $str Исходная строка.
+	 * @param integer $def Возвращаемое значение по умолчанию.
 	 * @return integer
 	 * 		Время в unix timestamp.
 	 * 		Если не удалось определить время, возвращается $def
@@ -423,18 +416,18 @@ class Helper_Date
 		{
 			if (strpos ('-0123456789', $str [$i]) == 0)
 			{
-				if (strlen ($arr[$n]) > 0)
+				if (strlen ($arr [$n]) > 0)
 				{
 					$n++;
 				}
 			}
 			else 
 			{
-				$arr[$n] .= $str[$i];
+				$arr [$n] .= $str [$i];
 			}
 		}
 	
-		return mktime ((int) $arr[0], (int) $arr[1], (int) $arr[2]);
+		return mktime ((int) $arr [0], (int) $arr [1], (int) $arr [2]);
 	}
 	
 	/**
@@ -469,9 +462,8 @@ class Helper_Date
 	}
 	
 	/**
-	 * 
-	 * @param string $date
-	 * 		Дата в формате UNIX.
+	 * @descs Разбирает дату и возвращает DateTime.
+	 * @param string $date Дата в формате UNIX.
 	 * @return DateTime
 	 */
 	public static function toDateTime ($date)
@@ -480,7 +472,7 @@ class Helper_Date
 	}
 	
 	/**
-	 * Перевод даты из любого распознаваемого форматав формат в Unix.
+	 * @desc Перевод даты из любого распознаваемого форматав формат в Unix.
 	 * @param string $date [optional]
 	 * 		Если параметр не будет передан или будет передано null,
 	 * 		будет использована текущая дата.
