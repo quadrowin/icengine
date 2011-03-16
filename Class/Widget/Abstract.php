@@ -119,6 +119,11 @@ abstract class Widget_Abstract
 		$this->_output = $output;
 		return $this;
 	}
+
+	public function setTemplate ($template)
+	{
+		$this->_template = $template;
+	}
 	
 	/**
 	 * Получение шаблона вида
