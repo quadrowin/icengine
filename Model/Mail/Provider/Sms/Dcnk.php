@@ -6,7 +6,6 @@
  * @package Ice_Vipgeo
  *
  */
-
 class Mail_Provider_Sms_Dcnk extends Mail_Provider_Abstract
 {
 	
@@ -15,9 +14,16 @@ class Mail_Provider_Sms_Dcnk extends Mail_Provider_Abstract
 	 * @var array|Objective
 	 */
 	protected $_config = array (
-		'nusoap_path'	=> '/sms/nusoap.php'
+		'nusoap_path'	=> '/sms/nusoap.php',
+		'msguser'		=> '',
+		'password'		=> '',
+		'msg_gate_url'	=> 'http://www.dc-nk.ru/service/msggate/msgservice.php'
 	);
 	
+	/**
+	 * @desc SOAP клиент 
+	 * @var yakoon_soapclient
+	 */
 	protected $_client;
 	
 	/**
@@ -26,7 +32,7 @@ class Mail_Provider_Sms_Dcnk extends Mail_Provider_Abstract
 	 */
 	public function _afterConstruct ()
 	{
-		Loader::requireOnce ($this->_config ['nusoap_path'], 'includes');
+		Loader::requireOnce ($this->config ()->nusoap_path, 'includes');
 	}
 
 	function DcSMS ()
@@ -35,7 +41,7 @@ class Mail_Provider_Sms_Dcnk extends Mail_Provider_Abstract
 		$proxyport = '';
 		$proxyusername = '';
 		$proxypassword = '';
-		$this->client = new yakoon_soapclient (
+		$this->_client = new yakoon_soapclient (
 			"http://www.dc-nk.ru/service/msggate/msgservice.php?WSDL",
 			false, $proxyhost, $proxyport, $proxyusername, $proxypassword
 		);
@@ -46,17 +52,21 @@ class Mail_Provider_Sms_Dcnk extends Mail_Provider_Abstract
 	 * @see Mail_Provider_Abstract::send()
 	 */
 	public function send ($addresses, $message, $config)
-	//function ыendTextMessage($phone, $email, $date, $text )
+	//function sendTextMessage($phone, $email, $date, $text )
 	{
+		$this->logMessage ($message, self::MAIL_STATE_SENDING);
+		
 		$result = null;
-		$date = empty ($config ['date']) ? date ("d.m.Y H:i") : $config ['date'];
 		//echo $date . "<br>";
 		
 		$params = array (
-			'msguser'		=> 'forguest',
-			'password'		=> '123456',
+			'msguser'		=> $this->_config ['msguser'],
+			'password'		=> $this->_config ['password'],
 			'text'			=> $message,
-			'dtsend'		=> $date,
+			'dtsend'		=> 
+				!empty ($config ['date']) ? 
+				$config ['date'] : 
+				date ("d.m.Y H:i"),
 			'grpid'			=> '0',
 			'abid'			=> '0',
 			'phone'			=> '',
@@ -73,27 +83,44 @@ class Mail_Provider_Sms_Dcnk extends Mail_Provider_Abstract
 			$params ['phone'] = 
 				isset ($address ['phone']) ? $address ['phone'] : '';
 			
-			$result = $this->client->call (
-				'SendTextMessage', $params, 
-				'http://www.dc-nk.ru/service/msggate/msgservice.php', 
+			$result = $this->_client->call (
+				'SendTextMessage',
+				$params,
+				$this->_config ['msg_gate_url'],
 				'SendTextMessage'
 			);
-			$err = $this->client->getError ();
+			$err = $this->_client->getError ();
 		}
+		
+		$this->logMessage (
+			$message,
+			self::MAIL_STATE_SENDING,
+			var_export ($result, true)
+		);
 
-		return $result;
+		return (bool) $result;
 	}
-
-	function getStatus ($messageID)
+	
+	/**
+	 * @desc Получает и возвращает состояние сообщения
+	 * @param string $message_id Id сообщения.
+	 * @return string Состояние
+	 */
+	function getStatus ($message_id)
 	{
 		$params = array
 		(
-			'msguser' => 'forguest',
-			'password' => '123456',
-			'messageid'  => $messageID
+			'msguser'		=> $this->_config ['msguser'],
+			'password'		=> $this->_config ['password'],
+			'messageid'		=> $message_id
 		);
 		//echo 'sending data';
-		$result = $this->client->call('GetMessageState', $params, 'http://www.dc-nk.ru/service/msggate/msgservice.php', 'GetMessageState');
+		$result = $this->_client->call (
+			'GetMessageState',
+			$params,
+			$this->_config ['msg_gate_url'],
+			'GetMessageState'
+		);
 		return $result;
 	}
 	

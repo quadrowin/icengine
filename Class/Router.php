@@ -1,8 +1,15 @@
 <?php
-
+/**
+ * 
+ * @desc Механизм определения роута по адресу
+ * @author Юрий Шведов
+ * @package IcEngine
+ *
+ */
 class Router
 {
-	public static $_prefixPart = '/vipgeo_showplace';
+	
+//	public static $_prefixPart = '/vipgeo_showplace';
 	
 	/**
 	 * @var Route
@@ -21,12 +28,12 @@ class Router
 	{
 		//$url = ltrim (Request::uri (), self::$_prefixPart);
 		$url = Request::uri ();
-		if (
-			substr ($url, 0, strlen (self::$_prefixPart)) == self::$_prefixPart
-		)
-		{
-			$url = substr ($url, strlen (self::$_prefixPart));
-		}
+//		if (
+//			substr ($url, 0, strlen (self::$_prefixPart)) == self::$_prefixPart
+//		)
+//		{
+//			$url = substr ($url, strlen (self::$_prefixPart));
+//		}
 
 		$gets = Request::stringGet ();
 
@@ -90,7 +97,7 @@ class Router
 	}
 	
 	/**
-	 * 
+	 * @desc 
 	 * @param string $url
 	 * @return Route
 	 */
@@ -99,8 +106,8 @@ class Router
 		$url = '/' . trim ($url, '/') . '/';
 		
 		// Заменяем /12345678/ на /?/
-		$template = preg_replace ('#/[0-9]{1,}/#i', '/0/', $url);
-		$template = preg_replace ('#/[0-9]{1,}/#i', '/0/', $template);
+		$template = preg_replace ('#/[0-9]{1,}/#i', '/?/', $url);
+		$template = preg_replace ('#/[0-9]{1,}/#i', '/?/', $template);
 		
 		$select = new Query ();
 		$select

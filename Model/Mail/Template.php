@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * 
+ * @desc Шаблоны сообщений.
+ * @author Юрий Шведов
+ * @package IcEngine
+ *
+ */
 class Mail_Template extends Model_Child
 {
     

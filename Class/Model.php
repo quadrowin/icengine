@@ -27,6 +27,12 @@ abstract class Model implements ArrayAccess
 	protected	$_components = array ();
 	
 	/**
+	 * @desc Конфиг
+	 * @var array|Objective
+	 */
+	protected	$_config = array ();
+	
+	/**
 	 * @desc Связанные данные
 	 * @var array
 	 */
@@ -267,6 +273,23 @@ abstract class Model implements ArrayAccess
 		return is_null ($index) ? 
 			$this->_components [$type] : 
 			$this->_components [$type]->item ($index);
+	}
+	
+	/**
+	 * @desc Загружает и возвращает конфиг для модели
+	 * @param string $class Класс модели, если отличен от __CLASS__
+	 * @return Objective
+	 */
+	public function config ($class = null)
+	{
+		if (is_array ($this->_config))
+		{
+			$this->_config = Config_Manager::get (
+				$class ? $class : __CLASS__,
+				$this->_config
+			);
+		}
+		return $this->_config;
 	}
 	
 	/**

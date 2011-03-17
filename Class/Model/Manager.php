@@ -351,10 +351,12 @@ class Model_Manager
 	}
 	
 	/**
-	 * 
+	 * @desc Возвращает коллекцию по запросу.
+	 * Следует использовать Model_Collection_Manager::byQuery().
 	 * @param string $model
 	 * @param Query $query
 	 * @return Model_Collection
+	 * @deprecated
 	 */
 	public function collectionBy ($model, Query $query)
 	{

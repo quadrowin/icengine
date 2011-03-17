@@ -23,6 +23,8 @@ class Controller_Sms_Activation extends Controller_Abstract
 		Loader::load ('Helper_Activation');
 		$activation = Helper_Activation::newShortCode ($phone);
 		
+		
+		
 		$this->_output->send (array (
 			'activation'	=> $activation,
 			'data'			=> array (
