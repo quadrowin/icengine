@@ -8,16 +8,52 @@
  */
 class Mail_Provider_Abstract extends Model_Factory_Delegate
 {
+	
+	/**
+	 * @desc Состояние отправки
+	 * @var string
+	 */
+	const MAIL_STATE_SENDING	= 'sending';
+	
+	/**
+	 * @desc Отправка прервана
+	 * @var string
+	 */
+	const MAIL_STATE_FAIL		= 'fail';
+	
+	/**
+	 * @desc Отправка успешно завершена
+	 * @var stringы
+	 */
+	const MAIL_STATE_SUCCESS	= 'success';
     
+	/**
+	 * @desc Запись в лог состояния сообщения.
+	 * @param Mail_Message $message
+	 * @param string $state Состояние отправки
+	 * @param string $comment [optional] Дополнительная информация.
+	 */
+	public function logMessage (Mail_Message $message, $state, $comment = '')
+	{
+		Loader::load ('Mail_Message_Log');
+		$log = new Mail_Message_Log (array (
+			'time'				=> Helper_Date::toUnix (),
+			'Mail_Message__id'	=> $message->id,
+			'state'				=> $state,
+			'comment'			=> $comment
+		));
+		$log->save ();
+	}
+	
     /**
 	 * @desc Отправка сообщений.
-	 * @param array $mails Адреса.
-	 * @param string $message Сообщение.
-	 * @param array $config Настройки.
+	 * @param Mail_Message $message Сообщение.
+	 * @param array $config Параметры.
 	 * @return boolean
 	 */
-	public function send ($addresses, $message, $config)
+	public function send (Mail_Message $message, $config)
 	{
+		$this->logMessage ($message, self::MAIL_STATE_FAIL);
 		return false;
 	}
 	

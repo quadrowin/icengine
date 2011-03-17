@@ -8,6 +8,17 @@
  */
 class Helper_Translit
 {
+	
+	/**
+	 * @desc Заменяет символы в строке согласно переданным наборам.
+	 * @param string $value Исходая строка.
+	 * @param string|array $to Символы, которые будут вставлены на места 
+	 * заменяемых.
+	 * @param string $from [optional] Символы, которые будут заменены.
+	 * Если этот аргумент не передан, в $to ожидается ассоциативный
+	 * массив вида "заменяемый символ" => "символ для замены".
+	 * @return string Результат замены
+	 */
 	protected function u_strtr ($value, $to, $from = null)
 	{
 		if (is_null ($from))
@@ -21,7 +32,7 @@ class Helper_Translit
 		else
 		{
 			$len = min (strlen ($to), strlen ($from));
-			for ($i = 0; $i < $len; $i++)
+			for ($i = 0; $i < $len; ++$i)
 			{
 				$value = str_replace (
 					mb_substr ($to, $i, 1, 'UTF-8'),
@@ -32,7 +43,15 @@ class Helper_Translit
 		}
 		return $value;
 	}
-
+	
+	/**
+	 * @desc Перевод строки в транслит
+	 * @param string $value Исходна стока
+	 * @param string $lang [optional] Направление перевода
+	 * 		Если "en" - из русского на транслит,
+	 * 		если "ru" - из транслита на русский
+	 * @return Результат транслитации.
+	 */
 	public static function translit ($value, $lang = null)
 	{
 		$value = trim ($value);
@@ -73,7 +92,7 @@ class Helper_Translit
 		elseif ($lang == 'ru')
 		{
 			// Сначала заменяем"многосимвольные".
-			$value = self::u_strtr(
+			$value = self::u_strtr (
 				$value,
 				array (
 					"zh"=>"ж", "ts"=>"ц", "ch"=>"ч", "sh"=>"ш",

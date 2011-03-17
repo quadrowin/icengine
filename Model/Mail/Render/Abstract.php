@@ -6,7 +6,7 @@
  * @package IcEngine
  *
  */
-abstract class Mail_Render_Abstract 
+abstract class Mail_Render_Abstract extends Model_Factory_Delegate
 {
     
 	/**
