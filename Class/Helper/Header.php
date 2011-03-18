@@ -4,18 +4,34 @@
  * @desc Хелпер управления заголовоками
  * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
- * @deprecated Следует использовать Helper_Header
  *
  */
-class Header
+class Helper_Header
 {
 	
+	/**
+	 * @desc Код ошибки "доступ закрыт"
+	 * @var integer
+	 */
 	const E403 = 403;
+	
+	/**
+	 * @desc Код ошибки "страница не найдена"
+	 * @var integer
+	 */
 	const E404 = 404;
 	
+	/**
+	 * @desc Флаг кодирования gzip
+	 * @var string
+	 */
 	const CONTENT_ENCODING_GZIP = 'gzip';
 	
-	public static $statuses = array(
+	/**
+	 * @desc Сообщения с ошибками
+	 * @var array
+	 */
+	public static $statuses = array (
 		self::E403 => array (
 			"HTTP/1.0 403 Permission Denied",
 			"Status: 403 Permission Denied"
@@ -26,19 +42,23 @@ class Header
 		)
 	);
 	
+	/**
+	 * @desc Отправить статус в заголовке ответа
+	 * @param integer $status Статус.
+	 */
 	public static function setStatus ($status)
 	{
-		if (headers_sent ())
-		{
-			return;
-		}
-		if (isset(self::$statuses[$status]))
-		{
-			foreach (self::$statuses[$status] as $text)
+//		if (headers_sent ())
+//		{
+//			return;
+//		}
+//		if (isset (self::$statuses [$status]))
+//		{
+			foreach (self::$statuses [$status] as $text)
 			{
-				header($text);
+				header ($text);
 			}
-		}
+//		}
 	}
 	
 	/**
@@ -59,8 +79,8 @@ class Header
 			header ("Location: $uri");
 		}
 		else
-		{	
-			echo '<script>window.location.href="'.$uri.'"</script>';
+		{
+			echo '<script>window.location.href="' . $uri . '"</script>';
 		}
 	}
 	

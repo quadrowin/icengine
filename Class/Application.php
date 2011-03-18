@@ -47,7 +47,7 @@ class Application
 		Loader::load ('Application_Behavior_Abstract');
 		if (class_exists ('Application_Bootstrap_IcePage'))
 		{
-			debug_print_backtrace();
+			debug_print_backtrace ();
 			die ();
 		}
 		
@@ -64,8 +64,7 @@ class Application
 	{
 		if (!$this->frontController)
 		{
-			$this->frontController = new Controller_Front (
-				$this->behavior->controllersPath);
+			$this->frontController = new Controller_Front ();
 		}
 		return $this->frontController;
 	}

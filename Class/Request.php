@@ -192,7 +192,7 @@ class Request
 	}
 	
 	/**
-	 * Возвращает объект переданного файла.
+	 * @desc Возвращает объект переданного файла.
 	 * 
 	 * @param integer $index
 	 * 		Индекс
@@ -237,7 +237,7 @@ class Request
 	}
 	
 	/**
-	 * Возвращает массив объектов переданных файлов.
+	 * @desc Возвращает массив объектов переданных файлов.
 	 * @return array Request_File
 	 */
 	public static function files ()
@@ -252,7 +252,7 @@ class Request
 	}
 	
 	/**
-	 * Возвращает количество переданных в запросе файлов
+	 * @desc Возвращает количество переданных в запросе файлов
 	 * @return int Количество переданных файлов
 	 */
 	public static function filesCount ()
@@ -261,10 +261,16 @@ class Request
 	}
 	
 	/**
-	 * @return string
+	 * @desc Возвращает часть адреса без параметров GET
+	 * @return string Часть URI до знака "?"
 	 */
 	public static function uri ()
 	{
+		if (!isset ($_SERVER ['REQUEST_URI']))
+		{
+			return '/';
+		}
+		
 		$url = $_SERVER ['REQUEST_URI'];
 		$p = strpos ($url, '?');
 		if ($p !== false)
@@ -274,15 +280,26 @@ class Request
 		return $url;
 	}
 
+	/**
+	 * @desc Возвращает часть запроса GET
+	 * @return string Часть URI после знака "?"
+	 */
 	public static function stringGet ()
 	{
-	    $url = $_SERVER ['REQUEST_URI'];
-	    $p = strpos ($url, '?');
-	    if ($p !== false)
-	    {
-		return substr ($url, $p + 1);
-	    }
-	    return '';
+		if (!isset ($_SERVER ['REQUEST_URI']))
+		{
+			return '';
+		}
+		
+		$url = $_SERVER ['REQUEST_URI'];
+		$p = strpos ($url, '?');
+		
+		if ($p !== false)
+		{
+			return substr ($url, $p + 1);
+		}
+	    
+		return '';
 	}
 	
 	/**

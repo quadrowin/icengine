@@ -14,7 +14,7 @@ class Mail_Provider_Sms_Dcnk extends Mail_Provider_Abstract
 	 * @var array|Objective
 	 */
 	protected $_config = array (
-		'nusoap_path'	=> '/sms/nusoap.php',
+		'nusoap_path'	=> 'sms/nusoap.php',
 		'msguser'		=> '',
 		'password'		=> '',
 		'msg_gate_url'	=> 'http://www.dc-nk.ru/service/msggate/msgservice.php'
@@ -33,17 +33,16 @@ class Mail_Provider_Sms_Dcnk extends Mail_Provider_Abstract
 	public function _afterConstruct ()
 	{
 		Loader::requireOnce ($this->config ()->nusoap_path, 'includes');
-	}
-
-	function DcSMS ()
-	{
+		
 		$proxyhost = '';
 		$proxyport = '';
 		$proxyusername = '';
 		$proxypassword = '';
 		$this->_client = new yakoon_soapclient (
-			"http://www.dc-nk.ru/service/msggate/msgservice.php?WSDL",
-			false, $proxyhost, $proxyport, $proxyusername, $proxypassword
+			$this->config ()->msg_gate_url . '?WSDL',
+			false, 
+			$proxyhost, $proxyport, 
+			$proxyusername, $proxypassword
 		);
 	}
 
@@ -51,7 +50,7 @@ class Mail_Provider_Sms_Dcnk extends Mail_Provider_Abstract
 	 * (non-PHPdoc)
 	 * @see Mail_Provider_Abstract::send()
 	 */
-	public function send ($addresses, $message, $config)
+	public function send (Mail_Message $message, $config)
 	//function sendTextMessage($phone, $email, $date, $text )
 	{
 		$this->logMessage ($message, self::MAIL_STATE_SENDING);
@@ -69,32 +68,23 @@ class Mail_Provider_Sms_Dcnk extends Mail_Provider_Abstract
 				date ("d.m.Y H:i"),
 			'grpid'			=> '0',
 			'abid'			=> '0',
-			'phone'			=> '',
-			'email'			=> '',
+			'phone'			=> $message->toEmail,
+			'email'			=> $message->toEmail,
 			'istranslit'	=> true, 
 			'isdelivery'	=> true
 		);
-		
-		foreach ($addresses as $address)
-		{
-			$params ['email'] = 
-				isset ($address ['email']) ? $address ['email'] : '';
 			
-			$params ['phone'] = 
-				isset ($address ['phone']) ? $address ['phone'] : '';
-			
-			$result = $this->_client->call (
-				'SendTextMessage',
-				$params,
-				$this->_config ['msg_gate_url'],
-				'SendTextMessage'
-			);
-			$err = $this->_client->getError ();
-		}
+		$result = $this->_client->call (
+			'SendTextMessage',
+			$params,
+			$this->_config ['msg_gate_url'],
+			'SendTextMessage'
+		);
+		$err = $this->_client->getError ();
 		
 		$this->logMessage (
 			$message,
-			self::MAIL_STATE_SENDING,
+			$result ? self::MAIL_STATE_SUCCESS : self::MAIL_STATE_FAIL,
 			var_export ($result, true)
 		);
 

@@ -40,13 +40,14 @@ class Activation extends Model
 	 * 	после успешной активации.
 	 * @return Activation Созданная активация.
 	 */
-	public static function create ($code, $expirationTime, $callback_message)
+	public static function create ($code, $expirationTime, 
+		$callback_message = '')
 	{
 		$activation = new Activation (array (
 			'code'				=> $code,
 			'finished'			=> 0,
 			'createTime'		=> Helper_Date::toUnix (),
-			'finishTime'		=> EMPTY_FINISH_TIME,
+			'finishTime'		=> self::EMPTY_FINISH_TIME,
 			'User__id'			=> User::id (),
 			'createIp'			=> Request::ip (),
 			'finishIp'			=> '',

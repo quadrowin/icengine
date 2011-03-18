@@ -235,7 +235,10 @@ class Controller_Abstract
 	{
 		if (is_array ($this->config))
 		{
-			$this->config = Config_Manager::get (__CLASS__, $this->config);
+			$this->config = Config_Manager::get (
+				get_class ($this),
+				$this->config
+			);
 		}
 		return $this->config;
 	}

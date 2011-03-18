@@ -37,6 +37,15 @@ class Application_Bootstrap_Abstract
 	}
 	
 	/**
+	 * @desc Подключение контроля доступа
+	 */
+	public function initAcl ()
+	{
+		Loader::load ('Acl_Resource');
+		Loader::load ('Acl_Role');
+	}
+	
+	/**
 	 * @desc Инициализация источника данных по умолчанию.
 	 */
 	public function initDds ()
@@ -102,11 +111,12 @@ class Application_Bootstrap_Abstract
 	
 	/**
 	 * @desc Инициализация рендера.
+	 * @return View_Render_Abstract Рендер по умолчанию.
 	 */
 	public function initView ()
 	{
 		$view = View_Render_Broker::getView ();
-		$this->behavior->view = $view;
+		return $this->behavior->view = $view;
 	}
 	
 	/**

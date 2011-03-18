@@ -7,6 +7,9 @@
  * @package IcEngine
  *
  */
+
+Loader::load ('Mail_Provider_Abstract');
+
 class Mail_Provider_First_Success extends Mail_Provider_Abstract
 {
 	
@@ -15,10 +18,8 @@ class Mail_Provider_First_Success extends Mail_Provider_Abstract
 	 * @var array
 	 */
 	protected $_config = array (
-		// Наборы провайдеров
-		'providers_set'	=> array (
-			'sms'	=> array ('Sms_Dcnk')
-		)
+		// Набор провайдеров
+		'providers'		=> null//'Sms_Dcnk,Sms_Littlesms,Sms_Yakoon'
 	);
 	
 	/**
@@ -30,13 +31,12 @@ class Mail_Provider_First_Success extends Mail_Provider_Abstract
 		$this->logMessage ($message, self::MAIL_STATE_SENDING);
 		
 		$providers = isset ($config ['providers']) ? 
-			(array) $config ['providers'] :
-			null;
+			$config ['providers'] :
+			$this->_config ['providers'];
 		
-		if (!$providers)
+		if (!is_array ($providers))
 		{
-			$sets = $this->config ()->providers_set;
-			$providers = (array) $sets [$config ['providers_set']];
+			$providers = explode (',', $providers);
 		}
 		
 		foreach ($providers as $provider_name)
@@ -53,12 +53,21 @@ class Mail_Provider_First_Success extends Mail_Provider_Abstract
 			
 			if ($provider && $provider->send ($message, $config))
 			{
-				$this->logMessage ($message, self::MAIL_STATE_SUCCESS);
+				$this->logMessage (
+					$message,
+					self::MAIL_STATE_SUCCESS,
+					'provider: ' . $provider_name
+				);
 				return true;
 			}
 		}
 		
-		$this->logMessage ($message, self::MAIL_STATE_FAIL);
+		$this->logMessage (
+			$message,
+			self::MAIL_STATE_FAIL,
+			'providers: ' . var_export ($providers, true)
+		);
+		
 		return false;
 	}
 	

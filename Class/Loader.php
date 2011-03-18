@@ -1,22 +1,28 @@
 <?php
-
+/**
+ * 
+ * @desc Загрузчик модулей и классов
+ * @author Юрий Шведов, Илья Колесников
+ * @package IcEngine
+ *
+ */
 class Loader
 {
 	
 	/**
-	 * Пути
+	 * @desc Пути
 	 * @var array
 	 */
-	public static $pathes = array();
+	public static $pathes = array ();
 	
 	/**
-	 * Подключенные
+	 * @desc Подключенные
 	 * @var array
 	 */
-	public static $required = array();
+	public static $required = array ();
 	
 	/**
-	 * Добавление пути 
+	 * @desc Добавление пути 
 	 * @param string $type
 	 * @param string $path
 	 */
@@ -24,7 +30,7 @@ class Loader
 	{
 		if (!isset(self::$pathes [$type]))
 		{
-			self::$pathes [$type] = array($path);
+			self::$pathes [$type] = array ($path);
 		}
 		else
 		{
@@ -77,11 +83,11 @@ class Loader
 	}
 	
 	/**
-	 * 
+	 * @desc Возвращает все пути для указанного типа.
 	 * @param string $type
 	 * @return array
 	 */
-	public static function getPathes($type)
+	public static function getPathes ($type)
 	{
 		if (!isset (self::$pathes [$type]))
 		{
@@ -92,12 +98,12 @@ class Loader
 	}
 	
 	/**
-	 * Проверяет был ли уже подключен файл
+	 * @desc Проверяет был ли уже подключен файл
 	 * @param string $file
 	 * @param string $type
 	 * @return bool
 	 */
-	public static function getRequired($file, $type)
+	public static function getRequired ($file, $type)
 	{
 		return 
 			isset (self::$required [$type]) && 
@@ -105,7 +111,7 @@ class Loader
 	}
 	
 	/**
-	 * Подключение файла
+	 * @desc Подключение файла.
 	 * @param string $file
 	 * @param string $type
 	 * @return boolean
@@ -123,7 +129,7 @@ class Loader
 			return false;
 		}
 		
-		for ($i = count (self::$pathes [$type]) - 1; $i >= 0; $i--)
+		for ($i = count (self::$pathes [$type]) - 1; $i >= 0; --$i)
 		{
 			$fn = self::$pathes [$type][$i] . $file;
 			if (file_exists ($fn))
@@ -138,8 +144,10 @@ class Loader
 		{
 			echo '<pre>Not found: ' . $file . "\n";
 			echo 'Pathes: ';
+			var_dump (self::$pathes);
 			var_dump (self::$pathes [$type]);
-			debug_print_backtrace ();
+			echo "\n\n";
+			//debug_print_backtrace ();
 			echo '</pre>';
 			die();
 		}
@@ -163,16 +171,16 @@ class Loader
 	 * @param string $type
 	 * @param boolean $required
 	 */
-	public static function setRequired($file, $type, $required = true)
+	public static function setRequired ($file, $type, $required = true)
 	{
 		$required = $required ? true : null;
-		if (isset(self::$required[$type]))
+		if (isset (self::$required [$type]))
 		{
-			self::$required[$type][$file] = $required;
+			self::$required [$type][$file] = $required;
 		}
 		else
 		{
-			self::$required[$type] = array(
+			self::$required [$type] = array (
 				$file	=> $required
 			);
 		}
@@ -197,19 +205,19 @@ class Loader
 		{
 			$path = $class . '.php';
 		}
-		elseif (substr($path, -1, 1) == '/')
+		elseif (substr ($path, -1, 1) == '/')
 		{
 			$path = $path . $class . '.php';
 		}
 		
-		return self::requireOnce($path, 'Class');
+		return self::requireOnce ($path, 'Class');
 	}
 	
 	/**
-	 * 
-	 * @param string $class_name
-	 * @param string $type
-	 * @return string;
+	 * @desc Подключение класса.
+	 * @param string $class_name Название класса.
+	 * @param string $type 
+	 * @return boolean
 	 */
 	public static function load ($class, $type = 'Class')
 	{
@@ -238,12 +246,12 @@ class Loader
 			return true;
 		}
 		
-		return self::requireOnce($class . '.php', $type);
+		return self::requireOnce ($class . '.php', $type);
 	}
 	
 	/**
-	 * @param $class
-	 * ...
+	 * @desc Загрузка всех классов, переданных в параметрах
+	 * @param string $class...
 	 */
 	public static function multiLoad ()
 	{

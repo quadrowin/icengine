@@ -19,7 +19,7 @@ class View_Render_Smarty extends View_Render_Abstract
 	 * Конфиг
 	 * @var array
 	 */
-	public $config = array (
+	protected $_config = array (
 		/**
 		 * Внешний шаблон.
 		 * Будет использоватья при выводе в браузер через метод display.
@@ -53,20 +53,20 @@ class View_Render_Smarty extends View_Render_Abstract
 		$this->config ();
 		if (!class_exists ('Smarty'))
 		{
-			Loader::requireOnce ($this->config ['smarty_path'], 'includes');
+			Loader::requireOnce ($this->_config ['smarty_path'], 'includes');
 		}
 		
 		$this->_smarty = new Smarty ();
 		
-		$this->_smarty->compile_dir = $this->config ['compile_path'];
-		$this->_smarty->template_dir = $this->config ['templates_path']->__toArray ();
-		$this->_smarty->plugins_dir = $this->config ['plugins_path']->__toArray ();
+		$this->_smarty->compile_dir = $this->_config ['compile_path'];
+		$this->_smarty->template_dir = $this->_config ['templates_path']->__toArray ();
+		$this->_smarty->plugins_dir = $this->_config ['plugins_path']->__toArray ();
 		
 		Loader::load ('Helper_Smarty_Filter_Dblbracer');
 		Helper_Smarty_Filter_Dblbracer::register ($this->_smarty);
 		
-		Loader::load ('Helper_Smarty_Filter_Acl');
-		Helper_Smarty_Filter_Acl::register ($this->_smarty);
+//		Loader::load ('Helper_Smarty_Filter_Acl');
+//		Helper_Smarty_Filter_Acl::register ($this->_smarty);
 	}
 	
 	/**
@@ -113,7 +113,7 @@ class View_Render_Smarty extends View_Render_Abstract
 	
 	public function display ($tpl = null)
 	{
-		$tpl = $tpl ? $tpl : $this->config ['layout'];
+		$tpl = $tpl ? $tpl : $this->_config ['layout'];
 		return $this->_smarty->display ($tpl);
 	}
 	
