@@ -70,7 +70,7 @@ class Test_Mail_Provider_Littlesms extends PHPUnit_Framework_TestCase
 			Loader::load ('Loader_Auto');
 			Loader_Auto::register ();
 			
-			Loader::addPath ('includes', IcEngine::root() . 'includes/');
+			Loader::addPath ('includes', IcEngine::root () . 'includes/');
 			
 			IcEngine::initApplication (
 				'Icengine',
@@ -142,7 +142,9 @@ class Test_Mail_Provider_Littlesms extends PHPUnit_Framework_TestCase
 				'toEmail'				=> $number,
 				'toName'				=> 'you',
 				'subject'				=> '',
-				'body'					=> Helper_Date::toUnix (),
+				'body'					=> 
+					'Littlesms: ' . 
+					Helper_Date::toUnix (),
 				'time'					=> Helper_Date::toUnix (),
 				'sended'				=> 0,
 				'sendTime'				=> Helper_Date::toUnix (),

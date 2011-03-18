@@ -73,9 +73,9 @@ class Mail_Provider_Sms_Yakoon extends Mail_Provider_Abstract
 	protected $_config = array (
 		'nusoap_path'		=> 'sms/nusoap.php',
 		'service_url'		=> 'http://sms.yakoon.com/sms.asmx?wsdl',
-		'service_login'		=> 'forguest',
-		'service_password'	=> 'besthatasinnovosib',
-		'service_sender'	=> 'ForGuest.ru'
+		'service_login'		=> '',
+		'service_password'	=> '',
+		'service_sender'	=> 'IcEngine'
 	);
 	
 	/**
@@ -84,6 +84,8 @@ class Mail_Provider_Sms_Yakoon extends Mail_Provider_Abstract
 	 */
 	protected function _afterConstruct ()
 	{
+		Loader::requireOnce ($this->config ()->nusoap_path, 'includes');
+		
 		$this->_client = new yakoon_soapclient (
 			$this->config ()->service_url,
 			'wsdl'
@@ -126,7 +128,7 @@ class Mail_Provider_Sms_Yakoon extends Mail_Provider_Abstract
 			);
 		}
 		
-		return (bool) $sms_id;
+		return (int) $sms_id;
 	}
 
 	/**
@@ -188,8 +190,8 @@ class Mail_Provider_Sms_Yakoon extends Mail_Provider_Abstract
 		$sms_status = $this->_client->call (
 			'Status',
 			array (
-				'Username'	=> $this->config ()->service_login,
-				'Password'	=> md5 ($this->_config ()->service_password),
+				'Username'	=> $this->_config ['service_login'],
+				'Password'	=> md5 ($this->_config ['service_password']),
 				'IDSms'		=> $sms_id,
 				'IDInt'		=> ''
 			)
@@ -200,7 +202,7 @@ class Mail_Provider_Sms_Yakoon extends Mail_Provider_Abstract
 
 		if (strpos ($sms_status, '3200') === false)
 		{
-			return false;
+			return $sms_status;
 		}
 		
 		//echo $sms_status . ' - asked OK, ';
