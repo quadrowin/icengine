@@ -71,6 +71,12 @@ class Mail_Template extends Model_Child
 	 */
 	public function body (array $data = array ())
 	{
+		if (!$this->body)
+		{
+			// пустое тело
+			return '';
+		}
+		
 	    $smarty = $this->smarty ();
 	    
 	    $smarty->assign ($data);
@@ -150,6 +156,12 @@ class Mail_Template extends Model_Child
 	 */
 	public function subject (array $data = array ())
 	{
+		if (!$this->subject)
+		{
+			// пустая тема
+			return '';
+		}
+		
 	    $smarty = $this->smarty ();
 		$smarty->assign ($data);
 		

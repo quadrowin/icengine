@@ -75,7 +75,11 @@ class Mail_Provider_Sms_Yakoon extends Mail_Provider_Abstract
 		'service_url'		=> 'http://sms.yakoon.com/sms.asmx?wsdl',
 		'service_login'		=> '',
 		'service_password'	=> '',
-		'service_sender'	=> 'IcEngine'
+		'service_sender'	=> 'IcEngine',
+		// Исходная кодировка сообщений
+//		'base_charset'		=> 'utf-8',
+		// Кодировка отправляемых сообщений
+//		'send_charset'		=> 'utf-8'
 	);
 	
 	/**
@@ -151,6 +155,11 @@ class Mail_Provider_Sms_Yakoon extends Mail_Provider_Abstract
 				'Recipient'		=> $phone,
 				'Template'		=> '',
 				'Content'		=> Helper_Translit::rus2translit ($text),
+//					iconv (
+//						$this->config ()->base_charset,
+//						$this->config ()->send_charset,
+//						$text
+//					),
 				'Format'		=> '1',
 				'SendOn'		=> 120,
 				'Notification'	=> '1'

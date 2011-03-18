@@ -215,7 +215,7 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 			return false;
 		}
 		
-		$this->_lastError = $e->ErrorInfo;
+		$this->_lastError = $mail->ErrorInfo;
 				
 		return $result;
 	}

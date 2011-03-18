@@ -28,7 +28,7 @@ class Controller_Activation_Sms extends Controller_Abstract
 				'provider'			=> 'First_Success',
 				// Конфиг для провайдера
 				'provider_config'	=> array (
-					'providers'	=> 'Sms_Dcnk,Sms_Littlesms,Sms_Yakoon'
+					'providers'	=> 'Sms_Dcnk'//,Sms_Littlesms,Sms_Yakoon'
 				),
 				// Шаблон СМС
 				'mail_template'		=> 'sms_activate',
@@ -135,7 +135,7 @@ class Controller_Activation_Sms extends Controller_Abstract
 			$type ['mail_template'],
 			$phone, $phone,
 			array (
-				'code'			=> $code,
+				'code'			=> substr ($code, strlen ($type ['prefix'])),
 				'session_id'	=> $activation->id
 			),
 			User::id (),

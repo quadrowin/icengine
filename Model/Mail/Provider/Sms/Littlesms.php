@@ -23,7 +23,11 @@ class Mail_Provider_Sms_Littlesms extends Mail_Provider_Abstract
 		'original_path'		=> 'LittlesmsOriginal.class.php',
 		'service_login'		=> '',
 		'service_password'	=> '',
-		'service_sender'	=> 'IcEngine'
+		'service_sender'	=> 'IcEngine',
+		// Кодировка исходного сообщения
+		'base_charset'		=> 'utf-8',
+		// Кодировка отправляемых сообщений
+		'send_charset'		=> 'utf-8'
 	);
 	
 	/**
@@ -86,7 +90,11 @@ class Mail_Provider_Sms_Littlesms extends Mail_Provider_Abstract
 	{
 		$this->_client->sendSMS (
 			$phone,
-			iconv ('windows-1251', 'utf-8', $text),
+			iconv (
+				$this->config ()->base_charset,
+				$this->config ()->send_charset,
+				$text
+			),
 			$this->config ()->service_sender
 		);
 		$result = $this->_client->getResponse ();
