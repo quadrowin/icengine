@@ -19,8 +19,8 @@ class Mail_Template extends Model_Child
 	    'id'		=> 0,
 		'name'	    => 'empty',
 		'parentId'	=> 0,
-		'subject'	=> '',
-		'body'	    => ''
+		'subject'	=> 'subj',
+		'body'	    => 'body'
 	);
 	
 	/**
@@ -65,8 +65,8 @@ class Mail_Template extends Model_Child
 	}
 	
 	/**
-	 * 
-	 * @param array $data
+	 * @desc Получение тела по шаблону.
+	 * @param array $data Переменные шаблона.
 	 * @return string
 	 */
 	public function body (array $data = array ())
@@ -144,7 +144,7 @@ class Mail_Template extends Model_Child
 	}
 	
 	/**
-	 * 
+	 * @desc Получение заголовка по шаблону.
 	 * @param array $data
 	 * @return string
 	 */

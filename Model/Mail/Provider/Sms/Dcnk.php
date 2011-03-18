@@ -61,7 +61,7 @@ class Mail_Provider_Sms_Dcnk extends Mail_Provider_Abstract
 		$params = array (
 			'msguser'		=> $this->_config ['msguser'],
 			'password'		=> $this->_config ['password'],
-			'text'			=> $message,
+			'text'			=> iconv ('utf-8', 'windows-1251', $message->body),
 			'dtsend'		=> 
 				!empty ($config ['date']) ? 
 				$config ['date'] : 
@@ -84,11 +84,11 @@ class Mail_Provider_Sms_Dcnk extends Mail_Provider_Abstract
 		
 		$this->logMessage (
 			$message,
-			$result ? self::MAIL_STATE_SUCCESS : self::MAIL_STATE_FAIL,
+			empty ($err) ? self::MAIL_STATE_SUCCESS : self::MAIL_STATE_FAIL,
 			var_export ($result, true)
 		);
 
-		return (bool) $result;
+		return empty ($err);
 	}
 	
 	/**
@@ -104,13 +104,22 @@ class Mail_Provider_Sms_Dcnk extends Mail_Provider_Abstract
 			'password'		=> $this->_config ['password'],
 			'messageid'		=> $message_id
 		);
-		//echo 'sending data';
+		
 		$result = $this->_client->call (
 			'GetMessageState',
 			$params,
 			$this->_config ['msg_gate_url'],
 			'GetMessageState'
 		);
+		
+//		$params = array
+//		(
+//			'msguser' => 'forguest',
+//			'password' => '123456',
+//			'messageid'  => $message_id
+//		);
+//		
+//		$result = $this->_client->call('GetMessageState', $params, 'http://www.dc-nk.ru/service/msggate/msgservice.php', 'GetMessageState');
 		return $result;
 	}
 	
