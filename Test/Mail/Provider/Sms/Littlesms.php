@@ -5,20 +5,26 @@ require_once 'PHPUnit\Framework\TestCase.php';
 /**
  * test case.
  */
-class Test_Mail_Provider_Sms extends PHPUnit_Framework_TestCase
+class Test_Mail_Provider_Littlesms extends PHPUnit_Framework_TestCase
 {
 
 	/**
 	 * @desc Провайдер сообщений
 	 * @var Mail_Provider_Sms_Littlesms
 	 */
-	protected $_provider;
+	protected $Mail_Provider_Sms_Littlesms;
 	
 	/**
-	 * @desc Номер
+	 * @desc Номера
 	 * @var array
 	 */
 	protected $_numbers = array ();
+	
+	/**
+	 * @desc id отправленного сообщения
+	 * @var integer
+	 */
+	protected $_messageId = 0;
 	
 	/**
 	 * Prepares the environment before running a test.
@@ -26,6 +32,12 @@ class Test_Mail_Provider_Sms extends PHPUnit_Framework_TestCase
 	protected function setUp ()
 	{
 		parent::setUp ();
+		
+		$this->Mail_Provider_Sms_Littlesms = IcEngine::$modelManager->modelBy (
+			'Mail_Provider',
+			Query::instance ()
+			->where ('name', 'Sms_Littlesms')
+		);
 		
 		$this->_numbers = array (
 			'+79134236328',
@@ -65,8 +77,6 @@ class Test_Mail_Provider_Sms extends PHPUnit_Framework_TestCase
 				IcEngine::path () . 'Class/Application/Behavior/Icengine.php'
 			);
 			IcEngine::run ();
-			
-			$this->_provider = IcEngine::$modelManager->get ('Mail_Provider', 1);
 		}
 	}
 	
@@ -77,7 +87,7 @@ class Test_Mail_Provider_Sms extends PHPUnit_Framework_TestCase
 	{
 		return;
 		
-		$result = $this->_provider->sendSms (
+		$result = $this->Mail_Provider_Sms_Littlesms->sendSms (
 			'+79134236328',
 			'sms test'
 		);
@@ -90,12 +100,10 @@ class Test_Mail_Provider_Sms extends PHPUnit_Framework_TestCase
 	 */
 	public function testSend ()
 	{
-		return; 
-		
 		$message = new Mail_Message (array (
 			'id'					=> 0,
 			'Mail_Template__id'		=> 0,
-			'toEmail'				=> $this->_number,
+			'toEmail'				=> $this->_numbers [0],
 			'toName'				=> 'you',
 			'subject'				=> '',
 			'body'					=> Helper_Date::toUnix (),
@@ -105,17 +113,18 @@ class Test_Mail_Provider_Sms extends PHPUnit_Framework_TestCase
 			'sendDay'				=> Helper_Date::eraDayNum (),
 			'sendTries'				=> 0,
 			'toUserId'				=> 0,
-			'Mail_Provider__id'		=> 2,
+			'Mail_Provider__id'		=> $this->Mail_Provider_Sms_Littlesms->id,
 			'params'				=> ''
 		));
 		
-		$config = array ();
+//		$config = array ();
 		
-		$this->_provider = $message->Mail_Provider;
-		
-		$r = $this->_provider->send ($message, $config);
+		$r = $message->send ();
+		//$this->Mail_Provider_Sms_Littlesms->send ($message, $config);
 		
 		$this->assertNotEquals (false, $r, 'Not sended.');
+		
+		$this->_messageId = $r;
 		
 		return $this->_provider;
 	}
@@ -140,18 +149,23 @@ class Test_Mail_Provider_Sms extends PHPUnit_Framework_TestCase
 				'sendDay'				=> Helper_Date::eraDayNum (),
 				'sendTries'				=> 0,
 				'toUserId'				=> 0,
-				'Mail_Provider__id'		=> 2,
+				'Mail_Provider__id'		=> $this->Mail_Provider_Sms_Littlesms->id,
 				'params'				=> ''
 			));
 			
-			$config = array ();
+//			$config = array ();
 			
-			$this->_provider = $message->Mail_Provider;
-			
-			$r = $this->_provider->send ($message, $config);
+			$r = $message->send ();
+			//$this->_provider->send ($message, $config);
 			
 			$this->assertNotEquals (false, $r, 'Not sended.');
 		}
+	}
+	
+	public function testGetStatus ()
+	{
+		$s = $this->Mail_Provider_Sms_Littlesms->getStatus ($this->_messageId);
+		var_dump ($s);
 	}
 	
 }
