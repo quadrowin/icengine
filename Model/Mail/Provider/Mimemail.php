@@ -14,20 +14,54 @@ if (!class_exists ('Mail_Provider_Abstract'))
 
 class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 {
-	/**
-	 * @desc Путь до PHPMailer
-	 * @var string
-	 */
-	const MIME_MAIL_PATH 	 = 'PHPMailer/class.phpmailer.php';
 	
 	/**
-	 * 
-	 * Enter description here ...
+	 * @desc Конфиг
+	 * @var array
+	 */
+	protected $_config = array (
+		// С ящика
+		'from_email'		=> 'root@icengine.com',
+		// От кого
+		'from_name'			=> 'IcEngine',
+		// Путь до PHPMailer
+		'phpmailer_path'	=> 'PHPMailer/class.phpmailer.php',
+		// Исходная кодировка
+		'base_charset'		=> 'utf-8',
+		// Кодировка отправки
+		'send_charset'		=> 'utf-8',
+		// Использовать SMTP
+		'smtp'				=> false,
+		// SMTP сервер
+		'smtp_host'			=> 'smtp.gmail.com',
+		// SMTP порт
+		'smtp_port'			=> 465, // 587 for TLS, 25 default smtp
+		// SMTP поле from
+		// Обычным требованием является, чтобы поле "От" совпадало
+		// с логином пользователя.
+		'smtp_sender'		=> 'ic1engine@gmail.com',
+		// SMTP Логин
+		'smtp_username'		=> 'ic1engine@gmail.com',
+		// пароль
+		'smtp_password'		=> '',
+		// SSL
+		'smtp_secure'		=> 'ssl'
+	);
+	
+	/**
+	 * @desc Мейлер
 	 * @var PHPMailer
 	 */
 	protected $_mailer;
 	
 	/**
+	 * @desc Последняя ошибка
+	 * @var string
+	 */
+	protected $_lastError = '';
+	
+	/**
+	 * @desc Создает и возвращает мейлер.
 	 * @return PHPMailer
 	 */
 	protected function _mailer ()
@@ -48,6 +82,7 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 		$to_name = $message->toName ? $message->toName : 0;
 		
 		$this->logMessage ($message, self::MAIL_STATE_SENDING);
+		$this->_lastError = '';
 		
 		$result = $this->sendEx (
 			array (
@@ -62,7 +97,8 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 		{
 			$this->logMessage (
 				$message,
-				self::MAIL_STATE_SUCCESS
+				self::MAIL_STATE_SUCCESS,
+				$this->_lastError
 			);
 		}
 		else
@@ -70,7 +106,7 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 			$this->logMessage (
 				$message,
 				self::MAIL_STATE_FAIL,
-				$this->_mailer->ErrorInfo
+				$this->_lastError
 			);
 		}
 		
@@ -80,13 +116,16 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 	/**
 	 * @desc Отправка сообщения на емейл
 	 * @param array|string $addresses
-	 * @param string $subject
-	 * @param string $body
+	 * @param string $subject Тема сообщения
+	 * @param string $body Тело сообщения
 	 * @param array $config
 	 */
 	public function sendEx ($addresses, $subject, $body, $config)
 	{
-		Loader::requireOnce (self::MIME_MAIL_PATH, 'includes');
+		Loader::requireOnce (
+			$this->config ()->phpmailer_path,
+			'includes'
+		);
 		
 		$mail = $this->_mailer ();
 		
@@ -99,20 +138,86 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 		}
 		
 		$mail->From =
-			!empty ($config ['From']['email']) ? 
+			isset ($config ['From']['email']) ? 
 				$config ['From']['email'] : 
-				'';
+				$this->_config ['from_email'];
 				
 		$mail->FromName =
-			!empty ($config ['From']['name']) ? 
+			isset ($config ['From']['name']) ? 
 				$config ['From']['name'] : 
-				'';
+				$this->_config ['from_name'];
+				
+		if ($this->_config ['send_charset'])
+		{
+			$mail->CharSet = $this->_config ['send_charset'];
+		}
 				
 		$mail->IsHTML (true);
-		$mail->Subject = $subject;
-		$mail->Body = $body;
 		
-		return $mail->send ();
+		if ($this->config ()->smtp)
+		{
+			// Отправка через SMTP
+			$mail->IsSMTP ();
+			$mail->SMTPAuth = true;
+			$mail->SMTPDebug = false;
+			$mail->Host = $this->_config ['smtp_host'];
+			$mail->Port = $this->_config ['smtp_port'];
+			$mail->Username = $this->_config ['smtp_username'];
+			$mail->Password = $this->_config ['smtp_password'];
+			
+			if ($this->_config ['smtp_sender'])
+			{
+				$mail->Sender = $this->_config ['smtp_sender'];
+				$mail->From = $this->_config ['smtp_sender'];
+			}
+			
+			if ($this->_config ['smtp_secure'])
+			{
+				$mail->SMTPSecure = $this->_config ['smtp_secure'];
+			}
+		}
+		
+		$base_charset = 
+			isset ($config ['base_charset']) ?
+				$config ['base_charset'] :
+				$this->_config ['base_charset'];
+				
+		$send_charset = 
+			isset ($config ['send_charset']) ?
+				$config ['send_charset'] :
+				$this->_config ['send_charset'];
+
+		// Необходимо перекодирвоание
+		$recoding =
+			$base_charset &&
+			$send_charset &&
+			$base_charset != $send_charset;
+				
+		// Тема
+		$mail->Subject = 
+			$recoding ?
+				iconv ($base_charset, $send_charset, $subject) : 
+				$subject;
+				
+		// Тело
+		$mail->Body =
+			$recoding ? 
+				iconv ($base_charset, $send_charset, $body) :
+				$body;
+		
+		try
+		{
+			$result = $mail->Send ();
+		}
+		catch (Exception $e)
+		{
+			$this->_lastError = $e->getMessage ();
+			return false;
+		}
+		
+		$this->_lastError = $e->ErrorInfo;
+				
+		return $result;
 	}
 	
 }

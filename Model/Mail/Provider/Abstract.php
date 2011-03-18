@@ -38,6 +38,7 @@ class Mail_Provider_Abstract extends Model_Factory_Delegate
 		Loader::load ('Mail_Message_Log');
 		$log = new Mail_Message_Log (array (
 			'time'				=> Helper_Date::toUnix (),
+			'Mail_Provider__id'	=> $this->id,
 			'Mail_Message__id'	=> $message->id,
 			'state'				=> $state,
 			'comment'			=> json_encode ($comment)
@@ -49,7 +50,8 @@ class Mail_Provider_Abstract extends Model_Factory_Delegate
 	 * @desc Отправка сообщений.
 	 * @param Mail_Message $message Сообщение.
 	 * @param array $config Параметры.
-	 * @return boolean
+	 * @return integer|false Идентикатор сообщения в системе провайдера 
+	 * или false.
 	 */
 	public function send (Mail_Message $message, $config)
 	{

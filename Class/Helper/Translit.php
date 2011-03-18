@@ -50,7 +50,7 @@ class Helper_Translit
 	 * @author Sergey
 	 * @return string
 	 */
-	function rus2translit ($string) 
+	public static function rus2translit ($string) 
 	{
 		$converter = array (
 			'а' => 'a',   'б' => 'b',   'в' => 'v',
