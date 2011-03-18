@@ -14,10 +14,18 @@ class Mail_Provider_Sms_Dcnk extends Mail_Provider_Abstract
 	 * @var array|Objective
 	 */
 	protected $_config = array (
+		// Путь до клиента 
 		'nusoap_path'	=> 'sms/nusoap.php',
+		// Логин
 		'msguser'		=> '',
+		// Пароль сервиса
 		'password'		=> '',
-		'msg_gate_url'	=> 'http://www.dc-nk.ru/service/msggate/msgservice.php'
+		// адрес сервиса
+		'msg_gate_url'	=> 'http://www.dc-nk.ru/service/msggate/msgservice.php',
+		// базовая кодировка сообщения
+		'base_charset'	=> 'utf-8',
+		// кодировка отправляемых сообщений
+		'send_charset'	=> 'utf-8'
 	);
 	
 	/**
@@ -38,6 +46,7 @@ class Mail_Provider_Sms_Dcnk extends Mail_Provider_Abstract
 		$proxyport = '';
 		$proxyusername = '';
 		$proxypassword = '';
+		
 		$this->_client = new yakoon_soapclient (
 			$this->config ()->msg_gate_url . '?WSDL',
 			false, 
@@ -61,7 +70,12 @@ class Mail_Provider_Sms_Dcnk extends Mail_Provider_Abstract
 		$params = array (
 			'msguser'		=> $this->_config ['msguser'],
 			'password'		=> $this->_config ['password'],
-			'text'			=> iconv ('utf-8', 'windows-1251', $message->body),
+			'text'			=> 
+				iconv (
+					$this->_config ['base_charset'],
+					$this->_config ['send_charset'],
+					$message->body
+				),
 			'dtsend'		=> 
 				!empty ($config ['date']) ? 
 				$config ['date'] : 

@@ -108,7 +108,7 @@ class Test_Mail_Provider_Mimemail extends PHPUnit_Framework_TestCase
 			
 		$r = $message->save ()->send ();
 		
-		$this->assertEquals (false, $r, 'Not sended');
+		$this->assertFalse (!$r, 'Not sended');
 	}
 
 	/**
@@ -123,7 +123,7 @@ class Test_Mail_Provider_Mimemail extends PHPUnit_Framework_TestCase
 			array ()
 		);
 		
-		$this->assertEquals (false, $r, 'Not sended');
+		$this->assertFalse (!$r, 'Not sended');
 	}
 	
 	/**
@@ -153,7 +153,7 @@ class Test_Mail_Provider_Mimemail extends PHPUnit_Framework_TestCase
 			
 		$r = $message->save ()->send ();
 		
-		$this->assertEquals (false, $r, 'Not sended');
+		$this->assertFalse (!$r, 'Not sended');
 	}
 	
 }
