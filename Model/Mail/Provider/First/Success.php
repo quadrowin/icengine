@@ -30,9 +30,10 @@ class Mail_Provider_First_Success extends Mail_Provider_Abstract
 	{
 		$this->logMessage ($message, self::MAIL_STATE_SENDING);
 		
-		$providers = isset ($config ['providers']) ? 
-			$config ['providers'] :
-			$this->_config ['providers'];
+		$providers = 
+			isset ($config ['providers']) ? 
+				$config ['providers'] :
+				$this->config ()->providers;
 		
 		if (!is_array ($providers))
 		{
