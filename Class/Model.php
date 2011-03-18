@@ -277,7 +277,7 @@ abstract class Model implements ArrayAccess
 	
 	/**
 	 * @desc Загружает и возвращает конфиг для модели
-	 * @param string $class Класс модели, если отличен от __CLASS__
+	 * @param string $class Класс модели, если отличен от get_class ($this)
 	 * @return Objective
 	 */
 	public function config ($class = null)
@@ -285,7 +285,7 @@ abstract class Model implements ArrayAccess
 		if (is_array ($this->_config))
 		{
 			$this->_config = Config_Manager::get (
-				$class ? $class : __CLASS__,
+				$class ? $class : get_class ($this),
 				$this->_config
 			);
 		}
@@ -613,7 +613,7 @@ abstract class Model implements ArrayAccess
 					$this->_fields [$key] = $value;
 					if ($this->_autojoin)
 					{
-						$field = $this->modelManager ()->modelScheme ()->keyField ($model);
+						$field = IcEngine::$modelManager->modelScheme ()->keyField ($model);
 						$this->joint ($model, array ($field => $value));
 					}
 				}

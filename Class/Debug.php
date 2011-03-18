@@ -479,11 +479,11 @@ class Debug
 	{
 		if (empty ($name))
 		{
-			self::log (var_export ($var, true));
+			self::log (print_r ($var, true));
 		}
 		else
 		{
-			self::log ($name . ' => ' . var_export ($var, true));
+			self::log ($name . ' => ' . print_r ($var, true));
 		}
 	}
 	

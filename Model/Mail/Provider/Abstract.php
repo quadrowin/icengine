@@ -31,16 +31,16 @@ class Mail_Provider_Abstract extends Model_Factory_Delegate
 	 * @desc Запись в лог состояния сообщения.
 	 * @param Mail_Message $message
 	 * @param string $state Состояние отправки
-	 * @param string $comment [optional] Дополнительная информация.
+	 * @param mixed $comment [optional] Дополнительная информация.
 	 */
-	public function logMessage (Mail_Message $message, $state, $comment = '')
+	public function logMessage (Mail_Message $message, $state, $comment = null)
 	{
 		Loader::load ('Mail_Message_Log');
 		$log = new Mail_Message_Log (array (
 			'time'				=> Helper_Date::toUnix (),
 			'Mail_Message__id'	=> $message->id,
 			'state'				=> $state,
-			'comment'			=> $comment
+			'comment'			=> json_encode ($comment)
 		));
 		$log->save ();
 	}

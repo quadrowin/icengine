@@ -81,7 +81,7 @@ class Mail_Message extends Model
 			return $provider->send (
 				$this,
 				array_merge (
-					$this->params, 
+					(array) json_decode ($this->params, true), 
 					array (
 						'From'    => array (
 							'name'	=> $this->config ()->default_from_name,

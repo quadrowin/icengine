@@ -26,16 +26,6 @@ class Controller_Front
 	 */
 	private $_router;
 	
-	
-	/**
-	 * 
-	 * @param string $controllers_path
-	 */
-	public function __construct ($controllers_path)
-	{
-		$this->_controllersPath = $controllers_path;
-	}
-	
 	/**
 	 * @desc Получаем (и инициализируем, если еще не проинициализирован) текущий диспетчер
 	 * @return Controller_Dispatcher

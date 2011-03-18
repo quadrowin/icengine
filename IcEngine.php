@@ -52,6 +52,17 @@ class IcEngine
 	public static $widgetManager;
 	
 	/**
+	 * @desc
+	 * @return string;
+	 */
+	protected static function _getRoot ()
+	{
+		return isset ($_SERVER ['DOCUMENT_ROOT']) ?
+			rtrim ($_SERVER ['DOCUMENT_ROOT'], '/') . '/' :
+			rtrim (realpath (self::$_path . '..'), '/') . '/';
+	}
+	
+	/**
 	 * Проверка адреса страницы на существования роутера, который
 	 * привязан к этой странице.
 	 * 
@@ -139,22 +150,18 @@ class IcEngine
 	}
 	
 	/**
-	 * Инициализация лоадера
-	 * @param string $root
-	 * 		Путь до корня сайта
+	 * @desc Инициализация лоадера
+	 * @param string $root Путь до корня сайта
 	 */
 	public static function init ($root = null)
 	{
+		// Запоминаем путь до движка
 		self::$_path = dirname (__FILE__) . '/';
-		self::$_root =
-			$root ? 
-			$root : 
-			rtrim ($_SERVER ['DOCUMENT_ROOT'], '/') . '/';
 		
-		if (!class_exists ('Loader'))
-		{
-			require self::$_path . 'Class/Loader.php';
-		}
+		// путь до корня сайта
+		self::$_root = $root ? $root : self::_getRoot ();
+		
+		require self::$_path . 'Class/Loader.php';
 		
 		Loader::addPathes (array (
 			'Class'			=> array (

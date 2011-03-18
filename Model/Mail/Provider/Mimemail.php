@@ -21,6 +21,25 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 	const MIME_MAIL_PATH 	 = 'PHPMailer/class.phpmailer.php';
 	
 	/**
+	 * 
+	 * Enter description here ...
+	 * @var PHPMailer
+	 */
+	protected $_mailer;
+	
+	/**
+	 * @return PHPMailer
+	 */
+	protected function _mailer ()
+	{
+		if (!$this->_mailer)
+		{
+			$this->_mailer = new PHPMailer ();
+		}
+		return $this->_mailer;
+	}
+	
+	/**
 	 * (non-PHPdoc)
 	 * @see Mail_Provider_Abstract::send()
 	 */
@@ -28,7 +47,9 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 	{
 		$to_name = $message->toName ? $message->toName : 0;
 		
-		return $this->sendEx (
+		$this->logMessage ($message, self::MAIL_STATE_SENDING);
+		
+		$result = $this->sendEx (
 			array (
 				$to_name	=> $message->toEmail
 			),
@@ -36,6 +57,24 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 			$message->body,
 			$config
 		);
+		
+		if ($result)
+		{
+			$this->logMessage (
+				$message,
+				self::MAIL_STATE_SUCCESS
+			);
+		}
+		else
+		{
+			$this->logMessage (
+				$message,
+				self::MAIL_STATE_FAIL,
+				$this->_mailer->ErrorInfo
+			);
+		}
+		
+		return $result;
 	}
 	
 	/**
@@ -49,7 +88,7 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 	{
 		Loader::requireOnce (self::MIME_MAIL_PATH, 'includes');
 		
-		$mail = new PHPMailer ();
+		$mail = $this->_mailer ();
 		
 		foreach ((array) $addresses as $to_name => $address)
 		{

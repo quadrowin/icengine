@@ -42,9 +42,11 @@ class Query_Translator_Mysql extends Query_Translator
 	const WHERE_VALUE_CHAR	= '?';
 		
 	/**
-	 * 
-	 * @param string $value
-	 * @return string
+	 * @desc Обособляет название mysql терма, если в этом есть необходимость.
+	 * Функция вернет исходную строку, если в ней присутствуют спец. символы
+	 * (точки, скобки, кавычки, знаки мат. операций и т.п.)
+	 * @param string $value Название терма.
+	 * @return string Резултат обособления.
 	 */
 	public function _escape ($value)
 	{
@@ -53,6 +55,8 @@ class Query_Translator_Mysql extends Query_Translator
 			strpos ($value, '(') === false &&
 			strpos ($value, ' ') === false && 
 			strpos ($value, '.') === false &&
+			strpos ($value, '<') === false &&
+			strpos ($value, '>') === false &&
 			strpos ($value, '`') === false
 		)
 		{

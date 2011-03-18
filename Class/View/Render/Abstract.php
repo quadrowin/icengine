@@ -34,12 +34,6 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	 */
 	protected $_varsStack = array ();
 	
-	/**
-	 * Конфиг
-	 * @var array
-	 */
-	public $config = array ();
-	
 	protected function _afterConstruct ()
 	{
 		if (!isset ($this->_fields ['id']))
@@ -171,7 +165,7 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	 */
 	public function setLayout ($value)
 	{
-		$this->config ['layout'] = $value;
+		$this->_config ['layout'] = $value;
 		return $this;
 	}
 	
@@ -182,22 +176,6 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	public function table ()
 	{
 		return 'View_Render';
-	}
-	
-	/**
-	 * @desc Загрузка конфига
-	 * @return View_Render_Abstract Этот рендер.
-	 */
-	public function config ()
-	{
-		if (is_array ($this->config))
-		{
-			$this->config = Config_Manager::get (
-				get_class ($this),
-				$this->config
-			);
-		}
-		return $this->config;
 	}
 	
 }

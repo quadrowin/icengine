@@ -25,7 +25,7 @@ class Application_Behavior_Abstract
 	 * @desc Путь до контроллеров
 	 * @var string
 	 */
-	public $controllersPath;
+//	public $controllersPath;
 	
 	/**
 	 * @desc Менеджер моделей
@@ -47,12 +47,12 @@ class Application_Behavior_Abstract
 	
 	public function __construct ()
 	{
-		$this->controllersPath = Ice_Implementator::getControllersPath ();
+//		$this->controllersPath = Ice_Implementator::getControllersPath ();
 		include dirname (__FILE__) . '/../Bootstrap/Abstract.php';
 	}
 	
 	/**
-	 * @desc Получить меня окружения
+	 * @desc Возвращает имя окружения
 	 * @return string
 	 */
 	public function name ()
