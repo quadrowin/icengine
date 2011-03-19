@@ -114,13 +114,10 @@ class Controller_Dispatcher_Iteration
     }
     
     /**
-     * Задать шаблон на основе названия класса
-     * @param string $class
-     * 		Класс или метод (контроллера)
-     * @param string $template
-     * 		Шаблон
-     * $param string $ext
-     * 		Расшираение
+     * @desc Задать шаблон на основе названия класса
+     * @param string $class Класс или метод (контроллера).
+     * @param string $template Шаблон.
+     * @param string $ext Расшираение.
      */
     public function setClassTpl ($class, $template = '', $ext = '.tpl')
     {

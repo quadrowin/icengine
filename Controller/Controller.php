@@ -71,6 +71,12 @@ class Controller_Controller extends Controller_Abstract
 		$tpl = $iteration->getTemplate ();
         
         $result ['data'] = (array) $transaction->receive ('data');
+        $error = $transaction->receive ('error');
+        
+        if ($error)
+        {
+        	$result ['error'] = $error;
+        }
         
         if ($tpl)
         {
