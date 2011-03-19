@@ -228,6 +228,22 @@ class Controller_Abstract
 	}
 	
 	/**
+	 * @desc Завершение работы контроллера ошибкой.
+	 * @param string $text Текст ошибки.
+	 * @param string $method Экшен, в котором произошла ошибка (__METHOD__).
+	 * Необходим для определения шаблона. 
+	 * @param string $tpl Шаблон
+	 */
+	protected function _sendError ($text, $method = null, $tpl = null)
+	{
+		$this->_output->send ('error', $text);
+		if ($method)
+		{
+			$this->_dispatcherIteration->setClassTpl ($method, $tpl);
+		}
+	}
+	
+	/**
 	 * @desc Загружает и возвращает конфиг для контроллера
 	 * @return Objective
 	 */

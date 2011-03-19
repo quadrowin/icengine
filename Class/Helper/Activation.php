@@ -17,8 +17,8 @@ class Helper_Activation
 	public static function generateNumeric ($from = 5, $to = 7)
 	{
 		return rand (
-			1 . str_repeat ('0', $from - 1),	// от 10000
-			str_repeat ('9', $to)				// до 9999999
+			str_pad ("1", $from, '0'),	// от 10000
+			str_repeat ('9', $to)		// до 9999999
 		);
 	}
 	

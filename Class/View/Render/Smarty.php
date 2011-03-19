@@ -64,9 +64,6 @@ class View_Render_Smarty extends View_Render_Abstract
 		
 		Loader::load ('Helper_Smarty_Filter_Dblbracer');
 		Helper_Smarty_Filter_Dblbracer::register ($this->_smarty);
-		
-//		Loader::load ('Helper_Smarty_Filter_Acl');
-//		Helper_Smarty_Filter_Acl::register ($this->_smarty);
 	}
 	
 	/**

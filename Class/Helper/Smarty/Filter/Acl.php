@@ -2,6 +2,8 @@
 /**
  * 
  * @desc Помощник для показа дополнительных секций администратора.
+ * Код, расположенный между неподходящими блоками acl будет вырезан
+ * из шаблона и не 
  * @tutorial
  * 		{acl role="admin"}
  * 			some protected data
@@ -10,6 +12,9 @@
  * 		{/acl}
  * @author Юрий
  * @package IcEngine
+ * @deprecated Вместо этого фильтра будет использоваться smarty_block_acl,
+ * т.к. в противном случае при кэшировании шаблона происходит кэширование
+ * прав доступа (т.к. кэширование идет после наложения фильтров).
  *
  */
 class Helper_Smarty_Filter_Acl
@@ -77,16 +82,17 @@ class Helper_Smarty_Filter_Acl
 	 */
 	public static function register (Smarty $smarty)
 	{
-		$smarty->register_prefilter (array (__CLASS__, 'filter'));
+		$smarty->register_prefilter (array (__CLASS__, 'filterAcl'));
 	}
 	
 	/**
-	 * @desc Фильтрация.
-	 * @param string $tpl_source
-	 * @param Smarty $smarty
-	 * @return string
+	 * @desc Реализует ACL для шаблона.
+	 * Этот метод вызывается из смарти перед обработкой шаблона.
+	 * @param string $tpl_source Исходный код шаблона.
+	 * @param Smarty $smarty Экземпляр смарти
+	 * @return string Результат фильтрации.
 	 */
-	public static function filter ($tpl_source, Smarty $smarty)
+	public static function filterAcl ($tpl_source, Smarty $smarty)
 	{
 		if (!$tpl_source)
 		{
