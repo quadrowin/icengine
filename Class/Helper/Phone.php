@@ -53,7 +53,7 @@ class Helper_Phone
 			$c = $str [$i];
 			if (strpos ($digits, $c) !== false)
 			{
-				$result += "" + c;
+				$result .= $c;
 			}
 			else if (strpos ($ignores, $c) === false)
 			{
