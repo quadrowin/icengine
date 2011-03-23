@@ -16,6 +16,22 @@ class Helper_Phone
 	public static $mobileLength = 11;
 	
 	/**
+	 * @desc Возвращает номер мобильного телефона в формате "+7 123 456 78 90"
+	 * @param string $phone 11 цифр номера
+	 * @return string Отформатированный номер телефона.
+	 */
+	public static function formatMobile ($phone)
+	{
+		return 
+			'+' .
+			$phone [0] . ' ' . 
+			substr ($phone, 1, 3) . ' ' .
+			substr ($phone, 4, 3) . ' ' .
+			substr ($phone, 7, 2) . ' ' .
+			substr ($phone, 9, 2);
+	}
+	
+	/**
 	 * @desc Поиск в строке номера мобильного телефона
 	 * @param string $str
 	 * @tutorial
