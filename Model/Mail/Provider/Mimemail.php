@@ -138,13 +138,13 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 		}
 		
 		$mail->From =
-			isset ($config ['From']['email']) ? 
-				$config ['From']['email'] : 
+			isset ($config ['from_email']) ? 
+				$config ['from_email'] : 
 				$this->_config ['from_email'];
 				
 		$mail->FromName =
-			isset ($config ['From']['name']) ? 
-				$config ['From']['name'] : 
+			isset ($config ['from_name']) ? 
+				$config ['from_name'] : 
 				$this->_config ['from_name'];
 				
 		if ($this->_config ['send_charset'])
