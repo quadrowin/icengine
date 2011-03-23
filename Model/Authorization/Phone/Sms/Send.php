@@ -1,0 +1,227 @@
+<?php
+/**
+ * 
+ * @desc Аавторизация через отправку пользователю СМС сообщения с кодом.
+ * @author Юрий Шведов
+ * @package IcEngine
+ * 
+ */
+Loader::load ('Authorization_Abstract');
+class Authorization_Phone_Sms_Send extends Authorization_Abstract
+{
+	
+	/**
+	 * @desc Config
+	 * @var array
+	 */
+	protected $_config = array (
+		// Авторегистрация
+		'autoregister'			=> false,
+		// Минимальная длина кода
+		'code_min_length'		=> 4,
+		// Максимальная длина кода
+		'code_max_length'		=> 6,
+		// Время действительности СМС
+		'sms_expiration'		=> 3600,
+		// префикс кода в БД
+		'sms_prefix'			=> 'smsauth.',
+		// Провайдер СМСок
+		'sms_provider'			=> 'First_Success',
+		// Параметры для провайдера
+		'sms_provider_params'	=> array (
+			'providers'			=> 'Sms_Dcnk,Sms_Littlesms,Sms_Yakoon'
+		),
+		// Шабон СМСок
+		'sms_mail_template'		=> 'sms_activate',
+		// Тестовый режим
+		'sms_test_mode'			=> true
+	);
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see Authorization_Abstract::authorize()
+	 */
+	public function authorize ($data)
+	{
+		$user = $this->findUser ($data);
+		
+		$prefix = $this->config ()->sms_prefix;
+		
+		$activation = IcEngine::$modelManager->modelBy (
+			'Activation',
+			Query::instance ()
+			->where ('code', $prefix . $data ['activation_code'])
+			->where ('id', $data ['activation_id'])
+			->where ('User__id', $user ? $user->id : 0)
+			->where ('finished', false)
+		);
+		
+		if (!$activation || $activation->finished)
+		{
+			return 'Data_Validator_Activation_Code/invalid';
+		}
+		
+		$activation->update (array (
+			'finished'	=> 1
+		));
+		
+		if ($user)
+		{
+			return $user->authorize ();
+		}
+		
+		// пользователь не зарегистрирован
+		if (!$this->config ()->autoregister)
+		{
+			return 'Data_Validator_Authorization/userNotFound';
+		}
+		
+		$user = $this->autoregister ($data, $activation);
+
+		return $user instanceof User ? $user->authorize () : $user;
+	}
+	
+	/**
+	 * @desc Авторегистрация пользователя
+	 * @param array $data Данные с формы авторизации.
+	 * @param Activation $activation Пройденная активация.
+	 * @return User|null
+	 */
+	public function autoregister ($data, Activation $activation)
+	{
+		$phone = $activation->address;
+		
+		$user = User::create (array (
+			'name'		=> Helper_Phone::formatMobile ($phone),
+			'email'		=> '',
+			'password'	=> md5 (time ()),
+			'phone'		=> $phone,
+			'active'	=> 1
+		));
+		
+		return $user;
+	}
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see Authorization_Abstract::isRegistered()
+	 */
+	public function isRegistered ($login)
+	{
+		Loader::load ('Helper_Phone');
+		$phone = Helper_Phone::parseMobile ($login);
+		
+		if (!$phone)
+		{
+			return false;
+		}
+		
+		$user = IcEngine::$modelManager->modelBy (
+			'User',
+			Query::instance ()
+			->where ('phone', $phone)
+		);
+		
+		return (bool) $user;
+	}
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see Authorization_Abstract::isValidLogin()
+	 */
+	public function isValidLogin ($login)
+	{
+		Loader::load ('Helper_Phone');
+		$phone = Helper_Phone::parseMobile ($login);
+		return (bool) $phone;
+	}
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see Authorization_Abstract::findUser()
+	 */
+	public function findUser ($data)
+	{
+		Loader::load ('Helper_Phone');
+		$phone = Helper_Phone::parseMobile ($data ['login']);
+		return IcEngine::$modelManager->modelBy (
+			'User',
+			Query::instance ()
+			->where ('phone', $phone)
+		);
+	}
+	
+	/**
+	 * @desc Отправляет пользователю СМС для авторизации
+	 * @param string $phone
+	 * @return Activation
+	 */
+	public function sendActivationSms ($phone)
+	{
+		Loader::load ('Helper_Phone');
+		$phone = Helper_Phone::parseMobile ($phone);
+		$user = IcEngine::$modelManager->modelBy (
+			'User',
+			Query::instance ()
+			->where ('phone', $phone)
+		);
+		
+		$cfg = $this->config ();
+		
+		Loader::load ('Helper_Activation');
+		$clear_code = Helper_Activation::generateNumeric (
+			$cfg->code_min_length,
+			$cfg->code_max_length
+		);
+		
+		if (!$clear_code)
+		{
+			//$this->_output->send ('error', 'error on activation create');
+			//$this->_dispatcherIteration->setClassTpl (__METHOD__, '/fail');
+			//throw new Exception('Cant generate code.');
+			return null;
+		}
+		
+		$activation_code = $cfg->sms_prefix . $clear_code;
+		
+		Loader::load ('Activation');
+		$activation = Activation::create (array (
+			'address'			=> $phone,
+			'code'				=> $activation_code,
+			'expirationTime'	=> Helper_Date::toUnix (time () + $cfg->sms_expiration),
+			'User__id'			=> $user ? $user->id : 0
+		));
+		
+		/**
+		 * @desc Провайдер
+		 * @var Mail_Provider_Abstract
+		 */
+		$provider = IcEngine::$modelManager->modelBy (
+			'Mail_Provider',
+			Query::instance ()
+			->where ('name', $cfg->sms_provider)
+		);
+		
+		Loader::load ('Mail_Message');
+		$message = Mail_Message::create (
+			$cfg->sms_mail_template,
+			$phone,
+			$user ? $user->name : $phone,
+			array (
+				'code'			=> $clear_code,
+				'session_id'	=> $activation->id
+			),
+			$user ? $user->id : 0,
+			$provider->id,
+			$cfg->sms_provider_params->__toArray ()
+		)->save ();
+		
+		if (!$cfg->sms_test_mode)
+		{
+			$message->send ();
+		}
+		
+		return $activation;
+	}
+	
+}
