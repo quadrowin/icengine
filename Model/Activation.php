@@ -33,26 +33,38 @@ class Activation extends Model
 	
 	/**
 	 * @desc Создает и возвращает новую активацию.
-	 * @param string $code Код активации.
-	 * @param string $expirationTime Время, когда активация станет 
-	 * 	недействительной (в формате UNIX).
-	 * @param string $callback_message Сообщение, попадающие в Message_Queue
+	 * @param array $params Параметры активации.
+	 * $params ['address'] Адрес для отправки сообщения.
+	 * $params ['code'] Код активации.
+	 * $params ['User__id'] [optional] Если не передан, id текущего.
+	 * $params ['expirationTime'] Время, когда активация станет 
+	 * недействительной (в формате UNIX).
+	 * $params ['callbackMessage'] Сообщение, попадающие в Message_Queue
 	 * 	после успешной активации.
 	 * @return Activation Созданная активация.
 	 */
-	public static function create ($code, $expirationTime, 
-		$callback_message = '')
+	public static function create (array $params)
 	{
 		$activation = new Activation (array (
-			'code'				=> $code,
+			'address'			=> $params ['address'],
+			'code'				=> $params ['code'],
 			'finished'			=> 0,
 			'createTime'		=> Helper_Date::toUnix (),
-			'finishTime'		=> self::EMPTY_FINISH_TIME,
-			'User__id'			=> User::id (),
+			'finishTime'		=>
+				isset ($params ['expirationTime']) ?
+					$params ['expirationTime'] :
+					self::EMPTY_FINISH_TIME,
+			'User__id'			=> 
+				isset ($params ['User__id']) ?
+					$params ['User__id'] :
+					User::id (),
 			'createIp'			=> Request::ip (),
 			'finishIp'			=> '',
 			'day'				=> Helper_Date::eraDayNum (),
-			'callbackMessage'	=> $callback_message
+			'callbackMessage'	=> 
+				isset ($params ['callbackMessage']) ?
+					$params ['callbackMessage'] :
+					''
 		));
 		return $activation->save ();
 	}
