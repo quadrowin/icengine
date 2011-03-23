@@ -1,7 +1,19 @@
 <?php
-
+/**
+ * 
+ * @desc Абстрактный класс хелпера представления.
+ * @author Юрий Шведов
+ * @package IcEngine
+ *
+ */
 abstract class View_Helper_Abstract
 {
+	
+	/**
+	 * @desc Конфиг
+	 * @var array
+	 */
+	protected $_config = array ();
 	
 	/**
 	 * 
@@ -17,6 +29,23 @@ abstract class View_Helper_Abstract
 	public function __construct ($view = null)
 	{
 	    $this->_view = $view ? $view : View_Render_Broker::getView ();
+	}
+	
+	/**
+	 * @desc Загружает и возвращает конфиг для модели
+	 * @param string $class Класс модели, если отличен от get_class ($this)
+	 * @return Objective
+	 */
+	public function config ($class = null)
+	{
+		if (is_array ($this->_config))
+		{
+			$this->_config = Config_Manager::get (
+				$class ? $class : get_class ($this),
+				$this->_config
+			);
+		}
+		return $this->_config;
 	}
 	
 	/**
