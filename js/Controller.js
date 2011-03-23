@@ -1,15 +1,16 @@
 /**
- * Базовый класс контроллера
+ * @desc Базовый класс контроллера
  */
 var Controller = {
 		
-	callbacks: {},
+	_callbacks: {},
 	
-	callbacksData: {},
+	_callbacksData: {},
 	
-	lastback: 0,
+	_lastback: 0,
+	
 	/**
-	 * Вызов метода контроллера на сервере
+	 * @desc Вызов метода контроллера на сервере
 	 * @param controller
 	 * @param params
 	 * @param callback
@@ -17,9 +18,9 @@ var Controller = {
 	 */
 	call: function (controller, params, callback, nocache)
 	{
-		var back = Controller.lastback++;
-		Controller.callbacks [back] = callback;
-		Controller.callbacksData [back] = params ['back'] ? params ['back'] : null;
+		var back = Controller._lastback++;
+		Controller._callbacks [back] = callback;
+		Controller._callbacksData [back] = params ['back'] ? params ['back'] : null;
 		JsHttpRequest.query (
 			'/Controller/ajax/',
 			{
@@ -27,14 +28,15 @@ var Controller = {
 				'params': params,
 				'back': back
 			},
-			this.callback, 
+			Controller.callback, 
 			nocache ? true : false
 		);
 	},
+	
 	/**
-	 * Ответ сервера
-	 * @param js
-	 * @param text
+	 * @desc Ответ сервера
+	 * @param object js
+	 * @param string text
 	 */
 	callback: function (js, text)
 	{
@@ -50,10 +52,10 @@ var Controller = {
 			return;
 		}
 		
-		var callback = Controller.callbacks [back];
+		var callback = Controller._callbacks [back];
 		js.result.back = 
-			Controller.callbacksData [back] ? 
-			Controller.callbacksData [back] : null;
+			Controller._callbacksData [back] ? 
+			Controller._callbacksData [back] : null;
 		
 		callback (js.result, text);
 	},
@@ -65,7 +67,7 @@ var Controller = {
 		var l = (item + '_del_').length;
 		$('input[type="checkbox"]:checked.' + item + '_del').each (
 			function () {
-				ids[n] = $(this).attr('name').substr(l);
+				ids [n] = $(this).attr ('name').substr (l);
 				n++;
 			}
 		);
