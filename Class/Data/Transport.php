@@ -188,6 +188,24 @@ class Data_Transport
 	}
 	
 	/**
+	 * @desc Получает все значения из всех провайдеров.
+	 * Не рекомендуется использовать.
+	 * @return array Массив пар (ключ => значение)
+	 */
+	public function receiveAll ()
+	{
+		$result = array ();
+		foreach ($this->_providers as $provider)
+		{
+			$result = array_merge (
+				$result,
+				$provider->getAll ()
+			);
+		}
+		return $result;
+	}
+	
+	/**
 	 * @desc Очистка данных всех провайдеров и сброс транзаций.
 	 * @return Data_Transport
 	 */
