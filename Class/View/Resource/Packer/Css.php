@@ -1,12 +1,13 @@
 <?php
-
-Loader::load ('View_Resource_Packer_Abstract');
 /**
  * 
- * Упаковщик Css ресурсов представления 
+ * @desc Упаковщик Css ресурсов представления 
  * @author Юрий
+ * @package IcEngine
  *
  */
+Loader::load ('View_Resource_Packer_Abstract');
+
 class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 {
     
@@ -69,14 +70,14 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 		$resource->urlPath = dirname ($resource->href) . '/';
 		
 		if (
-			$this->config ['pack_item_prefix'] &&
+			$this->config ()->item_prefix &&
 			isset ($resource->filePath)
 		)
 		{
 			$prefix = str_replace (
 				'{$source}',
 				$resource->filePath,
-				$this->config ['pack_item_prefix']
+				$this->config ()->item_prefix
 			);
 		}
 		else
@@ -104,6 +105,6 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
     		$style = str_replace ('  ', ' ', $style); 
 		} while (strlen ($style) != $length);
 		
-		return $prefix . $style . $this->config ['pack_item_postfix'];
+		return $prefix . $style . $this->config ()->item_postfix;
 	}
 }

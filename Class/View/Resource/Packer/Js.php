@@ -1,12 +1,13 @@
 <?php
-
-Loader::load ('View_Resource_Packer_Abstract');
 /**
  * 
- * Упаковщик Js ресурсов представления.
+ * @desc Упаковщик Js ресурсов представления.
  * @author Юрий
+ * @package IcEngine
  *
  */
+Loader::load ('View_Resource_Packer_Abstract');
+
 class View_Resource_Packer_Js extends View_Resource_Packer_Abstract
 {
 	/**
@@ -23,14 +24,14 @@ class View_Resource_Packer_Js extends View_Resource_Packer_Abstract
 	public function packOne (View_Resource $resource)
 	{
 		if (
-			$this->config ['pack_item_prefix'] &&
+			$this->config ()->item_prefix &&
 			isset ($resource->filePath)
 		)
 		{
 			$result = str_replace (
 				'{$source}',
 				$resource->filePath,
-				$this->config ['pack_item_prefix']
+				$this->config ()->item_prefix
 			);
 		}
 		else
@@ -51,7 +52,7 @@ class View_Resource_Packer_Js extends View_Resource_Packer_Abstract
 			$result .= $packer->pack ();
 	    }
 	    
-		return $result . $this->config ['pack_item_postfix'];
+		return $result . $this->config ()->item_postfix;
 	}
 	
 }

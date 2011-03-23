@@ -10,7 +10,7 @@ class View_Helper_Jtpl extends View_Helper_Abstract
 {
 
 	/**
-	 * Шаблон вставки
+	 * @desc Шаблон вставки
 	 * @var string
 	 */
 	const TEMPLATE = 
@@ -18,7 +18,7 @@ class View_Helper_Jtpl extends View_Helper_Abstract
 	
 	public function get (array $params)
 	{
-		$config = Config_Manager::get ('View_Resource', 'jtpl');
+		$config = $this->config ();
 		
 		Loader::load ('View_Resource_Loader');
 		
@@ -45,12 +45,10 @@ class View_Helper_Jtpl extends View_Helper_Abstract
 			->resources ()
 			->packer (View_Resource_Manager::JTPL);
 		
-		$packer->config = $config->merge ($packer->config);
-		
-		$packer->pack ($tpls, $config ['packed_file']);
+		$packer->pack ($tpls, $config->packed_file);
 		
 		$result = 
-			str_replace ('{$url}', $config ['packed_url'], self::TEMPLATE);
+			str_replace ('{$url}', $config->packed_url, self::TEMPLATE);
 		
 		return $result;
 	}

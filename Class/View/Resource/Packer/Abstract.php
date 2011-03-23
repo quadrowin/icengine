@@ -1,7 +1,8 @@
 <?php
 /**
- * Абстрактный упаковщик ресурсов представления.
+ * @desc Абстрактный упаковщик ресурсов представления.
  * @author Юрий
+ * @package IcEngine
  *
  */
 abstract class View_Resource_Packer_Abstract
@@ -16,33 +17,33 @@ abstract class View_Resource_Packer_Abstract
 	protected $_currentResource;
 	
 	/**
-	 * Настройки
+	 * @desc Настройки
 	 * @var array
 	 */
-	public $config = array (
+	protected $_config = array (
 		/**
 		 * Префикс файла с упакованными ресурсами.
 		 * @var string
 		 */
-		'pack_file_prefix'	=> "/* Packed by IcEngine {\$time} */\n",
+		'file_prefix'	=> "/* Packed by IcEngine {\$time} */\n",
 		
 		/**
 		 * Префикс каждого скрипта
 		 * @var string
 		 */
-		'pack_item_prefix' 	=> "/* {\$source} */\n",
+		'item_prefix' 	=> "/* {\$source} */\n",
 	
 		/**
 		 * Постфикс каждого скрипта
 		 * @var string
 		 */
-		'pack_item_postfix'	=> "\n\n",
+		'item_postfix'	=> "\n\n",
 	
 		/**
 		 * Файл для хранения состояния
 		 * @var string
 		 */
-		'pack_state_file'	=> ''
+		'state_file'	=> ''
 	);
 	
 	public function _compileFilePrefix ()
@@ -50,7 +51,7 @@ abstract class View_Resource_Packer_Abstract
 		return str_replace (
 			'{$time}',
 			date ('Y-m-d H:i:s'),
-			$this->config ['pack_file_prefix']
+			$this->config ()->file_prefix
 		);
 	}
 	
@@ -65,14 +66,14 @@ abstract class View_Resource_Packer_Abstract
 		if (
 			!$result_file || 
 			!file_exists ($result_file) || 
-			!$this->config ['pack_state_file'] ||
-			!file_exists ($this->config ['pack_state_file'])
+			!$this->config ()->state_file ||
+			!file_exists ($this->config ()->state_file)
 		)
 		{
 			return false;
 		}
 		
-		$state = file_get_contents ($this->config ['pack_state_file']);
+		$state = file_get_contents ($this->config ()->state_file);
 		$state = json_decode ($state, true);
 		
 		if (!$state)
@@ -130,6 +131,22 @@ abstract class View_Resource_Packer_Abstract
 		return
 			$this->_compileFilePrefix () . 
 			implode ("\n", $packages);
+	}
+	
+	/**
+	 * @desc Загружает и возвращает конфиг
+	 * @return Objective
+	 */
+	public function config ()
+	{
+		if (is_array ($this->_config))
+		{
+			$this->_config = Config_Manager::get (
+				get_class ($this),
+				$this->_config
+			);
+		}
+		return $this->_config;
 	}
 	
 	/**
@@ -196,7 +213,7 @@ abstract class View_Resource_Packer_Abstract
 	{
 		if (
 			!$result_file ||  
-			!$this->config ['pack_state_file']
+			!$this->config ()->state_file
 		)
 		{
 			return false;
@@ -217,7 +234,7 @@ abstract class View_Resource_Packer_Abstract
 		}
 		
 		$state = json_encode ($state);
-		file_put_contents ($this->config ['pack_state_file'], $state);
+		file_put_contents ($this->config ()->state_file, $state);
 	}
 	
 }
