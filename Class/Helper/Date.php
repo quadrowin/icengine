@@ -316,6 +316,18 @@ class Helper_Date
 	}
 	
 	/**
+	 * @desc Разница между датами в секундах.
+	 * @param string $now
+	 * @param string $then
+	 */
+	public static function secondsBetween ($now, $then = null)
+	{
+		return 
+			self::strToTimestamp ($then, time ()) - 
+			self::strToTimestamp ($now, 0);
+	}
+	
+	/**
 	 * Получение даты и времени из строки.
 	 * В качестве исходной строки может выступать запись
 	 * даты и времени практически в любом формате, не зависимо от разделителя
