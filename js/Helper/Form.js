@@ -41,42 +41,48 @@ var Helper_Form = {
 	},
 	
 	/**
-	 * Все поля формы как поля объекта
+	 * @desc Все поля формы как поля объекта
 	 * @param jQuery $form
-	 * @returns {___anonymous819_820}
+	 * @param string filter
+	 * @returns object
 	 */
-	asArray: function ($form)
+	asArray: function ($form, filter)
 	{
-		var data = {};
+		$fields = 
+			$form.find ('input,select,textarea')
+			.filter (':not(.nosubmit)');
 		
-		$form
-			.find ('input,select,textarea')
-			.filter (':not(.nosubmit)')
-			.each (function () {
-				var a;
-				if (this.tagName.toLowerCase () == 'input')
+		if (filter)
+		{
+			$fields.filter (filter);
+		}
+		
+		var data = {};	
+		
+		$fields.each (function () {
+			if (this.tagName.toLowerCase () == 'input')
+			{
+				if (this.type == "file")
 				{
-					if (this.type == "file")
+					data [this.name] = this;
+				}
+				else if (this.type == "checkbox")
+				{
+					if (this.checked)
 					{
-						data [this.name] = this;
-					}
-					else if (this.type == "checkbox")
-					{
-						if (this.checked)
-						{
-							data [this.name] = 'on';
-						}
-					}
-					else
-					{
-						data [this.name] = this.value;
+						data [this.name] = 'on';
 					}
 				}
 				else
 				{
 					data [this.name] = this.value;
 				}
-			});
+			}
+			else
+			{
+				data [this.name] = this.value;
+			}
+		});
 		
 		return data;
 	},
