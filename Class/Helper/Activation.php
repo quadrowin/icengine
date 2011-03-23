@@ -11,13 +11,16 @@ class Helper_Activation
 	
 	/**
 	 * @desc Генерация циферного кода для активации.
+	 * Генерируется случайное число длинной от $from до $to,
+	 * поэтому чаще будут генерироваться числа с максимальным количеством
+	 * знаков.
 	 * @param integer $from Минимальное количество цифр.
 	 * @param integer $to Максимальное количество цифр.
 	 */
 	public static function generateNumeric ($from = 5, $to = 7)
 	{
 		return rand (
-			str_pad ("1", $from, '0'),	// от 10000
+			str_pad ("1", $from, '0'),	// от 10000 
 			str_repeat ('9', $to)		// до 9999999
 		);
 	}
@@ -27,7 +30,7 @@ class Helper_Activation
 	 * @param string $prefix Префикс для кода.
 	 * @param integer $from Минимальное количество символов.
 	 * @param integer $to Максимальное количество символов.
-	 * @return string Свободный код
+	 * @return string Свободный код (с префиксом)
 	 */
 	public static function newShortCode ($prefix, $from = 5, $to = 7)
 	{
