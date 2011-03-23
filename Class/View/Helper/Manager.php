@@ -3,6 +3,7 @@
  * 
  * @desc Менеджер хелперов представления
  * @author Юрий
+ * @package IcEngine
  *
  */
 abstract class View_Helper_Manager
