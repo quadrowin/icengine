@@ -31,7 +31,7 @@ class Widget_Manager
 	 * @param string $method
 	 * @return Objective
 	 */
-	protected function _cacheConfig ($widget, $method)
+	protected static function _cacheConfig ($widget, $method)
 	{
 		if (is_array (self::$config))
 		{
@@ -43,13 +43,11 @@ class Widget_Manager
 	}
 	
 	/**
-	 * Получение виджета по названию
-	 * @param string $name
-	 * 		Название виджета
-	 * @return Widget_Abstract
-	 * 		Виджет
+	 * @desc Получение виджета по названию.
+	 * @param string $name Название виджета.
+	 * @return Widget_Abstract Виджет.
 	 */
-	protected function _get ($name)
+	protected static function _get ($name)
 	{
 		$widget = Resource_Manager::get ('Widget', $name);
 		
@@ -80,45 +78,65 @@ class Widget_Manager
 	}
 	
 	/**
-	 * 
-	 * @param string $name
-	 * 		Название виджета
-	 * @param string $method
-	 * 		Метод
+	 * @desc Вызов виджета.
+	 * @param string $name Название виджета.
+	 * @param string $method Метод.
 	 * @param boolean $html_only
 	 * 		Вернуть только html.
 	 * 		Если false, будет возвращен массив со всеми результатами.
-	 * @param array $args
-	 * 		Параметры
+	 * @param array $args Параметры.
 	 * @return string|array
 	 */
-	public function call ($name, $method = 'index', array $args = array (), 
+	public static function call ($name, $method = 'index', array $args = array (), 
 		$html_only = true)
 	{
-		$cache_config = $this->_cacheConfig ($name, $method);
+		$cache_config = self::_cacheConfig ($name, $method);
 		
 		return Executor::execute (
-			array ($this, 'callUncached'),
+			array (__CLASS__, 'callUncached'),
 			array ($name, $method, $args, $html_only),
 			$cache_config
 		);
 	}
 	
 	/**
-	 * 
-	 * @param string $name
-	 * 		Название виджета
-	 * @param string $method
-	 * 		Метод
-	 * @param array $args
-	 * 		Параметры
-	 * @param boolean $html_only
-	 * 		Вернуть только html.
+	 * @desc Возвращает только html результат работы контроллера.
+	 * Аналогично вызову метода call с html_only=true.
+	 * @param string $method Название виджета или виджета и экшена.
+	 * @param array $args Параметры.
+	 * @return string Результат работы экшена.
+	 * @tutorial
+	 * 		html ('Widget', array ('param'	=> 'val'));
+	 * 		html ('Widget/action')
 	 */
-	public function callUncached ($name, $method = 'index', 
+	public static function html ($method, array $args = array ())
+	{
+		$w = explode ('/', $method);
+		if (count ($w) == 1)
+		{
+			$w [1] = 'index';
+		}
+		
+		$cache_config = self::_cacheConfig ($w [0], $w [1]);
+		
+		return Executor::execute (
+			array (__CLASS__, 'callUncached'),
+			array ($w [0], $w [1], $args, true),
+			$cache_config
+		);
+	}
+	
+	/**
+	 * @desc Вызов виджета без кэширования.
+	 * @param string $name Название виджета.
+	 * @param string $method Метод.
+	 * @param array $args Параметры.
+	 * @param boolean $html_only=true Вернуть только html.
+	 */
+	public static function callUncached ($name, $method = 'index', 
 		array $args = array (), $html_only = true)
 	{
-		$widget = $this->_get ($name);
+		$widget = self::_get ($name);
 		
 		$input = $widget->getInput ()->getProvider (0);
 		$input->flush ();
