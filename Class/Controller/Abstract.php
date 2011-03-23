@@ -37,7 +37,7 @@ class Controller_Abstract
 	 * @desc Конфиг контроллера
 	 * @var array
 	 */
-	public $config = array ();
+	protected $_config = array ();
 	
 	public function __construct ()
 	{
@@ -249,14 +249,14 @@ class Controller_Abstract
 	 */
 	public function config ()
 	{
-		if (is_array ($this->config))
+		if (is_array ($this->_config))
 		{
-			$this->config = Config_Manager::get (
+			$this->_config = Config_Manager::get (
 				get_class ($this),
-				$this->config
+				$this->_config
 			);
 		}
-		return $this->config;
+		return $this->_config;
 	}
 	
 	/**
