@@ -261,6 +261,27 @@ class Helper_Array
 	}
 	
 	/**
+	 * @desc Выбор только значений, начинающихся с префикса
+	 * @param array $array
+	 * @param string $prefix
+	 * @return array
+	 */
+	public static function prefixed (array $array, $prefix)
+	{
+		$len = strlen ($prefix);
+		$result = array ();
+		foreach ($array as $k => $v)
+		{
+			if (strncmp ($k, $prefix, $len) == 0)
+			{
+				$k = substr ($k, $len);
+				$result [$k] = $v;
+			}
+		}
+		return $result;
+	}
+	
+	/**
 	 * @desc Установить в качестве ключей массива значения из колонки $column
 	 * @param array $input
 	 * 		Входной массив.
