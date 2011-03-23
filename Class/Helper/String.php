@@ -1,17 +1,37 @@
 <?php
-
+/**
+ * 
+ * @desc Помощник для работы со строками
+ * @author Юрий Шведов
+ * @package IcEngine
+ *
+ */
 class Helper_String
 {
 	
 	/**
-	 * Переводи строку из неопределенной кодировки в заданную
+	 * @desc Возвращает символы после первого вхождения $substr до конца строки.
+	 * Если $substr не найден, возвращается вся строка целиком.
 	 * 
-	 * @param string $str
-	 * 		Исходная строка
-	 * @param string $output_charset
-	 * 		Необходимая кодировка
-	 * @return string
-	 * 		Строка в заданной кодировке
+	 * @param string $str Исходная строка.
+	 * @param string $substr Подстрока.
+	 * @return string Подстрока, после вхождения $substr.
+	 */
+	public static function after ($str, $substr)
+	{
+		$p = strpos ($str, $substr);
+		if ($p !== false)
+		{
+			return substr ($str, $p + strlen ($substr));
+		}
+		return $str;
+	}
+	
+	/**
+	 * @desc Переводи строку из неопределенной кодировки в заданную.
+	 * @param string $str Исходная строка.
+	 * @param string $output_charset Необходимая кодировка.
+	 * @return string Строка в заданной кодировке.
 	 */
 	public static function autoIconv ($str, $output_charset = 'UTF-8')
 	{
@@ -33,15 +53,12 @@ class Helper_String
 	}
 	
 	/**
-	 * Возвращает символы с начала строки до первого вхождения $substr.
+	 * @desc Возвращает символы с начала строки до первого вхождения $substr.
 	 * Если $substr не найден, возвращается вся строка целиком.
 	 * 
-	 * @param string $str
-	 * 		Исходная строка.
-	 * @param string $substr
-	 * 		Подстрока.
-	 * @return string
-	 * 		Подстрока, до вхождения $substr.
+	 * @param string $str Исходная строка.
+	 * @param string $substr Подстрока.
+	 * @return string Подстрока, до вхождения $substr.
 	 */
 	public static function before ($str, $substr)
 	{
@@ -50,17 +67,14 @@ class Helper_String
 		{
 			return substr ($str, 0, $p);
 		}
-		return false;
+		return $str;
 	}
 	
 	/**
-	 * Возвращает true, если строка $str начинается с $subStr
-	 * @param string $str
-	 * 		Строка
-	 * @param string $substr
-	 * 		Подстрока
-	 * @return boolean
-	 * 		true, если строка $str начинается с $substr
+	 * @desc Возвращает true, если строка $str начинается с $subStr.
+	 * @param string $str Строка.
+	 * @param string $substr Подстрока.
+	 * @return boolean true, если строка $str начинается с $substr.
 	 */
 	public static function begin ($str, $substr)
 	{
@@ -68,7 +82,7 @@ class Helper_String
 	}
 	
 	/**
-	 * Возврщает подстроку между $start и $end
+	 * @desc Возврщает подстроку между $start и $end
 	 * @param string $string
 	 * @param string $start
 	 * @param string $end
@@ -123,12 +137,10 @@ class Helper_String
 	}
 	
 	/**
-	 * Возвращает только цифры из строки
+	 * @dsc Возвращает только цифры из строки
 	 * 
-	 * @param string $str
-	 * 		Исходная строка
-	 * @return string
-	 * 		Строка, содержащая только чифры из исходной
+	 * @param string $str Исходная строка.
+	 * @return string Строка, содержащая только чифры из исходной.
 	 */
 	public static function extractNums ($str)
 	{
