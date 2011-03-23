@@ -28,6 +28,12 @@ class Mail_Provider_Sms_Yakoon extends Mail_Provider_Abstract
 	protected $_client;
 	
 	/**
+	 * @desc Последний ответ сервера якун
+	 * @var string
+	 */
+	protected $_lastAnswer = '';
+	
+	/**
 	 * @desc Последий код результата отправки смс сообщения.
 	 * @var integer
 	 */
@@ -111,6 +117,7 @@ class Mail_Provider_Sms_Yakoon extends Mail_Provider_Abstract
 				self::MAIL_STATE_SUCCESS,
 				array (
 					'sms_id'	=> $sms_id,
+					'answer'	=> $this->_lastAnswer,
 					'code'		=> $this->_lastResultCode
 				)
 			);
@@ -123,6 +130,7 @@ class Mail_Provider_Sms_Yakoon extends Mail_Provider_Abstract
 				self::MAIL_STATE_FAIL,
 				array (
 					'sms_id'	=> $sms_id,
+					'answer'	=> $this->_lastAnswer,
 					'code'		=> $code,
 					'error'		=> 
 						isset ($this->_resultCodes [$code]) ?
@@ -206,6 +214,7 @@ class Mail_Provider_Sms_Yakoon extends Mail_Provider_Abstract
 			)
 		);
 		
+		$this->_lastAnswer = $sms_status;
 		$this->_lastResultCode = (int) $sms_status;
 		
 
