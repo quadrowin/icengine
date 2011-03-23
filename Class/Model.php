@@ -89,16 +89,9 @@ abstract class Model implements ArrayAccess
 	 * 		Автосоздание связанны объектов.
 	 * 		Если false, поля вида Model__id не будут преобразованы в объекты
 	 */
-	public function __construct (array $fields = array (), 
-		$autojoin = true)
+	public function __construct (array $fields = array (), $autojoin = true)
 	{
 		self::$_objectIndex++;
-		
-		if (!is_array ($fields))
-		{
-			Loader::load ('Model_Exception');
-			throw new Model_Exception ('Construct parameter must be an array.');
-		}
 		
 		$this->_loaded = false;
 		$this->_fields = $fields;
