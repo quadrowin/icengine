@@ -13,7 +13,7 @@ class Registration extends Model
 	 * @desc Конфиг
 	 * @var array
 	 */	
-	protected static $_config = array (
+	protected $_config = array (
 		/**
 		 * Событие после подтверждения емейла
 		 * @var function (Registration)
@@ -99,11 +99,11 @@ class Registration extends Model
 			'active'	=> 1
 		));
 		
-		if (self::config ()->after_confirm)
+		if ($this->config ()->after_confirm)
 		{
-			Loader::load (self::$_config ['after_confirm'][0]);
+			Loader::load ($this->config ()->after_confirm [0]);
 			call_user_func (
-				self::$_config ['after_confirm']->__toArray (),
+				$this->config ()->after_confirm->__toArray (),
 				$this
 			);
 		}
@@ -114,12 +114,16 @@ class Registration extends Model
 	 * @param array|Objective $data 
 	 * @return User
 	 */
-	protected static function _autoUserCreate ($data)
+	public function _autoUserCreate ($data)
 	{
-		return User::create (
-			$data ['email'], $data ['password'], 
-			self::config ()->autoactive, $data
-		);
+		return User::create (array_merge (
+			array (
+				'email'			=> $data ['email'],
+				'password'		=> $data ['password'], 
+				'active'		=> $this->config ()->autoactive
+			),
+			$data
+		));
 	}
 	
 	/**
@@ -137,21 +141,7 @@ class Registration extends Model
 	}
 	
 	/**
-	 * @desc Конфиг регистрации.
-	 * @return Objective
-	 */
-	public static function config ()
-	{
-		if (is_array (self::$_config))
-		{
-			Loader::load ('Config_Manager');
-			self::$_config = Config_Manager::get (__CLASS__, self::$_config);
-		}
-		return self::$_config;
-	}
-	
-	/**
-	 * Ссылка на подтверждение регистрации
+	 * @desc Ссылка на подтверждение регистрации.
 	 * @return string
 	 */
 	public function confirmHref ()
@@ -198,9 +188,9 @@ class Registration extends Model
 	 * @param array|Objective $data
 	 * @return Registration
 	 */
-	public static function register ($data)
+	public function register ($data)
 	{
-		$registration = new Registration (array (
+		$this->update (array (
 			'User__id'		=> 0,
 			'email'			=> $data ['email'],
 			'time'			=> Helper_Date::toUnix (),
@@ -210,16 +200,15 @@ class Registration extends Model
 			'finishTime'	=> '2000-01-01 00:00:00',
 			'code'			=> ''
 		));
-		$registration->save ();
 		
-		if (self::config ()->auto_user)
+		if ($this->config ()->auto_user)
 		{
-			$user = self::_autoUserCreate ($data);
+			$user = $this->_autoUserCreate ($data);
 			
 			Loader::load ('Message_After_Registration_Start');
-			Message_After_Registration_Start::push ($registration);
+			Message_After_Registration_Start::push ($this);
 			
-			$registration->update (array (
+			$this->update (array (
 				'User__id'	=> $user->id,
 				'code'		=> self::generateUniqueCode ($user->id)
 			));
@@ -227,44 +216,45 @@ class Registration extends Model
 		else
 		{
 			Loader::load ('Message_After_Registration_Start');
-			Message_After_Registration_Start::push ($registration);
+			Message_After_Registration_Start::push ($this);
 		}
 		
-		if (self::config ()->after_create)
+		if ($this->config ()->after_create)
 		{
-			Loader::load (self::$_config ['after_create'][0]);
+			Loader::load ($this->config ()->after_create [0]);
 			if (
 				!call_user_func (
-					self::$_config ['after_create']->__toArray (), 
-					$registration, $data
+					$this->_config ()->after_create->__toArray (), 
+					$this, $data
 				)
 			)
 			{
-				$registration->delete ();
+				$this->delete ();
 				$user->delete ();
 				return null;
 			};
 		}
 		
-		if (self::$_config ['sendmail'])
+		if ($this->config ()->sendmail)
 		{
 			Loader::load ('Mail_Message');
 			$message = Mail_Message::create (
 				'user_register', 
-				$data ['email'], $data ['email'],
+				$data ['email'],
+				$data ['email'],
 				array (
 					'email'		=> $data ['email'],
 					'password'	=> $data ['password'],
-					'time'		=> $registration->time,
-					'code'		=> $registration->code,
-					'href'		=> $registration->confirmHref ()
+					'time'		=> $this->time,
+					'code'		=> $this->code,
+					'href'		=> $this->confirmHref ()
 				),
 				$user->id
 			);
 			$message->send ();
 		}
 		
-		return $registration;
+		return $this;
 	}
 	
 	/**
@@ -276,8 +266,9 @@ class Registration extends Model
 	 */
 	public static function tryRegister (Objective $data)
 	{
-		Helper_Form::filter ($data, self::config ()->fields);
-		$result = Helper_Form::validate ($data, self::$_config ['fields']);
+		$reg = new Registration ();
+		Helper_Form::filter ($data, $reg->config ()->fields);
+		$result = Helper_Form::validate ($data, $reg->config ()->fields);
 		
 		if (is_array ($result))
 		{
@@ -286,7 +277,7 @@ class Registration extends Model
 		
 		Helper_Form::unsetIngored ($data, self::$_config ['fields']);
 		
-		$reg = self::register ($data);
+		$reg = $reg->register ($data);
 		
 		return 
 			$reg ? 
