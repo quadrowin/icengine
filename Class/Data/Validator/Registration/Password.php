@@ -9,11 +9,23 @@
 class Data_Validator_Registration_Password
 {
 	
+	/**
+	 * @desc Шаблон пароля по умолчанию
+	 * @var string
+	 */
+	const DEFAULT_PATTERN = '/^[a-zA-Z0-9 ,\.\+\=\[\]\\/;:<>\'!@#\{\}]{6,20}$/';
+	
+	
 	const SHORT	= 'short';	// Короткий пароль
 	
 	const LONG	= 'long';	// Короткий пароль
 	
 	const BAD = 'bad'; // не подходит по маске
+	
+	public function validate ($data)
+	{
+		return (bool) preg_match (self::DEFAULT_PATTERN, $data);
+	}
 	
 	public function validateEx ($field, $data, $scheme)
 	{
