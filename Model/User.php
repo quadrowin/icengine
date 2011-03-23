@@ -79,25 +79,26 @@ class User extends Model
 	
 	/**
 	 * @desc Создание пользователя.
-	 * @param string $email
-	 * @param string $password
-	 * @param integer $active
-	 * @param array|Objective $exts Дополнительные поля
+	 * @param array|Objective $data Данные пользователя.
+	 * $param ['email'] Емейл
+	 * $param ['password'] Пароль
+	 * $param ['active'] = 0 Активен
+	 * $param ['ip'] IP пользователя при регистрации
 	 * @return User
 	 */
-	public static function create ($email, $password, $active, 
-		$exts = array ())
+	public static function create ($data)
 	{
-		$exts = array_merge (
-			is_array ($exts) ? $exts : $exts->__toArray (),
-			array (
-				'email'		=> $email,
-				'password'	=> $password,
-				'active'	=> (int) $active,
-				'ip'		=> Request::ip ()
-			)
-		);
-		$user = new User ($exts);
+		if (is_object ($data))
+		{
+			$data = $data->__toArray ();
+		}
+		
+		$data ['ip'] = 
+			isset ($data ['ip']) ? 
+				$data ['ip'] : 
+				Request:: ip ();
+		
+		$user = new User ($data);
 		
 		return $user->save ();
 	}
