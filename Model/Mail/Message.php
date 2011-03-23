@@ -8,17 +8,6 @@
  */
 class Mail_Message extends Model
 {
-    
-	/**
-	 * @desc Конфиг
-	 * @var array
-	 */
-	protected $_config = array (
-		// От кого
-		'default_from_name'		=> 'Vipgeo',
-	    // Адрес отправки
-	    'default_from_email'	=> 'info@vipgeo.ru'
-	);
 	
 	/**
 	 * @desc Создает новое сообщение.
@@ -78,18 +67,19 @@ class Mail_Message extends Model
 		
 		try
 		{
-			return $provider->send (
+			$result = $provider->send (
 				$this,
-				array_merge (
-					(array) json_decode ($this->params, true), 
-					array (
-						'From'    => array (
-							'name'	=> $this->config ()->default_from_name,
-							'email'	=> $this->config ()->default_from_email
-						)
-					)
-				)
+				(array) json_decode ($this->params, true)
     		);
+    		
+    		if ($result)
+    		{
+    			$this->update (array (
+    				'sended'	=> 1
+    			));
+    		}
+    		
+    		return $result;
 		}
 		catch (Exception $e)
 		{
