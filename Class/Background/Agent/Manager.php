@@ -8,7 +8,7 @@
 class Background_Agent_Manager
 {
 	
-	public $config = array (
+	protected $_config = array (
 	
 		/**
 		 * Время в секундах после последней активности процесса,
@@ -44,7 +44,7 @@ class Background_Agent_Manager
 	
 	public function __construct ()
 	{
-		$this->config = Config_Manager::get (__CLASS__, $this->config);
+		
 	}
 	
 	/**
@@ -54,7 +54,7 @@ class Background_Agent_Manager
 	 */
 	public function checkErrors ()
 	{
-		$time_limit = (int) $this->config ['process_to_error_time'];
+		$time_limit = (int) $this->config ()->process_to_error_time;
 		
 		//Loader::load ('Background_Agent_Collection_Option');
 		$agents = new Background_Agent_Collection ();
@@ -78,7 +78,7 @@ class Background_Agent_Manager
 	 */
 	public function checkRestarts ()
 	{
-		$time_limit = (int) $this->config ['process_to_restart_time'];
+		$time_limit = (int) $this->config ()->process_to_restart_time;
 		
 		//Loader::load ('Background_Agent_Collection_Option');
 		$agents = new Background_Agent_Collection ();
@@ -97,6 +97,19 @@ class Background_Agent_Manager
 			$this->resumeAgent ($agent);
 		}
 		return $agents->count ();
+	}
+	
+	/**
+	 * @desc Загружает и возвращает конфиг
+	 * @return Objective
+	 */
+	public function config ()
+	{
+		if (is_array ($this->_config))
+		{
+			$this->_config = Config_Manager::get (__CLASS__, $this->_config);
+		}
+		return $this->_config;
 	}
 	
 	/**
@@ -131,10 +144,10 @@ class Background_Agent_Manager
 		$cmd = str_replace (
 			array_keys ($values),
 			array_values ($values),
-			$this->config ['resume_cmd']
+			$this->config ()->resume_cmd
 		);
 		
-		chdir ($this->config ['root_directory']);
+		chdir ($this->config ()->root_directory);
 		die (popen ($cmd, 'r'));
 		//exec ('start ' . $cmd);
 		//popen ($cmd, 'r');
@@ -154,7 +167,7 @@ class Background_Agent_Manager
 		$url = str_replace (
 			array_keys ($values),
 			array_values ($values),
-			$this->config ['resume_url']
+			$this->config ()->resume_url
 		);
 		
 		$url = parse_url ($url);
