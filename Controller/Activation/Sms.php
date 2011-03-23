@@ -66,8 +66,11 @@ class Controller_Activation_Sms extends Controller_Abstract
 		
 		if (!$phone || !$code_type)
 		{
-			$this->_output->send ('error', 'empty phone or code_type');
-			$this->_dispatcherIteration->setClassTpl (__METHOD__, '/fail');
+			$this->_sendError (
+				'empty phone or code_type',
+				__METHOD__,
+				'/fail'
+			);
 			return;
 		}
 		
@@ -75,8 +78,11 @@ class Controller_Activation_Sms extends Controller_Abstract
 		
 		if (!$type)
 		{
-			$this->_output->send ('error', 'no type data');
-			$this->_dispatcherIteration->setClassTpl (__METHOD__, '/fail');
+			$this->_sendError (
+				'no type data',
+				__METHOD__,
+				'/fail'
+			);
 			return;
 		}
 		
@@ -89,22 +95,28 @@ class Controller_Activation_Sms extends Controller_Abstract
 		
 		if (!$code)
 		{
-			$this->_output->send ('error', 'error on activation create');
-			$this->_dispatcherIteration->setClassTpl (__METHOD__, '/fail');
+			$this->_sendError (
+				'error on activation create',
+				__METHOD__,
+				'/fail'
+			);
 			return;
 		}
 		
 		Loader::load ('Activation');
-		$activation = Activation::create (
-			$code,
-			Helper_Date::toUnix (time () + $type ['expiration_time']),
-			$type ['callback'] ? $type ['callback'] : ''
-		);
+		$activation = Activation::create (array (
+			'code'				=> $code,
+			'expirationTime'	=> Helper_Date::toUnix (time () + $type ['expiration_time']),
+			'callbackMessage'	=> $type ['callback'] ? $type ['callback'] : ''
+		));
 		
 		if (!$activation)
 		{
-			$this->_output->send ('error', 'error on activation create');
-			$this->_dispatcherIteration->setClassTpl (__METHOD__, '/fail');
+			$this->_sendError (
+				'error on activation create',
+				__METHOD__,
+				'/fail'
+			);
 			return;
 		}
 		
@@ -122,11 +134,11 @@ class Controller_Activation_Sms extends Controller_Abstract
 		
 		if (!$provider)
 		{
-			$this->_output->send (
-				'error',
-				'provider not found: ' . $provider_name
+			$this->_sendError (
+				'provider not found: ' . $provider_name,
+				__METHOD__,
+				'/fail'
 			);
-			$this->_dispatcherIteration->setClassTpl (__METHOD__, '/fail');
 			return;
 		}
 		
@@ -145,8 +157,11 @@ class Controller_Activation_Sms extends Controller_Abstract
 		
 		if (!$message->send ())
 		{
-			$this->_output->send ('error', 'mail send error');
-			$this->_dispatcherIteration->setClassTpl (__METHOD__, '/fail');
+			$this->_sendError (
+				'mail send error',
+				__METHOD__,
+				'/fail'
+			);
 			return;
 		}
 		
