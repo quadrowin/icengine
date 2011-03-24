@@ -4,11 +4,12 @@ class Subscribe_Subscriber extends Model
 {
     
     /**
-     * 
+     * @desc Получить подписчика по email
      * @param string $email
+     * @param boolen $autocreate
      * @return Subscriber_Subscriber
      */
-    public static function byEmail ($email)
+    public static function byEmail ($email, $autocreate = true)
     {
         $subscriber = IcEngine::$modelManager->modelBy (
             'Subscribe_Subscriber',
@@ -16,11 +17,11 @@ class Subscribe_Subscriber extends Model
             ->where ('email', $email)
         );
         
-        if (!$subscriber)
+        if (!$subscriber && $autocreate)
         {
             $subscriber = new Subscribe_Subscriber (array (
                 'active'	=> 1,
-                'date'	    => date ('Y-m-d H:i:s'),
+                'date'	    => Helper_Date::toUnix (),
             	'email'	    => $email
             ));
             $subscriber->save ();
