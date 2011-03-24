@@ -9,20 +9,20 @@ class Subscribe_Subscriber extends Model
      * @param boolen $autocreate
      * @return Subscriber_Subscriber
      */
-    public static function byEmail ($email, $autocreate = true)
+    public static function byContact ($email, $autocreate = true)
     {
         $subscriber = IcEngine::$modelManager->modelBy (
             'Subscribe_Subscriber',
             Query::instance ()
-            ->where ('email', $email)
+            ->where ('contact', $email)
         );
         
         if (!$subscriber && $autocreate)
         {
             $subscriber = new Subscribe_Subscriber (array (
-                'active'	=> 1,
-                'date'	    => Helper_Date::toUnix (),
-            	'email'	    => $email
+                'active'		=> 1,
+                'date'			=> Helper_Date::toUnix (),
+            	'contact'		=> $email
             ));
             $subscriber->save ();
         }

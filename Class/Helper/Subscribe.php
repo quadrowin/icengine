@@ -23,7 +23,7 @@ class Helper_Subscribe
 		Loader::load ('Subscribe_Subscriber');
 		Loader::load ('Subscribe_Subscriber_Attribute');
 		
-		$subscriber = Subscribe_Subscriber::byEmail ($email);
+		$subscriber = Subscribe_Subscriber::byContact ($email);
 		
 		if (!$subscriber->key ())
 		{
@@ -57,7 +57,7 @@ class Helper_Subscribe
 		Loader::load ('Subscribe_Subscriber');
 		Loader::load ('Subscribe_Subscriber_Attribute');
 		
-		$subscriber = Subscribe_Subscriber::byEmail ($email, false);
+		$subscriber = Subscribe_Subscriber::byContact ($email, false);
 		
 		if (!$subscriber)
 		{
