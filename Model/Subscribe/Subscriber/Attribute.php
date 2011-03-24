@@ -29,7 +29,7 @@ class Subscribe_Subscriber_Attribute extends Model
 		$query = Query::instance ()
 			->delete ()
 			->from ('Subscribe_Subscriber_Attribute')
-			->where ('Subscriber__id', $subscriber->key ());
+			->where ('Subscribe_Subscriber__id', $subscriber->key ());
 			
 		if ($keys)
 		{

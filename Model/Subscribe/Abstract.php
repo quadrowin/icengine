@@ -1,11 +1,22 @@
 <?php
-
+/**
+ * 
+ * @desc Абстрактная модель рассылки
+ * @author Юрий Шведов
+ * @package IcEngine
+ *
+ */
 abstract class Subscribe_Abstract extends Model_Factory_Delegate
 {
-    
-    const CONFIRM_SUBSCRIBE_TEMPLATE = 'subscribe_activate';
-    
-    const CONFIRM_UNSUBSCRIBE_TEMPLATE = 'subscribe_deactivate';
+
+	protected $_config = array (
+		// Шаблон письма на подтверждение рассылки
+		'confirm_subscribe_template'	=> 'subscribe_activate',
+		// Шаблон письма на подтверждение отказа
+		'confirm_unsubscribe_template'	=> 'subscribe_deactivate',
+		// Провайдер сообщений
+		'mail_provider'					=> 'Mimemail'
+	);
     
 	/**
 	 * 
@@ -84,15 +95,17 @@ abstract class Subscribe_Abstract extends Model_Factory_Delegate
 	    
 	    Loader::load ('Mail_Message');
 	    $mail = Mail_Message::create (
-	        self::CONFIRM_SUBSCRIBE_TEMPLATE,
-	        $subscriber->email,
+	    	$this->config ()->confirm_subscribe_tempalte,
+	        $subscriber->contact,
 	        '',
 	        array (
 	            'code'          => $join->code,
 	            'subscribe'	    => $this,
 	            'subscriber'	=> $subscriber,
 	            'href'		    => $this->_confirmSubscribeHref ($join->code)
-	        )
+	        ),
+	        User::id (),
+	        $this->config ()->mail_provider
 	    );
 	    
 	    $mail->send ();
@@ -109,7 +122,7 @@ abstract class Subscribe_Abstract extends Model_Factory_Delegate
 	    
 	    Loader::load ('Mail_Message');
 	    $mail = Mail_Message::create (
-	        self::CONFIRM_UNSUBSCRIBE_TEMPLATE,
+	    	$this->config ()->confirm_unsubscribe_tempalte,
 	        $subscriber->email,
 	        '',
 	        array (
@@ -117,7 +130,9 @@ abstract class Subscribe_Abstract extends Model_Factory_Delegate
 	            'subscribe'	    => $this,
 	            'subscriber'	=> $subscriber,
 	            'href'		    => $this->_confirmUnsubscribeHref ($join->code)
-	        )
+	        ),
+	        User::id (),
+	        $this->config ()->mail_provider
 	    );
 	    
 	    $mail->send ();

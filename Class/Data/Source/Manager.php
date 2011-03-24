@@ -11,7 +11,7 @@ class Data_Source_Manager
 {
 	
 	/**
-	 * Загруженные источники.
+	 * @desc Загруженные источники.
 	 * @var array <Data_Source_Abstract>
 	 */
 	protected static $_sources = array ();
@@ -38,7 +38,7 @@ class Data_Source_Manager
 	}
 	
 	/**
-	 * Получение данных провайдера.
+	 * @desc Получение данных провайдера.
 	 * @param string $name
 	 * @return Data_Source_Abstract
 	 */

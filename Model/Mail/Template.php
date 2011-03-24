@@ -8,15 +8,9 @@
  */
 class Mail_Template extends Model_Child
 {
-    
-    /**
-     * 
-     * @var Smarty
-     */
-    protected $_smarty;
 	
 	public static $blankTemplate = array (
-	    'id'		=> 0,
+		'id'		=> 0,
 		'name'	    => 'empty',
 		'parentId'	=> 0,
 		'subject'	=> 'subj',
@@ -26,21 +20,21 @@ class Mail_Template extends Model_Child
 	/**
 	 * @return Smarty
 	 */
-	protected function _initSmarty ()
-	{
-		if (!class_exists ('Smarty'))
-		{
-			Loader::requireOnce ('smarty/Smarty.class.php', 'includes');
-		}
-		$smarty = new Smarty ();
-		$smarty->template_dir = 'Ice/View/';
-		$smarty->compile_dir = 'cache/templates/';
-		$smarty->force_compile = true;
-		
-		$smarty->assign ('siteaddress', $_SERVER ['SERVER_NAME']);
-		
-		return $smarty;
-	}
+//	protected function _initSmarty ()
+//	{
+//		if (!class_exists ('Smarty'))
+//		{
+//			Loader::requireOnce ('smarty/Smarty.class.php', 'includes');
+//		}
+//		$smarty = new Smarty ();
+//		$smarty->template_dir = 'Ice/View/';
+//		$smarty->compile_dir = 'cache/templates/';
+//		$smarty->force_compile = true;
+//		
+//		$smarty->assign ('siteaddress', $_SERVER ['SERVER_NAME']);
+//		
+//		return $smarty;
+//	}
 	
 	/**
 	 * Возращается шаблон по имени, либо шаблон по умолчанию
@@ -77,12 +71,24 @@ class Mail_Template extends Model_Child
 			return '';
 		}
 		
-	    $smarty = $this->smarty ();
+//	    $smarty = $this->smarty ();
+//		View_Render_Broker::render (array (
+//			array (
+//				'template'	=> 'fuck.tpl',
+//				'data'		=> $data,
+//				'assign'	=> 'content'
+//			),
+//			array (
+//				'template'	=> 'you.tpl',
+//				'data'		=> $data
+//			)
+//		));
+		$smarty = View_Render_Broker::pushViewByName ('Smarty')->smarty ();
 	    
 	    $smarty->assign ($data);
 		
 	    $smarty->register_resource (
-			$this->resourceKey (),
+			$this->resourceKey () . 'b',
 			array (
 				$this,
 				"smarty_get_body",
@@ -92,7 +98,9 @@ class Mail_Template extends Model_Child
 			)
 		);
 		
-		$body = $smarty->fetch ($this->resourceKey () . ':body');
+		$body = $smarty->fetch ($this->resourceKey () . 'b:body');
+		
+		View_Render_Broker::popView ();
 		
 		$parent = $this->getParent ();
 		
@@ -103,18 +111,6 @@ class Mail_Template extends Model_Child
 		}
 		
 		return $body;
-	}
-	
-	/**
-	 * @return Smarty
-	 */
-	public function smarty ()
-	{
-	    if (!$this->_smarty)
-	    {
-	        $this->_smarty = $this->_initSmarty ();
-	    }
-	    return $this->_smarty;
 	}
 	
 	public function smarty_get_body ($tpl_name, &$tpl_source)
@@ -162,11 +158,12 @@ class Mail_Template extends Model_Child
 			return '';
 		}
 		
-	    $smarty = $this->smarty ();
+		$smarty = View_Render_Broker::pushViewByName ('Smarty')->smarty ();
+		
 		$smarty->assign ($data);
 		
 		$smarty->register_resource (
-			$this->resourceKey (),
+			$this->resourceKey () . 's',
 			array (
 				$this,
 				"smarty_get_subject",
@@ -176,7 +173,9 @@ class Mail_Template extends Model_Child
 			)
 		);
 		
-		return $smarty->fetch ($this->resourceKey () . ':subject');
+		$result = $smarty->fetch ($this->resourceKey () . 's:subject');
+		View_Render_Broker::popView ();
+		return $result;
 	}
 	
 }

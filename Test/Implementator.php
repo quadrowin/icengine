@@ -12,7 +12,7 @@ class Test_Implementator
 	/**
 	 * @desc Подключение движка
 	 */
-	public static function implement ()
+	public static function implement ($root = null, $behavior = null, $path = null)
 	{
 		if (class_exists ('IcEngine'))
 		{
@@ -23,15 +23,17 @@ class Test_Implementator
 		date_default_timezone_set ('UTC');
 		
 		require dirname (__FILE__) . '/../IcEngine.php';
-		IcEngine::init ();
+		IcEngine::init ($root);
 		Loader::load ('Loader_Auto');
 		Loader_Auto::register ();
 		
 		Loader::addPath ('includes', IcEngine::root () . 'includes/');
 		
 		IcEngine::initApplication (
-			'Icengine',
-			IcEngine::path () . 'Class/Application/Behavior/Icengine.php'
+			$behavior ? $behavior : 'Icengine',
+			$path ? 
+				$path : 
+				IcEngine::path () . 'Class/Application/Behavior/Icengine.php'
 		);
 		IcEngine::run ();
 	}
