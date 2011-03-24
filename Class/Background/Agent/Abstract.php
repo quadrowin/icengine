@@ -5,7 +5,7 @@
  * @package IcEngine
  *
  */
-abstract class Background_Agent_Abstract
+abstract class Background_Agent_Abstract extends Model
 {
     
     /**
