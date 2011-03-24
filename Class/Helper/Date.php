@@ -10,6 +10,12 @@ class Helper_Date
 {
     
 	/**
+	 * @desc Нулевая дата
+	 * @var string
+	 */
+	const NULL_DATE = '0000-00-00';
+	
+	/**
 	 * @desc Unix формат представления даты.
 	 * @var string
 	 */
