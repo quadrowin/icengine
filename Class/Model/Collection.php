@@ -128,9 +128,9 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * 
-	 * @param array|string $_
-	 * @desc Добавление нескольких опций к коллекции аналогично
+	 * @desc Добавление нескольких опций к коллекции аналогично.
+	 * @param array|string $options
+	 * @param $_
 	 * @return Model_Collection
 	 */
 	public function addOptions ($options)

@@ -1,16 +1,22 @@
 <?php
-
+/**
+ * 
+ * @desc
+ * @author Юрий Шведов
+ * @package IcEngine
+ *
+ */
 class Model_Collection_Option
 {
-    
-    /**
-     * Название опции
-     * @var string
-     */
+	
+	/**
+	 * @desc Название опции
+	 * @var string
+	 */
 	private $_name;
 	
 	/**
-	 * Параметры
+	 * @desc Параметры
 	 * @var array
 	 */
 	protected $_params;
@@ -37,7 +43,7 @@ class Model_Collection_Option
 	 */
 	public function getParams ()
 	{
-	    return $this->_params;
+		return $this->_params;
 	}
 	
 	public function modelName ()

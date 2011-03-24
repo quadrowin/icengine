@@ -1,15 +1,21 @@
 <?php
-
-class Model_Component extends Model
+/**
+ * 
+ * @desc Модель компонента.
+ * Компоненты - модели, крепящиеся к другим моделям.
+ * Коллекция компонентов может быть получена от модели через метод 
+ * component ().
+ * @author Юрий Шведов
+ * @package IcEngine.
+ *
+ */
+abstract class Model_Component extends Model
 {
     
     /**
-     * Переподключение компонента к другой модели
-     * 
-     * @param Model $model
-     * 		Модель, к которой будет подключен компонент
-     * @return Model_Component
-     * 		Этот компонент
+     * @desc Переподключение компонента к другой модели
+     * @param Model $model Модель, к которой будет подключен компонент.
+     * @return Model_Component Этот компонент.
      */
     public function rejoin (Model $model)
     {
@@ -28,6 +34,18 @@ class Model_Component extends Model
 	        ));
     	}
         return $this;
+    }
+    
+	/**
+	 * @desc Модель, к которой привязан компонент в данный момент.
+	 * @return Model
+	 */
+    public function model ()
+    {
+    	return IcEngine::$modelManager->modelByKey (
+    		$this->table,
+    		$this->rowId
+    	);
     }
     
 }

@@ -1,7 +1,7 @@
 <?php
 /**
  * 
- * @desc Базовая схема рейтинга
+ * @desc Базовая схема рейтинга.
  * @author Юрий
  * @package IcEngine
  *
@@ -14,8 +14,7 @@ class Component_Rating_Scheme_Abstract extends Model_Factory_Delegate
 	 * @param string $table Модель
 	 * @param integer $row_id Запись
 	 * @param integer $value Изменение рейтинга.
-	 * 		Может быть величиной изменения или типом, в зависимости от
-	 * 		схемы.
+	 * Может быть величиной изменения или типом, в зависимости от схемы.
 	 * @return Component_Rating
 	 */
 	public function vote ($table, $row_id, $value)

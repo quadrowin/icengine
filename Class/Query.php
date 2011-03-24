@@ -225,7 +225,7 @@ class Query {
 	}
 	
 	/**
-	 * 
+	 * @desc Задает правило сортировки
 	 * @param string|array $sort
 	 * 		'id' | array('id' => Query::DESC)
 	 * @return Query 
@@ -234,7 +234,7 @@ class Query {
 	{
 		if (!is_array ($sort))
 		{
-			$sort = array ($sort);
+			$sort = func_get_args ($sort);
 		}
 		
 		foreach ($sort as $field => $direction)
@@ -251,7 +251,7 @@ class Query {
 	}
 	
 	/**
-	 * 
+	 * @desc Добавляет к запросу условие "или".
 	 * @param string $condition
 	 * @param mixed $value
 	 * @return Query
@@ -415,6 +415,85 @@ class Query {
 	{
 		$this->_type = self::SHOW;
 		return $this;
+	}
+	
+	/**
+	 * @desc Добавление джойна таблицы, если она еще не подключна.
+	 * @param string $table Название таблицы.
+	 * Алиас не принимается.
+	 * @param string $condition
+	 * @return Query
+	 */
+	public function singleInnerJoin ($table, $condition)
+	{
+		$joins = $this->getPart (self::FROM);
+		foreach ($joins as $alias => $data)
+		{
+			if ($data [self::TABLE] == $table)
+			{
+				// Таблица уже подключена
+				if ($data [self::TYPE] == self::FROM)
+				{
+					return $this->where ($condition);
+				}
+				
+				if ($data [self::TYPE] == self::LEFT_JOIN)
+				{
+					$data [self::TYPE] = self::INNER_JOIN;
+				}
+				
+				if ($data [self::WHERE] != $condition)
+				{
+					$data [self::WHERE] = 
+						'(' . 
+							$data [self::WHERE] .
+						') AND (' .
+							$condition .
+						')';
+				}
+				return $this;
+			}
+		}
+		
+		// Еще не подключена
+		return $this->innerJoin ($table, $condition);
+	}
+	
+	/**
+	 * @desc Добавление джойна таблицы, если она еще не подключна.
+	 * @param string $table Название таблицы.
+	 * Алиас не принимается.
+	 * @param string $condition
+	 * @return Query
+	 */
+	public function singleLeftJoin ($table, $condition)
+	{
+		$joins = $this->getPart (self::FROM);
+		foreach ($joins as $alias => $data)
+		{
+			if ($data [self::TABLE] == $table)
+			{
+				// Таблица уже подключена
+				if ($data [self::TYPE] == self::FROM)
+				{
+					return $this;
+				}
+				
+				if ($data [self::WHERE] != $condition)
+				{
+					$data [self::WHERE] = 
+						'(' . 
+							$data [self::WHERE] .
+						') AND (' .
+							$condition .
+						')';
+				}
+				return $this;
+			}
+		}
+		
+		// Еще не подключена
+		return $this->leftJoin ($table, $condition);
 	}
 	
 	/**
