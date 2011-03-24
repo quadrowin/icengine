@@ -27,6 +27,12 @@ class Mail_Message extends Model
 		Loader::load ('Mail_Template');
 		$template = Mail_Template::byName ($template_name);
 		
+		if (!is_num ($mail_provider_id))
+		{
+			Loader::load ('Mail_Provider');
+			$mail_provider_id = Mail_Provider::byName ($mail_provider_id);
+		}
+		
 		$message = new Mail_Message (array (
 			'Mail_Template__id'		=> $template->id,
 			'toEmail'				=> $to_email,

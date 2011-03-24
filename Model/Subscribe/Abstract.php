@@ -9,30 +9,6 @@ abstract class Subscribe_Abstract extends Model_Factory_Delegate
     
 	/**
 	 * 
-	 * @var Background_Process
-	 */
-	protected $_daemon;
-	
-	/**
-	 * 
-	 * @var array
-	 */
-	protected $_data = array ();
-	
-	/**
-	 * 
-	 * @var Subscribe_Provider_Abstract
-	 */
-	protected $_provider;
-	
-	/**
-	 * 
-	 * @var Subscribe_Render_Abstract
-	 */
-	protected $_render;
-	
-	/**
-	 * 
 	 * @param stirng $code
 	 * @return string
 	 */
@@ -52,94 +28,49 @@ abstract class Subscribe_Abstract extends Model_Factory_Delegate
 	}
 	
 	/**
-	 * @return array
+	 * @desc Создает сессию рассылки. Готовит статусы для отправки
+	 * @param Model_Collection $subscriber_collection
+	 * @param null|Mail_Template $mail_template
+	 * @param string $comment
+	 * @return Model
 	 */
-	public function get ()
+	public function createSession (Model_Collection $subscriber_collection, 
+		$mail_template = null, $comment = '')
 	{
-		return array ();
-	}
-	
-	/**
-	 * @return Background_Process
-	 */
-	public function getDaemon ()
-	{
-		return $this->_daemon;
-	}
-	
-	/**
-	 * @return array
-	 */
-	public function getData ()
-	{
-		return $this->_data;
-	}
-	
-	/**
-	 * @return Subscribe_Provider_Abstract
-	 */
-	public function getProvider ()
-	{
-		return $this->_provider;
-	}
-	
-	/**
-	 * @return Sibscribe_Render_Abstract
-	 */
-	public function getRender ()
-	{
-		return $this->_render;
-	}
-	
-	/**
-	 * @return array
-	 */
-	public function getSubscribers ()
-	{
-		Loader::load ('Subscribe_Subscriber_Collection');
-		$collection = new Subscribe_Subscriber_Collection ();
-		return $collection
-			->load ()
-			->getItems ();
-	}
-	
-	/**
-	 * @return string
-	 */
-	public function render ()
-	{
-		if (!is_null ($this->_render))
+		Loader::load ('Subscribe_Session');
+		Loader::load ('Helper_Process');
+		Loader::load ('Subscribe_Subscriber_Status');
+		
+		$subscribe_session = new Subscribe_Session (array (
+			'Subscribe__id'			=> $this->key (),
+			'beginDate'				=> Helper_Date::toUnix (),
+			'finishDate'			=> Helper_Date::NULL_DATE,
+			'status'				=> Helper_Process::NONE,
+			'comment'				=> $comment,
+			'Mail_Template__id'		=> !is_null ($mail_template) 
+				? $mail_template->key ()
+				: $this->Mail_Template__id	
+		));
+		
+		$subscribe_session->save ();
+		
+		if (!$subscribe_session->key ())
 		{
-			return $this->_render->render ($this->_data);
+			return;
 		}
-	}
-
-	public function run ()
-	{
-		$this->_data = $this->_get ();
-		$this->_daemon->run (
-			array ($this, 'send')
-		);	
-	}
-	
-	/**
-	 * @return Abstract
-	 */
-	public function send ()
-	{
-		if (!is_null ($this->_provider))
+		
+		foreach ($subscriber_collection as $subscriber)
 		{
-			$content = $this->render ();
-			if ($content)
-			{
-				$this->_provider->send (
-					$this->getSubscribers (),
-					$content,
-					$this->config
-				);
-			}
+			$status = new Subscribe_Subscriber_Status (array (
+				'Subscribe_Subscriber__id'		=> $subscriber->key (),
+				'Subscribe__id'					=> $this->key (),
+				'Subscribe_Session__id'			=> $subscribe_session->key (),
+				'status'						=> Helper_Process::NONE
+			));
+			$status->save ();
 		}
-		return $this;
+		
+		return $subscribe_session;
 	}
 	
 	/**
