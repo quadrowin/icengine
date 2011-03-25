@@ -81,8 +81,9 @@ class Authorization_Email_Password extends Authorization_Abstract
 			return 'Data_Validator_Registration_Password/bad';
 		}
 		
+		Loader::load ('Helper_Email');
 		$user = User::create (array (
-			'email'		=> $email,
+			'email'		=> Helper_Email::extractName ($email),
 			'name'		=> $email,
 			'password'	=> $password,
 			'phone'		=> '',
