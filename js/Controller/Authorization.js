@@ -17,10 +17,14 @@ var Controller_Authorization = {
 		var $part_determined = $form.find ('.auth_part_determined');
 		var $part_default = $form.find ('.auth_part_default');
 		
-		if (login.length < 3)
+		if (
+			!Helper_Phone.parseMobile (login) &&
+			!Helper_Email.parseEmail (login)
+		)
 		{
 			$part_determined.hide ();
-			$form.find ('.auth_part_default').show ();
+			$part_default.show ();
+			return ;
 		}
 		
 		if (login == $form.data ('last_login'))
