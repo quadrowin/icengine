@@ -160,15 +160,16 @@ class Query {
 	}
 	
 	/**
-	 * 
+	 * @desc Устанавливает правило группировки
 	 * @param array|string $fields
+	 * @param string $_ Поля для группировки.
 	 * @return Query
 	 */
 	public function group ($columns)
 	{
 		if (!is_array ($columns))
 		{
-			$columns = array ($columns);
+			$columns = func_get_args ();
 		}
 		
 		foreach ($columns as $column)
