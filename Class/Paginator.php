@@ -45,9 +45,8 @@ class Paginator
 	}
 	
 	/**
-	 * 
-	 * @param string $prefix
 	 * @param integer $full_count
+	 * @param string $prefix
 	 * @return Paginator
 	 */
 	public static function fromGet ($full_count = 0, $prefix = '')
