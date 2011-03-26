@@ -164,24 +164,42 @@ class Data_Transport
 		$keys = func_get_args ();
 		$results = array ();
 		
-		for ($i = 0, $icount = count ($keys); $i < $icount; $i++)
+		if ($this->_transactions)
 		{
-			$data = null;
-			for ($j = 0, $jcount = count ($this->_providers); $j < $jcount; ++$j)
+			$buffer = end ($this->_transactions)->buffer ();
+			foreach ($keys as $key)
 			{
-			    /**
-			     * 
-			     * @var $provider Data_Provider_Abstract
-			     */
-				$provider = $this->_providers [$j];
-				$chunk = $provider->get ($keys [$i]);
+				$data = null;
+				$chunk = isset ($buffer [$key]) ? $buffer [$key] : null;
 				$this->_outputFilters->apply ($chunk);
 				if (!is_null ($chunk) && $this->_validators->validate ($chunk))
 				{
 					$data = $chunk;
 				}
+				$results [] = $data;
 			}
-			$results [] = $data;
+		}
+		else
+		{
+			for ($i = 0, $icount = count ($keys); $i < $icount; $i++)
+			{
+				$data = null;
+				for ($j = 0, $jcount = count ($this->_providers); $j < $jcount; ++$j)
+				{
+				    /**
+				     * 
+				     * @var $provider Data_Provider_Abstract
+				     */
+					$provider = $this->_providers [$j];
+					$chunk = $provider->get ($keys [$i]);
+					$this->_outputFilters->apply ($chunk);
+					if (!is_null ($chunk) && $this->_validators->validate ($chunk))
+					{
+						$data = $chunk;
+					}
+				}
+				$results [] = $data;
+			}
 		}
 		
 		return count ($results) == 1 ? $results [0] : $results;
@@ -194,6 +212,11 @@ class Data_Transport
 	 */
 	public function receiveAll ()
 	{
+		if ($this->_transactions)
+		{
+			return end ($this->_transactions)->buffer ();
+		}
+		
 		$result = array ();
 		foreach ($this->_providers as $provider)
 		{
