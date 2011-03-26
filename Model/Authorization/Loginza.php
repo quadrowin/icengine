@@ -38,6 +38,11 @@ class Authorization_Loginza extends Authorization_Abstract
 		return $user instanceof User ? $user->authorize () : $user;
 	}
 	
+	/**
+	 * @desc Авторегистрация
+	 * @param Authorization_Loginza_Token $token
+	 * @return User|string
+	 */
 	public function autoregister (Authorization_Loginza_Token $token)
 	{
 		if (!$token->email)
