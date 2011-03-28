@@ -6,6 +6,14 @@
  */
 class Controller_Content extends Controller_Abstract
 {
+	
+	/**
+	 * @desc После сохранения контента
+	 */
+	protected function _afterSave (Content $content)
+	{
+	}
+	
 	/**
 	 * @desc Получить имя контейнера
 	 * @return string
@@ -237,7 +245,7 @@ class Controller_Content extends Controller_Abstract
 				$this->__contentModel (), 
 				Query::instance ()
 					->where ('url', $url ? $url : Request::uri ())
-			);	
+			);
 		}
 			
 		if (!$content)
@@ -474,6 +482,8 @@ class Controller_Content extends Controller_Abstract
 		}
 
 		$tc->component ('Image')->rejoin ($content);
+		
+		$this->_afterSave ($content);
 		
 		return Header::redirect ($referer);
 	}
