@@ -274,7 +274,8 @@ class Controller_Content_Abstract extends Controller_Abstract
 				'class'						=> $class,
 				'sort'						=> $sort,
 				'active'					=> (int) !empty ($active),
-				'parentId'					=> $parent->key ()
+				'parentId'					=> $parent->key (),
+				'controller'				=> $parent->controller
 			));
 		}
 		else
@@ -300,13 +301,14 @@ class Controller_Content_Abstract extends Controller_Abstract
 			$category_class = $this->__categoryModel ();
 			
 			$content_category = new $category_class (array (
-				'title'		=> $title,
-				'name'		=> $this->__categoryModel (),
-				'url'		=> $url,
-				'class'		=> $class,
-				'sort'		=> $sort,
-				'active'	=> (int) !empty ($active),
-				'parentId'	=> $parent->key ()
+				'title'			=> $title,
+				'name'			=> $this->__categoryModel (),
+				'url'			=> $url,
+				'class'			=> $class,
+				'sort'			=> $sort,
+				'active'		=> (int) !empty ($active),
+				'parentId'		=> $parent->key (),
+				'controller'	=> $parent->controller
 			));
 			
 			$content_category->save ();

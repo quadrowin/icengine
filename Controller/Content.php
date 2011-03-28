@@ -264,8 +264,8 @@ class Controller_Content extends Controller_Abstract
 	}
 	
 	/**
-	 * @desc Создать инстанс статьи
-	 * @param integer $content_category_id
+	 * @desc Создать или редактировать инстанс статьи
+	 * @param integer $category_id
 	 * @param integer $content_id
 	 * @param string $referer
 	 * @param string $url,
@@ -303,10 +303,18 @@ class Controller_Content extends Controller_Abstract
 				$this->__categoryModel (),
 				$category_id
 			);
-		
+			
 		if (!$category)
 		{
 			return $this->_helperReturn ('Page', 'notFound');
+		}
+		
+		if ($category->controller && $category->controller != $this->name ())
+		{
+			return $this->replaceAction (
+				$category->controller,
+				'create'
+			);
 		}
 
 		$user = User::getCurrent ();
@@ -328,9 +336,12 @@ class Controller_Content extends Controller_Abstract
 						$this->__contentModel (),
 						$content_id
 					);
+					
+				$tc = Temp_Content::create (get_class ($this));
+				$tc->attr ('controller', $this->name ());
 				
 				$this->_output->send (array (
-					'tc' 				=> Temp_Content::create (get_class ($this)),
+					'tc' 				=> $tc,
 					'content'			=> $content,
 					'category'			=> $category,
 					'url'				=> $this->__createUrl ($content, $category, $url),
@@ -387,6 +398,14 @@ class Controller_Content extends Controller_Abstract
 		}
 		
 		$tc = Temp_Content::byUtcode ($utcode);
+		
+		if ($tc->attr ('controller') != $this->name ())
+		{
+			return $this->replaceAction (
+				$tc->attr ('controller'),
+				'save'
+			);
+		}
 		
 		$user = User::getCurrent ();
 		
