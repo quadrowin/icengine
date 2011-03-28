@@ -137,8 +137,25 @@ class Helper_String
 	}
 	
 	/**
-	 * @dsc Возвращает только цифры из строки
-	 * 
+	 * @desc Проверяет, что строка заканчивается на $substr
+	 * @param unknown_type $str
+	 * @param unknown_type $substr
+	 * @return boolean
+	 */
+	public static function end ($str, $substr)
+	{
+		$len = strlen ($substr);
+		
+		if (strlen ($str) < $len)
+		{
+			return false;
+		}
+		
+		return substr ($str, -$len) == $substr;
+	}
+	
+	/**
+	 * @desc Возвращает только цифры из строки
 	 * @param string $str Исходная строка.
 	 * @return string Строка, содержащая только чифры из исходной.
 	 */

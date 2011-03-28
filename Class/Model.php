@@ -533,24 +533,6 @@ abstract class Model implements ArrayAccess
 	}
 	
 	/**
-	 * @desc Возвращает значение поля с родительским ключом.
-	 * @return integer Первичный ключ родителя.
-	 */
-	public function parentKey ()
-	{
-		return $this->parentId;
-	}
-	
-	/**
-	 * @desc Возврщаает ключ корневого предка.
-	 * @return integer 
-	 */
-	public function parentRootKey ()
-	{
-		return 0;
-	}
-	
-	/**
 	 * 
 	 * @desc Сбросить модель
 	 */

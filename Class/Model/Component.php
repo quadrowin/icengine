@@ -9,7 +9,8 @@
  * @package IcEngine.
  *
  */
-abstract class Model_Component extends Model
+Loader::load ('Model_Child');
+abstract class Model_Component extends Model_Child
 {
     
     /**
