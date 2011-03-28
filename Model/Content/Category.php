@@ -31,4 +31,21 @@ class Content_Category extends Model_Child
 		);
 	}
 	
+	/**
+	 * @desc Поменять URL категории если в нем один контент
+	 * @return Model
+	 */
+	public function oneContent ()
+	{
+		$articles = Helper_Link::linkedItems(
+			$this,
+			'Content'
+		);
+		if ($articles->count () == 1)
+		{
+			$this->url = $articles->first ()->url;
+		}
+		return $this;
+	}
+	
 }

@@ -2,5 +2,5 @@
 
 class Content extends Model
 {
-	
+
 }
