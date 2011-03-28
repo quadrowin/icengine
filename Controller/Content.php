@@ -258,6 +258,7 @@ class Controller_Content extends Controller_Abstract
 		$this->_output->send (array (
 			'content'	=> $content,
 			'category'	=> $content_category,
+			'url'		=> $content_category->url,
 			'referer'		=> $this->__rollReferer ($content_category),
 			'canEdit'	=> $this->__checkAcl ($content_category)
 		));
@@ -295,7 +296,20 @@ class Controller_Content extends Controller_Abstract
 
 		if (!$category_id)
 		{
-			return $this->_helperReturn ('Page', 'notFound');
+			if (!$content_id)
+			{
+				return $this->_helperReturn ('Page', 'notFound');
+			}
+			else
+			{
+				$content = IcEngine::$modelManager
+					->get (
+						$this->__contentModel (),
+						$content_id
+					);
+
+				$category_id = $content->Content_Category->id;
+			}
 		}
 		
 		$category = IcEngine::$modelManager
@@ -331,12 +345,14 @@ class Controller_Content extends Controller_Abstract
 			
 			if ($resource_addContent && $resource_addContent->userCan ($user))
 			{
-				$content = IcEngine::$modelManager
-					->get (
-						$this->__contentModel (),
-						$content_id
-					);
-					
+				if (!$content)
+				{
+					$content = IcEngine::$modelManager
+						->get (
+							$this->__contentModel (),
+							$content_id
+						);
+				}
 				$tc = Temp_Content::create (get_class ($this));
 				$tc->attr ('controller', $this->name ());
 				
