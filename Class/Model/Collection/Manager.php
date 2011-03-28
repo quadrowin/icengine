@@ -22,10 +22,7 @@ abstract class Model_Collection_Manager
 		
 		$class_collection = $model . '_Collection';
 		
-		if (!Loader::load ($class_collection))
-		{
-			return null;
-		}
+		Loader::load ($class_collection);
 		
 		$collection = new $class_collection ();
 		$collection->setAutojoin (!$forced);
