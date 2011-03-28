@@ -1,5 +1,12 @@
 <?php
-
+/**
+ * 
+ * @desc Модель для организации дерева.
+ * Имеет родителя и потомков. Для организации связи, в модели должно
+ * существовать поле "parentId", определяющее предка.
+ * @author Юрий Шведов
+ *
+ */
 abstract class Model_Child extends Model
 {
 	/**
@@ -8,12 +15,10 @@ abstract class Model_Child extends Model
 	 */
 	public function childs ()
 	{
-		return new Model_Collection (DDS::execute (
+		return Model_Collection_Manager::byQuery (
+			$this->modelName (),
 			Query::instance ()
-			->from ($this->table ())
-			->where ('parentId', $this->key ())	
-			)
-				->asTable ()
+				->where ('parentId', $this->key ())
 		);
 	}
 	
@@ -22,9 +27,9 @@ abstract class Model_Child extends Model
 	 */
 	public function getParent ()
 	{
-		return $this->parentId ? 
+		return $this->parentKey () ? 
 		    IcEngine::$modelManager->modelByKey (
-		        $this->modelName (), $this->parentId) : 
+		        $this->modelName (), $this->parentKey ()) : 
 		    null;
 	} 
 	
@@ -64,7 +69,7 @@ abstract class Model_Child extends Model
 	 */
 	public function level ($rate = 1)
 	{
-	    if ($this->parentId)
+	    if ($this->parentKey ())
 	    {
 	        return ($this->getParent ()->level () + 1) * $rate;
 	    }
@@ -72,6 +77,24 @@ abstract class Model_Child extends Model
 	    {
 	        return 0;
 	    }
+	}
+	
+	/**
+	 * @desc Возвращает значение поля с родительским ключом.
+	 * @return integer Первичный ключ родителя.
+	 */
+	public function parentKey ()
+	{
+		return $this->parentId;
+	}
+	
+	/**
+	 * @desc Возврщаает ключ корневого предка.
+	 * @return integer 
+	 */
+	public function parentRootKey ()
+	{
+		return 0;
 	}
     
 }
