@@ -121,7 +121,7 @@ class Router
 			->limit (1);
 		
 		$row = DDS::execute ($select)->getResult ()->asRow ();
-		
+		//print_r($row);
 		if (!$row)
 		{
 			return null;

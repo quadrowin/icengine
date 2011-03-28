@@ -21,8 +21,8 @@ class Widget_Controller extends Widget_Abstract
 			'action'		=> $action,
 			'input'			=> $this->_input
 		)));
-		
-//		Debug::vardump ($iteration->getTransaction ());
+
+		//Debug::vardump ($iteration->getTransaction ());
 		
 		$this->_output->send (
 			'content',

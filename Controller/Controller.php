@@ -59,6 +59,7 @@ class Controller_Controller extends Controller_Abstract
 	public function ajaxFinish ()
 	{
 	    $iterations = Controller_Broker::iterations ();
+//		print_r(count($iterations));die();
 	    $iteration = end ($iterations);
 	    Controller_Broker::flushResults ();
 	    	    

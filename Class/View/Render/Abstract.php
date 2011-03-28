@@ -107,7 +107,7 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	 */
 	public function getLayout ()
 	{
-		return $this->_layout;
+		return $this->config ['layout'];
 	}
 	
 	/**

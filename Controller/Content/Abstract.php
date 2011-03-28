@@ -358,7 +358,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 				$category_id
 			);
 
-		if (!$content_category)
+		if (!$category)
 		{
 			return $this->_helperReturn ('Page', 'notFound');
 		}
@@ -376,9 +376,9 @@ class Controller_Content_Abstract extends Controller_Abstract
 			return $this->_helperReturn ('Access', 'denied');
 		}
 		
-		$content_category->delete ();
+		$category->delete ();
 
-		$referer = $this->__deleteReferer ($content_category, $referer);
+		//$referer = $this->__deleteReferer ($category, $referer);
 		
 		Header::redirect ($referer);
 	}

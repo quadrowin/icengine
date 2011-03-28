@@ -194,13 +194,16 @@ class Controller_Content extends Controller_Abstract
 			$category,
 			$this->__contentModel ()
 		);
-		
+
+		$parent_url = rtrim($parent->url, '/').'.html';
+
 		$this->_output->send (array (
-			'contents'	=> $content_collection,
-			'category'	=> $category,
-			'canEdit'	=> $this->__checkAcl ($category),
-			'parent'	=> $parent,
-			'referer'	=> $this->__rollReferer ($category)
+			'contents'		=> $content_collection,
+			'category'		=> $category,
+			'canEdit'		=> $this->__checkAcl ($category),
+			'parent'		=> $parent,
+			'parent_url'	=> $parent_url,
+			'referer'		=> $this->__rollReferer ($category)
 		));
 	}
 	
@@ -252,11 +255,12 @@ class Controller_Content extends Controller_Abstract
 		{
 			return $this->_helperReturn ('Page', 'notFound');
 		}
-		
+
 		$this->_output->send (array (
-			'content'			=> $content,
-			'content_category'	=> $content_category,
-			'canEdit'			=> $this->__checkAcl ($content->Content_Category__id)
+			'content'	=> $content,
+			'category'	=> $content_category,
+			'referer'		=> $this->__rollReferer ($content_category),
+			'canEdit'	=> $this->__checkAcl ($content_category)
 		));
 	}
 	
@@ -410,7 +414,7 @@ class Controller_Content extends Controller_Abstract
 			$content->update (array (
 				'title'			=> $title,
 				'short'			=> $short,
-				'text'			=> $text,
+				'content'		=> $text,
 				'url'			=> $url
 			));
 		}
