@@ -27,7 +27,7 @@ class Controller_Content_Category extends Controller_Abstract
 	 */
 	protected function __deleteReferer (Model $content_category, $referer)
 	{
-		return rtrim ($referer, '/') . '.html';
+		return rtrim ($referer, '/');
 	}
 	
 	/**
@@ -169,7 +169,7 @@ class Controller_Content_Category extends Controller_Abstract
 	 * @desc Сохранить изменения или создать категорию контента
 	 * @param integer $parent_id - родительская категория, куда будет
 	 * добавлена создаваемая категория
-	 * @param integer $content_category_id - id редактируемой категорию.
+	 * @param integer $category_id - id редактируемой категорию.
 	 * Если категория создается, то здесь будет null
 	 * @param string $title - заголовок категории
 	 * @param string $url - URL категории
@@ -327,24 +327,24 @@ class Controller_Content_Category extends Controller_Abstract
 	
 	/**
 	 * @desc Удаление категории. Зависимые объекты удалит Garbage Collector
-	 * @param integer $content_category_id - id категории
+	 * @param integer $category_id - id категории
 	 * @param string $referer - URL, по которому будет направлен 
 	 * посетитель
 	 */
 	public function delete ()
 	{
 		list (
-			$content_category_id,
+			$category_id,
 			$referer
 		) = $this->_input->receive (
-			'content_category_id',
+			'category_id',
 			'referer'
 		);
 
 		$content_category = IcEngine::$modelManager
 			->modelByKey (
 				$this->__categoryModel (), 
-				$content_category_id
+				$category_id
 			);
 
 		if (!$content_category)
@@ -356,7 +356,7 @@ class Controller_Content_Category extends Controller_Abstract
 
 		$resource_delete = Acl_Resource::byNameCheck (array (
 			$this->__categoryModel (), 
-			$content_category_id, 
+			$category_id, 
 			'delete'
 		));
 		
