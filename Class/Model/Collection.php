@@ -781,7 +781,10 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	public function setPaginator (Paginator $paginator)
 	{
 		$this->_paginator = $paginator;
-		$this->_paginator->fullCount = 0;
+		$this->_paginator->fullCount = 
+			is_array($this->_items) ? 
+				count ($this->_items) : 
+				0;
 	}
 	
 	/**
@@ -882,8 +885,15 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	public function sortByParent ($include_unparented = true)
 	{
 		$list = &$this->items ();
+		
+		if (empty ($list))
+		{
+			// Список пуст
+			return $this;
+		}
+		
 		$parents = array ();
-		$child_of = 0;
+		$child_of = $list [0]->parentRootKey ();
 		$result = array ();
 		$i = 0;
 		$index = array (0 => 0);
@@ -895,7 +905,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 			
 			for ($i = 0; $i < count ($list); $i++)
 			{
-				if ($list [$i]->parentId == $child_of)
+				if ($list [$i]->parentKey () == $child_of)
 				{
 					//
 					if (!isset ($index[count ($parents)]))
