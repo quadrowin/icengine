@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @desc Контролер контекта 
  * @author ilya
@@ -225,14 +224,14 @@ class Controller_Content extends Controller_Abstract
 		if ($content_id)
 		{
 			$content = IcEngine::$modelManager->modelByKey (
-				$this->name (), 
+				$this->__contentModel (), 
 				$content_id
 			);
 		}
 		else
 		{
 			$content = IcEngine::$modelManager->modelBy (
-				$this->name (), 
+				$this->__contentModel (), 
 				Query::instance ()
 					->where ('url', $url ? $url : Request::uri ())
 			);	
@@ -383,7 +382,7 @@ class Controller_Content extends Controller_Abstract
 			return $this->_helperReturn ('Page', 'obsolete');
 		}
 		
-		$tc = Temp_Content::byUtcode($utcode);
+		$tc = Temp_Content::byUtcode ($utcode);
 		
 		$user = User::getCurrent ();
 		
@@ -403,14 +402,14 @@ class Controller_Content extends Controller_Abstract
 		if ($content_id)
 		{			
 			$content = IcEngine::$modelManager
-				->modelByKey ($this->name (), $content_id);
+				->modelByKey ($this->__contentModel (), $content_id);
 
 			$referer = $this->__saveReferer ($url, $referer, $title);
 
 			$content->update (array (
 				'title'			=> $title,
 				'short'			=> $short,
-				'text'			=> $text,
+				'content'		=> $text,
 				'url'			=> $url
 			));
 		}
@@ -473,7 +472,7 @@ class Controller_Content extends Controller_Abstract
 		
 		$content = IcEngine::$modelManager
 			->modelByKey (
-				$this->name (), 
+				$this->__contentModel (), 
 				$content_id
 			);
 		
@@ -535,8 +534,11 @@ class Controller_Content extends Controller_Abstract
 
 		if (!$image)
 		{
-			$this->_output->send ('data', array ('error' => 'not_found'));
-			$this->_dispatcherIteration->setClassTpl (__METHOD__, '/not_found');
+			$this->_sendError (
+				'not_found',
+				__METHOD__,
+				'/not_found'
+			);
 			return;
 		}
 
