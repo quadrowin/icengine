@@ -379,7 +379,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		
 		$category->delete ();
 
-		$referer = $this->__deleteReferer ($category, $referer);
+		//$referer = $this->__deleteReferer ($category, $referer);
 		
 		Header::redirect ($referer);
 	}
