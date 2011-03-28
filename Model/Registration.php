@@ -267,15 +267,16 @@ class Registration extends Model
 	public static function tryRegister (Objective $data)
 	{
 		$reg = new Registration ();
-		Helper_Form::filter ($data, $reg->config ()->fields);
-		$result = Helper_Form::validate ($data, $reg->config ()->fields);
+		$fields = $reg->config ()->fields;
+		Helper_Form::filter ($data, $fields);
+		$result = Helper_Form::validate ($data, $fields);
 		
 		if (is_array ($result))
 		{
 			return $result;
 		}
 		
-		Helper_Form::unsetIngored ($data, self::$_config ['fields']);
+		Helper_Form::unsetIngored ($data, $fields);
 		
 		$reg = $reg->register ($data);
 		

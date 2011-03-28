@@ -69,7 +69,7 @@ class Controller_Registration extends Controller_Abstract
 		Loader::load ('Helper_Form');
 		$data = Helper_Form::receiveFields (
 			$this->_input, 
-			Registration::config ()->fields
+			Config_Manager::get ('Registration')->fields
 		);
 		
 		$registration = Registration::tryRegister ($data);
