@@ -1,10 +1,16 @@
 <?php
-
+/**
+ * 
+ * @desc Помощник для работы со связами многие-ко-многим моделей.
+ * @author Юрий Шведов
+ * @package IcEngine
+ *
+ */
 class Helper_Link
 {
 	
     /**
-     * 
+     * @desc Связывает модели.
      * @param string $table1
      * @param integer $key1
      * @param string $table2
@@ -24,7 +30,7 @@ class Helper_Link
 	}
 	
 	/**
-	 * 
+	 * @desc Проверяет, связаны ли модели.
 	 * @param Model $model1
 	 * @param Model $model2
 	 * @return boolean
@@ -47,7 +53,7 @@ class Helper_Link
 	}
 	
 	/**
-	 * 
+	 * @desc Связывает модели.
 	 * @param Model $model1
 	 * @param Model $model2
 	 * @return Link
@@ -82,39 +88,40 @@ class Helper_Link
 	}
 	
 	/**
-	 * 
+	 * @desc Возвращает коллекцию связанных с $model моделей 
+	 * типа $linked_model_name.
 	 * @param Model $model1
 	 * @param string $model2
 	 * @return Model_Collection
 	 */
-	public static function linkedItems (Model $model1, $model2)
+	public static function linkedItems (Model $model, $linked_model_name)
 	{
-	    $collection_class = $model2 . '_Collection';
+	    $collection_class = $linked_model_name . '_Collection';
 	    
 	    Loader::load ($collection_class);
 	    $result = new $collection_class ();
 	    $key_field_2 = IcEngine::$modelManager->modelScheme ()
-	        ->keyField ($model2);
+	        ->keyField ($linked_model_name);
 	    
-		if (strcmp ($model1->table (), $model2) > 0)
+		if (strcmp ($model->table (), $linked_model_name) > 0)
 	    {
 	        $result
 	        	->query ()
 		            ->from ('Link')
-		            ->where ('Link.fromTable', $model2)
-		            ->where ("Link.fromRowId=`$model2`.`$key_field_2`")
-		            ->where ('Link.toTable', $model1->table ())
-		            ->where ('Link.toRowId', $model1->key ()); 
+		            ->where ('Link.fromTable', $linked_model_name)
+		            ->where ("Link.fromRowId=`$linked_model_name`.`$key_field_2`")
+		            ->where ('Link.toTable', $model->table ())
+		            ->where ('Link.toRowId', $model->key ()); 
 	    }
 	    else
 	    {
 	        $result
 	        	->query ()
 		            ->from ('Link')
-		            ->where ('Link.fromTable', $model1->table ())
-		            ->where ('Link.fromRowId', $model1->key ())
-		            ->where ('Link.toTable', $model2)
-		            ->where ("Link.toRowId=`$model2`.`$key_field_2`");
+		            ->where ('Link.fromTable', $model->table ())
+		            ->where ('Link.fromRowId', $model->key ())
+		            ->where ('Link.toTable', $linked_model_name)
+		            ->where ("Link.toRowId=`$linked_model_name`.`$key_field_2`");
 	    }
 	    
 	    return $result;
@@ -156,7 +163,7 @@ class Helper_Link
 	}
 	
 	/**
-	 * 
+	 * @desc Удаляет связь моделей.
 	 * @param Model $model1
 	 * @param Model $model2
 	 */
@@ -184,26 +191,26 @@ class Helper_Link
 	 * @param Model $model1
 	 * @param string $model2
 	 */
-	public static function unlinkWith (Model $model1, $model2)
+	public static function unlinkWith (Model $model, $linked_model_name)
 	{
 		$query = 
 			Query::instance ()
 			->delete ()
 			->from ('Link');
 			
-		if (strcmp ($model1->table (), $model2) > 0)
+		if (strcmp ($model->table (), $linked_model_name) > 0)
 	    {
 	        $query
-	            ->where ('fromTable', $model2)
-	            ->where ('toTable', $model1->table ())
-	            ->where ('toRowId', $model1->key ()); 
+	            ->where ('fromTable', $linked_model_name)
+	            ->where ('toTable', $model->table ())
+	            ->where ('toRowId', $model->key ()); 
 	    }
 	    else
 	    {
 	        $query
-	            ->where ('fromTable', $model1->table ())
-	            ->where ('fromRowId', $model1->key ())
-	            ->where ('toTable', $model2);
+	            ->where ('fromTable', $model->table ())
+	            ->where ('fromRowId', $model->key ())
+	            ->where ('toTable', $linked_model_name);
 	    }
 			
 		DDS::execute ($query);

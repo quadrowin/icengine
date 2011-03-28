@@ -84,6 +84,29 @@ class Acl_Resource extends Model
 	}
 	
 	/**
+	 * @desc Создать несколько ресурсов
+	 * @param array $names
+	 * @param array $add_names
+	 * @return array
+	 */
+	public static function create (array $names, array $add_names)
+	{
+		$resources = array ();
+		
+		$names = implode (self::NAME_PART_DELIM, $names);
+		
+		foreach ($add_names as $name)
+		{
+			$resources [] = self::byNameAuto (
+				$names,
+				$name
+			);
+		}
+		
+		return $resources;
+	}
+	
+	/**
 	 * @return Acl_Role_Collection
 	 */
 	public function roles ()
