@@ -1,12 +1,23 @@
 <?php
-
 /**
+ * 
  * @desc Контролер категорий контента
  * @author ilya
  * @package IcEngine
+ * 
  */
 class Controller_Content_Abstract extends Controller_Abstract
 {	
+	
+	/**
+	 * @desc Возвращает название модели категории.
+	 * @return string
+	 * @override
+	 */
+	protected function __categoryModel ()
+	{
+		return 'Content_Category';
+	}
 	
 	/**
 	 * @desc Создает и возвращает контроллер
@@ -104,16 +115,6 @@ class Controller_Content_Abstract extends Controller_Abstract
 				$parent->url;
 		return
 			rtrim ($url, '/') . '/' . $this->__saveClass ($params); 
-	}
-	
-	/**
-	 * @desc Возвращает название модели категории.
-	 * @return string
-	 * @override
-	 */
-	protected function __categoryModel ()
-	{
-		return 'Content_Category';
 	}
 	
 	/**
@@ -358,7 +359,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 				$category_id
 			);
 
-		if (!$content_category)
+		if (!$category)
 		{
 			return $this->_helperReturn ('Page', 'notFound');
 		}
@@ -376,9 +377,9 @@ class Controller_Content_Abstract extends Controller_Abstract
 			return $this->_helperReturn ('Access', 'denied');
 		}
 		
-		$content_category->delete ();
+		$category->delete ();
 
-		$referer = $this->__deleteReferer ($content_category, $referer);
+		$referer = $this->__deleteReferer ($category, $referer);
 		
 		Header::redirect ($referer);
 	}
