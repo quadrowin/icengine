@@ -134,7 +134,14 @@ class Controller_Authorization extends Controller_Abstract
 		$password = $this->_input->receive ('password');
 		Loader::load ('Authorization');
 		
-		$user = Authorization::authorize ($login, $password);
+		$user = IcEngine::$modelManager->modelBy (
+			'User',
+			Query::instance ()
+				->where ('email', $login)
+				->where ('password', $password)
+				->where ('md5(`password`)=md5(?)', $password)
+		);
+		//Authorization::authorize ($login, $password);
 		
 		if (!$user)
 		{
@@ -145,6 +152,7 @@ class Controller_Authorization extends Controller_Abstract
 			);
 			return ;
 		}
+		$user->authorize ();
 		
 		$this->_output->send ('data', array (
 			'user'	=> array (
