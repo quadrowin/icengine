@@ -604,7 +604,7 @@ abstract class Model implements ArrayAccess
 					$this->_fields [$key] = $value;
 					if ($this->_autojoin)
 					{
-						$field = IcEngine::$modelManager->modelScheme ()->keyField ($model);
+						$field = Model_Manager::modelScheme ()->keyField ($model);
 						$this->joint ($model, array ($field => $value));
 					}
 				}
