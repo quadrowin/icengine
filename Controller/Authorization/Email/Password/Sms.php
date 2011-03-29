@@ -54,8 +54,8 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 		'sms_send_limit_10m'		=> 5,
 		
 		// Колбэки на авторизацию и выход
-		'authorization_function'	=> 'Helper_Admin_Authorization::authorize',
-		'unauthorization_function'	=> 'Helper_Admin_Authorization::unauthorize',
+		'authorization_function'	=> 'Helper_Authorization_Admin::authorize',
+		'unauthorization_function'	=> 'Helper_Authorization_Admin::unauthorize',
 		
 		/**
 		 * @desc можно перечислить логины, пароли и телефоны пользователей
