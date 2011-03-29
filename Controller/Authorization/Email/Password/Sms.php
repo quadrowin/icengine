@@ -104,7 +104,6 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 	protected function _prechekUser (User $user, $login, $password)
 	{
 		$cfg_users = $this->config ()->users;
-		var_dump ($cfg_users);
 		
 		if ($cfg_users === false)
 		{
