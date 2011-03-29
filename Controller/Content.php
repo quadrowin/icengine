@@ -18,9 +18,11 @@ class Controller_Content extends Controller_Abstract
 	
 	/**
 	 * @desc После успешного сохранения контента
+	 * @param Content $content Сохраняемый контент.
+	 * @param boolean $is_new true, если это новый контент, иначе false.
 	 * @override
 	 */
-	protected function _afterSave (Content $content)
+	protected function _afterSave (Content $content, $is_new)
 	{
 	}
 	
@@ -495,6 +497,11 @@ class Controller_Content extends Controller_Abstract
 			
 			$content->save ();
 			
+			if ($content->extending)
+			{
+				$content->extending ()->firstSave ();
+			}
+			
 			Loader::load ('Helper_Link');
 			
 			$content_category = IcEngine::$modelManager
@@ -521,7 +528,9 @@ class Controller_Content extends Controller_Abstract
 
 		$tc->component ('Image')->rejoin ($content);
 		
-		$this->_afterSave ($content);
+		$is_new = !$content_id;
+		
+		$this->_afterSave ($content, $is_new);
 		
 		return Header::redirect ($referer);
 	}
