@@ -10,30 +10,37 @@ class Model_Manager
 {
 	
 	/**
-	 * @desc Данные о моделях.
-	 * @var Model_Scheme
-	 */
-	protected $_modelScheme;
-	
-	/**
 	 * @desc Фабрики моделей
 	 * @var array
 	 */
-	protected $_factories;
+	protected static $_factories;
 	
 	/**
 	 * @desc Следующая модель будет создана с выключенным autojoin.
 	 * @var boolean
 	 */
-	protected $_forced = false;
+	protected static $_forced = false;
+	
+	/**
+	 * @desc Экземпляр менеджера моделей
+	 * @var Model_Manager
+	 */
+	protected static $_instance;
+	
+	/**
+	 * @desc Данные о моделях.
+	 * @var Model_Scheme
+	 */
+	protected static $_modelScheme;
 	
 	/**
 	 * @param Model_Scheme $data_source
 	 */
 	public function __construct (Model_Scheme $model_scheme)
 	{
+		self::$_instance = $this;
 		Loader::load ('Model_Factory');
-		$this->_modelScheme = $model_scheme;
+		self::$_modelScheme = $model_scheme;
 	}
 	
 	/**
@@ -41,7 +48,7 @@ class Model_Manager
 	 * @param Query $query
 	 * @return array|null
 	 */
-	protected function _prepareSelectQuery (Query $query)
+	protected static function _prepareSelectQuery (Query $query)
 	{
 		$where = $query->getPart (Query::WHERE);
 		$conditions = array ();
@@ -65,7 +72,7 @@ class Model_Manager
 	 * @desc Получение данных модели из источника данных.
 	 * @param Model $object
 	 */
-	protected function _read (Model $object)
+	protected static function _read (Model $object)
 	{
 		$key = $object->key ();
 		
@@ -79,7 +86,7 @@ class Model_Manager
 			->from ($object->modelName ())
 			->where ($object->keyField (), $key);
 		
-		$data = $this->_modelScheme
+		$data = self::$_modelScheme
 			->dataSource ($object->modelName ())
 			->execute ($query)
 			->getResult ()->asRow ();
@@ -94,20 +101,20 @@ class Model_Manager
 	 * @desc Удаление данных модели из источника.
 	 * @param Model $object
 	 */
-	public function _remove (Model $object)
+	public static function _remove (Model $object)
 	{
 		if (!$object->key ())
 		{
 			return ;
 		}
-		$this->modelScheme ()
+		self::$_modelScheme
 			->dataSource ($object->modelName ())
-			->execute (
-				Query::instance ()
-				->delete ()
-				->from ($object->table ())
-				->where ($object->keyField (), $object->key ())
-			);
+				->execute (
+					Query::instance ()
+						->delete ()
+						->from ($object->table ())
+						->where ($object->keyField (), $object->key ())
+				);
 	}
 	
 	/**
@@ -115,9 +122,9 @@ class Model_Manager
 	 * @param Model $object
 	 * @param boolean $hard_insert
 	 */
-	protected function _write (Model $object, $hard_insert = false)
+	protected static function _write (Model $object, $hard_insert = false)
 	{
-		$ds = $this->_modelScheme->dataSource ($object->modelName ());
+		$ds = self::$_modelScheme->dataSource ($object->modelName ());
 
 		$kf = $object->keyField ();
 		$id = $object->key ();
@@ -127,23 +134,23 @@ class Model_Manager
 			// Обновление данных
 			$ds->execute (
 				Query::instance ()
-				->update ($object->modelName ())
-				->values ($object->asRow ())
-				->where ($kf, $id)
+					->update ($object->modelName ())
+					->values ($object->asRow ())
+					->where ($kf, $id)
 			);
 		}
 		else
 		{
 			// Вставка
-			$new_id = $this->_modelScheme->generateKey ($object);
+			$new_id = self::$_modelScheme->generateKey ($object);
 			if ($new_id)
 			{
 				// Ключ указан
 				$object->set ($kf, $new_id);
 				$ds->execute (
 					Query::instance ()
-					->insert ($object->modelName ())
-					->values ($object->asRow ())
+						->insert ($object->modelName ())
+						->values ($object->asRow ())
 				);
 			}
 			else
@@ -153,8 +160,8 @@ class Model_Manager
 					$object->unsetField ($kf);
 					$id = $ds->execute (
 						Query::instance ()
-						->insert ($object->modelName ())
-						->values ($object->asRow ())
+							->insert ($object->modelName ())
+							->values ($object->asRow ())
 					)->getResult ()->insertId ();
 					
 					$object->set ($kf, $id);
@@ -163,8 +170,8 @@ class Model_Manager
 				{
 					$ds->execute (
 						Query::instance ()
-						->insert ($object->modelName ())
-						->values ($object->asRow ())
+							->insert ($object->modelName ())
+							->values ($object->asRow ())
 					);
 				}
 			}
@@ -175,10 +182,10 @@ class Model_Manager
 	 * @desc Следующая модель будет создана без autojoin.
 	 * @return Model_Manager
 	 */
-	public function forced ()
+	public static function forced ()
 	{
-		$this->_forced = true;
-		return $this;
+		self::$_forced = true;
+		return self::$_instance;
 	}
 	
 	/**
@@ -189,10 +196,10 @@ class Model_Manager
 	 * @throws Zend_Exception
 	 * @return Model В случае успеха объект, иначе null.
 	 */
-	public function get ($model, $key, $object = null)
+	public static function get ($model, $key, $object = null)
 	{
-		$forced = $this->_forced;
-		$this->_forced = false;
+		$forced = self::$_forced;
+		self::$_forced = false;
 		
 		if ($object instanceof Model)
 		{
@@ -218,18 +225,18 @@ class Model_Manager
 				if ('Model_Factory' == $parent)
 				{
 					$factory_name = $model;
-					if (!isset ($this->_factories [$factory_name]))
+					if (!isset (self::$_factories [$factory_name]))
 					{
-						$this->_factories [$factory_name] = new $model ();
+						self::$_factories [$factory_name] = new $model ();
 					}
-					$dmodel = $this->_factories [$factory_name]->delegateClass ($model, $key, $object);
+					$dmodel = self::$_factories [$factory_name]->delegateClass ($model, $key, $object);
 					if (!Loader::load ($dmodel))
 					{
 						Loader::load ('Zend_Exception');
 						throw new Zend_Exception ('Delegate model not found: ' . $dmodel);
 					}
 					$result = new $dmodel (array (), !$forced);
-					$result->setModelFactory ($this->_factories [$factory_name]);
+					$result->setModelFactory (self::$_factories [$factory_name]);
 					if (is_array ($object) && $object)
 					{
 						$result->set ($object);
@@ -241,7 +248,7 @@ class Model_Manager
 						is_array ($object) ? $object : array (),
 						!$forced
 					);
-					$this->_forced = false;
+					self::$_forced = false;
 				}
 				
 				if (!method_exists ($result, 'set'))
@@ -256,7 +263,7 @@ class Model_Manager
 			}
 		}
 		
-		$this->_read ($result);
+		self::_read ($result);
 		
 		return $result;
 	}
@@ -265,12 +272,12 @@ class Model_Manager
 	 * @desc Удаление модели.
 	 * @param Model $object Объект модели.
 	 */
-	public function remove (Model $object)
+	public static function remove (Model $object)
 	{
 		// из хранилища моделей
 		Resource_Manager::set ('Model', $object->resourceKey (), null);
 		// Из БД (или другого источника данных)
-		$this->_remove ($object);
+		self::_remove ($object);
 	}
 	
 	/**
@@ -278,9 +285,9 @@ class Model_Manager
 	 * @param Model $object Объект модели.
 	 * @param boolean $hard_insert Объект будет вставлен в источник данных.
 	 */
-	public function set (Model $object, $hard_insert = false)
+	public static function set (Model $object, $hard_insert = false)
 	{
-		$this->_write ($object, $hard_insert);
+		self::_write ($object, $hard_insert);
 		Resource_Manager::set ('Model', $object->resourceKey (), $object);
 	}
 	
@@ -290,10 +297,10 @@ class Model_Manager
 	 * @param Query $query
 	 * @return Model|null
 	 */
-	public function modelBy ($model, Query $query)
+	public static function modelBy ($model, Query $query)
 	{
-		$forced = $this->_forced;
-		$this->_forced = false;
+		$forced = self::$_forced;
+		self::$_forced = false;
 		
 		$data = null;
 		
@@ -310,10 +317,11 @@ class Model_Manager
 			}
 			
 			$data = 
-				$this->_modelScheme
-				->dataSource ($model)
-				->execute ($query)
-				->getResult ()->asRow ();
+				self::$_modelScheme
+					->dataSource ($model)
+					->execute ($query)
+					->getResult ()
+						->asRow ();
 		}
 		
 		if (!$data)
@@ -321,10 +329,13 @@ class Model_Manager
 			return null;
 		}
 		
-		$mm = $forced ? $this->forced () : $this;
+		$mm = $forced ? self::forced () : self::$_instance;
 		
 		return $mm->get (
-			$model, $data [$this->modelScheme ()->keyField ($model)], $data);
+			$model,
+			$data [self::$_modelScheme->keyField ($model)],
+			$data
+		);
 	}
 	
 	/**
@@ -333,21 +344,22 @@ class Model_Manager
 	 * @param integer $key
 	 * @return Model|null
 	 */
-	public function modelByKey ($model, $key)
+	public static function modelByKey ($model, $key)
 	{
-		return $this->modelBy (
+		return self::modelBy (
 			$model,
 			Query::instance ()
-			->where ($this->modelScheme ()->keyField ($model), $key)
+			->where (self::$_modelScheme->keyField ($model), $key)
 		);
 	}
 	
 	/**
+	 * @desc Возвращает схему моделей.
 	 * @return Model_Scheme
 	 */
-	public function modelScheme ()
+	public static function modelScheme ()
 	{
-		return $this->_modelScheme;
+		return self::$_modelScheme;
 	}
 	
 	/**
@@ -358,10 +370,10 @@ class Model_Manager
 	 * @return Model_Collection
 	 * @deprecated
 	 */
-	public function collectionBy ($model, Query $query)
+	public static function collectionBy ($model, Query $query)
 	{
-		$forced = $this->_forced;
-		$this->_forced = false;
+		$forced = self::$_forced;
+		self::$_forced = false;
 		
 		if (!Loader::load ($model))
 		{
@@ -375,35 +387,9 @@ class Model_Manager
 			return null;
 		}
 		
-//		$data = null;
-//		
-//		if (is_null ($data))
-//		{
-//			if (!$query->getPart (Query::SELECT))
-//			{
-//				$query->select ("`$model`.*");
-//			}
-//			if (!$query->getPart (Query::FROM))
-//			{
-//				$query->from ($model);
-//			}
-//			$data = 
-//				$this->modelScheme ()->dataSource ($model)
-//				->execute ($query)
-//				->getResult ()
-//				->asTable ();
-//		}
-		
 		$collection = new $class_collection ();
-		//$collection->setItems (array ());
 		$collection->setAutojoin (!$forced);
 		$collection->setQuery ($query);
-		
-//		$key_field = $this->modelScheme ()->keyField ($model);
-//		foreach ($data as $row)
-//		{
-//			$collection->add ($this->get ($model, $row [$key_field], $row));
-//		}
 		
 		return $collection;
 	}
