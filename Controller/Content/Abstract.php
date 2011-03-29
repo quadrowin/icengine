@@ -18,6 +18,15 @@ class Controller_Content_Abstract extends Controller_Abstract
 	{
 		return 'Content_Category';
 	}
+
+	/**
+	 * @desc Возвращает название модели контента.
+	 * @return string
+	 */
+	protected function __contentModel ()
+	{
+		return 'Content';
+	}
 	
 	/**
 	 * @desc Создает и возвращает контроллер
@@ -166,12 +175,28 @@ class Controller_Content_Abstract extends Controller_Abstract
 				$category->oneContent ();
 			}
 		}
+
+		$content_collection = Helper_Link::linkedItems (
+			$parent_category,
+			$this->__contentModel ()
+		);
+
+		if ($parent_category->parentId)
+		{
+			$parent = IcEngine::$modelManager->modelByKey (
+				$this->__categoryModel (),
+				$parent_category->parentId
+			);
+
+		}
 		
 		$this->_output->send (array (
-			'categories'				=> $category_collection,		
-			'referer'					=> $this->__rollReferer ($parent_category, $url),
-			'parent_category'			=> $parent_category,
-			'canEdit'					=> $this->__rollAcl ($parent_category)
+			'categories'		=>	$category_collection,
+			'contents'			=>	$content_collection,
+			'referer'			=>	$this->__rollReferer ($parent_category, $url),
+			'pcategory'			=>	$parent_category,
+			'parent'			=>	$parent,
+			'canEdit'			=>	$this->__rollAcl ($parent_category)
 		));
 		
 		$this->__rollAfter ();
