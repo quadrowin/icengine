@@ -180,22 +180,13 @@ class Controller_Content_Abstract extends Controller_Abstract
 			$parent_category,
 			$this->__contentModel ()
 		);
-
-		if ($parent_category->parentId)
-		{
-			$parent = IcEngine::$modelManager->modelByKey (
-				$this->__categoryModel (),
-				$parent_category->parentId
-			);
-
-		}
 		
 		$this->_output->send (array (
 			'categories'		=>	$category_collection,
 			'contents'			=>	$content_collection,
 			'referer'			=>	$this->__rollReferer ($parent_category, $url),
-			'pcategory'			=>	$parent_category,
-			'parent'			=>	$parent,
+			'current'			=>	$parent_category,
+			'parent'			=>	$parent_category->getParent (),
 			'canEdit'			=>	$this->__rollAcl ($parent_category)
 		));
 		

@@ -141,7 +141,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 			if ($set_deleted)
 			{
 				$this->conn->set (
-					$this->keyEncode ($this->prefix_deleted . $keys),
+					$this->keyEncode ($this->prefixDeleted . $keys),
 					time ()
 				);
 			}
@@ -172,7 +172,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 			if ($set_deleted)
 			{
 				$this->conn->set (
-					$this->keyEncode ($this->prefix_deleted . $key),
+					$this->keyEncode ($this->prefixDeleted . $key),
 					time ()
 				);
 			}
