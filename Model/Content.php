@@ -11,7 +11,7 @@ class Content extends Model
 
 	/**
 	 * @desc Расширение модели
-	 * @return Model
+	 * @return Content_Extending
 	 */
 	public function extending ()
 	{
