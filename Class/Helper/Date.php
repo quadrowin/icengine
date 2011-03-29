@@ -305,17 +305,17 @@ class Helper_Date
 		elseif (strlen ($arr [2]) == 4)
 		{
 			// d.m.Y H:i:s
-			return DateTime::createFromForamt ('d.m.Y.H.i.s', $str);
+			return DateTime::createFromFormat ('d.m.Y.H.i.s', $str);
 		}
 		elseif (strlen ($arr [3]) == 4)
 		{
 			// H:i:s Y-m-d
-			return DateTime::createFromForamt ('H.i.s.Y.m.d', $str);
+			return DateTime::createFromFormat ('H.i.s.Y.m.d', $str);
 		}
 		elseif (strlen ($arr [5]) == 4)
 		{
 			// H:i:s d.m.Y
-			return DateTime::createFromForamt ('H.i.s.d.m.Y', $str);
+			return DateTime::createFromFormat ('H.i.s.d.m.Y', $str);
 		}
 		
 		return null;
