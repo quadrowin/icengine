@@ -16,12 +16,11 @@ abstract class Controller_Authorization_Abstract extends Controller_Abstract
 	protected $_config = array (
 		// Включена ли авторегистрация
 		'autoreg_enable'		=> false,
+		
 		// Контроллер и экшен, куда будет перенаправлен
 		// запрос для авторегистрации
 		'autoreg_controller'	=> 'Registration',
 		'autoreg_action'		=> 'autoregister',
-//		'autoreg_controller'	=> 'Authorization_Email_Password',
-//		'autoreg_action'		=> 'autoregister',
 		
 		// префикс полей авторизации
 		'fields_prefix'			=> 'auth_',
