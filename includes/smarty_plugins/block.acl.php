@@ -14,7 +14,7 @@ function smarty_block_acl ($params, $content, $smarty, &$repeat)
 {
 	if ($content)
 	{
-		return;
+		return $content;
 	}
 	
 	$access = false;
@@ -51,6 +51,6 @@ function smarty_block_acl ($params, $content, $smarty, &$repeat)
 	{
 		$access |= ($params ['auth'] == User::authorized ());
 	}
-	
+
 	$repeat = $access;
 }

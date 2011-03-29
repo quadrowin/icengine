@@ -34,7 +34,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 	public function __construct ()
 	{
 		Loader::load ('Helper_Link');
-		Loader::load ('Header');
+		Loader::load ('Helper_Header');
 		Loader::load ('Acl_Resource');
 	}
 	
@@ -51,7 +51,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 	}
 	
 	/**
-	 * @desc Фабрик метод для получения размешения на редактировине
+	 * @desc Фабрик метод для получения разрешения на редактировине
 	 * для списка
 	 * @param Model $category
 	 * @return boolean
@@ -222,6 +222,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			$category_id,
 			$title,
 			$class,
+			$url,
 			$sort,
 			$active,
 			$referer
@@ -230,6 +231,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			'category_id',
 			'title',
 			'class',
+			'url',
 			'sort',
 			'active',
 			'referer'
@@ -257,10 +259,10 @@ class Controller_Content_Abstract extends Controller_Abstract
 		);
 		
 		// Получаем класс
-		$class = $this->__saveClass ($params);
+		$class = !$class ?  $this->__saveClass ($params) : $class;
 	
 		// Получаем URL
-		$url = $this->__saveUrl ($params);
+		$url = !$url ? $this->__saveUrl ($params) : $url;
 		$user = User::getCurrent ();
 		
 		if ($category_id)
@@ -287,11 +289,11 @@ class Controller_Content_Abstract extends Controller_Abstract
 				return $this->_helperReturn ('Access', 'denied');
 			}
 
-			$referer = $this->__saveReferer (
+			/*$referer = $this->__saveReferer (
 				$params, 
 				$content_category,
 				$url
-			);
+			);*/
 			
 			$content_category->update (array (
 				'title'						=> $title,
@@ -361,7 +363,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			);	
 		}
 
-		Header::redirect ($referer); 
+		Helper_Header::redirect ($referer);
 	}
 	
 	/**
@@ -408,6 +410,6 @@ class Controller_Content_Abstract extends Controller_Abstract
 
 		//$referer = $this->__deleteReferer ($category, $referer);
 		
-		Header::redirect ($referer);
+		Helper_Header::redirect ($referer);
 	}
 } 

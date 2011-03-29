@@ -158,7 +158,7 @@ class Controller_Content extends Controller_Abstract
 
 	public function __construct ()
 	{
-		Loader::load ('Header');
+		Loader::load ('Helper_Header');
 		Loader::load ('Content');
 		Loader::load ('Temp_Content');
 		Loader::load ('Content_Collection');
@@ -523,7 +523,7 @@ class Controller_Content extends Controller_Abstract
 		
 		$this->_afterSave ($content);
 		
-		return Header::redirect ($referer);
+		return Helper_Header::redirect ($referer);
 	}
 	
 	/**
@@ -569,7 +569,7 @@ class Controller_Content extends Controller_Abstract
 
 		$url = $this->__deleteUrl ($content, $url);
 		
-		return Header::redirect ($url);
+		return Helper_Header::redirect ($url);
 	}
 
 	public function uploadImage ()
