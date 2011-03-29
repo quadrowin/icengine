@@ -232,12 +232,10 @@ abstract class Model implements ArrayAccess
 	 * @desc Возвращает коллекцию связанных компонентов или
 	 * элемент коллекции с указанным индексом.
 	 * 
-	 * @param string $type
-	 * 		Тип компонентов
+	 * @param string $type Тип компонентов.
 	 * @param integer|null|stdClass $index|$value [optional]
 	 * 		Индекс для получения или коллекция для установки значения.
-	 * @return Component_Collection
-	 * 		Коллекция связанных компонентов
+	 * @return Component_Collection Коллекция связанных компонентов.
 	 */
 	public function component ($type)
 	{

@@ -6,6 +6,33 @@
  */
 class Controller_Content extends Controller_Abstract
 {
+	
+	/**
+	 * @desc После успешного начала создания.
+	 * @override
+	 */
+	protected function _afterCreate ()
+	{
+		
+	}
+	
+	/**
+	 * @desc После успешного сохранения контента
+	 * @override
+	 */
+	protected function _afterSave (Content $content)
+	{
+	}
+	
+	/**
+	 * @desc Название модели расширения
+	 * @override
+	 */
+	protected function _extendingModel ()
+	{
+		return ''; // без расширения
+	}
+	
 	/**
 	 * @desc Получить имя контейнера
 	 * @return string
@@ -237,7 +264,7 @@ class Controller_Content extends Controller_Abstract
 				$this->__contentModel (), 
 				Query::instance ()
 					->where ('url', $url ? $url : Request::uri ())
-			);	
+			);
 		}
 			
 		if (!$content)
@@ -365,6 +392,8 @@ class Controller_Content extends Controller_Abstract
 					'referer'			=> $this->__createReferer ($content, $category, $referer)
 				));
 				
+				$this->_afterCreate ();
+				
 				return true;
 			}
 		}
@@ -460,7 +489,8 @@ class Controller_Content extends Controller_Abstract
 				'content'				=> $text,
 				'createdAt'				=> Helper_Date::toUnix (),
 				'url'					=> $url,
-				'Content_Category__id'	=> $category_id
+				'Content_Category__id'	=> $category_id,
+				'extending'				=> $this->_extendingModel ()
 			));
 			
 			$content->save ();
@@ -490,6 +520,8 @@ class Controller_Content extends Controller_Abstract
 		}
 
 		$tc->component ('Image')->rejoin ($content);
+		
+		$this->_afterSave ($content);
 		
 		return Header::redirect ($referer);
 	}
