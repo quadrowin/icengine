@@ -1,7 +1,9 @@
 <?php
 /**
  * 
- * @desc Контроллер для авторизации по емейлу, паролю и смс
+ * @desc Контроллер для авторизации по емейлу, паролю и смс.
+ * Предназначен для авторизации контентов в админке, поэтому 
+ * сверяет данные из БД с данными из файла конфига.
  * @author Юрий Шведов
  * @package IcEngine
  *
@@ -35,20 +37,38 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 		// Авторизовать только пользователей, имеющих одну из ролей.
 		// Роли перечисляются через запятую.
 		'auth_roles_names'			=> 'admin',
+	
+		// Минимальная длина кода смс
 		'code_min_length'			=> 4,
 		'code_max_length'			=> 6,
 		'mail_template'				=> 'old_admin_auth_sms',
 		'mail_provider_id'			=> 5,
 		'mail_provider_params'		=> array (
-			'providers'	=> 'Sms_Dcnk,Sms_Littlesms,Sms_Yakoon'
+			'providers'	=> 'Sms_Littlesms,Sms_Dcnk,Sms_Yakoon'
 		),
+		
 		// Лимит смс в 1 минуту
 		'sms_send_limit_1m'			=> 1,
+		
 		// Лимит смс на 10 минут
 		'sms_send_limit_10m'		=> 5,
+		
 		// Колбэки на авторизацию и выход
-		'authorization_function'	=> 'Helper_Old_Admin_Authorization::authorize',
-		'unauthorization_function'	=> 'Helper_Old_Admin_Authorization::unauthorize'
+		'authorization_function'	=> 'Helper_Admin_Authorization::authorize',
+		'unauthorization_function'	=> 'Helper_Admin_Authorization::unauthorize',
+		
+		/**
+		 * @desc можно перечислить логины, пароли и телефоны пользователей
+		 * @tutorial
+		 * 	'users'	=> array (
+		 * 		'admin'	=> array (
+		 * 			'active'	=> true,
+		 * 			'password'	=> 'password',
+		 * 			'phone'		=> '+7 123 456 78 90'
+		 * 		)
+		 * 	)
+		 */ 
+		'users'	=> false
 	);
 	
 	/**
@@ -71,6 +91,49 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 			array ($class, $method),
 			$user
 		);
+	}
+	
+	/**
+	 * @desc Дополнительная проверка пользователя перед началом авторизации
+	 * до отправки кода СМС
+	 * @param User $user Пользователь
+	 * @param string $login
+	 * @param string $password
+	 * @return boolean true, если нужно проверять дальше, иначе - false.
+	 */
+	protected function _prechekUser (User $user, $login, $password)
+	{
+		$cfg_users = $this->config ()->users;
+		var_dump ($cfg_users);
+		
+		if ($cfg_users === false)
+		{
+			// нет проверки
+			return true;
+		}
+		
+		// Приводим к нижнему регистру
+		$login = strtolower ($login);
+		
+		return (
+			isset ($cfg_users [$login]) &&
+			$cfg_users [$login]['password'] == $password &&
+			$cfg_users [$login]['phone'] == $user->phone &&
+			$cfg_users [$login]['active']
+		);
+	}
+	
+	/**
+	 * @desc Дополнительная проверка пользователя перед авторизацией после
+	 * проверки кода СМС.
+	 * @param User $user Подходящий пользователь.
+	 * @param string $login Логин, указанный при авторизации.
+	 * @param string $password Пароль.
+	 * @return boolean true, если успешно, иначе - false.
+	 */
+	protected function _postcheckUser (User $user, $login, $password)
+	{
+		return $this->_prechekUser ($user, $login, $password);
 	}
 	
 	/**
@@ -130,9 +193,9 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 	
 	/**
 	 * @desc Авторизация
-	 * @param string $name
-	 * @param string $pass
-	 * @param string $code
+	 * @param string $name Емейл пользователя 
+	 * @param string $pass Пароль
+	 * @param string $code Код активации из СМС
 	 */
 	public function login ()
 	{
@@ -167,6 +230,7 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 		
 		if (!$user)
 		{
+			// Пользователя не существует
 			$this->_sendError (
 				'password incorrect',
 				__METHOD__,
@@ -177,6 +241,7 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 		
 		if (!$user->active)
 		{
+			// пользователь неактивен
 			$this->_sendError (
 				'user unactive',
 				__METHOD__,
@@ -187,6 +252,19 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 		
 		if (!$this->_userHasRole ($user))
 		{
+			// Нет необходимой роли
+			$this->_sendError (
+				'access denied',
+				__METHOD__,
+				'/accessDenied'
+			);
+			return ;
+		}
+		
+		
+		if (!$this->_postcheckUser ($user, $login, $password))
+		{
+			// Не разрешено конфигом
 			$this->_sendError (
 				'access denied',
 				__METHOD__,
@@ -291,6 +369,17 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 				__METHOD__,
 				'/accessDenied'
 			);
+			return ;
+		}
+		
+		if (!$this->_prechekUser ($user, $login, $password))
+		{
+			$this->_sendError (
+				'config denied',
+				__METHOD__,
+				'/configDenied'
+			);
+			return ;
 			return ;
 		}
 		
