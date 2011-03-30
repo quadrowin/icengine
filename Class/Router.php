@@ -121,7 +121,7 @@ class Router
 			->limit (1);
 		
 		$row = DDS::execute ($select)->getResult ()->asRow ();
-		//print_r($row);
+		//var_dump(DDS::getDataSource()->getQuery('Mysql'), $row);
 		if (!$row)
 		{
 			return null;
