@@ -550,25 +550,38 @@ class Controller_Content extends Controller_Abstract
 			'url'
 		);
 		
-		$content = IcEngine::$modelManager
-			->modelByKey (
-				$this->__contentModel (), 
-				$content_id
-			);
+		$content = IcEngine::$modelManager->modelByKey (
+			$this->__contentModel (), 
+			$content_id
+		);
 		
 		if (!$content)
 		{
 			return $this->_helperReturn ('Page', 'notFound');
 		}
 		
+		Loader::load ('Helper_Link');
+		
+		$category_collection = Helper_Link::linkedItems (
+			$content,
+			'Content_Category'
+		);
+		
+		if (!$category_collection->count ())
+		{
+			return $this->_helperReturn ('Access', 'denied');
+		}
+		
+		$category = $category_collection->first ();
+		
 		$user = User::getCurrent ();
 
 		$resource_addContent = Acl_Resource::byNameCheck (
-			'Content_Category',
-			$content->Content_Category__id,
+			$this->__categoryModel (),
+			$category->key (),
 			'addContent'
 		);
-		
+		  
 		if (!$resource_addContent || !$resource_addContent->userCan ($user))
 		{
 			return $this->_helperReturn ('Access', 'denied');
