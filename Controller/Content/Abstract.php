@@ -363,6 +363,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			);	
 			
 			$this->__saveAfter (array (
+				$referer,
 				$resource_edit,
 				$resource_delete,
 				$resource_addContent
