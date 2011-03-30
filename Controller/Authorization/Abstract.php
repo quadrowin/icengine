@@ -117,6 +117,7 @@ abstract class Controller_Authorization_Abstract extends Controller_Abstract
 		);
 		
 		$this->_output->send (array (
+			'login'			=> $login,
 			'registered'	=> $this->_authorization ()->isRegistered ($login)
 		));
 	}

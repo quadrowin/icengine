@@ -43,11 +43,22 @@ var Controller_Authorization = {
 				// данные уже изменены
 				return ;
 			}
-			$part_default.hide ();
-			$part_determined.html (result.html);
-			$part_determined.show ();
+			
 			$form.data ('auth_type', result.data.auth_type);
-			$part_determined.find ('.submit').click (function () {
+			
+			if (result.data.auth_type)
+			{
+				$part_default.hide ();
+				$part_determined.html (result.html);
+				$part_determined.show ();
+			}
+			else
+			{
+				$part_determined.hide ();
+				$part_default.show ();
+			}
+			
+			$form.find ('.submit').click (function () {
 				Controller_Authorization.submit ($(this).closest ('form'));
 			});
 		}

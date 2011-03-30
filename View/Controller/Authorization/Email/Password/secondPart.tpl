@@ -1,4 +1,4 @@
-{if !$registered}<div id="type_hint">Пользователя с таким email’ом ещё не зарегестрировано.</div>{/if}
+<div id="type_hint">{if $login && !$registered}Пользователя с таким email’ом ещё не зарегестрировано.{else}&nbsp;{/if}</div>
 <div class="capt"><b>ПАРОЛЬ</b>:</div>
 <div>
 	<input type="password" name="auth_password" class="hover" value=""/>
@@ -11,7 +11,9 @@
 <div class="btns_block">
 	{if $registered}
 		<a class="submit btn_green"><span>ВХОД</span></a>
-	{else}
+	{elseif $login}
 		<a class="submit btn_green"><span>РЕГИСТРАЦИЯ</span></a>
+	{else}
+		<a class="submit btn_green"><span>ВХОД/РЕГИСТРАЦИЯ</span></a>
 	{/if}
 </div>

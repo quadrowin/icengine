@@ -11,7 +11,7 @@ class Controller_Authorization extends Controller_Abstract
 	
 	/**
 	 * @desc Редирект по умолчанию после авторизация/логаута.
-	 * @var unknown_type
+	 * @var string
 	 */
 	const DEFAULT_REDIRECT = '/';
 	
@@ -134,7 +134,7 @@ class Controller_Authorization extends Controller_Abstract
 		$password = $this->_input->receive ('password');
 		Loader::load ('Authorization');
 		
-		$user = IcEngine::$modelManager->modelBy (
+		$user = Model_Manager::modelBy (
 			'User',
 			Query::instance ()
 				->where ('email', $login)
