@@ -558,6 +558,7 @@ class Controller_Content extends Controller_Abstract
 		
 		if (!$content)
 		{
+			echo 1;
 			return $this->_helperReturn ('Page', 'notFound');
 		}
 		
@@ -571,6 +572,7 @@ class Controller_Content extends Controller_Abstract
 		
 		if (!$resource_addContent || !$resource_addContent->userCan ($user))
 		{
+			echo 2;
 			return $this->_helperReturn ('Access', 'denied');
 		}
 
