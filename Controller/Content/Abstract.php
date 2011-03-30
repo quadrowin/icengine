@@ -279,7 +279,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			{
 				return $this->_helperReturn ('Access', 'denied');
 			}
-
+			
 			/*$referer = $this->__saveReferer (
 				$params, 
 				$content_category,
