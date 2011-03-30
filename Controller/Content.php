@@ -581,7 +581,7 @@ class Controller_Content extends Controller_Abstract
 			$category->key (),
 			'addContent'
 		);
-		
+		  
 		if (!$resource_addContent || !$resource_addContent->userCan ($user))
 		{
 			return $this->_helperReturn ('Access', 'denied');
