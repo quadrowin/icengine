@@ -383,7 +383,11 @@ class Controller_Content extends Controller_Abstract
 						);
 				}
 				$tc = Temp_Content::create (get_class ($this));
-				$tc->attr ('controller', $this->name ());
+				$tc->attr (array (
+					'controller'	=> $this->name (),
+					'back'			=> $back,
+					'referer'		=> $this->__createReferer ($content, $category, $referer)
+				));
 				
 				$this->_output->send (array (
 					'tc' 				=> $tc,
@@ -411,9 +415,7 @@ class Controller_Content extends Controller_Abstract
 	 * @param string $utcode
 	 * @param integer $content_id
 	 * @param integer $content_category_id
-	 * @param string $referer
-	 * @param string $url,
-	 * @param string $back
+	 * @param string $url
 	 */
 	public function save ()
 	{
@@ -424,9 +426,7 @@ class Controller_Content extends Controller_Abstract
 			$utcode,
 			$content_id,
 			$category_id,
-			$referer,
-			$url,
-			$back
+			$url
 		) = $this->_input->receive (
 			'title', 
 			'short',
@@ -434,9 +434,7 @@ class Controller_Content extends Controller_Abstract
 			'utcode',
 			'content_id',
 			'category_id',
-			'referer',
-			'url',
-			'back'
+			'url'
 		);
 		
 		if (!$utcode)
@@ -467,6 +465,8 @@ class Controller_Content extends Controller_Abstract
 			return $this->_helperReturn ('Access', 'denied');
 		}
 		
+		$back = $tc->attr ('back');
+		$referer = $tc->attr ('referer');
 		$url = $this->__saveUrl ($url, $referer, $title);
 		
 		if ($content_id)
