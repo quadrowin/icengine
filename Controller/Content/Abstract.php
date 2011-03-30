@@ -82,6 +82,15 @@ class Controller_Content_Abstract extends Controller_Abstract
 	}
 	
 	/**
+	 * @desc Вызывает после сохранения категории
+	 * @param array $params
+	 * @override
+	 */
+	protected function __saveAfter ($params)
+	{
+	}
+	
+	/**
 	 * @desc Фабрик метод для создания класса контролера
 	 * @param array $params
 	 * @return string
@@ -352,6 +361,12 @@ class Controller_Content_Abstract extends Controller_Abstract
 				$resource_delete,
 				$resource_addContent
 			);	
+			
+			$this->__saveAfter (array (
+				$resource_edit,
+				$resource_delete,
+				$resource_addContent
+			));
 		}
 
 		Helper_Header::redirect ($referer);
