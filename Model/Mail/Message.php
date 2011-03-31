@@ -12,7 +12,7 @@ class Mail_Message extends Model
 	/**
 	 * @desc Создает новое сообщение.
 	 * @param string $template_name Имя шаблона.
-	 * @param string $to_email Адрес получателя.
+	 * @param string $address Адрес получателя.
 	 * @param string $to_name Имя получателя.
 	 * @param array $data Данные для шаблона.
 	 * @param integer $to_user_id Если получатель - пользователь.
@@ -20,7 +20,7 @@ class Mail_Message extends Model
 	 * @param array $mail_provider_params Параметры для провайдера.
 	 * @return Mail_Message Созданное сообщение.
 	 */
-	public static function create ($template_name, $to_email, $to_name, 
+	public static function create ($template_name, $address, $to_name, 
 		array $data = array (), $to_user_id = 0, $mail_provider = 0,
 		array $mail_provider_params = array ())
 	{
@@ -39,7 +39,7 @@ class Mail_Message extends Model
 		
 		$message = new Mail_Message (array (
 			'Mail_Template__id'		=> $template->id,
-			'toEmail'				=> $to_email,
+			'address'				=> $address,
 			'toName'				=> $to_name,
 		    'sendTries'				=> 0,
 			'subject'				=> $template->subject ($data),

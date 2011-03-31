@@ -108,7 +108,7 @@ var Helper_Form = {
 					$('[name=' + result.data.field + ']').addClass ("err");
 				}
 				
-				var $div = $('.result-msg', $form.parent ());
+				var $div = $form.parent ().find ('.result-msg');
 				$div.html (result.html);
 				$div.show ();
 				Helper_Form.stopLoading ($form);
