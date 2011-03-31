@@ -54,7 +54,7 @@ class Mail_Provider_Sms_Littlesms extends Mail_Provider_Abstract
 		$this->logMessage ($message, self::MAIL_STATE_SENDING);
 		
 		$sms_id = $this->sendSms (
-			$message->toEmail,
+			$message->address,
 			$message->body
 		);
 		

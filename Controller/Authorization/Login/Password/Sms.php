@@ -8,7 +8,7 @@
  * @package IcEngine
  *
  */
-class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
+class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 {
 	
 	/**
@@ -43,60 +43,15 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 	
 	/**
 	 * @desc Вовзращает модель авторизации.
-	 * @return Authorization_Email_Password_Sms
+	 * @return Authorization_Login_Password_Sms
 	 */
 	protected function _authorization ()
 	{
 		return Model_Manager::modelBy (
 			'Authorization',
 			Query::instance ()
-				->where ('name', 'Email_Password_Sms')
+				->where ('name', 'Login_Password_Sms')
 		);
-	}
-	
-	/**
-	 * @desc Авторизация
-	 */
-	protected function _authorize (User $user)
-	{
-		$config = $this->_authorization ()->config ();
-		
-		if (!$config ['authorization_function'])
-		{
-			return ;
-		}
-		
-		list ($class, $method) = explode (
-			'::',
-			$config ['authorization_function']
-		);
-		
-		Loader::load ($class);
-		call_user_func (
-			array ($class, $method),
-			$user
-		);
-	}
-	
-	/**
-	 * @desc Выход из админки
-	 */
-	protected function _unauthorize ()
-	{
-		$config = $this->_authorization ()->config ();
-		
-		if (!$config ['unauthorization_function'])
-		{
-			return ;
-		}
-		
-		list ($class, $method) = explode (
-			'::',
-			$config ['unauthorization_function']
-		);
-		
-		Loader::load ($class);
-		call_user_func (array ($class, $method));
 	}
 	
 	/**
@@ -117,7 +72,7 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 	public function login ()
 	{
 		list (
-			$email,
+			$login,
 			$password,
 			$activation_id,
 			$activation_code,
@@ -130,25 +85,25 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 			'href'
 		);
 		
-		if (!$activation_id)
+		if (!$activation_id || !$activation_code)
 		{
 			return $this->replaceAction ($this, 'sendSmsCode');
 		}
 		
 		$user = $this->_authorization ()->authorize (array (
-			'email'		=> $email,
-			'password'	=> $password,
+			'login'				=> $login,
+			'password'			=> $password,
 			'activation_id'		=> $activation_id,
 			'activation_code'	=> $activation_code
 		));
 		
-		if (!$user)
+		if (!is_object ($user))
 		{
 			// Пользователя не существует
 			$this->_sendError (
-				'password incorrect',
-				__METHOD__,
-				'/passwordIncorrect'
+				'authorization error: ' . $user,
+				$user ? $user : __METHOD__,
+				$user ? null : '/passwordIncorrect'
 			);
 			return ;
 		}
@@ -158,8 +113,6 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 			self::SMS_SEND_COUNTER_ATTR	=> 0,
 			self::SMS_CODE_ATTR			=> ''
 		));
-		
-		$this->_authorize ($user);
 		
 		Loader::load ('Helper_Uri');
 		$redirect = Helper_Uri::validRedirect ($redirect);
@@ -172,21 +125,12 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 	}
 	
 	/**
-	 * @desc Деавторизация
-	 */
-	public function logout ()
-	{
-		$this->_unauthorize ();
-		
-	}
-	
-	/**
 	 * @desc Отправка СМС кода
 	 */
 	public function sendSmsCode ()
 	{
 		list (
-			$email,
+			$login,
 			$password
 		) = $this->_input->receive (
 			'name',
@@ -196,7 +140,7 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 		$user = Model_Manager::modelBy (
 			'User',
 			Query::instance ()
-				->where ('email', $email)
+				->where ('login', $login)
 				->where ('password', $password)
 				->where ('md5(`password`) = md5(?)', $password)
 		);
@@ -205,8 +149,7 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 		{
 			$this->_sendError (
 				'password incorrect',
-				__METHOD__,
-				'/passwordIncorrect'
+				'Data_Validator_Authorization_Password/invalid'
 			);
 			return ;
 		}
@@ -215,8 +158,7 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 		{
 			$this->_sendError (
 				'user unactive',
-				__METHOD__,
-				'/userUnactive'
+				'Data_Validator_Authorization_User/unactive'
 			);
 			return ;
 		}
@@ -256,8 +198,7 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 		}
 		
 		$activation = $this->_authorization ()->sendActivationSms (array (
-			'email'		=> $email,
-			'login'		=> $email,
+			'login'		=> $login,
 			'password'	=> $password,
 			'phone'		=> $user->phone,
 			'user'		=> $user

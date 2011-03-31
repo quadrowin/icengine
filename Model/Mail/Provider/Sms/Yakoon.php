@@ -108,7 +108,7 @@ class Mail_Provider_Sms_Yakoon extends Mail_Provider_Abstract
 	 */
 	public function send (Mail_Message $message, $config)
 	{
-		$sms_id = $this->sendSms ($message->toEmail, $message->body);
+		$sms_id = $this->sendSms ($message->address, $message->body);
 		
 		if ($sms_id)
 		{

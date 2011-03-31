@@ -192,6 +192,7 @@ class Controller_Authorization extends Controller_Abstract
 	 */
 	public function logout ()
 	{
+		User::getCurrent ()->logout ();
 		User_Session::getCurrent ()->delete ();
 		$redirect = $this->_input->receive ('redirect');
 		

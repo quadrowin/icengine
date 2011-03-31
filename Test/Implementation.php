@@ -6,7 +6,7 @@
  * @package IcEngine
  *
  */
-class Test_Implementator
+class Test_Implementation
 {
 	
 	/**

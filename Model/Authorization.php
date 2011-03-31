@@ -12,4 +12,18 @@
 class Authorization extends Model_Factory
 {
 	
+	/**
+	 * @desc Возвращает модель авторизации по названию
+	 * @param string $name Название модели авторизации
+	 * @return Authorization_Abstract
+	 */
+	public static function byName ($name)
+	{
+		return Model_Manager::modelBy (
+			__CLASS__,
+			Query::instance ()
+				->where ('name', $name)
+		);
+	}
+	
 }
