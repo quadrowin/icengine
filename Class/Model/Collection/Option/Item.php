@@ -44,7 +44,7 @@ class Model_Collection_Option_Item
 	    $class_based = $class_name . '_' . $option;
 	    
 		if ( 
-		    Loader::load ($class_based, 'Class', true)
+		    Loader::load ($class_based, 'Class')
 		)
 		{
 		    $this->_option = new $class_based ();

@@ -1,10 +1,23 @@
 <?php
-
+/**
+ * 
+ * @desc Виджет для вызова методов контроллеров.
+ * @author Юрий Шведов
+ * @package IcEngine
+ *
+ */
 class Widget_Controller extends Widget_Abstract
 {
 	
+	/**
+	 * @desc Метод контроллера по умолчанию
+	 * @var string
+	 */
 	const DEFAULT_ACTION = 'index';
 	
+	/**
+	 * @desc Реализация
+	 */
 	public function index ()
 	{
 		$action = explode ('/', $this->_input->receive ('action'));
@@ -25,7 +38,7 @@ class Widget_Controller extends Widget_Abstract
 		//Debug::vardump ($iteration->getTransaction ());
 		
 		$this->_output->send (
-			'content',
+			'widget_content_unique_var',
 			View_Render_Broker::fetchIteration ($iteration)
 		);
 	}

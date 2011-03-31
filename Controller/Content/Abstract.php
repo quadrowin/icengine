@@ -1,24 +1,49 @@
 <?php
 /**
- * 
- * @desc Контролер категорий контента
+ * @desc Контролер контекта 
  * @author ilya
  * @package IcEngine
- * 
  */
 class Controller_Content_Abstract extends Controller_Abstract
-{	
+{
 	
 	/**
-	 * @desc Возвращает название модели категории.
-	 * @return string
+	 * @desc После успешного начала создания.
 	 * @override
+	 */
+	protected function _afterCreate ()
+	{
+		
+	}
+	
+	/**
+	 * @desc После успешного сохранения контента
+	 * @param Content $content Сохраняемый контент.
+	 * @param boolean $is_new true, если это новый контент, иначе false.
+	 * @override
+	 */
+	protected function _afterSave (Content $content, $is_new)
+	{
+	}
+	
+	/**
+	 * @desc Название модели расширения
+	 * @override
+	 */
+	protected function _extendingModel ()
+	{
+		return ''; // без расширения
+	}
+	
+	/**
+	 * @desc Получить имя контейнера
+	 * @return string
 	 */
 	protected function __categoryModel ()
 	{
 		return 'Content_Category';
 	}
-
+	
 	/**
 	 * @desc Возвращает название модели контента.
 	 * @return string
@@ -29,219 +54,163 @@ class Controller_Content_Abstract extends Controller_Abstract
 	}
 	
 	/**
-	 * @desc Создает и возвращает контроллер
+	 * @desc Имеет ли текущий пользователь права на
+	 * добавление в категорию
+	 * @param Model $content_category
+	 * @return boolean
 	 */
-	public function __construct ()
+	public function __checkAcl ($content_category)
 	{
-		Loader::load ('Helper_Link');
-		Loader::load ('Helper_Header');
-		Loader::load ('Acl_Resource');
+		$user = User::getCurrent ();
+		
+		if ($user->isAdmin ())
+		{
+			return true;
+		}
+
+		if ($user->id ())
+		{
+			Loader::load ('Acl_Resource');
+
+			$resource_addContent = Acl_Resource::byNameCheck (
+				$this->__categoryModel (),
+				$content_category->key (),
+				'addContent'
+			);
+
+			return (bool) ($resource_addContent 
+				&& $resource_addContent->userCan ($user));
+		}
+
+		return false;
 	}
 	
 	/**
-	 * @desc Фабрик метод для получения реферера при удалении
-	 * @param Model $category
+	 * @desc Фабрик метод для полечение рефера при создании
+	 * @param Model $content
+	 * @param Model $content_category
 	 * @param string $referer
 	 * @return string
-	 * @override
 	 */
-	protected function __deleteReferer (Model $content_category, $referer)
+	protected function __createReferer (Model $content, 
+		Model $contetn_category, $referer)
 	{
-		return rtrim ($referer, '/');
+		return $referer;
 	}
 	
 	/**
-	 * @desc Фабрик метод для получения разрешения на редактировине
-	 * для списка
-	 * @param Model $category
-	 * @return boolean
-	 * @override
-	 */
-	protected function __rollAcl (Model $category)
-	{
-		return User::getCurrent ()->isAdmin ();
-	}
-	
-	/**
-	 * @desc Вызывается после roll.
-	 */
-	protected function __rollAfter ()
-	{
-	}
-	
-	/**
-	 * @desc Фабрик метод для получения реферера для списка
-	 * @param Model $category
+	 * @desc Фабрик метод для полечение URL при создании
+	 * @param Model $content
+	 * @param Model $content_category
 	 * @param string $url
 	 * @return string
-	 * @override
 	 */
-	protected function __rollReferer (Model $category, $url = '')
+	protected function __createUrl (Model $content, 
+		Model $contetn_category, $url)
 	{
-		return $category->url;
+		return $url;
 	}
-
-	/**
-	 * @desc Вызывает после сохранения категории
-	 * @param array $params
-	 * @override
-	 */
-	 protected function __saveAfter ($params)
-	 {
-	 }
-
 	
 	/**
-	 * @desc Фабрик метод для создания класса контролера
-	 * @param array $params
+	 * @desc Фабрик метод для полечение URL при удалении
+	 * @param Model $content
+	 * @param string $url
 	 * @return string
-	 * @override
 	 */
-	protected function __saveClass ($params)
+	protected function __deleteUrl (Model $content, $url)
+	{
+		return $url;
+	}
+	
+	/**
+	 * @desc Фабрик метод для полечение рефера для списка
+	 * @param Model $content_category
+	 * @return string
+	 */
+	protected function __rollReferer (Model $content_category)
+	{
+		return Request::uri ();
+	}
+	
+	/**
+	 * @desc Фабрик метод для полечение реферер при сохранении
+	 * @param string $url
+	 * @param string $referer
+	 * @param string $title
+	 * @return string
+	 */
+	protected function __saveReferer ($url, $referer, $title)
+	{
+		return ($url != $content->url) ? $url : $referer;
+	}
+	
+	/**
+	 * @desc Фабрик метод для полечение URL при сохранении
+	 * @param string $url
+	 * @param string $referer
+	 * @param string $title
+	 * @return string
+	 */
+	protected function __saveUrl ($url, $referer, $title)
 	{
 		Loader::load ('Helper_Translit');
-		$title = $params ['title'];
-		return Helper_Translit::makeUrlLink ($title, 'en');
+		return $url = rtrim ($url, '/') . '/' . 
+			Helper_Translit::makeUrlLink ($title) . '.html';
 	}
-	
-	/**
-	 * @desc Фабрик метод для получения реферера при сохранении
-	 * @param array $params
-	 * @param Model $category
-	 * @param string $url
-	 * @return string
-	 * @override
-	 */
-	protected function __saveReferer (array $params, Model $content_category, $url)
+
+	public function __construct ()
 	{
-		$referer = $params ['referer'];
-		return ($content_category->url != $url) ? $url : $referer; 
+		Loader::load ('Helper_Header');
+		Loader::load ('Content');
+		Loader::load ('Temp_Content');
+		Loader::load ('Content_Collection');
 	}
 	
 	/**
-	 * @desc Факторик метод для создания URL контролера
-	 * @param array $params
-	 * @return string
-	 * @override
-	 */
-	protected function __saveUrl ($params)
-	{
-		$parent = $params ['parent'];
-		Loader::load ('Helper_String');
-		$url = 
-			Helper_String::end ($parent->url, '.html') ?
-				substr ($parent->url, 0, -5) :
-				$parent->url;
-		return
-			rtrim ($url, '/') . '/' . $this->__saveClass ($params); 
-	}
-	
-	/**
-	 * @desc Получить список дочерних категорий
-	 * @param integer $category_id - id категории
-	 * @param string url - url категории
-	 * @return Model_Collection
-	 * @return string
-	 * @return Model
-	 * @return boolean
+	 * @desc Список статей
+	 * @param integer $content_category_id - id контейнера
+	 * @param string $url - URL контейнера
+	 * @return Model_Collection $contents
+	 * @return Model $category
+	 * @return boolean canEdit
+	 * @return Model $parent
+	 * @return string $referer
+	 * @return string $url
 	 */
 	public function roll ()
 	{
 		list (
-			$parent_category_id,
+			$category_id,
 			$url
 		) = $this->_input->receive (
-			'parent_category_id',
+			'category_id',
 			'url'
 		);
 		
-		if ($parent_category_id)
+		if ($category_id)
 		{
-			$parent_category = IcEngine::$modelManager->modelByKey (
+			$category = IcEngine::$modelManager->modelByKey (
 				$this->__categoryModel (),
-				$parent_category_id
-			);
+				$category_id
+			);	
 		}
 		else
 		{
-			$parent_category = IcEngine::$modelManager->modelBy (
+			$category = IcEngine::$modelManager->modelBy (
 				$this->__categoryModel (),
 				Query::instance ()
-					->where ('url', $url ? $url : Request::uri ())	
+					->where ('url', $url ? $url : Request::uri ())
 			);
 		}
 		
-		if (!$parent_category)
+		if (!$category)
 		{
 			return $this->_helperReturn ('Page', 'notFound');
 		}
-		
-		$category_collection = $parent_category->childs ();
-		
-		if ($category_collection->count ())
-		{
-			foreach ($category_collection as $category)
-			{
-				$category->oneContent ();
-			}
-		}
 
-		$content_collection = Helper_Link::linkedItems (
-			$parent_category,
-			$this->__contentModel ()
-		);
-		
-		$this->_output->send (array (
-			'categories'		=>	$category_collection,
-			'contents'			=>	$content_collection,
-			'referer'			=>	$this->__rollReferer ($parent_category, $url),
-			'current'			=>	$parent_category,
-			'parent'			=>	$parent_category->getParent (),
-			'canEdit'			=>	$this->__rollAcl ($parent_category)
-		));
-		
-		$this->__rollAfter ();
-	}
-	
-	/**
-	 * @desc Сохранить изменения или создать категорию контента
-	 * @param integer $parent_id - родительская категория, куда будет
-	 * добавлена создаваемая категория
-	 * @param integer $content_category_id - id редактируемой категорию.
-	 * Если категория создается, то здесь будет null
-	 * @param string $title - заголовок категории
-	 * @param string $url - URL категории
-	 * @param string $class - произвольный класс для категории
-	 * @param string $sort - порядок сортировки для категории
-	 * @param boolean $active - будет ли показываться категория на сайте
-	 * @param string $referer - ссылка, куда будет перенаправлен пользователь
-	 */
-	public function save ()
-	{
-		list (
-			$parent_category_id,
-			$category_id,
-			$title,
-			$class,
-			$url,
-			$sort,
-			$active,
-			$referer
-		) = $this->_input->receive (
-			'parent_category_id',
-			'category_id',
-			'title',
-			'class',
-			'url',
-			'sort',
-			'active',
-			'referer'
-		);
-		
-		// Получаем родительскую категорию
 		$parent = IcEngine::$modelManager->modelByKey (
 			$this->__categoryModel (),
-			$parent_category_id
+			$category->parentKey ()
 		);
 		
 		if (!$parent)
@@ -249,175 +218,447 @@ class Controller_Content_Abstract extends Controller_Abstract
 			return $this->_helperReturn ('Page', 'notFound');
 		}
 		
-		// Параметры для передачи в фабрик методы
-		$params = array (
-			'parent'				=> $parent,
-			'parent_id'				=> $parent_category_id,
-			'content_category_id'	=> $category_id,
-			'title'					=> $title,
-			'sort'					=> $sort,
-			'active'				=> $active,
+		$content_collection = Helper_Link::linkedItems (
+			$category,
+			$this->__contentModel ()
 		);
-		
-		// Получаем класс
-		$class = !$class ?  $this->__saveClass ($params) : $class;
-	
-		// Получаем URL
-		$url = !$url ? $this->__saveUrl ($params) : $url;
-		$user = User::getCurrent ();
-		
-		if ($category_id)
-		{
-			$content_category = IcEngine::$modelManager
-				->modelByKey (
-					$this->__categoryModel (), 
-					$category_id
-				);
-			
-			if (!$content_category->key ())
-			{
-				return $this->_helperReturn ('Page', 'notFound');
-			}
 
-			$resource_edit = Acl_Resource::byNameCheck (
-				$this->__categoryModel (),
-				$content_category->key (),
-				'edit'
-			);
-			
-			if (!$resource_edit || !$resource_edit->userCan ($user))
-			{
-				return $this->_helperReturn ('Access', 'denied');
-			}
-			
-			/*$referer = $this->__saveReferer (
-				$params, 
-				$content_category,
-				$url
-			);*/
-			
-			$content_category->update (array (
-				'title'						=> $title,
-				'url'						=> $url,
-				'class'						=> $class,
-				'sort'						=> $sort,
-				'active'					=> (int) !empty ($active),
-				'parentId'					=> $parent->key (),
-				'controller'				=> $parent->controller
-			));
-		}
-		else
-		{
-			Loader::load ('Content_Category');
-			Loader::load ('Acl_Role_Type_Personal');
-			
-			$resource_addContent = Acl_Resource::byNameCheck (
-				$this->__categoryModel (), 
-				$parent->key (), 
-				'addContent'	
-			);
+		$parent_url = rtrim($parent->url, '/').'.html';
 
-			$personal_role = $user
-				->role (Acl_Role_Type_Personal::ID, true);
-				
-			if (!$resource_addContent->userCan ($user) || 
-				!$personal_role)
-			{
-				return $this->_helperReturn ('Access', 'denied');
-			}
-			
-			$category_class = $this->__categoryModel ();
-			
-			$content_category = new $category_class (array (
-				'title'			=> $title,
-				'name'			=> $this->__categoryModel (),
-				'url'			=> $url,
-				'class'			=> $class,
-				'sort'			=> $sort,
-				'active'		=> (int) !empty ($active),
-				'parentId'		=> $parent->key (),
-				'controller'	=> $parent->controller
-			));
-			
-			$content_category->save ();
-			
-			list (
-				$resource_edit,
-				$resource_delete,
-				$resource_addContent
-			) = Acl_Resource::create (
-				array (
-					$this->__categoryModel (), 
-					$content_category->key ()
-				),
-				array (
-					'edit',
-					'delete',
-					'addContent'
-				)
-			);
-			
-			$personal_role->attachResource (
-				$resource_edit, 
-				$resource_delete,
-				$resource_addContent
-			);
-			$this->__saveAfter (array (
-				$referer,
-				$resource_edit,
-				$resource_delete,
-				$resource_addContent
-			));
-
-		}
-
-		Helper_Header::redirect ($referer);
+		$this->_output->send (array (
+			'contents'		=> $content_collection,
+			'category'		=> $category,
+			'canEdit'		=> $this->__checkAcl ($category),
+			'parent'		=> $parent,
+			'parent_url'	=> $parent_url,
+			'referer'		=> $this->__rollReferer ($category)
+		));
 	}
 	
 	/**
-	 * @desc Удаление категории. Зависимые объекты удалит Garbage Collector
-	 * @param integer $content_category_id - id категории
-	 * @param string $referer - URL, по которому будет направлен 
-	 * посетитель
+	 * @desc Вывести контект
+	 * @param integer $content_id - id контента
+	 * @param string $url - URL контента
+	 * @return Model $content,
+	 * @return Model $content_category
+	 * @return boolean $canEdit
 	 */
-	public function delete ()
+	public function view ()
 	{
 		list (
-			$category_id,
-			$referer
+			$content_id,
+			$url
 		) = $this->_input->receive (
-			'category_id',
-			'referer'
+			'content_id',
+			'url'
 		);
-
-		$category = IcEngine::$modelManager
-			->modelByKey (
-				$this->__categoryModel (), 
-				$category_id
+		
+		if ($content_id)
+		{
+			$content = IcEngine::$modelManager->modelByKey (
+				$this->__contentModel (), 
+				$content_id
 			);
-
-		if (!$category)
+		}
+		else
+		{
+			$content = IcEngine::$modelManager->modelBy (
+				$this->__contentModel (), 
+				Query::instance ()
+					->where ('url', $url ? $url : Request::uri ())
+			);
+		}
+			
+		if (!$content)
+		{
+			return $this->_helperReturn ('Page', 'notFound');
+		}
+		
+		$content_category = IcEngine::$modelManager->modelByKey (
+			$this->__categoryModel (),
+			$content->Content_Category__id
+		);
+		
+		if (!$content_category)
 		{
 			return $this->_helperReturn ('Page', 'notFound');
 		}
 
+		$this->_output->send (array (
+			'content'	=> $content,
+			'category'	=> $content_category,
+			'url'		=> $content_category->url,
+			'referer'		=> $this->__rollReferer ($content_category),
+			'canEdit'	=> $this->__checkAcl ($content_category)
+		));
+	}
+	
+	/**
+	 * @desc Создать или редактировать инстанс статьи
+	 * @param integer $category_id
+	 * @param integer $content_id
+	 * @param string $referer
+	 * @param string $url,
+	 * @param string $back
+	 * @return Temp_Content $tc
+	 * @return Model $content
+	 * @return Model $content_category
+	 * @return string $url
+	 * @return string $back
+	 * @return string $referer
+	 */
+	public function create ()
+	{
+		list (
+			$category_id,
+			$content_id,
+			$referer,
+			$url,
+			$back
+		) = $this->_input->receive (
+			'category_id',
+			'content_id',
+			'referer',
+			'url',
+			'back'
+		);
+
+		if (!$category_id)
+		{
+			if (!$content_id)
+			{
+				return $this->_helperReturn ('Page', 'notFound');
+			}
+			else
+			{
+				$content = Model_Manager::get (
+					$this->__contentModel (),
+					$content_id
+				);
+
+				$category_id = $content->Content_Category->id;
+			}
+		}
+		
+		$category = Model_Manager::modelByKey (
+			$this->__categoryModel (),
+			$category_id
+		);
+			
+		if (!$category)
+		{
+			return $this->_helperReturn ('Page', 'notFound');
+		}
+		
+		if ($category->controller && $category->controller != $this->name ())
+		{
+			return $this->replaceAction (
+				$category->controller,
+				'create'
+			);
+		}
+
 		$user = User::getCurrent ();
 
-		$resource_delete = Acl_Resource::byNameCheck (array (
-			$this->__categoryModel (), 
-			$category_id, 
-			'delete'
+		if (!User::authorized())
+		{
+			return $this->_helperReturn('Access', 'denied');
+		}
+		
+		Loader::load ('Acl_Resource');
+
+		$resource_addContent = Acl_Resource::byNameCheck (
+			$this->__categoryModel (),
+			$category_id,
+			'addContent'
+		);
+		
+		if (
+			!$resource_addContent || 
+			!$resource_addContent->userCan (User::getCurrent ()))
+		{
+			return $this->_helperReturn('Access', 'denied');
+		}
+		
+		if (!$content)
+		{
+			$content = Model_Manager::get (
+				$this->__contentModel (),
+				$content_id
+			);
+		}
+		
+		$tc = Temp_Content::create (get_class ($this));
+		$tc->attr (array (
+			'controller'	=> $this->name (),
+			'back'			=> $back,
+			'referer'		=> $this->__createReferer ($content, $category, $referer),
+			'content_id'	=> $content_id,
+			'category_id'	=> $category_id
 		));
 		
-		if (!$resource_delete || !$resource_delete->userCan ($user))
+		$this->_output->send (array (
+			'tc' 				=> $tc,
+			'content'			=> $content,
+			'category'			=> $category,
+			'url'				=> $this->__createUrl ($content, $category, $url),
+			'back'				=> $back,
+			'referer'			=> $this->__createReferer ($content, $category, $referer)
+		));
+		
+		$this->_afterCreate ();
+	}
+	
+	/**
+	 * @desc Создать/сохранить контент
+	 * @param string $title
+	 * @param string $short
+	 * @param string $text
+	 * @param string $utcode
+	 * @param integer $content_id
+	 * @param integer $content_category_id
+	 * @param string $url
+	 */
+	public function save ()
+	{
+		list (
+			$title, 
+			$short,
+			$text,
+			$utcode,
+			$url
+		) = $this->_input->receive (
+			'title', 
+			'short',
+			'text',
+			'utcode',
+			'url'
+		);
+		
+		if (!$utcode)
+		{
+			return $this->_helperReturn ('Page', 'obsolete');
+		}
+		
+		$tc = Temp_Content::byUtcode ($utcode);
+		
+		if ($tc->attr ('controller') != $this->name ())
+		{
+			return $this->replaceAction (
+				$tc->attr ('controller'),
+				'save'
+			);
+		}
+		
+		$category_id = $tc->attr ('category_id');
+		
+		$user = User::getCurrent ();
+		
+		$resource_addContent = Acl_Resource::byNameCheck (
+			$this->__categoryModel (),
+			$category_id,
+			'addContent'
+		);
+		
+		if (!$resource_addContent || !$resource_addContent->userCan ($user))
 		{
 			return $this->_helperReturn ('Access', 'denied');
 		}
 		
-		$category->delete ();
-
-		//$referer = $this->__deleteReferer ($category, $referer);
+		$back = $tc->attr ('back');
+		$referer = $tc->attr ('referer');
+		$content_id = $tc->attr ('content_id');
+		$url = $this->__saveUrl ($url, $referer, $title);
 		
-		Helper_Header::redirect ($referer);
+		if ($content_id)
+		{			
+			$content = Model_Manager::modelByKey ($this->__contentModel (), $content_id);
+
+			$referer = $this->__saveReferer ($url, $referer, $title);
+
+			$content->update (array (
+				'title'			=> $title,
+				'short'			=> $short,
+				'content'		=> $text,
+				'url'			=> $url
+			));
+		}
+		else
+		{
+			$content = new Content (array (
+				'title'					=> $title,
+				'short'					=> $short,
+				'content'				=> $text,
+				'createdAt'				=> Helper_Date::toUnix (),
+				'url'					=> $url,
+				'Content_Category__id'	=> $category_id,
+				'extending'				=> $this->_extendingModel ()
+			));
+			
+			$content->save ();
+			
+			// Если это контент с расширением, создаем расширение
+			$content->extending ();
+			
+			Loader::load ('Helper_Link');
+			
+			$content_category = IcEngine::$modelManager
+				->modelByKey (
+					$this->__categoryModel (),
+					$category_id
+				);
+			
+			if (!$content_category)
+			{
+				return $this->_helperReturn ('Page', 'notFound');
+			}
+			
+			Helper_Link::link (
+				$content,
+				$content_category
+			);
+
+			if ($back)
+			{
+				$referer = $url;
+			}
+		}
+
+		$tc->component ('Image')->rejoin ($content);
+		
+		$is_new = !$content_id;
+		
+		$this->_afterSave ($content, $is_new);
+		
+		return Helper_Header::redirect ($referer);
+	}
+	
+	/**
+	 * @desc Удалить контент
+	 * @param integer $content_id
+	 * @param string $url
+	 */
+	public function delete () 
+	{
+		list (
+			$content_id,
+			$url
+		) = $this->_input->receive (
+			'content_id', 
+			'url'
+		);
+		
+		$content = IcEngine::$modelManager->modelByKey (
+			$this->__contentModel (), 
+			$content_id
+		);
+		
+		if (!$content)
+		{
+			return $this->_helperReturn ('Page', 'notFound');
+		}
+		
+		Loader::load ('Helper_Link');
+		
+		$category_collection = Helper_Link::linkedItems (
+			$content,
+			'Content_Category'
+		);
+		
+		if (!$category_collection->count ())
+		{
+			return $this->_helperReturn ('Access', 'denied');
+		}
+		
+		$category = $category_collection->first ();
+		
+		$user = User::getCurrent ();
+
+		$resource_addContent = Acl_Resource::byNameCheck (
+			$this->__categoryModel (),
+			$category->key (),
+			'addContent'
+		);
+		  
+		if (!$resource_addContent || !$resource_addContent->userCan ($user))
+		{
+			return $this->_helperReturn ('Access', 'denied');
+		}
+
+		$content->delete ();
+
+		$url = $this->__deleteUrl ($content, $url);
+		
+		return Helper_Header::redirect ($url);
+	}
+
+	public function uploadImage ()
+	{
+	    if (!User::authorized ())
+		{
+			return $this->_helperReturn ('Access', 'denied');
+		}
+
+		Loader::load ('Temp_Content');
+	    $utcode = $this->_input->receive('utcode');
+	    $tc = Temp_Content::byUtcode ($utcode);
+		
+	    Loader::load ('Helper_Image');
+	    $image = Helper_Image::uploadSimple (
+		    $tc->modelName(),
+		    $tc->key (),
+		    'content_image'
+	    );
+
+		$this->_output->send ('image', $image);
+	}
+
+	public function removeImage ()
+	{
+		$image_id = (int) $this->_input->receive ('image_id');
+		$image = IcEngine::$modelManager->modelBy (
+			'Component_Image',
+			Query::instance ()
+				->where ('id', $image_id)
+				->where ('User__id', User::id ())
+		);
+
+		if (!$image)
+		{
+			$this->_sendError (
+				'not_found',
+				__METHOD__,
+				'/not_found'
+			);
+			return;
+		}
+
+		$image->delete ();
+		
+		$this->_output->send (
+			'data', array ('image_id' => $image_id)
+		);
+	}
+
+	public function check ()
+	{
+		list (
+			$title, 
+			$content_category_id
+		) = $this->_input->receive (
+			'title',
+			'content_category_id'
+		);
+
+		$content = IcEngine::$modelManager->modelBy (
+			'Content',
+			Query::instance ()
+				->where ('Content_Category__id', $content_category_id)
+				->where ('title', $title)
+		);
+
+		$this->_output->send(
+			'content', $content
+		);
 	}
 } 
