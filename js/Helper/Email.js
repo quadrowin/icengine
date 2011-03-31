@@ -8,9 +8,9 @@
 var Helper_Email = {
 	
 	/**
-	 * @desc 
-	 * @param email
-	 * @returns {Boolean}
+	 * @desc Проверяет емейл на корректность.
+	 * @param string email
+	 * @returns string|false 
 	 */
 	parseEmail: function (email)
 	{
@@ -28,7 +28,7 @@ var Helper_Email = {
 			return false;
 		}
 		
-		return true;
+		return email;
 	}
 	
 };

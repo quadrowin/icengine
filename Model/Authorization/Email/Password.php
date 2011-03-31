@@ -34,7 +34,7 @@ class Authorization_Email_Password extends Authorization_Abstract
 		{
 			if ($user->password != $password)
 			{
-				return 'Data_Validator_Authorization_Password/bad';
+				return 'Data_Validator_Authorization_Password/invalid';
 			}
 			
 			return $user->authorize ();
@@ -83,8 +83,8 @@ class Authorization_Email_Password extends Authorization_Abstract
 		
 		Loader::load ('Helper_Email');
 		$user = User::create (array (
-			'email'		=> Helper_Email::extractName ($email),
-			'name'		=> $email,
+			'email'		=> $email,
+			'name'		=> Helper_Email::extractName ($email),
 			'password'	=> $password,
 			'phone'		=> '',
 			'active'	=> 1
@@ -99,15 +99,15 @@ class Authorization_Email_Password extends Authorization_Abstract
 	 */
 	public function isRegistered ($login)
 	{
-		if (!strpos ($login, '@'))
+		if (empty ($login))
 		{
 			return false;
 		}
 		
-		$user = IcEngine::$modelManager->modelBy (
+		$user = Model_Manager::modelBy (
 			'User',
 			Query::instance ()
-			->where ('email', $login)
+				->where ('email', $login)
 		);
 		
 		return (bool) $user;
@@ -133,7 +133,7 @@ class Authorization_Email_Password extends Authorization_Abstract
 		return IcEngine::$modelManager->modelBy (
 			'User',
 			Query::instance ()
-			->where ('email', $data ['login'])
+				->where ('email', $data ['login'])
 		);
 	}
 	

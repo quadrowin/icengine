@@ -17,6 +17,15 @@ class User extends Model
 {
 	
 	/**
+	 * @desc Конфиг
+	 * @var array
+	 */
+	protected $_config = array (
+		// функция, вызываемая при логауте.
+		'logout_callback'	=> null
+	);
+	
+	/**
 	 * @desc Текущий пользователь.
 	 * @var User
 	 */
@@ -207,11 +216,24 @@ class User extends Model
 	}
 	
 	/**
-	 * @desc Логаут.
-	 * Удаление сессии.
+	 * @desc Логаут. Удаление сессии.
 	 */
 	public function logout ()
 	{
+		$config = $this->config ();
+		if ($config ['logout_callback'])
+		{
+			list ($class, $method) = explode (
+				'::', 
+				$config ['logout_callback']
+			);
+			
+			Loader::load ($class);
+			call_user_func (
+				array ($class, $method),
+				$this
+			);
+		}
 		User_Session::getCurrent ()->delete ();
 	}
 	
