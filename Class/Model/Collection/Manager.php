@@ -32,16 +32,20 @@ abstract class Model_Collection_Manager
 	}
 	
 	/**
-	 * @desc Создает коллекцию по именю
-	 * @param string $className
-	 * @param boolean $forced
-	 * @desc Включать ли автожоин
-	 * @return Model_Collection
+	 * @desc Создает коллекцию по имени.
+	 * @param string $class_name Название класса модели или коллекции.
+	 * @param boolean $forced Включать ли автожоин.
+	 * @return Model_Collection Коллекция.
 	 */
-	public static function create ($className, $forced = false)
+	public static function create ($class_name, $forced = false)
 	{
-		Loader::load ($className);
-		$collection = new $className;
+		if (substr ($class_name, -11) != '_Collection')
+		{
+			$class_name .= '_Collection';
+		}
+		
+		Loader::load ($class_name);
+		$collection = new $class_name;
 		if ($forced)
 		{
 			$collection->setAutojoin (false);

@@ -15,10 +15,23 @@ class Content extends Model
 	 */
 	public function extending ()
 	{
-		return 
-			$this->extending ?
-				IcEngine::$modelManager->get ($this->extending, $this->id) :
-				null;
+		if (!$this->extending)
+		{
+			return null;
+		}
+		
+		$extending = Model_Manager::modelByKey ($this->extending, $this->id);
+				
+		if (!$extending && $this->extending && $this->id)
+		{
+			// Расширение не создано
+			$extending = Model_Manager::get (
+				$this->extending,
+				$this->id
+			)->firstSave ();
+		}
+		
+		return $extending;
 	}
 	
 }
