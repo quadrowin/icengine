@@ -82,8 +82,8 @@ class Mail_Provider_Sms_Dcnk extends Mail_Provider_Abstract
 				date ("d.m.Y H:i"),
 			'grpid'			=> '0',
 			'abid'			=> '0',
-			'phone'			=> $message->toEmail,
-			'email'			=> $message->toEmail,
+			'phone'			=> $message->address,
+			'email'			=> $message->address,
 			'istranslit'	=> true, 
 			'isdelivery'	=> true
 		);

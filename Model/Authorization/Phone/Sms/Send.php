@@ -73,7 +73,7 @@ class Authorization_Phone_Sms_Send extends Authorization_Abstract
 		// пользователь не зарегистрирован
 		if (!$this->config ()->autoregister)
 		{
-			return 'Data_Validator_Authorization/userNotFound';
+			return 'Data_Validator_Authorization_User/unexists';
 		}
 		
 		$user = $this->autoregister ($data, $activation);
@@ -153,42 +153,42 @@ class Authorization_Phone_Sms_Send extends Authorization_Abstract
 	
 	/**
 	 * @desc Отправляет пользователю СМС для авторизации
-	 * @param string $phone
+	 * @param array $data
+	 * @param string $data ['phone']
 	 * @return Activation
 	 */
-	public function sendActivationSms ($phone)
+	public function sendActivationSms (array $data)
 	{
 		Loader::load ('Helper_Phone');
-		$phone = Helper_Phone::parseMobile ($phone);
+		$phone = Helper_Phone::parseMobile ($data ['phone']);
+		
+		if (!$phone)
+		{
+			return 'invalidPhone';
+		}
+		
 		$user = IcEngine::$modelManager->modelBy (
 			'User',
 			Query::instance ()
-			->where ('phone', $phone)
+				->where ('phone', $phone)
 		);
 		
-		$cfg = $this->config ();
+		$config = $this->config ();
 		
 		Loader::load ('Helper_Activation');
 		$clear_code = Helper_Activation::generateNumeric (
-			$cfg->code_min_length,
-			$cfg->code_max_length
+			$config ['code_min_length'],
+			$config ['code_max_length']
 		);
 		
-		if (!$clear_code)
-		{
-			//$this->_output->send ('error', 'error on activation create');
-			//$this->_dispatcherIteration->setClassTpl (__METHOD__, '/fail');
-			//throw new Exception('Cant generate code.');
-			return null;
-		}
-		
-		$activation_code = $cfg->sms_prefix . $clear_code;
+		$activation_code = $config ['sms_prefix'] . $clear_code;
 		
 		Loader::load ('Activation');
 		$activation = Activation::create (array (
 			'address'			=> $phone,
 			'code'				=> $activation_code,
-			'expirationTime'	=> Helper_Date::toUnix (time () + $cfg->sms_expiration),
+			'expirationTime'	=> 
+				Helper_Date::toUnix (time () + $config ['sms_expiration']),
 			'User__id'			=> $user ? $user->id : 0
 		));
 		
@@ -199,12 +199,12 @@ class Authorization_Phone_Sms_Send extends Authorization_Abstract
 		$provider = IcEngine::$modelManager->modelBy (
 			'Mail_Provider',
 			Query::instance ()
-			->where ('name', $cfg->sms_provider)
+			->where ('name', $config ['sms_provider'])
 		);
 		
 		Loader::load ('Mail_Message');
 		$message = Mail_Message::create (
-			$cfg->sms_mail_template,
+			$config ['sms_mail_template'],
 			$phone,
 			$user ? $user->name : $phone,
 			array (
@@ -213,10 +213,10 @@ class Authorization_Phone_Sms_Send extends Authorization_Abstract
 			),
 			$user ? $user->id : 0,
 			$provider->id,
-			$cfg->sms_provider_params->__toArray ()
+			$config ['sms_provider_params']->__toArray ()
 		)->save ();
 		
-		if (!$cfg->sms_test_mode)
+		if (!$config ['sms_test_mode'])
 		{
 			$message->send ();
 		}

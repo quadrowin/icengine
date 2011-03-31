@@ -67,7 +67,9 @@ class Controller_Authorization_Phone_Sms_Send extends Controller_Authorization_A
 			return ;
 		}
 		
-		$activation = $this->_authorization ()->sendActivationSms ($phone);
+		$activation = $this->_authorization ()->sendActivationSms (array (
+			'phone'	=> $phone
+		));
 		
 		if (!$activation)
 		{
