@@ -374,7 +374,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		);
 		
 		if (
-			!$resource_addContent || 
+			!(User::getCurrent()->isAdmin() || $resource_addContent) || 
 			!$resource_addContent->userCan (User::getCurrent ()))
 		{
 			return $this->_helperReturn('Access', 'denied');
