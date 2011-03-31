@@ -255,14 +255,14 @@ class Controller_Content_Abstract extends Controller_Abstract
 		
 		if ($content_id)
 		{
-			$content = IcEngine::$modelManager->modelByKey (
+			$content = Model_Manager::modelByKey (
 				$this->__contentModel (), 
 				$content_id
 			);
 		}
 		else
 		{
-			$content = IcEngine::$modelManager->modelBy (
+			$content = Model_Manager::modelBy (
 				$this->__contentModel (), 
 				Query::instance ()
 					->where ('url', $url ? $url : Request::uri ())
@@ -274,7 +274,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			return $this->_helperReturn ('Page', 'notFound');
 		}
 		
-		$content_category = IcEngine::$modelManager->modelByKey (
+		$content_category = Model_Manager::modelByKey (
 			$this->__categoryModel (),
 			$content->Content_Category__id
 		);
@@ -381,7 +381,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			)
 		)
 		{
-			return $this->_helperReturn('Access', 'denied');
+			return $this->_helperReturn ('Access', 'denied');
 		}
 		
 		if (!$content)
@@ -464,7 +464,13 @@ class Controller_Content_Abstract extends Controller_Abstract
 			'addContent'
 		);
 		
-		if (!$resource_addContent || !$resource_addContent->userCan ($user))
+		if (
+			!User::getCurrent ()->isAdmin () &&
+			(
+				!$resource_addContent || 
+				!$resource_addContent->userCan ($user)
+			)
+		)
 		{
 			return $this->_helperReturn ('Access', 'denied');
 		}
@@ -584,7 +590,13 @@ class Controller_Content_Abstract extends Controller_Abstract
 			'addContent'
 		);
 		  
-		if (!$resource_addContent || !$resource_addContent->userCan ($user))
+		if (
+			!User::getCurrent ()->isAdmin () &&
+			(
+				!$resource_addContent || 
+				!$resource_addContent->userCan ($user)
+			)
+		)
 		{
 			return $this->_helperReturn ('Access', 'denied');
 		}
@@ -620,7 +632,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 	public function removeImage ()
 	{
 		$image_id = (int) $this->_input->receive ('image_id');
-		$image = IcEngine::$modelManager->modelBy (
+		$image = Model_Manager::modelBy (
 			'Component_Image',
 			Query::instance ()
 				->where ('id', $image_id)
@@ -654,7 +666,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			'content_category_id'
 		);
 
-		$content = IcEngine::$modelManager->modelBy (
+		$content = Model_Manager::modelBy (
 			'Content',
 			Query::instance ()
 				->where ('Content_Category__id', $content_category_id)
