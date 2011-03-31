@@ -19,16 +19,10 @@ class Authorization_Loginza extends Authorization_Abstract
 		Loader::load ('Authorization_Loginza_Token');
 		$token = Authorization_Loginza_Token::tokenData ();
 		
-		if (!$token->email)
-		{
-			return "Data_Validator_Loginza_Token::invalid";
-		}
+		Loader::load ('User_Loginza');
+		$loginza = User_Loginza::byToken ($token, true, true);
 		
-		$user = IcEngine::$modelManager->modelBy (
-			'User',	
-			Query::instance ()
-			->where ('email', $token->email)
-		);
+		$user = $loginza ? $loginza->User : null;
 		
 		if (!$user)
 		{
@@ -45,6 +39,7 @@ class Authorization_Loginza extends Authorization_Abstract
 	 */
 	public function autoregister (Authorization_Loginza_Token $token)
 	{
+		Loader::load ('User_Loginza');
 		if (!$token->email)
 		{
 			return "Data_Validator_Loginza_Token::invalid";
@@ -54,11 +49,11 @@ class Authorization_Loginza extends Authorization_Abstract
 		
 		Loader::load ('Helper_Email');
 		$user = User::create (array (
-			'name'		=> Helper_Email::extractName ($token->email),
-			'email'		=> $token->email,
+			'name'		=> $token->extractName (),
+			'email'		=> (string) $token->email,
 			'password'	=> md5 (time ()),
 			'phone'		=> 
-				(isset ($data ['phone']) && is_string ($data ['phone'])) ? 
+				isset ($data ['phone']) && is_string ($data ['phone']) ? 
 					$data ['phone'] : 
 					'',
 			'active'	=> 1
@@ -90,7 +85,13 @@ class Authorization_Loginza extends Authorization_Abstract
 	 */
 	public function findUser ($data)
 	{
-		return null;
+		Loader::load ('Authorization_Loginza_Token');
+		$token = Authorization_Loginza_Token::tokenData ();
+		
+		Loader::load ('User_Loginza');
+		$loginza = User_Loginza::byToken ($token);
+		
+		return $loginza ? $loginza->User : null;
 	}
 	
 }

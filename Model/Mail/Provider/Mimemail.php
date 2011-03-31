@@ -86,7 +86,7 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 		
 		$result = $this->sendEx (
 			array (
-				$to_name	=> $message->toEmail
+				$to_name	=> $message->address
 			),
 			$message->subject,
 			$message->body,
