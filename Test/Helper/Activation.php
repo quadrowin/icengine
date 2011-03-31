@@ -1,5 +1,5 @@
 <?php
-require_once 'IcEngine\Test\Implementator.php';
+require_once 'IcEngine\Test\Implementation.php';
 require_once 'PHPUnit\Framework\TestCase.php';
 
 /**
@@ -39,7 +39,7 @@ class Test_Helper_Activation extends PHPUnit_Framework_TestCase
 	public function __construct ()
 	{
 		// TODO Auto-generated constructor
-		Test_Implementator::implement ();
+		Test_Implementation::implement ();
 	}
 
 	/**

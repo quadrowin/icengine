@@ -1,7 +1,7 @@
 /**
  * @desc Контроллер для авторизации в универсальной админке
  */
-var Authorization_Email_Password_Sms = {
+var Authorization_Login_Password_Sms = {
 	
 	/**
 	 * @desc Авторизация или отправка кода
@@ -46,7 +46,7 @@ var Authorization_Email_Password_Sms = {
 		}
 		
 		Controller.call (
-			'Authorization_Email_Password_Sms/login',
+			'Authorization_Login_Password_Sms/login',
 			{
 				name: $form.find ('input[name=name]').val (),
 				pass: $form.find ('input[name=pass]').val (),
@@ -72,7 +72,7 @@ var Authorization_Email_Password_Sms = {
 		}
 		
 		Controller.call (
-			'Authorization_Email_Password_Sms/logout',
+			'Authorization_Login_Password_Sms/logout',
 			{
 				href: window.location.href
 			},
