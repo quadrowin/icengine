@@ -26,6 +26,10 @@ class Subscribe_Subscriber extends Model
             ));
             $subscriber->save ();
         }
+        else
+        {
+        	$subscriber->data ('exists', 1);
+        }
         
         return $subscriber;
     }
