@@ -13,12 +13,14 @@ class Subscribe_Subscriber_Status extends Model
 		return new Model_Collection (
 			DDS::execute (
 				Query::instance ()
+				->select ('*')
 				->from ('Subscribe_Session_Status')
 				->where ('status', $status)
 				->where ('Subscribe_Session__id', $session_id)
 				->limit ($limit)
 			)
-				->asTable ()
+				->getResult ()
+					->asTable ()
 		);
 	}
 	

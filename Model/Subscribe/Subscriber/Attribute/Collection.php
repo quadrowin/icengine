@@ -12,11 +12,13 @@ class Subscribe_Subscriber_Attribute_Collection extends Model_Collection
 	{
 		return new Model_Collection (DDS::execute (
 			Query::instance ()
+				->select ('*')
 				->from ('Subscribe_Subscriber_Attribute')
 				->where ('Subscribe_Subscriber__id', $subscriber->key ())
 				->where ('key', $key)
 			)
-				->asColumn ($key)
+				->getResult ()
+					->asColumn ($key)
 		);
 	}
 }
