@@ -10,7 +10,7 @@ class Subscribe_Subscriber_Attribute_Collection extends Model_Collection
 	 */
 	public function forSubscriber (Model $subscriber, $key)
 	{
-		return new Model_Collection (DDS::execute (
+		return DDS::execute (
 			Query::instance ()
 				->select ('*')
 				->from ('Subscribe_Subscriber_Attribute')
@@ -18,7 +18,6 @@ class Subscribe_Subscriber_Attribute_Collection extends Model_Collection
 				->where ('key', $key)
 			)
 				->getResult ()
-					->asColumn ($key)
-		);
+					->asColumn ('value');
 	}
 }
