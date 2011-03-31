@@ -49,6 +49,34 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 	{
 		return rtrim ($referer, '/');
 	}
+
+	protected function __makeUniqueLink ($link)
+	{
+		$content_category = IcEngine::$modelManager->collectionBy (
+			'Content_Category',
+			Query::instance ()
+				->where ('url', $link)
+		);
+
+		if (!$content_category->count())
+		{
+			$result = $link;
+		}
+		else
+		{
+			$unique = (int) $content_category->count();
+			if ($linka = preg_split('/_([0-9])$/',$link, -1, PREG_SPLIT_DELIM_CAPTURE))
+			{
+				$link = $linka [0];
+				$unique = (isset ($linka [1]) ? $linka [1] : 0) + 1;
+			}
+			$link_tmp = $link.'_'.$unique;
+			$result = $this->__makeUniqueLink($link_tmp);
+		}
+		
+		return $result;
+
+	}
 	
 	/**
 	 * @desc Фабрик метод для получения разрешения на редактировине
@@ -132,8 +160,9 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 			Helper_String::end ($parent->url, '.html') ?
 				substr ($parent->url, 0, -5) :
 				$parent->url;
-		return
-			rtrim ($url, '/') . '/' . $this->__saveClass ($params); 
+		$result = rtrim ($url, '/') . '/' . $this->__saveClass ($params);
+		$link = $this->__makeUniqueLink($result);
+		return $link;
 	}
 	
 	/**
