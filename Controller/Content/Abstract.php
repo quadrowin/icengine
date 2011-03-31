@@ -360,8 +360,10 @@ class Controller_Content_Abstract extends Controller_Abstract
 
 		$user = User::getCurrent ();
 
+		echo 44444444444;
 		if (!User::authorized())
 		{
+			echo 555555555555;
 			return $this->_helperReturn('Access', 'denied');
 		}
 		
@@ -373,6 +375,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			'addContent'
 		);
 		
+		echo 3333333333;
 		if (
 			!User::getCurrent ()->isAdmin() &&
 			(
@@ -381,8 +384,10 @@ class Controller_Content_Abstract extends Controller_Abstract
 			)
 		)
 		{
+			echo 1111111111;
 			return $this->_helperReturn ('Access', 'denied');
 		}
+		echo 22222222;
 		
 		if (!$content)
 		{
