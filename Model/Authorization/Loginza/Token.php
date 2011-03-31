@@ -82,14 +82,60 @@ class Authorization_Loginza_Token extends Model
 		self::$_current->data ('data', $data);
 		
 		self::$_current->set (array (
-			'result'	=> $result,
+			'data'		=> $result,
 			'email'		=> 
 				isset ($data ['email']) ? 
 					$data ['email'] : 
-					''
+					'',
+			'provider'	=> 
+				isset ($data ['provider']) ?
+					$data ['provider'] :
+					'' 
 		));
 		
 		return self::$_current;
+	}
+	
+	/**
+	 * @desc Возвращает имя пользователя.
+	 * Возвращает первое из возможных значения: никнейм, имя, часть 
+	 * емейла до "@".
+	 * @return string
+	 */
+	public function extractName ()
+	{
+		$data = $this->data ('data');
+		
+		// Никнейм
+		if (isset ($data ['nickname']) && $data ['nickname'])
+		{
+			return 
+				is_array ($data ['nickname']) ? 
+					reset ($data ['nickname']) : 
+					$data ['nickname'];
+		}
+		
+		// Имя 
+		if (isset ($data ['name']) && $data ['name'])
+		{
+			return 
+				is_array ($data ['name']) ? 
+					reset ($data ['name']) : 
+					$data ['name'];
+		}
+		
+		// емейл
+		if (isset ($data ['email']) && $data ['email'])
+		{
+			Loader::load ('Helper_Email');
+			return Helper_Email::extractName (
+				is_array ($data ['email']) ?
+					reset ($data ['email']) :
+					$data ['email']
+			);
+		}
+		
+		return '';
 	}
 	
 }
