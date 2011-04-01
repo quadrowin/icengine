@@ -35,10 +35,10 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 	 */
 	protected $_config = array (
 		// Лимит смс в 1 минуту
-		'sms_send_limit_1m'			=> 1,
+		'sms_send_limit_1m'			=> 10,
 		
 		// Лимит смс на 10 минут
-		'sms_send_limit_10m'		=> 5
+		'sms_send_limit_10m'		=> 50
 	);
 	
 	/**
