@@ -67,7 +67,7 @@ class Controller_Background extends Controller_Abstract
 			return;
 		}
 		
-		$this->_manager ()->resumeAgent ($agent);
+		$this->_manager ()->resumeSession ($agent);
 		die ();
 	}
 	
