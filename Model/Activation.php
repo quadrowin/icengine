@@ -48,12 +48,19 @@ class Activation extends Model
 		$activation = new Activation (array (
 			'address'			=> $params ['address'],
 			'code'				=> $params ['code'],
-			'finished'			=> 0,
+			'finished'			=> 
+				isset ($params ['finished']) ?
+					$params ['finished'] :
+					0,
 			'createTime'		=> Helper_Date::toUnix (),
 			'finishTime'		=>
 				isset ($params ['expirationTime']) ?
 					$params ['expirationTime'] :
 					self::EMPTY_FINISH_TIME,
+			'expirationTime'	=> 
+				isset ($params ['expirationTime']) ?
+					$params ['expirationTime'] :
+					'2040-01-01 00:00:00',
 			'User__id'			=> 
 				isset ($params ['User__id']) ?
 					$params ['User__id'] :
