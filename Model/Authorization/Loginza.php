@@ -50,6 +50,7 @@ class Authorization_Loginza extends Authorization_Abstract
 		Loader::load ('Helper_Email');
 		$user = User::create (array (
 			'name'		=> $token->extractName (),
+			'login'		=> $token->identity,
 			'email'		=> (string) $token->email,
 			'password'	=> md5 (time ()),
 			'phone'		=> 
