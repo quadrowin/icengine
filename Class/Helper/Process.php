@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * 
+ * @desc Хелпер для описания состояния процесса.
+ * @author Юрий Шведов, Илья Колесников
+ * @package IcEngine
+ *
+ */
 class Helper_Process
 {
 	/**
