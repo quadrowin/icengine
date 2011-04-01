@@ -189,14 +189,14 @@ class Controller_Content_Abstract extends Controller_Abstract
 		
 		if ($category_id)
 		{
-			$category = IcEngine::$modelManager->modelByKey (
+			$category = Model_Manager::modelByKey (
 				$this->__categoryModel (),
 				$category_id
 			);	
 		}
 		else
 		{
-			$category = IcEngine::$modelManager->modelBy (
+			$category = Model_Manager::modelBy (
 				$this->__categoryModel (),
 				Query::instance ()
 					->where ('url', $url ? $url : Request::uri ())
@@ -208,7 +208,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			return $this->_helperReturn ('Page', 'notFound');
 		}
 
-		$parent = IcEngine::$modelManager->modelByKey (
+		$parent = Model_Manager::modelByKey (
 			$this->__categoryModel (),
 			$category->parentKey ()
 		);
@@ -223,7 +223,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			$this->__contentModel ()
 		);
 
-		$parent_url = rtrim($parent->url, '/').'.html';
+		$parent_url = rtrim ($parent->url, '/') . '.html';
 
 		$this->_output->send (array (
 			'contents'		=> $content_collection,
@@ -482,7 +482,10 @@ class Controller_Content_Abstract extends Controller_Abstract
 		
 		if ($content_id)
 		{			
-			$content = Model_Manager::modelByKey ($this->__contentModel (), $content_id);
+			$content = Model_Manager::modelByKey (
+				$this->__contentModel (),
+				$content_id
+			);
 
 			$referer = $this->__saveReferer ($url, $referer, $title);
 
@@ -512,11 +515,10 @@ class Controller_Content_Abstract extends Controller_Abstract
 			
 			Loader::load ('Helper_Link');
 			
-			$content_category = IcEngine::$modelManager
-				->modelByKey (
-					$this->__categoryModel (),
-					$category_id
-				);
+			$content_category = Model_Manager::modelByKey (
+				$this->__categoryModel (),
+				$category_id
+			);
 			
 			if (!$content_category)
 			{
@@ -558,7 +560,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			'url'
 		);
 		
-		$content = IcEngine::$modelManager->modelByKey (
+		$content = Model_Manager::modelByKey (
 			$this->__contentModel (), 
 			$content_id
 		);
