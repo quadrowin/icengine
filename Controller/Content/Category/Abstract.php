@@ -50,13 +50,18 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 		return rtrim ($referer, '/');
 	}
 
-	protected function __makeUniqueLink ($link)
+	protected function __makeUniqueLink ($link, $category_id)
 	{
 		$content_category = IcEngine::$modelManager->collectionBy (
 			'Content_Category',
 			Query::instance ()
 				->where ('url', $link)
 		);
+
+		if ($category_id)
+		{
+			$content_category->where ('id!=?', $category_id);
+		}
 
 		if (!$content_category->count())
 		{
@@ -152,7 +157,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 	 * @return string
 	 * @override
 	 */
-	protected function __saveUrl ($params)
+	protected function __saveUrl ($params, $category_id)
 	{
 		$parent = $params ['parent'];
 		Loader::load ('Helper_String');
@@ -161,7 +166,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 				substr ($parent->url, 0, -5) :
 				$parent->url;
 		$result = rtrim ($url, '/') . '/' . $this->__saveClass ($params);
-		$link = $this->__makeUniqueLink($result);
+		$link = $this->__makeUniqueLink($result, $category_id);
 		return $link;
 	}
 	
@@ -292,7 +297,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 		$class = !$class ?  $this->__saveClass ($params) : $class;
 	
 		// Получаем URL
-		$url = !$url ? $this->__saveUrl ($params) : $url;
+		$url = !$url ? $this->__saveUrl ($params, $category_id) : $url;
 		$user = User::getCurrent ();
 		
 		if ($category_id)
