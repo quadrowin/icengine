@@ -31,7 +31,7 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 		// Валидатор логина
 		'login_validator'		=> 'Email',
 	
-		// Время действительности СМС
+		// Время действительности СМС в секундах
 		'sms_expiration'		=> 3600,
 		// префикс кода в БД
 		'sms_prefix'			=> 'smsauth.',
@@ -50,6 +50,7 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 		 * @desc можно перечислить логины, пароли и телефоны пользователей.
 		 * Если этот параметр array, то пользователи, не указанные в этом 
 		 * массиве не могут быть авторизованы этим методом.
+		 * Логины должны быть указаные в нижнем регистре.
 		 * @tutorial
 		 * 	'users'	=> array (
 		 * 		'admin'	=> array (
@@ -199,16 +200,18 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 				->where ('code', $prefix . $data ['activation_code'])
 				->where ('id', $data ['activation_id'])
 				->where ('User__id', $user->id)
-				->where ('finished', false)
+				->where ('expirationTime>?', Helper_Date::toUnix ())
+				->where ('finished<1')
 		);
 		
-		if (!$activation || $activation->finished)
+		if (!$activation)
 		{
 			return 'Data_Validator_Activation_Code/invalid';
 		}
 		
 		$activation->update (array (
-			'finished'	=> 1
+			'finished'		=> $activation->finished + 1,
+			'finishTime'	=> Helper_Date::toUnix ()
 		));
 		
 		$this->_authorize ($user);
@@ -297,14 +300,35 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 			$config ['code_max_length']
 		);
 		
+		// Пробуем использовать старый код
+		$activation = Model_Manager::modelBy (
+			'Activation',
+			Query::instance ()
+				->where ('User__id', $user->id)
+				->where ('address', $user->phone)
+				->where ('finished<0')
+				->where ('expirationTime>?', Helper_Date::toUnix ())
+		);
+		
+		if ($activation)
+		{
+			// За каждое повторное использование, приближаем к финишу,
+			// чтобы если первая СМС не дошла, можно было добиться повторной
+			// отправки.
+			return $activation->update (array (
+				'finished'	=> $activation->finished + 1
+			));
+		}
+		
 		$activation_code = $config ['sms_prefix'] . $clear_code;
 		
 		Loader::load ('Activation');
+		$exp_time = Helper_Date::toUnix (time () + $config ['sms_expiration']);
 		$activation = Activation::create (array (
+			'finished'			=> -2,
 			'address'			=> $user->phone,
 			'code'				=> $activation_code,
-			'expirationTime'	=> 
-				Helper_Date::toUnix (time () + $config ['sms_expiration']),
+			'expirationTime'	=> $exp_time,
 			'User__id'			=> $user->id
 		));
 		
