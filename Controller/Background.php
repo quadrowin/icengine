@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * 
+ * @desc Контроллер фоновых процессов.
+ * @author Юрий Шведов
+ * @package IcEngine
+ *
+ */
 class Controller_Background extends Controller_Abstract
 {
 	
@@ -24,6 +30,36 @@ class Controller_Background extends Controller_Abstract
 			));
 		}
 		return $agent;
+	}
+	
+	/**
+	 * 
+	 * @return Background_Agent_Session
+	 */
+	protected function _getSession ()
+	{
+		list (
+			$session_id,
+			$session_key
+		) = $this->_input->receive (
+			'session_id',
+			'session_key'
+		);
+		
+		$session = Model_Manager::modelBy (
+			'Background_Agent_Session', 
+			Query::instance ()
+			->where ('id', $session_id)
+			->where ('key', $session_key)
+		);
+		
+		if (!$session)
+		{
+			$this->_output->send (array (
+				'error'	=> 'Session not found.'
+			));
+		}
+		return $session;
 	}
 	
 	/**
@@ -59,27 +95,31 @@ class Controller_Background extends Controller_Abstract
 		$agent->resetState ();
 	}
 	
+	/**
+	 * @desc Вызвать следующую итерацию работы сессии и возобновить.
+	 */
 	public function resume ()
 	{
-		$agent = $this->_getAgent ();
-		if (!$agent)
+		$session = $this->_getSession ();
+		if (!$session)
 		{
 			return;
 		}
 		
-		$this->_manager ()->resumeSession ($agent);
+		$session->process ();
+		$this->_manager ()->resumeSession ($session);
 		die ();
 	}
 	
 	public function stop ()
 	{
-		$agent = $this->_getAgent ();
-		if (!$agent)
+		$session = $this->_getSession ();
+		if (!$session)
 		{
 			return;
 		}
 		
-		$agent->stop ();
+		$session->stop ();
 	}
 	
 }

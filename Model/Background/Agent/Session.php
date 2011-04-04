@@ -57,7 +57,8 @@ class Background_Agent_Session extends Model
 		
 		$update = array (
 			'lastUpdateTime'	=> Helper_Date::toUnix (),
-			'params'			=> json_encode ($this->_params)
+			'params'			=> json_encode ($this->_params),
+			'iteration'			=> $this->iteration + 1
 		);
 		
 		if ($this->state == Helper_Process::ONGOING)
@@ -100,6 +101,14 @@ class Background_Agent_Session extends Model
 			'state'				=> Helper_Process::PAUSE,
 			'lastUpdateTime'	=> Helper_Date::toUnix ()
 		));
+	}
+	
+	/**
+	 * @desc Остановка процесса
+	 */
+	public function stop ()
+	{
+		$this->updateState (Helper_Process::STOPED);
 	}
 	
 	/**

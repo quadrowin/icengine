@@ -11,7 +11,7 @@ class Background_Agent_Resume_Http extends Background_Agent_Resume_Abstract
 	
 	/**
 	 * @desc Конфиг
-	 * @var array
+	 * @var array|Objective
 	 */
 	protected $_config = array (
 		/**

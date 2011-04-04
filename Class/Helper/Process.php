@@ -37,4 +37,11 @@ class Helper_Process
 	 * @var integer
 	 */
 	const PAUSE = 4;
+	
+	/**
+	 * @desc Остановлен
+	 * @var integer
+	 */
+	const STOPED = 5;
+	
 }
