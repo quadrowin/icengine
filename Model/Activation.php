@@ -23,7 +23,7 @@ class Activation extends Model
 	 */
 	public static function byCode ($code)
 	{
-		return IcEngine::$modelManager->modelBy (
+		return Model_Manager::modelBy (
 			'Activation',
 			Query::instance ()
 			->where ('code', $code)
@@ -53,10 +53,7 @@ class Activation extends Model
 					$params ['finished'] :
 					0,
 			'createTime'		=> Helper_Date::toUnix (),
-			'finishTime'		=>
-				isset ($params ['expirationTime']) ?
-					$params ['expirationTime'] :
-					self::EMPTY_FINISH_TIME,
+			'finishTime'		=> self::EMPTY_FINISH_TIME,
 			'expirationTime'	=> 
 				isset ($params ['expirationTime']) ?
 					$params ['expirationTime'] :

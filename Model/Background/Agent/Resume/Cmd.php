@@ -11,7 +11,7 @@ class Background_Agent_Resume_Cmd extends Background_Agent_Resume_Abstract
 	
 	/**
 	 * @desc Конфиг
-	 * @var unknown_type
+	 * @var array|Objective
 	 */
 	protected $_config = array (
 		// Шаблон команды для перезапуска процесса

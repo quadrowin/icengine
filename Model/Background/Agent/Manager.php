@@ -15,6 +15,9 @@ class Background_Agent_Manager
 	 */
 	protected $_config = array (
 	
+		// 
+		'default_agent_resume_id'	=> 2,
+	
 		/**
 		 * @desc Время в секундах после последней активности процесса,
 		 * после которого состояние процесса будет установлено в ERROR.
@@ -36,9 +39,9 @@ class Background_Agent_Manager
 	}
 	
 	/**
-	 * @desc Проверка "зависших" процессов
-	 * @return integer
-	 * 		Количество "зависших" процессов
+	 * @desc Поиск зависших сессий. Сессии, чье время последнего апдейта
+	 * превышает заданное будут помечены как fail.
+	 * @return integer Количество зависших сессий
 	 */
 	public function checkErrors ()
 	{
@@ -53,38 +56,42 @@ class Background_Agent_Manager
 				'time_limit'  => $time_limit
 			)
 		));
-		$agents->update (array (
-			'state'	=> Helper_Process::FAIL
-		));
-		return $agents->count ();
+		
+		foreach ($sessions as $session)
+		{
+			$session->updateState (Helper_Process::FAIL);
+		}
+		
+		return $sessions->count ();
 	}
 	
 	/**
-	 * @desc Перезапуск процессов, помеченных как зависшие
-	 * @return integer
-	 * 		Количество перезапущенных процессов
+	 * @desc Перезапуск сессий, помеченных как зависшие.
+	 * @return integer Количество перезапущенных процессов.
 	 */
 	public function checkRestarts ()
 	{
 		$time_limit = (int) $this->config ()->process_to_restart_time;
 		
 		//Loader::load ('Background_Agent_Collection_Option');
-		$agents = new Background_Agent_Collection ();
-		$agents->addOptions (array (
+		$sessions = new Background_Agent_Collection ();
+		$sessions->addOptions (array (
 			array (
 				'name'			=> 'restartExpiration',
 				'time_limit'	=> $time_limit
 			)
 		));
-		foreach ($agents as $agent)
+		
+		foreach ($sessions as $session)
 		{
 			/**
 			 * @var Background_Agent
 			 */
-			$agent->resetState ();
-			$this->resumeSession ($agent);
+			$session->updateState (Helper_Process::PAUSE);
+			$this->resumeSession ($session);
 		}
-		return $agents->count ();
+		
+		return $sessions->count ();
 	}
 	
 	/**
@@ -106,7 +113,7 @@ class Background_Agent_Manager
 	 */
 	public function resumeSession (Background_Agent_Session $session)
 	{
-		$session->Resume->resume ($session);
+		$session->Background_Agent_Resume->resume ($session);
 	}
 	
 	/**
@@ -126,17 +133,21 @@ class Background_Agent_Manager
 		
 		
 		$session = new Background_Agent_Session (array (
-			'Background_Agent__id'	=> $agent->id,
-			'startTime'				=> Helper_Date::toUnix (),
-			'iteration'				=> 0,
-			'finishTime'			=> Helper_Date::toUnix (),
-			'updateTime'			=> Helper_Date::toUnix (),
-			'params'				=> json_encode ($params),
-			'state'					=> Helper_Process::NONE
+			'Background_Agent__id'			=> $agent->id,
+			'startTime'						=> Helper_Date::toUnix (),
+			'iteration'						=> 0,
+			'finishTime'					=> Helper_Date::toUnix (),
+			'updateTime'					=> Helper_Date::toUnix (),
+			'params'						=> json_encode ($params),
+			'state'							=> Helper_Process::NONE,
+			'Background_Agent_Resume__id'	=> 
+				isset ($params ['Background_Agent_Resume__id']) ?
+					$params ['Background_Agent_Resume__id'] :
+					$this->config ()->default_agent_resume_id
 		));
 
 		$session->start ();
-		$this->resumeSession ($agent);
+		$this->resumeSession ($session);
 	}
 	
 }
