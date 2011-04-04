@@ -1,5 +1,12 @@
 <?php
-
+/**
+ * 
+ * @desc Вывод страниц
+ * @author Юрий Шведов
+ * @tutorial
+ * {Paginator data=$collection->getPaginator()}
+ *
+ */
 class View_Helper_Paginator extends View_Helper_Abstract
 {
 	
@@ -78,7 +85,7 @@ class View_Helper_Paginator extends View_Helper_Abstract
 		
 		$this->_view->assign ('paginator', $paginator);
 		
-		return $this->_view->fetch ('Controller/View/Helper/Paginator.tpl');
+		return $this->_view->fetch ('Widget/Paginator/index.tpl');
 	}
 	
 }
