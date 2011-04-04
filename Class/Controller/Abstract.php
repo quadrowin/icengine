@@ -103,8 +103,11 @@ class Controller_Abstract
 	 * @param array|Objective $scheme
 	 * @param boolean|Temp_Content Использовать ли временный контент или 
 	 * 		сам временный котенты
-	 * @param boolean $by_parts Вернуть разбитым по частям (данные и атрибуты)
-	 * @return Objective
+	 * @param boolean|string $by_parts Если true, данные будут возвращены
+	 * массивом array ('feilds' => Objective, 'attributes' => Objective),
+	 * если false - все данные объектом Objective, если 'fields' или 
+	 * 'attributes' - только соответствующая часть. 
+	 * @return Objective|array
 	 */
 	public function _inputFormData ($scheme, $use_tc = null, $by_parts = true)
 	{
@@ -155,7 +158,14 @@ class Controller_Abstract
 		
 		Helper_Form::unsetIngored ($data, $scheme);
 		
-		return Helper_Form::extractParts ($data, $scheme);
+		if (!$by_parts)
+		{
+			return $data;
+		}
+		
+		$data = Helper_Form::extractParts ($data, $scheme);
+		
+		return isset ($data [$by_parts]) ? $data [$by_parts] : $data;
 	}
 	
 	/**
