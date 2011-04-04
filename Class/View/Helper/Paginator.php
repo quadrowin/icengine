@@ -4,7 +4,7 @@
  * @desc Вывод страниц
  * @author Юрий Шведов
  * @tutorial
- * {Paginator data=$collection->getPaginator()}
+ * {Paginator data=$collection->getPaginator() tpl="index"}
  *
  */
 class View_Helper_Paginator extends View_Helper_Abstract
@@ -85,7 +85,19 @@ class View_Helper_Paginator extends View_Helper_Abstract
 		
 		$this->_view->assign ('paginator', $paginator);
 		
-		return $this->_view->fetch ('Widget/Paginator/index.tpl');
+		$template = 'Widget/Paginator/index.tpl';
+		
+		if (isset ($params ['template']))
+		{
+			$template = $params ['tempalte'];
+		}
+		
+		if (isset ($params ['tpl']))
+		{
+			$template = 'Widget/Paginator/' . $params ['tpl'] . '.tpl';
+		}
+		
+		return $this->_view->fetch ($template);
 	}
 	
 }
