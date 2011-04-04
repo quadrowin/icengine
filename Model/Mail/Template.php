@@ -47,8 +47,10 @@ class Mail_Template extends Model_Child
 		$template = IcEngine::$modelManager->modelBy (
 		    'Mail_Template',
 		    Query::instance ()
-		    ->where ('name', $name)
+		   		->where ('name', $name)
 		);
+		
+		var_dump ($template);
 		
 		if (!$template && $blank)
 		{
