@@ -64,13 +64,24 @@ class View_Helper_Paginator extends View_Helper_Abstract
 				abs ($paginator->page - $i) < 3
 			)
 			{
-				$pages [] = array (
+				$page = array (
 					'href'	    => $href . $i,
 					'title'	    => $i,
 					'prev'		=> ($paginator->page == $i - 1),
 					'next'		=> ($paginator->page == $i + 1),
 				    'selected'	=> ($paginator->page == $i)
 				);
+				$pages [] = $page;
+				
+				if ($page ['prev'])
+				{
+					$paginator->prev = $page;
+				}
+				elseif ($page ['next'])
+				{
+					$paginator->next = $page;
+				}
+				
 				$spaced = false;
 			}
 			elseif (!$spaced)
