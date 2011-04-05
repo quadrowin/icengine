@@ -67,8 +67,8 @@ class View_Helper_Paginator extends View_Helper_Abstract
 				$page = array (
 					'href'	    => $href . $i,
 					'title'	    => $i,
-					'prev'		=> ($paginator->page == $i - 1),
-					'next'		=> ($paginator->page == $i + 1),
+					'next'		=> ($paginator->page == $i - 1),
+					'prev'		=> ($paginator->page == $i + 1),
 				    'selected'	=> ($paginator->page == $i)
 				);
 				$pages [] = $page;
