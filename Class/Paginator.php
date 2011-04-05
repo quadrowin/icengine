@@ -32,6 +32,18 @@ class Paginator
 	public $pages;
 	
 	/**
+	 * @desc Предыдущая страница
+	 * @var array
+	 */
+	public $prev;
+	
+	/**
+	 * @desc Следующая страница
+	 * @var array
+	 */
+	public $next;
+	
+	/**
 	 * 
 	 * @param integer $page Текущая страница
 	 * @param integer $page_limit Количество элементов на странице
