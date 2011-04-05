@@ -85,8 +85,7 @@ class View_Helper_Widget extends View_Helper_Abstract
 			}
 		}
 		
-		$result = IcEngine::$widgetManager->call (
-			$widget, $method, $params, false);
+		$result = Widget_Manager::call ($widget, $method, $params, false);
 		
 		if (isset ($params ['var']))
 		{

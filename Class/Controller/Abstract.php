@@ -297,7 +297,7 @@ class Controller_Abstract
 	 * @desc Имя контроллера (без приставки Controller_)
 	 * @return string
 	 */
-	public function name ()
+	final public function name ()
 	{		
 		return substr (get_class ($this), 11);
 	}
@@ -350,13 +350,23 @@ class Controller_Abstract
 		return $this;
 	}
 	
-	public function setInput (Data_Transport $input)
+	/**
+	 * @desc Устанавливает транспорт входных данных.
+	 * @param Data_Transport $input
+	 * @return Controller_Abstract
+	 */
+	public function setInput ($input)
 	{
 		$this->_input = $input;
 		return $this;
 	}
 	
-	public function setOutput (Data_Transport $output)
+	/**
+	 * @desc Устанавливает транспорт выходных данных.
+	 * @param Data_Transport $output
+	 * @return Controller_Abstract
+	 */
+	public function setOutput ($output)
 	{
 		$this->_output = $output;
 		return $this;

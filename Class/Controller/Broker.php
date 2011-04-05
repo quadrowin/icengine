@@ -10,19 +10,31 @@ class Controller_Broker
 {
 	
 	/**
-	 * 
+	 * @desc Загруженные контроллеры.
 	 * @var array
 	 */
-	protected static $_controllers;
+	protected static $_controllers = array ();
 	
 	/**
-	 * 
+	 * @desc Стек входных транспортов контроллеров.
+	 * @var array
+	 */
+	protected static $_controllersInputs = array ();
+	
+	/**
+	 * @desc Стек выходных транспортов контроллеров.
+	 * @var array
+	 */
+	protected static $_controllersOutputs = array ();
+	
+	/**
+	 * @desc Транспорт входных данных.
 	 * @var Data_Transport
 	 */
 	protected static $_input;
 	
 	/**
-	 * 
+	 * @desc Транспорт выходных данных.
 	 * @var Data_Transport
 	 */
 	protected static $_output;
@@ -40,14 +52,14 @@ class Controller_Broker
 	 */
 	public static $config = array (
 		/**
-		 * Фильтры для выходных данных
+		 * @desc Фильтры для выходных данных
 		 * @var array
 		 */
 		'output_filters'	=> array ()
 	);
 	
 	/**
-	 * Сохранение результата работы контроллера
+	 * @desc Сохранение результата работы контроллера
 	 * 
 	 * @param Controller_Abstract $controller
 	 * @param Controller_Dispatcher_Iteration $iteration
@@ -63,6 +75,10 @@ class Controller_Broker
 		{
 			self::$_iterations [] = $iteration;
 		};
+		
+		$controller
+			->setInput (array_pop (self::$_controllersInputs))
+			->setOutput (array_pop (self::$_controllersOutputs));
 	}
 
 	/**
@@ -70,7 +86,10 @@ class Controller_Broker
 	 * @param Controller_Abstract $controller
 	 */
 	public static function beforeAction ($controller)
-	{	
+	{
+		self::$_controllersInputs [] = $controller->getInput ();
+		self::$_controllersOutputs [] = $controller->getOutput ();
+		
 		self::getOutput ()->beginTransaction ();
 		
 		$controller
