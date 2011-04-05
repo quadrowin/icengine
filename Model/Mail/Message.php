@@ -17,12 +17,12 @@ class Mail_Message extends Model
 	 * @param array $data Данные для шаблона.
 	 * @param integer $to_user_id Если получатель - пользователь.
 	 * @param string|integer|Mail_Provider $mail_provider Провайдер сообщений.
-	 * @param array $mail_provider_params Параметры для провайдера.
+	 * @param array|Objective $mail_provider_params Параметры для провайдера.
 	 * @return Mail_Message Созданное сообщение.
 	 */
 	public static function create ($template_name, $address, $to_name, 
 		array $data = array (), $to_user_id = 0, $mail_provider = 0,
-		array $mail_provider_params = array ())
+		$mail_provider_params = array ())
 	{
 		Loader::load ('Mail_Template');
 		$template = Mail_Template::byName ($template_name);
@@ -47,7 +47,11 @@ class Mail_Message extends Model
 			'body'					=> $template->body ($data),
 			'toUserId'				=> (int) $to_user_id,
 			'Mail_Provider__id'		=> $mail_provider,
-			'params'				=> json_encode ($mail_provider_params)
+			'params'				=> json_encode (
+				is_object ($mail_provider_params) ?
+					$mail_provider_params->__toArray () :
+					$mail_provider_params
+			)
 		));
 		
 		return $message;

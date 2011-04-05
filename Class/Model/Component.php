@@ -1,4 +1,5 @@
 <?php
+Loader::load ('Model_Child');
 /**
  * 
  * @desc Модель компонента.
@@ -9,7 +10,6 @@
  * @package IcEngine.
  *
  */
-Loader::load ('Model_Child');
 abstract class Model_Component extends Model_Child
 {
     
@@ -43,10 +43,7 @@ abstract class Model_Component extends Model_Child
 	 */
     public function model ()
     {
-    	return IcEngine::$modelManager->modelByKey (
-    		$this->table,
-    		$this->rowId
-    	);
+    	return Model_Manager::byKey ($this->table, $this->rowId);
     }
     
 }

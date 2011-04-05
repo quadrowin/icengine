@@ -56,14 +56,6 @@ class Widget_Manager
 			$class = 'Widget_' . $name;
 			Loader::load ($class);
 			$widget = new $class ();
- 			
-			Loader::load ('Data_Provider_Buffer');
-			
-			$widget
-				->getInput ()->appendProvider (new Data_Provider_Buffer ());
-			$widget
-				->getOutput ()->appendProvider (new Data_Provider_Buffer ());
-			
 			Resource_Manager::set ('Widget', $name, $widget);
 		}
 		
@@ -137,14 +129,9 @@ class Widget_Manager
 		array $args = array (), $html_only = true)
 	{
 		$widget = self::_get ($name);
-		
-		$input = $widget->getInput ()->getProvider (0);
-		$input->flush ();
-		
-		foreach ($args as $key => $value)
-		{
-			$input->set ($key, $value);
-		}
+
+		$widget->getInput ()->beginTransaction ()->send ($args);
+		$widget->getOutput ()->beginTransaction ();
 		
 		$result = array (
 			'return'	=> $widget->{$method} ()
@@ -152,9 +139,12 @@ class Widget_Manager
 	   
 		$tpl = $widget->template ($method);
 		
-		$output = $widget->getOutput ()->getProvider (0);
+		$widget->getInput ()->endTransaction ();
+		$output = $widget->getOutput ()->endTransaction ();
 		
-		$result ['data'] = (array) $output->get ('data');
+		//var_dump ($output);
+		
+		$result ['data'] = (array) $output->receive ('data');
 		
 		if ($tpl && $tpl != self::NULL_TEMPLATE)
 		{
@@ -163,7 +153,7 @@ class Widget_Manager
 			$view->pushVars ();
 			try
 			{
-				$view->assign ($output->getAll ());
+				$view->assign ($output->buffer ());
 				$result ['html'] = $view->fetch ($tpl);
 			}
 			catch (Exception $e)
@@ -191,8 +181,6 @@ class Widget_Manager
 		{
 			$result ['html'] = '';
 		}
-
-		$output->flush ();
 		
 		return $html_only ? $result ['html'] : $result;
 	}

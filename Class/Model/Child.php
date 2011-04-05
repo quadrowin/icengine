@@ -28,8 +28,7 @@ abstract class Model_Child extends Model
 	public function getParent ()
 	{
 		return $this->parentKey () ? 
-		    Model_Manager::modelByKey (
-		    	$this->modelName (), $this->parentKey ()) : 
+		    Model_Manager::byKey ($this->modelName (), $this->parentKey ()) : 
 		    null;
 	} 
 	
