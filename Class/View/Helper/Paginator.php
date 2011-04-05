@@ -67,6 +67,8 @@ class View_Helper_Paginator extends View_Helper_Abstract
 				$pages [] = array (
 					'href'	    => $href . $i,
 					'title'	    => $i,
+					'prev'		=> ($paginator->page == $i - 1),
+					'next'		=> ($paginator->page == $i + 1),
 				    'selected'	=> ($paginator->page == $i)
 				);
 				$spaced = false;
@@ -75,6 +77,8 @@ class View_Helper_Paginator extends View_Helper_Abstract
 			{
 				$pages [] = array (
 					'title'	    => '...',
+					'prev'		=> false,
+					'next'		=> false,
 				    'selected'	=> false
 				);
 				$spaced = true;
