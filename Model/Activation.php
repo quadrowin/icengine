@@ -21,13 +21,14 @@ class Activation extends Model
 	 * @param string $code Код активации.
 	 * @return Activation|null Найденная активация.
 	 */
-	public static function byCode ($code)
+	public static function byCode ($code, $type = '')
 	{
 		return Model_Manager::modelBy (
 			'Activation',
 			Query::instance ()
-			->where ('code', $code)
-			->where ('expirationTime<', Helper_Date::toUnix ())
+				->where ('type', $type)
+				->where ('code', $code)
+				->where ('expirationTime<?', Helper_Date::toUnix ())
 		);
 	}
 	
@@ -35,6 +36,7 @@ class Activation extends Model
 	 * @desc Создает и возвращает новую активацию.
 	 * @param array $params Параметры активации.
 	 * $params ['address'] Адрес для отправки сообщения.
+	 * $params ['type'] [optional] Тип (smsauth/review и т.п.)
 	 * $params ['code'] Код активации.
 	 * $params ['User__id'] [optional] Если не передан, id текущего.
 	 * $params ['expirationTime'] Время, когда активация станет 
@@ -47,6 +49,10 @@ class Activation extends Model
 	{
 		$activation = new Activation (array (
 			'address'			=> $params ['address'],
+			'type'				=> 
+				isset ($params ['type']) ? 
+					$params ['type'] :
+					'',
 			'code'				=> $params ['code'],
 			'finished'			=> 
 				isset ($params ['finished']) ?

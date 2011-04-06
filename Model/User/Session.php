@@ -10,7 +10,7 @@ class User_Session extends Model
 {
 	
     /**
-     * 
+     * @desc Сессия текущего пользователя.
      * @var User_Session
      */
     protected static $_current = null;
@@ -28,7 +28,7 @@ class User_Session extends Model
 			throw new Zend_Exception ('Empty php session id received.');
 		}
 		
-		$session = IcEngine::$modelManager->modelBy (
+		$session = Model_Manager::byQuery (
 		    'User_Session',
 		    Query::instance ()
 		        ->where ('phpSessionId', $session_id)
@@ -39,8 +39,8 @@ class User_Session extends Model
     		$session = new User_Session (array (
     			'User__id'		=> 0,
     			'phpSessionId'	=> $session_id,
-    			'startTime'	    => date (Helper_Date::UNIX_FORMAT),
-    			'lastActive'	=> date (Helper_Date::UNIX_FORMAT),
+    			'startTime'	    => Helper_Date::toUnix (),
+    			'lastActive'	=> Helper_Date::toUnix (),
     			'remoteIp'		=> Request::ip (),
     			'userAgent'	    => substr (getenv ('HTTP_USER_AGENT'), 0, 100)
     		));
@@ -74,17 +74,17 @@ class User_Session extends Model
 	 */
 	public function updateSession ($new_user_id = null)
 	{
+		$now = Helper_Date::toUnix ();
+		
 		if (isset ($new_user_id) && $new_user_id)
 		{
 			$upd = array (
 				'User__id'		=> $new_user_id,
-				'lastActive'	=> date (Helper_Date::UNIX_FORMAT)
+				'lastActive'	=> $now
 			);
 		}
 		else
 		{
-			$now = date (Helper_Date::UNIX_FORMAT);
-			
 			// Обновляем сессию не чаще, чем раз в 10 минут.
 			// strlen ('YYYY-MM-DD HH:I_:__') = 
 			if (strncmp ($now, $this->lastActive, 15) == 0)

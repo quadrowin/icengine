@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * 
+ * @desc Фронт контроллер
+ * @author Юрий Шведов, Илья Колесников
+ * @package IcEngine
+ *
+ */
 class Controller_Front
 {
 	/**
@@ -71,7 +77,6 @@ class Controller_Front
 	}
 	
 	/**
-	 * 
 	 * @desc Запускаем фронт контролер!
 	 */
 	public function run ()

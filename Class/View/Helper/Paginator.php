@@ -1,5 +1,12 @@
 <?php
-
+/**
+ * 
+ * @desc Вывод страниц
+ * @author Юрий Шведов
+ * @tutorial
+ * {Paginator data=$collection->getPaginator() tpl="index"}
+ *
+ */
 class View_Helper_Paginator extends View_Helper_Abstract
 {
 	
@@ -57,17 +64,32 @@ class View_Helper_Paginator extends View_Helper_Abstract
 				abs ($paginator->page - $i) < 3
 			)
 			{
-				$pages [] = array (
+				$page = array (
 					'href'	    => $href . $i,
 					'title'	    => $i,
+					'next'		=> ($paginator->page == $i - 1),
+					'prev'		=> ($paginator->page == $i + 1),
 				    'selected'	=> ($paginator->page == $i)
 				);
+				$pages [] = $page;
+				
+				if ($page ['prev'])
+				{
+					$paginator->prev = $page;
+				}
+				elseif ($page ['next'])
+				{
+					$paginator->next = $page;
+				}
+				
 				$spaced = false;
 			}
 			elseif (!$spaced)
 			{
 				$pages [] = array (
 					'title'	    => '...',
+					'prev'		=> false,
+					'next'		=> false,
 				    'selected'	=> false
 				);
 				$spaced = true;
@@ -78,7 +100,19 @@ class View_Helper_Paginator extends View_Helper_Abstract
 		
 		$this->_view->assign ('paginator', $paginator);
 		
-		return $this->_view->fetch ('Controller/View/Helper/Paginator.tpl');
+		$template = 'Widget/Paginator/index.tpl';
+		
+		if (isset ($params ['template']))
+		{
+			$template = $params ['tempalte'];
+		}
+		
+		if (isset ($params ['tpl']))
+		{
+			$template = 'Widget/Paginator/' . $params ['tpl'] . '.tpl';
+		}
+		
+		return $this->_view->fetch ($template);
 	}
 	
 }

@@ -110,6 +110,13 @@ class Controller_Dispatcher
 			$controller->setInput ($controller_action->input);
 		}
 		
+		if (isset ($controller_action->output))
+		{
+			$controller->getOutput ()->endTransaction ();
+			$controller->setOutput ($controller_action->output);
+			$controller->getOutput ()->beginTransaction ();
+		}
+		
 		$this->_onDispatchIterationStart ($controller, $iteration, $method_name);
 		
 		if (!$this->_currentIteration->getIgnore ())

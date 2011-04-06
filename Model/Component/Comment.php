@@ -15,9 +15,7 @@ class Component_Comment extends Model_Component
 	 */
 	public function getParent ()
 	{
-		return IcEngine::$application
-			->behavior->modelManager
-			->get ($this->modelName (), $this->parentId);
+		return Model_Manager::get ($this->modelName (), $this->parentId);
 	}
 	
 	/**

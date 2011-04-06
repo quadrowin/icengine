@@ -179,6 +179,68 @@ class Model_Manager
 	}
 	
 	/**
+	 * @desc Получение модели по первичному ключу.
+	 * @param string $model Имя класса модели.
+	 * @param integer $key Значение первичного ключа.
+	 * @return Model|null
+	 */
+	public static function byKey ($model, $key)
+	{
+		return self::byQuery (
+			$model,
+			Query::instance ()
+				->where (self::$_modelScheme->keyField ($model), $key)
+		);
+	}
+	
+	/**
+	 * @desc Получение модели по запросу.
+	 * @param string $model Название модели.
+	 * @param Query $query Запрос.
+	 * @return Model|null
+	 */
+	public static function byQuery ($model, Query $query)
+	{
+		$forced = self::$_forced;
+		self::$_forced = false;
+		
+		$data = null;
+		
+		if (is_null ($data))
+		{
+			if (!$query->getPart (Query::SELECT))
+			{
+				$query->select (array ($model => '*'));
+			}
+			
+			if (!$query->getPart (Query::FROM))
+			{
+				$query->from ($model, $model);
+			}
+			
+			$data = 
+				self::$_modelScheme
+					->dataSource ($model)
+					->execute ($query)
+					->getResult ()
+						->asRow ();
+		}
+		
+		if (!$data)
+		{
+			return null;
+		}
+		
+		$mm = $forced ? self::forced () : self::$_instance;
+		
+		return $mm->get (
+			$model,
+			$data [self::$_modelScheme->keyField ($model)],
+			$data
+		);
+	}
+	
+	/**
 	 * @desc Следующая модель будет создана без autojoin.
 	 * @return Model_Manager
 	 */
@@ -296,6 +358,7 @@ class Model_Manager
 	 * @param string $model
 	 * @param Query $query
 	 * @return Model|null
+	 * @deprecated Следует использовать byQuery.
 	 */
 	public static function modelBy ($model, Query $query)
 	{
@@ -343,13 +406,14 @@ class Model_Manager
 	 * @param string $model
 	 * @param integer $key
 	 * @return Model|null
+	 * @deprecated Следует использовать byKey.
 	 */
 	public static function modelByKey ($model, $key)
 	{
-		return self::modelBy (
+		return self::byQuery (
 			$model,
 			Query::instance ()
-			->where (self::$_modelScheme->keyField ($model), $key)
+				->where (self::$_modelScheme->keyField ($model), $key)
 		);
 	}
 	
