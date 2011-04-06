@@ -4,20 +4,23 @@ class Subscribe_Session extends Model
 {
 	/**
 	 * @desc Получить последнюю сессию подписки
-	 * @param integer $subscibe_id
+	 * @param Model $subscibe
 	 * @return array	
 	 */
-	public static function lastFor ($subscribe_id)
+	public static function lastFor (Model $subscribe)
 	{
+		Loader::load ('Helper_Process');
 		return DDS::execute (
 			Query::instance ()
+			->select ('*')
 			->from ('Subscribe_Session')
-			->where ('Subscribe__id', $subscribe_id)
-			->where ('statuc', Helper_Process::SUCCESS)
+			->where ('Subscribe__id', $subscribe->key ())
+			->where ('status', Helper_Process::SUCCESS)
 			->order ('finishDate DESC')
 			->limit (1)
 		)
-			->asRow ();
+			->getResult ()
+				->asRow ();
 	}
 	
 	/**

@@ -50,9 +50,6 @@ class Mail_Template extends Model_Child
 		   		->where ('name', $name)
 		);
 		
-		echo DDS::getDataSource()->getQuery('Mysql');
-		var_dump ($template);
-		
 		if (!$template && $blank)
 		{
 			$template = new Mail_Template (self::$blankTemplate);

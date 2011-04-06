@@ -824,6 +824,17 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
+	 * @desc Перемешивает элементы коллекции
+	 * @return Model_Collection
+	 */
+	public function shuffle ()
+	{
+		$this->items ();
+		shuffle ($this->_items);
+		return $this;
+	}
+	
+	/**
 	 * 
 	 * @desc Меняет поля модели
 	 * @param mixed (string,sting|array<string>) $fields
@@ -854,6 +865,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function slice ($offset, $length)
 	{
+		$this->items ();
 		$this->_items = array_slice ($this->_items, $offset, $length);
 		return $this;
 	}
@@ -870,7 +882,11 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	{
 		$items = &$this->items ();
 		Loader::load ('Helper_Array');
-		Helper_Array::mosort ($items, $fields);
+		$fields = (array) $fields;
+		for ($i = 0, $icount = sizeof ($fiels); $i < $icount; $i++)
+		{
+			Helper_Array::mosort ($items, $fields [$i]);
+		}
 		return $this;
 	}
 	

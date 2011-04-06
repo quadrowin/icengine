@@ -28,4 +28,13 @@ class Helper_Unique
 		return $model->modelName () . uniqid (__CLASS__, true) . $ext;
 	}
 	
+	/**
+	 * @desc Получить уникальный хэш
+	 * @return string
+	 */
+	public function hash ()
+	{
+		return uniqid (null, true);
+	}
+	
 }
