@@ -104,12 +104,22 @@ class Data_Mapper_Mysql extends Data_Mapper_Abstract
 		
 		$finish = microtime (true);
 		
+		$found_rows = 0;
+		if (
+			$query->part (Query::CALC_FOUND_ROWS) &&
+			method_exists ('Mysql', 'foundRows')
+		)
+		{
+			$found_rows = Mysql::foundRows ();
+		}
+		
 		return new Query_Result (array (
 			'error'			=> $error,
 			'errno'			=> $errno,
 			'query'			=> $clone,
 			'startAt'		=> $start,
 			'finishedAt'	=> $finish,
+			'foundRows'		=> $found_rows,
 			'result'		=> $result,
 			'touchedRows'	=> $touched_rows,
 			'insertKey'		=> $insert_id,

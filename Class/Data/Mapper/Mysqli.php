@@ -13,7 +13,7 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 	
 	/**
 	 * @desc Соединение с mysql
-	 * @var boolean
+	 * @var resource
 	 */
 	protected $_linkIdentifier = null;
 	

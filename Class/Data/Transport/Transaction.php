@@ -1,18 +1,24 @@
 <?php
-
+/**
+ * 
+ * @desc Транзакция данных.
+ * Используется для отложенного направления данных в(из) транспорт.
+ * @author Юрий Шведов
+ * @package IcEngine
+ *
+ */
 class Data_Transport_Transaction
 {
     
     /**
-     * 
-     * 
+     * @desc Буффер транзакции.
+     * Данные, которые были направлены в транспорт.
      * @var array
      */
     protected $_buffer = array ();
     
     /**
-     * 
-     * 
+     * @desc Транспорт, для которого создана транзакция.
      * @var Data_Transport
      */
     protected $_transport;
@@ -64,11 +70,12 @@ class Data_Transport_Transaction
     }
     
     /**
-     * Коммит транзакции
+     * @desc Коммит транзакции.
+     * Направляет в транспорт данные, накопленные в транзакции.
      */
     public function commit ()
     {
-        $this->_transport->sendForce($this->_buffer);
+        $this->_transport->sendForce ($this->_buffer);
     }
     
 }
