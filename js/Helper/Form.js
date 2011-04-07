@@ -42,9 +42,9 @@ var Helper_Form = {
 	
 	/**
 	 * @desc Все поля формы как поля объекта
-	 * @param jQuery $form
-	 * @param string filter
-	 * @returns object
+	 * @param jQuery $form Форма.
+	 * @param string filter jQuery selector.
+	 * @returns object Объект, содержащий данные с формы.
 	 */
 	asArray: function ($form, filter)
 	{
@@ -75,12 +75,26 @@ var Helper_Form = {
 				}
 				else
 				{
-					data [this.name] = this.value;
+					if ($(this).attr ('placeholder') == this.value)
+					{
+						data [this.name] = '';
+					}
+					else
+					{
+						data [this.name] = this.value;
+					}
 				}
 			}
 			else
 			{
-				data [this.name] = this.value;
+				if ($(this).attr ('placeholder') == this.value)
+				{
+					data [this.name] = '';
+				}
+				else
+				{
+					data [this.name] = this.value;
+				}
 			}
 		});
 		
@@ -108,7 +122,17 @@ var Helper_Form = {
 					$('[name=' + result.data.field + ']').addClass ("err");
 				}
 				
+				// последнее вхождение ".result-msg", позволяет
+				// подменять нижнюю часть формы, которая будет содержать
+				// новый .result-msg
 				var $div = $form.parent ().find ('.result-msg');
+				var $subdiv = $div.find ('.result-msg');
+				while ($subdiv.length)
+				{
+					$div = $subdiv;
+					$subdiv = $div.find ('.result-msg'); 
+				}
+				
 				$div.html (result.html);
 				$div.show ();
 				Helper_Form.stopLoading ($form);
