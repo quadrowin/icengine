@@ -230,6 +230,15 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		$this->_items = array ();
 	}
 	
+	public function diff (Model_Collection $collection)
+	{
+		$result = new Model_Collection;
+		return $result->add (array_diff (
+			$this->items (),
+			$collection->items ()
+		));
+	}
+	
 	/**
 	 * @desc Исключает из коллекции элемент с указанным индексом.
 	 * @param integer $index
