@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * 
+ * @desc Прокси класс для коллекции моделей
+ * @author Юрий Шведов
+ * @package IcEngine
+ *
+ */
 class Model_Proxy_Collection extends Model_Collection
 {
 	
@@ -18,6 +24,10 @@ class Model_Proxy_Collection extends Model_Collection
     	    new Model_Collection_Option_Item_Collection ($this->modelName ());
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see Model_Collection::fromArray()
+	 */
 	public function fromArray (array $rows, $clear = true)
 	{
 		if ($clear)
