@@ -103,7 +103,6 @@ class Redis
 		fwrite ($sock, 'KEYS ' . $pattern . '*' . "\r\n");
 		
 		$data = fread ($sock, $len);
-		var_dump ($data);
 		
 		$p = strpos ($data, "\r");
 		
@@ -135,7 +134,6 @@ class Redis
 			}
 			
 			$parts = explode (" ", $rest . $data);
-			var_dump ('parts', $parts);
 			
 			if ($parts)
 			{
@@ -149,7 +147,6 @@ class Redis
 			foreach ($parts as $part)
 			{
 				$part = trim ($part, " \r\n");
-				var_dump ('DEL ' . $part);
 				fwrite ($sock, 'DEL ' . $part . "\r\n");
 			}
 			
@@ -166,11 +163,8 @@ class Redis
 		$rest = trim ($$rest, " \r\n");
 		if ($rest)
 		{
-			var_dump ('DEL2 ' . $rest);
 			fwrite ($sock, 'DEL ' . $rest . "\r\n");
 		}
-		
-		die ();
 	}
  
  
