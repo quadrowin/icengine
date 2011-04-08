@@ -10,17 +10,55 @@ class Component_Rating_Collection extends Component_Collection
 {
 	
 	/**
-	 * @desc Изменить рейтинг 
-	 * @param string $table Модель
-	 * @param integer $row_id Запись
-	 * @param integer $change Изменение рейтинга
-	 * @return Component_Rating Модель рейтинга
+	 * @desc Возвращает рейтинг, связанный с сущностью.
+	 * Если такого не сущетсвует, создает его.
+	 * @return Component_Rating
 	 */
-	public function vote ($table, $row_id, $change)
+	public function single ()
 	{
 		$rating = $this->first ();
-		
-		return $rating->increment ($change);
+		if (!$rating)
+		{
+			$rating = new Component_Rating (array (
+				'table'			=> $this->_model->table (),
+				'rowId'			=> $this->_model->key (),
+				'value'			=> 0,
+				'votes'			=> 0,
+				'changeTime'	=> Helper_Date::toUnix ()
+			));
+			$rating->save ();
+			$this->add ($rating);
+		}
+		return $rating;
+	}
+	
+	/**
+	 * @desc Изменить рейтинг
+	 * @param integer $change Изменение рейтинга.
+	 * @return Component_Rating_Collection
+	 */
+	public function increment ($change)
+	{
+		$this->single ()->increment ($change);
+		return $this;
+	}
+	
+	/**
+	 * @desc Возвращает значение рейтинга.
+	 * @return integer
+	 */
+	public function value ()
+	{
+		$this->single ()->value;
+	}
+	
+	/**
+	 * @desc Возвращает количество голосов.
+	 * @return integer
+	 */
+	public function votes ()
+	{
+		$this->single ()->votes;
 	}
 	
 }

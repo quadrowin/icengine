@@ -104,7 +104,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 			if (isset ($item [$key_field]))
 			{
 				// Ести ключевое поле
-				$item = IcEngine::$modelManager->get (
+				$item = Model_Manager::get (
 					$this->modelName (),
 					$item [$key_field],
 					$item
@@ -122,7 +122,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		else
 		{
 			Loader::load ('Zend_Exception');
-			throw new Zend_Exception ('Model create error');
+			throw new Zend_Exception ('Model add error');
 		}
 		return $this;
 	}
@@ -152,7 +152,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * 
 	 * @desc Получить значение поля для всех моделей коллеции
 	 * @param string $name
 	 * @return array
@@ -667,8 +666,8 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * (non-PHPdoc)
-	 * @see ArrayAccess::offsetGet()
+	 * @param offset
+	 * @return Model
 	 */
 	public function offsetGet ($offset)
 	{

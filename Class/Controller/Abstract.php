@@ -305,7 +305,7 @@ class Controller_Abstract
 	/**
 	 * @desc Заменить текущий экшн с передачей всех параметров
 	 */
-	public function replaceAction ($controller, $action)
+	public function replaceAction ($controller, $action = 'index')
 	{
 		if ($controller instanceof Controller_Abstract)
 		{
