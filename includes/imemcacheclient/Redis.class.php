@@ -9,6 +9,13 @@
 */
 class Redis
 {
+	
+	/**
+	 * @desc Экземпляр класса
+	 * @var Redis
+	 */
+	protected static $_instance;
+	
  public $servers = array();
  public $default_port = 6379;
  public $dtags_enabled = TRUE;
@@ -89,6 +96,84 @@ class Redis
   $r = $this->getResponse($k);
   return $r;
  }
+ 
+	public function clearByPattern ($pattern, $len = 1024)
+	{
+		$sock = reset ($this->pool);
+		fwrite ($sock, 'KEYS ' . $pattern . '*' . "\r\n");
+		
+		$data = fread ($sock, $len);
+		var_dump ($data);
+		
+		$p = strpos ($data, "\r");
+		
+		if (!$p)
+		{
+			echo "empty answer";
+			return;
+		}
+		
+		// Длина ответа с ключами
+		$keys_length = substr ($data, 1, $p - 1);
+		
+		if (!$keys_length)
+		{
+			return ;
+		}
+		
+		$data = ltrim (substr ($data, $p + 1), " \r\n");
+		$rest = '';
+		
+		$start_time = time ();
+		for (;;)
+		{
+			$p = strpos ($data, "\r");
+			if ($p !== false)
+			{
+				$data = substr ($data, 0, $p);
+				$readed = $keys_length;
+			}
+			
+			$parts = explode (" ", $rest . $data);
+			var_dump ('parts', $parts);
+			
+			if ($parts)
+			{
+				$rest = array_pop ($parts);
+			}
+			else
+			{
+				$rest = '';
+			}
+			
+			foreach ($parts as $part)
+			{
+				$part = trim ($part, " \r\n");
+				var_dump ('DEL ' . $part);
+				fwrite ($sock, 'DEL ' . $part . "\r\n");
+			}
+			
+			if ($keys_length <= $readed)
+			{
+				break;
+			}
+			
+			$data = fread ($sock, min ($len, $keys_length - $readed));
+			$l = strlen ($data);
+			$readed += $l;
+		};
+		
+		$rest = trim ($$rest, " \r\n");
+		if ($rest)
+		{
+			var_dump ('DEL2 ' . $rest);
+			fwrite ($sock, 'DEL ' . $rest . "\r\n");
+		}
+		
+		die ();
+	}
+ 
+ 
  private function disconnect($k)
  {
   if (!isset($this->pool[$k])) {return FALSE;}
@@ -152,6 +237,7 @@ class Redis
   if ($r === NULL) {return FALSE;}
   return $r;
  }
+ 
  public function expire($key,$TTL = 0)
  {
   return $this->requestByKey($key,'EXPIRE '.$key.' '.$TTL);
@@ -213,6 +299,20 @@ class Redis
   if ($number == 1) {return $this->requestByKey($key,'INCR '.$key);}
   return $this->requestByKey($key,'INCRBY '.$key.' '.$number);
  }
+ 
+ /**
+  * @desc Возвращает экземпляр класса
+  * @return Redis
+  */
+ public static function instance ()
+ {
+ 	if (!self::$_instance)
+ 	{
+ 		self::$_instance = new self ();
+ 	}
+ 	return self::$_instance;
+ }
+ 
  public function decrement($key,$number = 1)
  {
   if ($number == 1) {return $this->requestByKey($key,'DECR '.$key);}
