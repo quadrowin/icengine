@@ -40,7 +40,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	public function __construct ($config = array ())
 	{
 		Loader::requireOnce ('imemcacheclient/Redis.class.php', 'includes');
-		$this->conn = new Redis ();
+		$this->conn = Redis::instance ();
 		parent::__construct ($config);
 	}
 	
