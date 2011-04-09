@@ -35,10 +35,6 @@ class Helper_Subscribe
             $subscribe->sendSubscribeConfirmation ($subscriber);
         }
         
-        Subscribe_Subscriber_Attribute::deleteFor (
-        	$subscriber
-        );
-        
         return $subscriber;
 	}
 	
@@ -68,7 +64,5 @@ class Helper_Subscribe
         {
             $subscribe->sendUnsubscribeConfirmation ($subscriber);
         }
-        
-        Subscribe_Subscriber_Attribute::deleteFor ($subscriber);
 	}
 }
