@@ -22,7 +22,7 @@ class Test_Controller_Authorization_Login_Password_Sms extends PHPUnit_Framework
 	{
 		parent::setUp ();
 		// TODO Auto-generated Test_Controller_Authorization_Login_Password_Sms::setUp()
-		$this->Controller_Authorization_Login_Password_Sms = Controller_Broker::get ('Authorization_Login_Password_Sms');
+		$this->Controller_Authorization_Login_Password_Sms = Controller_Manager::get ('Authorization_Login_Password_Sms');
 	}
 
 	/**

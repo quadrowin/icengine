@@ -1,7 +1,7 @@
 <?php
 /**
  * 
- * @desc Фронт контроллер
+ * @desc Фронт контроллер.
  * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
  *
@@ -77,7 +77,7 @@ class Controller_Front
 	}
 	
 	/**
-	 * @desc Запускаем фронт контролер!
+	 * @desc Запускаем фронт контролер.
 	 */
 	public function run ()
 	{
@@ -101,16 +101,16 @@ class Controller_Front
 		
 		try 
 		{
-			Loader::load ('Controller_Broker');
+			Loader::load ('Controller_Manager');
 			
 			// Закидываем в пул диспетчеру полученные роутеров экшины
-			$this->_dispatcher->push ($this->_router->actions ());
+			$this->_dispatcher->push ($this->_router->getRoute ()->actions ());
 			
 			// Запускаем цикл диспетчеризации
-			$this->_dispatcher->dispathCircle ();
+			$this->_dispatcher->dispatchCircle ();
 			
 			// Начинаем рендерить итерации контролеров
-			View_Render_Broker::render (Controller_Broker::iterations ());
+			View_Render_Broker::render ($this->_dispatcher->results ());
 			
 		}
 		catch (Zend_Exception $e)

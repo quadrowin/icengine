@@ -96,7 +96,12 @@ class Redis
   $r = $this->getResponse($k);
   return $r;
  }
- 
+
+ 	/**
+ 	 * @desc Удаление ключей по маске
+ 	 * @param string $pattern Маска.
+ 	 * @param integer $len Длина буфера
+ 	 */
 	public function clearByPattern ($pattern, $len = 1024)
 	{
 		$sock = reset ($this->pool);

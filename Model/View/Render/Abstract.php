@@ -10,30 +10,34 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 {
 	
 	/**
-	 * Менеджер ресурсов
+	 * @desc Менеджер ресурсов.
 	 * @var View_Resrouce_Manager
 	 */
 	protected $_resources;
 	
 	/**
-	 * Пути к директориям шаблонов
+	 * @desc Пути к директориям шаблонов.
 	 * @var array <string>
 	 */
 	protected $_templatesPathes = array ();
 	
 	
 	/**
-	 * Переменные шаблонизатора
+	 * @desc Переменные шаблонизатора.
 	 * @var array
 	 */
 	protected $_vars = array ();
 	
 	/**
-	 * Стек переменных
+	 * @desc Стек переменных.
 	 * @var array
 	 */
 	protected $_varsStack = array ();
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see Model::_afterConstruct()
+	 */
 	protected function _afterConstruct ()
 	{
 		if (!isset ($this->_fields ['id']))
@@ -43,17 +47,15 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	}
 	
 	/**
-	 * Добавление хелпера
-	 * 
+	 * @desc Добавление хелпера
 	 * @param mixed $helper
 	 * @param string $method
 	 */
 	abstract public function addHelper ($helper, $method);
 	
 	/**
-	 * Добавление пути до директории с шаблонами
-	 * @param string $path
-	 * 		Директория с шаблонами.
+	 * @desc Добавление пути до директории с шаблонами
+	 * @param string $path Директория с шаблонами.
 	 */
 	public function addTemplatesPath ($path)
 	{
@@ -62,12 +64,10 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	}
 	
 	/**
-	 * Устанавливает значение переменной в шаблоне
-	 * 
-	 * @param string|array $key 
-	 * 		Имя переменной или массив пар (переменная => значения)
-	 * @param mixed $value
-	 * 		Новое значение переменной
+	 * @desc Устанавливает значение переменной в шаблоне
+	 * @param string|array $key Имя переменной или массив 
+	 * пар (переменная => значение).
+	 * @param mixed $value [optional] Новое значение переменной.
 	 */
 	public function assign ($key, $value = null)
 	{
@@ -87,18 +87,15 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	}
 	
 	/**
-	 * Выводит результат работы шаблонизатор в браузер
+	 * @desc Выводит результат работы шаблонизатор в браузер.
 	 * @param string $tpl
 	 */
 	abstract public function display ($tpl = null);
 	
 	/**
-	 * Обрабатывает шаблон и возвращает результат
-	 * 
-	 * @param string $tpl
-	 * 		Шаблон
-	 * @return mixed
-	 * 		Результат работы шаблонизатора 
+	 * @desc Обрабатывает шаблон и возвращает результат.
+	 * @param string $tpl Шаблон
+	 * @return mixed Результат работы шаблонизатора. 
 	 */
 	abstract public function fetch ($tpl);
 	
@@ -111,6 +108,7 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	}
 	
 	/**
+	 * @desc Возвращает массив путей до шаблонов.
 	 * @return array
 	 */
 	public function getTemplatesPathes ()
@@ -119,8 +117,9 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	}
 	
 	/**
-	 * Получение значение переменной шаблонизатора
-	 * @param string $key
+	 * @desc Возвращает значение переменной шаблонизатора.
+	 * @param string $key Имя переменной.
+	 * @return mixed Значение переменной.
 	 */
 	public function getVar ($key)
 	{
@@ -128,7 +127,7 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	}
 	
 	/**
-	 * Восстанавливает значения переменных шаблонизатора
+	 * @desc Восстанавливает значения переменных шаблонизатора
 	 */
 	public function popVars ()
 	{
@@ -136,7 +135,7 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	}
 	
 	/**
-	 * Сохраняет текущие значения переменных шаблонизатора и очищает их
+	 * @desc Сохраняет текущие значения переменных шаблонизатора и очищает их.
 	 */
 	public function pushVars ()
 	{
