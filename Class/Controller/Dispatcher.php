@@ -1,38 +1,33 @@
 <?php
 
 Loader::load ('Controller_Dispatcher_Iteration');
-
+/**
+ * 
+ * @desc Диспетчер контроллеров.
+ * @author Юрий Шведов, Илья Колесников
+ * @package IcEngine
+ *
+ */
 class Controller_Dispatcher
 {
 	
 	/**
-	 * 
+	 * @desc Текущая итерация диспетчеризации.
 	 * @var Controller_Dispatcher_Iteration
 	 */
 	private $_currentIteration;
 	
 	/**
-	 * 
-	 * @var string
-	 */
-	private $_defaultController = 'Excursion';
-	
-	/**
-	 * 
-	 * @var string
-	 */
-	private $_defaultAction = 'index';
-	
-	/**
-	 * 
+	 * @desc Очередь экшенов для обработки.
 	 * @var array
 	 */
-	public $_dispatchStack = array ();
+	protected $_actions = array ();
 	
-	public function __construct ()
-	{
-		
-	}
+	/**
+	 * @desc Список результатов диспетчеризации.
+	 * @var array
+	 */
+	protected $_results = array ();
 	
 	/**
 	 * 
@@ -82,16 +77,15 @@ class Controller_Dispatcher
 		
 		$controller_action = $iteration->controllerAction ();
 		// Инициализация объекта контроллера
-		Loader::load ('Controller_Broker');
+		Loader::load ('Controller_Manager');
 		
 		/**
 		 * 
 		 * @var Controller_Abstract $current
 		 */
-		$controller = Controller_Broker::get ($controller_action->controller);
+		$controller = Controller_Manager::get ($controller_action->controller);
 		
-		$method_name = $controller_action->action ? 
-			$controller_action->action : $this->_defaultAction;
+		$method_name = $controller_action->action;
 
 		if (!method_exists ($controller, $method_name))
 		{
@@ -104,7 +98,7 @@ class Controller_Dispatcher
 		}
 		
 		// Инициализация транспортов
-		Controller_Broker::beforeAction ($controller);
+		Controller_Manager::beforeAction ($controller);
 		if (isset ($controller_action->input))
 		{
 			$controller->setInput ($controller_action->input);
@@ -125,20 +119,29 @@ class Controller_Dispatcher
 			Executor::execute (array ($controller, $method_name));
 		}
 		
-		Controller_Broker::afterAction ($controller, $iteration);
+		Controller_Manager::afterAction ($controller, $iteration);
 		
 		$this->_onDispatchIterationFinish ($controller, $iteration, $method_name);
+		
+		if (!$iteration->getIgnore ())
+		{
+			$this->_results [] = $iteration;
+		};
 		
 		$this->_currentIteration = $parent_iteration;	
 	}
 	
-	public function dispathCircle ()
+	/**
+	 * @desc Цикл диспетчеризации.
+	 * Работает пока список контроллеров не будет пуст.
+	 */
+	public function dispatchCircle ()
 	{
 		$this->onDispatchCircleStart ();
 		
-		while ($this->_dispatchStack)
+		while ($this->_actions)
 		{
-			$iteration = array_shift ($this->_dispatchStack);
+			$iteration = array_shift ($this->_actions);
 			$this->dispatch ($iteration);
 		}
 		
@@ -146,14 +149,15 @@ class Controller_Dispatcher
 	}
 	
 	/**
-	 * @param boolean $current
-	 * 		Убрать из результатов текущий экшн.
-	 * @return Controller_Dispatcher
+	 * @desc Очистка списка контроллеров в заданиях.
+	 * @param boolean $current Если true, экшен текущей итерации не попадет
+	 * в результаты.
+	 * @return Controller_Dispatcher Этот диспатчер.
 	 */
-	public function flushStack ($current = true)
+	public function flushActions ($current = true)
 	{
-		$this->_dispatchStack = array ();
-		Controller_Broker::flushResults ();
+		$this->_actions = array ();
+		$this->flushResults ();
 		if ($current && $this->_currentIteration)
 		{
 			$this->_currentIteration->setIgnore (true);
@@ -162,21 +166,14 @@ class Controller_Dispatcher
 	}
 	
 	/**
-	 * @return string
+	 * @desc Очистка результатов работы контроллеров.
+	 * @return Controller_Dispatcher Этот диспатчер.
 	 */
-	public function getDefaultAction ()
+	public function flushResults ()
 	{
-		return $this->_defaultAction;
+		$this->_results = array ();
+		return $this;
 	}
-	
-	/**
-	 * @return string
-	 */
-	public function getDefaultController ()
-	{
-		return $this->_defaultController;
-	}
-	
 	
 	public function onDispatchCircleStart ()
 	{
@@ -223,7 +220,7 @@ class Controller_Dispatcher
 		{
 			foreach ($resources as $resource)
 			{
-				$this->_dispatchStack [] = 
+				$this->_actions [] = 
 					new Controller_Dispatcher_Iteration ($resource);
 			}
 		}
@@ -232,7 +229,7 @@ class Controller_Dispatcher
 			$resources instanceof Route_Action
 		)
 		{
-			$this->_dispatchStack [] = 
+			$this->_actions [] = 
 				new Controller_Dispatcher_iteration ($resources);
 		}
 		elseif (is_array ($resources))
@@ -260,20 +257,12 @@ class Controller_Dispatcher
 	}
 	
 	/**
-	 * 
-	 * @param string $action
+	 * @desc Возвращает результаты работы контроллеров
+	 * @return array
 	 */
-	public function setDefaultAction ($action)
+	public function results ()
 	{
-		$this->_defaultAction = $action;
+		return $this->_results;
 	}
 	
-	/**
-	 * 
-	 * @param string $controller
-	 */
-	public function setDefaultController ($controller)
-	{
-		$this->_defaultController = $controller;
-	}
 }

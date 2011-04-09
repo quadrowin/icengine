@@ -27,7 +27,7 @@ class Cmd_Script_Controller extends Cmd_Script
 	    }
 
 	    Loader::load ('Controller_Broker');
-	    $controller = Controller_Broker::get ($args [2]);
+	    $controller = Controller_Manager::get ($args [2]);
 	    $action = $args [3];
 	    
 	    Loader::load ('Data_Transport');

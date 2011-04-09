@@ -1,12 +1,12 @@
 <?php
 /**
  * 
- * @desc Брокер контроллеров.
+ * @desc Менеджер контроллеров.
  * @author Юрий
  * @package IcEngine
  *
  */
-class Controller_Broker
+class Controller_Manager
 {
 	
 	/**
@@ -41,13 +41,6 @@ class Controller_Broker
 	
 	/**
 	 * 
-	 * 
-	 * @var array
-	 */
-	protected static $_iterations = array ();
-	
-	/**
-	 * 
 	 * @var array
 	 */
 	public static $config = array (
@@ -70,11 +63,6 @@ class Controller_Broker
 		$transaction = $controller->getOutput ()->endTransaction ();
 				
 		$iteration->setTransaction ($transaction);
-		
-		if (!$iteration->getIgnore ())
-		{
-			self::$_iterations [] = $iteration;
-		};
 		
 		$controller
 			->setInput (array_pop (self::$_controllersInputs))
@@ -108,14 +96,6 @@ class Controller_Broker
 			self::$config = Config_Manager::get (__CLASS__, self::$config);
 		}
 		return self::$config;
-	}
-	
-	/**
-	 * Очистка результатов вывода
-	 */
-	public static function flushResults ()
-	{
-		self::$_iterations = array ();
 	}
 	
 	/**
@@ -206,14 +186,6 @@ class Controller_Broker
 			self::$_output->appendProvider (new Data_Provider_View ()); 
 		}
 		return self::$_output;
-	}
-	
-	/**
-	 * @return array
-	 */
-	public static function iterations ()
-	{
-		return self::$_iterations;
 	}
 	
 	/**

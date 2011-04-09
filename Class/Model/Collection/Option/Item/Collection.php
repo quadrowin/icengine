@@ -77,8 +77,8 @@ class Model_Collection_Option_Item_Collection
 	}
 	
 	/**
-	 * 
-	 * @param mixed $item
+	 * @desc Добавление опции.
+	 * @param mixed $item Объект, массив с данными или название опции.
 	 */
 	public function add ($item)
 	{

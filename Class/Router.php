@@ -9,8 +9,6 @@
 class Router
 {
 	
-//	public static $_prefixPart = '/vipgeo_showplace';
-	
 	/**
 	 * @var Route
 	 */
@@ -24,16 +22,12 @@ class Router
 		return self::$_route;
 	}
 	
+	/**
+	 * @desc Разбирает запрос и извлекат параметры согласно
+	 */
 	public static function parse () 
 	{
-		//$url = ltrim (Request::uri (), self::$_prefixPart);
 		$url = Request::uri ();
-//		if (
-//			substr ($url, 0, strlen (self::$_prefixPart)) == self::$_prefixPart
-//		)
-//		{
-//			$url = substr ($url, strlen (self::$_prefixPart));
-//		}
 
 		$gets = Request::stringGet ();
 
@@ -84,19 +78,6 @@ class Router
 	}
 	
 	/**
-	 * @return array
-	 */
-	public static function actions ()
-	{
-		if (!self::$_route)
-		{
-			return array ();
-		}
-		
-		return self::$_route->actions ();
-	}
-	
-	/**
 	 * @desc 
 	 * @param string $url
 	 * @return Route
@@ -105,7 +86,16 @@ class Router
 	{
 		$url = '/' . trim ($url, '/') . '/';
 		
-		// Заменяем /12345678/ на /?/
+		/*
+		 * Заменяем /12345678/ на /?/.
+		 * Операция применяется дважды, т.к. если в запросе
+		 * несколько чисел идет подряд "/content/123/456/789/",
+		 * то в результате первого прохода вхождения будут заменены
+		 * через раз - "/content/?/456/?/", и только после второго
+		 * полностью - "/content/?/?/?/".
+		 * Это позволяет привести все запросы с переменными к одному,
+		 * который будет закеширован. 
+		 */ 
 		$template = preg_replace ('#/[0-9]{1,}/#i', '/?/', $url);
 		$template = preg_replace ('#/[0-9]{1,}/#i', '/?/', $template);
 		

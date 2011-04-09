@@ -1,9 +1,10 @@
 <?php
 /**
  * 
- * @desc Модель, реализующая паттерн factory.
- * Используется в случаях, когда модели могут быть реализованы разными классами.
- * @author Юрий
+ * @desc Модель, необходимая для организации фабрик.
+ * Используется в случаях, когда модели могут быть реализованы 
+ * разными классами.
+ * @author Юрий Шведов
  * @package IcEngine
  *
  */
@@ -11,11 +12,12 @@ class Model_Factory
 {
 	
 	/**
-	 * 
-	 * @param string $model
-	 * @param string $key
-	 * @param array $object
-	 * @return string
+	 * @desc Возвращает название класса, который будет использоваться 
+	 * в качестве модели.
+	 * @param string $model Название модели.
+	 * @param string $key Первичный ключ.
+	 * @param array $object Имеющиеся данные об объекте.
+	 * @return string Название класса модели.
 	 */
 	public function delegateClass ($model, $key, $object)
 	{
@@ -26,9 +28,9 @@ class Model_Factory
 	    
 		return $model . '_' . DDS::execute (
 		    Query::instance ()
-		    ->select ('name')
-		    ->from ($this->table ())
-		    ->where ('id=?', $key)
+			    ->select ('name')
+			    ->from ($this->table ())
+			    ->where ('id=?', $key)
 		)->getResult ()->asValue ();
 	}
 	
