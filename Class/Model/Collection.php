@@ -229,6 +229,11 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		$this->_items = array ();
 	}
 	
+	/**
+	 * @desc Получить различные элементы двух коллекций
+	 * @param Model_Collection $collection
+	 * @return Model_Collection
+	 */
 	public function diff (Model_Collection $collection)
 	{
 		$result = new Model_Collection;

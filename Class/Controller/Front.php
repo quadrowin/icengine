@@ -81,15 +81,9 @@ class Controller_Front
 	 */
 	public function run ()
 	{
-		// Проверяем наличие роутера. Если его нет, то создаем дефолтовый роутер
-		$this->getRouter ();
-		
-		// Парсим пользовательский запрос
-		$this->_router->parse ();
-		
 		// Инициализируем вьюшник из запроса
 		$view = View_Render_Broker::pushView (
-		    $this->_router->getRoute ()->View_Render
+		    $this->getRouter ()->getRoute ()->View_Render
 		);
 		
 		// Отправляем сообщение, что вью был изменен
