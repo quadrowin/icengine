@@ -63,6 +63,9 @@ class Redis
   }
   return $r;
  }
+ 
+
+ 
  private function write($k,$s)
  {
   return fwrite($this->pool[$k],$s);
@@ -97,81 +100,6 @@ class Redis
   return $r;
  }
 
- 	/**
- 	 * @desc Удаление ключей по маске
- 	 * @param string $pattern Маска.
- 	 * @param integer $len Длина буфера
- 	 */
-	public function clearByPattern ($pattern, $len = 1024)
-	{
-		$sock = reset ($this->pool);
-		fwrite ($sock, 'KEYS ' . $pattern . '*' . "\r\n");
-		
-		$data = fread ($sock, $len);
-		
-		$p = strpos ($data, "\r");
-		
-		if (!$p)
-		{
-			echo "empty answer";
-			return;
-		}
-		
-		// Длина ответа с ключами
-		$keys_length = substr ($data, 1, $p - 1);
-		
-		if (!$keys_length)
-		{
-			return ;
-		}
-		
-		$data = ltrim (substr ($data, $p + 1), " \r\n");
-		$rest = '';
-		
-		$start_time = time ();
-		for (;;)
-		{
-			$p = strpos ($data, "\r");
-			if ($p !== false)
-			{
-				$data = substr ($data, 0, $p);
-				$readed = $keys_length;
-			}
-			
-			$parts = explode (" ", $rest . $data);
-			
-			if ($parts)
-			{
-				$rest = array_pop ($parts);
-			}
-			else
-			{
-				$rest = '';
-			}
-			
-			foreach ($parts as $part)
-			{
-				$part = trim ($part, " \r\n");
-				fwrite ($sock, 'DEL ' . $part . "\r\n");
-			}
-			
-			if ($keys_length <= $readed)
-			{
-				break;
-			}
-			
-			$data = fread ($sock, min ($len, $keys_length - $readed));
-			$l = strlen ($data);
-			$readed += $l;
-		};
-		
-		$rest = trim ($$rest, " \r\n");
-		if ($rest)
-		{
-			fwrite ($sock, 'DEL ' . $rest . "\r\n");
-		}
-	}
- 
  
  private function disconnect($k)
  {
@@ -206,7 +134,7 @@ class Redis
    default:
     trigger_error("Invalid reply type byte: '$c'");
     return FALSE;
-  }
+  } 
  }
  private function getBulkReply($k,$data)
  {
@@ -226,14 +154,19 @@ class Redis
  {
   $r = $this->requestByKey($key,'GET '.$key);
   if ($r === NULL) {return null;}
-  return $plain?$r:json_decode($r,TRUE);
+  return $plain?urldecode($r):json_decode(urldecode($r),TRUE);
  }
  public function set($key,$value,$TTL = NULL)
  {
   $value = json_encode($value);
-  $r = $this->requestByKey($key,'SET '.$key.' '.strlen($value)."\r\n".$value);
-  if ($TTL) {$this->expire($key,$TTL);}
-  if ($r === NULL) {return FALSE;}
+  if (!$TTL)
+  {
+  	$r = $this->requestByKey($key, 'SET ' . $key . ' ' . urlencode($value));
+  }
+  else
+  {
+ 	$r = $this->requestByKey($key, 'SETEX ' . $key . ' ' . $TTL . ' ' . urlencode($value));
+  }
   return $r;
  }
  
@@ -248,8 +181,15 @@ class Redis
  public function add($key,$value,$TTL = 0)
  {
   if (!is_scalar($value)) {$value = json_encode($value);}
-  $r = $this->requestByKey($key,'SETNX '.$key.' '.strlen($value)."\r\n".$value);
-  if ($TTL > 0) {$this->expire($key,$TTL);}
+  
+  if (!$TTL)
+  {
+  	$r = $this->requestByKey($key, 'SET ' . $key . ' ' . urlencode($value));
+  }
+  else
+  {
+ 	$r = $this->requestByKey($key, 'SETEX ' . $key . ' ' . $TTL . ' ' . urlencode($value));
+  }
   return $r;
  }
  public function replace($key,$value,$TTL = 0) // not complete atomic

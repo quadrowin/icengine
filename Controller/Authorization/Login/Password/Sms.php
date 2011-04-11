@@ -130,9 +130,11 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 	public function sendSmsCode ()
 	{
 		list (
+			$provider,
 			$login,
 			$password
 		) = $this->_input->receive (
+			'provider',
 			'name',
 			'pass'
 		);
@@ -201,7 +203,8 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 			'login'		=> $login,
 			'password'	=> $password,
 			'phone'		=> $user->phone,
-			'user'		=> $user
+			'user'		=> $user,
+			'provider'	=> $provider
 		));
 		
 		if (!is_object ($activation))
