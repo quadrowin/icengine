@@ -42,6 +42,9 @@ class Content_Category extends Model_Child
 			'Content'
 		);
 		$this->data('content', $articles);
+		
+		echo '<div style="display:none">'.$articles->count ().' '.(bool) $this->childs ().'</div>';
+		
 		if ($articles->count () == 1 && !$this->childs())
 		{
 			$this->url = $articles->first ()->url;
