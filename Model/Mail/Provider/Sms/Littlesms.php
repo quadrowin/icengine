@@ -1,4 +1,5 @@
 <?php
+Loader::load ('Mail_Provider_Abstract');
 /**
  * 
  * @desc Провайдер отправки сообщений через Littlesms
