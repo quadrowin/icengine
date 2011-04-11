@@ -14,13 +14,13 @@ if (!class_exists ('Data_Provider_Abstract'))
 class Data_Provider_Redis extends Data_Provider_Abstract
 {
 	/**
-	 * Подключение к редису
+	 * @desc Подключение к редису
 	 * @var Redis
 	 */
 	public $conn = null;
 	
 	/**
-	 * Сервера
+	 * @desc Сервера
 	 * @var array
 	 */
 	public $servers = array ();
@@ -178,6 +178,19 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 			}
 			$this->conn->delete ($this->keyEncode ($key), $tt);
 		}
+	}
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see Data_Provider_Abstract::deleteByPattern()
+	 */
+	public function deleteByPattern ($pattern)
+	{
+		if ($this->tracer)
+		{
+			$this->tracer->add ('deleteByPattern', $pattern);
+		}
+		$this->conn->clearByPattern ($this->prefix . $pattern);
 	}
 	
 	/**
