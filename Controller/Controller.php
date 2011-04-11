@@ -58,10 +58,10 @@ class Controller_Controller extends Controller_Abstract
 	 */
 	public function ajaxFinish ()
 	{
-	    $iterations = Controller_Broker::iterations ();
+	    $iterations = IcEngine::$application->frontController->getDispatcher ()->results ();
 //		print_r(count($iterations));die();
 	    $iteration = end ($iterations);
-	    Controller_Broker::flushResults ();
+	    IcEngine::$application->frontController->getDispatcher ()->flushResults ();
 	    	    
         /**
 	     * 
@@ -219,8 +219,8 @@ class Controller_Controller extends Controller_Abstract
 						}
 					}
 					
-					$n = count($controllers);
-					$controller_name2index[$controller] = $n;
+					$n = count ($controllers);
+					$controller_name2index [$controller] = $n;
 					$controllers[$n] = array(
 						'name'		=> $controller,
 						'resources'	=> $resources

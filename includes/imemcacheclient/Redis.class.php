@@ -9,6 +9,13 @@
 */
 class Redis
 {
+	
+	/**
+	 * @desc Экземпляр класса
+	 * @var Redis
+	 */
+	protected static $_instance;
+	
  public $servers = array();
  public $default_port = 6379;
  public $dtags_enabled = TRUE;
@@ -56,6 +63,9 @@ class Redis
   }
   return $r;
  }
+ 
+
+ 
  private function write($k,$s)
  {
   return fwrite($this->pool[$k],$s);
@@ -89,6 +99,8 @@ class Redis
   $r = $this->getResponse($k);
   return $r;
  }
+
+ 
  private function disconnect($k)
  {
   if (!isset($this->pool[$k])) {return FALSE;}
@@ -122,7 +134,7 @@ class Redis
    default:
     trigger_error("Invalid reply type byte: '$c'");
     return FALSE;
-  }
+  } 
  }
  private function getBulkReply($k,$data)
  {
@@ -142,16 +154,22 @@ class Redis
  {
   $r = $this->requestByKey($key,'GET '.$key);
   if ($r === NULL) {return null;}
-  return $plain?$r:json_decode($r,TRUE);
+  return $plain?urldecode($r):json_decode(urldecode($r),TRUE);
  }
  public function set($key,$value,$TTL = NULL)
  {
   $value = json_encode($value);
-  $r = $this->requestByKey($key,'SET '.$key.' '.strlen($value)."\r\n".$value);
-  if ($TTL) {$this->expire($key,$TTL);}
-  if ($r === NULL) {return FALSE;}
+  if (!$TTL)
+  {
+  	$r = $this->requestByKey($key, 'SET ' . $key . ' ' . urlencode($value));
+  }
+  else
+  {
+ 	$r = $this->requestByKey($key, 'SETEX ' . $key . ' ' . $TTL . ' ' . urlencode($value));
+  }
   return $r;
  }
+ 
  public function expire($key,$TTL = 0)
  {
   return $this->requestByKey($key,'EXPIRE '.$key.' '.$TTL);
@@ -163,8 +181,15 @@ class Redis
  public function add($key,$value,$TTL = 0)
  {
   if (!is_scalar($value)) {$value = json_encode($value);}
-  $r = $this->requestByKey($key,'SETNX '.$key.' '.strlen($value)."\r\n".$value);
-  if ($TTL > 0) {$this->expire($key,$TTL);}
+  
+  if (!$TTL)
+  {
+  	$r = $this->requestByKey($key, 'SET ' . $key . ' ' . urlencode($value));
+  }
+  else
+  {
+ 	$r = $this->requestByKey($key, 'SETEX ' . $key . ' ' . $TTL . ' ' . urlencode($value));
+  }
   return $r;
  }
  public function replace($key,$value,$TTL = 0) // not complete atomic
@@ -213,6 +238,20 @@ class Redis
   if ($number == 1) {return $this->requestByKey($key,'INCR '.$key);}
   return $this->requestByKey($key,'INCRBY '.$key.' '.$number);
  }
+ 
+ /**
+  * @desc Возвращает экземпляр класса
+  * @return Redis
+  */
+ public static function instance ()
+ {
+ 	if (!self::$_instance)
+ 	{
+ 		self::$_instance = new self ();
+ 	}
+ 	return self::$_instance;
+ }
+ 
  public function decrement($key,$number = 1)
  {
   if ($number == 1) {return $this->requestByKey($key,'DECR '.$key);}

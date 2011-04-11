@@ -271,6 +271,7 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 	public function sendActivationSms (array $data)
 	{
 		$user = $data ['user'];
+		$provider = $data ['provider'];
 		
 		if ($user->login != $data ['login'])
 		{
@@ -339,7 +340,7 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 		$provider = Model_Manager::modelBy (
 			'Mail_Provider',
 			Query::instance ()
-				->where ('name', $config ['sms_provider'])
+				->where ('name', $provider ? $provider : $config ['sms_provider'])
 		);
 		
 		Loader::load ('Mail_Message');

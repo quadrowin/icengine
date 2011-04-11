@@ -80,9 +80,8 @@ class View_Render_Smarty extends View_Render_Abstract
 	}
 	
 	/**
-	 * Добавление пути до директории с шаблонами
-	 * @param string $path
-	 * 		Директория с шаблонами.
+	 * (non-PHPdoc)
+	 * @see View_Render_Abstract::addTemplatesPath()
 	 */
 	public function addTemplatesPath ($path)
 	{
@@ -92,10 +91,18 @@ class View_Render_Smarty extends View_Render_Abstract
 		);
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see View_Render_Abstract::addHelper()
+	 */
 	public function addHelper ($helper, $method)
 	{
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see View_Render_Abstract::assign()
+	 */
 	public function assign ($key, $value = null)
 	{
 		if (is_array ($key))
@@ -108,27 +115,47 @@ class View_Render_Smarty extends View_Render_Abstract
 		}
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see View_Render_Abstract::display()
+	 */
 	public function display ($tpl = null)
 	{
 		$tpl = $tpl ? $tpl : $this->_config ['layout'];
 		return $this->_smarty->display ($tpl);
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see View_Render_Abstract::fetch()
+	 */
 	public function fetch ($tpl)
 	{
 		return $this->_smarty->fetch ($tpl);
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see View_Render_Abstract::getVar()
+	 */
 	public function getVar ($key)
 	{
 		return $this->_smarty->_tpl_vars [$key];
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see View_Render_Abstract::popVars()
+	 */
 	public function popVars ()
 	{
 		$this->_smarty->_tpl_vars = array_pop ($this->_varsStack);
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see View_Render_Abstract::pushVars()
+	 */
 	public function pushVars ()
 	{
 		$this->_varsStack [] = $this->_smarty->_tpl_vars;
@@ -136,7 +163,7 @@ class View_Render_Smarty extends View_Render_Abstract
 	}
 	
 	/**
-	 * 
+	 * @desc Возвращает используемый экземпляр шаблонизатора.
 	 * @return Smarty
 	 */
 	public function smarty ()

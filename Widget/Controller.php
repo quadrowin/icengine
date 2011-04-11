@@ -25,11 +25,11 @@ class Widget_Controller extends Widget_Abstract
 		$controller = $action [0];
 		$action = isset ($action [1]) ? $action [1] : self::DEFAULT_ACTION;
 		
-		Loader::load ('Controller_Broker');
+		Loader::load ('Controller_Manager');
 		Loader::load ('Controller_Action');
 		Loader::load ('Controller_Dispatcher_Iteration');
 		Loader::load ('Route_Action');
-		$iteration = Controller_Broker::run (new Controller_Action (array (
+		$iteration = Controller_Manager::run (new Controller_Action (array (
 			'controller'	=> $controller,
 			'action'		=> $action,
 			'input'			=> $this->_input,

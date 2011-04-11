@@ -28,10 +28,10 @@ class Controller_Component_Rating extends Controller_Abstract
 			'value'
 		);
 		
-		$scheme = IcEngine::$modelManager->modelBy (
+		$scheme = Model_Manager::byQuery (
 			'Component_Rating_Scheme',
 			Query::instance ()
-			->where ('table', $table)
+				->where ('table', $table)
 		);
 		
 		$rating = $scheme->vote ($table, $row_id, $value);

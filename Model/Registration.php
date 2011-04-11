@@ -10,6 +10,12 @@ class Registration extends Model
 {
 	
 	/**
+	 * @desc Время окончания регистрации, если она не закончена.
+	 * @var string
+	 */
+	const EMPTY_FINISH_TIME = '2000-01-01';
+	
+	/**
 	 * @desc Конфиг
 	 * @var array
 	 */	
@@ -37,6 +43,13 @@ class Registration extends Model
 		 * @var boolean 
 		 */
 		'auto_user'		=> true,
+	
+	
+		// Шаблон сообщения
+		'mail_template'		=> 'user_register',
+	
+		// Провайдер для отправки сообщений
+		'mail_provider'		=> 'Mimemail',
 		
 		/**
 		 * Отсылать сообщение.
@@ -133,10 +146,10 @@ class Registration extends Model
 	 */
 	public static function byCode ($code)
 	{
-		return IcEngine::$modelManager->modelBy (
+		return Model_Manager::byQuery (
 			__CLASS__,
 			Query::instance ()
-			->where ('code', $code) 
+				->where ('code', $code) 
 		);
 	}
 	
@@ -147,6 +160,33 @@ class Registration extends Model
 	public function confirmHref ()
 	{
 		return '/registration/' . $this->code;
+	}
+	
+	/**
+	 * @desc Создание новой регистрации
+	 * @param array $data
+	 * @param integer $data ['User__id'] id пользователя
+	 * @param string $data ['email'] Email
+	 * @return Registration Сохраненная регистрация.
+	 */
+	public function create (array $data)
+	{
+		$registration = new Registration (array (
+			'id'			=> $data ['User__id'],
+			'User__id'		=> $data ['User__id'],
+			'email'			=> $data ['email'],
+			'time'			=> Helper_Date::toUnix (),
+			'ip'			=> Request::ip (),
+			'day'			=> Helper_Date::eraDayNum (),
+			'finished'		=> 0,
+			'finishTime'	=> self::EMPTY_FINISH_TIME,
+			'code'			=> 
+				isset ($data ['code']) ? 
+					$data ['code'] :
+					self::generateUniqueCode ($data ['User__id'])
+		));
+		
+		return $registration->save (true);
 	}
 	
 	/**
@@ -197,7 +237,7 @@ class Registration extends Model
 			'ip'			=> Request::ip (),
 			'day'			=> Helper_Date::eraDayNum (),
 			'finished'		=> 0,
-			'finishTime'	=> '2000-01-01 00:00:00',
+			'finishTime'	=> self::EMPTY_FINISH_TIME,
 			'code'			=> ''
 		));
 		
@@ -239,7 +279,7 @@ class Registration extends Model
 		{
 			Loader::load ('Mail_Message');
 			$message = Mail_Message::create (
-				'user_register', 
+				$this->_config ['mail_template'], 
 				$data ['email'],
 				$data ['email'],
 				array (
@@ -255,6 +295,33 @@ class Registration extends Model
 		}
 		
 		return $this;
+	}
+	
+	/**
+	 * @desc Отправка сообщения о регистрации
+	 * @param array $data Дополнительные данные для сообщения.
+	 * @return Mail_Message
+	 */
+	public function sendMail (array $data = array ())
+	{
+		Loader::load ('Mail_Message');
+		$message = Mail_Message::create (
+			$this->_config ['mail_template'], 
+			$this->email,
+			$this->email,
+			array_merge (
+				array (
+					'email'		=> $this->email,
+					'time'		=> $this->time,
+					'code'		=> $this->code,
+					'href'		=> $this->confirmHref ()
+				),
+				$data
+			),
+			$this->User__id,
+			$this->_config ['mail_provider']
+		);
+		return $message->send ();
 	}
 	
 	/**
