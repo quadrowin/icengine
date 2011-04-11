@@ -35,10 +35,10 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 	 */
 	protected $_config = array (
 		// Лимит смс в 1 минуту
-		'sms_send_limit_1m'			=> 10,
+		'sms_send_limit_1m'			=> 60,
 		
 		// Лимит смс на 10 минут
-		'sms_send_limit_10m'		=> 50
+		'sms_send_limit_10m'		=> 190
 	);
 	
 	/**
@@ -132,11 +132,13 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 		list (
 			$provider,
 			$login,
-			$password
+			$password,
+			$send
 		) = $this->_input->receive (
 			'provider',
 			'name',
-			'pass'
+			'pass',
+			'send'
 		);
 		
 		$user = Model_Manager::modelBy (
@@ -204,7 +206,8 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 			'password'	=> $password,
 			'phone'		=> $user->phone,
 			'user'		=> $user,
-			'provider'	=> $provider
+			'provider'	=> $provider,
+			'send'		=> $send
 		));
 		
 		if (!is_object ($activation))
