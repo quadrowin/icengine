@@ -3,8 +3,8 @@
  */
 var Authorization_Login_Password_Sms_Providers = 
 	[ 'Sms_Littlesms', 'Sms_Dcnk', 'Sms_Yakoon' ];
-var Authorization_Login_Password_Sms_Provider = 0;
-                                                  
+var Authorization_Login_Password_Sms_Provider = -1;
+var Authorization_Login_Password_Sms_Form = null;                                 
 var Authorization_Login_Password_Sms = {
 	/**
 	 * @desc Авторизация или отправка кода
@@ -12,6 +12,7 @@ var Authorization_Login_Password_Sms = {
 	 */
 	login: function ($form)
 	{
+		Authorization_Login_Password_Sms_Form = $form;
 		var code = $form.find ('input[name=code]').val ();
 		var $btn = $form.find ('input[name=btnSendCode]');
 		$btn.nextAll ('div').remove ();
@@ -48,6 +49,15 @@ var Authorization_Login_Password_Sms = {
 			}
 		}
 		
+		var provider = 0;
+		
+		if (typeof Authorization_Login_Password_Sms_Providers
+				 [Authorization_Login_Password_Sms_Provider] !== 'undefined')
+		{
+			provider = Authorization_Login_Password_Sms_Providers
+			 [Authorization_Login_Password_Sms_Provider];
+		}
+		
 		Controller.call (
 			'Authorization_Login_Password_Sms/login',
 			{
@@ -56,8 +66,7 @@ var Authorization_Login_Password_Sms = {
 				a_id: $form.find ('input[name=activation_id]').val (),
 				code: code,
 				href: window.location.href,
-				provider: Authorization_Login_Password_Sms_Providers
-				 [Authorization_Login_Password_Sms_Provider]
+				provider: provider
 			},
 			callback, true
 		);
@@ -87,11 +96,16 @@ var Authorization_Login_Password_Sms = {
 	
 	rotate: function ()
 	{
+		if (Authorization_Login_Password_Sms_Provider < 0)
+		{
+			Authorization_Login_Password_Sms_Provider = 0;
+		}
 		Authorization_Login_Password_Sms_Provider++;
 		if (Authorization_Login_Password_Sms_Provider >= 
 			Authorization_Login_Password_Sms_Providers.length)
 		{
 			Authorization_Login_Password_Sms_Provider = 0;
 		}
+		this.login (Authorization_Login_Password_Sms_Form);
 	}
 };
