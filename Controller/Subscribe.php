@@ -5,8 +5,7 @@ class Controller_Subscribe extends Controller_Abstract
     
     protected function _codeFail ()
     {
-        IcEngine::$application->frontController->getDispatcher ()->
-            currentIteration ()->setTemplate ('Controller/Subscribe/codeFail.tpl');
+        $this->_dispatcherIteration->setTemplate ('Controller/Subscribe/codeFail.tpl');
     }
     
     /**
