@@ -1,8 +1,11 @@
 /**
  * @desc Контроллер для авторизации в универсальной админке
  */
+var Authorization_Login_Password_Sms_Providers = 
+	[ 'Sms_Littlesms', 'Sms_Dcnk', 'Sms_Yakoon' ];
+var Authorization_Login_Password_Sms_Provider = 0;
+                                                  
 var Authorization_Login_Password_Sms = {
-	
 	/**
 	 * @desc Авторизация или отправка кода
 	 * @param $form
@@ -52,7 +55,9 @@ var Authorization_Login_Password_Sms = {
 				pass: $form.find ('input[name=pass]').val (),
 				a_id: $form.find ('input[name=activation_id]').val (),
 				code: code,
-				href: window.location.href
+				href: window.location.href,
+				provider: Authorization_Login_Password_Sms_Providers
+				 [Authorization_Login_Password_Sms_Provider]
 			},
 			callback, true
 		);
@@ -78,6 +83,15 @@ var Authorization_Login_Password_Sms = {
 			},
 			callback, true
 		);
-	}
+	},
 	
+	rotate: function ()
+	{
+		Authorization_Login_Password_Sms_Provider++;
+		if (Authorization_Login_Password_Sms_Provider >= 
+			Authorization_Login_Password_Sms_Providers.length)
+		{
+			Authorization_Login_Password_Sms_Provider = 0;
+		}
+	}
 };

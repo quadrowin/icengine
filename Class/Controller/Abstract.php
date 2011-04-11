@@ -218,10 +218,7 @@ class Controller_Abstract
 			{
 				$model_class = $this->name ();
 			}
-			$model = IcEngine::$modelManager->get (
-				$model_class,
-				$tc->rowId
-			);
+			$model = Model_Manager::get ($model_class, $tc->rowId);
 		}
 		
 		$parts = Helper_Form::extractParts ($data, $scheme);
@@ -305,7 +302,7 @@ class Controller_Abstract
 	/**
 	 * @desc Заменить текущий экшн с передачей всех параметров
 	 */
-	public function replaceAction ($controller, $action)
+	public function replaceAction ($controller, $action = 'index')
 	{
 		if ($controller instanceof Controller_Abstract)
 		{
@@ -314,7 +311,7 @@ class Controller_Abstract
 		}
 		else
 		{
-			$other = Controller_Broker::get ($controller);
+			$other = Controller_Manager::get ($controller);
 		}
 		
 		$this->_dispatcherIteration->setTemplate (
@@ -330,7 +327,7 @@ class Controller_Abstract
 		}
 		else
 		{
-			$other = Controller_Broker::get ($controller);
+			$other = Controller_Manager::get ($controller);
 			$other->setInput ($this->_input);
 			$other->setOutput ($this->_output);
 			$other->setDispatcherIteration ($this->_dispatcherIteration);

@@ -18,7 +18,7 @@ class Helper_Action_Page
 		IcEngine::$application
 			->frontController
 			->getDispatcher ()
-			->flushStack (true)
+			->flushActions (true)
 			->push (array (
 				'controller'	=> 'Error',
 				'action'		=> 'notFound'
@@ -33,7 +33,7 @@ class Helper_Action_Page
 		IcEngine::$application
 			->frontController
 			->getDispatcher ()
-			->flushStack (true)
+			->flushActions (true)
 			->push (array (
 				'controller'	=> 'Error',
 				'action'		=> 'obsolete'
