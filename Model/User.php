@@ -167,15 +167,25 @@ class User extends Model
 
 	/**
 	 * @desc Проверяет, имеет ли пользователь указанную роль.
-	 * @param Acl_Role $role Роль
+	 * @param Acl_Role|string $role Роль или название роли
 	 * @return boolean Имеет ли пользователь роль.
 	 */
-	public function hasRole (Acl_Role $role)
+	public function hasRole ($role)
 	{
 		if (!$role)
 		{
 			return false;
 		}
+		
+		if (!is_object ($role))
+		{
+			$role = Acl_Role::byName ($role);
+			if (!$role)
+			{
+				return false;
+			}
+		}
+		
 		return Helper_Link::wereLinked ($this, $role);
 	}
 	
