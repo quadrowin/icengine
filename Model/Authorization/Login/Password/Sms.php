@@ -302,7 +302,7 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 		);
 		
 		// Пробуем использовать старый код
-		$activation = Model_Manager::modelBy (
+		$activation = Model_Manager::byQuery (
 			'Activation',
 			Query::instance ()
 				->where ('User__id', $user->id)
@@ -316,22 +316,29 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 			// За каждое повторное использование, приближаем к финишу,
 			// чтобы если первая СМС не дошла, можно было добиться повторной
 			// отправки.
-			return $activation->update (array (
+			$activation->update (array (
 				'finished'	=> $activation->finished + 1
 			));
+			
+			if (!isset ($data ['send']) || !$data ['send']) 
+			{
+				return $activation;
+			}
 		}
-		
-		$activation_code = $config ['sms_prefix'] . $clear_code;
-		
-		Loader::load ('Activation');
-		$exp_time = Helper_Date::toUnix (time () + $config ['sms_expiration']);
-		$activation = Activation::create (array (
-			'finished'			=> -2,
-			'address'			=> $user->phone,
-			'code'				=> $activation_code,
-			'expirationTime'	=> $exp_time,
-			'User__id'			=> $user->id
-		));
+		else
+		{
+			$activation_code = $config ['sms_prefix'] . $clear_code;
+			
+			Loader::load ('Activation');
+			$exp_time = Helper_Date::toUnix (time () + $config ['sms_expiration']);
+			$activation = Activation::create (array (
+				'finished'			=> -2,
+				'address'			=> $user->phone,
+				'code'				=> $activation_code,
+				'expirationTime'	=> $exp_time,
+				'User__id'			=> $user->id
+			));
+		}
 		
 		/**
 		 * @desc Провайдер
