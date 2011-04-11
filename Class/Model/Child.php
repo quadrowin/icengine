@@ -19,6 +19,7 @@ abstract class Model_Child extends Model
 			$this->modelName (),
 			Query::instance ()
 				->where ('parentId', $this->key ())
+				->where ('parentId!=0')
 		);
 	}
 	
