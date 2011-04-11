@@ -324,6 +324,11 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 			{
 				return $activation;
 			}
+			
+			$clear_code = substr (
+				$activation->code,
+				strlen ($config ['sms_prefix'])
+			);
 		}
 		else
 		{
