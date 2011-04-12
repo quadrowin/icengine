@@ -27,10 +27,10 @@ class Data_Validator_Registration_Email
 			return __CLASS__ . '/' . self::INCORRECT;
 		}
 		
-		$user = IcEngine::$modelManager->modelBy (
+		$user = Model_Manager::byKey (
 			'User',
 			Query::instance ()
-			->where ('email', $email)
+				->where ('email', $email)
 		);
 		
 		if ($user)
@@ -38,10 +38,10 @@ class Data_Validator_Registration_Email
 			return __CLASS__ . '/' . self::REPEAT;
 		}
 		
-		$reg = IcEngine::$modelManager->modelBy (
+		$reg = Model_Manager::byKey (
 			'Registration',
 			Query::instance ()
-			->where ('email', $email)
+				->where ('email', $email)
 		);
 		
 		if ($reg)

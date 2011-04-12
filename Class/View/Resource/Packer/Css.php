@@ -106,7 +106,10 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 			$url = $this->_currentResource->urlPath . $matches [1];
 		}
 		
-		if (substr ($url, 0, 1) == '/')
+		if (
+			substr ($url, 0, 1) == '/' && 
+			$this->_domains && count ($this->_domains)
+		)
 		{
 			$this->_last++;
 			

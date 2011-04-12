@@ -16,12 +16,6 @@ class Config_Manager
 	const PATH_TO_CONFIG = 'config/';
 	
 	/**
-	 * @desc Пустой конфиг
-	 * @var Config_Array
-	 */
-	protected static $_emptyConfig;
-	
-	/**
 	 * @desc Флаг означающий, что идет процесс загрузки конфига,
 	 * необходим для предотвращения бесконечной рекурсии при
 	 * загрузке конфигов для менеджера ресурсов.
@@ -65,12 +59,8 @@ class Config_Manager
 	 */
 	public static function emptyConfig ()
 	{
-		if (!self::$_emptyConfig)
-		{
-			Loader::load ('Config_Array');
-			self::$_emptyConfig = new Config_Array (array ());
-		}
-		return self::$_emptyConfig;
+		Loader::load ('Config_Array');
+		return new Config_Array (array ());
 	}
 	
 	/**
