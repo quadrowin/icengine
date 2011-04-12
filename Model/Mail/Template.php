@@ -9,6 +9,10 @@
 class Mail_Template extends Model_Child
 {
 	
+	/**
+	 * @desc Данные для пустого шаблона
+	 * @var array
+	 */
 	public static $blankTemplate = array (
 		'id'		=> 0,
 		'name'	    => 'empty',
@@ -18,25 +22,6 @@ class Mail_Template extends Model_Child
 	);
 	
 	/**
-	 * @return Smarty
-	 */
-//	protected function _initSmarty ()
-//	{
-//		if (!class_exists ('Smarty'))
-//		{
-//			Loader::requireOnce ('smarty/Smarty.class.php', 'includes');
-//		}
-//		$smarty = new Smarty ();
-//		$smarty->template_dir = 'Ice/View/';
-//		$smarty->compile_dir = 'cache/templates/';
-//		$smarty->force_compile = true;
-//		
-//		$smarty->assign ('siteaddress', $_SERVER ['SERVER_NAME']);
-//		
-//		return $smarty;
-//	}
-	
-	/**
 	 * Возращается шаблон по имени, либо шаблон по умолчанию
 	 * @param string $name
 	 * @param boolean $blank Вернуть базовый, если шаблон не найден
@@ -44,7 +29,7 @@ class Mail_Template extends Model_Child
 	 */
 	public static function byName ($name, $blank = true)
 	{
-		$template = IcEngine::$modelManager->modelBy (
+		$template = Model_Manager::byQuery (
 		    'Mail_Template',
 		    Query::instance ()
 		   		->where ('name', $name)
