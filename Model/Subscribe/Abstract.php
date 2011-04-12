@@ -95,10 +95,8 @@ abstract class Subscribe_Abstract extends Model_Factory_Delegate
 	    
 	    Loader::load ('Mail_Message');
 	    
-	    $this->_config = $this->config ();
-	    
 	    $mail = Mail_Message::create (
-	    	$this->_config ['confirm_subscribe_template'],
+	    	$this->config ()->confirm_subscribe_template,
 	        $subscriber->contact,
 	        '',
 	        array (
@@ -125,7 +123,7 @@ abstract class Subscribe_Abstract extends Model_Factory_Delegate
 	    
 	    Loader::load ('Mail_Message');
 	    $mail = Mail_Message::create (
-	    	$this->config ()->confirm_unsubscribe_tempalte,
+	    	$this->config ()->confirm_unsubscribe_template,
 	        $subscriber->email,
 	        '',
 	        array (
