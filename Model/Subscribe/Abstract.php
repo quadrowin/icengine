@@ -124,7 +124,7 @@ abstract class Subscribe_Abstract extends Model_Factory_Delegate
 	    Loader::load ('Mail_Message');
 	    $mail = Mail_Message::create (
 	    	$this->config ()->confirm_unsubscribe_template,
-	        $subscriber->email,
+	        $subscriber->contact,
 	        '',
 	        array (
 	            'code'          => $join->code,
