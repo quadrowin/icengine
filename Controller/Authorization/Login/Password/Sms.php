@@ -85,6 +85,28 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 			'href'
 		);
 		
+		if (!$activation_id && $activation_code)
+		{
+			// Сразу указали код активации, мб старая активация
+			$activation = Model_Manager::byQuery (
+				'Activation',
+				Query::instance ()
+					->from ('Activation')
+					->singleInnerJoin (
+						'User',
+						'Activation.User__id=User.id'
+					)
+					->where ('Activation.code', $activation_code)
+					->where ('User.login', $login)
+					->where ('md5(User.password)=md5(?)', $password)
+			);
+			
+			if ($activation)
+			{
+				$activation_id = $activation->id;
+			}
+		}
+		
 		if (!$activation_id || !$activation_code)
 		{
 			return $this->replaceAction ($this, 'sendSmsCode');
