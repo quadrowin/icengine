@@ -51,7 +51,12 @@ class Data_Source_Manager
 			{
 				$config = Config_Manager::get ('Data_Source', $name);
 			}
-				
+			
+			if ($config->source)
+			{
+				$config = array ($config);
+			}
+			
 			foreach ($config as $conf)
 			{
 				$source_class = 'Data_Source_' . $conf->source;

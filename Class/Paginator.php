@@ -8,18 +8,25 @@
  */
 class Paginator
 {
-	
-	/**
-	 * @desc Текущая страница
-	 * @var integer
-	 */
-	public $page;
 		
 	/**
 	 * @desc Общее количество элементов
 	 * @var integer
 	 */
 	public $fullCount;
+	
+	/**
+	 * @desc Ссылка на страницу.
+	 * Если на задана, будешь использован адрес из запроса.
+	 * @var string
+	 */
+	public $href;
+	
+	/**
+	 * @desc Текущая страница
+	 * @var integer
+	 */
+	public $page;
 	
 	/**
 	 * @desc Количество элементов на странице
@@ -78,7 +85,7 @@ class Paginator
 		$half_page = round ($pages_count / 2);
 		$spaced = false;
 		
-		$href = Request::uri ();
+		$href = $this->href ? $this->href : Request::uri ();
 		
 		// Удаление из запроса GET параметра page
 		$p = 'page';

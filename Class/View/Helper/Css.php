@@ -54,7 +54,7 @@ class View_Helper_Css extends View_Helper_Abstract
 				->_view
 				->resources ()
 				->packer (View_Resource_Manager::CSS);
-				
+					
 			$packer->pack ($csses, $config->packed_file);
 				
 			$result = 
