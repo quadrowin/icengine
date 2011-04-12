@@ -896,7 +896,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		$items = &$this->items ();
 		Loader::load ('Helper_Array');
 		$fields = (array) $fields;
-		for ($i = 0, $icount = sizeof ($fiels); $i < $icount; $i++)
+		for ($i = 0, $icount = sizeof ($fields); $i < $icount; $i++)
 		{
 			Helper_Array::mosort ($items, $fields [$i]);
 		}
