@@ -724,10 +724,12 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	
 	/**
 	 * @desc Очищает коллекцию.
+	 * @return Model_Collection Эта коллекция.
 	 */
 	public function reset ()
 	{
 		$this->_items = array ();
+		return $this;
 	}
 	
 	/**
