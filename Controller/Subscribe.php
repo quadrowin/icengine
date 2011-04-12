@@ -62,8 +62,6 @@ class Controller_Subscribe extends Controller_Abstract
             return ;
         }
         
-        Loader::load ('Subscribe_Subscriber_Attribute');
-        
         $subscriber = Model_Manager::byKey (
         	'Subscribe_Subscriber',
         	$join->Subscribe_Subscriber->key ()
@@ -71,8 +69,9 @@ class Controller_Subscribe extends Controller_Abstract
         
         if ($subscriber)
         {
+        	Loader::load ('Subscribe_Subscriber_Attribute');
 	        Subscribe_Subscriber_Attribute::deleteFor (
-	        	$join->Subscribe_Subscriber->key ()
+	        	$join->Subscribe_Subscriber
 	        );
         	$subscriber->delete ();
         }
