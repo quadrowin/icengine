@@ -121,7 +121,7 @@ class Mail_Template extends Model_Child
 	
 	public function smarty_get_body_timestamp ()
 	{
-		return crc32 ($this->body);
+		return time ();
 	}
 	
 	public function smarty_get_subject ($tpl_name, &$tpl_source)
@@ -132,7 +132,7 @@ class Mail_Template extends Model_Child
 	
 	public function smarty_get_subject_timestamp ()
 	{
-		return crc32 ($this->subject);
+		return time ();
 	}
 	
 	public function smarty_get_secure ()
