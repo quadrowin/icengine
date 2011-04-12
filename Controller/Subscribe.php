@@ -62,12 +62,21 @@ class Controller_Subscribe extends Controller_Abstract
             return ;
         }
         
-        $join->update (array (
-            'active'	=> 0,
-            'code'		=> ''
-        ));
+        Loader::load ('Subscribe_Subscriber_Attribute');
         
-        $this->_output->send ('join', $join);
+        $subscriber = Model_Manager::byKey (
+        	'Subscribe_Subscriber',
+        	$join->Subscribe_Subscriber->key ()
+        );
+        
+        if ($subscriber)
+        {
+	        Subscribe_Subscriber_Attribute::deleteFor (
+	        	$join->Subscribe_Subscriber->key ()
+	        );
+        	$subscriber->delete ();
+        }
+        $join->delete ();
     }
     
 }
