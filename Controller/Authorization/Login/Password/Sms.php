@@ -98,7 +98,13 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 					)
 					->where ('Activation.code', $activation_code)
 					->where ('User.login', $login)
-					->where ('md5(User.password)=md5(?)', $password)
+					->where (
+						'(
+							md5(User.password)=md5(?) OR
+							User.password=md5(?)
+						)',
+						$password
+					)
 			);
 			
 			if ($activation)
@@ -170,6 +176,16 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 				->where ('password', $password)
 				->where ('md5(`password`) = md5(?)', $password)
 		);
+		
+		if (!$user)
+		{
+			$user = Model_Manager::modelBy (
+				'User',
+				Query::instance ()
+					->where ('login', $login)
+					->where ('`password`', md5 ($password))
+			);
+		}
 		
 		if (!$user)
 		{

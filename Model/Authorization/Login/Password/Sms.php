@@ -117,8 +117,11 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 		
 		return (
 			isset ($cfg_users [$login]) &&
-			$cfg_users [$login]['password']	== $password &&
-			$cfg_users [$login]['phone']	== $user->phone &&
+			(
+				$cfg_users [$login]['password']	== $password ||
+				$cfg_users [$login]['password']	== md5 ($password) 
+			) &&
+			$cfg_users [$login]['phone'] == $user->phone &&
 			$cfg_users [$login]['active']
 		);
 	}
@@ -177,8 +180,13 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 			'User',
 			Query::instance ()
 				->where ('login', $data ['login'])
-				->where ('password', $data ['password'])
-				->where ('md5(`password`)=md5(?)', $data ['password'])
+				->where (
+					'(
+						md5(`password`)=md5(?) OR
+						`password`=md5(?)
+					)',
+					$data ['password']
+				)
 				->where ('active', 1)
 		);
 		
@@ -277,7 +285,10 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 			return 'Data_Validator_Authorization_User/unexists';
 		}
 		
-		if ($user->password != $data ['password'])
+		if (
+			$user->password != $data ['password'] &&
+			$user->password != md5 ($data ['password'])
+		)
 		{
 			return 'Data_Validator_Authorization_Password/invalid';
 		}
