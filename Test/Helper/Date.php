@@ -126,9 +126,12 @@ class Test_Helper_Date extends PHPUnit_Framework_TestCase
 	 */
 	public function testParseDateTime ()
 	{
-		// TODO Auto-generated Test_Helper_Date::testParseDateTime()
-		$this->markTestIncomplete ("parseDateTime test not implemented");
-		Helper_Date::parseDateTime(/* parameters */);
+		$this->assertEquals (date ('Y-m-d H:i:s'), Helper_Date::toUnix ());
+		$test_time = time () + 10050;
+		$this->assertEquals (
+			date ('Y-m-d H:i:s', $test_time),
+			Helper_Date::toUnix ($test_time)
+		);
 	}
 
 	/**

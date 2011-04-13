@@ -264,7 +264,9 @@ class Helper_Date
 	{
 		if (is_numeric ($str))
 		{
-			return new DateTime ('@' . $str);
+			$dt = new DateTime ('@' . $str);
+			$dt->setTimezone (new DateTimeZone (date_default_timezone_get ()));
+			return $dt;
 		}
 		
 		if (strlen ($str) < 8)
@@ -282,7 +284,7 @@ class Helper_Date
 				if (strlen ($arr [$n]) > 0)
 				{
 					$arr [$n] = (int) $arr [$n];
-					$n++;
+					++$n;
 				}
 			}
 			else
@@ -297,6 +299,7 @@ class Helper_Date
 		}
 		
 		$str = implode ('.', $arr);
+		var_dump ('STR', $str, 'NSTR');
 		if (strlen ($arr [0]) == 4)
 		{
 			// Y-m-d H:i:s
@@ -367,10 +370,10 @@ class Helper_Date
 		{
 			if (strpos ('-0123456789', $str [$i]) == 0)
 			{
-				if (strlen ($arr[$n]) > 0)
+				if (strlen ($arr [$n]) > 0)
 				{
 					$arr [$n] = (int) $arr [$n];
-					$n++;
+					++$n;
 				}
 			}
 			else
