@@ -63,7 +63,7 @@ class DDS
 	
 	/**
 	 * Используемая схема моделей
-	 * @return Model_Scheme_Abstract
+	 * @return Model_Scheme
 	 */
 	public static function modelScheme ()
 	{
