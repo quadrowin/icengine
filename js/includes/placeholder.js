@@ -52,14 +52,38 @@
 	
 			if(this.val()==caption) {
 				var new_input = $('<input type="password" name="' + this.attr('name') + '" value="" />');
+				var events = this.data ('original_events');
+				if (!events || (events.length == 1 && events.focus.length == 1))
+				{
+					events = this.data ('events');
+				}
+				new_input.data ('original_events', events);
+				
 				new_input.attr("placeholder",caption);
 				new_input.attr("class",this.attr("class"));
 				new_input.removeClass("pie_first-child"); // PIE compatibility
 				new_input.removeClass($.fn.placeholder_options.placeholded_class);
 				new_input.blur(function(){	new_input.placeholder_password_blur(caption); });
+
+				if (events.focus)
+				{
+					for (var i = 1; i < events.focus.length; ++i)
+					{
+						events.focus [i].handler.apply (this [0]);
+					}
+				}
+				
 				this.replaceWith(new_input);
 				new_input.focus();
 				new_input.focus();
+				
+				if (events.focus)
+				{
+					for (var i = 0; i < events.focus.length; ++i)
+					{
+						events.focus [i].handler.apply (new_input [0]);
+					}
+				}
 			}
 			
 		}
@@ -71,13 +95,29 @@
 		if(this.is(':password')) {
 	
 			if(this.val()=="") {
+				
 				var new_input = $('<input type="text" name="' + this.attr('name') + '" value="' + caption + '" />');
+				var events = this.data ('original_events');
+				if (!events || (events.length == 1 && events.blur.length == 1))
+				{
+					events = this.data ('events');
+				}
+				new_input.data ('original_events', events);
+				
 				new_input.attr("placeholder",caption);
 				new_input.attr("class",this.attr("class"));
 				new_input.removeClass("pie_first-child"); // PIE compatibility
 				new_input.addClass($.fn.placeholder_options.placeholded_class);
 				new_input.focus(function(){	new_input.placeholder_password_focus(caption); });
 				this.replaceWith(new_input);
+				
+				if (events && events.blur)
+				{
+					for (var i = 0; i < events.blur.length; ++i)
+					{
+						events.blur [i].handler.apply (new_input [0]);
+					}
+				}
 			}
 			
 		}
@@ -121,13 +161,10 @@
     	
     		if(input.is(':password'))
     		{
-
     			input.placeholder_password_blur(caption);
     			input.focus(function(){	input.placeholder_password_focus(caption); });
     			input.blur(function(){ input.placeholder_password_blur(caption); });
-    			
     		} else {
-    	
     			input.placeholder_blur(caption);
     			input.focus(function(){	input.placeholder_focus(caption); });
     			input.blur(function(){ input.placeholder_blur(caption);	});
