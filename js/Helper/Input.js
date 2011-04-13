@@ -28,7 +28,7 @@ var Helper_Input = {
 			return result;
 		}
 		
-		var empty_text = $input.data ('empty_text');
+		var empty_text = $input.attr ('placeholder');
 		var value = $input.val ();
 		if (empty_text && value == empty_text)
 		{
