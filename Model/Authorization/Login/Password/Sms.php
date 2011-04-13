@@ -330,13 +330,13 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 		else
 		{
 			Loader::load ('Activation');
-			$exp_time = Helper_Date::toUnix (time () + $config ['sms_expiration']);
+			$exp_time = time () + $config ['sms_expiration'];
 			$activation = Activation::create (array (
 				'finished'			=> -2,
 				'address'			=> $user->phone,
 				'type'				=> $config ['activation_type'],
 				'code'				=> $activation_code,
-				'expirationTime'	=> $exp_time,
+				'expirationTime'	=> Helper_Date::toUnix ($exp_time),
 				'User__id'			=> $user->id
 			));
 		}
