@@ -1,22 +1,22 @@
 <?php
 /**
  * 
- * @desc Модель баланса пользователя
+ * @desc Модель баланса.
  * @author Гурус
  * @package IcEngine
  *
  */
-class User_Balance extends Model
+class Component_Balance extends Model_Component
 {
 	
 	/**
-	 * 
+	 * @desc Получение баланса для модели
 	 * @param integer|User $user
 	 * @return User_Balance
 	 */
 	public static function getFor ($user)
 	{
-		$balance = IcEngine::$modelManager->modelByKey (
+		$balance = ModelManager::byKey (
 			'User_Balance', 
 			is_object ($user) ? $user->key () : $user
 		);
