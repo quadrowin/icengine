@@ -23,7 +23,7 @@ class Model_Scheme
 	public $defaultPrefix = 'ice_';
     
 	/**
-	 * Модели
+	 * @desc Модели
 	 * @var array
 	 */
 	public $models = array (
@@ -113,15 +113,21 @@ class Model_Scheme
 	}
 	
 	/**
-	 * Получение реального имени таблицы в БД
-	 * 
-	 * @param string|Model $model
-	 * 		Имя модели или экземпляр класса модели
-	 * @return string
-	 * 		Действительное имя таблицы
+	 * @desc Получение реального имени таблицы в БД.
+	 * @param string|Model $model Имя модели или экземпляр класса модели.
+	 * @return string Действительное имя таблицы.
 	 */
 	public function table ($model)
 	{	
+		if (is_array($model))
+		{
+			var_dump ($model);
+			echo '<pre>';
+			debug_print_backtrace ();
+			echo '</pre>';
+			
+		}
+		
 	    $model = strtolower (
 	    	is_object ($model) ? $model->modelName () : $model
 	    );
@@ -159,8 +165,8 @@ class Model_Scheme
 	}
 	
 	/**
-	 * Источник данных для модели.
-	 * @param string $model
+	 * @desc Источник данных для модели.
+	 * @param string $model название модели.
 	 * @return Data_Source_Abstract
 	 */
 	public function dataSource ($model)
@@ -176,9 +182,24 @@ class Model_Scheme
 	}
 	
 	/**
-	 * 
-	 * @param string $model
-	 * @return array
+	 * @desc Возвращает названия полей модели.
+	 * @param string $model Название модели.
+	 * @return array <string> Массив названий полей.
+	 */
+	public function fieldsNames ($model)
+	{
+		Loader::load ('Model_Field');
+		return $this->dataSource ($model)->execute (
+			Query::instance ()
+				->show ('COLUMNS')
+				->from ($model)
+		)->getResult ()->asColumn ('Field');
+	}
+	
+	/**
+	 * @desc Индексы модели.
+	 * @param string $model Название модели.
+	 * @return array Массив индексов.
 	 */
 	public function indexes ($model)
 	{
@@ -193,9 +214,9 @@ class Model_Scheme
 	}
 	
 	/**
-	 * Ключевое поле для модели.
-	 * @param string $model
-	 * @return string
+	 * @desc Ключевое поле для модели.
+	 * @param string $model Название модели.
+	 * @return string Имя ключевого поля.
 	 */
 	public function keyField ($model)
 	{

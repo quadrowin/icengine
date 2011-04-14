@@ -100,7 +100,7 @@ class Query_Translator_Mysql extends Query_Translator
 	{
 		return 
 			self::SQL_DELETE . ' ' .
-			self::_renderFROM ($query, false) . ' ' . 
+			self::_renderFrom ($query, false) . ' ' . 
 			self::_renderWhere ($query);
 	}
 	
@@ -383,15 +383,20 @@ class Query_Translator_Mysql extends Query_Translator
 			self::_renderLimitoffset ($query);
 	}
 	
+	/**
+	 * @desc Рендер части SHOW.
+	 * @param Query $query Запрос.
+	 * @return string Сформированный запрос.
+	 */
 	public function _renderShow (Query $query)
 	{
 		$sql = self::SQL_SHOW . ' ' . $this->_partDistinct ($query) . ' ';
 		
-		$sql .= $this->_modelScheme->table ($query->part (Query::SHOW));
+		$sql .= $query->part (Query::SHOW);
 		
 		return $sql . ' ' .
-			self::_renderFrom ($query) . ' ' .
-			self::_renderWhere (query) . ' ' .
+			self::_renderFrom ($query, false) . ' ' .
+			self::_renderWhere ($query) . ' ' .
 			self::_renderOrder ($query) . ' ' .
 			self::_renderLimitoffset ($query) . ' ' .
 			self::_renderGroup ($query);
