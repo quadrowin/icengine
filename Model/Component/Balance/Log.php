@@ -11,13 +11,14 @@ class Component_Balance_Log extends Model
 	
 	/**
 	 * @desc Добавить запись в лог об изменении баланса.
-	 * @param string $table
-	 * @param integer $row_id
-	 * @param integer $change Изменение баланса.
+	 * @param string $table Таблица.
+	 * @param integer $row_id Запись.
+	 * @param float $value Текущее значение баланса.
+	 * @param float $change Изменение баланса.
 	 * @param string $comment [optional] Комментарий.
 	 * @return User_Balance_Log Созданный лог.
 	 */
-	public static function addLog ($table, $row_id, $change, $comment = '')
+	public static function addLog ($table, $row_id, $value, $change, $comment = '')
 	{
 		$log = new Component_Balance_Log (array (
 			'time'			=> Helper_Date::toUnix (),

@@ -10,55 +10,50 @@ class Component_Balance extends Model_Component
 {
 	
 	/**
-	 * @desc Получение баланса для модели
-	 * @param integer|User $user
-	 * @return User_Balance
+	 * @desc Получение баланса для модели.
+	 * @param Model $model Модель.
+	 * @return User_Balance Баланс.
 	 */
-	public static function getFor ($user)
+	public static function getFor ($model)
 	{
-		$balance = ModelManager::byKey (
-			'User_Balance', 
-			is_object ($user) ? $user->key () : $user
-		);
+		return $model->component ('Balance', 0);
+	}
+	
+	/**
+	 * @desc Изменяет баланс модели.
+	 * @param Model $model Модель.
+	 * @param float $change Изменение баланса.
+	 * @param string $comment Комментарий.
+	 * @return Component_Balance Баланс модели.
+	 */
+	public static function changeFor ($model, $change, $comment = '')
+	{
+		$balance = self::getFor ($model);
 		
-		if (!$balance)
-		{
-			if (is_numeric ($user))
-			{
-				$user = IcEngine::$modelManager->modelByKey ('User', $user);
-			}
-			
-			if (!$user)
-			{
-				return null;
-			}
-			
-			$balance = new User_Balance (array (
-				'id'			=> $user->key (),
-				'User__id'		=> $user->key (),
-				'value'			=> 0
-			));
-			$balance->save (true);
-		}
+		$balance->change ($change, $comment);
 		
 		return $balance;
 	}
 	
 	/**
-	 * @desc Увеличить баланс пользователя
-	 * @param integer|User $user Пользователь или id
-	 * @param integer $value Значение.
-	 * @param string $comment Комментарий.
-	 * @return User_Balance_Log
+	 * @desc Изменяет баланс модели 
+	 * @param float $change
+	 * @param string $comment [optional]
+	 * @return Component_Balance_Log
 	 */
-	public static function incrementFor ($user, $value, $comment = '')
+	public function change ($change, $comment = '')
 	{
-		Loader::load ('User_Balance_Log');
-		$balance = self::getFor ($user);
+		Loader::load ('Component_Balance_Log');
+		$log = Component_Balance_Log::addLog (
+			$this->table,
+			$this->rowId,
+			$this->value,
+			$change,
+			$comment
+		);
 		
-		$log = User_Balance_Log::addLog ($balance->User__id, $value, $comment);
-		$balance->update (array (
-			'value'	=> $balance->value + $value
+		$this->update (array (
+			'value'	=> $this->value + $change
 		));
 		
 		return $log;
