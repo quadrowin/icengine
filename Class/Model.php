@@ -719,15 +719,53 @@ abstract class Model implements ArrayAccess
 	}
 	
 	/**
-	 * @desc Обновление данных модели и полей в БД
-	 * @param array $data
-	 * 		Массив пар (поле => значение)
-	 * @return Model
+	 * @desc Обновление данных модели и полей в БД.
+	 * @param array $data Массив пар (поле => значение).
+	 * @return Model Эта модель.
 	 */
 	public function update (array $data)
 	{
 		$this->set ($data);
 		return $this->save ();
+	}
+	
+	/**
+	 * @desc Аккуратное обновление модели. Используется, когда в модели
+	 * могут присутствовать посторонние поля (результаты запросов опций и
+	 * т.п.). В таком случае все поля будут помещены в буфер, модель будет
+	 * сохранена, после чего отложенные поля будут обратно наложены.
+	 * @param array $data Массив пар (поле => значение).
+	 * @return Model Эта модель.
+	 */
+	public function updateCarefully (array $data)
+	{
+		$this->set ($data);
+		
+		$pseudos = array ();
+		
+		// Список существующий в модели полей
+		$scheme = Model_Manager::modelScheme ()->fieldsNames (
+			$this->modelName ()
+		);
+		
+		foreach ($this->_fields as $name => $value)
+		{
+			if (array_search ($name, $scheme) === false)
+			{
+				// Псевдополе
+				$pseudos [$name] = $value;
+				unset ($this->_fields [$name]);
+			}
+		}
+		
+		$this->save ();
+		
+		$this->_fields = array_merge (
+			$this->_fields,
+			$pseudos
+		);
+		
+		return $this;
 	}
 	
 }

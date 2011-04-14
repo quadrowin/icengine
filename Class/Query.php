@@ -432,13 +432,13 @@ class Query {
 	public function show ($columns)
 	{
 		$this->_type = self::SHOW;
+		$this->_parts [self::SHOW] = $columns;
 		return $this;
 	}
 	
 	/**
 	 * @desc Добавление джойна таблицы, если она еще не подключна.
-	 * @param string $table Название таблицы.
-	 * Алиас не принимается.
+	 * @param string $table Название таблицы. Алиас не принимается.
 	 * @param string $condition
 	 * @return Query
 	 */
