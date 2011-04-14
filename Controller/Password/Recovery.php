@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * 
+ * @desc Контроллер востановления пароля.
+ * @author Юрий Шведов
+ * @package IcEngine
+ *
+ */
 class Controller_Password_Recovery extends Controller_Abstract
 {
 	
@@ -110,10 +116,10 @@ class Controller_Password_Recovery extends Controller_Abstract
 			return ;
 		}
 		
-		$user = IcEngine::$modelManager->modelBy (
+		$user = Model_Manager::byQuery (
 			'User',
 			Query::instance ()
-			->where ('email', $email)
+				->where ('email', $email)
 		);
 		
 		if (!$user)
