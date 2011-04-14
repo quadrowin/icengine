@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * 
+ * @desc Валидатор Емейла при регистрации
+ * @author Юрий Шведов
+ * @package IcEngine
+ *
+ */
 class Data_Validator_Registration_Email
 {
 
@@ -27,7 +33,7 @@ class Data_Validator_Registration_Email
 			return __CLASS__ . '/' . self::INCORRECT;
 		}
 		
-		$user = Model_Manager::byKey (
+		$user = Model_Manager::byQuery (
 			'User',
 			Query::instance ()
 				->where ('email', $email)
@@ -38,7 +44,7 @@ class Data_Validator_Registration_Email
 			return __CLASS__ . '/' . self::REPEAT;
 		}
 		
-		$reg = Model_Manager::byKey (
+		$reg = Model_Manager::byQuery (
 			'Registration',
 			Query::instance ()
 				->where ('email', $email)
