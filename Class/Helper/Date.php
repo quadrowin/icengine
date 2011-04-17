@@ -299,7 +299,7 @@ class Helper_Date
 		}
 		
 		$str = implode ('.', $arr);
-		var_dump ('STR', $str, 'NSTR');
+		
 		if (strlen ($arr [0]) == 4)
 		{
 			// Y-m-d H:i:s

@@ -123,7 +123,7 @@ class IcEngine
 	}
 	
 	/**
-	 * 
+	 * @desc Вывод результата работы.
 	 */
 	public static function flush ()
 	{
@@ -131,13 +131,12 @@ class IcEngine
 	}
 	
 	/**
-	 * Путь до корня движка
+	 * @desc Путь до корня движка
 	 * @return string
 	 */
 	public static function path ()
 	{
-		$path = dirname (__FILE__);
-		return $path ? ($path . '/') : $path;
+		return self::$_path;
 	}
 	
 	/**
@@ -157,6 +156,10 @@ class IcEngine
 	{
 		// Запоминаем путь до движка
 		self::$_path = dirname (__FILE__) . '/';
+		if (strlen (self::$_path) < 2)
+		{
+			self::$_path = '';
+		}
 		
 		// путь до корня сайта
 		self::$_root = $root ? $root : self::_getRoot ();
@@ -179,8 +182,7 @@ class IcEngine
 	}
 	
 	/**
-	 * Инициализация окружения
-	 * 
+	 * @desc Инициализация окружения
 	 * @param string $behavior
 	 * 		Название окружения
 	 * @param string $path
@@ -195,7 +197,7 @@ class IcEngine
 	}
 	
 	/**
-	 * Запуск рабочего цикла и вывод результата.
+	 * @desc Запуск рабочего цикла и вывод результата.
 	 */
 	public static function run ()
 	{
@@ -203,7 +205,7 @@ class IcEngine
 	}
 	
 	/**
-	 * Подключение класса Debug
+	 * @desc Подключение класса Debug
 	 */
 	public static function useDebug ()
 	{

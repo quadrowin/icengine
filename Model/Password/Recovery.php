@@ -1,5 +1,11 @@
 <?php 
-	
+/**
+ * 
+ * @desc Модель востановления пароля.
+ * @author Юрий Шведов
+ * @package IcEngine
+ *
+ */
 class Password_Recovery extends Model
 {
 	
@@ -257,13 +263,13 @@ class Password_Recovery extends Model
 		$from = 1;
 		$to = 7;
 		$sec_in_day = 24 * 60 * 60;
-		for ($i = $from; $i < $to; $i++)
+		for ($i = $from; $i < $to; ++$i)
 		{
 			$day = Helper_Date::eraDayNum (time () - $i * $sec_in_day);
-			$recoverys = IcEngine::$modelManager->collectionBy (
+			$recoverys = Model_Collection_Manager::byQuery (
 			    __CLASS__,
 			    Query::instance ()
-			    ->where ('day', $day)
+			    	->where ('day', $day)
 			);
 		}
 	}
@@ -305,7 +311,8 @@ class Password_Recovery extends Model
 				'code'		=> $recovery->code,
 				'href'		=> $recovery->href ()
 			),
-			$user_id
+			$user_id,
+			'Mimemail'
 		);
 		return $message->send ();
 	}
