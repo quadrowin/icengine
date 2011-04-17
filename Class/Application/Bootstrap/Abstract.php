@@ -48,7 +48,7 @@ class Application_Bootstrap_Abstract
 	/**
 	 * @desc Инициализация источника данных по умолчанию.
 	 */
-	public function initDds ()
+	public function initDds ($source_name = 'default')
 	{
 		Loader::load ('Data_Provider_Abstract');
 		Loader::load ('Data_Provider_Manager');
@@ -63,7 +63,7 @@ class Application_Bootstrap_Abstract
 		Loader::load ('Data_Source_Abstract');
 		Loader::load ('Data_Source_Manager');
 		
-		DDS::setDataSource (Data_Source_Manager::get ('default'));
+		DDS::setDataSource (Data_Source_Manager::get ($source_name));
 	}
 	
 	/**
