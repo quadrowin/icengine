@@ -39,7 +39,14 @@ class Application
 	{
 		if (!$path)
 		{
-			$path = Ice_Implementator::getClassesPath () . "Application/Behavior/$behavior.php";
+			if (class_exists ('Ice_Implementator'))
+			{
+				$path = Ice_Implementator::getClassesPath () . "Application/Behavior/$behavior.php";
+			}
+			else
+			{
+				$path = Ice_Implementation::getClassesPath () . "Application/Behavior/$behavior.php";
+			}
 		}
 		
 		$behavior = 'Application_Behavior_' . $behavior;
