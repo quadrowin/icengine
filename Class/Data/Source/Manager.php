@@ -21,6 +21,10 @@ class Data_Source_Manager
 	 * @var array
 	 */
 	public static $config = array (
+		// Название источника, вместо которого будет браться название домена.
+		// Название домена берется из $SERVER ['HTTP_HOST'].
+		'source_domain_alias'	=> 'domain',
+		// Источники
 		'sources'	=> array ()
 	);
 	
@@ -44,20 +48,28 @@ class Data_Source_Manager
 	 */
 	public static function get ($name)
 	{	
+		$config = self::config ();
+		if ($config ['source_domain_alias'] == $name)
+		{
+			$name = $_SERVER ['HTTP_HOST'];
+		}
+		
 		if (!isset (self::$_sources [$name]))
 		{
-			$config = self::config ()->sources->$name;
-			if (!$config)
+			$source_config = $config ['sources'][$name];
+			if (!$source_config)
 			{
-				$config = Config_Manager::get ('Data_Source', $name);
+				$source_config = Config_Manager::get ('Data_Source', $name);
 			}
 			
-			if ($config->source)
+			// Случай если нет перечисления вариантов источника
+			if ($source_config ['source'])
 			{
-				$config = array ($config);
+				$source_config = array ($source_config);
 			}
 			
-			foreach ($config as $conf)
+			// Перебираем варианты источника, пока не подключится.
+			foreach ($source_config as $conf)
 			{
 				$source_class = 'Data_Source_' . $conf->source;
 				$mapper_class = 'Data_Mapper_' . $conf->mapper;
@@ -67,7 +79,7 @@ class Data_Source_Manager
 				
 				self::$_sources [$name] = new $source_class ();
 				/**
-				 * 
+				 * @desc Меппер.
 				 * @var Data_Mapper_Abstract $mapper
 				 */
 				$mapper = self::$_sources [$name]->getDataMapper ();
