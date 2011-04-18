@@ -5,7 +5,7 @@ class Request
 	
 	const NONE_IP = '0.0.0.0';
 	
-	public static $_params = array();
+	public static $_params = array ();
 	
 	public static $post_charset = 'utf-8';
 	public static $work_charset = 'utf-8';

@@ -313,18 +313,18 @@ abstract class Model implements ArrayAccess
 	
 	/**
 	 * @desc Возвращает коллекцию моделей типа $model,
-	 * 		связанных по первичному ключу с этой моделью.
-	 * 		В модели $model должно существовать поле "THISMODEL__id",
-	 * 		где THISMODEl - название этой модели.
+	 * связанных по первичному ключу с этой моделью.
+	 * В модели $model должно существовать поле "THISMODEL__id",
+	 * где THISMODEl - название этой модели.
 	 * @param string $model_name
 	 * @return Model_Collection
 	 */
 	public function external ($model)
 	{
-		$coll = Helper_Model_Collection::byQuery (
+		$coll = Model_Collection_Manager::byQuery (
 			$model,
 			Query::instance ()
-			->where ($this->modelName () . '__id', $this->key ())
+				->where ($this->modelName () . '__id', $this->key ())
 		);
 		
 		return $coll;
