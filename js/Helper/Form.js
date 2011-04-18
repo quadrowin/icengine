@@ -156,6 +156,48 @@ var Helper_Form = {
 			);
 		};
 	},
+	
+	/**
+	 * @desc Отправка формы по умолчанию
+	 * @param jQuery $form Форма или элемент формы.
+	 * @param string action Название контроллера и экшена.
+	 */
+	defaultSubmit: function ($form, action)
+	{
+		$form = $form.closest ('form');
+		
+		function callback (result)
+		{
+			if (result.error)
+			{
+				alert (result.error);
+				return ;
+			}
+			$form.find ('.result-msg').html (result.html);
+			$form.find ('.result-msg').show ();
+		}
+		
+		if (!action)
+		{
+			action = $form.attr ('onsubmit');
+			
+			var p1 = action.indexOf ('(');
+			var p2 = action.indexOf (' ');
+			
+			action = action.substring (
+				"Controller_".length,
+				(0 < p2 && p2 < p1) ? p2 : p1
+			);
+			action = action.replace (".", "/");
+		}
+		
+		Controller.call (
+			action,
+			Helper_Form.asArray ($form),
+			callback, true
+		);
+	},
+	
 	/**
 	 * 
 	 * @param jQuery $owner
