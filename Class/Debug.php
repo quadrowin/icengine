@@ -1,81 +1,12 @@
 <?php
-/**
- * @desc Внутренний обработчик ошибок
- * @param string $errno Код ошибки
- * @param string $errstr Текст ошибки
- * @param string $errfile Файл
- * @param string $errline Строка
- * @return boolean
- */
-function internalErrorHandler_DebugClass ($errno, $errstr, $errfile, $errline)
-{
-	if (
-		// Игнорим сообщение про open_basedir из smarty
-		(
-			Debug::$config ['ignore_open_basedir_warning'] &&
-			($errno == E_WARNING) &&
-			strpos ($errfile, '/core.get_include_path.php') &&
-			($errline == 35)
-		) ||
-		// Варнинг unlink
-		(
-			Debug::$config ['ignore_unlink_warning'] &&
-			($errno = E_WARNING) &&
-			substr ($errstr, 0, 7) == 'unlink('
-		)
-	)
-	{
-		return false;
-	}
-	
-	if (Debug::$config ['print_backtrace'])
-	{
-		echo '<pre>';
-		debug_print_backtrace ();
-		echo '</pre>';
-	}
-	
-	$debug = array_slice (debug_backtrace (), 1, 10);
-	Debug::removeUninterestingObjects ($debug);
-	
-	$log_text = 
-		'[' . $errno . ':' . $errfile . '@' . $errline . '] ' . 
-		$errstr . "\r\n";
-	
-	foreach ($debug as $debug_step)
-	{
-		if (isset ($debug_step ['file']))
-		{
-			$log_text .= 
-				'[' . $debug_step ['file'] . '@' . $debug_step ['line'] . ':' . 
-				$debug_step ['function'] . ']' . "\r\n";
-		}
-		else
-		{
-			break;
-		}
-	}
-	
-	Debug::log ($log_text, $errno);
 
-	if (
-		($errno == E_ERROR || $errno == E_USER_ERROR) && 
-		Debug::$config ['die_on_error']
-	)
-	{
-		die ("<b>Terminated on fatal error.</b>");
-	}
-	
-	return true;
-}
-
-function internalErrorHandler_hide ($errno, $errstr, $errfile, $errline)
+function internal_error_handler_hide ($errno, $errstr, $errfile, $errline)
 {
 	//echo '['.$errno.':'.$errfile.'@'.$errline.'] '.$errstr."\n<br />";
 	return true;
 }
 
-function internalErrorHandler_ignore ($errno, $errstr, $errfile, $errline)
+function internal_error_handler_ignore ($errno, $errstr, $errfile, $errline)
 {
 	return true;
 }
@@ -85,12 +16,15 @@ function internal_exception_handler_ignore ($exception)
 	echo "Uncaught exception: " , $exception->getMessage (), "\n";
 }
 
+/**
+ * 
+ * @desc Класс для отладки.
+ * @author Гурус
+ * @package IcEngine
+ *
+ */
 class Debug
 {
-	
-	const DEFAULT_TABLE = 'log';
-	
-	const ERROR_HANDLER_INNER = 'DebugClass';
 	
 	const ERROR_HANDLER_HIDE = 'hide';
 	
@@ -99,107 +33,105 @@ class Debug
 	const EXCEPTION_HANDLER_IGNORE = 'ignore';
 	
 	public static $config = array (
-	
-		/**
-		 * Ведение лога в БД
-		 * @var array
-		 */
-		'database'					=> array (
-			/**
-			 * Активно
-			 * @var boolean
-			 */
-			'active'	=> false,
-			/**
-			 * Таблица для ведения лога
-			 * @var string
-			 */
-			'table'		=> self::DEFAULT_TABLE
-		),
 		
 		/**
-		 * Остановить выполнение скрипта при ошибке
+		 * @desc Ведение лога в БД.
+		 * @var boolean
+		 */
+		'database_active'			=> false,
+		
+		/**
+		 * @desc Название таблицы логов в БД.
+		 * @var string
+		 */
+		'database_table'			=> 'log',
+		
+		/**
+		 * @desc Остановить выполнение скрипта при ошибке.
 		 * @var boolean
 		 */
 		'die_on_error'				=> true,
 		
 		/**
-		 * Отображение в браузер
+		 * @desc Отображение в браузер, вывод через stdOut.
 		 * @var boolean
 		 */
-		'echo'						=> array (
-			'active'	=> true
-		),
+		'echo_active'				=> true,
 		
 		/**
-		 * Файлы для отображения
+		 * @desc Отображение в файл.
+		 * @var boolean
+		 */
+		'file_active'				=> false,
+		
+		/**
+		 * @desc Файл для записи сообщений об ошибках.
 		 * @var string
 		 */
-		'files'						=> array (
-			/**
-			 * Активно
-			 * @var boolean
-			 */
-			'active'	=> false,
-			'ERROR'		=> 'error.txt',
-			'WARN'		=> 'warning.txt',
-			'LOG'		=> 'notice.txt'
-		),
+		'file_error'				=> 'error.txt',
+	
+		/**
+		 * @desc Файл для записи сообщений о варнингах.
+		 * @var string
+		 */
+		'file_warn'					=> 'warning.txt',
 		
 		/**
-		 * Отображение в FireBug
+		 * @desc Файл для записи прочих сообщений.
+		 * @var string
+		 */
+		'file_log'					=> 'notice.txt',
+		
+		/**
+		 * @desc Отображение в FireBug
 		 * @var boolean
 		 */
-		'firebug'	=> array (
-			/**
-			 * Активно
-			 * @var boolean
-			 */
-			'active'				=> false,
-		
-			/**
-			 * Следим за количеством дебаг сообщений, чтобы 
-			 * длина заголовка не превысила максимально допустимую,
-			 * иначе на странице вместо текста будет "X-Wf-1-1-1-32: 201|...."
-			 * 
-			 * @var integer
-			 */
-			'messages_limit'		=> 11,
-		),
+		'firebug_active'			=> false,
 		
 		/**
-		 * Игнорировать варнинг open basedir
+		 * @desc Следим за количеством дебаг сообщений, чтобы 
+		 * длина заголовка не превысила максимально допустимую,
+		 * иначе на странице вместо текста будет "X-Wf-1-1-1-32: 201|...."
+		 * 
+		 * @var integer
+		 */
+		'firebug_messages_limit'	=> 11,
+		
+		/**
+		 * @desc Игнорировать варнинг open basedir.
 		 * @var boolean
 		 */
 		'ignore_open_basedir_warning'	=> true,
 		
 		/**
-		 * Игнорировать варнинг при unlink
+		 * @desc Игнорировать варнинг при unlink.
 		 * @var boolean
 		 */
 		'ignore_unlink_warning'			=> true,
 		
 		/**
-		 * Вывод на экран трасировки
+		 * @desc Вывод на экран трасировки.
 		 * @var boolean
 		 */
 		'print_backtrace'				=> false,
 		
 		/**
-		 * Стандартный лог PHP
+		 * @desc Стандартный лог PHP.
 		 * @var boolean
 		 */
 		'phplog'						=> true
 	);
 	
 	/**
-	 * Количество сообщений
+	 * @desc Количество выведенных сообщений.
+	 * Важно ограничить вывод через FirePHP, чтобы длина заголовка не 
+	 * превысила 1024
 	 * @var integer
 	 */
 	public static $debug_messages_count = 0;
 		
 	/**
-	 * Скрытие всех возникающих ошибок
+	 * @desc Скрытие всех возникающих ошибок.
 	 */
 	public static function disable ()
 	{
@@ -208,12 +140,82 @@ class Debug
 		ini_set ('html_errors', false);
 		ini_set ('track_errors', true);
 		
-		set_error_handler ('internalErrorHandler_hide');
+		set_error_handler ('internal_error_handler_hide');
 	}
 	
 	/**
-	 * Включение внутреннего обработчика ошибок
-	 * @param array|Objective $config
+	 * @desc Внутренний обработчик ошибок.
+	 * @param string $errno Код ошибки.
+	 * @param string $errstr Текст ошибки.
+	 * @param string $errfile Файл.
+	 * @param string $errline Строка.
+	 * @return boolean
+	 */
+	public static function errorHandler ($errno, $errstr, $errfile, $errline)
+	{
+		if (
+			// Игнорим сообщение про open_basedir из smarty
+			(
+				self::$config ['ignore_open_basedir_warning'] &&
+				($errno == E_WARNING) &&
+				strpos ($errfile, '/core.get_include_path.php') &&
+				($errline == 35)
+			) ||
+			// Варнинг unlink
+			(
+				self::$config ['ignore_unlink_warning'] &&
+				($errno = E_WARNING) &&
+				substr ($errstr, 0, 7) == 'unlink('
+			)
+		)
+		{
+			return false;
+		}
+		
+		if (self::$config ['print_backtrace'])
+		{
+			echo '<pre>';
+			debug_print_backtrace ();
+			echo '</pre>';
+		}
+		
+		$debug = array_slice (debug_backtrace (), 1, 10);
+		self::removeUninterestingObjects ($debug);
+		
+		$log_text = 
+			'[' . $errno . ':' . $errfile . '@' . $errline . '] ' . 
+			$errstr . "\r\n";
+		
+		foreach ($debug as $debug_step)
+		{
+			if (isset ($debug_step ['file']))
+			{
+				$log_text .= 
+					'[' . $debug_step ['file'] . '@' . $debug_step ['line'] . ':' . 
+					$debug_step ['function'] . ']' . "\r\n";
+			}
+			else
+			{
+				break;
+			}
+		}
+		
+		self::log ($log_text, $errno);
+	
+		if (
+			($errno == E_ERROR || $errno == E_USER_ERROR) && 
+			self::$config ['die_on_error']
+		)
+		{
+			die ("<b>Terminated on fatal error.</b>");
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * @desc Включение внутреннего обработчика ошибок.
+	 * @param array|Objective $config Настройки.
 	 */
 	public static function init ($config = array ())
 	{
@@ -229,9 +231,13 @@ class Debug
 			self::setOptions ($config);
 		}
 		
-		set_error_handler ("internalErrorHandler_DebugClass");
+		set_error_handler ("Debug::errorHandler");
 	}
 	
+	/**
+	 * @desc Форматированный вывод по средствам print_r.
+	 * @param mixed $var
+	 */
 	public static function printr ($var)
 	{
 		echo '<pre>';
@@ -245,8 +251,8 @@ class Debug
 	}
 	
 	/**
-	 * 
-	 * @param mixed $var
+	 * @desc Форматированный вывод переменных по средствам var_export.
+	 * @param mixed $var Переменная
 	 */
 	public static function vardump ($var)
 	{
@@ -277,6 +283,10 @@ class Debug
 		restore_exception_handler ();
 	}
 	
+	/**
+	 * @desc Установка внутреннего обработчика ошибок.
+	 * @param string $type Тип обработчика.
+	 */
 	public static function pushErrorHandler ($type)
 	{
 		error_reporting (null);
@@ -287,13 +297,17 @@ class Debug
 		set_error_handler ('internalErrorHandler_' . $type);
 	}
 	
+	/**
+	 * @desc Установка внутреннего обработчика исключений.
+	 * @param string $type Тип обработчика.
+	 */
 	public static function pushExceptionHandler ($type)
 	{
 		set_exception_handler ('internal_exception_handler_' . $type);
 	}
 	
 	/**
-	 * Удаление объекта БД из лога, иначе
+	 * @desc Удаление объекта БД из лога, иначе
 	 * логин/пароль от базы могут быть отправлены пользователю
 	 */ 
 	public static function removeUninterestingObjects (array &$debug_trace)
@@ -317,8 +331,8 @@ class Debug
 	}
 	
 	/**
-	 * 
-	 * @param array|Config_Abstract $config
+	 * @desc Установка настроек для дебага.
+	 * @param array|Config_Abstract $config Конфиг.
 	 */
 	public static function setOptions ($config)
 	{
@@ -333,34 +347,43 @@ class Debug
 			$config = $config->__toArray ();
 		}
 		
-		self::$config = self::arrayMergeReplaceRecursive (self::$config, $config);
+		self::$config = array_merge (self::$config, $config);
 	}
 	
 	/**
-	 * Установки режимов отображения ошибок
-	 * @param string|null $database Таблица БД
-	 * @param boolean $echo Вывод в браузер
-	 * @param boolean|null $firebug FireBug
-	 * @param string|null $file Имя файла
+	 * @desc Устанавливает режим отображения ошибок.
+	 * @param boolean|string|null $database Таблица БД. Если передано null,
+	 * этот метод будет активен если есть возможность вывода в БД.
+	 * @param boolean $echo Вывод в браузер.
+	 * @param boolean|null $firebug FireBug.
+	 * @param string|null $file Вывод в файл - имя файла.
 	 */
 	public static function setOutput ($database = null, $echo = true,
 		$firebug = null, $file = null)
 	{
 		// БД
-		if ((is_null ($database) && class_exists ('DDS')) || $database)
+		if ($database === null)
 		{
-			self::$config ['database']['active'] = (bool) $database;
+			self::$config ['database_active'] = class_exists ('DDS');
+		}
+		elseif ($database)
+		{
+			self::$config ['database_active'] = true;
+			if (is_string ($database))
+			{
+				self::$config ['database_table'] = $database;
+			}
 		}
 		else
 		{
-			self::$config ['database']['active'] = false;
+			self::$config ['database_active'] = false;
 		}
 		
 		// Браузер
-		self::$config ['echo']['active'] = (bool) $echo;
+		self::$config ['echo_active'] = (bool) $echo;
 		
 		// FireBug
-		self::$config ['firebug'] = (
+		self::$config ['firebug_active'] = (
 			(is_null ($firebug) && function_exists ('fb')) ||
 			$firebug
 		);
@@ -368,35 +391,33 @@ class Debug
 		// Файл
 		if (is_string ($file))
 		{
-			self::$config ['file'] = array (
-				'active'	=> true,
-				'ERROR'		=> $file,
-				'WARN'		=> $file,
-				'LOG'		=> $file
-			);
+			self::$config ['file_active']	= true;
+			self::$config ['file_error']	= $file;
+			self::$config ['file_warn']		= $file;
+			self::$config ['file_log']		= $file;
 		}
 		else
 		{
-			self::$config ['file']['active'] = false;
+			self::$config ['file_active'] = false;
 		}
 	}
 	
 	/**
-	 * Отображение в лог нового события
-	 * @param mixed $text Отладочная информация
-	 * @param string|integer $type Тип события
+	 * @desc Отображение в лог нового события.
+	 * @param mixed $text Отладочная информация.
+	 * @param string|integer $type Тип события.
 	 */
-	public static function log ($text, $type = 'LOG')
+	public static function log ($text, $type = 'log')
 	{
 		if (is_numeric ($type))
 		{
 			$error_type_convertor = array (
-				E_WARNING		=> 'WARN',
-				E_USER_WARNING	=> 'WARN',
-				E_ERROR			=> 'ERROR',
-				E_USER_ERROR	=> 'ERROR',
-				E_NOTICE		=> 'LOG',
-				E_USER_NOTICE	=> 'LOG'
+				E_WARNING		=> 'warn',
+				E_USER_WARNING	=> 'warn',
+				E_ERROR			=> 'error',
+				E_USER_ERROR	=> 'error',
+				E_NOTICE		=> 'log',
+				E_USER_NOTICE	=> 'log'
 			);
 			
 			if (isset ($error_type_convertor [$type]))
@@ -405,7 +426,7 @@ class Debug
 			}
 			else
 			{
-				$type = 'LOG';
+				$type = 'log';
 			}
 		}
 		$time = date ('Y-m-d H:i:s');
@@ -418,15 +439,15 @@ class Debug
 		}
 		
 		// В файл
-		if (self::$config ['files']['active'])
+		if (self::$config ['file_active'])
 		{
-			if (isset (self::$config ['files'][$type]))
+			if (isset (self::$config ['file_' . $type]))
 			{
-				$f = self::$config ['files'][$type];
+				$f = self::$config ['file_' . $type];
 			}
 			else
 			{
-				$f = self::$config ['files']['LOG'];
+				$f = self::$config ['file_log'];
 			}
 			
 			if ($f)
@@ -438,11 +459,11 @@ class Debug
 		}
 		
 		// В базу
-		if (self::$config ['database']['active'] && DDS::inited ())
+		if (self::$config ['database_active'] && DDS::inited ())
 		{
 			DDS::execute (
 				Query::instance ()
-				->insert (self::$config ['database']['table'])
+				->insert (self::$config ['database_table'])
 				->values (array (
 					'time'	=> $time,
 					'where'	=> '',
@@ -453,9 +474,10 @@ class Debug
 		}
 		
 		// FirePHP
+		$limit = self::$config ['firebug_messages_limit'];
 		if (
-			self::$config ['firebug']['active'] &&
-			(self::$debug_messages_count++ < self::$config ['firebug']['messages_limit']) &&
+			self::$config ['firebug_active'] &&
+			(self::$debug_messages_count++ < $limit) &&
 			function_exists ('fb') &&
 			!headers_sent ()
 		)
@@ -464,16 +486,16 @@ class Debug
 		}
 		
 		// В браузер
-		if (self::$config ['echo']['active'])
+		if (self::$config ['echo_active'])
 		{
 			echo "<pre>$type $text</pre>";
 		}
 	}
 	
 	/**
-	 * Отображение в лог значения переменной
-	 * @param mixed $var Переменная 
-	 * @param string $name Имя переменной
+	 * @desc Отображение в лог значения переменной.
+	 * @param mixed $var Переменная.
+	 * @param string $name Имя переменной.
 	 */
 	public static function logVar ($var, $name = '')
 	{
@@ -485,60 +507,6 @@ class Debug
 		{
 			self::log ($name . ' => ' . print_r ($var, true));
 		}
-	}
-	
-	/**
-	 * Merges any number of arrays of any dimensions, the later overwriting
-	 * previous keys, unless the key is numeric, in whitch case, duplicated
-	 * values will not be added.
-	 *
-	 * The arrays to be merged are passed as arguments to the function.
-	 *
-	 * @access public
-	 * @return array Resulting array, once all have been merged
-	 */
-	public static function arrayMergeReplaceRecursive ()
-	{
-		// Holds all the arrays passed
-		$params = &func_get_args ();
-		
-		// First array is used as the base, everything else overwrites on it
-		$return = array_shift ($params);
-		
-		// Merge all arrays on the first array
-		foreach ($params as $array)
-		{
-			foreach ($array as $key => $value)
-			{
-				// Numeric keyed values are added (unless already there)
-				if (is_numeric ($key) && (!in_array ($value, $return)))
-				{
-					if (is_array ($value))
-					{
-						$return [] = self::arrayMergeReplaceRecursive ($return [$key], $value);
-					}
-					else
-					{
-						$return [] = $value;
-					}
-					
-				// String keyed values are replaced
-				}
-				else
-				{
-					if (isset ($return [$key]) && is_array ($value) && is_array ($return [$key]))
-					{
-						$return [$key] = self::arrayMergeReplaceRecursive ($return [$key], $value);
-					}
-					else
-					{
-						$return [$key] = $value;
-					}
-				}
-			}
-		}
-		
-		return $return;
 	}
 	
 }
