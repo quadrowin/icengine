@@ -1,72 +1,82 @@
 <?php
-
+/**
+ * 
+ * @desc Опция коллекции.
+ * @author Юрий Шведов, Илья Колесников
+ * @package IcEngine
+ *
+ */
 class Model_Collection_Option_Item
 {
-    
-    /**
-     * Название опции
-     * @var string
-     */
-    protected $_name;
-    
-    /**
-     * Параметры
-     * @var array
-     */
-    protected $_params;
-    
-    /**
-     * Опции
-     * @var StdClass
-     */
-    protected $_option;
-    
-    public function __construct ($name, $params = array ())
-    {
-        $this->_name = $name;
-        $this->_params = $params;
-    }
-    
-	private function _className ($modelName)
+	
+	/**
+	 * @desc Название опции
+	 * @var string
+	 */
+	protected $_name;
+	
+	/**
+	 * @desc Параметры
+	 * @var array
+	 */
+	protected $_params;
+	
+	/**
+	 * @desc Опции
+	 * @var Model_Collection_Option_Abstract
+	 */
+	protected $_option;
+	
+	/**
+	 * @desc Создает и возвращает опцию
+	 * @param string $name Название опции.
+	 * @param array $params Параметры применения.
+	 */
+	public function __construct ($name, $params = array ())
 	{
-		return $modelName . '_Collection_Option';
+		$this->_name = $name;
+		$this->_params = $params;
 	}
 	
 	/**
-	 * 
-	 * @param string $model_name
-	 * @param string $option
+	 * @desc Загрузка опцию.
+	 * @param string $model_name Название модели для которой подключается
+	 * опция.
+	 * @param string $option Название опции. Может содержать название модели.
+	 * Active - Опция Active текущей коллекции.
+	 * Car::Active =- Car_Collection_Option_Active
+	 * ::Active - Model_Collection_Option_Active
 	 */
 	private function _loadOption ($model_name, $option)
 	{
-        $class_name = $this->_className ($model_name);	
-		
-	    $class_based = $class_name . '_' . $option;
-	    
-		if ( 
-		    Loader::load ($class_based, 'Class')
-		)
+		$p = strpos ($option, '::'); 
+		if ($p === false)
 		{
-		    $this->_option = new $class_based ();
-		    return ;
+			$class = $model_name . '_Collection_Option_' . $option;
 		}
-	    
-	    if (!Loader::load ($class_name))
-	    {
-	    	debug_print_backtrace();
-	    }
-	    $this->_option = new $class_name ($option);
+		elseif ($p === 0)
+		{
+			$class = 'Model_Collection_Option_' . substr ($option, $p + 2);
+		}
+		else
+		{
+			$class = 
+				substr ($option, 0, $p) . 
+				'_Collection_Option_' .
+				substr ($option, $p + 2);
+		}
+		
+		Loader::load ($class);
+		$this->_option = new $class ();
 	}
-    
-	private function _methodName ($option, $beforeAfter)
-	{
-	    if (is_array ($option))
-	    {
-	        return $option ['name'] . '_' . $beforeAfter;
-	    }
-		return $option . '_' . $beforeAfter;
-	}
-    
+	
+	/**
+	 * @desc Наложение опции.
+	 * @param string $model_name
+	 * @param string $before_after
+	 * @param array $args
+	 * @return mixed Результат наложения.
+	 */
 	public function execute ($model_name, $before_after, array $args)
 	{
 		if (!$this->_name)
@@ -74,40 +84,20 @@ class Model_Collection_Option_Item
 			return;	
 		}
 		
-	    if (!$this->_option)
-	    {
-	        $this->_loadOption ($model_name, $this->_name, $before_after);
-	    }
-	    
-	    Loader::load ('Executor');
-		
-		if ($this->_option instanceof Model_Collection_Option_Abstract)
+		if (!$this->_option)
 		{
-    	    return Executor::execute (
-    	        array ($this->_option, $before_after), $args);
-		}
-		elseif (is_object ($this->_option))
-		{
-			$method_name = $this->_methodName ($this->_name, $before_after);
-			if ($method_name)
-			{
-			    return Executor::execute (
-			        array (
-			            $this->_option,
-			            $method_name
-			        ),
-			        $args
-			    );
-			}
+			$this->_loadOption ($model_name, $this->_name, $before_after);
 		}
 		
-		include_once ('Zend/Exception.php');
-		throw new Zend_Exception ('Models loading error');
-		return null;
+		Loader::load ('Executor');
+		
+		return Executor::execute (
+			array ($this->_option, $before_after),
+			$args
+		);
 	}
 	
 	/**
-	 * 
 	 * @desc Получить имя опшина
 	 * @return string
 	 */
@@ -116,9 +106,13 @@ class Model_Collection_Option_Item
 		return $this->_name;
 	}
 	
+	/**
+	 * @desc Возвращает параметры опции.
+	 * @return array
+	 */
 	public function getParams ()
 	{
-	    return $this->_params;
+		return $this->_params;
 	}
-    
+	
 }
