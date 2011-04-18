@@ -1,7 +1,7 @@
 <?php
 /**
  * 
- * @desc Загрузчик модулей и классов
+ * @desc Загрузчик модулей и классов.
  * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
  *
@@ -10,25 +10,25 @@ class Loader
 {
 	
 	/**
-	 * @desc Пути
+	 * @desc Пути.
 	 * @var array
 	 */
 	public static $pathes = array ();
 	
 	/**
-	 * @desc Подключенные
+	 * @desc Подключенные.
 	 * @var array
 	 */
 	public static $required = array ();
 	
 	/**
-	 * @desc Добавление пути 
-	 * @param string $type
-	 * @param string $path
+	 * @desc Добавление пути.
+	 * @param string $type Тип.
+	 * @param string $path Путь.
 	 */
 	public static function addPath ($type, $path)
 	{
-		if (!isset(self::$pathes [$type]))
+		if (!isset (self::$pathes [$type]))
 		{
 			self::$pathes [$type] = array ($path);
 		}
@@ -39,7 +39,7 @@ class Loader
 	}
 	
 	/**
-	 * Добавление путей
+	 * @desc Добавление путей.
 	 * @param array $pathes
 	 */
 	public static function addPathes (array $pathes)
@@ -50,7 +50,7 @@ class Loader
 
 			if (isset (self::$pathes [$type]))
 			{
-				self::$pathes [$type] = array_merge (self::$pathes[$type], $path);
+				self::$pathes [$type] = array_merge (self::$pathes [$type], $path);
 			}
 			else
 			{
@@ -60,13 +60,11 @@ class Loader
 	}
 	
 	/**
-	 * Возвращает полный путь до файла.
+	 * @desc Возвращает полный путь до файла.
 	 * Если файла не существует, возвращается false.
-	 * @param string $file
-	 * @param string $type
-	 * @return string
-	 * 		Если файл найден, полный путь до файла.
-	 * 		Иначе false. 
+	 * @param string $file Искомый файл.
+	 * @param string $type Тип.
+	 * @return string Если файл найден, полный путь до файла. Иначе false. 
 	 */
 	public static function findFile ($file, $type = 'Class')
 	{
@@ -156,20 +154,21 @@ class Loader
 	}
 	
 	/**
-	 * 
-	 * @param string $type
-	 * @param string|array $path
+	 * @desc Заного устанавливает пути до файлов. Предыдущие пути будут 
+	 * удалены.
+	 * @param string $type Тип.
+	 * @param string|array $path Путь или массив патей.
 	 */
-	public static function setPath($type, $path)
+	public static function setPath ($type, $path)
 	{
-		self::$pathes[$type] = (array) $path;
+		self::$pathes [$type] = (array) $path;
 	}
 	
 	/**
-	 * 
-	 * @param string $file
-	 * @param string $type
-	 * @param boolean $required
+	 * @desc Делает отметку о подключении файла.
+	 * @param string $file Файл.
+	 * @param string $type Тип.
+	 * @param boolean $required [optional] 
 	 */
 	public static function setRequired ($file, $type, $required = true)
 	{
@@ -187,9 +186,9 @@ class Loader
 	}
 	
 	/**
-	 * 
-	 * @param string $class
-	 * @param string $path
+	 * @desc Подключение класса.
+	 * @param string $class Название класса.
+	 * @param string $path Путь.
 	 * 	Имя файла или путь до него.
 	 * 	Путь должен заканчиваться символом "/"
 	 * @return boolean
@@ -216,8 +215,8 @@ class Loader
 	/**
 	 * @desc Подключение класса.
 	 * @param string $class_name Название класса.
-	 * @param string $type 
-	 * @return boolean
+	 * @param string $type [optional]
+	 * @return boolean true, если удалось подключить, иначе false.
 	 */
 	public static function load ($class, $type = 'Class')
 	{
@@ -232,7 +231,7 @@ class Loader
 	
 	
 	/**
-	 * 
+	 * @desc Подключение класса указанного типа.
 	 * @param string $class
 	 * @param string $type
 	 * @return boolean
@@ -250,7 +249,7 @@ class Loader
 	}
 	
 	/**
-	 * @desc Загрузка всех классов, переданных в параметрах
+	 * @desc Загрузка всех классов, переданных в параметрах.
 	 * @param string $class...
 	 */
 	public static function multiLoad ()
