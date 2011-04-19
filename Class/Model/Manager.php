@@ -186,6 +186,13 @@ class Model_Manager
 	 */
 	public static function byKey ($model, $key)
 	{
+		$result = Resource_Manager::get ('Model', $model . '__' . $key);
+		
+		if ($result)
+		{
+			return $result;
+		}
+		
 		return self::byQuery (
 			$model,
 			Query::instance ()
