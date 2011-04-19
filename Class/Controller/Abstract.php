@@ -250,10 +250,17 @@ class Controller_Abstract
 		}
 		elseif ($method)
 		{
-			$this->_dispatcherIteration->setClassTpl (
-				$this->_currentAction,
-				'/' . ltrim ($method, '/')
-			);
+			if (strpos ($method, '/') === false)
+			{
+				$this->_dispatcherIteration->setClassTpl (
+					$this->_currentAction,
+					'/' . ltrim ($method, '/')
+				);
+			}
+			else
+			{
+				$this->_dispatcherIteration->setClassTpl ($method);
+			}
 		}
 	}
 	
