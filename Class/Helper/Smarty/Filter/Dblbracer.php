@@ -94,7 +94,7 @@ class Helper_Smarty_Filter_Dblbracer
 			
 			$p = strpos ($tpl_source, $tag, $last_pos);
 			
-			if (!$p)
+			if ($p === false)
 			{
 				return $result . substr ($tpl_source, $last_pos);
 			}
