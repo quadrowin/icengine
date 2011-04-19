@@ -8,7 +8,7 @@
  * @package IcEngine
  *
  */
-class Model_Collection_Option_Order_Desc extends Model_Collection_Option_Abstract
+class Model_Collection_Option_Order_Name extends Model_Collection_Option_Abstract
 {
 	
 	/**
@@ -18,14 +18,15 @@ class Model_Collection_Option_Order_Desc extends Model_Collection_Option_Abstrac
 	public function before (Model_Collection $collection, 
 		Query $query, array $params)
 	{
-		$field = isset ($params ['field']) ?
-			$params ['field'] :
-			(
-				'`' . $collection->modelName () . '`.`' . 
-				$collection->keyField () . '`'
-			);
+		$field = '`' . $collection->modelName () . '`.`name`';
 		
-		$query->order (array ($field => Query::DESC));
+		$desc = 
+			isset ($params ['order']) &&
+			strtoupper ($params ['order']) == 'DESC'; 
+		
+		$query->order (array (
+			$field => $desc ? Query::DESC : Query::ASC
+		));
 	}
 	
 }
