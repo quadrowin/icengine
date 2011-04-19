@@ -142,7 +142,10 @@ class Redis
 		$keys = $this->keys ($pattern . '*');
 		foreach ($keys as $key)
 		{
-			$this->delete ($key);
+			if ($key)
+			{
+				$this->delete ($key);
+			}
 		}
 //		$len = 1024;
 //		
