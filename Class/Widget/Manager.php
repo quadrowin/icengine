@@ -154,6 +154,7 @@ class Widget_Manager
 			try
 			{
 				$view->assign ($output->buffer ());
+				var_dump (get_class ($view));
 				$result ['html'] = $view->fetch ($tpl);
 			}
 			catch (Exception $e)

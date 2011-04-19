@@ -70,7 +70,8 @@ abstract class View_Render_Broker
 	public static function popView ()
 	{
 //		echo 'pop' . count (self::$_views) . ' ' . end (self::$_views)->name;
-		return array_pop (self::$_views);
+		$view = array_pop (self::$_views);
+		return $view;
 	}
 	
 	/**
@@ -91,7 +92,7 @@ abstract class View_Render_Broker
 	 */
 	public static function pushViewById ($id)
 	{
-		$view = IcEngine::$modelManager->get ('View_Render', $id);
+		$view = Model_Manager::byKey ('View_Render', $id);
 		return self::pushView ($view);
 	}
 	

@@ -123,11 +123,6 @@ class Controller_Dispatcher
 		
 		$this->_onDispatchIterationFinish ($controller, $iteration, $method_name);
 		
-		if (!$iteration->getIgnore ())
-		{
-			$this->_results [] = $iteration;
-		};
-		
 		$this->_currentIteration = $parent_iteration;	
 	}
 	
@@ -143,6 +138,10 @@ class Controller_Dispatcher
 		{
 			$iteration = array_shift ($this->_actions);
 			$this->dispatch ($iteration);
+			if (!$iteration->getIgnore ())
+			{
+				$this->_results [] = $iteration;
+			};
 		}
 		
 		$this->onDispatchCircleFinish ();
