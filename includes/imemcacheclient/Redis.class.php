@@ -186,11 +186,7 @@ class Redis
 				break;
 			}
 			
-			try {
-				$data = fread ($sock, min ($len, $keys_length - $readed));
-				
-			}
-			catch (Exception $e)
+			if (min ($len, $keys_length - $readed) < 1)
 			{
 				trigger_error (
 					var_export (
@@ -201,6 +197,8 @@ class Redis
 					E_USER_WARNING
 				);
 			}
+			
+			$data = fread ($sock, min ($len, $keys_length - $readed));
 				
 			$l = strlen ($data);
 			$readed += $l;
