@@ -10,18 +10,18 @@ class Subscribe_Subscriber_Status extends Model
 	 */
 	public function forSession ($session_id, $status, $limit = null)
 	{
-		return new Model_Collection (
-			DDS::execute (
-				Query::instance ()
+		Loader::load ('Subscribe_Subscriber_Status_Collection');
+		
+		$query = Query::instance ()
 				->select ('*')
-				->from ('Subscribe_Session_Status')
+				->from ('Subscribe_Subscriber_Status')
 				->where ('status', $status)
 				->where ('Subscribe_Session__id', $session_id)
-				->limit ($limit)
-			)
-				->getResult ()
-					->asTable ()
-		);
+				->limit ($limit);  
+		
+		$collection = new Subscribe_Subscriber_Status_Collection;
+				
+		return $collection->fromQuery ($query);
 	}
 	
 	/**
@@ -29,7 +29,7 @@ class Subscribe_Subscriber_Status extends Model
 	 * @param integer $status
 	 * @return Model
 	 */
-	public static function setStatus ($status)
+	public function setStatus ($status)
 	{
 		$this->status = $status;
 		$this->save ();

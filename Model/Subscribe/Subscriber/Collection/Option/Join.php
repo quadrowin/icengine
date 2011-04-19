@@ -16,7 +16,7 @@ class Subscribe_Subscriber_Collection_Option_Join extends Model_Collection_Optio
 				'Subscribe_Subscriber_Join.Subscribe_Subscriber__id=Subscribe_Subscriber.id'
 			)
 			->where ('Subscribe_Subscriber_Join.Subscribe__id', $params ['id'])
-			->where ('Subscriber.active', 1);
+			->where ('Subscribe_Subscriber.active', 1);
 			
 		if (!is_null ($params ['active']))
 		{
