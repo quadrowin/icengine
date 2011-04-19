@@ -185,7 +185,23 @@ class Redis
 			{
 				break;
 			}
-			$data = fread ($sock, min ($len, $keys_length - $readed));
+			
+			try {
+				$data = fread ($sock, min ($len, $keys_length - $readed));
+				
+			}
+			catch (Exception $e)
+			{
+				trigger_error (
+					var_export (
+						$len . ':' . $keys_length . ':' . $readed . ':' .
+						min ($len, $keys_length - $readed),
+						true
+					),
+					E_USER_WARNING
+				);
+			}
+				
 			$l = strlen ($data);
 			$readed += $l;
 		}
