@@ -420,7 +420,7 @@ abstract class Model implements ArrayAccess
 	 */
 	public function joint ($model, array $data = array ())
 	{
-		if (!isset ($this->_joints [$model]) || $data)
+		if ($data)
 		{
 			Loader::load ($model);
 						
@@ -435,17 +435,24 @@ abstract class Model implements ArrayAccess
 			
 			if (!$data || !isset ($data [$key_field]))
 			{
-				var_dump ($data);
+				var_dump ($data, $this->_joints);
 				Loader::load ('Zend_Exception');
-				throw new Zend_Exception ("No key field for model $model received.");
+				throw new Zend_Exception (
+					'In the model ' . get_class ($this) .
+					" no key field for model $model received."
+				);
 				return null;
 			}
 			
-			$this->_joints [$model] = $this->modelManager ()->get (
+			$this->_joints [$model] = Model_Manager::byKey (
 				$model,
-				$data [$key_field],
-				$data
+				$data [$key_field]
 			);
+//			$this->_joints [$model] = $this->modelManager ()->get (
+//				$model,
+//				$data [$key_field],
+//				$data
+//			);
 		}
 		
 		return $this->_joints [$model];

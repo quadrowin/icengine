@@ -40,7 +40,7 @@ abstract class Background_Agent_Abstract extends Model_Factory_Delegate
 	 * @desc Запись в лог.
 	 * Так же обновляет состояние процесса.
 	 * @param string $file __FILE__
-	 * @param string $line __LINIE__
+	 * @param string $line __LINE__
 	 * @param string $text Сообщение
 	 */
 	protected function _log ($file, $line, $text = '')
@@ -49,12 +49,12 @@ abstract class Background_Agent_Abstract extends Model_Factory_Delegate
 			'agent'			=> $this->name,
 			'sessionId'		=> $this->id,
 			'time'			=> Helper_Date::toUnix (),
-			'file'			=> $file,
+			'file'			=> basename ($file),
 			'line'			=> $line,
 			'text'			=> $text
 		));
 		$log->save ();
-		$this->_updateState ();
+		$this->_session->updateState ();
 	}
 	
 	/**

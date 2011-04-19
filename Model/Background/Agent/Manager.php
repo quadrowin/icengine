@@ -16,7 +16,7 @@ class Background_Agent_Manager
 	protected $_config = array (
 	
 		// 
-		'default_agent_resume_id'	=> 2,
+		'default_agent_resume_id'	=> 0,
 	
 		/**
 		 * @desc Время в секундах после последней активности процесса,
@@ -33,7 +33,13 @@ class Background_Agent_Manager
 		'process_to_restart_time'	=> 600,
 	);
 	
-	public function __construct ()
+	/**
+	 * @desc Экзмепляр менджера
+	 * @var Background_Agent_Manager
+	 */
+	protected static $_instance;
+	
+	private function __construct ()
 	{
 		
 	}
@@ -107,13 +113,57 @@ class Background_Agent_Manager
 		return $this->_config;
 	}
 	
+	public function instance ()
+	{
+		if (!self::$_instance)
+		{
+			self::$_instance = new self;
+		}
+		return self::$_instance;
+	}
+	
+	/**
+	 * @desc Запуск рабочей итерации любой незавершенной сесси фонового
+	 * агента заданного класса.
+	 * @param string $name Название фонового агента.
+	 */
+	public function processAgent ($name)
+	{
+		$agent = Model_Manager::modelBy (
+			'Background_Agent',
+			Query::instance ()
+				->where ('name', $name)
+		);
+		
+		Loader::load ('Helper_Process');
+		
+		/**
+		 * @desc Незавершенная сессия.
+		 * @var Background_Agent_Session
+		 */
+		$session = Model_Manager::byQuery (
+			'Background_Agent_Session',
+			Query::instance ()
+				->where ('Background_Agent__id', $agent->key())
+				->where ('state', Helper_Process::PAUSE)
+		);
+		
+		if ($session)
+		{
+			$session->process ();
+		}
+	}
+	
 	/**
 	 * @desc Перезапустить агента
 	 * @param Background_Agent_Session $session
 	 */
 	public function resumeSession (Background_Agent_Session $session)
 	{
-		$session->Background_Agent_Resume->resume ($session);
+		if ($session->Background_Agent_Resume)
+		{
+			$session->Background_Agent_Resume->resume ($session);
+		}
 	}
 	
 	/**
@@ -130,7 +180,6 @@ class Background_Agent_Manager
 		);
 		
 		Loader::load ('Background_Agent_Session');
-		
 		
 		$session = new Background_Agent_Session (array (
 			'Background_Agent__id'			=> $agent->id,

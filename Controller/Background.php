@@ -22,7 +22,7 @@ class Controller_Background extends Controller_Abstract
 	protected function _getAgent ()
 	{
 		$id = $this->_input->receive ('id');
-		$agent = IcEngine::$modelManager->get ('Background_Agent', $id);
+		$agent = Model_Manager::byKey ('Background_Agent', $id);
 		if (!$agent)
 		{
 			$this->_output->send (array (

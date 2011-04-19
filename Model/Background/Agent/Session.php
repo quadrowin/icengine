@@ -56,9 +56,9 @@ class Background_Agent_Session extends Model
 		$this->Background_Agent->process ($this);
 		
 		$update = array (
-			'lastUpdateTime'	=> Helper_Date::toUnix (),
-			'params'			=> json_encode ($this->_params),
-			'iteration'			=> $this->iteration + 1
+			'updateTime'	=> Helper_Date::toUnix (),
+			'params'		=> json_encode ($this->_params),
+			'iteration'		=> $this->iteration + 1
 		);
 		
 		if ($this->state == Helper_Process::ONGOING)
@@ -96,10 +96,10 @@ class Background_Agent_Session extends Model
 	{
 		$this->Background_Agent->start ($this);
 		
-		$this->session->update (array (
-			'iteration'			=> 0,
-			'state'				=> Helper_Process::PAUSE,
-			'lastUpdateTime'	=> Helper_Date::toUnix ()
+		$this->update (array (
+			'iteration'		=> 0,
+			'state'			=> Helper_Process::PAUSE,
+			'updateTime'	=> Helper_Date::toUnix ()
 		));
 	}
 	
@@ -117,7 +117,7 @@ class Background_Agent_Session extends Model
 	 * предотвращения пометки процесса как зависшего.
 	 * @param integer $state Новое состояние (если необходимо изменить)
 	 */
-	protected function updateState ($state = null)
+	public function updateState ($state = null)
 	{
 		$time = Helper_Date::toUnix ();
 		
@@ -131,7 +131,7 @@ class Background_Agent_Session extends Model
 		}
 		
 		$this->update (array (
-			'state'				=> $state,
+			'state'				=> $state == null ? $this->state : $state,
 			'updateTime'		=> $time
 		));
 	}
