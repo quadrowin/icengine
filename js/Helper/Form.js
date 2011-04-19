@@ -109,6 +109,11 @@ var Helper_Form = {
 			return;
 		}
 		
+		if (result.data && result.alert)
+		{
+			alert (result.data.alert);
+		}
+		
 		if (result.html)
 		{
 			if (result.data && result.data.removeForm)
@@ -155,6 +160,8 @@ var Helper_Form = {
 				1000
 			);
 		};
+		
+		Controller_Captcha.regenerateACodes ($form);
 	},
 	
 	/**
@@ -168,13 +175,16 @@ var Helper_Form = {
 		
 		function callback (result)
 		{
-			if (result.error)
-			{
-				alert (result.error);
-				return ;
-			}
-			$form.find ('.result-msg').html (result.html);
-			$form.find ('.result-msg').show ();
+			Helper_Form.defaultCallback ($form, result);
+//			if (result && result.html)
+//			{
+//				$form.find ('.result-msg').html (result.html);
+//				$form.find ('.result-msg').show ();
+//			}
+//			if (result && result.redirect)
+//			{
+//				window.location.href = result.redirect;
+//			}
 		}
 		
 		if (!action)

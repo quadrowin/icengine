@@ -1,7 +1,6 @@
 <?php
-
 /**
- * 
+ * @desc Плагин смарти для вызова виджета.
  * @param array $params
  * @param Smarty $smarty
  * @return string

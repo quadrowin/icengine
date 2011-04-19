@@ -67,9 +67,8 @@ class View_Render_Smarty extends View_Render_Abstract
 	}
 	
 	/**
-	 * Добавление пути до директории с плагинами Smarty
-	 * @param string|array $path
-	 * 		Директории с плагинами
+	 * @desc Добавление пути до директории с плагинами Smarty
+	 * @param string|array $path Директории с плагинами
 	 */
 	public function addPluginsPath ($path)
 	{
