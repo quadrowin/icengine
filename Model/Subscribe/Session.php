@@ -28,7 +28,7 @@ class Subscribe_Session extends Model
 	 * @param integer $status
 	 * @return Model
 	 */
-	public static function setStatus ($status)
+	public function setStatus ($status)
 	{
 		$this->status = $status;
 		$this->save ();
