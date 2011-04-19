@@ -136,10 +136,11 @@ class Redis
 	/**
 	 * @desc Удаление ключей по маске
 	 * @param string $pattern Маска.
-	 * @param integer $len Длина буфера
 	 */
-	public function clearByPattern ($pattern, $len = 1024)
+	public function clearByPattern ($pattern)
 	{
+		$len = 1024;
+		
 		$sock = reset ($this->pool);
 		fwrite ($sock, 'KEYS ' . $pattern . '*' . "\r\n");
 		$data = fread ($sock, $len);
@@ -188,8 +189,8 @@ class Redis
 			$l = strlen ($data);
 			$readed += $l;
 		}
-		;
-		$rest = trim ($$rest, " \r\n");
+		
+		$rest = trim ($rest, " \r\n");
 		if ($rest)
 		{
 			fwrite ($sock, 'DEL ' . $rest . "\r\n");

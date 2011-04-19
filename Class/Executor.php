@@ -12,25 +12,25 @@ class Executor
 {
 	
 	/**
-	 * Разделитель частей при формировании ключа для кэширования
+	 * @desc Разделитель частей при формировании ключа для кэширования.
 	 * @var string
 	 */
 	const DELIM = '/';
 	
 	/**
-	 * Кэшер
+	 * @desc Кэшер
 	 * @var Data_Provider_Abstract
 	 */
 	protected static $_cacher;
 	
 	/**
-	 * Конфиг.
+	 * @desc Конфиг.
 	 * @var array
 	 */
 	public static $config = array (
 		/**
 		 * @desc Провайдер данных, используемый для кэширования по умолчанию
-		 * 		(Data_Provider).
+		 * (Data_Provider).
 		 * @var string
 		 */
 		'cache_provider'	=> null,
