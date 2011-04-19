@@ -60,17 +60,16 @@ class Controller_Abstract
 	 */
 	public function _beforeAction ($action)
 	{
+		$this->_currentAction = get_class ($this) . '::' . $action;
 		IcEngine::$application->messageQueue->push (
-			'before::' . get_class ($this) . '::' . $action
+			'before::' . $this->_currentAction
 		);
 	}
 	
 	/**
 	 * @desc Результатом работы контроллера будет вызов метода хелпера.
-	 * @param string $helper
-	 * 		Название хелпера без перфикса "Helper_Action_"
-	 * @param string $method
-	 * 		Название метода хелпера.
+	 * @param string $helper Название хелпера без перфикса "Helper_Action_".
+	 * @param string $method Название метода хелпера.
 	 */
 	public function _helperReturn ($helper, $method)
 	{
@@ -237,16 +236,24 @@ class Controller_Abstract
 	/**
 	 * @desc Завершение работы контроллера ошибкой.
 	 * @param string $text Текст ошибки.
-	 * @param string $method Экшен, в котором произошла ошибка (__METHOD__).
-	 * Необходим для определения шаблона. 
-	 * @param string $tpl Шаблон
+	 * @param string $method Экшен, в котором произошла ошибка (__METHOD__) 
+	 * или шаблон (в этому случае метод будет взять из _currentAction).
+	 * Необходим для определения шаблона.  
+	 * @param string $tpl [optional] Шаблон.
 	 */
-	protected function _sendError ($text, $method = null, $tpl = null)
+	protected function _sendError ($text, $method, $tpl = null)
 	{
 		$this->_output->send ('error', $text);
-		if ($method)
+		if ($tpl)
 		{
 			$this->_dispatcherIteration->setClassTpl ($method, $tpl);
+		}
+		elseif ($method)
+		{
+			$this->_dispatcherIteration->setClassTpl (
+				$this->_currentAction,
+				'/' . ltrim ($method, '/')
+			);
 		}
 	}
 	
