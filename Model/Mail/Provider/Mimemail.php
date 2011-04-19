@@ -129,6 +129,8 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 		
 		$mail = $this->_mailer ();
 		
+		$mail->ClearAddresses ();
+		
 		foreach ((array) $addresses as $to_name => $address)
 		{
 			$mail->addAddress (
