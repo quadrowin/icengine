@@ -8,7 +8,7 @@
  * @package IcEngine
  *
  */
-class Model_Collection_Option_Active extends Model_Collection_Option_Abstract
+class Model_Collection_Option_Sort extends Model_Collection_Option_Abstract
 {
 	
 	/**
