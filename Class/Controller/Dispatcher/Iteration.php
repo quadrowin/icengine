@@ -121,9 +121,10 @@ class Controller_Dispatcher_Iteration
      */
     public function setClassTpl ($class, $template = '', $ext = '.tpl')
     {
+    	$template = $template ? ('/' . ltrim ($template, '/')) : '';
+    	
     	$this->setTemplate (
-    		str_replace (array ('_', '::'), '/', $class) . '/' . 
-    		ltrim ($template, '/') . '.tpl'
+    		str_replace (array ('_', '::'), '/', $class) . $template . '.tpl'
     	);
     }
     
