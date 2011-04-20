@@ -27,7 +27,10 @@ class Data_Validator_Registration_Email
 		
 		if (
 			!filter_var ($email, FILTER_VALIDATE_EMAIL) ||
-			strlen ($email) > $param ['maxLength']
+			(
+				$param ['maxLength'] &&
+				strlen ($email) > $param ['maxLength']
+			)
 		)
 		{
 			return __CLASS__ . '/' . self::INCORRECT;
