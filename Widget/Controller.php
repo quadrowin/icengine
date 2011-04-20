@@ -35,10 +35,7 @@ class Widget_Controller extends Widget_Abstract
 			'input'			=> $this->_input,
 			'output'		=> $this->_output
 		)));
-
-		//Debug::vardump ($iteration->getTransaction ());
 		
-//		View_Render_Broker::pushViewByName ('Smarty');
 		$this->_output->send (
 			'widget_content_unique_var',
 			View_Render_Broker::fetchIteration ($iteration)
