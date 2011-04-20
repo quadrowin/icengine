@@ -150,7 +150,7 @@ class Widget_Manager
 		{
 			$view = View_Render_Broker::pushViewByName ('Smarty');
 			
-			$view->pushVars ();
+//			$view->pushVars ();
 			try
 			{
 				$view->assign ($output->buffer ());
@@ -173,7 +173,7 @@ class Widget_Manager
 				$result ['error'] = 'Widget_Manager: Error in template.';
 				$result ['html'] = '';
 			}
-			$view->popVars ();
+//			$view->popVars ();
 			
 			View_Render_Broker::popView ();
 		}
