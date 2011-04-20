@@ -15,8 +15,9 @@ class Controller_Payment extends Controller_Abstract
 	 */
 	public function assemble ()
 	{
-		Loader::load ('Bill_Payment_Type_Collection');
-		$types = new Bill_Payment_Type_Collection ();
+		$types = Model_Collection_Manager::create ('Bill_Payment_Type')
+			->addOptions('::Active');
+		
 		foreach ($types as $type)
 		{
 			$count = $type->assemble ();
