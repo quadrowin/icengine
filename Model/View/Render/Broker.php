@@ -71,6 +71,7 @@ abstract class View_Render_Broker
 	{
 //		echo 'pop' . count (self::$_views) . ' ' . end (self::$_views)->name;
 		$view = array_pop (self::$_views);
+		$view->popVars ();
 		return $view;
 	}
 	
@@ -104,7 +105,8 @@ abstract class View_Render_Broker
 	 */
 	public static function pushViewByName ($name)
 	{
-		$view = View_Render::byName ($name);	
+		$view = View_Render::byName ($name);
+		$view->pushVars ();	
 		return self::pushView ($view);
 	}
 	
