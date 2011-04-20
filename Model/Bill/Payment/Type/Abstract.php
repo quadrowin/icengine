@@ -58,8 +58,14 @@ class Bill_Payment_Type_Abstract extends Model_Factory_Delegate
 		
 		$payment->save ();
 		
-		Loader::load ('Message_After_Instant_Payment');
-		Message_After_Instant_Payment::push ($payment, $params);
+		// Приемщики платежей
+		$acceptors = Model_Collection_Manager::create ('Bill_Payment_Acceptor')
+			->addOptions ('::Active', '::Sort');
+			
+		foreach ($acceptors as $acceptor)
+		{
+			$acceptor->accept ($payment, $params);
+		}
 		
 		return $payment;
 	}

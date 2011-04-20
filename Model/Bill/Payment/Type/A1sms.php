@@ -48,7 +48,7 @@ class Bill_Payment_Type_A1sms extends Bill_Payment_Type_Abstract
 				$message = json_decode ($log_message, true);
 				if ($message)
 				{
-					$payment = $this->instantPayment(array (
+					$payment = $this->instantPayment (array (
 						'value'					=> $message ['cost_rur'],
 						'transactionNo'			=> $message ['smsid'],
 						'details'				=> $log_message,
