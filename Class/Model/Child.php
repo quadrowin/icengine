@@ -18,12 +18,16 @@ abstract class Model_Child extends Model
 		return Model_Collection_Manager::byQuery (
 			$this->modelName (),
 			Query::instance ()
-				->where ('parentId', $this->key ())
-				->where ('parentId != 0')
+				->where (
+					'`' . $this->modelName() . '`.parentId',
+					$this->key ()
+				)
+				->where ('`' . $this->modelName() . '`.parentId != 0')
 		);
 	}
 	
 	/**
+	 * @desc Возвращает предка.
 	 * @return Model_Child
 	 */
 	public function getParent ()
