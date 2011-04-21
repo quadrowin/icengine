@@ -60,7 +60,7 @@ abstract class Subscribe_Abstract extends Model_Factory_Delegate
 			'comment'				=> $comment,
 			'Mail_Template__id'		=> !is_null ($mail_template) 
 				? $mail_template->key ()
-				: ''
+				: 0
 		));
 		
 		$subscribe_session->save ();

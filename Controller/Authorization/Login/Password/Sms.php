@@ -252,8 +252,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 		{
 			$this->_sendError (
 				'send activation code fail',
-				$activation ? $activation : __METHOD__,
-				$activation ? null : '/accessDenied'
+				$activation ? $activation : 'accessDenied'
 			);
 			return ;
 		}

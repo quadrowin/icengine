@@ -280,7 +280,7 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 		$user = $data ['user'];
 		$provider = $data ['provider'];
 		
-		if ($user->login != $data ['login'])
+		if (strcasecmp ($user->login, $data ['login']) != 0)
 		{
 			return 'Data_Validator_Authorization_User/unexists';
 		}
