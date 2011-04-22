@@ -185,11 +185,7 @@ class Paginator
 	 */
 	public function getIndex ()
 	{
-		if ($this->page == 1){
-			return 0;
-		}else{
-			return ($this->page-1) * $this->pageLimit;
-		}
+		return max ($this->page - 1, 0) * $this->pageLimit;
 	}
 	/**
 	 * @return integer
