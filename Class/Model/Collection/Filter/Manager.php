@@ -1,7 +1,7 @@
 <?php
 /**
  * 
- * @desc 
+ * @desc Менеджер фильтров коллекций.
  * @author Юрий Шведов
  * @package IcEngine
  *
@@ -10,13 +10,13 @@ class Model_Collection_Filter_Manager
 {
 	
 	/**
-	 * @desc 
+	 * @desc Загруженные фильтры.
 	 * @var array <Model_Collection_Filter_Abstract>
 	 */
 	protected static $_filters = array ();
 	
 	/**
-	 * @desc 
+	 * @desc Возвращает экземпляр фильтра по мназванию.
 	 * @param string $name
 	 * @return Model_Collection_Filter_Abstract
 	 */
