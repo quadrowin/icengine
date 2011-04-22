@@ -14,11 +14,21 @@ class Model_Collection_Filter_Abstract
 	 * @var array 
 	 */
 	public $fields = array (
-		'id'	=> 'city_id'
+		// имя в опции		=> имя в транспорте
+		// 'id'				=> 'city_id'
 	);
 	
 	/**
-	 * @desc 
+	 * @desc Валидаторы полей для подключения фильтра
+	 * @var array
+	 */
+	public $validators = array (
+		// имя в опции		=> валидатор или массив валидаторов
+		// 'id'				=> 'Not_Null'
+	);
+	
+	/**
+	 * @desc Добавление в коллекцию опций, определяемых фильтром. 
 	 * @param Model_Collection $collection
 	 * @param array $params
 	 */
@@ -26,6 +36,32 @@ class Model_Collection_Filter_Abstract
 	{
 		$params ['name'] = $this->name ();
 		$collection->addOptions ($params);
+	}
+	
+	/**
+	 * @desc Проверка полей.
+	 * @param array $params Поля.
+	 * @return boolean true, если поля проходят валидацию, иначе false.
+	 */
+	protected function _validate (array $params)
+	{
+		Loader::load ('Data_Validator_Manager');
+		foreach ($this->validators as $field => $validators)
+		{
+			$validators = (array) $validators;
+			foreach ($validators as $validator)
+			{
+				$valid = Data_Validator_Manager::validate (
+					$validator,
+					$params [$field]
+				);
+				if (!$valid)
+				{
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 	
 	/**
@@ -37,30 +73,31 @@ class Model_Collection_Filter_Abstract
 	{
 		if (!$this->fields)
 		{
-			return $this->_filter ($collection, array ());
+			$params = array ();
 		}
-		
-		if (count ($this->fields) == 1)
+		elseif (count ($this->fields) == 1)
 		{
 			reset ($this->fields);
-			return $this->_filter (
-				$collection,
-				array (
-					key ($this->fields) => $data->receive (current ($this->fields))
-				)
+			$params = array (
+				key ($this->fields) => 
+					$data->receive (current ($this->fields))
 			);
 		}
-		
-		return $this->_filter (
-			$collection,
-			array_combine (
+		else
+		{
+			$params = array_combine (
 				array_keys ($this->fields),
 				call_user_func_array (
 					array ($data, 'receive'),
 					array_values ($this->fields)
 				)
-			)
-		);
+			);
+		}
+		
+		if ($this->_validate ($params))
+		{
+			$this->_filter ($collection, $params);
+		}
 	}
 	
 	/**
