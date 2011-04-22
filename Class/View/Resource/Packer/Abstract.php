@@ -22,28 +22,40 @@ abstract class View_Resource_Packer_Abstract
 	 */
 	protected $_config = array (
 		/**
-		 * Префикс файла с упакованными ресурсами.
+		 * @desc Префикс файла с упакованными ресурсами.
 		 * @var string
 		 */
 		'file_prefix'	=> "/* Packed by IcEngine {\$time} */\n",
 		
 		/**
-		 * Префикс каждого скрипта
+		 * @desc Префикс каждого скрипта
 		 * @var string
 		 */
 		'item_prefix' 	=> "/* {\$source} */\n",
 	
 		/**
-		 * Постфикс каждого скрипта
+		 * @desc Постфикс каждого скрипта
 		 * @var string
 		 */
 		'item_postfix'	=> "\n\n",
 	
 		/**
-		 * Файл для хранения состояния
+		 * @desc Файл для хранения состояния
 		 * @var string
 		 */
-		'state_file'	=> ''
+		'state_file'	=> '',
+	
+		/**
+		 * @desc Исходная кодировка
+		 * @var string
+		 */
+		'charset_base'		=> 'utf-8',
+	
+		/**
+		 * @desc Кодировка
+		 * @var string
+		 */
+		'charset_output'	=> 'utf-8'
 	);
 	
 	public function _compileFilePrefix ()
@@ -185,6 +197,16 @@ abstract class View_Resource_Packer_Abstract
 		}
 		
 		$packages = $this->compile ($packages);
+		
+		$config = $this->config ();
+		if ($config ['charset_base'] != $config ['charset_output'])
+		{
+			$packages = iconv (
+				$config ['charset_base'],
+				$config ['charset_output'],
+				$packages
+			);
+		}
 		
 		if ($result_file)
 		{
