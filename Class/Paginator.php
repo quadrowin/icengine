@@ -179,7 +179,14 @@ class Paginator
 			$full_count
 		);
 	}
-	
+	/**
+	 * @return integer
+	 * @desc возвращает текущий начальный индекс
+	 */
+	public function getIndex ()
+	{
+		return min ($this->page-1, 1) * $this->pageLimit;
+	}
 	/**
 	 * @return integer
 	 */
