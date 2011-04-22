@@ -31,3 +31,5 @@ class Model_Collection_Filter_Manager
 	}
 	
 }
+
+Loader::load ('Model_Collection_Filter_Abstract');

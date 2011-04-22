@@ -135,17 +135,21 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 * @desc Добавление одного или нескольких фильтров.
 	 * @param Data_Transport $data
 	 * @param string $filter
+	 * @return Model_Collection
 	 */
 	public function addFilters (Data_Transport $data, $filter)
 	{
 		Loader::load ('Model_Collection_Filter_Manager');
-		$arg_count = func_get_args ();
+		$arg_count = func_num_args ();
 		for ($i = 1; $i < $arg_count; ++$i)
 		{
 			Model_Collection_Filter_Manager::get (
-				$this->modelName () . '_Filter_' . func_get_arg ($i)
+				$this->modelName () . 
+				'_Collection_Filter_' . 
+				func_get_arg ($i)
 			)->filter ($this, $data);
 		}
+		return $this;
 	}
 	
 	/**
