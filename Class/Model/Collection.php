@@ -69,6 +69,10 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	protected $_where = array ();
 	
+	/**
+	 * @desc Создает и возвращает коллекцию моделей.
+	 * Так же подключает связанный класс модели.
+	 */
 	public function __construct ()
 	{
 		Loader::load ('Model_Collection_Option_Item_Collection');
@@ -123,6 +127,27 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		{
 			Loader::load ('Zend_Exception');
 			throw new Zend_Exception ('Model add error');
+		}
+		return $this;
+	}
+	
+	/**
+	 * @desc Добавление одного или нескольких фильтров.
+	 * @param Data_Transport $data
+	 * @param string $filter
+	 * @return Model_Collection
+	 */
+	public function addFilters (Data_Transport $data, $filter)
+	{
+		Loader::load ('Model_Collection_Filter_Manager');
+		$arg_count = func_num_args ();
+		for ($i = 1; $i < $arg_count; ++$i)
+		{
+			Model_Collection_Filter_Manager::get (
+				$this->modelName () . 
+				'_Collection_Filter_' . 
+				func_get_arg ($i)
+			)->filter ($this, $data);
 		}
 		return $this;
 	}
@@ -230,7 +255,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * @desc Получить различные элементы двух коллекций
+	 * @desc Получить различные элементы двух коллекцийю
 	 * @param Model_Collection $collection
 	 * @return Model_Collection
 	 */
@@ -256,8 +281,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	
 	/**
 	 * @desc Исключает из коллекции элемент с указанным индексом.
-	 * @param integer $index
-	 * 		Индекс элемента в списке.
+	 * @param integer $index Индекс элемента в списке.
 	 * @return Model_Collection
 	 */
 	public function exclude ($index)
@@ -293,7 +317,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * @desc Получить первый элемент коллекции
+	 * @desc Возвращает первый элемент коллекции.
 	 * @return Model
 	 */
 	public function first ()
@@ -306,16 +330,13 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		{
 			return null;
 		}
-		reset ($this->_items);
-		return current ($this->_items);
+		return reset ($this->_items);
 	}
 	
 	/**
-	 * 
-	 * @desc Создать коллекцию из хэша
-	 * @param array $rows
-	 * @param boolean $clear
-	 * 		Очистить коллекцию перед добавлением
+	 * @desc Создать коллекцию из массива с данными моделей..
+	 * @param array $rows Массив моделей.
+	 * @param boolean $clear Очистить коллекцию перед добавлением.
 	 * @return Model_Collection
 	 */ 
 	public function fromArray (array $rows, $clear = true)
@@ -336,7 +357,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * 
 	 * @desc Создать коллекцию из запроса
 	 * @param Query $query
 	 * @param boolean $clear
@@ -516,7 +536,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * @desc Имя ключевого поля
+	 * @desc Имя ключевого поля.
 	 * @return string
 	 */
 	public function keyField ()
@@ -526,7 +546,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * @desc Получить последнюю модель коллекции
+	 * @desc Получить последнюю модель коллекции.
 	 * @return Model
 	 */
 	public function last ()
@@ -539,8 +559,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		{
 			return null;
 		}
-		end ($this->_items);
-		return current ($this->_items);
+		return end ($this->_items);
 	}
 	
 	/**
@@ -780,7 +799,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * @desc Заменить модели коллекции
+	 * @desc Заменить модели коллекции.
 	 * @param array<Model> $items
 	 * @return Model_Collection
 	 */
