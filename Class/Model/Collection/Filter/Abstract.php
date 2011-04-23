@@ -10,6 +10,12 @@ class Model_Collection_Filter_Abstract
 {
 	
 	/**
+	 * @desc Название фильтра
+	 * @var string
+	 */
+	protected $_name;
+	
+	/**
 	 * @desc Поля, передаваемые в опцию
 	 * @var array 
 	 */
@@ -26,6 +32,17 @@ class Model_Collection_Filter_Abstract
 		// имя в опции		=> валидатор или массив валидаторов
 		// 'id'				=> 'Not_Null'
 	);
+	
+	/**
+	 * @desc Создает и возвращает фильтр.
+	 * Устанавливает название фильтра.
+	 */
+	public function __construct ()
+	{
+		$class = get_class ($this);
+		$p = strpos ($class, '_Collection_Filter_');
+		$this->_name = substr ($class, $p + 19);
+	}
 	
 	/**
 	 * @desc Добавление в коллекцию опций, определяемых фильтром. 
@@ -106,8 +123,7 @@ class Model_Collection_Filter_Abstract
 	 */
 	public function name ()
 	{
-		return substr (get_class ($this), 24);
-//		return substr (get_class ($this), strlen ('Model_Collection_Filter_'));
+		return $this->_name;
 	}
 	
 }

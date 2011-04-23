@@ -19,13 +19,13 @@ class Helper_Link
      */
 	protected static function _link ($table1, $key1, $table2, $key2)
 	{        
-		return IcEngine::$modelManager->modelBy (
+		return Model_Manager::byQuery (
 		    'Link',
 		    Query::instance ()
-		    ->where ('fromTable', $table1)
-		    ->where ('fromRowId', $key1)
-		    ->where ('toTable', $table2)
-		    ->where ('toRowId', $key2)
+			    ->where ('fromTable', $table1)
+			    ->where ('fromRowId', $key1)
+			    ->where ('toTable', $table2)
+			    ->where ('toRowId', $key2)
 		);
 	}
 	
@@ -195,8 +195,8 @@ class Helper_Link
 	{
 		$query = 
 			Query::instance ()
-			->delete ()
-			->from ('Link');
+				->delete ()
+				->from ('Link');
 			
 		if (strcmp ($model->table (), $linked_model_name) > 0)
 	    {

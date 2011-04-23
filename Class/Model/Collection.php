@@ -125,6 +125,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		}
 		else
 		{
+			var_dump ($item);
 			Loader::load ('Zend_Exception');
 			throw new Zend_Exception ('Model add error');
 		}
@@ -482,8 +483,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	/**
 	 * @desc Проверяет, чтобы модель была приджойнен хотя бы к одному элементу 
 	 * коллекции.
-	 * @param Model $model
-	 * 		Модель.
+	 * @param Model $model Модель.
 	 * @return boolean
 	 */
 	public function isJoinedSome (Model $model)
@@ -502,8 +502,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	
 	/**
 	 * @desc Проверяет, чтобы модель была приджойнена ко всем элеметам коллекции.
-	 * @param Model $model
-	 * 		Модель.
+	 * @param Model $model Модель.
 	 * @return boolean
 	 */
 	public function isJoinedAll (Model $model)
@@ -563,8 +562,10 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * @desc Последний выполенный запрос коллекции
-	 * @return Query
+	 * @desc Последний выполенный запрос коллекции.
+	 * Если запрос еще не сформирован, запрос будет сформирован и коллекция
+	 * будет загружена.
+	 * @return Query Зарос коллекции.
 	 */
 	public function lastQuery ()
 	{
