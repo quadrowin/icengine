@@ -433,7 +433,7 @@ abstract class Model implements ArrayAccess
 			
 			$key_field = $this->modelManager ()->modelScheme ()->keyField ($model);
 			
-			if (!$data || !isset ($data [$key_field]))
+			if (!$data || !array_key_exists ($key_field, $data))
 			{
 				var_dump ($data, $this->_joints);
 				Loader::load ('Zend_Exception');

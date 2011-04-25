@@ -631,7 +631,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		
 		Loader::load ('Model_Collection_Manager');
 		Model_Collection_Manager::load ($this, $query, !$this->_autojoin);
-
+		
 		$this->_options->executeAfter ($this, $query);
 		
 		if ($this->_paginator)
