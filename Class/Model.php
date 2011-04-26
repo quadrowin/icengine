@@ -1,8 +1,6 @@
 <?php
-
-include dirname (__FILE__) . '/Object/Pool.php';
-include dirname (__FILE__) . '/Object/Interface.php';
-
+Loader::load ('Object_Pool');
+Loader::load ('Object_Interface');
 /**
  * 
  * @desc Базовая модель для всех сущностей.
@@ -307,7 +305,7 @@ abstract class Model implements ArrayAccess
 		$key = $this->key ();
 		if ($key)
 		{
-			$this->modelManager ()->remove ($this);
+			Model_Manager::remove ($this);
 		}
 	}
 	
@@ -431,7 +429,7 @@ abstract class Model implements ArrayAccess
 				return null;
 			}
 			
-			$key_field = $this->modelManager ()->modelScheme ()->keyField ($model);
+			$key_field = Model_Manager::modelScheme ()->keyField ($model);
 			
 			if (!$data || !array_key_exists ($key_field, $data))
 			{
@@ -480,8 +478,7 @@ abstract class Model implements ArrayAccess
 	 */
 	public function keyField ()
 	{
-		return $this->modelManager ()->modelScheme ()->keyField (
-			$this->modelName ());
+		return Model_Manager::modelScheme ()->keyField ($this->modelName ());
 	}
 	
 	/**
@@ -491,15 +488,6 @@ abstract class Model implements ArrayAccess
 	public function modelName ()
 	{
 		return get_class ($this);
-	}
-	
-	/**
-	 * @desc Получить текущий менеджер моделей
-	 * @return Model_Manager
-	 */
-	public function modelManager ()
-	{
-		return IcEngine::$modelManager;
 	}
 	
 	/**
@@ -567,7 +555,7 @@ abstract class Model implements ArrayAccess
 	 */
 	public function save ($hard_insert = false)
 	{
-		$this->modelManager ()->set ($this, $hard_insert);
+		Model_Manager::set ($this, $hard_insert);
 		
 		return $this;
 	}
@@ -660,13 +648,11 @@ abstract class Model implements ArrayAccess
 	{
 		if (is_null ($key))
 		{
-			$this->modelManager ()->get (
-				$this->modelName (), $this->key (), $this);
+			Model_Manager::get ($this->modelName (), $this->key (), $this);
 		}
 		else
 		{
-			$this->modelManager ()->get (
-				$this->modelName (), $key, $this);
+			Model_Manager::get ($this->modelName (), $key, $this);
 		}
 		
 		return $this;

@@ -1,9 +1,7 @@
 <?php
 
-if (!class_exists ('View_Render_Abstract'))
-{
-	include dirname (__FILE__) . '/Render/Abstract.php';
-}
+Loader::load ('View_Render_Abstract');
+
 /**
  * 
  * @desc Фабрика рендеров.

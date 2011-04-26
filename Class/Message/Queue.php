@@ -1,17 +1,16 @@
 <?php
+
+Loader::load ('Message_Type');
+Loader::load ('Message_Abstract');
+
 /**
  * 
- * @desc
- * 		Класс управления сообщениями внутри процесса.
- * 		Настройки по умолчанию считываются из config/Message/Queue.php
+ * @desc Класс управления сообщениями внутри процесса.
+ * Настройки по умолчанию считываются из config/Message/Queue.php
  * @author Юрий
  * @package IcEngine
  *
  */
-
-include dirname (__FILE__) . '/Type.php';
-include dirname (__FILE__) . '/Abstract.php';
-
 class Message_Queue
 {
 	

@@ -44,6 +44,16 @@ class User_Guest extends User
     }
     
     /**
+     * @desc Инициализирует модель гостя.
+     * Модель будет добавлена в менеджер ресурсов.
+     */
+    public static function init ()
+    {
+    	$instance = User_Guest::getInstance ();
+		Resource_Manager::set ('Model', $instance->resourceKey (), $instance);
+    }
+    
+    /**
      * (non-PHPdoc)
      * @see Model::modelName()
      */
@@ -53,6 +63,3 @@ class User_Guest extends User
     }
     
 }
-
-$instance = User_Guest::getInstance ();
-Resource_Manager::set ('Model', $instance->resourceKey (), $instance);
