@@ -191,10 +191,12 @@ class Widget_Manager
 		
 		self::$lastWidgetTime = microtime (true) - $microtime;
 		
-		var_dump (array (
+		echo '<pre>';
+		print_r (array (
 			'Widget'	=> $name . '::' . $method,
 			'time'		=> self::$lastWidgetTime
 		));
+		echo '</pre>';
 		
 		return $html_only ? $result ['html'] : $result;
 	}
