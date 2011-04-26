@@ -24,7 +24,7 @@ class Loader_Cache
 		 * @desc Проверять файлы после создания кэша.
 		 * @var boolean
 		 */
-		'check_files'		=> false
+		'check_files'		=> true
 	);
 	
 	/**
@@ -73,7 +73,8 @@ class Loader_Cache
 				if (
 					(
 						isset (self::$_ignoring [$type]) &&
-						isset (self::$_ignoring [$type][$file])
+						isset (self::$_ignoring [$type][$file]) &&
+						self::$_ignoring [$type][$file]
 					) ||
 					!$ok
 				)
@@ -133,7 +134,8 @@ class Loader_Cache
 				if (
 					(
 						isset (self::$_ignoring [$type]) &&
-						isset (self::$_ignoring [$type][$file])
+						isset (self::$_ignoring [$type][$file]) &&
+						self::$_ignoring [$type][$file]
 					) ||
 					!$ok
 				)
@@ -203,20 +205,11 @@ class Loader_Cache
 		
 		$name = $name ? $name : '__null';
 		
-		if (!$name)
-		{
-			$name = '/';
-		}
+		$name = urlencode ($name ? $name : '/');
 		
-		self::$_dataFilename = 
-			IcEngine::root () .
-			'cache/Loader/data/' .
-			urlencode ($name);
+		self::$_dataFilename = self::dataPath () . $name;
 			
-		self::$_compiledFilename = 
-			IcEngine::root () .
-			'cache/Loader/compiled/' .
-			urlencode ($name) . '.php';
+		self::$_compiledFilename = self::compiledPath () . $name . '.php';
 		
 		self::$_ignoring = Loader::$required;
 		
@@ -237,7 +230,8 @@ class Loader_Cache
 					if (
 						(
 							isset (self::$_ignoring [$type]) &&
-							isset (self::$_ignoring [$type][$file])
+							isset (self::$_ignoring [$type][$file]) &&
+							self::$_ignoring [$type][$file]
 						) ||
 						!$config ['check_files']
 					)
@@ -289,6 +283,42 @@ class Loader_Cache
 	}
 	
 	/**
+	 * @desc Удаление всех скомпилированных файлов и данных о них.
+	 */
+	public static function clearCompiled ()
+	{
+		$pathes = array (
+			self::dataPath (),
+			self::compiledPath ()
+		);
+		
+		foreach ($pathes as $path)
+		{
+			$handle = opendir ($path);
+			if ($handle)
+			{
+				while (false !== ($file = readdir ($handle)))
+				{
+					if ($file != "." && $file != "..")
+					{
+						unlink ($path . $file);
+					}
+				}
+			}
+			closedir ($handle);
+		}
+	}
+	
+	/**
+	 * @desc Директория с собранными кэшами
+	 * @return string;
+	 */
+	public static function compiledPath ()
+	{
+		return IcEngine::root () . 'cache/Loader/compiled/';
+	}
+	
+	/**
 	 * @desc Загружает и возвращает конфиг.
 	 * @return Objective
 	 */
@@ -299,6 +329,15 @@ class Loader_Cache
 			self::$_config = Config_Manager::get (__CLASS__, self::$_config);
 		}
 		return self::$_config;
+	}
+	
+	/**
+	 * @desc Директория с данными о кэшах.
+	 * @return string
+	 */
+	public static function dataPath ()
+	{
+		return IcEngine::root () . 'cache/Loader/data/';
 	}
 	
 	/**
