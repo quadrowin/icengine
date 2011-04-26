@@ -10,13 +10,13 @@ class Widget_Manager
 {
 	
 	/**
-	 * Шаблон, не передающийся в рендер.
+	 * @desc Шаблон, не передающийся в рендер.
 	 * @var string
 	 */
 	const NULL_TEMPLATE = 'NULL';
 	
 	/**
-	 * Конфиг
+	 * @desc Конфиг
 	 * @var array|Objective
 	 */
 	public static $config = array (
@@ -24,6 +24,12 @@ class Widget_Manager
 		'widgets'	=> array ()
 		
 	);
+
+	/**
+	 * @desc Время работы последнего виджета
+	 * @var float
+	 */
+	public static $lastWidgetTime;
 	
 	/**
 	 * @desc Настройки кэширования для виджета
@@ -128,6 +134,7 @@ class Widget_Manager
 	public static function callUncached ($name, $method = 'index', 
 		array $args = array (), $html_only = true)
 	{
+		$microtime = microtime (true);
 		$widget = self::_get ($name);
 
 		$widget->getInput ()->beginTransaction ()->send ($args);
@@ -181,6 +188,13 @@ class Widget_Manager
 		{
 			$result ['html'] = '';
 		}
+		
+		self::$lastWidgetTime = microtime (true) - $microtime;
+		
+		var_dump (array (
+			'Widget'	=> $name . '::' . $method,
+			'time'		=> self::$lastWidgetTime
+		));
 		
 		return $html_only ? $result ['html'] : $result;
 	}
