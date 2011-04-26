@@ -191,12 +191,13 @@ class Widget_Manager
 		
 		self::$lastWidgetTime = microtime (true) - $microtime;
 		
-		echo '<pre>';
-		print_r (array (
-			'Widget'	=> $name . '::' . $method,
-			'time'		=> self::$lastWidgetTime
-		));
-		echo '</pre>';
+		if (function_exists ('fb'))
+		{
+			fb (array (
+				'Widget'	=> $name . '::' . $method,
+				'time'		=> self::$lastWidgetTime
+			));
+		}
 		
 		return $html_only ? $result ['html'] : $result;
 	}
