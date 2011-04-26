@@ -72,11 +72,19 @@ class Loader_Cache
 			{
 				if (
 					(
-						isset (self::$_ignoring [$type]) &&
-						isset (self::$_ignoring [$type][$file]) &&
-						self::$_ignoring [$type][$file]
-					) ||
-					!$ok
+						// Файл уже в кэше
+						!isset (self::$_cached [$type]) || 
+						!isset (self::$_cached [$type][$file])
+					) &&
+					(
+						!$ok ||	// Не был подключен
+						(
+							// Игнорирован
+							isset (self::$_ignoring [$type]) &&
+							isset (self::$_ignoring [$type][$file]) &&
+							self::$_ignoring [$type][$file]
+						)
+					)
 				)
 				{
 					continue;
