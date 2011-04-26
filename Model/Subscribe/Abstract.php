@@ -181,11 +181,11 @@ abstract class Subscribe_Abstract extends Model_Factory_Delegate
 	public function subscriberJoin (Subscribe_Subscriber $subscriber,
 	    $autocreate = false)
 	{
-	    $join = $this->modelManager ()->modelBy (
+	    $join = Model_Manager::byQuery (
 	        'Subscribe_Subscriber_Join',
 	        Query::instance ()
-	        ->where ('Subscribe__id', $this->id)
-	        ->where ('Subscribe_Subscriber__id', $subscriber->id)
+		        ->where ('Subscribe__id', $this->id)
+		        ->where ('Subscribe_Subscriber__id', $subscriber->id)
 	    );
 	    
 	    if (!$join && $autocreate)

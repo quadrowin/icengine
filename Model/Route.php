@@ -1,7 +1,13 @@
 <?php
 
 Loader::load ('Model_Child');
-
+/**
+ * 
+ * @desc Роут. 
+ * @author Юрий Шведов, Илья Колесников
+ * @package IcEngine
+ *
+ */
 class Route extends Model_Child
 {
     
@@ -157,11 +163,11 @@ class Route extends Model_Child
 	 */
 	public function actions ()
 	{
-	    $coll = $this->modelManager ()->collectionBy (
+	    $coll = Model_Collection_Manager::byQuery (
 	        'Route_Action',
 	        Query::instance ()
-	        ->where ('Route__id', $this->key ())
-	        ->order ('sort')
+		        ->where ('Route__id', $this->key ())
+		        ->order ('sort')
 	    );
 	    return $coll;
 	}

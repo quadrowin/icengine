@@ -21,12 +21,12 @@ abstract class View_Render_Broker
 	private static $_templateExtension = '.tpl';
 	
 	/**
-	 * Конфиг
+	 * @desc Конфиг
 	 * @var array
 	 */
 	public static $config = array (
 		/**
-		 * Рендер по умолчанию
+		 * @desc Рендер по умолчанию
 		 * @var string
 		 */
 		'default_view'		=> 'Smarty'

@@ -62,6 +62,11 @@ class Data_Source_Manager
 				$source_config = Config_Manager::get ('Data_Source', $name);
 			}
 			
+			if (is_string ($source_config))
+			{
+				return self::$_sources [$name] = self::get ($source_config);
+			}
+			
 			// Случай если нет перечисления вариантов источника
 			if ($source_config ['source'])
 			{

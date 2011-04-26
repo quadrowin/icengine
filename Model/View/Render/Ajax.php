@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * 
+ * @desc Рендер для AJAX запросов (не проверялся).
+ * @author Юрий Шведов
+ * @package IcEngine
+ *
+ */
 class View_Render_Ajax extends View_Render_Abstract
 {
 	

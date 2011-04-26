@@ -114,16 +114,13 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 		
 		// Приводим к нижнему регистру
 		$login = strtolower ($login);
+		$cfg = $cfg_users [$login];
 		
-		return (
-			isset ($cfg_users [$login]) &&
-			(
-				$cfg_users [$login]['password']	== $password ||
-				$cfg_users [$login]['password']	== md5 ($password) 
-			) &&
-			$cfg_users [$login]['phone'] == $user->phone &&
-			$cfg_users [$login]['active']
-		);
+		return
+			$cfg &&
+			Crypt_Manager::isMatch ($password, $cfg ['password']) &&
+			$cfg ['phone'] == $user->phone &&
+			$cfg ['active'];
 	}
 	
 	/**
