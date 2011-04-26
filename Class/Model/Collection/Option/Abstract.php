@@ -10,7 +10,7 @@ Loader::load ('Model_Collection_Option');
 abstract class Model_Collection_Option_Abstract extends Model_Collection_Option
 {
 	
-	final public function __construct ()
+	public function __construct ()
 	{
 		
 	}

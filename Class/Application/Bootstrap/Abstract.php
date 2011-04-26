@@ -106,6 +106,7 @@ class Application_Bootstrap_Abstract
 	{
 		Loader::load ('User');
 		Loader::load ('User_Session');
+		User_Guest::init ();
 		User::init ();
 	}
 	

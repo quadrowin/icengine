@@ -22,7 +22,7 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 	 * @var array
 	 */
 	public $_connectionOptions = array (
-		'server'	=> 'localhost',
+		'host'		=> 'localhost',
 		'username'	=> '',
 		'password'	=> '',
 		'database'	=> 'unknown',
@@ -170,7 +170,7 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 		}
 		
 		$this->_linkIdentifier = mysql_connect (
-			$this->_connectionOptions ['server'],
+			$this->_connectionOptions ['host'],
 			$this->_connectionOptions ['username'],
 			$this->_connectionOptions ['password']
 		);
@@ -259,6 +259,16 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 	}
 	
 	/**
+	 * @desc 
+	 * @return resource
+	 */
+	public function linkIdentifier ()
+	{
+		$this->connect ();
+		return $this->_linkIdentifier;
+	}
+	
+	/**
 	 * (non-PHPdoc)
 	 * @see Data_Mapper_Abstract::setOption()
 	 */
@@ -275,7 +285,8 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 		
 		if (isset ($this->_connectionOptions [$key]))
 		{
-			$this->_connectionOptions [$key] = $value;
+			Loader::load ('Crypt_Manager');
+			$this->_connectionOptions [$key] = Crypt_Manager::autoDecode ($value);
 			return;
 		}
 		return parent::setOption ($key, $value);
