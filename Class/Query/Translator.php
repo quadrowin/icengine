@@ -1,23 +1,29 @@
 <?php
-
+/**
+ * 
+ * @desc Транслятор запросов.
+ * @author Юрий Шведов
+ * @package IcEngine
+ *
+ */
 class Query_Translator
 {
 	
 	/**
-	 * Схема моделей текущего запроса.
+	 * @desc Схема моделей текущего запроса.
 	 * @var Model_Scheme
 	 */
 	protected $_modelScheme;
 	
 	/**
-	 * Подключенные трансляторы.
+	 * @desc Подключенные трансляторы.
 	 * @var array
 	 */
 	protected static $_translators = array ();
 	
 	/**
-	 * 
-	 * @param string $name
+	 * @desc Возвращает объект транслятора по имени.
+	 * @param string $name Название транслятора.
 	 * @return Query_Translator
 	 */
 	public static function factory ($name)
@@ -25,12 +31,7 @@ class Query_Translator
 		if (!isset (self::$_translators [$name]))
 		{
 			$class_name = 'Query_Translator_' . $name;
-			
-			if (!class_exists ($class_name))
-			{
-				require_once dirname (__FILE__) . "/Translator/$name.php";
-			}
-		
+			Loader::load ($class_name);
 			self::$_translators [$name] = new $class_name ();
 		}
 		
@@ -38,10 +39,10 @@ class Query_Translator
 	}
 	
 	/**
-	 * 
-	 * @param Query $query
-	 * @param Model_Scheme $model_scheme
-	 * @return mixed
+	 * @desc Транслирует запрос.
+	 * @param Query $query Запрос.
+	 * @param Model_Scheme $model_scheme Схема моделей.
+	 * @return mixed Результат трансляции.
 	 */
 	public function translate (Query $query, Model_Scheme $model_scheme)
 	{

@@ -121,6 +121,14 @@ class Loader
 			return true;
 		}
 		
+		if (class_exists ('Loader_Cache'))
+		{
+//			var_dump (array (
+//				'file'	=> $file,
+//				'type'	=> $type
+//			));
+		}
+		
 		if (!isset (self::$pathes [$type]))
 		{
 			throw new Exception ('Path not found: ' . $type, E_USER_NOTICE);
