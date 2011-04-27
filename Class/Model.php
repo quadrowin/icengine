@@ -319,10 +319,11 @@ abstract class Model implements ArrayAccess
 	 */
 	public function external ($model)
 	{
+		$field = '`' . $model . '`.`' . $this->modelName () . '__id`';
 		return Model_Collection_Manager::byQuery (
 			$model,
 			Query::instance ()
-				->where ($this->modelName () . '__id', $this->key ())
+				->where ($field, $this->key ())
 		);
 	}
 	

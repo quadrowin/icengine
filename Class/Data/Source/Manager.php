@@ -21,10 +21,22 @@ class Data_Source_Manager
 	 * @var array
 	 */
 	public static $config = array (
-		// Название источника, вместо которого будет браться название домена.
-		// Название домена берется из $SERVER ['HTTP_HOST'].
+		/**
+		 * @desc Название источника, вместо которого будет браться название домена.
+		 * Название домена берется из $SERVER ['HTTP_HOST'].
+		 * @var string
+		 */ 
 		'source_domain_alias'	=> 'domain',
-		// Источники
+		/**
+		 * @desc Название источника, который будет использован вместо 
+		 * имени домена, когда невозможно получить $SERVER ['HTTP_HOST'].
+		 * @var string
+		 */
+		'empty_domain_source'	=> 'default',
+		/**
+		 * @desc Массив источников
+		 * @var array
+		 */ 
 		'sources'	=> array ()
 	);
 	
@@ -51,7 +63,10 @@ class Data_Source_Manager
 		$config = self::config ();
 		if ($config ['source_domain_alias'] == $name)
 		{
-			$name = $_SERVER ['HTTP_HOST'];
+			$name = 
+				isset ($_SERVER ['HTTP_HOST']) ? 
+					$_SERVER ['HTTP_HOST'] :
+					$config ['empty_domain_source'];
 		}
 		
 		if (!isset (self::$_sources [$name]))
