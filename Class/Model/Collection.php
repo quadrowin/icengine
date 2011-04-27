@@ -1035,6 +1035,34 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
+	 * @desc Получить колекцию уникальный элементов
+	 * @return Model_Collection
+	 */
+	public function unique ()
+	{
+		$model_name = $this->modelName ();
+		$kf = DDS::modelScheme ()->keyField ($model_name);
+		$keys = array_unique ($this->column ($kf));
+		
+		$collection = new self;
+		$collection->reset ();
+		
+		for ($i = 0, $icount = sizeof ($keys); $i < $icount; $i++)
+		{
+			$model = Model_Manager::byKey (
+				$model_name,
+				$keys [$i]
+			);
+			if ($model)
+			{
+				$collection->add ($model);
+			}
+		}
+		
+		return $collection;
+	}
+	
+	/**
 	 * @desc Обновление всех элементов коллекции
 	 * @param array $data
 	 */
