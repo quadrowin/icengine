@@ -1051,7 +1051,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		{
 			$model = Model_Manager::byKey (
 				$model_name,
-				$keys ($i)
+				$keys [$i]
 			);
 			if ($model)
 			{
