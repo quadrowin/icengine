@@ -97,7 +97,7 @@ var Controller_Authorization_Phone_Sms_Send = {
 	{
 		var phone = $form.find ('input[name=auth_login]').val ();
 		
-		$send_sms_button = $form.find ('.send_sms_button')
+		$send_sms_button = $form.find ('.send_sms_button');
 		$send_sms_button.hide ();
 		
 		/**

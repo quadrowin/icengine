@@ -161,7 +161,10 @@ var Helper_Form = {
 			);
 		};
 		
-		Controller_Captcha.regenerateACodes ($form);
+		if (typeof (Controller_Captcha) != "undefined")
+		{
+			Controller_Captcha.regenerateACodes ($form);
+		}
 	},
 	
 	/**

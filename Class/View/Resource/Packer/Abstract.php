@@ -8,8 +8,6 @@
 abstract class View_Resource_Packer_Abstract
 {
 	
-	const REFRESH_TIME = 300;
-	
 	/**
 	 * Текущий ресурс
 	 * @var View_Resource
@@ -38,6 +36,14 @@ abstract class View_Resource_Packer_Abstract
 		 * @var string
 		 */
 		'item_postfix'	=> "\n\n",
+	
+		/**
+		 * @desc Время жизни кэша в секундах.
+		 * По истечении этого времени, кэш будет принудительно обнволен,
+		 * даже если не зафиксировано изменение исходных файлов.
+		 * @var integer
+		 */
+		'refresh_time'	=> 300,
 	
 		/**
 		 * @desc Файл для хранения состояния
@@ -75,17 +81,19 @@ abstract class View_Resource_Packer_Abstract
 	 */
 	public function cacheValid (array $resources, $result_file)
 	{
+		$config = $this->config ();
+		
 		if (
 			!$result_file || 
 			!file_exists ($result_file) || 
 			!$this->config ()->state_file ||
-			!file_exists ($this->config ()->state_file)
+			!file_exists ($config ['state_file'])
 		)
 		{
 			return false;
 		}
 		
-		$state = file_get_contents ($this->config ()->state_file);
+		$state = file_get_contents ($config ['state_file']);
 		$state = json_decode ($state, true);
 		
 		if (!$state)
@@ -106,12 +114,12 @@ abstract class View_Resource_Packer_Abstract
 		}
 		
 		$delta_time = time () - $state ['result_time'];
-		if ($delta_time > self::REFRESH_TIME)
+		if ($delta_time > $config ['refresh_time'])
 		{
-			$delta_time -= self::REFRESH_TIME;
+			$delta_time -= $config ['refresh_time'];
 			
 			if (
-				$delta_time > self::REFRESH_TIME ||
+				$delta_time > $config ['refresh_time'] ||
 				rand (0, $delta_time) == 0
 			)
 			{
