@@ -57,9 +57,16 @@ class Data_Source_Manager
 		if (!isset (self::$_sources [$name]))
 		{
 			$source_config = $config ['sources'][$name];
+			
 			if (!$source_config)
 			{
-				$source_config = Config_Manager::get ('Data_Source', $name);
+				foreach ($config ['sources'] as $key => $value)
+				{
+					if (fnmatch ($key, $name))
+					{
+						return self::$_sources [$name] = self::get ($key);
+					}
+				}
 			}
 			
 			if (is_string ($source_config))
