@@ -26,6 +26,17 @@ class Request
 	}
 	
 	/**
+	 * @desc Получить текущий хост
+	 * @return Ambigous <string, NULL>
+	 */
+	public function host ()
+	{
+		return isset ($_SERVER ['HTTP_HOST'])
+			? $_SERVER ['HTTP_HOST']
+			: null;
+	}
+	
+	/**
 	 * Получение параметра GET 
 	 * @param string $name Имя параметра
 	 * @param mixed $default Значение по умолчанию
