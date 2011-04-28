@@ -110,21 +110,32 @@ class Helper_Date
 	}
     
     /**
-     * Получение даты по номеру недели в году
-     * 
-     * @param integer $week_number
-     * 		Номер недели в году в формате ISO-8601.
-     * @param integer $year
-     * 		Четырехзначный номер года.
-     * 		Если параметр не указан, будет взят номер текущего года.
-     * @return integer|false
-     * 		unix timestamp
+     * @desc Получение даты по номеру недели в году
+     * @param integer $week_number Номер недели в году в формате ISO-8601.
+     * @param integer $year Четырехзначный номер года.
+     * Если параметр не указан, будет взят номер текущего года.
+     * @return integer|false unix timestamp
      */
     public static function dateByWeek ($week, $year = null)
     {
         $year = $year ? $year : date ('Y');
         $week = sprintf ('%02d', $week);
         return strtotime ($year . 'W' . $week . '1 00:00:00');
+    }
+    
+    /**
+     * @desc Количество дней в месяце.
+     * @param integer $month Месяц (от 1 до 12)
+     * @param integer $year [optional] Год (от 1901 до 2099)
+     * @return integer Номер последнего дня в месяце (от 28 до 31)
+     */
+    public static function daysInMonth ($month, $year = null)
+    {
+    	if (!$year)
+    	{
+    		$year = date ('Y');
+    	}
+    	return 31 - (($month - 1) % 7 % 2) - (($month == 2) << !!($year % 4));
     }
     
 	/**
@@ -166,8 +177,7 @@ class Helper_Date
 	}
 	
 	/**
-	 *
-	 * Получение времени с точностью до микросекунд
+	 * @desc Получение времени с точностью до микросекунд
 	 * @return float
 	 */
 	public static function getmicrotime ()
@@ -182,8 +192,7 @@ class Helper_Date
 	 * @desc Сравнение месяцев двух дат.
 	 * @param integer $date1 Первая дата.
 	 * @param integer $date2 Вторая дата.
-	 * @return boolean
-	 * 		true, если даты относятся к одному месяцу, иначе false
+	 * @return boolean true, если даты относятся к одному месяцу, иначе false.
 	 */
 	public static function monthEqual ($date1, $date2)
 	{
@@ -191,11 +200,10 @@ class Helper_Date
 	}
 	
 	/**
-	 * @desc Возвращает название месяца
-	 * 
+	 * @desc Возвращает название месяца.
 	 * @param integer $month_num Номер месяца (от 1 до 12).
 	 * @param integer $form Возвращаемая форма. 1 - именительный патеж, 
-	 * 	2 - родительный.
+	 * 2 - родительный.
 	 * @return string Название месяца.
 	 */
 	public static function monthName ($month_num, $form = 1)
@@ -204,16 +212,12 @@ class Helper_Date
 	}
 	
 	/**
-	 * Возвращает следующее время согласно периоду
-	 *
-	 * @param integer $time
-	 * 		Исходная метка времени (unix timestamp)
-	 * @param string $period
-	 * 		Период.
-	 * 		Задается либо в секундах, либо строкой.
-	 * @return integer
-	 * 		Следующая метка времени (unix timestamp).
-	 * 		Если период указан неверно, возвращается false
+	 * @desc Возвращает следующее время согласно периоду
+	 * @param integer $time Исходная метка времени (unix timestamp)
+	 * @param string $period Период.
+	 * Задается либо в секундах, либо строкой.
+	 * @return integer Следующая метка времени (unix timestamp).
+	 * Если период указан неверно, возвращается false
 	 */
 	public static function nextTime ($time, $period)
 	{
@@ -337,17 +341,14 @@ class Helper_Date
 	}
 	
 	/**
-	 * Получение даты и времени из строки.
+	 * @desc Получение даты и времени из строки.
 	 * В качестве исходной строки может выступать запись
 	 * даты и времени практически в любом формате, не зависимо от разделителя
 	 * и порядка данных.
-	 *
-	 * @param string|integer $str
-	 * 		Строка с датой или unix timestamp
-	 * @param integer $default
-	 * 		Возвращаемое значение по умолчанию
-	 * @return integer
-	 * 		Опередленная дата или $def, если дату определить не удалось.
+	 * @param string|integer $str Строка с датой или unix timestamp.
+	 * @param integer $default Возвращаемое значение по умолчанию.
+	 * @return integer Опередленная дата или $def, если дату определить 
+	 * не удалось.
 	 */
 	public static function strToTimestamp($str, $default = 0)
 	{
@@ -415,9 +416,8 @@ class Helper_Date
 	 * @desc Перевод строки в unix timestamp
 	 * @param string $str Исходная строка.
 	 * @param integer $def Возвращаемое значение по умолчанию.
-	 * @return integer
-	 * 		Время в unix timestamp.
-	 * 		Если не удалось определить время, возвращается $def
+	 * @return integer Время в unix timestamp.
+	 * Если не удалось определить время, возвращается $def
 	 */
 	public static function strToTimeDef ($str, $def = 0)
 	{
@@ -494,11 +494,9 @@ class Helper_Date
 	
 	/**
 	 * @desc Перевод даты из любого распознаваемого форматав формат в Unix.
-	 * @param string $date [optional]
-	 * 		Если параметр не будет передан или будет передано null,
-	 * 		будет использована текущая дата.
-	 * @return string
-	 * 		Дата в формате UNIX "YYYY-MM-DD HH:II:SS"
+	 * @param string $date [optional] Если параметр не будет передан или будет
+	 * передано null, будет использована текущая дата.
+	 * @return string Дата в формате UNIX "YYYY-MM-DD HH:II:SS"
 	 */
 	public static function toUnix ($date = null)
 	{
