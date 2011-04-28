@@ -103,7 +103,10 @@ class Session_Manager
 	}
 	
 	/**
-	 * @desc Open function, this works like a constructor in classes and is executed when the session is being opened. The open function expects two parameters, where the first is the save path and the second is the session name.
+	 * @desc Open function, this works like a constructor in classes and
+	 * is executed when the session is being opened. The open function expects 
+	 * two parameters, where the first is the save path and the second is 
+	 * the session name.
 	 * @param string $save_path
 	 * @param string $session_name
 	 */
@@ -114,7 +117,10 @@ class Session_Manager
 	}
 	
 	/**
-	 * @desc Read function must return string value always to make save handler work as expected. Return empty string if there is no data to read. Return values from other handlers are converted to boolean expression. TRUE for success, FALSE for failure.
+	 * @desc Read function must return string value always to make save handler 
+	 * work as expected. Return empty string if there is no data to read. 
+	 * Return values from other handlers are converted to boolean expression. 
+	 * TRUE for success, FALSE for failure.
 	 */
 	public static function read ($id)
 	{
