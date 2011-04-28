@@ -356,6 +356,11 @@ class Request
 			session_id ($_GET ['PHPSESSID']);
 		}
 		
+		if (!isset ($_SESSION))
+		{
+			session_start ();
+		}
+		
 		return session_id ();
 	}
 	
