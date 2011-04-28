@@ -61,6 +61,7 @@ class Data_Source_Manager
 	public static function get ($name)
 	{	
 		$config = self::config ();
+		
 		if ($config ['source_domain_alias'] == $name)
 		{
 			$name = 
@@ -135,6 +136,42 @@ class Data_Source_Manager
 		}
 		
 		return self::$_sources [$name];
+	}
+	
+	/**
+	 * @desc Находит конфиг по названию.
+	 * @param string $name Название источника.
+	 * @return Objective|null Конфиг.
+	 */
+	public static function sourceConfig ($name)
+	{
+		$config = self::config ();
+		
+		if ($config ['source_domain_alias'] == $name)
+		{
+			$name = 
+				isset ($_SERVER ['HTTP_HOST']) ? 
+					$_SERVER ['HTTP_HOST'] :
+					$config ['empty_domain_source'];
+		}
+		
+		$src_cfg = $config ['sources'][$name];
+		
+		if (!$src_cfg)
+		{
+			foreach ($config ['sources'] as $key => $value)
+			{
+				if (fnmatch ($key, $name))
+				{
+					return self::sourceConfig ($key);
+				}
+			}
+		}
+		
+		return
+			is_string ($src_cfg) ?
+				self::sourceConfig ($src_cfg) :
+				$src_cfg;
 	}
 	
 }
