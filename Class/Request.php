@@ -1,5 +1,11 @@
 <?php 
-
+/**
+ * 
+ * @desc Класс для работы с HTTP запросом.
+ * @author Юрий Шведов, Илья Колесников
+ * @package IcEngine
+ *
+ */
 class Request
 {
 	
@@ -11,7 +17,7 @@ class Request
 	public static $work_charset = 'utf-8';
 
 	/**
-	 * Проверка формата входных данных
+	 * @desc Проверка формата входных данных
 	 * @return boolean
 	 */
 	public static function altFilesFormat ()
@@ -44,14 +50,7 @@ class Request
 	 */
 	public static function get ($name, $default = false)
 	{
-		if (isset ($_GET[$name]))
-		{
-			return $_GET [$name];
-		}
-		else
-		{
-			return $default;
-		}
+		return isset ($_GET [$name]) ? $_GET [$name] : $default;
 	}
 	
 	/**
@@ -161,7 +160,7 @@ class Request
 	}
 	
 	/**
-	 * Возвращает переданные скрипту id из $_REQUEST['id'] и $_REQUEST['ids']
+	 * @desc Возвращает переданные скрипту id из $_REQUEST['id'] и $_REQUEST['ids']
 	 * @return array
 	 */
 	public static function postIds ()
@@ -342,6 +341,12 @@ class Request
 	 */
 	public static function sessionId ()
 	{
+		if (!class_exists ('Session_Manager'))
+		{
+			Loader::load ('Session_Manager');
+			Session_Manager::init ();
+		}
+		
 		if (isset ($_COOKIE ['PHPSESSID']))
 		{
 			session_id ($_COOKIE ['PHPSESSID']);
