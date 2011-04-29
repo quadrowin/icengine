@@ -27,3 +27,5 @@ class Authorization extends Model_Factory
 	}
 	
 }
+
+Loader::load ('Authorization_Abstract');

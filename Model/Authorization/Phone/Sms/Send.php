@@ -6,7 +6,6 @@
  * @package IcEngine
  * 
  */
-Loader::load ('Authorization_Abstract');
 class Authorization_Phone_Sms_Send extends Authorization_Abstract
 {
 	
