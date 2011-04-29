@@ -190,6 +190,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 		{
 			$this->tracer->add ('deleteByPattern', $pattern);
 		}
+		
 		$this->conn->clearByPattern ($this->prefix . $pattern);
 	}
 	

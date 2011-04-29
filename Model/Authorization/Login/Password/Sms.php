@@ -116,6 +116,8 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 		$login = strtolower ($login);
 		$cfg = $cfg_users [$login];
 		
+		Loader::load ('Crypt_Manager');
+		
 		return
 			$cfg &&
 			Crypt_Manager::isMatch ($password, $cfg ['password']) &&

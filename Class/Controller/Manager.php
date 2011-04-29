@@ -48,12 +48,30 @@ class Controller_Manager
 		 * @desc Фильтры для выходных данных
 		 * @var array
 		 */
-		'output_filters'	=> array ()
+		'output_filters'	=> array (),
+		/**
+		 * @desc Настройки кэширования для экшенов.
+		 * @var array
+		 */
+		'actions'			=> array (
+		)
 	);
 	
 	/**
+	 * @desc Настройки кэширования для контроллера-экшена.
+	 * @param string $controller Контроллер
+	 * @param string $action Экшен
+	 * @return Objective
+	 */
+	protected static function _cacheConfig ($controller, $action)
+	{
+		$config = self::config ();
+		$cfg = $config ['actions'][$controller . '::' . $action];
+		return $cfg ? $cfg : $config ['actions'] [$controller];
+	}
+	
+	/**
 	 * @desc Сохранение результата работы контроллера
-	 * 
 	 * @param Controller_Abstract $controller
 	 * @param Controller_Dispatcher_Iteration $iteration
 	 */
@@ -86,6 +104,51 @@ class Controller_Manager
 	}
 	
 	/**
+	 * @desc Вызов экшена контроллера.
+	 * @param string $name Название контроллера.
+	 * @param string $method Метод.
+	 * @param boolean $html_only
+	 * 		Вернуть только html.
+	 * 		Если false, будет возвращен массив со всеми результатами.
+	 * @param array $args Параметры.
+	 * @return string|array
+	 */
+	public static function call ($name, $method = 'index', 
+		array $args = array (), $html_only = true)
+	{
+		$cache_config = self::_cacheConfig ($name, $method);
+		
+		return Executor::execute (
+			array (__CLASS__, 'callUncached'),
+			array ($name, $method, $args, $html_only),
+			$cache_config
+		);
+	}
+	
+	/**
+	 * @desc Вызов экшена без кэширования.
+	 * @param string $name Название контроллера.
+	 * @param string $method Метод.
+	 * @param array $args Параметры.
+	 * @param boolean $html_only=true Вернуть только html.
+	 */
+	public static function callUncached ($name, $method = 'index', 
+		array $args = array (), $html_only = true)
+	{
+		Loader::load ('Controller_Action');
+		Loader::load ('Controller_Dispatcher_Iteration');
+		Loader::load ('Route_Action');
+		$iteration = Controller_Manager::run (new Controller_Action (array (
+			'controller'	=> $name,
+			'action'		=> $method,
+			'input'			=> $input,
+			'output'		=> $output
+		)));
+		
+		return View_Render_Broker::fetchIteration ($iteration);
+	}
+	
+	/**
 	 * @desc Загрузка конфига
 	 * @return Objective
 	 */
@@ -99,7 +162,34 @@ class Controller_Manager
 	}
 	
 	/**
-	 * 
+	 * @desc Выполняет указанный контроллер, экшен с заданными параметрами.
+	 * @param string $action Название контроллера или контроллер и экшен
+	 * в формате "Controller/action".
+	 * @param array $args Параметры.
+	 * @return string Результат компиляции шабона.
+	 * @tutorial
+	 * 		fetch ('Controller', array ('param'	=> 'val'));
+	 * 		fetch ('Controller/action')
+	 */
+	public static function fetch ($action, array $args = array ())
+	{
+		$a = explode ('/', $action);
+		if (count ($a) == 1)
+		{
+			$a [1] = 'index';
+		}
+		
+		$cache_config = self::_cacheConfig ($a [0], $a [1]);
+		
+		return Executor::execute (
+			array (__CLASS__, 'callUncached'),
+			array ($a [0], $a [1], $args, true),
+			$cache_config
+		);
+	}
+	
+	/**
+	 * @desc Возвращает контроллер по названию.
 	 * @param string $controller_name
 	 * @return Controller_Abstract
 	 */

@@ -85,41 +85,14 @@ class Widget_Manager
 	 * @param array $args Параметры.
 	 * @return string|array
 	 */
-	public static function call ($name, $method = 'index', array $args = array (), 
-		$html_only = true)
+	public static function call ($name, $method = 'index', 
+		array $args = array (), $html_only = true)
 	{
 		$cache_config = self::_cacheConfig ($name, $method);
 		
 		return Executor::execute (
 			array (__CLASS__, 'callUncached'),
 			array ($name, $method, $args, $html_only),
-			$cache_config
-		);
-	}
-	
-	/**
-	 * @desc Возвращает только html результат работы контроллера.
-	 * Аналогично вызову метода call с html_only=true.
-	 * @param string $method Название виджета или виджета и экшена.
-	 * @param array $args Параметры.
-	 * @return string Результат работы экшена.
-	 * @tutorial
-	 * 		html ('Widget', array ('param'	=> 'val'));
-	 * 		html ('Widget/action')
-	 */
-	public static function html ($method, array $args = array ())
-	{
-		$w = explode ('/', $method);
-		if (count ($w) == 1)
-		{
-			$w [1] = 'index';
-		}
-		
-		$cache_config = self::_cacheConfig ($w [0], $w [1]);
-		
-		return Executor::execute (
-			array (__CLASS__, 'callUncached'),
-			array ($w [0], $w [1], $args, true),
 			$cache_config
 		);
 	}
@@ -192,6 +165,33 @@ class Widget_Manager
 		self::$lastWidgetTime = microtime (true) - $microtime;
 		
 		return $html_only ? $result ['html'] : $result;
+	}
+	
+	/**
+	 * @desc Возвращает только html результат работы контроллера.
+	 * Аналогично вызову метода call с html_only=true.
+	 * @param string $method Название виджета или виджета и экшена.
+	 * @param array $args Параметры.
+	 * @return string Результат работы экшена.
+	 * @tutorial
+	 * 		html ('Widget', array ('param'	=> 'val'));
+	 * 		html ('Widget/action')
+	 */
+	public static function html ($method, array $args = array ())
+	{
+		$w = explode ('/', $method);
+		if (count ($w) == 1)
+		{
+			$w [1] = 'index';
+		}
+		
+		$cache_config = self::_cacheConfig ($w [0], $w [1]);
+		
+		return Executor::execute (
+			array (__CLASS__, 'callUncached'),
+			array ($w [0], $w [1], $args, true),
+			$cache_config
+		);
 	}
 	
 }
