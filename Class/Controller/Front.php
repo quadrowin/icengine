@@ -64,7 +64,8 @@ class Controller_Front
 	}
 	
 	/**
-	 * @desc Получаем (и инициализируем, если еще не проинициализирован) дефолтовый роутер
+	 * @desc Получаем (и инициализируем, если еще не проинициализирован) 
+	 * дефолтовый роутер.
 	 * @return Router
 	 */
 	public function getRouter ()
@@ -83,7 +84,7 @@ class Controller_Front
 	{
 		// Инициализируем вьюшник из запроса
 		$view = View_Render_Broker::pushView (
-		    $this->getRouter ()->getRoute ()->View_Render
+			$this->getRouter ()->getRoute ()->viewRender ()
 		);
 		
 		// Отправляем сообщение, что вью был изменен
@@ -105,7 +106,6 @@ class Controller_Front
 			
 			// Начинаем рендерить итерации контролеров
 			View_Render_Broker::render ($this->_dispatcher->results ());
-			
 		}
 		catch (Zend_Exception $e)
 		{

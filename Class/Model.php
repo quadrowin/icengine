@@ -28,7 +28,7 @@ abstract class Model implements ArrayAccess
 	 * @desc Конфиг
 	 * @var array|Objective
 	 */
-	protected	$_config = array ();
+	protected $_config = array ();
 	
 	/**
 	 * @desc Связанные данные
@@ -38,7 +38,7 @@ abstract class Model implements ArrayAccess
 	
 	/**
 	 * @desc Индекс объекта для подсчета количества
-	 * загруженных моделей
+	 * загруженных моделей.
 	 * @var integer
 	 */
 	protected static	$_objectIndex = 0;
@@ -72,7 +72,7 @@ abstract class Model implements ArrayAccess
 		if (strlen ($method) > 3 && strncmp ($method, 'get', 3) == 0)
 		{
 			return $this->attr (
-				strtolower ($method[3]) .
+				strtolower ($method [3]) .
 				substr ($method, 4)
 			);
 		}
@@ -133,7 +133,7 @@ abstract class Model implements ArrayAccess
 				}
 			}
 		}
-
+		
 		return $this->_fields [$field];
 	}
 	
@@ -190,13 +190,11 @@ abstract class Model implements ArrayAccess
 	
 	/**
 	 * @desc Возвращает или устанавливает значение атрибута.
-	 * @param string|array $key
-	 * 		Название атрибута или массив пар (название => значение)
-	 * @param mixed $value [optional]
-	 * 		Новое значение атрибута.
-	 * @return mixed
-	 * 		Если не задан второй параметр, возвращает значение аттрибута,
-	 * 		иначе null
+	 * @param string|array $key Название атрибута или массив пар 
+	 * (название => значение).
+	 * @param mixed $value [optional] Новое значение атрибута.
+	 * @return mixed Если не задан второй параметр, возвращает значение 
+	 * аттрибута, иначе null.
 	 */
 	public function attr ($key)
 	{
@@ -212,13 +210,13 @@ abstract class Model implements ArrayAccess
 				return;
 			}
 		}
-
+		
 		$v = func_get_arg (1);
 		$this->setAttribute ($key, $v);
 	}
 	
 	/**
-	 * @desc Имя класса модели
+	 * @desc Имя класса модели.
 	 * @return string
 	 */
 	public function className ()
@@ -229,10 +227,9 @@ abstract class Model implements ArrayAccess
 	/**
 	 * @desc Возвращает коллекцию связанных компонентов или
 	 * элемент коллекции с указанным индексом.
-	 * 
 	 * @param string $type Тип компонентов.
-	 * @param integer|null|stdClass $index|$value [optional]
-	 * 		Индекс для получения или коллекция для установки значения.
+	 * @param integer|null|stdClass $index|$value [optional] Индекс 
+	 * для получения или коллекция для установки значения.
 	 * @return Component_Collection Коллекция связанных компонентов.
 	 */
 	public function component ($type)
@@ -298,7 +295,7 @@ abstract class Model implements ArrayAccess
 	}
 	
 	/**
-	 * @desc Удаление модели
+	 * @desc Удаление модели.
 	 */
 	public function delete ()
 	{
@@ -329,13 +326,10 @@ abstract class Model implements ArrayAccess
 	
 	/**
 	 * @desc Получение или установка значения
-	 * @param string $key
-	 * 		Поле
-	 * @param mixed $value
-	 * 		Значение (не обязательно).
-	 * 		Если указано значение, оно будет записано в поле.
-	 * @return mixed
-	 * 		Если $value не передан, будет возвращено значение поля.
+	 * @param string $key Поле.
+	 * @param mixed $value Значение (не обязательно).
+	 * Если указано значение, оно будет записано в поле.
+	 * @return mixed Если $value не передан, будет возвращено значение поля.
 	 */
 	public function field ($key)
 	{
@@ -359,12 +353,9 @@ abstract class Model implements ArrayAccess
 	
 	/**
 	 * @desc Получение значения атрибута
-	 * 
-	 * @param string $key
-	 * 		Название атрибута
-	 * @return mixed
-	 * 		Значение атрибута.
-	 * 		Если атрибута не существует, возвращает null.
+	 * @param string $key Название атрибута.
+	 * @return mixed Значение атрибута.
+	 * Если атрибута не существует, возвращает null.
 	 */
 	public function getAttribute ($key)
 	{
@@ -525,7 +516,6 @@ abstract class Model implements ArrayAccess
 	}
 	
 	/**
-	 * 
 	 * @desc Сбросить модель
 	 */
 	public function reset ()
@@ -555,7 +545,6 @@ abstract class Model implements ArrayAccess
 	public function save ($hard_insert = false)
 	{
 		Model_Manager::set ($this, $hard_insert);
-		
 		return $this;
 	}
 	
@@ -565,11 +554,9 @@ abstract class Model implements ArrayAccess
 	 * у модели. Это позволяет установить поля для создаваемой модели,
 	 * однако может привести к ошибкам в дальнейшем при сохранее, если 
 	 * были заданы несуществующие поля.
-	 * 
-	 * @param string|array $field
-	 * 		Имя поля или массив пар "поле - значение".
-	 * @param string $value
-	 * 		Значение поля для случае, если первым параметром передано имя.
+	 * @param string|array $field Имя поля или массив пар "поле - значение".
+	 * @param string $value Значение поля для случае, если первым параметром 
+	 * передано имя.
 	 */
 	public function set ($field, $value = null)
 	{
@@ -608,10 +595,9 @@ abstract class Model implements ArrayAccess
 	
 	/**
 	 * @desc Устанавливает значение аттрибута.
-	 * @param string|array $key
-	 * 		Название аттрибута или массив пар (название => значение)
-	 * @param mixed $value [optional]
-	 * 		Новое значение аттрибута.
+	 * @param string|array $key Название аттрибута или массив 
+	 * пар (название => значение).
+	 * @param mixed $value [optional] Новое значение аттрибута.
 	 */
 	public function setAttribute ($key, $value = null)
 	{
@@ -631,6 +617,7 @@ abstract class Model implements ArrayAccess
 	
 	/**
 	 * @desc Таблица БД
+	 * @see Model::modelName ()
 	 * @return string
 	 */
 	public function table ()

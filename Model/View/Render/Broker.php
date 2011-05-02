@@ -120,8 +120,8 @@ abstract class View_Render_Broker
 	}
 	
 	/**
-	 * @desc	Обработка шаблонов из стека.
-	 * @param	array $data
+	 * @desc Обработка шаблонов из стека.
+	 * @param array $outputs
 	 */
 	public static function render (array $outputs)
 	{
@@ -134,7 +134,7 @@ abstract class View_Render_Broker
 		$outputs = array_reverse ($outputs);
 		
 		/**
-		 * @var item Controller_Dispatcher_Iteration
+		 * @var Controller_Dispatcher_Iteration $item
 		 */
 		foreach ($outputs as $item)
 		{
@@ -147,7 +147,7 @@ abstract class View_Render_Broker
 			/**
 			 * @var $action Route_Action
 			 */
-			$action = $item->getRouteAction ();
+//			$action = $item->getRouteAction ();
 			
 			$transaction->commit ();
 			
@@ -155,8 +155,10 @@ abstract class View_Render_Broker
 			$result = $view->fetch ($template);
 			
 			$view->assign (
-				isset ($action->assign) ? $action->assign : 'content',
-				$result);
+				$item->getAssignVar (),
+				//isset ($action->assign) ? $action->assign : 'content',
+				$result
+			);
 		}
 		
 		Loader::load ('Message_After_Render');
@@ -164,9 +166,9 @@ abstract class View_Render_Broker
 	}
 	
 	/**
-	 * @desc	Рендер одной итерации диспетчера.
-	 * @param	Controller_Dispatcher_Iteration $iteration
-	 * @return	string
+	 * @desc Рендер одной итерации диспетчера.
+	 * @param Controller_Dispatcher_Iteration $iteration
+	 * @return string
 	 */
 	public static function fetchIteration (
 		Controller_Dispatcher_Iteration $iteration)
@@ -177,17 +179,10 @@ abstract class View_Render_Broker
 		 */
 		$transaction = $iteration->getTransaction ();
 		
-		/**
-		 * @var $action Route_Action
-		 */
-		$action = $iteration->getRouteAction ();
-
-		$template = $iteration->getTemplate ();
-		
 		$view = self::getView ();
 		$view->assign ($transaction->buffer ());
 		
-		$result = $view->fetch ($template);
+		$result = $view->fetch ($iteration->getTemplate ());
 
 		return $result;
 	}
