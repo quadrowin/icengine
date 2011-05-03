@@ -6,7 +6,6 @@
  * @package IcEngine
  *
  */
-Loader::load ('Authorization_Abstract');
 class Authorization_Email_Password extends Authorization_Abstract
 {
 	
