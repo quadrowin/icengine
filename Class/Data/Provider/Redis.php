@@ -184,7 +184,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::deleteByPattern()
 	 */
-	public function deleteByPattern ($pattern)
+	public function deleteByPattern ($pattern, $time = 0, $set_deleted = false)
 	{
 		if ($this->tracer)
 		{
