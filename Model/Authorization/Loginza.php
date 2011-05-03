@@ -6,7 +6,6 @@
  * @package IcEngine
  *
  */
-Loader::load ('Authorization_Abstract');
 class Authorization_Loginza extends Authorization_Abstract
 {
 	

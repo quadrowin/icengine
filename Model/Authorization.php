@@ -19,7 +19,7 @@ class Authorization extends Model_Factory
 	 */
 	public static function byName ($name)
 	{
-		return Model_Manager::modelBy (
+		return Model_Manager::byQuery (
 			__CLASS__,
 			Query::instance ()
 				->where ('name', $name)
@@ -27,3 +27,5 @@ class Authorization extends Model_Factory
 	}
 	
 }
+
+Loader::load ('Authorization_Abstract');
