@@ -10,50 +10,50 @@ class IcEngine
 {
 	
 	/**
-	 * Путь до движка.
+	 * @desc Путь до движка.
 	 * @var string
 	 */
 	private static $_path;
 	
 	/**
-	 * Путь до корня сайта.
+	 * @desc Путь до корня сайта.
 	 * @var string
 	 */
 	private static $_root;
 	
 	/**
-	 * Приложение
+	 * @desc Приложение
 	 * @var Application
 	 */
 	public static $application;
 	
 	/**
-	 * Менеджер атрибутов
+	 * @desc Менеджер атрибутов
 	 * @var Attribute_Manager
 	 */
 	public static $attributeManager;
 	
 	/**
-	 * Менеджер моделей
+	 * @desc Менеджер моделей
 	 * @var Model_Manager
 	 */
 	public static $modelManager;
 	
 	/**
-	 * Схема моделей.
+	 * @desc Схема моделей.
 	 * @var Model_Scheme
 	 */
 	public static $modelScheme;
 	
 	/**
-	 * Менеджер виджетов
+	 * @desc Менеджер виджетов
 	 * @var Widget_Manager
 	 */
 	public static $widgetManager;
 	
 	/**
-	 * @desc
-	 * @return string;
+	 * @desc Возвращает путь до корня сайта.
+	 * @return string
 	 */
 	protected static function _getRoot ()
 	{
@@ -63,15 +63,14 @@ class IcEngine
 	}
 	
 	/**
-	 * Проверка адреса страницы на существования роутера, который
+	 * @desc Проверка адреса страницы на существования роутера, который
 	 * привязан к этой странице.
 	 * 
-	 * @param string $route_table
-	 * 		Префикс адреса, который не будет учитываться при поиске роутера
-	 * @param function $select
-	 * 		Особая функция для вызова SQL запроса из Mysql.
-	 * 		Если указана, будет вызвана со строковым параметром - sql запросом.
-	 * 		Если не указана, sql запрос будет выполнен через mysql_query().
+	 * @param string $route_table Префикс адреса, который не будет учитываться 
+	 * при поиске роутера
+	 * @param function $select Особая функция для вызова SQL запроса из Mysql.
+	 * Если указана, будет вызвана со строковым параметром - sql запросом.
+	 * Если не указана, sql запрос будет выполнен через mysql_query().
 	 */
 	public static function checkImplementation ($route_table = 'route', $select = null)
 	{
@@ -140,7 +139,7 @@ class IcEngine
 	}
 	
 	/**
-	 * Путь до корня сайта
+	 * @desc Путь до корня сайта.
 	 * @return string
 	 */
 	public static function root ()
@@ -149,7 +148,7 @@ class IcEngine
 	}
 	
 	/**
-	 * @desc Инициализация лоадера
+	 * @desc Инициализация лоадера.
 	 * @param string $root Путь до корня сайта
 	 */
 	public static function init ($root = null)
@@ -182,11 +181,10 @@ class IcEngine
 	}
 	
 	/**
-	 * @desc Инициализация окружения
-	 * @param string $behavior
-	 * 		Название окружения
-	 * @param string $path
-	 * 		Путь до файла окружения, если он находится не в директории движка
+	 * @desc Инициализация окружения.
+	 * @param string $behavior Название окружения.
+	 * @param string $path Путь до файла окружения, если он находится
+	 * не в директории движка.
 	 */
 	public static function initApplication ($behavior, $path = '')
 	{
@@ -216,7 +214,7 @@ class IcEngine
 		}
 		$loaded = true;
 		
-		require self::$_path . '/Class/Debug.php';
+		require self::$_path . 'Class/Debug.php';
 	}
 
 }

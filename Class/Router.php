@@ -28,22 +28,22 @@ class Router
 	
 			if ($gets)
 			{
-			    $gets = (array) explode ('&', $gets);
-			    
-			    foreach ($gets as $get)
-			    {
+				$gets = (array) explode ('&', $gets);
+				
+				foreach ($gets as $get)
+				{
 					if (strpos ($get, '=') === false)
 					{
-					    $_GET ['get'] = 1;
+						$_GET ['get'] = 1;
 					}
 					else
 					{
-					    $tmp = explode ('=', $get);
-					    $_GET [$tmp [0]] = $tmp [1];
+						$tmp = explode ('=', $get);
+						$_GET [$tmp [0]] = $tmp [1];
 					}
-			    }
+				}
 			}
-	
+			
 			$url = $url ? $url : '/';
 			
 			$route = (array) explode ('/', trim ($url, '/'));
@@ -57,7 +57,7 @@ class Router
 			}
 			
 			$parts = (array) explode ('/', trim (self::$_route->route, '/'));
-	
+			
 			$len = min (sizeof ($route), sizeof ($parts));
 			
 			for ($i = 0; $i < $len; $i++)

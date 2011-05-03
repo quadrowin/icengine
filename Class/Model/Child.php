@@ -5,6 +5,7 @@
  * Имеет родителя и потомков. Для организации связи, в модели должно
  * существовать поле "parentId", определяющее предка.
  * @author Юрий Шведов
+ * @package IcEngine
  *
  */
 abstract class Model_Child extends Model
@@ -33,8 +34,8 @@ abstract class Model_Child extends Model
 	public function getParent ()
 	{
 		return $this->parentKey () ? 
-		    Model_Manager::byKey ($this->modelName (), $this->parentKey ()) : 
-		    null;
+			Model_Manager::byKey ($this->modelName (), $this->parentKey ()) : 
+			null;
 	} 
 	
 	/**
@@ -44,43 +45,44 @@ abstract class Model_Child extends Model
 	 */
 	public function hasParent ($parent)
 	{
-	    if ($parent instanceof Model)
-	    {
-	        if (get_class ($this) != get_class ($parent))
-	        {
-	            return false;
-	        }
-	        $parent = $parent->key ();
-	    }
-	    
-	    $current = $this->getParent ();
-	    while ($current)
-	    {
-	        if ($current->key () == $parent)
-	        {
-	            return true;
-	        }
-	        $current = $current->getParent ();
-	    }
-	    
-	    return false;
+		if ($parent instanceof Model)
+		{
+			if (get_class ($this) != get_class ($parent))
+			{
+				return false;
+			}
+			$parent = $parent->key ();
+		}
+		
+		$current = $this->getParent ();
+		while ($current)
+		{
+			if ($current->key () == $parent)
+			{
+				return true;
+			}
+			$current = $current->getParent ();
+		}
+		
+		return false;
 	}
 	
 	/**
-	 * @param integer $rate
-	 * 		Множитель. Результат будет домножен на указанную величину.
+	 * @desc Возвращает уровень в дереве моделей.
+	 * @param integer $rate Множитель. Результат будет домножен на указанную 
+	 * величину.
 	 * @return integer
 	 */
 	public function level ($rate = 1)
 	{
-	    if ($this->parentKey ())
-	    {
-	        return ($this->getParent ()->level () + 1) * $rate;
-	    }
-	    else
-	    {
-	        return 0;
-	    }
+		if ($this->parentKey ())
+		{
+			return ($this->getParent ()->level () + 1) * $rate;
+		}
+		else
+		{
+			return 0;
+		}
 	}
 	
 	/**
@@ -100,5 +102,5 @@ abstract class Model_Child extends Model
 	{
 		return 0;
 	}
-    
+	
 }
