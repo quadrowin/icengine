@@ -32,10 +32,10 @@ class Request
 	}
 	
 	/**
-	 * @desc Получить текущий хост
+	 * @desc Получить текущий хост.
 	 * @return Ambigous <string, NULL>
 	 */
-	public function host ()
+	public static function host ()
 	{
 		return isset ($_SERVER ['HTTP_HOST'])
 			? $_SERVER ['HTTP_HOST']
@@ -43,7 +43,7 @@ class Request
 	}
 	
 	/**
-	 * Получение параметра GET 
+	 * @desc Получение параметра GET.
 	 * @param string $name Имя параметра
 	 * @param mixed $default Значение по умолчанию
 	 * @return mixed
@@ -54,7 +54,7 @@ class Request
 	}
 	
 	/**
-	 * IP источника запроса
+	 * @desc IP источника запроса
 	 * @return string
 	 */
 	public static function ip ()
@@ -75,11 +75,19 @@ class Request
 		);
 	}
 	
+	/**
+	 * @desc Проверяет, переданы ли GET параметры.
+	 * @return boolean
+	 */
 	public static function isGet ()
 	{
 		return !empty ($_GET);
 	}
 	
+	/**
+	 * @desc Проверяет, передены ли файлы от пользователя.
+	 * @return boolean
+	 */
 	public static function isFiles ()
 	{
 		return !empty ($_FILES);
@@ -98,15 +106,12 @@ class Request
 	}
 	
 	/**
-	 * Получение или установка параметра.
-	 * 
-	 * @param string $key
-	 * 		Название параметра
-	 * @param string $value
-	 * 		Значение (не обязательно).
-	 * 		Если передано значение, до оно будет установлено.
-	 * @return string|null
-	 * 		Если указано только название параметра, то возращается его значение
+	 * @desc Получение или установка параметра.
+	 * @param string $key Название параметра.
+	 * @param string $value [optional] Значение.
+	 * Если передано значение, до оно будет установлено.
+	 * @return string|null Если указано только название параметра, то
+	 * возращается его значение.
 	 */
 	public static function param ($key)
 	{
@@ -121,8 +126,8 @@ class Request
 	}
 	
 	/**
-	 * Возвращает все параметры адресной строки
-	 * 
+	 * @desc Возвращает все параметры адресной строки.
+	 * Это не GET параметры, а параметры, определяемые роутом.
 	 * @return array 
 	 */
 	public static function params ()
@@ -131,7 +136,7 @@ class Request
 	}
 	
 	/**
-	 * Получение параметра POST
+	 * @desc Получение параметра POST.
 	 * @param string $name Имя параметра
 	 * @param mixed $default Значение по умолчанию
 	 * @return mixed 
@@ -203,11 +208,8 @@ class Request
 	
 	/**
 	 * @desc Возвращает объект переданного файла.
-	 * 
-	 * @param integer $index
-	 * 		Индекс
-	 * @return Request_File
-	 * 		Переданный файл.
+	 * @param integer $index Индекс.
+	 * @return Request_File Переданный файл.
 	 * 		Если файлов меньше, чем указанный индекс - null.
 	 */
 	public static function fileByIndex ($index)
@@ -262,8 +264,8 @@ class Request
 	}
 	
 	/**
-	 * @desc Возвращает количество переданных в запросе файлов
-	 * @return int Количество переданных файлов
+	 * @desc Возвращает количество переданных в запросе файлов.
+	 * @return integer Количество переданных файлов.
 	 */
 	public static function filesCount ()
 	{
@@ -271,7 +273,7 @@ class Request
 	}
 	
 	/**
-	 * @desc Возвращает часть адреса без параметров GET
+	 * @desc Возвращает часть адреса без параметров GET.
 	 * @return string Часть URI до знака "?"
 	 */
 	public static function uri ()

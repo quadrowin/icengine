@@ -15,7 +15,7 @@ class Message_After_Registration_Finish extends Message_Abstract
 	public static function push (Registration $registration, 
 		array $params = array ())
 	{
-		IcEngine::$application->messageQueue->push (
+		IcEngine::$messageQueue->push (
 			'After_Registration_Finish',
 			array_merge (
 				$params,

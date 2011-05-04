@@ -27,7 +27,7 @@ class Message_After_Instant_Payment extends Message_Abstract
 	public static function push (Bill_Payment $payment, 
 		array $params = array ())
 	{
-		return IcEngine::$application->messageQueue->push (
+		return IcEngine::$messageQueue->push (
 			'After_Instant_Payment',
 			array_merge (
 				$params,

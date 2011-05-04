@@ -115,7 +115,7 @@ class Data_Source_Manager
 				if (!($mapper instanceof $mapper_class))
 				{
 					// Мэппер источника отличается от указанного в конфигах
-					$mapper = new $mapper_class ($conf->mapper_params);
+					$mapper = new $mapper_class ($conf ['mapper_params']);
 					if (IcEngine::$modelScheme)
 					{
 						$mapper->setModelScheme (IcEngine::$modelScheme);
@@ -123,7 +123,7 @@ class Data_Source_Manager
 					self::$_sources [$name]->setDataMapper ($mapper);
 				}
 				
-				foreach ($conf->mapper_options as $key => $value)
+				foreach ($conf ['mapper_options'] as $key => $value)
 				{
 					$mapper->setOption ($key, $value);
 				}

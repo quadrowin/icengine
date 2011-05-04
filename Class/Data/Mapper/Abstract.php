@@ -85,7 +85,7 @@ abstract class Data_Mapper_Abstract
 	}
 	
 	/**
-	 * Обновление данных сущности
+	 * @desc Обновление данных сущности
 	 * @param string $id Первичный ключ
 	 * @param string $table Название сущности
 	 * @param array $data Данные
@@ -127,7 +127,7 @@ abstract class Data_Mapper_Abstract
 	}
 	
 	/**
-	 * Удаление индексов для записи
+	 * @desc Удаление индексов для записи
 	 * @param string $source 
 	 * @param array $record
 	 */
@@ -150,7 +150,7 @@ abstract class Data_Mapper_Abstract
 	}
 	
 	/**
-	 * Перезапись данных
+	 * @desc Перезапись данных
 	 * @param string $id
 	 * @param string $source
 	 * @param array $data
@@ -263,13 +263,10 @@ abstract class Data_Mapper_Abstract
 	}
 	
 	/**
-	 * Установка параметров
-	 * @param string|Objective $key
-	 * 		Параметр
-	 * @param string $value [optional]
-	 * 		Значение
-	 * @return boolean
-	 * 		true, если удачно, иначе - false.
+	 * @desc Установка параметров
+	 * @param string|Objective $key Параметр.
+	 * @param string $value [optional] Значение.
+	 * @return boolean true, если удачно, иначе - false.
 	 */
 	public function setOption ($key, $value = null)
 	{

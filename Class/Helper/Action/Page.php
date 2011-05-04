@@ -15,8 +15,7 @@ class Helper_Action_Page
 	 */
     public static function notFound ()
     {
-		IcEngine::$application
-			->frontController
+		IcEngine::frontController ()
 			->getDispatcher ()
 			->flushActions (true)
 			->push (array (
@@ -30,8 +29,7 @@ class Helper_Action_Page
      */
     public static function obsolete ()
     {
-		IcEngine::$application
-			->frontController
+		IcEngine::frontController ()
 			->getDispatcher ()
 			->flushActions (true)
 			->push (array (

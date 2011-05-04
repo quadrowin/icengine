@@ -287,8 +287,7 @@ class Controller_Manager
 	{
 		$iteration = new Controller_Dispatcher_Iteration ($action);
 		
-		IcEngine::$application
-			->frontController ()
+		IcEngine::frontController ()
 			->getDispatcher ()
 			->dispatch ($iteration);
 		

@@ -49,7 +49,7 @@ class Controller_Abstract
 	 */
 	public function _afterAction ($action)
 	{
-		IcEngine::$application->messageQueue->push (
+		IcEngine::$messageQueue->push (
 			'after::' . get_class ($this) . '::' . $action
 		);
 	}
@@ -61,7 +61,7 @@ class Controller_Abstract
 	public function _beforeAction ($action)
 	{
 		$this->_currentAction = get_class ($this) . '::' . $action;
-		IcEngine::$application->messageQueue->push (
+		IcEngine::$messageQueue->push (
 			'before::' . $this->_currentAction
 		);
 	}
