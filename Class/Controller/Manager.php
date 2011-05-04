@@ -107,22 +107,67 @@ class Controller_Manager
 	 * @desc Вызов экшена контроллера.
 	 * @param string $name Название контроллера.
 	 * @param string $method Метод.
-	 * @param boolean $html_only
-	 * 		Вернуть только html.
-	 * 		Если false, будет возвращен массив со всеми результатами.
-	 * @param array $args Параметры.
-	 * @return string|array
+	 * @param array|Data_Transport $input
+	 * @param Controller_Dispatcher_Iteration $iteration [optional]
+	 * @return Controller_Dispatcher_Iteration
 	 */
-	public static function call ($name, $method = 'index', 
-		array $args = array (), $html_only = true)
+	public static function call ($name, $method = 'index', $input, 
+		$iteration = null)
 	{
-		$cache_config = self::_cacheConfig ($name, $method);
+		Loader::load ('Controller_Action');
+		Loader::load ('Controller_Dispatcher_Iteration');
+		Loader::load ('Route_Action');
 		
-		return Executor::execute (
-			array (__CLASS__, 'callUncached'),
-			array ($name, $method, $args, $html_only),
-			$cache_config
+		if (!$iteration)
+		{
+			$iteration = new Controller_Dispatcher_Iteration (
+				new Controller_Action (array (
+					'id'			=> null,
+					'controller'	=> $name,
+					'action'		=> $method
+				))
+			);
+		}
+		
+		$controller = self::get ($name);
+		
+		$temp_input = $controller->getInput ();
+		$temp_output = $controller->getOutput ();
+		$temp_iteration = $controller->getDispatcherIteration ();
+		
+		if (is_array ($input))
+		{
+			Loader::load ('Data_Transport');
+			$tmp = new Data_Transport ();
+			$tmp->beginTransaction ()->send ($input);
+			$controller->setInput ($tmp);
+		}
+		else
+		{
+			$controller->setInput ($input);
+		}
+		
+		$controller->setOutput (self::getOutput ());
+		$controller->setDispatcherIteration ($iteration);
+		
+		$controller->getOutput ()->beginTransaction ();
+		
+		$controller->_beforeAction ($method);
+		
+		$controller->{$method} ();
+		
+		$controller->_afterAction ($method);
+		
+		$iteration->setTransaction (
+			$controller->getOutput ()->endTransaction ()
 		);
+		
+		$controller
+			->setInput ($temp_input)
+			->setOutput ($temp_output)
+			->setDispatcherIteration ($temp_iteration);
+			
+		return $iteration;
 	}
 	
 	/**
@@ -132,19 +177,62 @@ class Controller_Manager
 	 * @param array $args Параметры.
 	 * @param boolean $html_only=true Вернуть только html.
 	 */
-	public static function callUncached ($name, $method = 'index', 
-		array $args = array (), $html_only = true)
+	public static function callUncached ($name, $method = 'index', $input, 
+		$iteration = null)
 	{
 		Loader::load ('Controller_Action');
 		Loader::load ('Controller_Dispatcher_Iteration');
 		Loader::load ('Route_Action');
-		$iteration = Controller_Manager::run (new Controller_Action (array (
-			'controller'	=> $name,
-			'action'		=> $method,
-			'input'			=> $input,
-			'output'		=> $output
-		)));
 		
+		if (!$iteration)
+		{
+			$iteration = new Controller_Dispatcher_Iteration (
+				new Controller_Action (array (
+					'id'			=> null,
+					'controller'	=> $name,
+					'action'		=> $method
+				))
+			);
+		}
+		
+		$controller = self::get ($name);
+		
+		$temp_input = $controller->getInput ();
+		$temp_output = $controller->getOutput ();
+		$temp_iteration = $controller->getDispatcherIteration ();
+		
+		if (is_array ($input))
+		{
+			Loader::load ('Data_Transport');
+			$tmp = new Data_Transport ();
+			$tmp->beginTransaction ()->send ($input);
+			$controller->setInput ($tmp);
+		}
+		else
+		{
+			$controller->setInput ($input);
+		}
+		
+		$controller->setOutput (self::getOutput ());
+		$controller->setDispatcherIteration ($iteration);
+		
+		$controller->getOutput ()->beginTransaction ();
+		
+		$controller->_beforeAction ($method);
+		
+		$controller->{$method} ();
+		
+		$controller->_afterAction ($method);
+		
+		$iteration->setTransaction (
+			$controller->getOutput ()->endTransaction ()
+		);
+		
+		$controller
+			->setInput ($temp_input)
+			->setOutput ($temp_output)
+			->setDispatcherIteration ($temp_iteration);
+			
 		return View_Render_Broker::fetchIteration ($iteration);
 	}
 	
