@@ -76,8 +76,6 @@ class Controller_Dispatcher
 		$this->_currentIteration = $iteration;
 		
 		$controller_action = $iteration->controllerAction ();
-		// Инициализация объекта контроллера
-		Loader::load ('Controller_Manager');
 		
 		/**
 		 * 
@@ -129,6 +127,7 @@ class Controller_Dispatcher
 	/**
 	 * @desc Цикл диспетчеризации.
 	 * Работает пока список контроллеров не будет пуст.
+	 * @return Controller_Dispatcher
 	 */
 	public function dispatchCircle ()
 	{
@@ -145,6 +144,8 @@ class Controller_Dispatcher
 		}
 		
 		$this->onDispatchCircleFinish ();
+		
+		return $this;
 	}
 	
 	/**
@@ -209,6 +210,7 @@ class Controller_Dispatcher
 	/**
 	 * @desc Добавление задания в очередь диспетчера.
 	 * @param Controller_Action_Collection|Controller_Action|array $resources
+	 * @return Controller_Dispatcher
 	 */
 	public function push ($resources)
 	{
@@ -253,6 +255,8 @@ class Controller_Dispatcher
 			Loader::load ('Zend_Exception');
 			throw new Zend_Exception ('Illegal type.');
 		}
+		
+		return $this;
 	}
 	
 	/**

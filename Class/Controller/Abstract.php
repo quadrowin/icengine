@@ -281,6 +281,14 @@ class Controller_Abstract
 	}
 	
 	/**
+	 * @return Controller_Dispatcher_Iteration
+	 */
+	public function getDispatcherIteration ()
+	{
+		return $this->_dispatcherIteration;
+	}
+	
+	/**
 	 * @return Data_Transport
 	 */
 	public function getInput ()

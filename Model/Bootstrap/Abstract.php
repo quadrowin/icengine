@@ -73,6 +73,7 @@ abstract class Bootstrap_Abstract
 		Loader::load ('Component');
 		Loader::load ('Controller_Abstract');
 		Loader::load ('Controller_Front');
+		Loader::load ('Controller_Manager');
 		Loader::load ('Page_Title');
 		Loader::load ('View_Render');
 		Loader::load ('View_Render_Broker');

@@ -8,17 +8,6 @@
  */
 class Controller_Front
 {
-	/**
-	 * @desc Название дефолтового диспетчера
-	 * @var string
-	 */
-	private $_defaultDispatcher = 'Controller_Dispatcher';
-	
-	/**
-	 * @desc Название дефолтового роутера
-	 * @var string
-	 */
-	private $_defaultRouter = 'Router';
 	
 	/**
 	 * @desc Текущий диспетчер
@@ -27,54 +16,17 @@ class Controller_Front
 	private $_dispatcher;
 	
 	/**
-	 * @desc Текущий роутер
-	 * @var Router
-	 */
-	private $_router;
-	
-	/**
 	 * @desc Получаем (и инициализируем, если еще не проинициализирован) текущий диспетчер
 	 * @return Controller_Dispatcher
 	 */
 	public function getDispatcher ()
 	{
-		if (!$this->_dispatcher && Loader::load ($this->_defaultDispatcher))
+		if (!$this->_dispatcher)
 		{
-			$this->_dispatcher = new $this->_defaultDispatcher;
+			Loader::load ('Controller_Dispatcher');
+			$this->_dispatcher = new Controller_Dispatcher;
 		}
 		return $this->_dispatcher;
-	}
-	
-	/**
-	 * @desc Получаем название дефолтового диспетчера 
-	 * @return string
-	 */
-	public function getDefaultDispatcher ()
-	{
-		return $this->_defaultDispatcher;
-	}
-	
-	/**
-	 * @desc Получаем название дефолтового роутера
-	 * @return string
-	 */
-	public function getDefaultRouter ()
-	{
-		return $this->_defaultRouter;
-	}
-	
-	/**
-	 * @desc Получаем (и инициализируем, если еще не проинициализирован) 
-	 * дефолтовый роутер.
-	 * @return Router
-	 */
-	public function getRouter ()
-	{
-		if ($this->_router === null && Loader::load ($this->_defaultRouter))
-		{
-			$this->_router = new $this->_defaultRouter;
-		}
-		return $this->_router;
 	}
 	
 	/**
@@ -82,72 +34,37 @@ class Controller_Front
 	 */
 	public function run ()
 	{
+		Loader::load ('Router');
+		$route = Router::getRoute ();
+		
 		// Инициализируем вьюшник из запроса
-		$view = View_Render_Broker::pushView (
-			$this->getRouter ()->getRoute ()->viewRender ()
-		);
+		$view = View_Render_Broker::pushView ($route->viewRender ());
 		
 		// Отправляем сообщение, что вью был изменен
 		Loader::load ('Message_After_Router_View_Set');
-		Message_After_Router_View_Set::push ($this->_router->getRoute (), $view);
+		Message_After_Router_View_Set::push ($route, $view);
 		
 		// Получаем диспетчер
-		$this->getDispatcher ();
+//		Loader::load ('Controller_Dispatcher');
+//		$this->_dispatcher = new Controller_Dispatcher;
 		
 		try 
 		{
-			Loader::load ('Controller_Manager');
-			
-			// Закидываем в пул диспетчеру полученные роутеров экшины
-			$this->_dispatcher->push ($this->_router->getRoute ()->actions ());
-			
-			// Запускаем цикл диспетчеризации
-			$this->_dispatcher->dispatchCircle ();
-			
-			// Начинаем рендерить итерации контролеров
-			View_Render_Broker::render ($this->_dispatcher->results ());
+			View_Render_Broker::render (
+				$this->getDispatcher ()
+					// Закидываем в пул диспетчеру полученные роутеров экшины
+					->push ($route->actions ())
+					// Запускаем цикл диспетчеризации
+					->dispatchCircle ()
+					// Результат диспетчеризации
+					->results ()
+			);
 		}
 		catch (Zend_Exception $e)
 		{
 			Loader::load ('Error');
 			Error::render ($e);
 		}
-	}
-	
-	/**
-	 * @desc Устанавливаем новый диспетчер
-	 * @param Controller_Dispatcher $dispatcher
-	 */
-	public function setDispatcher (Controller_Dispatcher $dispatcher)
-	{
-		$this->_dispatcher = $dispatcher;
-	}
-	
-	/**
-	 * @desc Меняем название дефолтового диспетчера
-	 * @param string $defaultDispatcher
-	 */
-	public function setDefaultDispatcher ($defaultDispatcher)
-	{
-		$this->_defaultDispatcher = $defaultDispatcher;
-	}
-	
-	/**
-	 * @desc Меняем название дефолтового роутера
-	 * @param string $defaultRouter
-	 */
-	public function setDefaultRouter ($defaultRouter)
-	{
-		$this->_defaultRouter = $defaultRouter;
-	}
-	
-	/**
-	 * @desc Устанавливаем новый роутер
-	 * @param Router $router
-	 */
-	public function setRouter (Router $router)
-	{
-		$this->_router = $router;
 	}
 	
 }
