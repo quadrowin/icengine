@@ -136,8 +136,15 @@ class Route extends Model_Child
 		 * Это позволяет привести все запросы с переменными к одному,
 		 * который будет закеширован. 
 		 */ 
-		$template = preg_replace ('#/[0-9]{1,}/#i', '/?/', $url);
-		$template = preg_replace ('#/[0-9]{1,}/#i', '/?/', $template);
+		$pattern = preg_replace ('#/[0-9]{1,}/#i', '/?/', $url);
+		$pattern = preg_replace ('#/[0-9]{1,}/#i', '/?/', $pattern);
+		
+		$router = Resource_Manager::get ('Route_Cache', $pattern);
+		
+		if ($router !== null)
+		{
+			return $router ? new self ($router) : null;
+		}
 		
 		$config = Config_Manager::get (
 			__CLASS__,
@@ -176,7 +183,7 @@ class Route extends Model_Child
 				->select (array ('View_Render' => array ('name' => 'viewRenderName')))
 				->from ('Route')
 				->from ('View_Render')
-				->where ('? RLIKE template', $template)
+				->where ('? RLIKE template', $pattern)
 				->where ('Route.View_Render__id = View_Render.id')
 				->order (array ('weight' => Query::DESC))
 				->limit (1);
@@ -187,9 +194,11 @@ class Route extends Model_Child
 		//var_dump(DDS::getDataSource()->getQuery('Mysql'), $row);
 		if (!$row)
 		{
+			Resource_Manager::set ('Route_Cache', $pattern, false);
 			return null;
 		}
 		
+		Resource_Manager::set ('Route_Cache', $pattern, $row);
 		return new self ($row);
 	}
 	

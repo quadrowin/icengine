@@ -13,7 +13,7 @@ class Message_After_Router_View_Set extends Message_Abstract
 	public static function push (Route $route, View_Render_Abstract $view,
 		array $params = array ())
 	{
-		IcEngine::$application->messageQueue->push (
+		IcEngine::$messageQueue->push (
 			'After_Router_View_Set',
 			array_merge (
 				$params,

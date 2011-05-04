@@ -1,16 +1,19 @@
 <?php
-
 /**
  * 
- * Менеджер атрибутов.
+ * @desc Менеджер атрибутов.
  * Получает и устанавливает значения атрибутов модели.
- *
+ * @author Yury Shvedov
  * @package IcEngine
+ * 
  */
-
 class Attribute_Manager
 {
 	
+	/**
+	 * @desc Таблица аттрибутов
+	 * @var string
+	 */
     const TABLE = 'Attribute';
     
 	/**
@@ -29,7 +32,7 @@ class Attribute_Manager
 	}
 	
 	/**
-	 * Удаляет все атрибуты модели.
+	 * @desc Удаляет все атрибуты модели.
 	 * @param Model $model
 	 */
 	public function deleteFor (Model $model)
@@ -44,14 +47,10 @@ class Attribute_Manager
 	}
 	
 	/**
-	 * Получение значения атрибута.
-	 * 
-	 * @param Model $model
-	 * 		Модель
-	 * @param string $key
-	 * 		Название атрибута
-	 * @return mixed
-	 * 		Значение атрибута
+	 * @desc Получение значения атрибута.
+	 * @param Model $model Модель.
+	 * @param string $key Название атрибута.
+	 * @return mixed Значение атрибута.
 	 */
 	public function get (Model $model, $key)
 	{
@@ -68,14 +67,10 @@ class Attribute_Manager
 	}
 	
 	/**
-	 * Задание значения атрибуту.
-	 * 
-	 * @param Model $model
-	 * 		Модель
-	 * @param string|array $key
-	 * 		Название атрибута
-	 * @param mixed $value
-	 * 		Значение атрибута
+	 * @desc Задание значения атрибуту.
+	 * @param Model $model Модель.
+	 * @param string|array $key Название атрибута.
+	 * @param mixed $value Значение атрибута.
 	 */
 	public function set (Model $model, $key, $value)
 	{

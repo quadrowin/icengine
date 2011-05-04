@@ -9,7 +9,7 @@ class Message_Before_Render extends Message_Abstract
 	
 	public static function push ($view, array $params = array ())
 	{
-		IcEngine::$application->messageQueue->push (
+		IcEngine::$messageQueue->push (
 			'Before_Render',
 			array_merge (
 				$params,

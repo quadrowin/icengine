@@ -1,7 +1,31 @@
 <?php
-
+/**
+ * 
+ * @desc Мэппер для работы с мускулем через Серегин Mysql
+ * @author Юрий Шведов
+ * @package IcEngine
+ *
+ */
 class Data_Mapper_Mysql extends Data_Mapper_Abstract
 {
+	
+	/**
+	 * @desc Соединение с mysql.
+	 * @var resource
+	 */
+	protected $_linkIdentifier = null;
+	
+	/**
+	 * @desc Параметры соединения
+	 * @var array
+	 */
+	public $_connectionOptions = array (
+		'host'		=> 'localhost',
+		'username'	=> '',
+		'password'	=> '',
+		'database'	=> 'unknown',
+		'charset'	=> 'utf8'
+	);
 	
 	/**
 	 * 
@@ -47,6 +71,42 @@ class Data_Mapper_Mysql extends Data_Mapper_Abstract
 		}
 
 		return $options->getNotEmpty () && empty ($result) ? false : true;
+	}
+	
+	/**
+	 * @desc Подключение к БД
+	 * @param Objective|array $config [optional]
+	 */
+	public function connect ($config = null)
+	{
+		if ($this->_linkIdentifier)
+		{
+			return ;
+		}
+		
+		if ($config)
+		{
+			$this->setOption ($config);
+		}
+		
+		$this->_linkIdentifier = mysql_connect (
+			$this->_connectionOptions ['host'],
+			$this->_connectionOptions ['username'],
+			$this->_connectionOptions ['password']
+		);
+		
+		mysql_select_db (
+			$this->_connectionOptions ['database'],
+			$this->_linkIdentifier
+		);
+		
+		if ($this->_connectionOptions ['charset'])
+		{
+			mysql_query (
+				'SET NAMES ' . $this->_connectionOptions ['charset'],
+				$this->_linkIdentifier
+			);
+		}
 	}
 	
 	public function execute (Data_Source_Abstract $source, Query $query, $options = null)
@@ -127,4 +187,39 @@ class Data_Mapper_Mysql extends Data_Mapper_Abstract
 			'source'		=> $source
 		));
 	}
+	
+	/**
+	 * @desc Возвращает ресурс соединения с mysql.
+	 * @return resource
+	 */
+	public function linkIdentifier ()
+	{
+		$this->connect ();
+		return $this->_linkIdentifier;
+	}
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see Data_Mapper_Abstract::setOption()
+	 */
+	public function setOption ($key, $value = null)
+	{
+		if (is_array ($key) || !is_scalar ($key))
+		{
+			foreach ($key as $k => $v)
+			{
+				$this->setOption ($k, $v);
+			}
+			return;
+		}
+		
+		if (isset ($this->_connectionOptions [$key]))
+		{
+			Loader::load ('Crypt_Manager');
+			$this->_connectionOptions [$key] = Crypt_Manager::autoDecode ($value);
+			return;
+		}
+		return parent::setOption ($key, $value);
+	}
+	
 }
