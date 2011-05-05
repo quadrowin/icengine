@@ -46,7 +46,7 @@ class Route extends Model_Child
 		 */
 		'routes'	=> array (
 			1			=> array (
-				'template'			=> '^//$',
+				'pattern'			=> '^//$',
 				'title'				=> 'Главная',
 				'visible'			=> 1,
 				'parentId'			=> 0,
@@ -54,30 +54,30 @@ class Route extends Model_Child
 			),
 			2			=> array (
 				'route'				=> '/admin/',
-				'template'			=> '^/admin/$',
+				'pattern'			=> '^/admin/$',
 				'title'				=> 'Админка',
 				'actions'			=> 'Admin'
 			),
 			3			=> array (
-				'template'			=> '^/Controller/ajax',
+				'pattern'			=> '^/Controller/ajax',
 				'View_Render__id'	=> 3,
 				'title'				=> 'ajax запросы контроллера',
 				'actions'			=> 'Controller/ajax'
 			),
 			4			=> array (
-				'template'			=> '^/Controller/post',
+				'pattern'			=> '^/Controller/post',
 				'View_Render__id'	=> 5,
 				'title'				=> 'post запросы контроллера',
 				'actions'			=> 'Controller/post'
 			),
 			5			=> array (
-				'template'			=> '/',
+				'pattern'			=> '/',
 				'weight'			=> -999999,
 				'title'				=> 'Страница не найдена',
 				'actions'			=> 'Page/notFound'
 			),
 			6			=> array (
-				'template'			=> '^/registration/?$',
+				'pattern'			=> '^/registration/?$',
 				'title'				=> 'Регистрация',
 				'visible'			=> 1,
 				'parentId'			=> 1,
@@ -85,13 +85,13 @@ class Route extends Model_Child
 			),
 			7			=> array (
 				'route'				=> 'registration/:code',
-				'template'			=> '^/registration/[^/]{1\,}//*',
+				'pattern'			=> '^/registration/[^/]{1\,}//*',
 				'title'				=> 'Регистрация',
 				'parentId'			=> 1,
 				'actions'			=> 'Registration/emailConfirm'
 			),
 			8			=> array (
-				'template'			=> '^/login/',
+				'pattern'			=> '^/login/',
 				'title'				=> 'Авторизация',
 				'parentId'			=> 1,
 				'actions'			=> 'Authorization/login'
@@ -141,6 +141,11 @@ class Route extends Model_Child
 		
 		$router = Resource_Manager::get ('Route_Cache', $pattern);
 		
+//		var_dump (array (
+//			'pattern'	=> $pattern, 
+//			'router'	=> $router
+//		));
+		
 		if ($router !== null)
 		{
 			return $router ? new self ($router) : null;
@@ -160,7 +165,7 @@ class Route extends Model_Child
 			foreach ($config ['routes'] as $id => $route)
 			{
 				if (
-					preg_match ('#' . $route ['template'] . '#', $url) &&
+					preg_match ('#' . $route ['pattern'] . '#', $url) &&
 					(
 						$row == null ||
 						$route ['weight'] > $row ['weight']
@@ -176,15 +181,20 @@ class Route extends Model_Child
 			}
 		}
 		
-		if ($config ['use_default_source'])
+		if (!$row && $config ['use_default_source'])
 		{
 			$select = Query::instance ()
-				->select (array ('Route' => array ('id', 'route', 'View_Render__id')))
-				->select (array ('View_Render' => array ('name' => 'viewRenderName')))
+				->select (array (
+					'Route' => array ('id', 'route', 'View_Render__id')
+				))
+				->select (array (
+					'View_Render' => array ('name' => 'viewRenderName')
+				))
 				->from ('Route')
 				->from ('View_Render')
 				->where ('? RLIKE template', $pattern)
 				->where ('Route.View_Render__id = View_Render.id')
+				->where ('Route.active=1')
 				->order (array ('weight' => Query::DESC))
 				->limit (1);
 		
@@ -199,6 +209,11 @@ class Route extends Model_Child
 		}
 		
 		Resource_Manager::set ('Route_Cache', $pattern, $row);
+//		var_dump (array (
+//			'pattern'	=> $pattern, 
+//			'row'		=> $row
+//		));
+//		echo 'fucking route';
 		return new self ($row);
 	}
 	
