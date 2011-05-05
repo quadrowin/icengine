@@ -141,11 +141,6 @@ class Route extends Model_Child
 		
 		$router = Resource_Manager::get ('Route_Cache', $pattern);
 		
-//		var_dump (array (
-//			'pattern'	=> $pattern, 
-//			'router'	=> $router
-//		));
-		
 		if ($router !== null)
 		{
 			return $router ? new self ($router) : null;
@@ -209,11 +204,7 @@ class Route extends Model_Child
 		}
 		
 		Resource_Manager::set ('Route_Cache', $pattern, $row);
-//		var_dump (array (
-//			'pattern'	=> $pattern, 
-//			'row'		=> $row
-//		));
-//		echo 'fucking route';
+		
 		return new self ($row);
 	}
 	
@@ -369,7 +360,7 @@ class Route extends Model_Child
 	}
 	
 	/**
-	 * 
+	 * @desc Получение роутов, находящихся на одном уровне с этим.
 	 * @return array
 	 */
 	public function siblings ()
