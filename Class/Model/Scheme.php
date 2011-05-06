@@ -208,7 +208,6 @@ class Model_Scheme
 	 */
 	public function fieldsNames ($model)
 	{
-		Loader::load ('Model_Field');
 		return $this->dataSource ($model)->execute (
 			Query::instance ()
 				->show ('COLUMNS')
