@@ -205,33 +205,6 @@ class Controller_Manager
 	}
 	
 	/**
-	 * @desc Выполняет указанный контроллер, экшен с заданными параметрами.
-	 * @param string $action Название контроллера или контроллер и экшен
-	 * в формате "Controller/action".
-	 * @param array $args Параметры.
-	 * @return string Результат компиляции шабона.
-	 * @tutorial
-	 * 		fetch ('Controller', array ('param'	=> 'val'));
-	 * 		fetch ('Controller/action')
-	 */
-	public static function fetch ($action, array $args = array ())
-	{
-		$a = explode ('/', $action);
-		if (count ($a) == 1)
-		{
-			$a [1] = 'index';
-		}
-		
-		$cache_config = self::_cacheConfig ($a [0], $a [1]);
-		
-		return Executor::execute (
-			array (__CLASS__, 'callUncached'),
-			array ($a [0], $a [1], $args, true),
-			$cache_config
-		);
-	}
-	
-	/**
 	 * @desc Возвращает контроллер по названию.
 	 * @param string $controller_name
 	 * @return Controller_Abstract
@@ -319,6 +292,98 @@ class Controller_Manager
 			self::$_output->appendProvider (new Data_Provider_View ()); 
 		}
 		return self::$_output;
+	}
+	
+	/**
+	 * @desc Выполняет указанный контроллер, экшен с заданными параметрами.
+	 * @param string $action Название контроллера или контроллер и экшен
+	 * в формате "Controller/action".
+	 * @param array $args Параметры.
+	 * @return string Результат компиляции шабона.
+	 * @tutorial
+	 * 		html ('Controller', array ('param'	=> 'val'));
+	 * 		html ('Controller/action')
+	 */
+	public static function html ($action, array $args = array ())
+	{
+		$a = explode ('/', $action);
+		if (count ($a) == 1)
+		{
+			$a [1] = 'index';
+		}
+		
+		$cache_config = self::_cacheConfig ($a [0], $a [1]);
+		
+		return Executor::execute (
+			array (__CLASS__, 'htmlUncached'),
+			array ($a, $args),
+			$cache_config
+		);
+	}
+	
+	/**
+	 * @desc Выполняет указанный контроллер, экшен с заданными параметрами,
+	 * не используется кэширование.
+	 * @param string $action Название контроллера или контроллер и экшен
+	 * в формате "Controller/action".
+	 * @param array $args Параметры.
+	 * @param boolean $html_only Только вывод.
+	 * @return string Результат компиляции шабона.
+	 * @tutorial
+	 * 		html ('Controller', array ('param'	=> 'val'));
+	 * 		html ('Controller/action')
+	 */
+	public static function htmlUncached ($action, array $args = array (), 
+		$html_only = true)
+	{
+		$a = explode ('/', $action);
+		if (count ($a) == 1)
+		{
+			$a [1] = 'index';
+		}
+		
+		$iteration = self::call ($a [0], $a [1], $args);
+		
+		$buffer = $iteration->getTransaction ()->buffer ();
+		$result = array (
+			'data'		=> isset ($buffer ['data']) ? 
+				$buffer ['data'] : 
+				array (),
+			'html'		=> null
+		);
+	   
+		$tpl = $iteration->getTemplate ();
+		
+		if ($tpl)
+		{
+			$view = View_Render_Broker::pushViewByName ('Smarty');
+			
+			try
+			{
+				$view->assign ($buffer);
+				$result ['html'] = $view->fetch ($tpl);
+			}
+			catch (Exception $e)
+			{
+				$msg = 
+					'[' . $e->getFile () . '@' . 
+					$e->getLine () . ':' . 
+					$e->getCode () . '] ' .
+					$e->getMessage () . PHP_EOL;
+					
+				error_log (
+					$msg . PHP_EOL .
+					$e->getTraceAsString () . PHP_EOL, 
+					E_USER_ERROR, 3
+				);
+			
+				$result ['error'] = 'Controller_Manager: Error in template.';
+			}
+			
+			View_Render_Broker::popView ();
+		}
+		
+		return $html_only ? $result ['html'] : $result;
 	}
 	
 	/**
