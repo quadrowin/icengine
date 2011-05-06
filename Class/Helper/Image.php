@@ -84,9 +84,8 @@ class Helper_Image
 	const TEMP_PATH = 'images/tmp/';
 	
 	/**
-	 * 
-	 * @var string
 	 * @desc Шаблон для имени файла
+	 * @var string
 	 */
 	public static $template = '{name}/{prefix}/{key}.{ext}';
 	
@@ -107,7 +106,8 @@ class Helper_Image
 		$dir = dirname ($path);
 		if (!is_dir ($dir))
 		{
-			mkdir ($dir, 0666, true);
+			mkdir ($dir, 0777, true);
+			chmod ($dir, 0777);
 		}
 		return $path;
 	}
