@@ -107,75 +107,25 @@ class Controller_Manager
 	 * @desc Вызов экшена контроллера.
 	 * @param string $name Название контроллера.
 	 * @param string $method Метод.
-	 * @param array|Data_Transport $input
-	 * @param Controller_Dispatcher_Iteration $iteration [optional]
-	 * @return Controller_Dispatcher_Iteration
+	 * @param array|Data_Transport $input Входные данные.
+	 * @param Controller_Dispatcher_Iteration $iteration [optional] Итерация
+	 * диспетчера.
+	 * @return Controller_Dispatcher_Iteration Итерация с результатами.
 	 */
 	public static function call ($name, $method = 'index', $input, 
 		$iteration = null)
 	{
-		Loader::load ('Controller_Action');
-		Loader::load ('Controller_Dispatcher_Iteration');
-		Loader::load ('Route_Action');
-		
-		if (!$iteration)
-		{
-			$iteration = new Controller_Dispatcher_Iteration (
-				new Controller_Action (array (
-					'id'			=> null,
-					'controller'	=> $name,
-					'action'		=> $method
-				))
-			);
-		}
-		
-		$controller = self::get ($name);
-		
-		$temp_input = $controller->getInput ();
-		$temp_output = $controller->getOutput ();
-		$temp_iteration = $controller->getDispatcherIteration ();
-		
-		if (is_array ($input))
-		{
-			Loader::load ('Data_Transport');
-			$tmp = new Data_Transport ();
-			$tmp->beginTransaction ()->send ($input);
-			$controller->setInput ($tmp);
-		}
-		else
-		{
-			$controller->setInput ($input);
-		}
-		
-		$controller->setOutput (self::getOutput ());
-		$controller->setDispatcherIteration ($iteration);
-		
-		$controller->getOutput ()->beginTransaction ();
-		
-		$controller->_beforeAction ($method);
-		
-		$controller->{$method} ();
-		
-		$controller->_afterAction ($method);
-		
-		$iteration->setTransaction (
-			$controller->getOutput ()->endTransaction ()
-		);
-		
-		$controller
-			->setInput ($temp_input)
-			->setOutput ($temp_output)
-			->setDispatcherIteration ($temp_iteration);
-			
-		return $iteration;
+		return self::callUncached ($name, $method, $input, $iteration);
 	}
 	
 	/**
 	 * @desc Вызов экшена без кэширования.
 	 * @param string $name Название контроллера.
 	 * @param string $method Метод.
-	 * @param array $args Параметры.
-	 * @param boolean $html_only=true Вернуть только html.
+	 * @param array|Data_Transport $input Входные данные.
+	 * @param Controller_Dispatcher_Iteration $iteration [optional] Итерация
+	 * диспетчера.
+	 * @return Controller_Dispatcher_Iteration Итерация с результатами.
 	 */
 	public static function callUncached ($name, $method = 'index', $input, 
 		$iteration = null)
@@ -201,7 +151,11 @@ class Controller_Manager
 		$temp_output = $controller->getOutput ();
 		$temp_iteration = $controller->getDispatcherIteration ();
 		
-		if (is_array ($input))
+		if ($input === null)
+		{
+			$controller->setInput (self::getInput ());
+		}
+		elseif (is_array ($input))
 		{
 			Loader::load ('Data_Transport');
 			$tmp = new Data_Transport ();
@@ -213,8 +167,9 @@ class Controller_Manager
 			$controller->setInput ($input);
 		}
 		
-		$controller->setOutput (self::getOutput ());
-		$controller->setDispatcherIteration ($iteration);
+		$controller
+			->setOutput (self::getOutput ())
+			->setDispatcherIteration ($iteration);
 		
 		$controller->getOutput ()->beginTransaction ();
 		
@@ -233,7 +188,7 @@ class Controller_Manager
 			->setOutput ($temp_output)
 			->setDispatcherIteration ($temp_iteration);
 			
-		return View_Render_Broker::fetchIteration ($iteration);
+		return $iteration;
 	}
 	
 	/**

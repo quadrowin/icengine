@@ -362,8 +362,7 @@ class Controller_Abstract
 	 * @param Controller_Dispatcher_Iteration $iteration
 	 * @return Controller_Abstract
 	 */
-	public function setDispatcherIteration (
-		Controller_Dispatcher_Iteration $iteration)
+	public function setDispatcherIteration ($iteration)
 	{
 		$this->_dispatcherIteration = $iteration;
 		return $this;
