@@ -73,6 +73,7 @@ class Helper_Image
 	 */
 	public static $config = array (
 		'upload_path'	=> 'uploads/',
+		'upload_url'	=> '/uploads/',
 		'types'			=> array ()
 	);
 	
@@ -122,7 +123,7 @@ class Helper_Image
 		
 		return 
 			(isset (self::$config ['types']) && isset (self::$config ['types'][$type])) ?
-			self::$config ['types'][$type] :
+			self::$config ['types'][$type]->asArray() :
 			array ();
 	}
 	
@@ -252,7 +253,6 @@ class Helper_Image
 		
    		if (!$file->save ($original))
 		{
-			self::$config = array ();
 			self::$code = 500;
 			Loader::load ('Zend_Exception');
 			throw new Zend_Exception ('Unable to move uploaded file.', 500);
@@ -298,7 +298,7 @@ class Helper_Image
 			foreach ($sizing ['sizes'] as $prefix => $size)
 			{
 				$filename = self::_filename (
-					$dst_path, 
+					$dst_path,
 					array (
 						'name'		=> $type,
 						'key'		=> $image->key (),
@@ -353,7 +353,7 @@ class Helper_Image
 		foreach ($sizing ['sizes'] as $key => $size)
 		{
 			$tmp = array (
-				$key . 'Url'	=> '/' . $filenames [$key],
+				$key . 'Url'	=> str_replace(self::$config['upload_path'], self::$config['upload_url'], $filenames [$key]),
 				$key . 'Width'	=> $size ['width'],
 				$key . 'Height'	=> $size ['height']
 			);
