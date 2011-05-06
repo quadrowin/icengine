@@ -9,7 +9,7 @@ abstract class View_Resource_Packer_Abstract
 {
 	
 	/**
-	 * Текущий ресурс
+	 * @desc Текущий ресурс
 	 * @var View_Resource
 	 */
 	protected $_currentResource;
@@ -64,6 +64,10 @@ abstract class View_Resource_Packer_Abstract
 		'charset_output'	=> 'utf-8'
 	);
 	
+	/**
+	 * @desc Собирает префикс для файла.
+	 * @return string Префикс для файла.
+	 */
 	public function _compileFilePrefix ()
 	{
 		return str_replace (
@@ -74,7 +78,7 @@ abstract class View_Resource_Packer_Abstract
 	}
 	
 	/**
-	 * Проверяет существование валидного кэша для ресурсов.
+	 * @desc Проверяет существование валидного кэша для ресурсов.
 	 * @param array $resources
 	 * @param string $result_file
 	 * @return boolean
@@ -142,7 +146,7 @@ abstract class View_Resource_Packer_Abstract
 	}
 	
 	/**
-	 * Объединение результатов упаковщика.
+	 * @desc Объединение результатов упаковщика.
 	 * @param array $packages
 	 * @return string
 	 */
@@ -170,12 +174,9 @@ abstract class View_Resource_Packer_Abstract
 	}
 	
 	/**
-	 * Пакование ресурсов в строку или указанный файл.
-	 * 
-	 * @param array <string> $resources
-	 * 		Ресурсы
-	 * @param string $result_file [optional]
-	 * 		Файл для сохранения результата.
+	 * @desc Пакование ресурсов в строку или указанный файл.
+	 * @param array <string> $resources Ресурсы.
+	 * @param string $result_file [optional] Файл для сохранения результата.
 	 * @return mixed|string
 	 * 		
 	 */
@@ -226,16 +227,14 @@ abstract class View_Resource_Packer_Abstract
 	}
 	
 	/**
-	 * Паковка одного ресурса
-	 * @param View_Resource $resource
-	 * 		Ресурс.
-	 * @return string
-	 * 		Запакованная строка, содержащая ресурс.
+	 * @desc Паковка одного ресурса.
+	 * @param View_Resource $resource Ресурс.
+	 * @return string Запакованная строка, содержащая ресурс.
 	 */
 	abstract public function packOne (View_Resource $resource);
 	
 	/**
-	 * 
+	 * @desc Сохраняет информацию о текущем состоянии файлов.
 	 * @param array $resources
 	 * @param string $result_file
 	 */

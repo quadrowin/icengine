@@ -29,33 +29,33 @@ class Controller_Dispatcher
 	 */
 	protected $_results = array ();
 
-	/**
-	 *
-	 * @param Controller_Abstract $current
-	 * @param Controller_Dispatcher_Iteration $iteration
-	 * @param string $method_name
-	 */
-	private function _onDispatchIterationFinish (Controller_Abstract $current,
-		Controller_Dispatcher_Iteration $iteration, $method_name)
-	{
-		$current->_afterAction ($method_name);
-		$this->onDispatchIterationFinish ($current, $iteration, $method_name);
-	}
+//	/**
+//	 *
+//	 * @param Controller_Abstract $current
+//	 * @param Controller_Dispatcher_Iteration $iteration
+//	 * @param string $method_name
+//	 */
+//	private function _onDispatchIterationFinish (Controller_Abstract $current,
+//		Controller_Dispatcher_Iteration $iteration, $method_name)
+//	{
+//		$current->_afterAction ($method_name);
+//		$this->onDispatchIterationFinish ($current, $iteration, $method_name);
+//	}
 
-	/**
-	 *
-	 * @param Controller_Abstract $current
-	 * @param Controller_Dispatcher_Iteration $iteration
-	 * @param string $method_name
-	 */
-	private function _onDispatchIterationStart (Controller_Abstract $current,
-		Controller_Dispatcher_Iteration $iteration, $method_name)
-	{
-		$current
-			->setDispatcherIteration ($iteration)
-			->_beforeAction ($method_name);
-		$this->onDispatchIterationStart ($current, $iteration, $method_name);
-	}
+//	/**
+//	 *
+//	 * @param Controller_Abstract $current
+//	 * @param Controller_Dispatcher_Iteration $iteration
+//	 * @param string $method_name
+//	 */
+//	private function _onDispatchIterationStart (Controller_Abstract $current,
+//		Controller_Dispatcher_Iteration $iteration, $method_name)
+//	{
+//		$current
+//			->setDispatcherIteration ($iteration)
+//			->_beforeAction ($method_name);
+//		$this->onDispatchIterationStart ($current, $iteration, $method_name);
+//	}
 
 	/**
 	 * @return Controller_Dispatcher_Iteration
@@ -77,53 +77,64 @@ class Controller_Dispatcher
 
 		$controller_action = $iteration->controllerAction ();
 
-		/**
-		 *
-		 * @var Controller_Abstract $current
-		 */
-
-                Loader::load ('Controller_Manager');
-                $controller = Controller_Manager::get ($controller_action->controller);
-
-		$method_name = $controller_action->action;
-
-		if (!method_exists ($controller, $method_name))
-		{
-			Loader::load ('Controller_Exception');
-
-			throw new Controller_Exception (
-				"Action " . $controller_action->controller . "::" .
-				$controller_action->action . " unexists."
-			);
-		}
-
-		// Инициализация транспортов
-		Controller_Manager::beforeAction ($controller);
-		if (isset ($controller_action->input))
-		{
-			$controller->setInput ($controller_action->input);
-		}
-
-		if (isset ($controller_action->output))
-		{
-			$controller->getOutput ()->endTransaction ();
-			$controller->setOutput ($controller_action->output);
-			$controller->getOutput ()->beginTransaction ();
-		}
-
-		$this->_onDispatchIterationStart ($controller, $iteration, $method_name);
-
-		if (!$this->_currentIteration->getIgnore ())
-		{
-			Loader::load ('Executor');
-			Executor::execute (array ($controller, $method_name));
-		}
-
-		Controller_Manager::afterAction ($controller, $iteration);
-
-		$this->_onDispatchIterationFinish ($controller, $iteration, $method_name);
+		Loader::load ('Controller_Manager');
+		
+		$iteration = Controller_Manager::call (
+			$controller_action->controller,
+			$controller_action->action,
+			isset ($controller_action->input) ? 
+				$controller_action->input :
+				null,
+			$iteration
+		);
 
 		$this->_currentIteration = $parent_iteration;
+		
+//		/**
+//		 * @desc Контроллер
+//		 * @var Controller_Abstract $controller
+//		 */
+//		$controller = Controller_Manager::get ($controller_action->controller);
+//
+//		$method_name = $controller_action->action;
+//
+//		if (!method_exists ($controller, $method_name))
+//		{
+//			Loader::load ('Controller_Exception');
+//
+//			throw new Controller_Exception (
+//				"Action " . $controller_action->controller . "::" .
+//				$controller_action->action . " unexists."
+//			);
+//		}
+//
+//		// Инициализация транспортов
+//		Controller_Manager::beforeAction ($controller);
+//		if (isset ($controller_action->input))
+//		{
+//			$controller->setInput ($controller_action->input);
+//		}
+//
+//		if (isset ($controller_action->output))
+//		{
+//			$controller->getOutput ()->endTransaction ();
+//			$controller->setOutput ($controller_action->output);
+//			$controller->getOutput ()->beginTransaction ();
+//		}
+//
+//		$this->_onDispatchIterationStart ($controller, $iteration, $method_name);
+//
+//		if (!$this->_currentIteration->getIgnore ())
+//		{
+//			Loader::load ('Executor');
+//			Executor::execute (array ($controller, $method_name));
+//		}
+//
+//		Controller_Manager::afterAction ($controller, $iteration);
+//
+//		$this->_onDispatchIterationFinish ($controller, $iteration, $method_name);
+//
+//		$this->_currentIteration = $parent_iteration;
 	}
 
 	/**
@@ -133,8 +144,6 @@ class Controller_Dispatcher
 	 */
 	public function dispatchCircle ()
 	{
-		$this->onDispatchCircleStart ();
-
 		while ($this->_actions)
 		{
 			$iteration = array_shift ($this->_actions);
@@ -144,8 +153,6 @@ class Controller_Dispatcher
 				$this->_results [] = $iteration;
 			};
 		}
-
-		$this->onDispatchCircleFinish ();
 
 		return $this;
 	}
@@ -175,38 +182,6 @@ class Controller_Dispatcher
 	{
 		$this->_results = array ();
 		return $this;
-	}
-
-	public function onDispatchCircleStart ()
-	{
-	}
-
-	public function onDispatchCircleFinish ()
-	{
-	}
-
-	/**
-	 *
-	 * @param Controller_Abstract $current
-	 * @param Controller_Dispatcher_Iteration $iteration
-	 * @param string $method_name
-	 */
-	public function onDispatchIterationFinish (Controller_Abstract $current,
-		Controller_Dispatcher_Iteration $iteration, $method_name)
-	{
-
-	}
-
-	/**
-	 *
-	 * @param Controller_Abstract $current
-	 * @param Controller_Dispatcher_Iteration $iteration
-	 * @param string $method_name
-	 */
-	public function onDispatchIterationStart (Controller_Abstract $current,
-		Controller_Dispatcher_Iteration $iteration, $method_name)
-	{
-
 	}
 
 	/**
