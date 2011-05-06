@@ -1,13 +1,23 @@
 <?php
-
+/**
+ * 
+ * @desc Контроллер для вывода хлебных крошек.
+ * @author Юрий Шведов
+ * @package IcEngine
+ *
+ */
 class Controller_Breadcrumbs extends Controller_Abstract
 {
     
+	/**
+	 * (non-PHPdoc)
+	 * @see Controller_Abstract::index()
+	 */
     public function index ()
     {
         Loader::load ('Route_Collection');
         $path = new Route_Collection ();
-        $route = IcEngine::frontController ()->getRouter ()->getRoute ();
+        $route = IcEngine::route ();
         while ($route)
         {
             $path->add ($route);
