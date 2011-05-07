@@ -8,6 +8,35 @@
  */
 class Model_Collection implements ArrayAccess, IteratorAggregate, Countable 
 {
+	/**
+	 * @desc Клонировать фильтры
+	 * @var integer
+	 */
+	const ASSIGN_FILTERS 	= 'Filters';
+	
+	/**
+	 * @desc Клонировать модели
+	 * @var integer
+	 */
+	const ASSIGN_MODELS 	= 'Models';
+	
+	/**
+	 * @desc Клонировать опшинсы
+	 * @var integer
+	 */
+	const ASSIGN_OPTIONS 	= 'Options';
+	
+	/**
+	 * @desc Клонировать пагинатор
+	 * @var integer
+	 */
+	const ASSIGN_PAGINATOR 	= 'Paginator';
+	
+	/**
+	 * @desc Клонировать запрос
+	 * @var integer
+	 */
+	const ASSIGN_QUERY 		= 'Query';
 	
 	/**
 	 * @desc Для создаваемых моделей включен autojoin.
@@ -178,6 +207,109 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
+	 * @desc Клонировать модель
+	 * @param Model_Collection $source
+	 * @param array $flags
+	 * @return Model_Collection
+	 */
+	public function assign (Model_Collection $source, array $flags = array ())
+	{
+		if (!$flags)
+		{
+			$flags = array (
+				self::ASSIGN_FILTERS,
+				self::ASSIGN_MODELS,
+				self::ASSIGN_OPTIONS,
+				self::ASSIGN_PAGINATOR,
+				self::ASSIGN_QUERY
+			);
+		}
+		
+		for ($i = 0, $icount = sizeof ($flags); $i < $icount; $i++)
+		{
+			$method_name = 'assign' . $flags [$i];
+			
+			if (is_callable (array ($this, $method_name)))
+			{
+				$this->$method_name ($source);
+			}
+		}
+		
+		return $this;
+	}
+	
+	/**
+	 * @desc Клонировать фильтры
+	 * @param Model_Collection $source
+	 */
+	public function assignFilters (Model_Collection $source)
+	{
+		
+	}
+	
+	/**
+	 * @desc Клонировать модели
+	 * @param Model_Collection $source
+	 */
+	public function assignModels (Model_Collection $source)
+	{
+		$this->setItems ($source->items ());
+	}
+	
+	/**
+	 * @desc Клонировать опшины
+	 * @param Model_Collection $source
+	 */
+	public function assignOptions (Model_Collection $source)
+	{
+		$this
+			->getOptions ()
+			->setOptions (
+				$source
+					->getOptions ()
+					->getOptions ()
+			);
+	}
+	
+	/**
+	 * @desc Клонировать пагинатор
+	 * @param Model_Collection $source
+	 */
+	public function assignPaginator (Model_Collection $source)
+	{
+		$paginator = $source->getPaginator ();
+		if ($paginator)
+		{
+			$this
+				->setPaginator (
+					clone $paginator
+				);
+		}
+	}
+	
+	/**
+	 * @desc Клонировать запрос
+	 * @param Model_Collection $source
+	 */
+	public function assignQuery (Model_Collection $source)
+	{
+		$query = $source->query ();
+		$this
+			->setQuery (
+				clone $query
+			);
+	}
+	
+	/**
+	 * @desc Имя базового класса (без суффикса "_Collection")
+	 * @return string
+	 */
+	public function className ()
+	{
+		return substr (get_class ($this), 0, -11);
+	} 
+	
+	/**
 	 * @desc Получить значение поля для всех моделей коллеции
 	 * @param string $name
 	 * @return array
@@ -199,15 +331,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	public function count ()
 	{
 		return count ($this->items ());
-	}
-	
-	/**
-	 * @desc Имя базового класса (без суффикса "_Collection")
-	 * @return string
-	 */
-	public function className ()
-	{
-		return substr (get_class ($this), 0, -11);
 	}
 	
 	/**
@@ -263,20 +386,30 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	public function diff (Model_Collection $collection)
 	{
 		$ms = DDS::modelScheme ();
+		
 		$model_name = $this->modelName ();
+		
 		$kf_this = $ms->keyField ($model_name);
+		
 		$kf_collection = $ms->keyField ($collection->modelName ());
+		
 		$array_this = $this->column ($kf_this);
+		
 		$array_collection = $collection->column ($kf_collection);
+		
 		$diff = array_diff ($array_this, $array_collection);
+		
 		$result = new Model_Collection ();
+		$result->reset ();
+		
 		for ($i = 0, $icount = sizeof ($diff); $i < $icount; $i++)
 		{
 			$result->add (Model_Manager::byKey (
-				$model_name,
+				$model_name, 
 				$diff [$i]
 			));
 		}
+		
 		return $result;
 	}
 	
@@ -335,7 +468,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * @desc Создать коллекцию из массива с данными моделей..
+	 * @desc Создать коллекцию из массива с данными моделей.
 	 * @param array $rows Массив моделей.
 	 * @param boolean $clear Очистить коллекцию перед добавлением.
 	 * @return Model_Collection

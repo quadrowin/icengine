@@ -27,12 +27,18 @@ class Mail_Message extends Model
 		Loader::load ('Mail_Template');
 		$template = Mail_Template::byName ($template_name);
 		
+		$mail_provider_params = is_object ($mail_provider_params) ?
+			$mail_provider_params->__toArray () :
+			$mail_provider_params;
+		
 		if (!is_numeric ($mail_provider))
 		{
 			if (!is_object ($mail_provider))
 			{
 				Loader::load ('Mail_Provider');
-				$mail_provider = Mail_Provider::byName ($mail_provider);
+				$mail_provider = Mail_Provider::byName (
+					$mail_provider
+				);
 			}
 			$mail_provider = $mail_provider->id;
 		}
@@ -47,11 +53,7 @@ class Mail_Message extends Model
 			'body'					=> $template->body ($data),
 			'toUserId'				=> (int) $to_user_id,
 			'Mail_Provider__id'		=> $mail_provider,
-			'params'				=> json_encode (
-				is_object ($mail_provider_params) ?
-					$mail_provider_params->__toArray () :
-					$mail_provider_params
-			)
+			'params'				=> json_encode ($mail_provider_params)
 		));
 		
 		return $message;

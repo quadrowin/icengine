@@ -4,11 +4,10 @@ class Controller_Chat_Session extends Controller_Abstract
 {
 	public function create ()
 	{
-		Loader::load ('Helper_Date');
-		Loader::load ('Chat_Session');
-		Loader::load ('Helper_Unique');
+		$code = $this->_input->receive ('code');
 		
-		$code = Helper_Unique::hash ();
+		Loader::load ('Chat_Session');
+		Loader::load ('Helper_Date');
 		
 		$session = new Chat_Session (array (
 			'code'		=> $code,
@@ -17,38 +16,81 @@ class Controller_Chat_Session extends Controller_Abstract
 		
 		$session->save ();
 		
-		if (!$session->key ())
-		{
-			return;
-		}
-		
-		Loader::load ('Chat_Session_Join');
-		
-		$join = Chat_Session_Join::forUser ($session);
-		
-		$this->_output->send (
-			'code', $code
-		);
+		$this->_dispatcherIteration->setTemplate (NULL);
 	}
 	
 	public function join ()
 	{
-		$code = $this->_input->receive ('code');
+		list (
+			$code,
+			$name,
+			$uri
+		) = $this->_input->receive (
+			'code',
+			'name',
+			'uri'
+		);
 		
+		$session_join = Registry::sget ('session_join');
+		
+		if ($session_join)
+		{
+			$name = $session_join->name;
+			$code = $session_join->Chat_Session->code;
+		}
+		 
 		Loader::load ('Chat_Session');
+		Loader::load ('Chat_Session_Join');
 		
 		$session = Chat_Session::byCode ($code);
 		
 		if (!$session)
 		{
-			return;
+			$session = new Chat_Session (array (
+				'code'		=> $code,
+				'createdAt'	=> Helper_Date::toUnix ()
+			));
+			
+			$session->save ();
 		}
 		
-		$join = Chat_Session_Join::forUser ($session);
+		$query = Query::instance ()
+			->where (
+				'phpSessionId', 
+				User_Session::getCurrent ()->phpSessionId
+			)
+			->where (
+				'Chat_Session__id',
+				$session->key ()
+			);
+
+		if ($uri)
+		{
+			$query 
+				->where ('uri', $uri);
+		}
+		
+		$join = Model_Manager::byQuery (
+			'Chat_Session_Join',
+			$query
+		);
+		
+		if (!$join)
+		{
+			$join = Chat_Session_Join::forUser (
+				$session,
+				$name,
+				$uri
+			);
+		}
 		
 		$this->_output->send (array (
-			'code'		=> $code,
-			'user'		=> User::getCurrent () 	
+			'data'	=> array (
+				'join_id'	=> $join->key (),
+				'name'		=> $name,
+				'code'		=> $code,
+				'uri'		=> $uri
+			)
 		));
 	}
 }
