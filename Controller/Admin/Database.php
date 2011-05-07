@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * 
+ * @desc
+ * @author Илья Колесников
+ * @package IcEngine
+ *
+ */
 class Controller_Admin_Database extends Controller_Abstract
 {
 	private function _className ($table, $prefix)

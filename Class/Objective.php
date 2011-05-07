@@ -122,7 +122,7 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * Данные объекта как массив.
+	 * @desc Данные объекта как массив.
 	 * Если существуют данные типа Objective, они будут переданны как 
 	 * объект без приведения к массиву (в отличие от __toArray)
 	 * @return array

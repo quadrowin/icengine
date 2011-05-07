@@ -1,7 +1,7 @@
 <?php
 /**
  * 
- * Рендер с использованием шаблонизатора Smarty.
+ * @desc Рендер с использованием шаблонизатора Smarty.
  * @author Гурус
  * @package IcEngine
  *
@@ -10,60 +10,72 @@ class View_Render_Smarty extends View_Render_Abstract
 {
 	
 	/**
-	 * Объект шаблонизатора
+	 * @desc Объект шаблонизатора
 	 * @var Smarty
 	 */
 	protected $_smarty;
 	
 	/**
-	 * Конфиг
+	 * @desc Конфиг
 	 * @var array
 	 */
 	protected $_config = array (
 		/**
-		 * Внешний шаблон.
+		 * @desc Внешний шаблон.
 		 * Будет использоватья при выводе в браузер через метод display.
 		 * @var string
 		 */
 		'layout'			=> 'main.tpl',
 		/**
-		 * Директория для скопилированных шаблонов Smarty
+		 * @desc Директория для скопилированных шаблонов Smarty
 		 * @var string
 		 */
 		'compile_path'		=> 'cache/templates',
 		/**
-		 * Путь для лоадера до смарти
+		 * @desc Путь для лоадера до смарти
 		 * @var string
 		 */
 		'smarty_path'		=> 'smarty/Smarty.class.php',
 		/**
-		 * Пути до шаблонов
+		 * @desc Пути до шаблонов
 		 * @var array
 		 */
 		'templates_path'	=> array (),
 		/**
-		 * Пути до плагинов
+		 * @desc Пути до плагинов
 		 * @var array
 		 */
-		'plugins_path'		=> array ()
+		'plugins_path'		=> array (),
+		/**
+		 * @desc Фильры
+		 * @var array
+		 */
+		'filters'			=> array (
+			'Dblbracer'
+		)
 	);
 	
-	protected function _afterConstruct()
+	protected function _afterConstruct ()
 	{
-		$this->config ();
+		$config = $this->config ();
 		if (!class_exists ('Smarty'))
 		{
-			Loader::requireOnce ($this->_config ['smarty_path'], 'includes');
+			Loader::requireOnce ($config ['smarty_path'], 'includes');
 		}
 		
 		$this->_smarty = new Smarty ();
 		
-		$this->_smarty->compile_dir = $this->_config ['compile_path'];
-		$this->_smarty->template_dir = $this->_config ['templates_path']->__toArray ();
-		$this->_smarty->plugins_dir = $this->_config ['plugins_path']->__toArray ();
+		$this->_smarty->compile_dir = $config ['compile_path'];
+		$this->_smarty->template_dir = $config ['templates_path']->__toArray ();
+		$this->_smarty->plugins_dir = $config ['plugins_path']->__toArray ();
 		
-		Loader::load ('Helper_Smarty_Filter_Dblbracer');
-		Helper_Smarty_Filter_Dblbracer::register ($this->_smarty);
+		// Фильтры
+		foreach ($config ['filters'] as $filter)
+		{
+			$filter = 'Helper_Smarty_Filter_' . $filter;
+			Loader::load ($filter);
+			$filter::register ($this->_smarty);
+		}
 	}
 	
 	/**

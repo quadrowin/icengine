@@ -91,10 +91,10 @@ class Controller_Authorization extends Controller_Abstract
 		 */
 		foreach ($authes as $auth_type)
 		{
-			$auth = IcEngine::$modelManager->modelBy (
+			$auth = Model_Manager::byQuery (
 				'Authorization',
 				Query::instance ()
-				->where ('name', $auth_type)
+					->where ('name', $auth_type)
 			);
 			if ($auth && $auth->isValidLogin ($login))
 			{
@@ -134,7 +134,7 @@ class Controller_Authorization extends Controller_Abstract
 		$password = $this->_input->receive ('password');
 		Loader::load ('Authorization');
 		
-		$user = Model_Manager::modelBy (
+		$user = Model_Manager::byQuery (
 			'User',
 			Query::instance ()
 				->where ('email', $login)

@@ -22,8 +22,7 @@ class Controller_Password_Recovery extends Controller_Abstract
 			{
 				$recovery->startSession ();
 				
-				IcEngine::$application
-					->frontController
+				IcEngine::frontController ()
 					->getDispatcher ()
 					->currentIteration ()
 					->setTemplate (
@@ -33,8 +32,7 @@ class Controller_Password_Recovery extends Controller_Abstract
 			}
 			else
 			{
-				IcEngine::$application
-					->frontController
+				IcEngine::frontController ()
 					->getDispatcher ()
 					->currentIteration ()
 					->setTemplate (

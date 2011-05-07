@@ -9,6 +9,6 @@
 class Controller_Action extends Model
 {
 
-    const IGNORE_FLAG = 'ignore';
-    
+	const IGNORE_FLAG = 'ignore';
+
 }

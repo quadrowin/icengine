@@ -107,45 +107,88 @@ class Controller_Manager
 	 * @desc Вызов экшена контроллера.
 	 * @param string $name Название контроллера.
 	 * @param string $method Метод.
-	 * @param boolean $html_only
-	 * 		Вернуть только html.
-	 * 		Если false, будет возвращен массив со всеми результатами.
-	 * @param array $args Параметры.
-	 * @return string|array
+	 * @param array|Data_Transport $input Входные данные.
+	 * @param Controller_Dispatcher_Iteration $iteration [optional] Итерация
+	 * диспетчера.
+	 * @return Controller_Dispatcher_Iteration Итерация с результатами.
 	 */
-	public static function call ($name, $method = 'index', 
-		array $args = array (), $html_only = true)
+	public static function call ($name, $method = 'index', $input, 
+		$iteration = null)
 	{
-		$cache_config = self::_cacheConfig ($name, $method);
-		
-		return Executor::execute (
-			array (__CLASS__, 'callUncached'),
-			array ($name, $method, $args, $html_only),
-			$cache_config
-		);
+		return self::callUncached ($name, $method, $input, $iteration);
 	}
 	
 	/**
 	 * @desc Вызов экшена без кэширования.
 	 * @param string $name Название контроллера.
 	 * @param string $method Метод.
-	 * @param array $args Параметры.
-	 * @param boolean $html_only=true Вернуть только html.
+	 * @param array|Data_Transport $input Входные данные.
+	 * @param Controller_Dispatcher_Iteration $iteration [optional] Итерация
+	 * диспетчера.
+	 * @return Controller_Dispatcher_Iteration Итерация с результатами.
 	 */
-	public static function callUncached ($name, $method = 'index', 
-		array $args = array (), $html_only = true)
+	public static function callUncached ($name, $method = 'index', $input, 
+		$iteration = null)
 	{
 		Loader::load ('Controller_Action');
 		Loader::load ('Controller_Dispatcher_Iteration');
 		Loader::load ('Route_Action');
-		$iteration = Controller_Manager::run (new Controller_Action (array (
-			'controller'	=> $name,
-			'action'		=> $method,
-			'input'			=> $input,
-			'output'		=> $output
-		)));
 		
-		return View_Render_Broker::fetchIteration ($iteration);
+		if (!$iteration)
+		{
+			$iteration = new Controller_Dispatcher_Iteration (
+				new Controller_Action (array (
+					'id'			=> null,
+					'controller'	=> $name,
+					'action'		=> $method
+				))
+			);
+		}
+		
+		$controller = self::get ($name);
+		
+		$temp_input = $controller->getInput ();
+		$temp_output = $controller->getOutput ();
+		$temp_iteration = $controller->getDispatcherIteration ();
+		
+		if ($input === null)
+		{
+			$controller->setInput (self::getInput ());
+		}
+		elseif (is_array ($input))
+		{
+			Loader::load ('Data_Transport');
+			$tmp = new Data_Transport ();
+			$tmp->beginTransaction ()->send ($input);
+			$controller->setInput ($tmp);
+		}
+		else
+		{
+			$controller->setInput ($input);
+		}
+		
+		$controller
+			->setOutput (self::getOutput ())
+			->setDispatcherIteration ($iteration);
+		
+		$controller->getOutput ()->beginTransaction ();
+		
+		$controller->_beforeAction ($method);
+		
+		$controller->{$method} ();
+		
+		$controller->_afterAction ($method);
+		
+		$iteration->setTransaction (
+			$controller->getOutput ()->endTransaction ()
+		);
+		
+		$controller
+			->setInput ($temp_input)
+			->setOutput ($temp_output)
+			->setDispatcherIteration ($temp_iteration);
+			
+		return $iteration;
 	}
 	
 	/**
@@ -159,33 +202,6 @@ class Controller_Manager
 			self::$config = Config_Manager::get (__CLASS__, self::$config);
 		}
 		return self::$config;
-	}
-	
-	/**
-	 * @desc Выполняет указанный контроллер, экшен с заданными параметрами.
-	 * @param string $action Название контроллера или контроллер и экшен
-	 * в формате "Controller/action".
-	 * @param array $args Параметры.
-	 * @return string Результат компиляции шабона.
-	 * @tutorial
-	 * 		fetch ('Controller', array ('param'	=> 'val'));
-	 * 		fetch ('Controller/action')
-	 */
-	public static function fetch ($action, array $args = array ())
-	{
-		$a = explode ('/', $action);
-		if (count ($a) == 1)
-		{
-			$a [1] = 'index';
-		}
-		
-		$cache_config = self::_cacheConfig ($a [0], $a [1]);
-		
-		return Executor::execute (
-			array (__CLASS__, 'callUncached'),
-			array ($a [0], $a [1], $args, true),
-			$cache_config
-		);
 	}
 	
 	/**
@@ -279,6 +295,98 @@ class Controller_Manager
 	}
 	
 	/**
+	 * @desc Выполняет указанный контроллер, экшен с заданными параметрами.
+	 * @param string $action Название контроллера или контроллер и экшен
+	 * в формате "Controller/action".
+	 * @param array $args Параметры.
+	 * @return string Результат компиляции шабона.
+	 * @tutorial
+	 * 		html ('Controller', array ('param'	=> 'val'));
+	 * 		html ('Controller/action')
+	 */
+	public static function html ($action, array $args = array ())
+	{
+		$a = explode ('/', $action);
+		if (count ($a) == 1)
+		{
+			$a [1] = 'index';
+		}
+		
+		$cache_config = self::_cacheConfig ($a [0], $a [1]);
+		
+		return Executor::execute (
+			array (__CLASS__, 'htmlUncached'),
+			array ($a, $args),
+			$cache_config
+		);
+	}
+	
+	/**
+	 * @desc Выполняет указанный контроллер, экшен с заданными параметрами,
+	 * не используется кэширование.
+	 * @param string $action Название контроллера или контроллер и экшен
+	 * в формате "Controller/action".
+	 * @param array $args Параметры.
+	 * @param boolean $html_only Только вывод.
+	 * @return string Результат компиляции шабона.
+	 * @tutorial
+	 * 		html ('Controller', array ('param'	=> 'val'));
+	 * 		html ('Controller/action')
+	 */
+	public static function htmlUncached ($action, array $args = array (), 
+		$html_only = true)
+	{
+		$a = explode ('/', $action);
+		if (count ($a) == 1)
+		{
+			$a [1] = 'index';
+		}
+		
+		$iteration = self::call ($a [0], $a [1], $args);
+		
+		$buffer = $iteration->getTransaction ()->buffer ();
+		$result = array (
+			'data'		=> isset ($buffer ['data']) ? 
+				$buffer ['data'] : 
+				array (),
+			'html'		=> null
+		);
+	   
+		$tpl = $iteration->getTemplate ();
+		
+		if ($tpl)
+		{
+			$view = View_Render_Broker::pushViewByName ('Smarty');
+			
+			try
+			{
+				$view->assign ($buffer);
+				$result ['html'] = $view->fetch ($tpl);
+			}
+			catch (Exception $e)
+			{
+				$msg = 
+					'[' . $e->getFile () . '@' . 
+					$e->getLine () . ':' . 
+					$e->getCode () . '] ' .
+					$e->getMessage () . PHP_EOL;
+					
+				error_log (
+					$msg . PHP_EOL .
+					$e->getTraceAsString () . PHP_EOL, 
+					E_USER_ERROR, 3
+				);
+			
+				$result ['error'] = 'Controller_Manager: Error in template.';
+			}
+			
+			View_Render_Broker::popView ();
+		}
+		
+		return $html_only ? $result ['html'] : $result;
+	}
+	
+	/**
 	 * 
 	 * @param Route_Action|Controller_Action $action
 	 * @return Controller_Dispatcher_Iteration
@@ -287,8 +395,7 @@ class Controller_Manager
 	{
 		$iteration = new Controller_Dispatcher_Iteration ($action);
 		
-		IcEngine::$application
-			->frontController ()
+		IcEngine::frontController ()
 			->getDispatcher ()
 			->dispatch ($iteration);
 		

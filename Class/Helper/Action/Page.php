@@ -1,12 +1,11 @@
 <?php
-
 /**
  * 
- * Стандартные реакции контроллера на ошибки
+ * @desc Стандартные реакции контроллера на ошибки
  * @author Юрий
+ * @package IcEngine
  *
  */
-
 class Helper_Action_Page
 {
     
@@ -15,8 +14,7 @@ class Helper_Action_Page
 	 */
     public static function notFound ()
     {
-		IcEngine::$application
-			->frontController
+		IcEngine::frontController ()
 			->getDispatcher ()
 			->flushActions (true)
 			->push (array (
@@ -30,8 +28,7 @@ class Helper_Action_Page
      */
     public static function obsolete ()
     {
-		IcEngine::$application
-			->frontController
+		IcEngine::frontController ()
 			->getDispatcher ()
 			->flushActions (true)
 			->push (array (

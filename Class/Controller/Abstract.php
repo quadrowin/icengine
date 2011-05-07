@@ -49,7 +49,7 @@ class Controller_Abstract
 	 */
 	public function _afterAction ($action)
 	{
-		IcEngine::$application->messageQueue->push (
+		IcEngine::$messageQueue->push (
 			'after::' . get_class ($this) . '::' . $action
 		);
 	}
@@ -61,7 +61,7 @@ class Controller_Abstract
 	public function _beforeAction ($action)
 	{
 		$this->_currentAction = get_class ($this) . '::' . $action;
-		IcEngine::$application->messageQueue->push (
+		IcEngine::$messageQueue->push (
 			'before::' . $this->_currentAction
 		);
 	}
@@ -281,6 +281,14 @@ class Controller_Abstract
 	}
 	
 	/**
+	 * @return Controller_Dispatcher_Iteration
+	 */
+	public function getDispatcherIteration ()
+	{
+		return $this->_dispatcherIteration;
+	}
+	
+	/**
 	 * @return Data_Transport
 	 */
 	public function getInput ()
@@ -354,8 +362,7 @@ class Controller_Abstract
 	 * @param Controller_Dispatcher_Iteration $iteration
 	 * @return Controller_Abstract
 	 */
-	public function setDispatcherIteration (
-		Controller_Dispatcher_Iteration $iteration)
+	public function setDispatcherIteration ($iteration)
 	{
 		$this->_dispatcherIteration = $iteration;
 		return $this;

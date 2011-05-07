@@ -17,7 +17,7 @@ class Controller_Widget extends Controller_Abstract
 			'back'		=> $this->_input->receive ('back')
 		));
 		
-        $result = IcEngine::$widgetManager->call (
+        $result = Widget_Manager::call (
             $widget,
             $method,
             (array) $this->_input->receive ('params'),
@@ -32,7 +32,7 @@ class Controller_Widget extends Controller_Abstract
 		$widget = $this->_input->receive ('widget');
 		$method = $this->_input->receive ('method');
 
-		echo IcEngine::$widgetManager->callUncached (
+		echo Widget_Manager::callUncached (
             $widget,
             $method ? $method : self::DEFAULT_METHOD,
             array (),

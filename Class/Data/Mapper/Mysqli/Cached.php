@@ -1,16 +1,22 @@
 <?php
-
+Loader::load ('Data_Mapper_Mysqli');
+/**
+ * 
+ * @desc Мэппер для работы с mysql, с кэшированием запросов.
+ * @author Юрий Шведов
+ * @package IcEngine
+ *
+ */
 class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 {	   
 	/**
-	 * 
-	 * 
+	 * @desc Кэшер запросов.
 	 * @var Data_Provider_Abstract
 	 */
 	protected $_cacher;
 	
 	/**
-	 * Получение хэша запроса
+	 * @desc Получение хэша запроса
 	 * @return string
 	 */
 	protected function _sqlHash ()
@@ -19,7 +25,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	}
 	
 	/**
-	 * Выполняет запрос на изменение данных.
+	 * @desc Выполняет запрос на изменение данных.
 	 * @param Query $query
 	 * @param Query_Options $options
 	 * @return boolean
@@ -49,7 +55,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	}
 	
 	/**
-	 * Выполняет запрос на вставку данных.
+	 * @desc Выполняет запрос на вставку данных.
 	 * @param Query $query
 	 * @param Query_Options $options
 	 * @return boolean
@@ -80,7 +86,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	}
 	
 	/**
-	 * Выполняет запрос на получение данных.
+	 * @desc Выполняет запрос на получение данных.
 	 * @param Query $query
 	 * @param Query_Options $options
 	 * @return null|array
@@ -173,7 +179,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	}
 	
 	/**
-	 * 
+	 * @desc Получение тегов запроса.
 	 * @param Query $query
 	 * @return array
 	 */
@@ -223,6 +229,10 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 		$this->_cacher = $cacher;
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see Data_Mapper_Mysqli::setOption()
+	 */
 	public function setOption ($key, $value = null)
 	{
 		switch ($key)
