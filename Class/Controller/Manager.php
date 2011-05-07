@@ -336,7 +336,8 @@ class Controller_Manager
 	public static function htmlUncached ($action, array $args = array (), 
 		$html_only = true)
 	{
-		$a = explode ('/', $action);
+		$a = is_array ($action) ? $action : explode ('/', $action);
+		
 		if (count ($a) == 1)
 		{
 			$a [1] = 'index';
