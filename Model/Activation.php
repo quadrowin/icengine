@@ -94,7 +94,7 @@ class Activation extends Model
 		// Сообщение об успешной активации
 		if ($this->callbackMessage)
 		{
-			IcEngine::$application->messageQueue->push (
+			IcEngine::$messageQueue->push (
 				$this->callbackMessage,
 				array (
 					'activation'	=> $this

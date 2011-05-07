@@ -32,7 +32,7 @@ class Message_After_Load_Content extends Message_Abstract
 	 */
 	public static function push (Model $model, array $params = array ())
 	{
-		return IcEngine::$application->messageQueue->push (
+		return IcEngine::$messageQueue->push (
 			'After_Load_Content',
 			array_merge (
 				$params,

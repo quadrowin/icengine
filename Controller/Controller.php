@@ -43,14 +43,14 @@ class Controller_Controller extends Controller_Abstract
 		    'input'			=> $input
 		));
 		
-		IcEngine::$application->frontController->getDispatcher ()->push ($ca);
+		IcEngine::frontController ()->getDispatcher ()->push ($ca);
 		
 		$ca = new Controller_Action (array (
             'controller'	=> $this->name (),
 		    'action'		=> 'ajaxFinish'
 		));
 		
-		IcEngine::$application->frontController->getDispatcher ()->push ($ca);
+		IcEngine::frontController ()->getDispatcher ()->push ($ca);
 	}
 	
 	/**
@@ -58,10 +58,10 @@ class Controller_Controller extends Controller_Abstract
 	 */
 	public function ajaxFinish ()
 	{
-	    $iterations = IcEngine::$application->frontController->getDispatcher ()->results ();
+	    $iterations = IcEngine::frontController ()->getDispatcher ()->results ();
 //		print_r(count($iterations));die();
 	    $iteration = end ($iterations);
-	    IcEngine::$application->frontController->getDispatcher ()->flushResults ();
+	    IcEngine::frontController ()->getDispatcher ()->flushResults ();
 	    	    
         /**
 	     * 

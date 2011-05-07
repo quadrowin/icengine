@@ -165,6 +165,26 @@ class Model_Scheme
 	}
 	
 	/**
+	 * @desc Определеяет название модели по названию таблицы.
+	 * @param string $table
+	 * @return string
+	 */
+	public function tableToModel ($table)
+	{
+		foreach ($this->models as $name => $model)
+		{
+			if (isset ($model ['table']) && $model ['table'] == $table)
+			{
+				$name = explode ('_', $name);
+				$name = array_map ('ucfirst', $name);
+				return implode ('_', $name);
+			}
+		}
+		
+		return $table;
+	}
+	
+	/**
 	 * @desc Источник данных для модели.
 	 * @param string $model название модели.
 	 * @return Data_Source_Abstract
@@ -188,7 +208,6 @@ class Model_Scheme
 	 */
 	public function fieldsNames ($model)
 	{
-		Loader::load ('Model_Field');
 		return $this->dataSource ($model)->execute (
 			Query::instance ()
 				->show ('COLUMNS')

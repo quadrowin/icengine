@@ -12,7 +12,7 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 	const SELECT_FOUND_ROWS_QUERY = 'SELECT FOUND_ROWS()';
 	
 	/**
-	 * @desc Соединение с mysql
+	 * @desc Соединение с mysql.
 	 * @var resource
 	 */
 	protected $_linkIdentifier = null;
@@ -154,7 +154,7 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 	}
 	
 	/**
-	 * Подключение к БД
+	 * @desc Подключение к БД
 	 * @param Objective|array $config [optional]
 	 */
 	public function connect ($config = null)
@@ -259,7 +259,7 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 	}
 	
 	/**
-	 * @desc 
+	 * @desc Возвращает ресурс соединения с mysql.
 	 * @return resource
 	 */
 	public function linkIdentifier ()
@@ -290,6 +290,6 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 			return;
 		}
 		return parent::setOption ($key, $value);
-			
 	}
+	
 }

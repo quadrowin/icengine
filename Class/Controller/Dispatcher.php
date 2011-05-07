@@ -2,7 +2,7 @@
 
 Loader::load ('Controller_Dispatcher_Iteration');
 /**
- * 
+ *
  * @desc Диспетчер контроллеров.
  * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
@@ -10,53 +10,53 @@ Loader::load ('Controller_Dispatcher_Iteration');
  */
 class Controller_Dispatcher
 {
-	
+
 	/**
 	 * @desc Текущая итерация диспетчеризации.
 	 * @var Controller_Dispatcher_Iteration
 	 */
 	private $_currentIteration;
-	
+
 	/**
 	 * @desc Очередь экшенов для обработки.
 	 * @var array
 	 */
 	protected $_actions = array ();
-	
+
 	/**
 	 * @desc Список результатов диспетчеризации.
 	 * @var array
 	 */
 	protected $_results = array ();
-	
-	/**
-	 * 
-	 * @param Controller_Abstract $current
-	 * @param Controller_Dispatcher_Iteration $iteration
-	 * @param string $method_name
-	 */
-	private function _onDispatchIterationFinish (Controller_Abstract $current, 
-		Controller_Dispatcher_Iteration $iteration, $method_name)
-	{
-		$current->_afterAction ($method_name);
-		$this->onDispatchIterationFinish ($current, $iteration, $method_name);
-	}
-	
-	/**
-	 * 
-	 * @param Controller_Abstract $current
-	 * @param Controller_Dispatcher_Iteration $iteration
-	 * @param string $method_name
-	 */
-	private function _onDispatchIterationStart (Controller_Abstract $current, 
-		Controller_Dispatcher_Iteration $iteration, $method_name)
-	{
-		$current
-			->setDispatcherIteration ($iteration)
-			->_beforeAction ($method_name);
-		$this->onDispatchIterationStart ($current, $iteration, $method_name); 
-	}
-	
+
+//	/**
+//	 *
+//	 * @param Controller_Abstract $current
+//	 * @param Controller_Dispatcher_Iteration $iteration
+//	 * @param string $method_name
+//	 */
+//	private function _onDispatchIterationFinish (Controller_Abstract $current,
+//		Controller_Dispatcher_Iteration $iteration, $method_name)
+//	{
+//		$current->_afterAction ($method_name);
+//		$this->onDispatchIterationFinish ($current, $iteration, $method_name);
+//	}
+
+//	/**
+//	 *
+//	 * @param Controller_Abstract $current
+//	 * @param Controller_Dispatcher_Iteration $iteration
+//	 * @param string $method_name
+//	 */
+//	private function _onDispatchIterationStart (Controller_Abstract $current,
+//		Controller_Dispatcher_Iteration $iteration, $method_name)
+//	{
+//		$current
+//			->setDispatcherIteration ($iteration)
+//			->_beforeAction ($method_name);
+//		$this->onDispatchIterationStart ($current, $iteration, $method_name);
+//	}
+
 	/**
 	 * @return Controller_Dispatcher_Iteration
 	 */
@@ -64,76 +64,86 @@ class Controller_Dispatcher
 	{
 		return $this->_currentIteration;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Controller_Dispatcher_Iteration $iteration
 	 */
 	public function dispatch (Controller_Dispatcher_Iteration $iteration)
 	{
 		$parent_iteration = $this->_currentIteration;
-		
+
 		$this->_currentIteration = $iteration;
-		
+
 		$controller_action = $iteration->controllerAction ();
-		// Инициализация объекта контроллера
+
 		Loader::load ('Controller_Manager');
 		
-		/**
-		 * 
-		 * @var Controller_Abstract $current
-		 */
-		$controller = Controller_Manager::get ($controller_action->controller);
-		
-		$method_name = $controller_action->action;
+		$iteration = Controller_Manager::call (
+			$controller_action->controller,
+			$controller_action->action,
+			isset ($controller_action->input) ? 
+				$controller_action->input :
+				null,
+			$iteration
+		);
 
-		if (!method_exists ($controller, $method_name))
-		{
-			Loader::load ('Controller_Exception');
-			
-			throw new Controller_Exception (
-				"Action " . $controller_action->controller . "::" . 
-				$controller_action->action . " unexists."
-			);
-		}
+		$this->_currentIteration = $parent_iteration;
 		
-		// Инициализация транспортов
-		Controller_Manager::beforeAction ($controller);
-		if (isset ($controller_action->input))
-		{
-			$controller->setInput ($controller_action->input);
-		}
-		
-		if (isset ($controller_action->output))
-		{
-			$controller->getOutput ()->endTransaction ();
-			$controller->setOutput ($controller_action->output);
-			$controller->getOutput ()->beginTransaction ();
-		}
-		
-		$this->_onDispatchIterationStart ($controller, $iteration, $method_name);
-		
-		if (!$this->_currentIteration->getIgnore ())
-		{
-			Loader::load ('Executor');
-			Executor::execute (array ($controller, $method_name));
-		}
-		
-		Controller_Manager::afterAction ($controller, $iteration);
-		
-		$this->_onDispatchIterationFinish ($controller, $iteration, $method_name);
-		
-		$this->_currentIteration = $parent_iteration;	
+//		/**
+//		 * @desc Контроллер
+//		 * @var Controller_Abstract $controller
+//		 */
+//		$controller = Controller_Manager::get ($controller_action->controller);
+//
+//		$method_name = $controller_action->action;
+//
+//		if (!method_exists ($controller, $method_name))
+//		{
+//			Loader::load ('Controller_Exception');
+//
+//			throw new Controller_Exception (
+//				"Action " . $controller_action->controller . "::" .
+//				$controller_action->action . " unexists."
+//			);
+//		}
+//
+//		// Инициализация транспортов
+//		Controller_Manager::beforeAction ($controller);
+//		if (isset ($controller_action->input))
+//		{
+//			$controller->setInput ($controller_action->input);
+//		}
+//
+//		if (isset ($controller_action->output))
+//		{
+//			$controller->getOutput ()->endTransaction ();
+//			$controller->setOutput ($controller_action->output);
+//			$controller->getOutput ()->beginTransaction ();
+//		}
+//
+//		$this->_onDispatchIterationStart ($controller, $iteration, $method_name);
+//
+//		if (!$this->_currentIteration->getIgnore ())
+//		{
+//			Loader::load ('Executor');
+//			Executor::execute (array ($controller, $method_name));
+//		}
+//
+//		Controller_Manager::afterAction ($controller, $iteration);
+//
+//		$this->_onDispatchIterationFinish ($controller, $iteration, $method_name);
+//
+//		$this->_currentIteration = $parent_iteration;
 	}
-	
+
 	/**
 	 * @desc Цикл диспетчеризации.
 	 * Работает пока список контроллеров не будет пуст.
+	 * @return Controller_Dispatcher
 	 */
 	public function dispatchCircle ()
 	{
-		$this->onDispatchCircleStart ();
-		
 		while ($this->_actions)
 		{
 			$iteration = array_shift ($this->_actions);
@@ -143,10 +153,10 @@ class Controller_Dispatcher
 				$this->_results [] = $iteration;
 			};
 		}
-		
-		$this->onDispatchCircleFinish ();
+
+		return $this;
 	}
-	
+
 	/**
 	 * @desc Очистка списка контроллеров в заданиях.
 	 * @param boolean $current Если true, экшен текущей итерации не попадет
@@ -163,7 +173,7 @@ class Controller_Dispatcher
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * @desc Очистка результатов работы контроллеров.
 	 * @return Controller_Dispatcher Этот диспатчер.
@@ -173,42 +183,11 @@ class Controller_Dispatcher
 		$this->_results = array ();
 		return $this;
 	}
-	
-	public function onDispatchCircleStart ()
-	{
-	}
-	
-	public function onDispatchCircleFinish ()
-	{
-	}
-	
-	/**
-	 *
-	 * @param Controller_Abstract $current
-	 * @param Controller_Dispatcher_Iteration $iteration
-	 * @param string $method_name
-	 */
-	public function onDispatchIterationFinish (Controller_Abstract $current, 
-		Controller_Dispatcher_Iteration $iteration, $method_name)
-	{
-		
-	}
-	
-	/**
-	 * 
-	 * @param Controller_Abstract $current
-	 * @param Controller_Dispatcher_Iteration $iteration
-	 * @param string $method_name
-	 */
-	public function onDispatchIterationStart (Controller_Abstract $current, 
-		Controller_Dispatcher_Iteration $iteration, $method_name)
-	{
-	
-	}
-	
+
 	/**
 	 * @desc Добавление задания в очередь диспетчера.
 	 * @param Controller_Action_Collection|Controller_Action|array $resources
+	 * @return Controller_Dispatcher
 	 */
 	public function push ($resources)
 	{
@@ -219,7 +198,7 @@ class Controller_Dispatcher
 		{
 			foreach ($resources as $resource)
 			{
-				$this->_actions [] = 
+				$this->_actions [] =
 					new Controller_Dispatcher_Iteration ($resource);
 			}
 		}
@@ -228,7 +207,7 @@ class Controller_Dispatcher
 			$resources instanceof Route_Action
 		)
 		{
-			$this->_actions [] = 
+			$this->_actions [] =
 				new Controller_Dispatcher_iteration ($resources);
 		}
 		elseif (is_array ($resources))
@@ -239,7 +218,7 @@ class Controller_Dispatcher
 					$resources
 				);
 			}
-			
+
 			foreach ($resources as $action)
 			{
 				$this->push (new Controller_Action (array (
@@ -253,8 +232,10 @@ class Controller_Dispatcher
 			Loader::load ('Zend_Exception');
 			throw new Zend_Exception ('Illegal type.');
 		}
+
+		return $this;
 	}
-	
+
 	/**
 	 * @desc Возвращает результаты работы контроллеров
 	 * @return array
@@ -263,5 +244,5 @@ class Controller_Dispatcher
 	{
 		return $this->_results;
 	}
-	
+
 }

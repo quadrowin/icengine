@@ -121,13 +121,13 @@ class Loader
 			return true;
 		}
 		
-		if (class_exists ('Loader_Cache'))
-		{
+//		if (class_exists ('Loader_Cache'))
+//		{
 //			var_dump (array (
 //				'file'	=> $file,
 //				'type'	=> $type
 //			));
-		}
+//		}
 		
 		if (!isset (self::$pathes [$type]))
 		{
@@ -146,14 +146,14 @@ class Loader
 			}
 		}
 		
-		if (false)
+		if (true)
 		{
 			echo '<pre>Not found: ' . $file . "\n";
 			echo 'Pathes: ';
 			var_dump (self::$pathes);
 			var_dump (self::$pathes [$type]);
 			echo "\n\n";
-			//debug_print_backtrace ();
+			debug_print_backtrace ();
 			echo '</pre>';
 			die();
 		}
