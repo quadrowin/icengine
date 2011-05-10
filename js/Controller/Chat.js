@@ -284,7 +284,8 @@ var Controller_Chat = {
 			);
 		}
 	}
-}
+};
+
 $(document).ready (function ()
 {
 	$agency_id = $('#agency_id').val ();
