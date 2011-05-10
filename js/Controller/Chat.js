@@ -212,7 +212,7 @@ var Controller_Chat = {
 		Controller.call (
 			'Chat_Message/roll',
 			{
-				session_join_id: join_id,
+				session_join_id: join_id
 			},
 			Controller_Chat.receiveCallback,
 			true
