@@ -163,7 +163,7 @@ class Route extends Model_Child
 					preg_match ('#' . $route ['pattern'] . '#', $url) &&
 					(
 						$row == null ||
-						$route ['weight'] > $row ['weight']
+						(int) $route ['weight'] > (int) $row ['weight']
 					)
 				)
 				{
