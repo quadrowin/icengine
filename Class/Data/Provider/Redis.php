@@ -6,13 +6,20 @@ if (!class_exists ('Data_Provider_Abstract'))
 }
 /**
  * 
- * @desc Провайдер данны Redis
+ * @desc Провайдер данных Redis
  * @author Юрий
  * @package IcEngine
  *
  */
 class Data_Provider_Redis extends Data_Provider_Abstract
 {
+	
+	/**
+	 * @desc Файл с классом соединения.
+	 * @var string
+	 */
+	const DEFAULT_CONNECTION_CLASS_FILE = 'imemcacheclient/Redis.class.php';
+	
 	/**
 	 * @desc Подключение к редису
 	 * @var Redis
@@ -26,7 +33,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	public $servers = array ();
 	
 	/**
-	 * Максимальное количество выбираемых за раз значений.
+	 * @desc Максимальное количество выбираемых за раз значений.
 	 * Необходимо для обхода бага, когда
 	 * в версии Redis под windows стояло жесткое ограничение на 15 значений.
 	 * @var integer
@@ -39,7 +46,12 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	 */
 	public function __construct ($config = array ())
 	{
-		Loader::requireOnce ('imemcacheclient/Redis22.class.php', 'includes');
+		$file = 
+			isset ($config ['connection_class_file']) ?
+				$config ['connection_class_file'] :
+				self::DEFAULT_CONNECTION_CLASS_FILE;
+				
+		Loader::requireOnce ($file, 'includes');
 		$this->conn = Redis::instance ();
 		parent::__construct ($config);
 	}
