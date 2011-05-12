@@ -1,16 +1,12 @@
 <?php
 /**
+ * 
  * @author Юрий
  * @package IcEngine
- */
-
-
-/**
  * 
- * @param integer|string $index
- * 		Номер месяца от 1 до 12 или дата в формате "d m Y"
- * @param integer $form
- * 		Форма
+ * @param integer|string $index Номер месяца от 1 до 12 или дата
+ * в формате "d m Y".
+ * @param integer $form Форма
  * @return string
  */
 function smarty_modifier_month_name ($index, $form = 1, $separator = ' ')
