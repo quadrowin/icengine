@@ -180,8 +180,10 @@ class Model_Scheme
 				return implode ('_', $name);
 			}
 		}
-		
-		return $table;
+
+		$table = explode('_', $table);
+		$table = array_map('ucfirst', $table);
+		return implode('_', $table);
 	}
 	
 	/**
