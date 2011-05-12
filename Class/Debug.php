@@ -129,7 +129,9 @@ class Debug
 	 * @var integer
 	 */
 	public static $debug_messages_count = 0;
-		
+	
+	public static $start_time = 0;
+	
 	/**
 	 * @desc Скрытие всех возникающих ошибок.
 	 */
@@ -507,6 +509,37 @@ class Debug
 		{
 			self::log ($name . ' => ' . print_r ($var, true));
 		}
+	}
+	/**
+	 * @desc вывод в лог времени загрузки фаилов
+	 * @author Eriomin Ivan
+	 * @tutorial
+	 *	include $engine_dir . '/includes/FirePHPCore/fb.php';
+	 *	Debug::microtime (__FILE__, __LINE__);
+	 */
+	public static function microtime()
+	{
+		$now = microtime (true);
+		
+		if (!self::$start_time)
+		{
+			self::$start_time = $now;
+		}
+		$text = func_num_args () ?
+			(implode (':', func_get_args ()) . ':') : '';
+			
+		$text .= round($now - self::$start_time, 3) . ' second';
+		
+		if (function_exists ('fb') && !headers_sent ())
+		{
+			fb ($text);
+		}
+		else
+		{
+			echo round($now - self::$start_time, 3) . ' second';
+		}
+		
+		self::$start_time = $now;
 	}
 	
 }
