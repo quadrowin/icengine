@@ -1037,10 +1037,10 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * @desc Оставить часть элементов коллекции
+	 * @desc Оставить часть элементов коллекции.
 	 * @param integer $offset
 	 * @param integer $length
-	 * @return Model_Collection
+	 * @return Model_Collection Эта коллекция.
 	 */
 	public function slice ($offset, $length)
 	{
@@ -1051,11 +1051,9 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	
 	/**
 	 * @desc Сортировка коллекции.
-	 * @param string $fields
-	 * 		Список полей для сортировки.
-	 * 		Примеры: "id", "id DESC", "id, rating DESC".
-	 * 		
-	 * @return Sn_Collection_Abstract
+	 * @param string $fields Список полей для сортировки.
+	 * Например: "id", "id DESC", "id, rating DESC".
+	 * @return Model_Collection
 	 */
 	public function sort ($fields)
 	{
@@ -1071,10 +1069,8 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	
 	/**
 	 * @desc Упорядочивание списка для вывода дерева по полю parentId
-	 * 
-	 * @param boolean $include_unparented
-	 * 		Оставить элементы без предка.
-	 * 		Если false, элементы будут исключены из списка.
+	 * @param boolean $include_unparented Оставить элементы без предка.
+	 * Если false, элементы будут исключены из списка.
 	 * @return Model_Collection
 	 */
 	public function sortByParent ($include_unparented = true)
@@ -1209,11 +1205,10 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * @desc Добавление условия отбора
-	 * 
+	 * @desc Добавление условия отбора.
 	 * @param string $condition
 	 * @param string $value [optional]
-	 * @return Model_Collection
+	 * @return Model_Collection Эта коллекция
 	 */
 	public function where ($condition)
 	{

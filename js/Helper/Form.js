@@ -214,8 +214,7 @@ var Helper_Form = {
 	/**
 	 * 
 	 * @param jQuery $owner
-	 * @returns jQuery
-	 * 		input[type=file]
+	 * @returns jQuery input[type=file]
 	 */
 	initFileUpload: function ($owner)
 	{

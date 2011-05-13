@@ -257,5 +257,26 @@ class Controller_Controller extends Controller_Abstract
 		
 		return $controllers;
 	}
+	
+	public function multiAction ()
+	{
+		$actions = $this->_input->receive ('actions');
+		
+		$results = array ();
+		
+		foreach ($actions as $name => $action)
+		{
+			$result [$name] = Controller_Manager::html (
+				$action ['action'], 
+				$action
+			);
+		}
+		
+		$this->_output->send (array (
+			'data'	=> array (
+				'results' => $results
+			)
+		));
+	}
     
 }

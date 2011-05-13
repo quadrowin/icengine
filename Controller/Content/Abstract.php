@@ -19,6 +19,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 	/**
 	 * @desc После успешного сохранения контента
 	 * @param Content $content Сохраняемый контент.
+	 * $content->data ('tc') Содержит ссылку на временный контент.
 	 * @param boolean $is_new true, если это новый контент, иначе false.
 	 * @override
 	 */
@@ -540,6 +541,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		
 		$is_new = !$content_id;
 		
+		$content->data ('tc', $tc);
 		$this->_afterSave ($content, $is_new);
 		
 		return Helper_Header::redirect ($referer);

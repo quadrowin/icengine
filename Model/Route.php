@@ -313,8 +313,13 @@ class Route extends Model_Child
 		{
 			$actions = Model_Collection_Manager::create ('Controller_Action')
 				->reset ();
-				
-			foreach ((array) $this->_fields ['actions'] as $action)
+			
+			$this_actions = 
+				is_scalar ($this->_fields ['actions']) ?
+					array ($this->_fields ['actions']) :
+					$this->_fields ['actions'];
+			
+			foreach ($this_actions as $action)
 			{
 				$action = explode ('/', $action);
 				$actions->add (
