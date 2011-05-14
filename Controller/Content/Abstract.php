@@ -8,6 +8,18 @@ class Controller_Content_Abstract extends Controller_Abstract
 {
 	
 	/**
+	 * @desc Создает и возвращает контроллер. 
+	 * Загружает используемые классы.
+	 */
+	public function __construct ()
+	{
+		Loader::load ('Helper_Header');
+		Loader::load ('Content');
+		Loader::load ('Temp_Content');
+		Loader::load ('Content_Collection');
+	}
+	
+	/**
 	 * @desc После успешного начала создания.
 	 * @override
 	 */
@@ -34,6 +46,18 @@ class Controller_Content_Abstract extends Controller_Abstract
 	protected function _extendingModel ()
 	{
 		return ''; // без расширения
+	}
+	
+	/**
+	 * @desc Фабрик метод для полечение реферер при сохранении
+	 * @param string $url
+	 * @param string $referer
+	 * @param Content_Abstract $content
+	 * @return string
+	 */
+	protected function _saveReferer ($url, $referer, $content)
+	{
+		return ($url != $content->url) ? $url : $referer;
 	}
 	
 	/**
@@ -134,18 +158,6 @@ class Controller_Content_Abstract extends Controller_Abstract
 	}
 	
 	/**
-	 * @desc Фабрик метод для полечение реферер при сохранении
-	 * @param string $url
-	 * @param string $referer
-	 * @param string $title
-	 * @return string
-	 */
-	protected function __saveReferer ($url, $referer, $title)
-	{
-		return ($url != $content->url) ? $url : $referer;
-	}
-	
-	/**
 	 * @desc Фабрик метод для полечение URL при сохранении
 	 * @param string $url
 	 * @param string $referer
@@ -157,14 +169,6 @@ class Controller_Content_Abstract extends Controller_Abstract
 		Loader::load ('Helper_Translit');
 		return $url = rtrim ($url, '/') . '/' . 
 			Helper_Translit::makeUrlLink ($title) . '.html';
-	}
-
-	public function __construct ()
-	{
-		Loader::load ('Helper_Header');
-		Loader::load ('Content');
-		Loader::load ('Temp_Content');
-		Loader::load ('Content_Collection');
 	}
 	
 	/**
@@ -385,7 +389,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			return $this->_helperReturn ('Access', 'denied');
 		}
 		
-		if (!$content)
+		if (!isset ($content) || !$content)
 		{
 			$content = Model_Manager::get (
 				$this->__contentModel (),
@@ -393,7 +397,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			);
 		}
 		
-		$tc = Temp_Content::create (get_class ($this));
+		$tc = Temp_Content::create ($this);
 		$tc->attr (array (
 			'controller'	=> $this->name (),
 			'back'			=> $back,
@@ -488,7 +492,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 				$content_id
 			);
 
-			$referer = $this->__saveReferer ($url, $referer, $title);
+			$referer = $this->_saveReferer ($url, $referer, $content);
 
 			$content->update (array (
 				'title'			=> $title,

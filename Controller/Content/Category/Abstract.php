@@ -1,7 +1,8 @@
 <?php
 /**
  * 
- * @desc Контролер категорий контента
+ * @desc Контролер категорий контента.
+ * Примечание: в адресе (поле url) категории не должно быть завершающего слеша.
  * @author ilya
  * @package IcEngine
  * 
@@ -191,17 +192,20 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 		
 		if ($parent_category_id)
 		{
-			$parent_category = IcEngine::$modelManager->modelByKey (
+			$parent_category = Model_Manager::byKey (
 				$this->__categoryModel (),
 				$parent_category_id
 			);
 		}
 		else
 		{
-			$parent_category = IcEngine::$modelManager->modelBy (
+			$parent_category = Model_Manager::byQuery (
 				$this->__categoryModel (),
 				Query::instance ()
-					->where ('url', $url ? $url : Request::uri ())	
+					->where (
+						'url', 
+						rtrim ($url ? $url : Request::uri (), '/')
+					)	
 			);
 		}
 		
@@ -273,7 +277,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 		);
 		
 		// Получаем родительскую категорию
-		$parent = IcEngine::$modelManager->modelByKey (
+		$parent = Model_Manager::byKey (
 			$this->__categoryModel (),
 			$parent_category_id
 		);
