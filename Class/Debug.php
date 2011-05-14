@@ -32,6 +32,17 @@ class Debug
 	
 	const EXCEPTION_HANDLER_IGNORE = 'ignore';
 	
+	/**
+	 * @desc Пресеты конфигов (можно задавать одним названием).
+	 * @var array
+	 */
+	protected static $_configPresets = array (
+		// Только firebug
+		'fb'	=> array (
+			'firebug_active'	=> false
+		)
+	);
+	
 	public static $config = array (
 		
 		/**
@@ -217,7 +228,7 @@ class Debug
 	 * @desc Включение внутреннего обработчика ошибок.
 	 * @param array|Objective $config Настройки.
 	 */
-	public static function init ($config = array ())
+	public static function init ($config)
 	{
 		error_reporting (E_ALL);
 		ini_set ('display_errors', true);
@@ -340,6 +351,11 @@ class Debug
 		{
 			self::setOutput ();
 			return;
+		}
+		
+		if (is_scalar ($config) && isset (self::$_configPresets [$config]))
+		{
+			$config = self::$_configPresets [$config];
 		}
 		
 		if (is_object ($config) && $config instanceof Objective)

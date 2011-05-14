@@ -110,27 +110,30 @@ abstract class Model implements ArrayAccess
 	 */
 	public function __get ($field)
 	{
-		if (!array_key_exists ($field, $this->_fields))
+		if (array_key_exists ($field, $this->_fields))
 		{
-			if (isset ($this->_joints [$field]))
-			{
-				return $this->_joints [$field];
-			}
-			
-			if (array_key_exists ($field . '__id', $this->_fields))
+			return $this->_fields [$field];
+		}
+		
+		if (isset ($this->_joints [$field]))
+		{
+			return $this->_joints [$field];
+		}
+		
+		if (array_key_exists ($field . '__id', $this->_fields))
+		{
+			return $this->joint ($field);
+		}
+		
+		if (!$this->_loaded)
+		{
+			$this->load ();
+			if (
+				!array_key_exists ($field, $this->_fields) &&
+				array_key_exists ($field . '__id', $this->_fields)
+			)
 			{
 				return $this->joint ($field);
-			}
-			elseif (!$this->_loaded)
-			{
-				$this->load ();
-				if (
-					!array_key_exists ($field, $this->_fields) &&
-					array_key_exists ($field . '__id', $this->_fields)
-				)
-				{
-					return $this->joint ($field);
-				}
 			}
 		}
 		
@@ -148,10 +151,8 @@ abstract class Model implements ArrayAccess
 	
 	/**
 	 * (non-PHPDoc)
-	 * @param string $field
-	 * 		Поле
-	 * @param mixed $value
-	 * 		Значение
+	 * @param string $field Поле.
+	 * @param mixed $value Значение.
 	 */
 	public function __set ($field, $value)
 	{
@@ -400,10 +401,10 @@ abstract class Model implements ArrayAccess
 	}
 	
 	/**
-	 * @desc Присоединить сущность
+	 * @desc Присоединить сущность.
 	 * @param string $model
 	 * @param array $data
-	 * @return Model
+	 * @return Model Присоединенная модель.
 	 * @throws Zend_Exception
 	 */
 	public function joint ($model, array $data = array ())
@@ -616,6 +617,24 @@ abstract class Model implements ArrayAccess
 	}
 	
 	/**
+	 * @desc Тихое получение или установка поля.
+	 * @param string $key Название поля.
+	 * @param mixed $value [optional] Значение поля.
+	 * @return mixed Текущее значение поля или null.
+	 */
+	public function sfield ($key)
+	{
+		if (func_num_args () > 1)
+		{
+			$this->set ($key, func_get_arg (1));
+		}
+		
+		return $this->hasField ($key) ?
+			$this->_fields [$key] :
+			null;
+	}
+	
+	/**
 	 * @desc Таблица БД
 	 * @see Model::modelName ()
 	 * @return string
@@ -626,9 +645,9 @@ abstract class Model implements ArrayAccess
 	}
 	
 	/**
-	 * @desc Загрузка данных модели
-	 * @param mixed $key
-	 * @return Model
+	 * @desc Загрузка данных модели.
+	 * @param mixed $key Первичный ключ.
+	 * @return Model Эта модель.
 	 */
 	public function load ($key = null)
 	{
