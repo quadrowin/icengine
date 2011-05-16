@@ -159,8 +159,14 @@ class Route extends Model_Child
 		{
 			foreach ($config ['routes'] as $id => $route)
 			{
+//				var_dump (array (
+//					'route'		=> $route ['pattern'], 
+//					'pattern'	=> $pattern,
+//					'preg'		=> preg_match ('#' . $route ['pattern'] . '#', $pattern)
+//				));
+				
 				if (
-					preg_match ('#' . $route ['pattern'] . '#', $url) &&
+					preg_match ('#' . $route ['pattern'] . '#', $pattern) &&
 					(
 						$row == null ||
 						(int) $route ['weight'] > (int) $row ['weight']
