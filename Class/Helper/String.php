@@ -175,8 +175,8 @@ class Helper_String
 	
 	/**
 	 * @desc Проверяет, что строка заканчивается на $substr
-	 * @param unknown_type $str
-	 * @param unknown_type $substr
+	 * @param string $str
+	 * @param string $substr
 	 * @return boolean
 	 */
 	public static function end ($str, $substr)
@@ -479,19 +479,13 @@ class Helper_String
 	 */
 	public static function secure($var)
 	{
-		if (func_num_args())
-		{
-			$result = self::trim_deep($var);
-		    $result = self::stripslashes_deep($result);
-		    $result = self::htmlspecialchars_deep($result);
-		    $result = self::mysql_real_escape_string_deep($result);
-			return $result;
-		}
-		else
-		{
-			return false;
-		}
+		$result = self::trim_deep($var);
+	    $result = self::stripslashes_deep($result);
+	    $result = self::htmlspecialchars_deep($result);
+	    $result = self::mysql_real_escape_string_deep($result);
+		return $result;
 	}
+	
 	/**
 	 * 
 	 * @desc utf8 -> win1251
