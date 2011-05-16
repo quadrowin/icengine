@@ -70,7 +70,7 @@ var Helper_Form = {
 				{
 					if (this.checked)
 					{
-						data [this.name] = 'on';
+						data [this.name] = this.value ? this.value : 'on';
 					}
 				}
 				else
