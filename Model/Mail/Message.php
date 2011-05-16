@@ -10,6 +10,36 @@ class Mail_Message extends Model
 {
 	
 	/**
+	 * @desc Создает копию сообщения.
+	 * Содержание сообщения останется неизменным.
+	 * Новое сообщение не будет сохранено.
+	 * @param string $address [optional] Адрес получателя.
+	 * @param string $to_name [optional] Имя получателя.
+	 * @return Mail_Message Созданное сообщение.
+	 */
+	public function cloneTo ($address = null, $to_name = null)
+	{
+		$fields = $this->_fields;
+		
+		if (array_key_exists ('id', $fields))
+		{
+			unset ($fields ['id']);
+		}
+		
+		if ($address !== null)
+		{
+			$fields ['address'] = $address;
+		}
+		
+		if ($to_name !== null)
+		{
+			$fields ['toName'] = $to_name;
+		}
+		
+		return new self ($fields);
+	}
+	
+	/**
 	 * @desc Создает новое сообщение.
 	 * @param string $template_name Имя шаблона.
 	 * @param string $address Адрес получателя.
@@ -43,7 +73,7 @@ class Mail_Message extends Model
 			$mail_provider = $mail_provider->id;
 		}
 		
-		$message = new Mail_Message (array (
+		$message = new self (array (
 			'Mail_Template__id'		=> $template->id,
 			'address'				=> $address,
 			'toName'				=> $to_name,
