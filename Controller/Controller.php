@@ -119,6 +119,7 @@ class Controller_Controller extends Controller_Abstract
         ));
 	}
 	
+	
 	/**
 	 * @desc Вызов экшена контроллера по названию из входных параметров
 	 */
@@ -261,12 +262,11 @@ class Controller_Controller extends Controller_Abstract
 	public function multiAction ()
 	{
 		$actions = $this->_input->receive ('actions');
-		
 		$results = array ();
 		
 		foreach ($actions as $name => $action)
 		{
-			$result [$name] = Controller_Manager::html (
+			$results [$name] = Controller_Manager::html (
 				$action ['action'], 
 				$action
 			);
@@ -277,6 +277,9 @@ class Controller_Controller extends Controller_Abstract
 				'results' => $results
 			)
 		));
+		
+		$this->_dispatcherIteration->setTemplate(null);
 	}
+	
     
 }
