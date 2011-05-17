@@ -37,8 +37,7 @@ class Controller_Chat_Message extends Controller_Abstract
 			'data'	=> array (
 				'messages'	=> $messages->serialize ()
 			)
-		));	
-		
+		));
 	}
 	
 	public function roll ()
