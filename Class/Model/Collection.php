@@ -1176,11 +1176,11 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		$collection = new self;
 		$collection->reset ();
 		
-		for ($i = 0, $icount = sizeof ($keys); $i < $icount; $i++)
+		foreach ($keys as $key)
 		{
 			$model = Model_Manager::byKey (
 				$model_name,
-				$keys [$i]
+				$key
 			);
 			if ($model)
 			{
