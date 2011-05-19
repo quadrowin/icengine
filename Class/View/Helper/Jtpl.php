@@ -14,8 +14,12 @@ class View_Helper_Jtpl extends View_Helper_Abstract
 	 * @var string
 	 */
 	const TEMPLATE = 
-		"\t<script type=\"text/javascript\" src=\"{\$url}\"></script>\n";
+		"\t<script type=\"text/javascript\" src=\"{\$url}?{\$ts}\"></script>\n";
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see View_Helper_Abstract::get()
+	 */
 	public function get (array $params)
 	{
 		$config = $this->config ();
@@ -47,8 +51,17 @@ class View_Helper_Jtpl extends View_Helper_Abstract
 		
 		$packer->pack ($tpls, $config->packed_file);
 		
-		$result = 
-			str_replace ('{$url}', $config->packed_url, self::TEMPLATE);
+		$result = str_replace (
+			array (
+				'{$url}',
+				'{$ts}'
+			),
+			array (
+				$config->packed_url,
+				$packer->cacheTimestamp ()
+			),
+			self::TEMPLATE
+		);
 		
 		return $result;
 	}
