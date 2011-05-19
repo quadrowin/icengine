@@ -115,10 +115,12 @@ class Query {
 	 * @desc В запрос будет добавлен аргумент для получения полного
 	 * количества строк (SQL_CALC_FOUND_ROWS).
 	 * Работает только для Mysql.
+	 * @return Query Этот объект.
 	 */
 	public function calcFoundRows ()
 	{
-	   $this->_parts [self::CALC_FOUND_ROWS] = true; 
+	   $this->_parts [self::CALC_FOUND_ROWS] = true;
+	   return $this; 
 	}
 	
 	/**
