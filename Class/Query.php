@@ -540,9 +540,13 @@ class Query {
 	 * определения алиасов таблиц). 
 	 * @return mixed Транслированный запрос.
 	 */
-	public function translate ($translator = 'Mysql', Model_Scheme $model_scheme)
+	public function translate ($translator = 'Mysql', 
+		Model_Scheme $model_scheme = null)
 	{
-		return Query_Translator::factory ($translator)->translate ($this, $model_scheme);
+		return Query_Translator::factory ($translator)->translate (
+			$this,
+			$model_scheme ? $model_scheme : DDS::modelScheme ()
+		);
 	}
 	
 	/**

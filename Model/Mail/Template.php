@@ -50,40 +50,42 @@ class Mail_Template extends Model_Child
 	 */
 	public function body (array $data = array ())
 	{
-		if (!$this->body)
-		{
-			// пустое тело
-			return '';
-		}
-		
-//	    $smarty = $this->smarty ();
-//		View_Render_Broker::render (array (
-//			array (
-//				'template'	=> 'fuck.tpl',
-//				'data'		=> $data,
-//				'assign'	=> 'content'
-//			),
-//			array (
-//				'template'	=> 'you.tpl',
-//				'data'		=> $data
-//			)
-//		));
 		$smarty = View_Render_Broker::pushViewByName ('Smarty')->smarty ();
-	    
-	    $smarty->assign ($data);
-		
-	    $smarty->register_resource (
-			$this->resourceKey () . 'b',
-			array (
-				$this,
-				"smarty_get_body",
-				"smarty_get_body_timestamp",
-				"smarty_get_secure",
-				"smarty_get_trusted"
-			)
-		);
-		
-		$body = $smarty->fetch ($this->resourceKey () . 'b:body');
+		$smarty->assign ($data);
+
+		$tpl_name = 'Mail/Template/' . $this->name . '.tpl';
+		if($smarty->template_exists($tpl_name))
+		{
+			$body = $smarty->fetch ($tpl_name);
+		}
+		else
+		{
+	//	    $smarty = $this->smarty ();
+	//		View_Render_Broker::render (array (
+	//			array (
+	//				'template'	=> 'fuck.tpl',
+	//				'data'		=> $data,
+	//				'assign'	=> 'content'
+	//			),
+	//			array (
+	//				'template'	=> 'you.tpl',
+	//				'data'		=> $data
+	//			)
+	//		));
+
+			$smarty->register_resource (
+				$this->resourceKey () . 'b',
+				array (
+					$this,
+					"smarty_get_body",
+					"smarty_get_body_timestamp",
+					"smarty_get_secure",
+					"smarty_get_trusted"
+				)
+			);
+
+			$body = $smarty->fetch ($this->resourceKey () . 'b:body');
+		}
 		
 		View_Render_Broker::popView ();
 		

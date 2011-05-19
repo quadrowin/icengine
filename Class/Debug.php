@@ -40,6 +40,10 @@ class Debug
 		// Только firebug
 		'fb'	=> array (
 			'firebug_active'	=> false
+		),
+		// Скрывать все ошибки
+		'hide'	=> array (
+			'echo_active'		=> false
 		)
 	);
 	

@@ -10,14 +10,14 @@ class Helper_Unique
 {
 	
 	/**
-	 * Счетчик для избежания генерации одинаковых ID в рамках
+	 * @desc Счетчик для избежания генерации одинаковых ID в рамках
 	 * одного процесса.
 	 * @var integer
 	 */
 	private static $_counter = 0;
 	
 	/**
-	 * Генерирует уникальный идентификатор на основе названия модели
+	 * @desc Генерирует уникальный идентификатор на основе названия модели
 	 * или текущего времени.
 	 * @param Model $model
 	 * @return string
@@ -32,7 +32,7 @@ class Helper_Unique
 	 * @desc Получить уникальный хэш
 	 * @return string
 	 */
-	public function hash ()
+	public static function hash ()
 	{
 		return uniqid (null, true);
 	}
