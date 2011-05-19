@@ -404,6 +404,12 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 			));
 		}
 		
+		if (!Request::isJsHttpRequest())
+		{
+			Helper_Header::redirect ($referer);
+			die ();
+		}
+		
 		$this->_dispatcherIteration->setTemplate (null);
 		$this->_output->send (array (
 			'redirect'	=> $referer,
