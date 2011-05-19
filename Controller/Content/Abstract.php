@@ -548,7 +548,13 @@ class Controller_Content_Abstract extends Controller_Abstract
 		$content->data ('tc', $tc);
 		$this->_afterSave ($content, $is_new);
 		
-		return Helper_Header::redirect ($referer);
+		$this->_dispatcherIteration->setTemplate (null);
+		$this->_output->send (array (
+			'redirect'	=> $referer,
+			'data'		=> array (
+				'redirect'	=> $referer
+			)
+		));
 	}
 	
 	/**
@@ -613,7 +619,21 @@ class Controller_Content_Abstract extends Controller_Abstract
 
 		$url = $this->__deleteUrl ($content, $url);
 		
-		return Helper_Header::redirect ($url);
+		$this->_dispatcherIteration->setTemplate (null);
+		
+		if (Request::isPost ())
+		{
+			$this->_output->send (array (
+				'redirect'	=> $url,
+				'data'		=> array (
+					'redirect'	=> $url
+				)
+			));
+		}
+		else
+		{
+			Helper_Header::redirect ($url);
+		}
 	}
 
 	public function uploadImage ()
