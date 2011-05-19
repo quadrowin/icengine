@@ -152,11 +152,10 @@ abstract class View_Render_Broker
 			$transaction->commit ();
 			
 			$template = $item->getTemplate ();
-			$result = $view->fetch ($template);
+			$result = $template ? $view->fetch ($template) : null;
 			
 			$view->assign (
 				$item->getAssignVar (),
-				//isset ($action->assign) ? $action->assign : 'content',
 				$result
 			);
 		}
