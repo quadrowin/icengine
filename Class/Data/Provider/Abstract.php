@@ -427,17 +427,15 @@ class Data_Provider_Abstract
 	}
 	
 	/**
-     * Получение массива ключей, соответствующих маске
+     * @desc Получение массива ключей, соответствующих маске
      * @param string $pattern
      * 		Маска.
      * 		Примеры: 
      * 		1) "image_*"
      * 		2) "user_*_phone"
      * 		3) "*"
-     * @param string $server=null
-     * 		Сервер
-     * @return array
-     * 		Массив ключей, подходящих под маску
+     * @param string $server=null Сервер
+     * @return array Массив ключей, подходящих под маску
 	 */
 	public function keys ($pattern, $server = NULL)
 	{
