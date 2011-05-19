@@ -58,7 +58,17 @@ class View_Helper_Css extends View_Helper_Abstract
 			$packer->pack ($csses, $config->packed_file);
 				
 			$result = 
-				str_replace ('{$url}', $config->packed_url, self::TEMPLATE);
+				str_replace (
+					array (
+						'{$url}',
+						'{$ts}'
+					),
+					array (
+						$config->packed_url,
+						time ()
+					),
+					self::TEMPLATE
+				);
 		}
 		else
 		{
