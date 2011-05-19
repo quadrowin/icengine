@@ -548,6 +548,12 @@ class Controller_Content_Abstract extends Controller_Abstract
 		$content->data ('tc', $tc);
 		$this->_afterSave ($content, $is_new);
 		
+		if (!Request::isJsHttpRequest ())
+		{
+			Helper_Header::redirect ($referer);
+			die ();
+		}
+		
 		$this->_dispatcherIteration->setTemplate (null);
 		$this->_output->send (array (
 			'redirect'	=> $referer,
