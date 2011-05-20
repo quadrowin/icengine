@@ -140,7 +140,7 @@ class Query {
 	 */
 	public function distinct ($value)
 	{
-		$this->_parts [self::DINSTINCT] = (bool) $value;
+		$this->_parts [self::DISTINCT] = (bool) $value;
 		return $this;
 	}
 	

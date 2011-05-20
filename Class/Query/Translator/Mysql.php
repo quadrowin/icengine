@@ -98,7 +98,7 @@ class Query_Translator_Mysql extends Query_Translator
 	 */
 	protected function _partDistinct (Query $query)
 	{
-		return $query->part (Query::DISTINCT, '');
+		return $query->part (Query::DISTINCT) ? self::SQL_DISTINCT : '';
 	}
 	
 	public function _renderDelete (Query $query)
