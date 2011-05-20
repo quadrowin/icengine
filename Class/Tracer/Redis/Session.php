@@ -31,7 +31,8 @@ class Tracer_Redis_Session extends Tracer_Abstract
 		if (
 			strpos ($info, 'del') !== false &&
 			class_exists ('User') &&
-			class_exists ('Request')
+			class_exists ('Request') &&
+			Request::ip () == '80.83.194.201'
 		)
 		{
 			$text .= 
