@@ -21,11 +21,13 @@ class Tracer_Redis_Session extends Tracer_Abstract
 	 */
 	public function add ($info)
 	{
-		$text = Helper_Date::toUnix () . ' ' . $info;
+		$text = Helper_Date::toUnix () . ' ' . Request::ip () . ' ' . $info;
 		for ($i = 1; $i < func_num_args (); ++$i)
 		{
 			$text .= ' ' . json_encode (func_get_arg ($i));
 		}
+		
+		
 		
 		$f = fopen ($this->file, 'a');
 		fwrite ($f, $text . PHP_EOL);
