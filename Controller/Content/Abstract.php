@@ -49,6 +49,64 @@ class Controller_Content_Abstract extends Controller_Abstract
 	}
 	
 	/**
+	 * @desc 
+	 * @return Content_Category
+	 */
+	protected function _getInputCategory ()
+	{
+		list (
+			$category_id,
+			$url
+		) = $this->_input->receive (
+			'category_id',
+			'url'
+		);
+		
+		if ($category_id)
+		{
+			return Model_Manager::modelByKey (
+				$this->__categoryModel (),
+				$category_id
+			);	
+		}
+		
+		return Model_Manager::modelBy (
+			$this->__categoryModel (),
+			Query::instance ()
+				->where ('url', $url ? $url : Request::uri ())
+		);		
+	}
+	
+	/**
+	 * @desc
+	 * @return Content
+	 */
+	protected function _getInputContent ()
+	{
+		list (
+			$content_id,
+			$url
+		) = $this->_input->receive (
+			'content_id',
+			'url'
+		);
+		
+		if ($content_id)
+		{
+			return Model_Manager::modelByKey (
+				$this->__contentModel (), 
+				$content_id
+			);
+		}
+		
+		return Model_Manager::modelBy (
+			$this->__contentModel (), 
+			Query::instance ()
+				->where ('url', $url ? $url : Request::uri ())
+		);
+	}
+	
+	/**
 	 * @desc Фабрик метод для полечение реферер при сохранении
 	 * @param string $url
 	 * @param string $referer
@@ -184,29 +242,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 	 */
 	public function roll ()
 	{
-		list (
-			$category_id,
-			$url
-		) = $this->_input->receive (
-			'category_id',
-			'url'
-		);
-		
-		if ($category_id)
-		{
-			$category = Model_Manager::modelByKey (
-				$this->__categoryModel (),
-				$category_id
-			);	
-		}
-		else
-		{
-			$category = Model_Manager::modelBy (
-				$this->__categoryModel (),
-				Query::instance ()
-					->where ('url', $url ? $url : Request::uri ())
-			);
-		}
+		$category = $this->_getInputCategory ();
 		
 		if (!$category)
 		{
@@ -250,29 +286,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 	 */
 	public function view ()
 	{
-		list (
-			$content_id,
-			$url
-		) = $this->_input->receive (
-			'content_id',
-			'url'
-		);
-		
-		if ($content_id)
-		{
-			$content = Model_Manager::modelByKey (
-				$this->__contentModel (), 
-				$content_id
-			);
-		}
-		else
-		{
-			$content = Model_Manager::modelBy (
-				$this->__contentModel (), 
-				Query::instance ()
-					->where ('url', $url ? $url : Request::uri ())
-			);
-		}
+		$content = $this->_getInputContent ();
 			
 		if (!$content)
 		{
