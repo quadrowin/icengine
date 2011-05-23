@@ -145,7 +145,7 @@ class IcEngine
 			require dirname (__FILE__) . '/Class/Debug.php';
 		}
 		
-		Debug::init ($params);
+		call_user_func_array (array ('Debug', 'init'), func_get_args ());
 	}
 	
 	/**
