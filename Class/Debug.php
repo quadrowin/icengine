@@ -2,13 +2,12 @@
 
 function internal_error_handler_hide ($errno, $errstr, $errfile, $errline)
 {
-	//echo '['.$errno.':'.$errfile.'@'.$errline.'] '.$errstr."\n<br />";
-	return true;
+
 }
 
 function internal_error_handler_ignore ($errno, $errstr, $errfile, $errline)
 {
-	return true;
+//	echo '['.$errno.':'.$errfile.'@'.$errline.'] '.$errstr."\n1<br />";
 }
 
 function internal_exception_handler_ignore ($exception)
@@ -158,11 +157,11 @@ class Debug
 	/**
 	 * @desc Скрытие всех возникающих ошибок.
 	 */
-	public static function disable ()
+	public static function disable ($default_display = false)
 	{
 		error_reporting (null);
-		ini_set ('display_errors', false);
-		ini_set ('html_errors', false);
+		ini_set ('display_errors', $default_display);
+		ini_set ('html_errors', $default_display);
 		ini_set ('track_errors', true);
 		
 		set_error_handler ('internal_error_handler_hide');
@@ -249,7 +248,8 @@ class Debug
 			self::disable ();
 		}
 		
-		error_reporting (E_ALL);
+		error_reporting (E_ALL | E_STRICT);
+		
 		ini_set ('display_errors', true);
 		ini_set ('html_errors', true);
 		ini_set ('track_errors', true);
@@ -261,7 +261,7 @@ class Debug
 			self::setOptions ($cfg);
 		}
 		
-		set_error_handler ("Debug::errorHandler");
+		set_error_handler (array (__CLASS__, 'errorHandler'));
 	}
 	
 	/**
@@ -319,12 +319,7 @@ class Debug
 	 */
 	public static function pushErrorHandler ($type)
 	{
-		error_reporting (null);
-		ini_set ('display_errors', false);
-		ini_set ('html_errors', false);
-		ini_set ('track_errors', false);
-		
-		set_error_handler ('internalErrorHandler_' . $type);
+		set_error_handler ('internal_error_handler_' . $type);
 	}
 	
 	/**
