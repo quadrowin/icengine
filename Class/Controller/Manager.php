@@ -347,7 +347,8 @@ class Controller_Manager
 		
 		$buffer = $iteration->getTransaction ()->buffer ();
 		$result = array (
-			'data'		=> isset ($buffer ['data']) ? 
+			'data'		=> 
+				isset ($buffer ['data']) ? 
 				$buffer ['data'] : 
 				array (),
 			'html'		=> null
