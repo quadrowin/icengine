@@ -37,13 +37,17 @@ class Debug
 	 * @var array
 	 */
 	protected static $_configPresets = array (
+		// Вывод сообщений отладки на экран
+		'echo'	=> array (
+			'echo_active'		=> true,
+		),
 		// Только firebug
 		'fb'	=> array (
-			'firebug_active'	=> false
+			'firebug_active'	=> true
 		),
-		// Скрывать все ошибки
-		'hide'	=> array (
-			'echo_active'		=> false
+		// Вывод ошибок на экран
+		true	=> array (
+			'echo_active'		=> true
 		)
 	);
 	
@@ -71,7 +75,7 @@ class Debug
 		 * @desc Отображение в браузер, вывод через stdOut.
 		 * @var boolean
 		 */
-		'echo_active'				=> true,
+		'echo_active'				=> false,
 		
 		/**
 		 * @desc Отображение в файл.
@@ -145,7 +149,11 @@ class Debug
 	 */
 	public static $debug_messages_count = 0;
 	
-	public static $start_time = 0;
+	/**
+	 * @desc Время подключения класса дебага.
+	 * @var integer
+	 */
+	public static $startTime;
 	
 	/**
 	 * @desc Скрытие всех возникающих ошибок.
@@ -232,10 +240,15 @@ class Debug
 	
 	/**
 	 * @desc Включение внутреннего обработчика ошибок.
-	 * @param array|Objective $config Настройки.
+	 * @param mixed $config Настройки.
 	 */
 	public static function init ($config)
 	{
+		if ($config === false)
+		{
+			self::disable ();
+		}
+		
 		error_reporting (E_ALL);
 		ini_set ('display_errors', true);
 		ini_set ('html_errors', true);
@@ -243,9 +256,9 @@ class Debug
 
 		$memory_start = function_exists ('memory_get_usage') ? memory_get_usage(true) : 0;
 		
-		if ($config)
+		foreach (func_get_args () as $cfg)
 		{
-			self::setOptions ($config);
+			self::setOptions ($cfg);
 		}
 		
 		set_error_handler ("Debug::errorHandler");
@@ -353,20 +366,32 @@ class Debug
 	 */
 	public static function setOptions ($config)
 	{
-		if (!$config)
+		if (is_scalar ($config))
 		{
-			self::setOutput ();
-			return;
-		}
-		
-		if (is_scalar ($config) && isset (self::$_configPresets [$config]))
-		{
-			$config = self::$_configPresets [$config];
+			if (isset (self::$_configPresets [$config]))
+			{
+				$config = self::$_configPresets [$config];
+			}
+			elseif (strpos ($config, 'dir:') === 0)
+			{
+				$path = rtrim (substr ($config, 4), '\\/') . '/';
+				$config = array (
+					'file_active'		=> true,
+					'file_error'		=> $path . 'error.txt',
+					'file_warn'			=> $path . 'warning.txt',
+					'file_log'			=> $path . 'notice.txt'
+				);
+			}
 		}
 		
 		if (is_object ($config) && $config instanceof Objective)
 		{
 			$config = $config->__toArray ();
+		}
+		
+		if (!$config)
+		{
+			return;
 		}
 		
 		self::$config = array_merge (self::$config, $config);
@@ -537,18 +562,18 @@ class Debug
 	 *	include $engine_dir . '/includes/FirePHPCore/fb.php';
 	 *	Debug::microtime (__FILE__, __LINE__);
 	 */
-	public static function microtime()
+	public static function microtime ()
 	{
 		$now = microtime (true);
 		
-		if (!self::$start_time)
+		if (!self::$startTime)
 		{
-			self::$start_time = $now;
+			self::$startTime = $now;
 		}
 		$text = func_num_args () ?
 			(implode (':', func_get_args ()) . ':') : '';
 			
-		$text .= round($now - self::$start_time, 3) . ' second';
+		$text .= round ($now - self::$startTime, 3) . ' second';
 		
 		if (function_exists ('fb') && !headers_sent ())
 		{
@@ -556,10 +581,12 @@ class Debug
 		}
 		else
 		{
-			echo round($now - self::$start_time, 3) . ' second';
+			echo round($now - self::$startTime, 3) . ' second';
 		}
 		
-		self::$start_time = $now;
+		self::$startTime = $now;
 	}
 	
 }
+
+Debug::$startTime = time ();
