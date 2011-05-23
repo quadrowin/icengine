@@ -8,6 +8,12 @@
  */
 class Helper_Header
 {
+	/**
+	 * 
+	 * @desc Код ошибки "ресурс перемещен постоянно"
+	 * @var unknown_type
+	 */
+	const E301 = 301;
 	
 	/**
 	 * @desc Код ошибки "доступ закрыт"
@@ -39,6 +45,10 @@ class Helper_Header
 		self::E404 => array(
 			"HTTP/1.0 404 Not Found",
 			"Status: 404 Not Found"
+		),
+		self::E301 => array(
+			"HTTP/1.1 301 Moved Remanently",
+			"Status: 301 Moved Remanently"
 		)
 	);
 	
