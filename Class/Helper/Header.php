@@ -11,7 +11,7 @@ class Helper_Header
 	/**
 	 * 
 	 * @desc Код ошибки "ресурс перемещен постоянно"
-	 * @var unknown_type
+	 * @var integer
 	 */
 	const E301 = 301;
 	
@@ -76,8 +76,10 @@ class Helper_Header
 	 * К переданному $uri при необходимости будет добавлено имя сервера
 	 * и "http://".
 	 * @param string $uri
+	 * @param integer $code [optional] Код редиректа.
+	 * Например Helper_Header::E301
 	 */
-	public static function redirect ($uri)
+	public static function redirect ($uri, $code = null)
 	{
 		if (substr ($uri, 0, 7) != 'http://')
 		{
@@ -86,7 +88,14 @@ class Helper_Header
 		
 		if (!headers_sent ())
 		{
-			header ("Location: $uri");
+			if ($code)
+			{
+				header ("Location: $uri", true, $code);
+			}
+			else
+			{
+				header ("Location: $uri");
+			}
 		}
 		else
 		{
