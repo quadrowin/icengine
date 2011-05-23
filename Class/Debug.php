@@ -181,14 +181,14 @@ class Debug
 			// Игнорим сообщение про open_basedir из smarty
 			(
 				self::$config ['ignore_open_basedir_warning'] &&
-				($errno == E_WARNING) &&
+				$errno == E_WARNING &&
 				strpos ($errfile, '/core.get_include_path.php') &&
-				($errline == 35)
+				$errline == 35
 			) ||
 			// Варнинг unlink
 			(
 				self::$config ['ignore_unlink_warning'] &&
-				($errno = E_WARNING) &&
+				$errno == E_WARNING &&
 				substr ($errstr, 0, 7) == 'unlink('
 			)
 		)
@@ -250,7 +250,7 @@ class Debug
 		
 		error_reporting (E_ALL | E_STRICT);
 		
-		ini_set ('display_errors', true);
+		ini_set ('display_errors', false);
 		ini_set ('html_errors', true);
 		ini_set ('track_errors', true);
 
@@ -262,6 +262,7 @@ class Debug
 		}
 		
 		set_error_handler (array (__CLASS__, 'errorHandler'));
+		register_shutdown_function (array (__CLASS__, 'shutdownHandler'));
 	}
 	
 	/**
@@ -441,6 +442,18 @@ class Debug
 		else
 		{
 			self::$config ['file_active'] = false;
+		}
+	}
+	
+	/**
+	 * @desc Обработчик завершения работы скрипта
+	 */
+	public static function shutdownHandler ()
+	{
+		$e = error_get_last ();
+		if ($e)
+		{
+			self::errorHandler ($e ['type'], $e ['message'], $e ['file'], $e ['line']);
 		}
 	}
 	
