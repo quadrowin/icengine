@@ -578,10 +578,18 @@ class Debug
 		{
 			self::$startTime = $now;
 		}
-		$text = func_num_args () ?
-			(implode (':', func_get_args ()) . ':') : '';
+		
+		if (func_num_args ())
+		{
+			$text = implode ('@', func_get_args ()) . ': ';
+		}
+		else
+		{
+			$trace = array_slice (debug_backtrace (), 0, 1);
+			$text = $trace [0]['file'] . '@' . $trace [0]['line'] . ': ';
+		}
 			
-		$text .= round ($now - self::$startTime, 3) . ' second';
+		$text .= round ($now - self::$startTime, 3);
 		
 		if (function_exists ('fb') && !headers_sent ())
 		{
@@ -589,7 +597,7 @@ class Debug
 		}
 		else
 		{
-			echo round($now - self::$startTime, 3) . ' second';
+			echo $text;
 		}
 		
 		self::$startTime = $now;
