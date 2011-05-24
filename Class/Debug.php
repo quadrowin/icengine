@@ -182,8 +182,7 @@ class Debug
 			(
 				self::$config ['ignore_open_basedir_warning'] &&
 				$errno == E_WARNING &&
-				strpos ($errfile, '/core.get_include_path.php') &&
-				$errline == 35
+				strpos ($errfile, 'smarty/internals/core.get_include_path.php')
 			) ||
 			// Варнинг unlink
 			(

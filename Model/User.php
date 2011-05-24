@@ -102,10 +102,10 @@ class User extends Model
 			$data = $data->__toArray ();
 		}
 		
-		$data ['ip'] = 
-			isset ($data ['ip']) ? 
-				$data ['ip'] : 
-				Request:: ip ();
+		if (!isset ($data ['ip']))
+		{
+			$data ['ip'] = Request::ip ();
+		}
 		
 		$user = new User ($data);
 		
