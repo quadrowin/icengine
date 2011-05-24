@@ -4,6 +4,7 @@
  * @desc Помощник для подключения js шаблонов
  * @author Юрий
  * @package IcEngine
+ * @deprecated Следует использовать Controller_View_Resource_Jtpl
  *
  */
 class View_Helper_Jtpl extends View_Helper_Abstract

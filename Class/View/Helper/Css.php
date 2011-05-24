@@ -4,6 +4,7 @@
  * @desc Помощник представления для работы с Css
  * @author Юрий Шведов
  * @package IcEngine
+ * @deprecated Следует использовать Controller_View_Resource_Css
  *
  */
 class View_Helper_Css extends View_Helper_Abstract

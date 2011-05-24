@@ -4,6 +4,7 @@
  * @desc Помощник для подключения js скриптов
  * @author Юрий
  * @package IcEngine
+ * @deprecated Следует использовать Controller_View_Resource_Js
  *
  */
 class View_Helper_Js extends View_Helper_Abstract
