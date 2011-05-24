@@ -18,54 +18,36 @@ class Controller_View_Resource_Js extends Controller_Abstract
 		$config = $this->config ();
 		
 		Loader::load ('View_Resource_Loader');
-		if (isset ($config->dirs))
+		
+		foreach ($config->sources as $source)
 		{
 			View_Resource_Loader::load (
-				$config->base_url,
-				$config->base_dir,
-				$config->dirs
+				$source ['base_url'],
+				$source ['base_dir'],
+				$source ['patterns']
 			);
 		}
-		else
-		{
-			foreach ($config->sources as $source)
-			{
-				View_Resource_Loader::load (
-					$source ['base_url'],
-					$source ['base_dir'],
-					$source ['patterns']
-				);
-			}
-		}
 		
-		$jses = $this->_view->resources()->getData (
-			View_Resource_Manager::JS
-		);
+		$view = View_Render_Broker::getView ();
 		
-		$result = '';
+		$jses = $view->resources()->getData (View_Resource_Manager::JS);
 		
 		if ($config->packed_file)
 		{
-			$packer = $this
-				->_view
-				->resources ()
+			$packer = $view->resources ()
 				->packer (View_Resource_Manager::JS);
 			
 			$packer->pack ($jses, $config->packed_file);
 			
-			$result = 
-				str_replace ('{$url}', $config->packed_url, self::TEMPLATE);
+			$this->_output->send (array (
+				'url'	=> $config->packed_url,
+				'ts'	=> $packer->cacheTimestamp ()
+			));
 		}
 		else
 		{
-			foreach ($jses as $js)
-			{
-				$result .=
-					str_replace ('{$url}', $js ['href'], self::TEMPLATE);
-			}
+			$this->_output->send ('jses', $jses);
 		}
-		
-		return $result;
 	}
 	
 }

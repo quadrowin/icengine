@@ -39,22 +39,21 @@ class Controller_View_Resource_Css extends Controller_Abstract
 			}
 		}
 		
-		$csses = View_Render_Broker::getView ()->resources ()->getData (
-			View_Resource_Manager::CSS
-		);
-			
-		$result = array ();
+		$view = View_Render_Broker::getView ();
+		
+		$csses = $view->resources ()->getData (View_Resource_Manager::CSS);
 		
 		if ($config->packed_file)
 		{
-			$packer = $this
-				->_view
-				->resources ()
+			$packer = $view->resources ()
 				->packer (View_Resource_Manager::CSS);
 					
 			$packer->pack ($csses, $config->packed_file);
 			
-			$this->_output->send ('css', $config->packed_url);
+			$this->_output->send (array (
+				'css'	=> $config->packed_url,
+				'ts'	=> $packer->cacheTimestamp ()
+			));
 		}
 		else
 		{
