@@ -369,7 +369,7 @@ class Debug
 				// подключение файрпхп
 				if ($config == 'fb' && !function_exists ('fb'))
 				{
-					Loader::requireOnce ('FirePHPCore/fb.php', 'includes');
+					require dirname (__FILE__) . '/../includes/FirePHPCore/fb.php';
 				}
 				$config = self::$_configPresets [$config];
 			}
