@@ -605,4 +605,4 @@ class Debug
 	
 }
 
-Debug::$startTime = time ();
+Debug::$startTime = microtime (true);
