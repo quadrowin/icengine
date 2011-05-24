@@ -130,6 +130,7 @@ class Query {
 	public function delete ()
 	{
 		$this->_type = self::DELETE;
+		$this->_parts [self::DELETE] = func_get_args ();
 		return $this;
 	}
 		
@@ -156,7 +157,6 @@ class Query {
 			$alias ? array ($table => $alias) : $table, 
 			self::FROM
 		);
-		
 		return $this;
 	}
 	
