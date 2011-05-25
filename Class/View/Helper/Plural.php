@@ -4,14 +4,10 @@ class View_Helper_Plural extends View_Helper_Abstract
 {
 
 	/**
-	 * Стандартная функция выбора формы
-	 * 
-	 * @param integer $n
-	 * 		Число
-	 * @param array $forms
-	 * 		Формы, разделенные запятой
-	 * @return string
-	 * 		Подходящая форма
+	 * @desc Стандартная функция выбора формы
+	 * @param integer $n Число
+	 * @param array $forms Формы, разделенные запятой
+	 * @return string Подходящая форма
 	 */
 	public function _pluralDefault ($n, array $forms)
 	{
@@ -27,14 +23,10 @@ class View_Helper_Plural extends View_Helper_Abstract
 	}
 	
 	/**
-	 * Получение подходящей формы слова через Morphy
-	 * 
-	 * @param integer $value
-	 * 		Число
-	 * @param string $word
-	 * 		Слово в произвольной форме
-	 * @return string
-	 * 		Слово в подходящей форме
+	 * @desc Получение подходящей формы слова через Morphy
+	 * @param integer $value Число
+	 * @param string $word Слово в произвольной форме
+	 * @return string Слово в подходящей форме
 	 */
 	public function _pluralMorphy ($n, $word)
 	{
@@ -63,15 +55,13 @@ class View_Helper_Plural extends View_Helper_Abstract
 	}
 	
 	/**
-	 * Выбирает подходящую форму для числа
-	 * 
+	 * @desc Выбирает подходящую форму для числа
 	 * @param array $params
 	 * 		$params ['value'] integer
 	 * 		Число
 	 *  	$params ['forms'] string
 	 *  	Формы слова, разделенные запятой ('день,дня,дней')
-	 *  @return string
-	 *  	Слово в подходящей форме
+	 *  @return string Слово в подходящей форме
 	 */
 	public function get (array $params)
 	{

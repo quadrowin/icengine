@@ -8,6 +8,18 @@ class Controller_Content_Abstract extends Controller_Abstract
 {
 	
 	/**
+	 * @desc Создает и возвращает контроллер. 
+	 * Загружает используемые классы.
+	 */
+	public function __construct ()
+	{
+		Loader::load ('Helper_Header');
+		Loader::load ('Content');
+		Loader::load ('Temp_Content');
+		Loader::load ('Content_Collection');
+	}
+	
+	/**
 	 * @desc После успешного начала создания.
 	 * @override
 	 */
@@ -19,6 +31,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 	/**
 	 * @desc После успешного сохранения контента
 	 * @param Content $content Сохраняемый контент.
+	 * $content->data ('tc') Содержит ссылку на временный контент.
 	 * @param boolean $is_new true, если это новый контент, иначе false.
 	 * @override
 	 */
@@ -33,6 +46,76 @@ class Controller_Content_Abstract extends Controller_Abstract
 	protected function _extendingModel ()
 	{
 		return ''; // без расширения
+	}
+	
+	/**
+	 * @desc 
+	 * @return Content_Category
+	 */
+	protected function _getInputCategory ()
+	{
+		list (
+			$category_id,
+			$url
+		) = $this->_input->receive (
+			'category_id',
+			'url'
+		);
+		
+		if ($category_id)
+		{
+			return Model_Manager::modelByKey (
+				$this->__categoryModel (),
+				$category_id
+			);	
+		}
+		
+		return Model_Manager::modelBy (
+			$this->__categoryModel (),
+			Query::instance ()
+				->where ('url', $url ? $url : Request::uri ())
+		);		
+	}
+	
+	/**
+	 * @desc
+	 * @return Content
+	 */
+	protected function _getInputContent ()
+	{
+		list (
+			$content_id,
+			$url
+		) = $this->_input->receive (
+			'content_id',
+			'url'
+		);
+		
+		if ($content_id)
+		{
+			return Model_Manager::modelByKey (
+				$this->__contentModel (), 
+				$content_id
+			);
+		}
+		
+		return Model_Manager::modelBy (
+			$this->__contentModel (), 
+			Query::instance ()
+				->where ('url', $url ? $url : Request::uri ())
+		);
+	}
+	
+	/**
+	 * @desc Фабрик метод для полечение реферер при сохранении
+	 * @param string $url
+	 * @param string $referer
+	 * @param Content_Abstract $content
+	 * @return string
+	 */
+	protected function _saveReferer ($url, $referer, $content)
+	{
+		return ($url != $content->url) ? $url : $referer;
 	}
 	
 	/**
@@ -133,18 +216,6 @@ class Controller_Content_Abstract extends Controller_Abstract
 	}
 	
 	/**
-	 * @desc Фабрик метод для полечение реферер при сохранении
-	 * @param string $url
-	 * @param string $referer
-	 * @param string $title
-	 * @return string
-	 */
-	protected function __saveReferer ($url, $referer, $title)
-	{
-		return ($url != $content->url) ? $url : $referer;
-	}
-	
-	/**
 	 * @desc Фабрик метод для полечение URL при сохранении
 	 * @param string $url
 	 * @param string $referer
@@ -156,14 +227,6 @@ class Controller_Content_Abstract extends Controller_Abstract
 		Loader::load ('Helper_Translit');
 		return $url = rtrim ($url, '/') . '/' . 
 			Helper_Translit::makeUrlLink ($title) . '.html';
-	}
-
-	public function __construct ()
-	{
-		Loader::load ('Helper_Header');
-		Loader::load ('Content');
-		Loader::load ('Temp_Content');
-		Loader::load ('Content_Collection');
 	}
 	
 	/**
@@ -179,29 +242,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 	 */
 	public function roll ()
 	{
-		list (
-			$category_id,
-			$url
-		) = $this->_input->receive (
-			'category_id',
-			'url'
-		);
-		
-		if ($category_id)
-		{
-			$category = Model_Manager::modelByKey (
-				$this->__categoryModel (),
-				$category_id
-			);	
-		}
-		else
-		{
-			$category = Model_Manager::modelBy (
-				$this->__categoryModel (),
-				Query::instance ()
-					->where ('url', $url ? $url : Request::uri ())
-			);
-		}
+		$category = $this->_getInputCategory ();
 		
 		if (!$category)
 		{
@@ -245,29 +286,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 	 */
 	public function view ()
 	{
-		list (
-			$content_id,
-			$url
-		) = $this->_input->receive (
-			'content_id',
-			'url'
-		);
-		
-		if ($content_id)
-		{
-			$content = Model_Manager::modelByKey (
-				$this->__contentModel (), 
-				$content_id
-			);
-		}
-		else
-		{
-			$content = Model_Manager::modelBy (
-				$this->__contentModel (), 
-				Query::instance ()
-					->where ('url', $url ? $url : Request::uri ())
-			);
-		}
+		$content = $this->_getInputContent ();
 			
 		if (!$content)
 		{
@@ -384,7 +403,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			return $this->_helperReturn ('Access', 'denied');
 		}
 		
-		if (!$content)
+		if (!isset ($content) || !$content)
 		{
 			$content = Model_Manager::get (
 				$this->__contentModel (),
@@ -392,7 +411,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			);
 		}
 		
-		$tc = Temp_Content::create (get_class ($this));
+		$tc = Temp_Content::create ($this);
 		$tc->attr (array (
 			'controller'	=> $this->name (),
 			'back'			=> $back,
@@ -487,7 +506,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 				$content_id
 			);
 
-			$referer = $this->__saveReferer ($url, $referer, $title);
+			$referer = $this->_saveReferer ($url, $referer, $content);
 
 			$content->update (array (
 				'title'			=> $title,
@@ -540,9 +559,22 @@ class Controller_Content_Abstract extends Controller_Abstract
 		
 		$is_new = !$content_id;
 		
+		$content->data ('tc', $tc);
 		$this->_afterSave ($content, $is_new);
 		
-		return Helper_Header::redirect ($referer);
+		if (!Request::isJsHttpRequest ())
+		{
+			Helper_Header::redirect ($referer);
+			die ();
+		}
+		
+		$this->_dispatcherIteration->setTemplate (null);
+		$this->_output->send (array (
+			'redirect'	=> $referer,
+			'data'		=> array (
+				'redirect'	=> $referer
+			)
+		));
 	}
 	
 	/**
@@ -607,7 +639,21 @@ class Controller_Content_Abstract extends Controller_Abstract
 
 		$url = $this->__deleteUrl ($content, $url);
 		
-		return Helper_Header::redirect ($url);
+		$this->_dispatcherIteration->setTemplate (null);
+		
+		if (Request::isPost ())
+		{
+			$this->_output->send (array (
+				'redirect'	=> $url,
+				'data'		=> array (
+					'redirect'	=> $url
+				)
+			));
+		}
+		else
+		{
+			Helper_Header::redirect ($url);
+		}
 	}
 
 	public function uploadImage ()
