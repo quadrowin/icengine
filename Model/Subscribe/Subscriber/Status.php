@@ -8,7 +8,7 @@ class Subscribe_Subscriber_Status extends Model
 	 * @param integer $status
 	 * @return Model_Collection
 	 */
-	public function forSession ($session_id, $status, $limit = null)
+	public static function forSession ($session_id, $status, $limit = null)
 	{
 		Loader::load ('Subscribe_Subscriber_Status_Collection');
 		
