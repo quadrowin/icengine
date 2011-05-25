@@ -1,211 +1,110 @@
-var $agency_id,
-	$name,
-	$message,
-	$code,
-	$join_id,
-	$last_id,
-	$timer,
-	first_join = true;
-
-var Controller_Chat = {
-	localizeDate: function (date)
+var Controller_Chat = Class.extend ({
+	$agence_id: null,
+	$message: null,
+	$code: null,
+	$join_id: null,
+	$last_id: null,
+	
+	joinChat: function (params)
 	{
-		var tmp = date.split (':');
-		var dt = new Date, offset = dt.getTimezoneOffset () / 60;
-
-		var h = parseInt (tmp [0]) - offset;
+		params.back = { $sender: this };
 		
-		if (h > 24)
-		{
-			h = 24 - h; 
-		}
-		
-		return (h < 10 ? '0' : '') + h + ':' + tmp [1];
+		Controller.call (
+			'Chat_Session/join',
+			params,
+			this.joinChatCallback,
+			true
+		);
 	},
-	getLastDate: function (cont)
+	getLastId: function (cont)
 	{
-		var li = cont.find ('li:first');
-		if (li.length)
-		{
-			var date = li.find ('span.time').html ().split (' ')[0];
-			return date;
-		}
-		return '';
-	},
-	prepareUri: function (uri)
-	{
-		uri = uri.replace ('http://', '');
-		uri = uri.substr (uri.indexOf ('/'), uri.length);
-
-		return uri;
+		return 0;
 	},
 	getLastMessages: function (cont)
 	{
-		var last_li = cont.find ('li:last');
-		if (last_li.length)
+		this.$last_id = this.getLastId (cont);
+		
+		if (this.$last_id > 0)
 		{
-			$last_id = last_li.attr ('id').split ('-')[1];
-			if ($last_id > 0)
-			{
-				Controller_Chat.receiveLast ($join_id, $last_id);
-			}
+			this.receiveLast (
+				this.$join_id, 
+				this.$last_id
+			);
 		}
 	},
 	appendMessage: function (cont, obj)
 	{
-		if ($('#message-' + obj.id).length)
+
+	},
+	indexChatCallback: function (result)
+	{
+		if (typeof result.data.code != 'undefined')
+		{
+			var $this = result.back.$sender;
+			
+			$this.$join_id = result.data.join_id;
+			
+			$this.$name	 = result.data.name;
+			$this.$code  = result.data.code;
+			
+			$this.joinChat ({
+				code: $this.$code,
+				name: $this.$name,
+			});
+			
+			return;
+		}
+	},
+	indexChat: function (params)
+	{
+		if (typeof params.route == 'undefined')
 		{
 			return;
 		}
 		
-		var li = $('<li></li>').appendTo (cont).attr ('id', 'message-' + obj.id),
-			date = $('<span class="time"></span>').html (obj.date 
-					+ '&nbsp;<b>' + obj.name + ':</b>').appendTo (li);
-		
-		var b = li.html ();
-		
-		li.html (b + '<p style="padding:4px 1px">' + obj.message + '</p>');
-		
-		if (obj.join_id != $join_id)
-		{
-			li.addClass ('adm');
-		}
-		
-		cont.scrollTop (20000); 
-	},
-	indexChat: function (agency_id)
-	{
-		function callback (result)
-		{			
-			if (typeof result.data.code != 'undefined')
-			{
-				$join_id = result.data.join_id;
-				$name	 = result.data.name;
-				$code 	 = result.data.code;
-				
-				Controller_Chat.joinChat (
-					$code,
-					$name
-				);
-				
-				return;
-			}
-			
-			Helper_Dialog.alert ({
-				title: 'Задать вопрос турфирме',
-				text: result.html,
-				maxWidth: 700,
-				maxHeight: 550
-			});
-		}
+		params.back = { $sender: params.sender };
 		
 		Controller.call (
-			'Agency_Chat/index',
-			{
-				agency_id: agency_id,
-				uri: Controller_Chat.prepareUri (window.location.href)
-			},
-			callback,
+			params.route,
+			params,
+			this.indexChatCallback,
 			true
 		);
 	},
-	createChat: function (agency_id, name, message)
+	createChatCallback: function (result)
 	{
-		function callback (result)
+		var $this = result.back.$sender;
+		
+		$this.$code = result.data.code;
+		
+		$this.joinChat ({
+			code: $this.$code,
+			name: $this.$name
+		}); 
+	},
+	createChat: function (params)
+	{
+		if (typeof params.route == 'undefined')
 		{
-			$code = result.data.code;
-			
-			Controller_Chat.joinChat (
-				$code,
-				$name
-			);
-		} 
+			return;
+		}
+		
+		params.back = { $sender: this };
 		
 		Controller.call ( 
-			'Agency_Chat/create',
-			{
-				agency_id: agency_id,
-				name: name,
-				message: message
-			},
-			callback,
+			params.route,
+			params,
+			this.createChatCallback,
 			true
 		);
 	},
-	joinChat: function (code, name)
+	joinChatCallback: function (result)
 	{
-		function callback (result)
-		{
-			$join_id = result.data.join_id;
-			$name	 = result.data.name;
-			$code 	 = result.data.code;
-			
-			Helper_Dialog.alert ({
-				title: 'Задать вопрос турфирме',
-				text: result.html,
-				maxWidth: 700,
-				maxHeight: 550,
-				afterShow: function ()
-				{
-					var cont = $('#chat_messages');
-					$timer = setInterval (
-						function ()
-						{
-							Controller_Chat.getLastMessages (cont);
-						},
-						3000
-					)
-				},
-				afterHide: function ()
-				{
-					if ($timer)
-					{
-						clearInterval ($timer);
-					}
-				}
-			});
-			
-			if (first_join && $message)
-			{
-				Controller_Chat.sendMessage (
-					$join_id,
-					$message,
-					true
-				);
-				first_join = false;
-				
-				if ($('#chat_offline').length)
-				{
-					Controller_Chat.appendMessage (
-						$('#chat_messages'),
-						{
-							name: 'Сообщение',
-							message: 'В данный момент менеджер отсутсвует и ответит вам как только появится.',
-							join_id: 0,
-							id: 0,
-							date: ''
-						}
-					);
-				}
-			}
-			
-			Controller_Chat.receiveAll ($join_id);
-			
-			$('#chat_message').
-				val ('').
-				focus (); 
-		}
+		var $this = result.back.$sender;
 		
-		Controller.call (
-			'Chat_Session/join',
-			{
-				code: code,
-				name: name,
-				uri: Controller_Chat.prepareUri (window.location.href)
-			},
-			callback,
-			true
-		);
+		$this.$join_id = result.data.join_id;
+		$this.$name	 = result.data.name;
+		$this.$code  = result.data.code;
 	},
 	receiveAll: function (join_id)
 	{
@@ -213,8 +112,11 @@ var Controller_Chat = {
 			'Chat_Message/roll',
 			{
 				session_join_id: join_id,
+				back: {
+					$sender: this
+				}
 			},
-			Controller_Chat.receiveCallback,
+			this.receiveCallback,
 			true
 		);
 	},
@@ -224,122 +126,44 @@ var Controller_Chat = {
 			'Chat_Message/last',
 			{
 				session_join_id: join_id,
-				last_message_id: last_id
+				last_message_id: last_id,
+				back: {
+					$sender: this
+				}
 			},
-			Controller_Chat.receiveCallback,
+			this.receiveCallback,
 			true
 		);
 	}, 
-	sendMessage: function (join_id, message, dont_callback)
+	sendMessageCallback: function (result)
 	{
-		function callback (result)
-		{
-			var el = $('#chat_messages');
+	
+	},
+	clearChatInput: function ()
+	{
+	},
+	sendMessage: function (params)
+	{
+		this.clearChatInput (); 
 		
-			Controller_Chat.appendMessage (
-				el, 
-				{
-					name: $name,
-					message: message,
-					join_id: $join_id,
-					id: result.data.id,
-					date: Controller_Chat.localizeDate (result.data.date)
-				}
-			);
-		}
-		
-		$('#chat_message').
-			val ('').
-			focus (); 
-		
-		if (!message)
+		if (!params.message)
 		{
 			return;
 		}
 		
+		params.back = { $sender: this };
+		
 		Controller.call (
 			'Chat_Message/send',
-			{
-				session_join_id: join_id,
-				message: message 
-			},
-			dont_callback ? function () { } : callback,
+			params,
+			(typeof params.dont_callback != 'undefined') 
+				? function () { } 
+				: this.sendMessageCallback,
 			true
 		);
 	},
 	receiveCallback: function (result)
 	{
-		if (typeof result.data.messages == 'undefined')
-		{
-			return;
-		}
-		
-		var el = $('#chat_messages');
-		
-		for (var i = 0, m = result.data.messages, l = m.length; i < l; i++)
-		{
-			m [i].date = Controller_Chat.localizeDate (m [i].date);
-			Controller_Chat.appendMessage (
-				el, m [i]
-			);
-		}
+
 	}
-}
-$(document).ready (function ()
-{
-	$agency_id = $('#agency_id').val ();
-	
-	if ($('#join_id').length)
-	{
-		$join_id = $('#join_id').val ();
-	}
-	
-	if ($('#code').length)
-	{
-		$code = $('#code').val ();
-	}
-	
-	if ($('#name').length)
-	{
-		$name = $('#name').val ();
-	}
-	
-	$('#enter-chat').click (function ()
-	{
-		if (!$code)
-		{
-			Controller_Chat.indexChat ($agency_id);
-		}
-		else
-		{
-			Controller_Chat.joinChat (
-				$code,
-				$name
-			);
-		}
-	});
-	
-	$('#chat_send').live ('click', function ()
-	{
-		$name = $('#chat_name').val ();
-		$message = $('#chat_message').val ();
-		
-		Modal.hide ();
-		
-		Controller_Chat.createChat (
-			$agency_id,
-			$name,
-			$message
-		);
-		
-	});
-	
-	$('#chat_type').live ('click', function ()
-	{
-		$message = $('#chat_message').val ();
-		Controller_Chat.sendMessage (
-			$join_id,
-			$message
-		);
-	});
 });

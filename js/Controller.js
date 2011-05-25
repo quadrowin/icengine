@@ -28,7 +28,7 @@ var Controller = {
 				'params': params,
 				'back': back
 			},
-			Controller.callback, 
+			Controller.callback,
 			nocache ? true : false
 		);
 	},

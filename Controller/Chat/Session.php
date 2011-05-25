@@ -44,7 +44,7 @@ class Controller_Chat_Session extends Controller_Abstract
 		
 		$session = Chat_Session::byCode ($code);
 		
-		if (!$session)
+		if (!$session) 
 		{
 			$session = new Chat_Session (array (
 				'code'		=> $code,
