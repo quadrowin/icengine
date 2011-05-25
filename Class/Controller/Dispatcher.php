@@ -89,52 +89,6 @@ class Controller_Dispatcher
 		);
 
 		$this->_currentIteration = $parent_iteration;
-		
-//		/**
-//		 * @desc Контроллер
-//		 * @var Controller_Abstract $controller
-//		 */
-//		$controller = Controller_Manager::get ($controller_action->controller);
-//
-//		$method_name = $controller_action->action;
-//
-//		if (!method_exists ($controller, $method_name))
-//		{
-//			Loader::load ('Controller_Exception');
-//
-//			throw new Controller_Exception (
-//				"Action " . $controller_action->controller . "::" .
-//				$controller_action->action . " unexists."
-//			);
-//		}
-//
-//		// Инициализация транспортов
-//		Controller_Manager::beforeAction ($controller);
-//		if (isset ($controller_action->input))
-//		{
-//			$controller->setInput ($controller_action->input);
-//		}
-//
-//		if (isset ($controller_action->output))
-//		{
-//			$controller->getOutput ()->endTransaction ();
-//			$controller->setOutput ($controller_action->output);
-//			$controller->getOutput ()->beginTransaction ();
-//		}
-//
-//		$this->_onDispatchIterationStart ($controller, $iteration, $method_name);
-//
-//		if (!$this->_currentIteration->getIgnore ())
-//		{
-//			Loader::load ('Executor');
-//			Executor::execute (array ($controller, $method_name));
-//		}
-//
-//		Controller_Manager::afterAction ($controller, $iteration);
-//
-//		$this->_onDispatchIterationFinish ($controller, $iteration, $method_name);
-//
-//		$this->_currentIteration = $parent_iteration;
 	}
 
 	/**

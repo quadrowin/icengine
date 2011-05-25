@@ -115,10 +115,12 @@ class Query {
 	 * @desc В запрос будет добавлен аргумент для получения полного
 	 * количества строк (SQL_CALC_FOUND_ROWS).
 	 * Работает только для Mysql.
+	 * @return Query Этот объект.
 	 */
 	public function calcFoundRows ()
 	{
-	   $this->_parts [self::CALC_FOUND_ROWS] = true; 
+	   $this->_parts [self::CALC_FOUND_ROWS] = true;
+	   return $this; 
 	}
 	
 	/**
@@ -128,6 +130,7 @@ class Query {
 	public function delete ()
 	{
 		$this->_type = self::DELETE;
+		$this->_parts [self::DELETE] = func_get_args ();
 		return $this;
 	}
 		
@@ -138,7 +141,7 @@ class Query {
 	 */
 	public function distinct ($value)
 	{
-		$this->_parts [self::DINSTINCT] = (bool) $value;
+		$this->_parts [self::DISTINCT] = (bool) $value;
 		return $this;
 	}
 	
@@ -154,7 +157,6 @@ class Query {
 			$alias ? array ($table => $alias) : $table, 
 			self::FROM
 		);
-		
 		return $this;
 	}
 	
@@ -540,9 +542,13 @@ class Query {
 	 * определения алиасов таблиц). 
 	 * @return mixed Транслированный запрос.
 	 */
-	public function translate ($translator = 'Mysql', Model_Scheme $model_scheme)
+	public function translate ($translator = 'Mysql', 
+		Model_Scheme $model_scheme = null)
 	{
-		return Query_Translator::factory ($translator)->translate ($this, $model_scheme);
+		return Query_Translator::factory ($translator)->translate (
+			$this,
+			$model_scheme ? $model_scheme : DDS::modelScheme ()
+		);
 	}
 	
 	/**

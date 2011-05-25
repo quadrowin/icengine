@@ -19,7 +19,7 @@ class Helper_Translit
 	 * массив вида "заменяемый символ" => "символ для замены".
 	 * @return string Результат замены
 	 */
-	protected function u_strtr ($value, $to, $from = null)
+	protected static function u_strtr ($value, $to, $from = null)
 	{
 		if (is_null ($from))
 		{

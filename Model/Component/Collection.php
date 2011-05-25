@@ -34,9 +34,9 @@ abstract class Component_Collection extends Model_Collection
 	}
 	
 	/**
-	 * @desc Загрузка списка комментариев для записи
-	 * @param Model $model Модель, для которой подгружаются объекты
-	 * @return Component_Collection Экземпляр коллекции
+	 * @desc Загрузка списка компонент для записи.
+	 * @param Model $model Модель, для которой подгружаются объекты.
+	 * @return Component_Collection Эта коллекция.
 	 */
 	public function getFor (Model $model)
 	{

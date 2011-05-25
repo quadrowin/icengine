@@ -15,6 +15,12 @@ abstract class View_Resource_Packer_Abstract
 	protected $_currentResource;
 	
 	/**
+	 * @desc Время создания упакованного файла.
+	 * @var string
+	 */
+	protected $_cacheTimestamp = 0;
+	
+	/**
 	 * @desc Настройки
 	 * @var array
 	 */
@@ -43,7 +49,7 @@ abstract class View_Resource_Packer_Abstract
 		 * даже если не зафиксировано изменение исходных файлов.
 		 * @var integer
 		 */
-		'refresh_time'	=> 300,
+		'refresh_time'	=> 999999999,
 	
 		/**
 		 * @desc Файл для хранения состояния
@@ -75,6 +81,15 @@ abstract class View_Resource_Packer_Abstract
 			date ('Y-m-d H:i:s'),
 			$this->config ()->file_prefix
 		);
+	}
+	
+	/**
+	 * @desc Таймстамп создания кэша.
+	 * @return integer
+	 */
+	public function cacheTimestamp ()
+	{
+		return $this->_cacheTimestamp;
 	}
 	
 	/**
@@ -141,6 +156,8 @@ abstract class View_Resource_Packer_Abstract
 				return false;
 			}
 		}
+		
+		$this->_cacheTimestamp = $state ['result_time'];
 		
 		return true;
 	}
@@ -261,6 +278,8 @@ abstract class View_Resource_Packer_Abstract
 				'filemtime'	=> $resource->filemtime ()
 			);
 		}
+		
+		$this->_cacheTimestamp = $state ['result_time'];
 		
 		$state = json_encode ($state);
 		file_put_contents ($this->config ()->state_file, $state);

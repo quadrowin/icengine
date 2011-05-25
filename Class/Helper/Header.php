@@ -8,6 +8,12 @@
  */
 class Helper_Header
 {
+	/**
+	 * 
+	 * @desc Код ошибки "ресурс перемещен постоянно"
+	 * @var integer
+	 */
+	const E301 = 301;
 	
 	/**
 	 * @desc Код ошибки "доступ закрыт"
@@ -39,6 +45,10 @@ class Helper_Header
 		self::E404 => array(
 			"HTTP/1.0 404 Not Found",
 			"Status: 404 Not Found"
+		),
+		self::E301 => array(
+			"HTTP/1.1 301 Moved Remanently",
+			"Status: 301 Moved Remanently"
 		)
 	);
 	
@@ -66,8 +76,10 @@ class Helper_Header
 	 * К переданному $uri при необходимости будет добавлено имя сервера
 	 * и "http://".
 	 * @param string $uri
+	 * @param integer $code [optional] Код редиректа.
+	 * Например Helper_Header::E301
 	 */
-	public static function redirect ($uri)
+	public static function redirect ($uri, $code = null)
 	{
 		if (substr ($uri, 0, 7) != 'http://')
 		{
@@ -76,7 +88,14 @@ class Helper_Header
 		
 		if (!headers_sent ())
 		{
-			header ("Location: $uri");
+			if ($code)
+			{
+				header ("Location: $uri", true, $code);
+			}
+			else
+			{
+				header ("Location: $uri");
+			}
 		}
 		else
 		{

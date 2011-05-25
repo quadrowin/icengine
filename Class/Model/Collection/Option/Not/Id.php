@@ -28,7 +28,7 @@ class Model_Collection_Option_Not_Id extends Model_Collection_Option_Abstract
 		if (isset ($params ['id']) && $params ['id'])
 		{
 			$query->where (
-				$collection->modelName () . 'Placement_Type.id != ?',
+				$collection->modelName () . '.id != ?',
 				$params ['id']
 			);
 		}

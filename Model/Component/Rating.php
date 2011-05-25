@@ -10,6 +10,25 @@ class Component_Rating extends Model_Component
 {
 	
 	/**
+	 * @desc Создает и возвращает рейтинг.
+	 * @param array $data Данные
+	 * $data ['table'] string Модель
+	 * $data ['rowId'] integer Запись
+	 * @return Component_Rating
+	 */
+	public static function create (array $data)
+	{
+		return new self (array_merge (
+			array (
+				'value'			=> 0,
+				'votes'			=> 0,
+				'changeTime'	=> Helper_Date::toUnix ()
+			),
+			$data
+		));
+	}
+	
+	/**
 	 * @desc Изменение рейтинга
 	 * @param integer $change
 	 * @return Component_Rating

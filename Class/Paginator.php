@@ -165,10 +165,8 @@ class Paginator
 	
 	/**
 	 * 
-	 * @param Data_Transport $input
-	 * 		Входные данные.
-	 * @param integer $full_count
-	 * 		Общее количество элементов.
+	 * @param Data_Transport $input Входные данные.
+	 * @param integer $full_count Общее количество элементов.
 	 * @return Paginator
 	 */
 	public static function fromInput (Data_Transport $input, $full_count = 0)
@@ -182,13 +180,16 @@ class Paginator
 	/**
 	 * @return integer
 	 * @desc возвращает текущий начальный индекс
+	 * @deprecated следует использовать метод Paginator::offset ().
 	 */
 	public function getIndex ()
 	{
 		return max ($this->page - 1, 0) * $this->pageLimit;
 	}
 	/**
-	 * @return integer
+	 * @desc Возвращает индекс первой записи на текущей страницы 
+	 * (индекс первой записи - 0). 
+	 * @return integer Индекс первой записи или 0.
 	 */
 	public function offset ()
 	{
