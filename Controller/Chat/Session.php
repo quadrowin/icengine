@@ -75,7 +75,7 @@ class Controller_Chat_Session extends Controller_Abstract
 			$query
 		);
 		
-		$name = iconv ('Windows-1251', 'UTF-8', $name);
+		$name = urldecode (iconv ('Windows-1251', 'UTF-8', $name));
 		
 		if (!$join)
 		{
