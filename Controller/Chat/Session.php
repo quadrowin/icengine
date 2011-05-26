@@ -75,6 +75,8 @@ class Controller_Chat_Session extends Controller_Abstract
 			$query
 		);
 		
+		$name = iconv ('Windows-1251', 'UTF-8', $name);
+		
 		if (!$join)
 		{
 			$join = Chat_Session_Join::forUser (
