@@ -149,6 +149,15 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 				$config ['from_name'] : 
 				$this->_config ['from_name'];
 				
+		if ($config ['reply_address'])
+		{
+			$mail->Sender = $config ['reply_address'];
+		}
+		elseif ($this->_config ['reply_address'])
+		{
+			$mail->Sender = $this->_config ['reply_address']; 
+		}
+				
 		if ($this->_config ['send_charset'])
 		{
 			$mail->CharSet = $this->_config ['send_charset'];
