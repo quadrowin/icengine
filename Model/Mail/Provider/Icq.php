@@ -21,8 +21,8 @@ class Mail_Provider_Icq extends Mail_Provider_Abstract
 	 */
 	protected $_config = array (
 		// С УИНа
-		'from_uin'			=> '5407518',
-		'from_password'		=> '20022010',
+		'from_uin'			=> '616743102',
+		'from_password'		=> 'nkw4r6l',
 		// От кого
 		'from_name'			=> 'IcEngine',
 		// Исходная кодировка
