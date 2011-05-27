@@ -21,8 +21,8 @@ class Mail_Provider_Icq extends Mail_Provider_Abstract
 	 */
 	protected $_config = array (
 		// С УИНа
-		'from_uin'			=> '5407518',
-		'from_password'		=> '20022010',
+		'from_uin'			=> '616743102',
+		'from_password'		=> 'nkw4r6l',
 		// От кого
 		'from_name'			=> 'IcEngine',
 		// Исходная кодировка
@@ -57,7 +57,7 @@ class Mail_Provider_Icq extends Mail_Provider_Abstract
 				'password'	=> $this->config ()->from_password
 			));
 		}
-		return $this->_mailer;
+		return $this->_icq;
 	}
 	
 	/**
@@ -133,24 +133,23 @@ class Mail_Provider_Icq extends Mail_Provider_Abstract
 				iconv ($base_charset, $send_charset, $body) :
 				$body;
 		
+		$result = false;
+				
 		try
 		{
-			if ($this->_icq->connected ())
-			{
-				Loader::load ('Client_Icq_Reciever');
-				$result = $this->_icq->send (
-					new Client_Icq_Reciever (
-						'Client_Icq_Reciever',
-						array (
-							'name'	=> '',
-							'icq'	=> is_array ($addresses)
-								? $addresses [0]
-								: $addresses
-						)
-					),
-					$body
-				);
-			} 
+			Loader::load ('Client_Icq_Reciever');
+			$result = $this->_icq->send (
+				new Client_Icq_Reciever (
+					'Client_Icq_Reciever',
+					array (
+						'name'	=> '',
+						'icq'	=> is_array ($addresses)
+							? $addresses [0]
+							: $addresses
+					)
+				),
+				$body
+			);
 		}
 		catch (Exception $e)
 		{

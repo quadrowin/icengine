@@ -75,6 +75,9 @@ class Controller_Chat_Session extends Controller_Abstract
 			$query
 		);
 		
+		Loader::load ('Helper_String');
+		$name = Helper_String::charset_x_utf8 ($name);
+		
 		if (!$join)
 		{
 			$join = Chat_Session_Join::forUser (
