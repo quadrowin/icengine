@@ -49,7 +49,7 @@ var Controller_Chat = Class.extend ({
 			
 			$this.joinChat ({
 				code: $this.$code,
-				name: $this.$name,
+				name: $this.$name
 			});
 			
 			return;
