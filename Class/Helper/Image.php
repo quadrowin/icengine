@@ -124,7 +124,7 @@ class Helper_Image
 		return 
 			(isset (self::$config ['types']) && isset (self::$config ['types'][$type])) ?
 			self::$config ['types'][$type]->asArray() :
-			array ();
+			self::$config ['types']['default']->asArray();
 	}
 	
 	public static function initConfig ()
