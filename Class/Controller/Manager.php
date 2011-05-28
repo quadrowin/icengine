@@ -220,11 +220,11 @@ class Controller_Manager extends Manager_Abstract
 	
 	/**
 	 * @desc Создаем задания из экшинов
-	 * @param Controller_Route_Collection $actions
+	 * @param Route_Action_Collection $actions
 	 * @param Data_Transport $input
 	 * @return array <Controller_Task>
 	 */
-	public static function createTasks (Controller_Route_Collection $actions,
+	public static function createTasks (Route_Action_Collection $actions,
 		Data_Transport $input)
 	{
 		$tasks = array ();

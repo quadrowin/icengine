@@ -10,7 +10,7 @@ abstract class View_Render_Manager extends Manager_Abstract
 {
 
 	/**
-	 * 
+	 * @desc Представления по имени.
 	 * @var array <View_Render_Abstract>
 	 */
 	private static $_views = array ();
@@ -37,6 +37,37 @@ abstract class View_Render_Manager extends Manager_Abstract
 		 */
 		'default_view'		=> 'Smarty'
 	);
+	
+	/**
+	 * @desc Возвращает рендер по названию.
+	 * @param string $name
+	 * @return View_Render_Abstract
+	 */
+	public static function byName ($name)
+	{
+		if (isset (self::$_views [$name]))
+		{
+			return self::$_views [$name];
+		}
+		
+		$view = Model_Manager::byQuery (
+			'View_Render',
+			Query::instance ()
+				->where ('name', $name)
+		);
+		
+		if (!$view)
+		{
+			$class_name = 'View_Render_' . $name;
+			Loader::load ($class_name);
+			$view = new $class_name (array (
+				'id'	=> null,
+				'name'	=> $name
+			));
+		}
+		
+		return self::$_views [$name] = $view;
+	}
 	
 	/**
 	 * @desc Выводит результат работы шаблонизатора в браузер.
@@ -112,7 +143,7 @@ abstract class View_Render_Manager extends Manager_Abstract
 	 */
 	public static function pushViewByName ($name)
 	{
-		$view = View_Render::byName ($name);
+		$view = self::byName ($name);
 		$view->pushVars ();	
 		return self::pushView ($view);
 	}

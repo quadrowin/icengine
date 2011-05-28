@@ -23,19 +23,33 @@ class View_Render_Front extends View_Render_Abstract
 	 */
 	public function display ($tpl = null)
 	{
-		return $this->fetch ($tpl);
+		$this->fetch ($tpl);
+	}
+	
+	public function fetch($tpl)
+	{
+		throw new Exception ('o.O');
 	}
 	 
 	/**
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::fetch()
 	 */
-	public function fetch ($tpl)
+	public function render (Controller_Task $task)
 	{
-		$render = $this->_vars ['render'];
-		$tasks = $this->_vars ['tasks'];
+		$transaction = $task->getTransaction ();
+		$tasks = $transaction->receive ('tasks');
 		
-		return $render->render ($tasks);
+		foreach ($tasks as $t)
+		{
+			$render = $t->getViewRender ();
+			$result = $render->render ($t);
+			$this->assign ($t->getAssignVar (), $result);
+		}
+		
+		$render = $tasks [0]->getViewRender ();
+		$render->assign ($this->_vars);
+		$render->display ($task->getTemplate ());
 	}
 	
 }

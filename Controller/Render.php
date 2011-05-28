@@ -20,9 +20,9 @@ class Controller_Render extends Controller_Abstract
 			'render'
 		);
 		
-		$render->assign (array (
-			'task'		=> $task,
-			'render'	=> $task->getViewRender ()
-		));
+//		$render->assign (array (
+//			'task'	=> $task
+//		));
+		$render->render ($task);
 	}
 }

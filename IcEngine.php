@@ -19,7 +19,7 @@ class IcEngine
 	 * @desc Задания, обработанные Font Controller
 	 * @var Controller_Task
 	 */
-	private statis $_mainTask;
+	private static $_mainTask;
 	
 	/**
 	 * @desc Путь до движка.
@@ -88,8 +88,6 @@ class IcEngine
 				'render'	=> View_Render_Manager::byName ('Front')
 			)
 		);
-		
-		View_Render_Manager::display ();
 	}
 	
 	/**

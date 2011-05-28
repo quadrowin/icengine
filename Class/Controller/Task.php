@@ -67,11 +67,9 @@ class Controller_Task
 		
 		if ($action instanceof Route_Action)
 		{
-			$this->_assignVar = $action->assignVar;
+			$this->_assignVar = $action->assign;
 			
-			$this->_viewRender = View_Render_Manager::byName (
-				$action->Route->viewRenderId
-			);
+			$this->_viewRender = $action->Route->viewRender ();
 			
 			$action = $action->Controller_Action;
 		}

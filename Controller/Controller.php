@@ -24,7 +24,11 @@ class Controller_Controller extends Controller_Abstract
 			'params'
 		);
 		
-		$result = Controller_Manager::html ($call, $params, false);
+		$result = Controller_Manager::html (
+			$call,
+			$params ? $params : array (),
+			false
+		);
 		
 		$this->_output->send (array (
 			'back'		=> $back,

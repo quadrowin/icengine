@@ -140,39 +140,34 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	/**
 	 * @desc Обработка шаблонов из стека.
 	 * @param array $outputs
+	 * @return mixed
 	 */
-	public function render (array $outputs)
+	public function render (Controller_Task $task)
 	{
 		Loader::load ('Message_Before_Render');
 		Message_Before_Render::push ($this);
 		
-		// Рендерим в обратном порядке		
-		$outputs = array_reverse ($outputs);
-		
 		/**
-		 * @var Controller_Task $item
+		 * 
+		 * @var $transaction Data_Transport_Transaction
 		 */
-		foreach ($outputs as $output)
-		{
-			/**
-			 * 
-			 * @var $transaction Data_Transport_Transaction
-			 */
-			$transaction = $output->getTransaction ();
-			
-			$this->assign ($transaction->buffer ());
-			
-			$template = $output->getTemplate ();
-			$result = $template ? $this->fetch ($template) : null;
-			
-			$this->assign (
-				$output->getAssignVar (),
-				$result
-			);
-		}
+		$transaction = $task->getTransaction ();
+		
+		$this->assign ($transaction->buffer ());
+		
+		$template = $task->getTemplate ();
+		
+		$result = $template ? $this->fetch ($template) : null;
+		
+//		$this->assign (
+//			$task->getAssignVar (),
+//			$result
+//		);
 		
 		Loader::load ('Message_After_Render');
 		Message_After_Render::push ($this);
+		
+		return $result;
 	}
 	
 	/**
