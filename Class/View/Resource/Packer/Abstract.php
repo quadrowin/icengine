@@ -67,7 +67,7 @@ abstract class View_Resource_Packer_Abstract
 		 * @desc Кодировка
 		 * @var string
 		 */
-		'charset_output'	=> 'utf-8'
+		'charset_output'	=> 'utf-8//IGNORE'
 	);
 	
 	/**
