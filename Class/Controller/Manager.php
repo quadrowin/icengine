@@ -138,14 +138,13 @@ class Controller_Manager extends Manager_Abstract
 	 * @param string $name Название контроллера.
 	 * @param string $method Метод.
 	 * @param array|Data_Transport $input Входные данные.
-	 * @param Controller_Dispatcher_Iteration $iteration [optional] Итерация
-	 * диспетчера.
-	 * @return Controller_Dispatcher_Iteration Итерация с результатами.
+	 * @param Controller_Task $task [optional] Задание
+	 * @return Controller_Task
 	 */
 	public static function call ($name, $method = 'index', $input, 
-		$iteration = null)
+		$task = null)
 	{
-		return self::callUncached ($name, $method, $input, $iteration);
+		return self::callUncached ($name, $method, $input, $task);
 	}
 	
 	/**
@@ -179,7 +178,7 @@ class Controller_Manager extends Manager_Abstract
 		
 		$temp_input = $controller->getInput ();
 		$temp_output = $controller->getOutput ();
-		$temp_iteration = $controller->getDispatcherIteration ();
+		$temp_task = $controller->getTask ();
 		
 		if ($input === null)
 		{
@@ -199,7 +198,7 @@ class Controller_Manager extends Manager_Abstract
 		
 		$controller
 			->setOutput (self::getOutput ())
-			->setDispatcherIteration ($task);
+			->setTask ($task);
 		
 		$controller->getOutput ()->beginTransaction ();
 		
@@ -214,17 +213,18 @@ class Controller_Manager extends Manager_Abstract
 		$controller
 			->setInput ($temp_input)
 			->setOutput ($temp_output)
-			->setDispatcherIteration ($temp_iteration);
+			->setTask ($temp_task);
 			
 		return $task;
 	}
 	
 	/**
 	 * @desc Создаем задания из экшинов
-	 * @param Controller_Action_Collection $actions
+	 * @param Controller_Route_Collection $actions
 	 * @param Data_Transport $input
+	 * @return array <Controller_Task>
 	 */
-	public static function createTasks (Controller_Action_Collection $actions,
+	public static function createTasks (Controller_Route_Collection $actions,
 		Data_Transport $input)
 	{
 		$tasks = array ();
@@ -481,7 +481,7 @@ class Controller_Manager extends Manager_Abstract
 		$task = self::call (
 			$action->controller,
 			$action->action,
-			$action->data ('input'),
+			$task->getInput (),
 			$task
 		);
 

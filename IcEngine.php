@@ -16,6 +16,12 @@ class IcEngine
 	private static $_frontController;
 	
 	/**
+	 * @desc Задания, обработанные Font Controller
+	 * @var Controller_Task
+	 */
+	private statis $_mainTask;
+	
+	/**
 	 * @desc Путь до движка.
 	 * @var string
 	 */
@@ -74,6 +80,15 @@ class IcEngine
 	public static function flush ()
 	{
 		Resource_Manager::save ();
+		
+		Controller_Manager::call (
+			'Render', 'index',
+			array (
+				'task'		=> self::$_mainTask,
+				'render'	=> View_Render_Manager::byName ('Front')
+			)
+		);
+		
 		View_Render_Manager::display ();
 	}
 	
@@ -202,13 +217,14 @@ class IcEngine
 	 */
 	public static function run ()
 	{
-		self::$bootstrap->run ();
 		Loader::load ('Data_Transport_Manager');
-		Controller_Manager::call (
-			'Front', 'run',
+		
+		self::$bootstrap->run ();
+		
+		self::$_mainTask = Controller_Manager::call (
+			'Front', 'index',
 			Data_Transport_Manager::get ('default_input')
 		);
-		//self::frontController ()->run ();
 	}
 
 }

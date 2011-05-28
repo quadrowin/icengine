@@ -16,10 +16,10 @@ class Controller_Abstract
 	protected $_currentAction;
 	
 	/**
-	 * @desc Текущая итерация диспетчера
-	 * @var Controller_Dispatcher_Iteration
+	 * @desc Текущая задача
+	 * @var Controller_Task
 	 */
-	protected $_dispatcherIteration;
+	protected $_task;
 	
 	/**
 	 * @desc Входные данные
@@ -133,8 +133,9 @@ class Controller_Abstract
 		if (is_array ($valid))
 		{
 			// ошибка валидации
-			$this->_dispatcherIteration->setClassTpl (reset ($valid));
+			$this->_task->setClassTpl (reset ($valid));
 			
+			// TODO пиздец!
 			$this->_output->send (array (
 				'registration'	=> $valid,
 				'data'			=> array (
@@ -181,14 +182,17 @@ class Controller_Abstract
 		
 		if (is_array ($valid))
 		{
-			$this->_dispatcherIteration->setTemplate (
+			$this->_task->setTemplate (
 				str_replace (array ('::', '_'), '/', reset ($valid)) . 
 				'.tpl'
 			);
 			$field = key ($valid);
 			$this->_output->send (array (
-				'field'		=> $field,
-				'field_title'	=>isset ($scheme [$field]['title']) ? $scheme [$field]['title'] : null,
+				'field'			=> $field,
+				'field_title'	=>
+					isset ($scheme [$field]['title']) ? 
+						$scheme [$field]['title'] : 
+						null,
 				'data'		=> array (
 					'field'	=> key ($valid),
 					'error'	=> current ($valid)
@@ -236,20 +240,20 @@ class Controller_Abstract
 		$this->_output->send ('error', $text);
 		if ($tpl)
 		{
-			$this->_dispatcherIteration->setClassTpl ($method, $tpl);
+			$this->_task->setClassTpl ($method, $tpl);
 		}
 		elseif ($method)
 		{
 			if (strpos ($method, '/') === false)
 			{
-				$this->_dispatcherIteration->setClassTpl (
+				$this->_task->setClassTpl (
 					$this->_currentAction,
 					'/' . ltrim ($method, '/')
 				);
 			}
 			else
 			{
-				$this->_dispatcherIteration->setClassTpl ($method);
+				$this->_task->setClassTpl ($method);
 			}
 		}
 	}
@@ -271,11 +275,12 @@ class Controller_Abstract
 	}
 	
 	/**
-	 * @return Controller_Dispatcher_Iteration
+	 * @desc Возвращает текущую задачу контролера
+	 * @return Controller_Task
 	 */
-	public function getDispatcherIteration ()
+	public function getTask ()
 	{
-		return $this->_dispatcherIteration;
+		return $this->_task;
 	}
 	
 	/**
@@ -326,7 +331,7 @@ class Controller_Abstract
 			$other = Controller_Manager::get ($controller);
 		}
 		
-		$this->_dispatcherIteration->setTemplate (
+		$this->_task->setTemplate (
 			'Controller/' .
 			str_replace ('_', '/', $controller) .
 			'/' . $action . '.tpl'
@@ -342,19 +347,19 @@ class Controller_Abstract
 			$other = Controller_Manager::get ($controller);
 			$other->setInput ($this->_input);
 			$other->setOutput ($this->_output);
-			$other->setDispatcherIteration ($this->_dispatcherIteration);
+			$other->setTask ($this->_task);
 			return $other->$action ();
 		}
 	}
 	
 	/**
 	 * 
-	 * @param Controller_Dispatcher_Iteration $iteration
+	 * @param Controller_Task $task
 	 * @return Controller_Abstract
 	 */
-	public function setDispatcherIteration ($iteration)
+	public function setTask ($task)
 	{
-		$this->_dispatcherIteration = $iteration;
+		$this->_task = $task;
 		return $this;
 	}
 	
