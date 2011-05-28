@@ -8,21 +8,11 @@
  */
 class Controller_Front extends Controller_Abstract
 {
-	
 	/**
-	 * @desc Получаем (и инициализируем, если еще не проинициализирован) текущий диспетчер
-	 * @return Controller_Dispatcher
+	 * @desc Название транспорта входа
+	 * @var string
 	 */
-	public function getDispatcher ()
-	{
-		Loader::load ('Controller_Dispatcher');
-		return Controller_Dispatcher::instance ();
-	}
-	
-	public function inputTransport ()
-	{
-		
-	}
+	const TRANSPORT_INPUT = 'input';
 	
 	/**
 	 * @desc Запускаем фронт контролер.
@@ -34,7 +24,9 @@ class Controller_Front extends Controller_Abstract
 		$route = Router::getRoute ();
 		
 		// Инициализируем вьюшник из запроса
-		$view = View_Render_Manager::pushView ($route->viewRender ());
+		$view = View_Render_Manager::pushView (
+			$route->viewRender ()
+		);
 		
 		// Отправляем сообщение, что вью был изменен
 		Loader::load ('Message_After_Router_View_Set');
@@ -42,21 +34,26 @@ class Controller_Front extends Controller_Abstract
 		
 		try 
 		{
-			// Получаем экшены
-			$actions = $route->actions ();
+			Loader::load ('Controller_Dispatcher');
+			// Начинаем цикл диспетчеризации и получаем список
+			// выполняемых экшинов
+			$actions = Controller_Dispatcher::loop (
+				$route->actions ()
+			);
 			
-			var_dump ($this->_input->getProviders());
 			// Направляем входные данные в целевые контроллеры
-			foreach ($actions as $action)
-			{
-				$action->set ('input', $this->_input);
-			}
+			$actions->applyTransport (
+				self::TRANSPORT_INPUT,
+				$this->_input
+			);
 			
 			// Выполнение экшенов
-			$results = Controller_Manager::runTasks ($route->actions ());
+			$results = Controller_Manager::runTasks (
+				$actions
+			);
 			
 			// Рендеринг
-			View_Render_Manager::render ($results);
+			$view->render ($results);
 		}
 		catch (Zend_Exception $e)
 		{
