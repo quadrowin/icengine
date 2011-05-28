@@ -28,14 +28,13 @@ class Controller_View_Resource_Js extends Controller_Abstract
 			);
 		}
 		
-		$view = View_Render_Broker::getView ();
-		
-		$jses = $view->resources()->getData (View_Resource_Manager::JS);
+		$jses = View_Resource_Manager::getData (View_Resource_Manager::JS);
 		
 		if ($config->packed_file)
 		{
-			$packer = $view->resources ()
-				->packer (View_Resource_Manager::JS);
+			$packer = View_Resource_Manager::packer (
+				View_Resource_Manager::JS
+			);
 			
 			$packer->pack ($jses, $config->packed_file);
 			
