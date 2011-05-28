@@ -10,6 +10,36 @@ class Mail_Message extends Model
 {
 	
 	/**
+	 * @desc Создает копию сообщения.
+	 * Содержание сообщения останется неизменным.
+	 * Новое сообщение не будет сохранено.
+	 * @param string $address [optional] Адрес получателя.
+	 * @param string $to_name [optional] Имя получателя.
+	 * @return Mail_Message Созданное сообщение.
+	 */
+	public function cloneTo ($address = null, $to_name = null)
+	{
+		$fields = $this->_fields;
+		
+		if (array_key_exists ('id', $fields))
+		{
+			unset ($fields ['id']);
+		}
+		
+		if ($address !== null)
+		{
+			$fields ['address'] = $address;
+		}
+		
+		if ($to_name !== null)
+		{
+			$fields ['toName'] = $to_name;
+		}
+		
+		return new self ($fields);
+	}
+	
+	/**
 	 * @desc Создает новое сообщение.
 	 * @param string $template_name Имя шаблона.
 	 * @param string $address Адрес получателя.
@@ -27,17 +57,23 @@ class Mail_Message extends Model
 		Loader::load ('Mail_Template');
 		$template = Mail_Template::byName ($template_name);
 		
+		$mail_provider_params = is_object ($mail_provider_params) ?
+			$mail_provider_params->__toArray () :
+			$mail_provider_params;
+		
 		if (!is_numeric ($mail_provider))
 		{
 			if (!is_object ($mail_provider))
 			{
 				Loader::load ('Mail_Provider');
-				$mail_provider = Mail_Provider::byName ($mail_provider);
+				$mail_provider = Mail_Provider::byName (
+					$mail_provider
+				);
 			}
 			$mail_provider = $mail_provider->id;
 		}
 		
-		$message = new Mail_Message (array (
+		$message = new self (array (
 			'Mail_Template__id'		=> $template->id,
 			'address'				=> $address,
 			'toName'				=> $to_name,
@@ -47,11 +83,7 @@ class Mail_Message extends Model
 			'body'					=> $template->body ($data),
 			'toUserId'				=> (int) $to_user_id,
 			'Mail_Provider__id'		=> $mail_provider,
-			'params'				=> json_encode (
-				is_object ($mail_provider_params) ?
-					$mail_provider_params->__toArray () :
-					$mail_provider_params
-			)
+			'params'				=> json_encode ($mail_provider_params)
 		));
 		
 		return $message;

@@ -65,7 +65,7 @@
 				new_input.removeClass($.fn.placeholder_options.placeholded_class);
 				new_input.blur(function(){	new_input.placeholder_password_blur(caption); });
 
-				if (events.focus)
+				if (events && events.focus)
 				{
 					for (var i = 1; i < events.focus.length; ++i)
 					{
@@ -77,7 +77,7 @@
 				new_input.focus();
 				new_input.focus();
 				
-				if (events.focus)
+				if (events && events.focus)
 				{
 					for (var i = 0; i < events.focus.length; ++i)
 					{

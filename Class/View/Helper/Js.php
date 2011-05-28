@@ -4,6 +4,7 @@
  * @desc Помощник для подключения js скриптов
  * @author Юрий
  * @package IcEngine
+ * @deprecated Следует использовать Controller_View_Resource_Js
  *
  */
 class View_Helper_Js extends View_Helper_Abstract
@@ -14,7 +15,7 @@ class View_Helper_Js extends View_Helper_Abstract
 	 * @var string
 	 */
 	const TEMPLATE = 
-		"\t<script type=\"text/javascript\" src=\"{\$url}\"></script>\n";
+		"\t<script type=\"text/javascript\" src=\"{\$url}?{\$ts}\"></script>\n";
 	
 	public function get (array $params)
 	{
@@ -56,15 +57,33 @@ class View_Helper_Js extends View_Helper_Abstract
 			
 			$packer->pack ($jses, $config->packed_file);
 			
-			$result = 
-				str_replace ('{$url}', $config->packed_url, self::TEMPLATE);
+			$result = str_replace (
+				array (
+					'{$url}',
+					'{$ts}'
+				),
+				array (
+					$config->packed_url,
+					$packer->cacheTimestamp ()
+				),
+				self::TEMPLATE
+			);
 		}
 		else
 		{
 			foreach ($jses as $js)
 			{
-				$result .=
-					str_replace ('{$url}', $js ['href'], self::TEMPLATE);
+				$result .= str_replace (
+					array (
+						'{$url}', 
+						'{$ts}'
+					),
+					array (
+						$js ['href'],
+						$js->filemtime ()
+					),
+					self::TEMPLATE
+				);
 			}
 		}
 		

@@ -119,13 +119,12 @@ class Model_Scheme
 	 */
 	public function table ($model)
 	{	
-		if (is_array($model))
+		if (is_array ($model))
 		{
 			var_dump ($model);
 			echo '<pre>';
 			debug_print_backtrace ();
 			echo '</pre>';
-			
 		}
 		
 	    $model = strtolower (
@@ -151,6 +150,10 @@ class Model_Scheme
 			{
 				return $this->models [$model]['prefix'] . $model;
 			}
+		}
+		elseif (strpos ($model, '`') !== false)
+		{
+			return $model;
 		}
 		
 		return $this->defaultPrefix . $model;
@@ -180,8 +183,10 @@ class Model_Scheme
 				return implode ('_', $name);
 			}
 		}
-		
-		return $table;
+
+		$table = explode('_', $table);
+		$table = array_map('ucfirst', $table);
+		return implode('_', $table);
 	}
 	
 	/**
@@ -208,7 +213,6 @@ class Model_Scheme
 	 */
 	public function fieldsNames ($model)
 	{
-		Loader::load ('Model_Field');
 		return $this->dataSource ($model)->execute (
 			Query::instance ()
 				->show ('COLUMNS')

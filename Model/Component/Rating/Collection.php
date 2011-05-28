@@ -19,14 +19,13 @@ class Component_Rating_Collection extends Component_Collection
 		$rating = $this->first ();
 		if (!$rating)
 		{
-			$rating = new Component_Rating (array (
+			$rating = Component_Rating::create (array (
 				'table'			=> $this->_model->table (),
 				'rowId'			=> $this->_model->key (),
 				'value'			=> 0,
 				'votes'			=> 0,
 				'changeTime'	=> Helper_Date::toUnix ()
-			));
-			$rating->save ();
+			))->save ();
 			$this->add ($rating);
 		}
 		return $rating;

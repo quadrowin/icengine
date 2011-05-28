@@ -70,7 +70,7 @@ var Helper_Form = {
 				{
 					if (this.checked)
 					{
-						data [this.name] = 'on';
+						data [this.name] = this.value ? this.value : 'on';
 					}
 				}
 				else
@@ -214,8 +214,7 @@ var Helper_Form = {
 	/**
 	 * 
 	 * @param jQuery $owner
-	 * @returns jQuery
-	 * 		input[type=file]
+	 * @returns jQuery input[type=file]
 	 */
 	initFileUpload: function ($owner)
 	{

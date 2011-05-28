@@ -9,6 +9,8 @@ var Controller = {
 	
 	_lastback: 0,
 	
+	_slowTimer: null,
+	
 	/**
 	 * @desc Вызов метода контроллера на сервере
 	 * @param controller
@@ -28,7 +30,7 @@ var Controller = {
 				'params': params,
 				'back': back
 			},
-			Controller.callback, 
+			Controller.callback,
 			nocache ? true : false
 		);
 	},
@@ -94,6 +96,32 @@ var Controller = {
 				callback, true
 			);
 		}
+	},
+	
+	/**
+	 * @desc Вызов экшена с указанной задержкой. Предотвращает
+	 * многократный вызов одного экшена.
+	 * @param controller
+	 * @param params
+	 * @param callback
+	 * @param nocache
+	 * @param integer delay Задержка в милисекундах перед вызовом
+	 */
+	slowCall: function (controller, params, callback, nocache, delay)
+	{
+		if (Controller._slowTimer)
+		{
+			clearTimeout (Controller._slowTimer);
+		}
+		
+		Controller._slowTimer = setTimeout (
+			function ()
+			{
+				Controller._slowTimer = null;
+				Controller.call (controller, params, callback, nocache);
+			},
+			delay
+		);
 	}
 		
 };

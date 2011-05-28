@@ -74,6 +74,15 @@ class Request
 			$_SERVER ['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'
 		);
 	}
+		
+	/**
+	 * @desc Проверяет, передены ли файлы от пользователя.
+	 * @return boolean
+	 */
+	public static function isFiles ()
+	{
+		return !empty ($_FILES);
+	}
 	
 	/**
 	 * @desc Проверяет, переданы ли GET параметры.
@@ -85,16 +94,20 @@ class Request
 	}
 	
 	/**
-	 * @desc Проверяет, передены ли файлы от пользователя.
+	 * @desc Проверяет, был ли это запрос через JsHttpRequest
 	 * @return boolean
 	 */
-	public static function isFiles ()
+	public static function isJsHttpRequest ()
 	{
-		return !empty ($_FILES);
+		return 
+			isset ($_SERVER ['REQUEST_METHOD']) &&
+			$_SERVER ['REQUEST_METHOD'] == 'POST' &&
+			isset ($_GET ['JsHttpRequest']) && 
+			$_GET ['JsHttpRequest'];
 	}
 	
 	/**
-	 * 
+	 * @desc Проверяет, что это был POST запрос
 	 * @return boolean
 	 */
 	public static function isPost ()

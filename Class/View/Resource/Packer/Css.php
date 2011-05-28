@@ -15,7 +15,7 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 	 * @desc Импортируемые стили.
 	 * @var array
 	 */
-	protected $_imports = array (); 
+	protected $_imports = array ();
 	
 	/**
 	 * @desc домен второго уровня
@@ -55,6 +55,14 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 	);
 	
 	/**
+	 * @desc Сформированные адреса изображений.
+	 * Необходимо чтобы на одно изображние не получалось несколько ссылок.
+	 * @var array <String>
+	 */
+	protected $_formedUrls = array (
+	);
+	
+	/**
 	 * @desc Создает и возвращает экземпляра
 	 */
 	public function __construct ()
@@ -71,7 +79,7 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 	}
 	
 	/**
-	 * Callback для preg_replace вырезания @import.
+	 * @desc Callback для preg_replace вырезания @import.
 	 * @param array $matches
 	 * @return string
 	 */
@@ -91,7 +99,7 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 	}
 	
 	/**
-	 * Callback для preg_replace замены путей к изображениям.
+	 * @desc Callback для preg_replace замены путей к изображениям.
 	 * @param array $matches
 	 * @return string
 	 */
@@ -106,9 +114,13 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 			$url = $this->_currentResource->urlPath . $matches [1];
 		}
 		
-		if (
+		if (isset ($this->_formedUrls [$url]))
+		{
+			$url = $this->_formedUrls [$url];
+		}
+		elseif (
 			substr ($url, 0, 1) == '/' && 
-			$this->_domains && count ($this->_domains)
+			$this->_domains && count ($this->_domains) // Objective, не массив
 		)
 		{
 			$this->_last++;
@@ -118,7 +130,7 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 				$this->_last = 0;
 			}
 			
-			$url = 'http://' . str_replace (
+			$this->_formedUrls [$url] = 'http://' . str_replace (
 				array (
 					'{$domain}',
 					'{$url}'
@@ -128,12 +140,18 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 					$url
 				),
 				$this->_domains [$this->_last]
-			);			
+			);
+
+			$url = $this->_formedUrls [$url];
 		}
 		
 		return 'url("' . $url . '")';
 	}	
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see View_Resource_Packer_Abstract::compile()
+	 */
 	public function compile (array $packages)
 	{
 		return
@@ -189,4 +207,5 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 		
 		return $prefix . $style . $this->config ()->item_postfix;
 	}
+	
 }
