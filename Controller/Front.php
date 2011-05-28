@@ -9,44 +9,47 @@
 class Controller_Front extends Controller_Abstract
 {
 	/**
-	 * @desc Название транспорта входа
-	 * @var string
-	 */
-	const TRANSPORT_INPUT = 'input';
-	
-	/**
 	 * @desc Запускаем фронт контролер.
 	 */
-	public function run ()
+	public function index ()
 	{
 		Loader::load ('Router');
+		Loader::load ('Controller_Dispatcher');
 		
-		// Начинаем роутинг
+		/**
+		 * @desc Начинаем роутинг.
+		 * @var route
+		 */
 		$route = Router::getRoute ();
 		
 		try 
 		{
-			Loader::load ('Controller_Dispatcher');
-			// Начинаем цикл диспетчеризации и получаем список
-			// выполняемых экшинов.
+			/**
+			 * @desc Начинаем цикл диспетчеризации и получаем список
+			 * выполняемых руот экшинов.
+			 * @var Route_Action_Collection
+			 */
 			$actions = Controller_Dispatcher::loop (
 				$route->actions ()
 			);
 			
-			// Создаем задания для выполнения.
-			// В них отдает входные данные.
-			$tasks = Controller_Manager::createTask (
+			/**
+			 * @desc Создаем задания для выполнения.
+			 * В них отдает входные данные.
+			 * @var array <Controller_Task>
+			 */
+			$tasks = Controller_Manager::createTasks (
 				$actions,
-				$this->_input
+				$this->getInput ()
 			);
 			
-			// Выполненяем задания.
-			Controller_Manager::runTasks ($tasks);
+			/**
+			 * @desc Выполненяем задания.
+			 * @var array <Controller_Task>
+			 */
+			$tasks = Controller_Manager::runTasks ($tasks);
 			
-			$this->_output->send (array (
-				'render'	=> $route->viewRender (),
-				'tasks'		=> $tasks
-			));
+			$this->_output->send ('tasks', $tasks);
 		}
 		catch (Zend_Exception $e)
 		{

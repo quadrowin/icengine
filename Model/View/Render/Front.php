@@ -25,7 +25,7 @@ class View_Render_Front extends View_Render_Abstract
 	{
 		return $this->fetch ($tpl);
 	}
-	
+	 
 	/**
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::fetch()

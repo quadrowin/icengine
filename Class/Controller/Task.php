@@ -8,6 +8,12 @@
  */
 class Controller_Task
 {
+	/**
+	 * @desc Переменная, куда попадет результат
+	 * работы контролера
+	 * @var string
+	 */
+	protected $_assignVar = 'content';
 	
 	/**
 	 * @desc Экшин
@@ -34,12 +40,6 @@ class Controller_Task
 	protected $_input;
 	
 	/**
-	 * @desc 
-	 * @var Route_Action
-	 */
-	protected $_routeAction;
-	
-	/**
 	 * @desc Название шаблона
 	 * @var string
 	 */
@@ -52,29 +52,28 @@ class Controller_Task
 	protected $_transaction;
 	
 	/**
+	 * @desc Рендера
+	 * @var View_Render_Abstract
+	 */
+	protected $_viewRender;
+	
+	/**
 	 * 
 	 * @param Route_Action|Controller_Action $action
 	 */
 	public function __construct ($action)
 	{
 		Loader::load ('Route_Action');
+		
 		if ($action instanceof Route_Action)
 		{
-			$this->_routeAction = $action;
-			$action = $this->controllerAction ();
-		}
-		elseif ($action instanceof Controller_Action)
-		{
-//			$this->_routeAction = new Route_Action (array (
-//				'id'					=> null,
-//				'Route__id'				=> 0,
-//				'Controller_Action'		=> $action,
-//				'Controller_Action__id'	=> 0,
-//				'sort'					=> 0,
-//				'assign'				=> isset ($action->assign) ? 
-//					$action->assign : 
-//					'content'
-//			));
+			$this->_assignVar = $action->assignVar;
+			
+			$this->_viewRender = View_Render_Manager::byName (
+				$action->Route->viewRenderId
+			);
+			
+			$action = $action->Controller_Action;
 		}
 		
 		$this->_controllerAction = $action;
@@ -89,14 +88,12 @@ class Controller_Task
 	}
 	
 	/**
+	 * @desc Получить экшин
 	 * @return Controller_Action
 	 */
 	public function controllerAction ()
 	{
-		return
-			$this->_routeAction ? 
-				$this->_routeAction->Controller_Action :
-				$this->_controllerAction;
+		return $this->_controllerAction;
 	}
 	
 	/**
@@ -106,13 +103,11 @@ class Controller_Task
 	 */
 	public function getAssignVar ()
 	{
-		return 
-			$this->_routeAction ? 
-				$this->_routeAction->assign :
-				'content';
+		return $this->_assignVar;
 	}
 	
 	/**
+	 * @desc Узнать игнорируется ли текущая задача
 	 * @return boolean
 	 */
 	public function getIgnore ()
@@ -121,6 +116,8 @@ class Controller_Task
 	}
 	
 	/**
+	 * @desc Получить порядковый номер задания
+	 * в очереди заданий
 	 * @return integer
 	 */
 	public function getIndex ()
@@ -136,17 +133,9 @@ class Controller_Task
 	{
 		return $this->_input;
 	}
-	
-	/**
-	 * @return Route_Action
-	 */
-	public function getRouteAction ()
-	{
-		return $this->_routeAction;
-	}
 
 	/**
-	 * @desc Возвращает шаблон.
+	 * @desc Возвращает имя шаблона.
 	 * @return string
 	 */
 	public function getTemplate ()
@@ -155,11 +144,21 @@ class Controller_Task
 	}
 	
 	/**
+	 * @desc Получить транзакцию экшина
 	 * @return Data_Transport_Transaction
 	 */
 	public function getTransaction ()
 	{
 		return $this->_transaction;
+	}
+	
+	/**
+	 * @desc Получить рендер
+	 * @return View_Render_Abstract
+	 */
+	public function getViewRender ()
+	{
+		return $this->_viewRender;
 	}
 	
 	/**
@@ -178,7 +177,7 @@ class Controller_Task
 	}
 	
 	/**
-	 * 
+	 * @desc Установить флаг игнорирования текущего задания
 	 * @param boolean $value
 	 */
 	public function setIgnore ($value)
@@ -187,6 +186,8 @@ class Controller_Task
 	}
 	
 	/**
+	 * @desc Установить порядковый номер заания 
+	 * в очереди заданий
 	 * @param integer $value
 	 */
 	public function setIndex ($value)
@@ -204,14 +205,6 @@ class Controller_Task
 	}
 
 	/**
-	 * @param Route_Action $value
-	 */
-	public function setRouteAction (Route_Action $value)
-	{
-		$this->_routeAction = $value;
-	}
-
-	/**
 	 * @desc Установка шаблона для рендера.
 	 * @param string $value
 	 */
@@ -221,11 +214,21 @@ class Controller_Task
 	}
 	
 	/**
+	 * @desc Изменить транзакцию текущего экшина
 	 * @param Data_Transport_Transaction $value
 	 */
 	public function setTransaction (Data_Transport_Transaction $value)
 	{
 		$this->_transaction = $value;
+	}
+	
+	/**
+	 * @desc Изменить рендер
+	 * @param View_Render_Abstract $viewRender
+	 */
+	public function setViewRender (View_Render_Abstract $viewRender)
+	{
+		$this->_viewRender = $viewRender;	
 	}
 	
 }

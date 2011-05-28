@@ -1,24 +1,28 @@
 <?php
 
+/**
+ * @desc Контролер для рендеринга заданий
+ * @author Юрий Шведов, Илья Колесников
+ * @package IcEngine
+ */
 class Controller_Render extends Controller_Abstract
 {
-	public function render ()
+	/**
+	 * @desc Рендерим
+	 */
+	public function index ()
 	{
-		$actions = Model_Collection_Manager::create (
-			'Controller_Action'
-		)
-			->fromArray (array (
-				array (
-					'controller'	=> $this->_input
-						->receive ('action')
-				)
-			));
-			
-		$actions->applyTransport (
-			'input',
-			$this->_input
+		list (
+			$task,
+			$render
+		) = $this->_input->receive (
+			'task',
+			'render'
 		);
-			
 		
+		$render->assign (array (
+			'task'		=> $task,
+			'render'	=> $task->getViewRender ()
+		));
 	}
 }
