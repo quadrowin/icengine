@@ -39,6 +39,9 @@ class Controller_Abstract
 	 */
 	protected $_config = array ();
 	
+	/**
+	 * @desc Создает и возвращает контроллер.
+	 */
 	public function __construct ()
 	{
 	}
@@ -64,18 +67,6 @@ class Controller_Abstract
 		IcEngine::$messageQueue->push (
 			'before::' . $this->_currentAction
 		);
-	}
-	
-	/**
-	 * @desc Результатом работы контроллера будет вызов метода хелпера.
-	 * @param string $helper Название хелпера без перфикса "Helper_Action_".
-	 * @param string $method Название метода хелпера.
-	 */
-	public function _helperReturn ($helper, $method)
-	{
-		$helper = 'Helper_Action_' . $helper;
-		Loader::load ($helper);
-		call_user_func (array ($helper, $method));
 	}
 	
 	/**
@@ -124,7 +115,7 @@ class Controller_Abstract
 				
 				if (!$use_tc)
 				{
-					$this->_helperReturn ('Page', 'obsolete');
+					return $this->replaceAction ('Error', 'obsolete');
 					return false;
 				}
 			}
@@ -168,7 +159,7 @@ class Controller_Abstract
 	}
 	
 	/**
-	 * Сохранение данных с формы
+	 * @desc Сохранение данных с формы
 	 * @param Temp_Content $tc
 	 * @param array $scheme
 	 * @param string|Model $model_class [optional]
@@ -176,8 +167,7 @@ class Controller_Abstract
 	 * 		Если не задано, будет использвано имя контроллера.
 	 * 		Пример: для контроллера <i>Controller_Sample</i>, результатом
 	 * 		будет модель класса <i>Sample</i>.
-	 * @return Model|null
-	 * 		Сохраненная модель, либо null в случае ошибки.
+	 * @return Model|null Сохраненная модель, либо null в случае ошибки.
 	 */
 	public function _savePostModel (Temp_Content $tc, $scheme, 
 		$model_class = null)

@@ -246,7 +246,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		
 		if (!$category)
 		{
-			return $this->_helperReturn ('Page', 'notFound');
+			return $this->replaceAction ('Error', 'notFound');
 		}
 
 		$parent = Model_Manager::modelByKey (
@@ -256,7 +256,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		
 		if (!$parent)
 		{
-			return $this->_helperReturn ('Page', 'notFound');
+			return $this->replaceAction ('Error', 'notFound');
 		}
 		
 		$content_collection = Helper_Link::linkedItems (
@@ -290,7 +290,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			
 		if (!$content)
 		{
-			return $this->_helperReturn ('Page', 'notFound');
+			return $this->replaceAction ('Error', 'notFound');
 		}
 		
 		$content_category = Model_Manager::modelByKey (
@@ -300,7 +300,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		
 		if (!$content_category)
 		{
-			return $this->_helperReturn ('Page', 'notFound');
+			return $this->replaceAction ('Error', 'notFound');
 		}
 
 		$this->_output->send (array (
@@ -346,7 +346,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		{
 			if (!$content_id)
 			{
-				return $this->_helperReturn ('Page', 'notFound');
+				return $this->replaceAction ('Error', 'notFound');
 			}
 			else
 			{
@@ -366,7 +366,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			
 		if (!$category)
 		{
-			return $this->_helperReturn ('Page', 'notFound');
+			return $this->replaceAction ('Error', 'notFound');
 		}
 		
 		if ($category->controller && $category->controller != $this->name ())
@@ -381,7 +381,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 
 		if (!User::authorized())
 		{
-			return $this->_helperReturn('Access', 'denied');
+			return $this->replaceAction ('Error', 'accessDenied');
 		}
 		
 		Loader::load ('Acl_Resource');
@@ -400,7 +400,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			)
 		)
 		{
-			return $this->_helperReturn ('Access', 'denied');
+			return $this->replaceAction ('Error', 'accessDenied');
 		}
 		
 		if (!isset ($content) || !$content)
@@ -460,7 +460,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		
 		if (!$utcode)
 		{
-			return $this->_helperReturn ('Page', 'obsolete');
+			return $this->replaceAction ('Error', 'obsolete');
 		}
 		
 		$tc = Temp_Content::byUtcode ($utcode);
@@ -491,7 +491,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			)
 		)
 		{
-			return $this->_helperReturn ('Access', 'denied');
+			return $this->replaceAction ('Error', 'accessDenied');
 		}
 		
 		$back = $tc->attr ('back');
@@ -541,7 +541,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			
 			if (!$content_category)
 			{
-				return $this->_helperReturn ('Page', 'notFound');
+				return $this->replaceAction ('Error', 'notFound');
 			}
 			
 			Helper_Link::link (
@@ -599,7 +599,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		
 		if (!$content)
 		{
-			return $this->_helperReturn ('Page', 'notFound');
+			return $this->replaceAction ('Error', 'notFound');
 		}
 		
 		Loader::load ('Helper_Link');
@@ -611,7 +611,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		
 		if (!$category_collection->count ())
 		{
-			return $this->_helperReturn ('Access', 'denied');
+			return $this->replaceAction ('Error', 'accessDenied');
 		}
 		
 		$category = $category_collection->first ();
@@ -632,7 +632,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			)
 		)
 		{
-			return $this->_helperReturn ('Access', 'denied');
+			return $this->replaceAction ('Error', 'accessDenied');
 		}
 
 		$content->delete ();
@@ -660,7 +660,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 	{
 	    if (!User::authorized ())
 		{
-			return $this->_helperReturn ('Access', 'denied');
+			return $this->replaceAction ('Error', 'accessDenied');
 		}
 
 		Loader::load ('Temp_Content');

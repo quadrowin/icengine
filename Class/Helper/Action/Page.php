@@ -14,6 +14,7 @@ class Helper_Action_Page
 	 */
     public static function notFound ()
     {
+    	Controller_Manager::
 		IcEngine::frontController ()
 			->getDispatcher ()
 			->flushActions (true)
