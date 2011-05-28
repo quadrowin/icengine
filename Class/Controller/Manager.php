@@ -220,6 +220,29 @@ class Controller_Manager extends Manager_Abstract
 	}
 	
 	/**
+	 * @desc Создаем задания из экшинов
+	 * @param Controller_Action_Collection $actions
+	 * @param Data_Transport $input
+	 */
+	public static function createTasks (Controller_Action_Collection $actions,
+		Data_Transport $input)
+	{
+		$tasks = array ();
+		
+		Loader::load ('Controller_Task');
+		
+		foreach ($actions as $action)
+		{
+			$task = new Controller_Task ($action);
+			$task->setInput ($input);
+			
+			$tasks [] = $task;
+		}
+		
+		return $tasks;
+	}
+	
+	/**
 	 * @desc Очистка результатов работы контроллеров.
 	 */
 	public static function flushResults ()
@@ -449,11 +472,6 @@ class Controller_Manager extends Manager_Abstract
 	 */
 	public static function run ($task)
 	{
-		$task = 
-			$task instanceof Controller_Task ?
-			$task :
-			new Controller_Task ($task);
-		
 		$parent_task = self::$_currentTask;
 
 		self::$_currentTask = $task;
@@ -477,15 +495,12 @@ class Controller_Manager extends Manager_Abstract
 	 * @param array $actions
 	 * @return array
 	 */
-	public static function runTasks ($actions)
+	public static function runTasks ($tasks)
 	{
 		self::$_tasksBuffer [] = self::$_tasksQueue;
 		self::$_tasksResultsBuffer [] = self::$_tasksResults;
 		
-		self::$_tasksQueue = 
-			is_object ($actions) ?
-			$actions->items () :
-			$actions;
+		self::$_tasksQueue = $tasks;
 			
 		self::$_tasksResults = array ();
 		

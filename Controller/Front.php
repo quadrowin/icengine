@@ -20,40 +20,33 @@ class Controller_Front extends Controller_Abstract
 	public function run ()
 	{
 		Loader::load ('Router');
+		
 		// Начинаем роутинг
 		$route = Router::getRoute ();
-		
-		// Инициализируем вьюшник из запроса
-		$view = View_Render_Manager::pushView (
-			$route->viewRender ()
-		);
-		
-		// Отправляем сообщение, что вью был изменен
-		Loader::load ('Message_After_Router_View_Set');
-		Message_After_Router_View_Set::push ($route, $view);
 		
 		try 
 		{
 			Loader::load ('Controller_Dispatcher');
 			// Начинаем цикл диспетчеризации и получаем список
-			// выполняемых экшинов
+			// выполняемых экшинов.
 			$actions = Controller_Dispatcher::loop (
 				$route->actions ()
 			);
 			
-			// Направляем входные данные в целевые контроллеры
-			$actions->applyTransport (
-				self::TRANSPORT_INPUT,
+			// Создаем задания для выполнения.
+			// В них отдает входные данные.
+			$tasks = Controller_Manager::createTask (
+				$actions,
 				$this->_input
 			);
 			
-			// Выполнение экшенов
-			$results = Controller_Manager::runTasks (
-				$actions
-			);
+			// Выполненяем задания.
+			Controller_Manager::runTasks ($tasks);
 			
-			// Рендеринг
-			$view->render ($results);
+			$this->_output->send (array (
+				'render'	=> $route->viewRender (),
+				'tasks'		=> $tasks
+			));
 		}
 		catch (Zend_Exception $e)
 		{
