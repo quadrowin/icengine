@@ -1,7 +1,8 @@
 <?php
 /**
  * 
- * @desc Контролер категорий контента
+ * @desc Контролер категорий контента.
+ * Примечание: в адресе (поле url) категории не должно быть завершающего слеша.
  * @author ilya
  * @package IcEngine
  * 
@@ -33,8 +34,8 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 	 */
 	public function __construct ()
 	{
-		Loader::load ('Helper_Link');
 		Loader::load ('Helper_Header');
+		Loader::load ('Helper_Link');
 		Loader::load ('Acl_Resource');
 	}
 	
@@ -70,7 +71,8 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 		else
 		{
 			$unique = (int) $content_category->count();
-			if ($linka = preg_split('/_([0-9])$/',$link, -1, PREG_SPLIT_DELIM_CAPTURE))
+			$linka = preg_split ('/_([0-9])$/', $link, -1, PREG_SPLIT_DELIM_CAPTURE);
+			if ($linka)
 			{
 				$link = $linka [0];
 				$unique = (isset ($linka [1]) ? $linka [1] : 0) + 1;
@@ -191,17 +193,20 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 		
 		if ($parent_category_id)
 		{
-			$parent_category = IcEngine::$modelManager->modelByKey (
+			$parent_category = Model_Manager::byKey (
 				$this->__categoryModel (),
 				$parent_category_id
 			);
 		}
 		else
 		{
-			$parent_category = IcEngine::$modelManager->modelBy (
+			$parent_category = Model_Manager::byQuery (
 				$this->__categoryModel (),
 				Query::instance ()
-					->where ('url', $url ? $url : Request::uri ())	
+					->where (
+						'url', 
+						rtrim ($url ? $url : Request::uri (), '/')
+					)	
 			);
 		}
 		
@@ -273,7 +278,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 		);
 		
 		// Получаем родительскую категорию
-		$parent = IcEngine::$modelManager->modelByKey (
+		$parent = Model_Manager::byKey (
 			$this->__categoryModel (),
 			$parent_category_id
 		);
@@ -302,13 +307,12 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 		
 		if ($category_id)
 		{
-			$content_category = IcEngine::$modelManager
-				->modelByKey (
-					$this->__categoryModel (), 
-					$category_id
-				);
+			$content_category = Model_Manager::byKey (
+				$this->__categoryModel (), 
+				$category_id
+			);
 			
-			if (!$content_category->key ())
+			if (!$content_category)
 			{
 				return $this->_helperReturn ('Page', 'notFound');
 			}
@@ -323,12 +327,6 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 			{
 				return $this->_helperReturn ('Access', 'denied');
 			}
-			
-			/*$referer = $this->__saveReferer (
-				$params, 
-				$content_category,
-				$url
-			);*/
 			
 			$content_category->update (array (
 				'title'						=> $title,
@@ -351,11 +349,12 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 				'addContent'	
 			);
 
-			$personal_role = $user
-				->role (Acl_Role_Type_Personal::ID, true);
+			$personal_role = $user->role (Acl_Role_Type_Personal::ID, true);
 				
-			if (!$resource_addContent->userCan ($user) || 
-				!$personal_role)
+			if (
+				!$resource_addContent->userCan ($user) || 
+				!$personal_role
+			)
 			{
 				return $this->_helperReturn ('Access', 'denied');
 			}
@@ -404,8 +403,20 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 				$resource_addContent
 			));
 		}
-
-		Helper_Header::redirect ($referer);
+		
+		if (!Request::isJsHttpRequest())
+		{
+			Helper_Header::redirect ($referer);
+			die ();
+		}
+		
+		$this->_dispatcherIteration->setTemplate (null);
+		$this->_output->send (array (
+			'redirect'	=> $referer,
+			'data'		=> array (
+				'redirect'	=> $referer
+			)
+		));
 	}
 	
 	/**
@@ -424,11 +435,10 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 			'referer'
 		);
 
-		$category = IcEngine::$modelManager
-			->modelByKey (
-				$this->__categoryModel (), 
-				$category_id
-			);
+		$category = Model_Manager::byKey (
+			$this->__categoryModel (), 
+			$category_id
+		);
 
 		if (!$category)
 		{
@@ -452,6 +462,21 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 
 		//$referer = $this->__deleteReferer ($category, $referer);
 		
-		Helper_Header::redirect ($referer);
+		if (Request::isPost ())
+		{
+			$this->_dispatcherIteration->setTemplate (null);
+			$this->_output->send (array (
+				'redirect'	=> $referer,
+				'data'		=> array (
+					'redirect'	=> $referer
+				)
+			));
+		}
+		else
+		{
+			// GET запрос
+			Helper_Header::redirect ($referer);
+		}
 	}
+	
 } 

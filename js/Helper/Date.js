@@ -21,7 +21,7 @@ var Helper_Date = {
 			return new Date (str);
 		}
 
-		if (str.length < 8)
+		if (!str || str.length < 8)
 		{
 			return new Date (def ? def : 0);
 		}

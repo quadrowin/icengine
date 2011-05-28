@@ -113,7 +113,7 @@ class Background_Agent_Manager
 		return $this->_config;
 	}
 	
-	public function instance ()
+	public static function instance ()
 	{
 		if (!self::$_instance)
 		{
@@ -158,7 +158,7 @@ class Background_Agent_Manager
 	 * @desc Перезапустить агента
 	 * @param Background_Agent_Session $session
 	 */
-	public function resumeSession (Background_Agent_Session $session)
+	public static function resumeSession (Background_Agent_Session $session)
 	{
 		if ($session->Background_Agent_Resume)
 		{

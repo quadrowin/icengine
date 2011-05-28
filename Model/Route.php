@@ -159,11 +159,17 @@ class Route extends Model_Child
 		{
 			foreach ($config ['routes'] as $id => $route)
 			{
+//				var_dump (array (
+//					'route'		=> $route ['pattern'], 
+//					'pattern'	=> $pattern,
+//					'preg'		=> preg_match ('#' . $route ['pattern'] . '#', $pattern)
+//				));
+				
 				if (
-					preg_match ('#' . $route ['pattern'] . '#', $url) &&
+					preg_match ('#' . $route ['pattern'] . '#', $pattern) &&
 					(
 						$row == null ||
-						$route ['weight'] > $row ['weight']
+						(int) $route ['weight'] > (int) $row ['weight']
 					)
 				)
 				{
@@ -313,8 +319,13 @@ class Route extends Model_Child
 		{
 			$actions = Model_Collection_Manager::create ('Controller_Action')
 				->reset ();
-				
-			foreach ((array) $this->_fields ['actions'] as $action)
+			
+			$this_actions = 
+				is_scalar ($this->_fields ['actions']) ?
+					array ($this->_fields ['actions']) :
+					$this->_fields ['actions'];
+			
+			foreach ($this_actions as $action)
 			{
 				$action = explode ('/', $action);
 				$actions->add (

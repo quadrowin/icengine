@@ -9,10 +9,16 @@ abstract class View_Resource_Packer_Abstract
 {
 	
 	/**
-	 * Текущий ресурс
+	 * @desc Текущий ресурс
 	 * @var View_Resource
 	 */
 	protected $_currentResource;
+	
+	/**
+	 * @desc Время создания упакованного файла.
+	 * @var string
+	 */
+	protected $_cacheTimestamp = 0;
 	
 	/**
 	 * @desc Настройки
@@ -43,7 +49,7 @@ abstract class View_Resource_Packer_Abstract
 		 * даже если не зафиксировано изменение исходных файлов.
 		 * @var integer
 		 */
-		'refresh_time'	=> 300,
+		'refresh_time'	=> 999999999,
 	
 		/**
 		 * @desc Файл для хранения состояния
@@ -64,6 +70,10 @@ abstract class View_Resource_Packer_Abstract
 		'charset_output'	=> 'utf-8'
 	);
 	
+	/**
+	 * @desc Собирает префикс для файла.
+	 * @return string Префикс для файла.
+	 */
 	public function _compileFilePrefix ()
 	{
 		return str_replace (
@@ -74,7 +84,16 @@ abstract class View_Resource_Packer_Abstract
 	}
 	
 	/**
-	 * Проверяет существование валидного кэша для ресурсов.
+	 * @desc Таймстамп создания кэша.
+	 * @return integer
+	 */
+	public function cacheTimestamp ()
+	{
+		return $this->_cacheTimestamp;
+	}
+	
+	/**
+	 * @desc Проверяет существование валидного кэша для ресурсов.
 	 * @param array $resources
 	 * @param string $result_file
 	 * @return boolean
@@ -138,11 +157,13 @@ abstract class View_Resource_Packer_Abstract
 			}
 		}
 		
+		$this->_cacheTimestamp = $state ['result_time'];
+		
 		return true;
 	}
 	
 	/**
-	 * Объединение результатов упаковщика.
+	 * @desc Объединение результатов упаковщика.
 	 * @param array $packages
 	 * @return string
 	 */
@@ -170,12 +191,9 @@ abstract class View_Resource_Packer_Abstract
 	}
 	
 	/**
-	 * Пакование ресурсов в строку или указанный файл.
-	 * 
-	 * @param array <string> $resources
-	 * 		Ресурсы
-	 * @param string $result_file [optional]
-	 * 		Файл для сохранения результата.
+	 * @desc Пакование ресурсов в строку или указанный файл.
+	 * @param array <string> $resources Ресурсы.
+	 * @param string $result_file [optional] Файл для сохранения результата.
 	 * @return mixed|string
 	 * 		
 	 */
@@ -226,16 +244,14 @@ abstract class View_Resource_Packer_Abstract
 	}
 	
 	/**
-	 * Паковка одного ресурса
-	 * @param View_Resource $resource
-	 * 		Ресурс.
-	 * @return string
-	 * 		Запакованная строка, содержащая ресурс.
+	 * @desc Паковка одного ресурса.
+	 * @param View_Resource $resource Ресурс.
+	 * @return string Запакованная строка, содержащая ресурс.
 	 */
 	abstract public function packOne (View_Resource $resource);
 	
 	/**
-	 * 
+	 * @desc Сохраняет информацию о текущем состоянии файлов.
 	 * @param array $resources
 	 * @param string $result_file
 	 */
@@ -262,6 +278,8 @@ abstract class View_Resource_Packer_Abstract
 				'filemtime'	=> $resource->filemtime ()
 			);
 		}
+		
+		$this->_cacheTimestamp = $state ['result_time'];
 		
 		$state = json_encode ($state);
 		file_put_contents ($this->config ()->state_file, $state);

@@ -134,6 +134,21 @@ class IcEngine
 	}
 	
 	/**
+	 * @desc Подключение класса Debug
+	 */
+	public static function initDebug ($params)
+	{
+		static $loaded = false;
+		if (!$loaded)
+		{
+			$loaded = true;
+			require dirname (__FILE__) . '/Class/Debug.php';
+		}
+		
+		call_user_func_array (array ('Debug', 'init'), func_get_args ());
+	}
+	
+	/**
 	 * @desc Инициализация лоадера.
 	 */
 	public static function initLoader ()
@@ -190,20 +205,6 @@ class IcEngine
 		self::$bootstrap->run ();
 		self::frontController ()->run ();
 	}
-	
-	/**
-	 * @desc Подключение класса Debug
-	 */
-	public static function useDebug ()
-	{
-		static $loaded = false;
-		if ($loaded)
-		{
-			return;
-		}
-		$loaded = true;
-		
-		require self::$_path . 'Class/Debug.php';
-	}
 
 }
+

@@ -10,6 +10,8 @@ Loader::load ('Client_Abstract');
  */
 class Client_Icq extends Client_Abstract
 {
+	private $_config;
+	
 	/**
 	 * 
 	 * @desc Экзмепляр класса ICQClient
@@ -26,34 +28,15 @@ class Client_Icq extends Client_Abstract
 	 */
 	public function __construct ($config = null)
 	{
-		Loader::requireOnce ('ICQclient.php', 'includes');
+		Loader::requireOnce ('ICQClient.php', 'includes');
 		if (!class_exists ('WebIcqPro'))
 		{
 			Loader::load ('Zend_Exception');
 			throw new Zend_Exception ('Class "ICQClient" not exists');
 		}
-		if (!($config instanceof Config_Array))
-		{
-			$config = Config_Manager::load (
-				'Client',
-				$this->name ()
-			);
-		}
-		if (!$config)
-		{
-			Loader::load ('Zend_Exception');
-			throw new Zend_Exception ('Empty config');
-		}
-		if (!isset ($config->login) || !isset ($config->password))
-		{
-			Loader::load ('Zend_Exception');
-			throw new Zend_Exception ('Unexists login or password');
-		}
-		$this->_provider = new WebIcqPro (
-			$config->login, 
-			$config->password
-		);
-		$this->connect ($config);
+
+		$this->_provider = new WebIcqPro;
+		$this->_config = $config;
 	}
 	
 	/**
@@ -65,9 +48,9 @@ class Client_Icq extends Client_Abstract
 	public function connect ($config)
 	{
 		return $this->_provider
-			->connect (
-				$config->login,
-				$config->password
+			->connect ( 
+				$config ['login'],
+				$config ['password']
 			);
 	}
 	
@@ -101,6 +84,11 @@ class Client_Icq extends Client_Abstract
 	 */
 	public function send (Client_Icq_Reciever $reciever, $message)
 	{
+		if (!$this->connected ())
+		{
+			$this->connect ($this->_config);
+		} 
+		
 		return $this->_provider
 			->sendMessage (
 				$reciever->icq,

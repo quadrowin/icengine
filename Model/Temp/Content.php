@@ -23,10 +23,10 @@ class Temp_Content extends Model
 	 */
 	public static function byUtcode ($utcode)
 	{
-		return IcEngine::$modelManager->modelBy (
+		return Model_Manager::byQuery (
 			__CLASS__,
 			Query::instance ()
-			->where ('utcode', (string) $utcode)
+				->where ('utcode', (string) $utcode)
 		);
 	}
 	

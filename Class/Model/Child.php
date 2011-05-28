@@ -75,7 +75,7 @@ abstract class Model_Child extends Model
 	 */
 	public function level ($rate = 1)
 	{
-		if ($this->parentKey ())
+		if ($this->parentKey () != $this->parentRootKey())
 		{
 			return ($this->getParent ()->level () + 1) * $rate;
 		}

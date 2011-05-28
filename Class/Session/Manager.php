@@ -128,9 +128,14 @@ class Session_Manager
 	}
 	
 	/**
-	 * @desc Write function that is called when session data is to be saved. This function expects two parameters: an identifier and the data associated with it.
+	 * @desc Write function that is called when session data is to be saved.
+	 * This function expects two parameters: an identifier and the data 
+	 * associated with it.
 	 * Note: 
-	 * The "write" handler is not executed until after the output stream is closed. Thus, output from debugging statements in the "write" handler will never be seen in the browser. If debugging output is necessary, it is suggested that the debug output be written to a file instead.
+	 * The "write" handler is not executed until after the output stream 
+	 * is closed. Thus, output from debugging statements in the "write" handler 
+	 * will never be seen in the browser. If debugging output is necessary,
+	 * it is suggested that the debug output be written to a file instead.
 	 */
 	public static function write ($id, $data)
 	{

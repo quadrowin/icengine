@@ -110,6 +110,16 @@ class Model_Collection_Option_Item_Collection
 	}
 	
 	/**
+	 * @desc Очистить коллекцию
+	 * @return Model_Collection_Option_Item_Collection
+	 */
+	public function clear ()
+	{
+		$this->_items = array ();
+		return $this;
+	}
+	
+	/**
 	 * 
 	 * @param string $beforeAfter 
 	 * 		Тип события: "before" или "after".
@@ -147,7 +157,7 @@ class Model_Collection_Option_Item_Collection
 	 * 
 	 * @param Model_Collection $collection
 	 * @param Query $query
-	 * @rturn mixed
+	 * @return mixed
 	 */
 	public function executeAfter (Model_Collection $collection, Query $query)
 	{
@@ -158,13 +168,18 @@ class Model_Collection_Option_Item_Collection
 	 * 
 	 * @param Model_Collection $collection
 	 * @param Query $query
+	 * @return mixed
 	 */
 	public function executeBefore (Model_Collection $collection, Query $query)
 	{
 		return $this->execute (self::BEFORE, $collection, $query);
 	}
 	
-	
+	/**
+	 * @desc Проверить существует ли элемент 
+	 * @param string $item
+	 * @return boolean
+	 */
     public function exists ($item)
     {
     	foreach ($this->_items as $_item)
@@ -176,7 +191,6 @@ class Model_Collection_Option_Item_Collection
     	}
     	return false;
     }
-	
 	
 	/**
 	 * 

@@ -140,6 +140,10 @@ class Redis
 	public function clearByPattern ($pattern)
 	{
 		$keys = $this->keys ($pattern . '*');
+		if (!$keys)
+		{
+			return;
+		}
 		foreach ($keys as $key)
 		{
 			if ($key)
