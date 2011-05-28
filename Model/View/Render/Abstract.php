@@ -10,12 +10,6 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 {
 	
 	/**
-	 * @desc Менеджер ресурсов.
-	 * @var View_Resrouce_Manager
-	 */
-	protected $_resources;
-	
-	/**
 	 * @desc Пути к директориям шаблонов.
 	 * @var array <string>
 	 */
@@ -144,17 +138,41 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	}
 	
 	/**
-	 * 
-	 * @return View_Resource_Manager
+	 * @desc Обработка шаблонов из стека.
+	 * @param array $outputs
 	 */
-	public function resources ()
+	public function render (array $outputs)
 	{
-		if (!$this->_resources)
+		Loader::load ('Message_Before_Render');
+		Message_Before_Render::push ($this);
+		
+		// Рендерим в обратном порядке		
+		$outputs = array_reverse ($outputs);
+		
+		/**
+		 * @var Controller_Task $item
+		 */
+		foreach ($outputs as $output)
 		{
-			Loader::load ('View_Resource_Manager');
-			$this->_resources = new View_Resource_Manager ();
+			/**
+			 * 
+			 * @var $transaction Data_Transport_Transaction
+			 */
+			$transaction = $output->getTransaction ();
+			
+			$this->assign ($transaction->buffer ());
+			
+			$template = $output->getTemplate ();
+			$result = $template ? $this->fetch ($template) : null;
+			
+			$this->assign (
+				$output->getAssignVar (),
+				$result
+			);
 		}
-		return $this->_resources;
+		
+		Loader::load ('Message_After_Render');
+		Message_After_Render::push ($this);
 	}
 	
 	/**

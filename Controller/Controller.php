@@ -8,117 +8,29 @@
  */
 class Controller_Controller extends Controller_Abstract
 {
-    
+	
 	/**
-	 * @desc Метод по умолчанию
-	 * @var string
+	 * @desc 
 	 */
-    const DEFAULT_METHOD = 'index';
-    
-    /**
-     * @desc 
-     */
 	public function ajax ()
 	{
-		$call = explode ('/', $this->_input->receive ('call'));
+		list (
+			$call,
+			$back,
+			$params
+		) = $this->_input->receive (
+			'call',
+			'back',
+			'params'
+		);
 		
-		$controller = $call [0];
-		$method = isset ($call [1]) ? $call [1] : self::DEFAULT_METHOD;
+		$result = Controller_Manager::html ($call, $params, false);
 		
-		Loader::load ('Data_Provider_Buffer');
-		$input_buffer = new Data_Provider_Buffer ();
-		
-		$params = (array) $this->_input->receive ('params');
-	    foreach ($params as $key => $value)
-        {
-        	$input_buffer->set ($key, $value);
-        }
-		
-		$input = new Data_Transport ();
-		$input->appendProvider ($input_buffer);
-		
-		$ca = new Controller_Action (array (
-            'controller'	=> $controller,
-		    'action'		=> $method,
-		    'input'			=> $input
+		$this->_output->send (array (
+			'back'		=> $back,
+			'result'	=> $result
 		));
-		
-		IcEngine::frontController ()->getDispatcher ()->push ($ca);
-		
-		$ca = new Controller_Action (array (
-            'controller'	=> $this->name (),
-		    'action'		=> 'ajaxFinish'
-		));
-		
-		IcEngine::frontController ()->getDispatcher ()->push ($ca);
 	}
-	
-	/**
-	 * @desc Экшен после обработки ajax запроса целевым контроллером.
-	 */
-	public function ajaxFinish ()
-	{
-	    $iterations = IcEngine::frontController ()->getDispatcher ()->results ();
-//		print_r(count($iterations));die();
-	    $iteration = end ($iterations);
-	    IcEngine::frontController ()->getDispatcher ()->flushResults ();
-	    	    
-        /**
-	     * 
-	     * @var $transaction Data_Transport_Transaction
-	     */
-	    $transaction = $iteration->getTransaction ();
-	    
-		$tpl = $iteration->getTemplate ();
-        
-        $result ['data'] = (array) $transaction->receive ('data');
-        $error = $transaction->receive ('error');
-        
-        if ($error)
-        {
-        	$result ['error'] = $error;
-        }
-        
-        if ($tpl)
-        {
-            $view = View_Render_Broker::pushViewByName ('Smarty');
-            
-            $view->pushVars ();
-            try
-            {
-            	$vals = $transaction->buffer ();
-            	$this->_output->outputFilters ()->apply ($vals);
-                $view->assign ($vals);
-                $result ['html'] = $view->fetch ($tpl);
-            }
-            catch (Exception $e)
-            {
-    		    $msg = 
-    		    	'[' . $e->getFile () . '@' . 
-    				$e->getLine () . ':' . 
-    				$e->getCode () . '] ' .
-    				$e->getMessage () . "\r\n";
-    				
-    		    error_log ($msg . PHP_EOL, E_USER_ERROR, 3);
-		    
-    		    $this->_output->send ('error', 'Произола ошибка.');
-                $result ['html'] = '';
-            }
-            $view->popVars ();
-            
-            View_Render_Broker::popView ();
-        }
-        else
-        {
-            $result ['html'] = '';
-        }
-        
-        $this->_output->send (array (
-            'back'		=> $this->_input->receive ('back'),
-        	'result'    => $result
-        ));
-	}
-	
 	
 	/**
 	 * @desc Вызов экшена контроллера по названию из входных параметров
@@ -130,7 +42,7 @@ class Controller_Controller extends Controller_Abstract
 		
 		return $this->replaceAction ($controller, $action);
 	}
-    
+	
 	/**
 	 * 
 	 * @param boolean $with_actions
@@ -281,5 +193,5 @@ class Controller_Controller extends Controller_Abstract
 		$this->_dispatcherIteration->setTemplate(null);
 	}
 	
-    
+	
 }

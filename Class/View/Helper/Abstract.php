@@ -28,7 +28,7 @@ abstract class View_Helper_Abstract
 	 */
 	public function __construct ($view = null)
 	{
-	    $this->_view = $view ? $view : View_Render_Broker::getView ();
+	    $this->_view = $view ? $view : View_Render_Manager::getView ();
 	}
 	
 	/**

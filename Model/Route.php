@@ -317,28 +317,20 @@ class Route extends Model_Child
 	{
 		if (isset ($this->_fields ['actions']))
 		{
-			$actions = Model_Collection_Manager::create ('Controller_Action')
-				->reset ();
+			$actions = is_scalar ($this->_fields ['actions']) ?
+				array ($this->_fields ['actions']) :
+				$this->_fields ['actions'];
+
+			return Model_Collection_Manager::create (
+				'Controller_Action'
+			)
+				->fromArray (array (
+					array_combine (
+						array_fill (0, count ($actions), 'controller'),
+						$actions
+					)
+				));
 			
-			$this_actions = 
-				is_scalar ($this->_fields ['actions']) ?
-					array ($this->_fields ['actions']) :
-					$this->_fields ['actions'];
-			
-			foreach ($this_actions as $action)
-			{
-				$action = explode ('/', $action);
-				$actions->add (
-					new Controller_Action (array (
-						'controller'	=> $action [0],
-						'action'		=> isset ($action [1]) ? 
-							$action [1] : 
-							'index'
-					))
-				);
-			}
-			
-			return $actions;
 		}
 		
 		return Model_Collection_Manager::byQuery (

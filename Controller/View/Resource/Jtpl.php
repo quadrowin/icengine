@@ -31,14 +31,11 @@ class Controller_View_Resource_Jtpl extends Controller_Abstract
 			);
 		}
 		
-		$view = View_Render_Broker::getView ();
-		
-		$tpls = $view->resources ()->getData (
+		$tpls = View_Resource_Manager::getData (
 			View_Resource_Manager::JTPL
 		);
 		
-		$packer = $view->resources ()
-			->packer (View_Resource_Manager::JTPL);
+		$packer = View_Resource_Manager::packer (View_Resource_Manager::JTPL);
 		
 		$packer->pack ($tpls, $config->packed_file);
 		

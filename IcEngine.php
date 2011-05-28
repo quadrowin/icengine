@@ -74,7 +74,7 @@ class IcEngine
 	public static function flush ()
 	{
 		Resource_Manager::save ();
-		View_Render_Broker::display ();
+		View_Render_Manager::display ();
 	}
 	
 	/**
@@ -203,7 +203,12 @@ class IcEngine
 	public static function run ()
 	{
 		self::$bootstrap->run ();
-		self::frontController ()->run ();
+		Loader::load ('Data_Transport_Manager');
+		Controller_Manager::call (
+			'Front', 'run',
+			Data_Transport_Manager::get ('default_input')
+		);
+		//self::frontController ()->run ();
 	}
 
 }

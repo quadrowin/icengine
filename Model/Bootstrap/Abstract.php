@@ -48,18 +48,17 @@ abstract class Bootstrap_Abstract
 	{
 		$this->addLoaderPathes ();
 		
+		Loader::load ('Manager_Abstract');
 		Loader::load ('Config_Manager');
 		
 		Loader::load ('Zend_Exception');
 		
 		$this->initFirePhp ();
-		$this->initMessageQueue ();
-		$this->initDds ();
-			
+		
 		Loader::load ('Registry');
 		Loader::load ('Request');
-		Loader::load ('Cache_Manager');
 		Loader::load ('Executor');
+
 		Loader::load ('Helper_Action');
 		Loader::load ('Helper_Date');
 		Loader::load ('Helper_Link');
@@ -76,8 +75,13 @@ abstract class Bootstrap_Abstract
 		Loader::load ('Controller_Manager');
 		Loader::load ('Page_Title');
 		Loader::load ('View_Render');
-		Loader::load ('View_Render_Broker');
+		Loader::load ('View_Render_Manager');
 		Loader::load ('View_Helper_Abstract');
+		
+		Loader::load ('Data_Transport_Manager');
+		
+		$this->initMessageQueue ();
+		$this->initDds ();
 			
 		$this->initAttributeManager ();
 		$this->initModelScheme ($this->name ());
@@ -216,12 +220,10 @@ abstract class Bootstrap_Abstract
 	
 	/**
 	 * @desc Инициализация рендера.
-	 * @return View_Render_Abstract Рендер по умолчанию.
 	 */
 	public function initView ()
 	{
-		$view = View_Render_Broker::getView ();
-		return $view;
+		View_Render_Manager::getView ();
 	}
 	
 	/**
