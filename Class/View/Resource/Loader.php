@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * 
+ * @desc Загрузчик ресурсов
+ * @author Юрий Шведов, Илья Колесников
+ * @package IcEngine
+ *
+ */
 class View_Resource_Loader
 {
 	/**
@@ -88,9 +94,11 @@ class View_Resource_Loader
 						$files [$j][1],
 						$base_dir_len
 					);
-					View_Render_Broker::getView ()
-						->resources ()
-							->add ($files [$j][0], $type, $options);
+					View_Resource_Manager::add (
+						$files [$j][0],
+						$type,
+						$options
+					);
 				}
 			}
 			elseif ($star_pos !== false)
@@ -120,12 +128,11 @@ class View_Resource_Loader
 						$options ['source'] = $base_url . $local_path;
 						$options ['filePath'] = $base_dir . $local_path;
 						$options ['localPath' ] = $local_path;
-						View_Render_Broker::getView ()
-							->resources ()
-								->add (
-									$base_url . $local_path,
-									$type, $options
-								);
+						View_Resource_Manager::add (
+							$base_url . $local_path,
+							$type,
+							$options
+						);
 					}
 				}
 			}
@@ -135,10 +142,10 @@ class View_Resource_Loader
 				$file = $base_url . $pattern;
 				$options ['filePath'] = $base_dir . $pattern;
 				$options ['localPath'] = $pattern;
-				View_Render_Broker::getView ()
-					->resources ()
-						->add ($file, $type, $options);
+				View_Resource_Manager::add ($file, $type, $options);
 			}
 		}
 	}
 }
+
+Loader::load ('View_Resource_Manager');

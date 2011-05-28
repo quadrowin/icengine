@@ -126,7 +126,7 @@ class Widget_Manager
 		
 		if ($tpl && $tpl != self::NULL_TEMPLATE)
 		{
-			$view = View_Render_Broker::pushViewByName ('Smarty');
+			$view = View_Render_Manager::pushViewByName ('Smarty');
 			
 			try
 			{
@@ -151,7 +151,7 @@ class Widget_Manager
 				$result ['html'] = '';
 			}
 			
-			View_Render_Broker::popView ();
+			View_Render_Manager::popView ();
 		}
 		else
 		{

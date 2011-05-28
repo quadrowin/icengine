@@ -230,7 +230,7 @@ class Debug
 			self::$config ['die_on_error']
 		)
 		{
-			die ("<b>Terminated on fatal error.</b>");
+			die ("<b>Terminated on fatal error.</b><br />" . $log_text);
 		}
 		
 		return true;

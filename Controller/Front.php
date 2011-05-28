@@ -6,14 +6,8 @@
  * @package IcEngine
  *
  */
-class Controller_Front
+class Controller_Front extends Controller_Abstract
 {
-	
-	/**
-	 * @desc Текущий диспетчер
-	 * @var Controller_Dispatcher
-	 */
-	private $_dispatcher;
 	
 	/**
 	 * @desc Получаем (и инициализируем, если еще не проинициализирован) текущий диспетчер
@@ -21,12 +15,13 @@ class Controller_Front
 	 */
 	public function getDispatcher ()
 	{
-		if (!$this->_dispatcher)
-		{
-			Loader::load ('Controller_Dispatcher');
-			$this->_dispatcher = new Controller_Dispatcher;
-		}
-		return $this->_dispatcher;
+		Loader::load ('Controller_Dispatcher');
+		return Controller_Dispatcher::instance ();
+	}
+	
+	public function inputTransport ()
+	{
+		
 	}
 	
 	/**
@@ -35,30 +30,33 @@ class Controller_Front
 	public function run ()
 	{
 		Loader::load ('Router');
+		// Начинаем роутинг
 		$route = Router::getRoute ();
 		
 		// Инициализируем вьюшник из запроса
-		$view = View_Render_Broker::pushView ($route->viewRender ());
+		$view = View_Render_Manager::pushView ($route->viewRender ());
 		
 		// Отправляем сообщение, что вью был изменен
 		Loader::load ('Message_After_Router_View_Set');
 		Message_After_Router_View_Set::push ($route, $view);
 		
-		// Получаем диспетчер
-//		Loader::load ('Controller_Dispatcher');
-//		$this->_dispatcher = new Controller_Dispatcher;
-		
 		try 
 		{
-			View_Render_Broker::render (
-				$this->getDispatcher ()
-					// Закидываем в пул диспетчеру полученные роутеров экшины
-					->push ($route->actions ())
-					// Запускаем цикл диспетчеризации
-					->dispatchCircle ()
-					// Результат диспетчеризации
-					->results ()
-			);
+			// Получаем экшены
+			$actions = $route->actions ();
+			
+			var_dump ($this->_input->getProviders());
+			// Направляем входные данные в целевые контроллеры
+			foreach ($actions as $action)
+			{
+				$action->set ('input', $this->_input);
+			}
+			
+			// Выполнение экшенов
+			$results = Controller_Manager::runTasks ($route->actions ());
+			
+			// Рендеринг
+			View_Render_Manager::render ($results);
 		}
 		catch (Zend_Exception $e)
 		{

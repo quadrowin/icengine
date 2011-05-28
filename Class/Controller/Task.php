@@ -1,12 +1,12 @@
 <?php
 /**
  * 
- * @desc
- * @author Гурус
+ * @desc Задание на выполнение контроллера.
+ * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
  *
  */
-class Controller_Dispatcher_Iteration
+class Controller_Task
 {
 	
 	/**
