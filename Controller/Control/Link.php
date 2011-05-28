@@ -12,7 +12,7 @@ class Controller_Controll_Link extends Controller_Abstract
 		
 		if (!$user->hasRole ($admin_role))
 		{
-			return $this->_helperReturn ('Access', 'denied');
+			return $this->replaceAction ('Error', 'accessDenied');
 		}
 	}
 	
