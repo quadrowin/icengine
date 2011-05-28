@@ -138,6 +138,7 @@ class Loader
 		for ($i = count (self::$pathes [$type]) - 1; $i >= 0; --$i)
 		{
 			$fn = self::$pathes [$type][$i] . $file;
+			
 			if (file_exists ($fn))
 			{
 				self::setRequired ($file, $type);

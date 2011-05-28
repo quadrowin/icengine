@@ -463,7 +463,7 @@ class Controller_Manager extends Manager_Abstract
 		$task = self::call (
 			$action->controller,
 			$action->action,
-			$action->sfield ('input'),
+			$action->data ('input'),
 			$task
 		);
 
