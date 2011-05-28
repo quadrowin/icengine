@@ -10,13 +10,13 @@ class Controller_Task
 {
 	
 	/**
-	 * @desc 
+	 * @desc Экшин
 	 * @var Controller_Action
 	 */
 	protected $_controllerAction;
 	
 	/**
-	 * 
+	 * @desc Игнорировать текущее задание
 	 * @var boolean
 	 */
 	protected $_ignore = false;
@@ -28,7 +28,13 @@ class Controller_Task
 	protected $_index;
 	
 	/**
-	 * 
+	 * @desc Входные данные
+	 * @var Data_Transport
+	 */
+	protected $_input;
+	
+	/**
+	 * @desc 
 	 * @var Route_Action
 	 */
 	protected $_routeAction;
@@ -123,6 +129,15 @@ class Controller_Task
 	}
 	
 	/**
+	 * @desc Получить транспорт входных данных
+	 * @return Data_Transport
+	 */
+	public function getInput ()
+	{
+		return $this->_input;
+	}
+	
+	/**
 	 * @return Route_Action
 	 */
 	public function getRouteAction ()
@@ -177,6 +192,15 @@ class Controller_Task
 	public function setIndex ($value)
 	{
 		$this->_index = $value;
+	}
+	
+	/**
+	 * @desc Установить транспорт для входных данных
+	 * @param Data_Transport $input
+	 */
+	public function setInput (Data_Transport $input)
+	{
+		$this->_input = $input;
 	}
 
 	/**
