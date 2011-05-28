@@ -1,6 +1,12 @@
 <?php
-
-abstract class View_Render_Broker
+/**
+ * 
+ * @desc Менеджер рендеринга
+ * @author Юрий Шведов, Илья Колесников
+ * @package IcEngine
+ *
+ */
+abstract class View_Render_Manager extends Manager_Abstract
 {
 
 	/**
@@ -24,7 +30,7 @@ abstract class View_Render_Broker
 	 * @desc Конфиг
 	 * @var array
 	 */
-	public static $config = array (
+	protected static $_config = array (
 		/**
 		 * @desc Рендер по умолчанию
 		 * @var string
@@ -33,15 +39,15 @@ abstract class View_Render_Broker
 	);
 	
 	/**
-	 * Выводит результат работы шаблонизатора в браузер
+	 * @desc Выводит результат работы шаблонизатора в браузер.
 	 */
 	public static function display ()
 	{
-		return self::getView ()->display ();
+		self::getView ()->display ();
 	}
 	
 	/**
-	 * 
+	 * @desc Возвращает текущий рендер.
 	 * @return View_Render_Abstract
 	 */
 	public static function getView ()
@@ -49,7 +55,8 @@ abstract class View_Render_Broker
 		if (!self::$_views)
 		{
 			Loader::load ('View_Render');
-			self::pushViewByName (self::$config ['default_view']);
+			$config = self::config ();
+			self::pushViewByName ($config ['default_view']);
 			//self::$_view = new View_Render (array('name' => self::$_defaultView));
 		} 
 		
@@ -125,43 +132,7 @@ abstract class View_Render_Broker
 	 */
 	public static function render (array $outputs)
 	{
-		$view = self::getView ();
-		
-		Loader::load ('Message_Before_Render');
-		Message_Before_Render::push ($view);
-		
-		// Рендерим в обратном порядке		
-		$outputs = array_reverse ($outputs);
-		
-		/**
-		 * @var Controller_Dispatcher_Iteration $item
-		 */
-		foreach ($outputs as $item)
-		{
-			/**
-			 * 
-			 * @var $transaction Data_Transport_Transaction
-			 */
-			$transaction = $item->getTransaction ();
-			
-			/**
-			 * @var $action Route_Action
-			 */
-//			$action = $item->getRouteAction ();
-			
-			$transaction->commit ();
-			
-			$template = $item->getTemplate ();
-			$result = $template ? $view->fetch ($template) : null;
-			
-			$view->assign (
-				$item->getAssignVar (),
-				$result
-			);
-		}
-		
-		Loader::load ('Message_After_Render');
-		Message_After_Render::push ($view);
+		return self::getView ()->render ($outputs);
 	}
 	
 	/**
