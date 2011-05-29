@@ -91,20 +91,6 @@ class IcEngine
 	}
 	
 	/**
-	 * @desc Создает и возвращает фронт контроллер.
-	 * @return Controller_Front
-	 */
-	public static function frontController ()
-	{
-		if (!self::$_frontController)
-		{
-			Loader::Load ('Controller_Front');
-			self::$_frontController = new Controller_Front ();
-		}
-		return self::$_frontController;
-	}
-	
-	/**
 	 * @desc Инициализация лоадера.
 	 * @param string $root Путь до корня сайта.
 	 * @param string $bootstap Путь до загрузчика.
