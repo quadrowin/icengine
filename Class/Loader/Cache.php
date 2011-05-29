@@ -219,7 +219,7 @@ class Loader_Cache
 			
 		self::$_compiledFilename = self::compiledPath () . $name . '.php';
 		
-		self::$_ignoring = Loader::$required;
+		self::$_ignoring = Loader::getRequired ();
 		
 		if (
 			file_exists (self::$_dataFilename) &&
@@ -279,12 +279,13 @@ class Loader_Cache
 			foreach (self::$_cached as $type => $files)
 			{
 				$files = array_fill_keys (array_keys ($files), true);
-				Loader::$required [$type] = 
-					isset (Loader::$required [$type]) ?
-						array_merge (Loader::$required [$type], $files) :
-						$files;
+				Loader::setRequired (
+					isset (Loader::getRequired ($type)) ?
+						array_merge (Loader::getRequired ($type), $files) :
+						$files, $type
+				);
 			}
-			self::$_ignoring = Loader::$required;
+			self::$_ignoring = Loader::getRequired ();
 			
 			require self::$_compiledFilename;
 		}

@@ -109,7 +109,7 @@ class Query_Translator_Mysql extends Query_Translator
 		{
 			$parts[Query::DELETE][$key] = strpos ($part, self::SQL_ESCAPE) !== false ?
 				$part :
-				strtolower ($this->_modelScheme->table ($part));
+				strtolower (Model_Scheme::table ($part));
 			$parts[Query::DELETE][$key] = $this->_escape ($parts[Query::DELETE][$key]);
 		}
 		$tables = count($parts[Query::DELETE]) > 0 ? ' '.implode(', ', $parts[Query::DELETE]).' ' : ' ';
@@ -146,7 +146,7 @@ class Query_Translator_Mysql extends Query_Translator
 			$table =
 				strpos ($from [Query::TABLE], self::SQL_ESCAPE) !== false ? 
 				$from [Query::TABLE] :
-				strtolower ($this->_modelScheme->table ($from [Query::TABLE]));
+				strtolower (Model_Scheme::table ($from [Query::TABLE]));
 			
 			$table = $this->_escape ($table);
 			$alias = $this->_escape ($alias);
@@ -238,7 +238,7 @@ class Query_Translator_Mysql extends Query_Translator
 		$table = $query->part (Query::INSERT);
 		$sql = 
 			self::SQL_INSERT . ' ' .
-			strtolower ($this->_modelScheme->table ($table)) . 
+			strtolower (Model_Scheme::table ($table)) . 
 			' (';
 		
 		$fields = array_keys ($query->part (Query::VALUES));
@@ -423,7 +423,7 @@ class Query_Translator_Mysql extends Query_Translator
 		$table = $query->part (Query::UPDATE);
 		$sql = 
 			self::SQL_UPDATE . ' ' . 
-			strtolower ($this->_modelScheme->table ($table)) . ' ' . 
+			strtolower (Model_Scheme::table ($table)) . ' ' . 
 			self::SQL_SET . ' ';
 			
 		$values = $query->part (Query::VALUES);
