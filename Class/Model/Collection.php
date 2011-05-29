@@ -58,7 +58,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	
 	/**
 	 * @desc Опции
-	 * @var Model_Collection_Option_Item_Collection
+	 * @var Model_Collection_Option_Collection
 	 */
 	protected $_options;
 	
@@ -92,9 +92,8 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function __construct ()
 	{
-		Loader::load ('Model_Collection_Option_Item_Collection');
-		$this->_options =
-			new Model_Collection_Option_Item_Collection ($this->modelName ());
+		Loader::load ('Model_Collection_Option_Collection');
+		$this->_options = new Model_Collection_Option_Collection ($this);
 		Loader::load ($this->modelName ());
 	}
 	
@@ -174,7 +173,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 * @desc Добавление нескольких опций к коллекции аналогично.
 	 * @param array|string $options
 	 * @param $_
-	 * @return Model_Collection
+	 * @return Model_Collection Эта коллекция
 	 */
 	public function addOptions ($options)
 	{
@@ -503,7 +502,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	/**
 	 * 
 	 * @desc Получить коллекцию опшинов
-	 * @return Model_Collection_Option_Item_Collection
+	 * @return Model_Collection_Option_Collection
 	 */
 	public function getOptions ()
 	{

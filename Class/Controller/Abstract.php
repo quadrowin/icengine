@@ -11,18 +11,20 @@ class Controller_Abstract
 	
 	/**
 	 * @desc Последний вызванный экшен.
+	 * В случае, если был вызван replaceAction, может отличаться 
+	 * от $_task. 
 	 * @var string
 	 */
 	protected $_currentAction;
 	
 	/**
-	 * @desc Текущая задача
+	 * @desc Текущая задача.
 	 * @var Controller_Task
 	 */
 	protected $_task;
 	
 	/**
-	 * @desc Входные данные
+	 * @desc Входные данные.
 	 * @var Data_Transport
 	 */
 	protected $_input;
@@ -34,7 +36,7 @@ class Controller_Abstract
 	protected $_output;
 	
 	/**
-	 * @desc Конфиг контроллера
+	 * @desc Конфиг контроллера.
 	 * @var array
 	 */
 	protected $_config = array ();
