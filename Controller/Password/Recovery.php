@@ -22,22 +22,12 @@ class Controller_Password_Recovery extends Controller_Abstract
 			{
 				$recovery->startSession ();
 				
-				IcEngine::frontController ()
-					->getDispatcher ()
-					->currentIteration ()
-					->setTemplate (
-						Helper_Action::path (__METHOD__, '/code_ok')
-					);
+				$this->_task->setClassTpl (__METHOD__, 'code_ok');
 				return ;
 			}
 			else
 			{
-				IcEngine::frontController ()
-					->getDispatcher ()
-					->currentIteration ()
-					->setTemplate (
-						Helper_Action::path (__METHOD__, '/code_fail')
-					);
+				$this->_task->setClassTpl (__METHOD__, 'code_fail');
 				return ;
 			}
 		}

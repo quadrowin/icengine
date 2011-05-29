@@ -71,6 +71,8 @@ class Controller_Abstract
 		);
 	}
 	
+	public function _helperReturn () {}
+	
 	/**
 	 * @desc Временный контент для сохраняемых данных.
 	 * @return Temp_Content|null

@@ -28,9 +28,7 @@ class Controller_Form extends Controller_Abstract
 	
 	protected function _accessDenied ()
 	{
-		Loader::load ('Helper_Action_Access');
-		Helper_Action_Access::denied ();
-		return null;
+		return $this->replaceAction ('Error', 'accessDenied');
 	}
 	
 	protected function _afterCreate ($model, $params)
@@ -276,13 +274,11 @@ class Controller_Form extends Controller_Abstract
 			unset ($params [$key_field]);
 		}
 		
-		$model = IcEngine::$modelManager->modelByKey ($model_name, $id);
+		$model = Model_Manager::byKey ($model_name, $id);
 		
 		if (!$model)
 		{
-			Loader::load ('Helper_Action_Page');
-			Helper_Action_Page::notFound ();
-			return; 
+			return $this->replaceAction ('Error', 'notFound');
 		}
 		
 		$this->_updateModel ($model, (array) $params);
