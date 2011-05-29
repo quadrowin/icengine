@@ -62,8 +62,6 @@ class IcEngine
 				'render'	=> View_Render_Manager::byName ('Front')
 			)
 		);
-		
-		View_Render_Manager::display ();
 	}
 	
 	/**
@@ -170,7 +168,7 @@ class IcEngine
 	 */
 	public static function run ()
 	{
-		Loader::load ('Data_Transport_Manager');
+		Loader::load ('Data_Transport_Manager'); 
 		
 		self::$_bootstrap->run ();
 		
