@@ -8,6 +8,8 @@
  */
 class IcEngine
 {
+	private static $_task;
+	
 	/**
 	 * @desc Путь до движка.
 	 * @var string
@@ -52,18 +54,11 @@ class IcEngine
 	public static function flush ()
 	{
 		Resource_Manager::save ();
-		
-		$tasks = Controller_Manager::get ('Front')
-			->getTask ()
-			->getTransaction ()
-				->receive ('tasks');
-				
-		print_r ($tasks);
-		
+
 		Controller_Manager::call (
 			'Render', 'index',
 			array (
-				'task'		=> self::$_mainTask,
+				'task'		=> self::$_task,
 				'render'	=> View_Render_Manager::byName ('Front')
 			)
 		);
@@ -179,7 +174,7 @@ class IcEngine
 		
 		self::$_bootstrap->run ();
 		
-		Controller_Manager::call (
+		self::$_task = Controller_Manager::call (
 			'Front', 'index',
 			Data_Transport_Manager::get ('default_input')
 		);

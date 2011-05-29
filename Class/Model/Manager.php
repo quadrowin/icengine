@@ -227,9 +227,9 @@ class Model_Manager
 	 * @desc Следующая модель будет создана без autojoin.
 	 * @return Model_Manager
 	 */
-	public static function forced ()
+	public static function forced ($value = true)
 	{
-		self::$_forced = true;
+		self::$_forced = $value;
 	}
 	
 	/**

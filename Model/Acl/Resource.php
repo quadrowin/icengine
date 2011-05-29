@@ -22,10 +22,10 @@ class Acl_Resource extends Model
 	 */
 	public static function byAlias ($alias)
 	{
-	    return IcEngine::$modelManager->modelBy (
+	    return Model_Manager::byQuery (
 	        'Acl_Resource',
 	        Query::instance ()
-	        ->where ('alias', $alias)
+	        	->where ('alias', $alias)
 	    );
 	}
 	
@@ -76,10 +76,10 @@ class Acl_Resource extends Model
 			return null;
 		}
 		
-		return IcEngine::$modelManager->modelBy (
+		return Model_Manager::byQuery (
 		    __CLASS__,
 		    Query::instance ()
-		    ->where ('name', $name)
+		   		->where ('name', $name)
 		);
 	}
 	

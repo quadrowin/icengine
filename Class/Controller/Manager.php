@@ -392,6 +392,8 @@ class Controller_Manager extends Manager_Abstract
 					$e->getTraceAsString () . PHP_EOL, 
 					E_USER_ERROR, 3
 				);
+				
+				Debug::log ($msg);
 			
 				$result ['error'] = 'Controller_Manager: Error in template.';
 			}
