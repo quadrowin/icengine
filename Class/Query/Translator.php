@@ -7,14 +7,7 @@
  *
  */
 class Query_Translator
-{
-	
-	/**
-	 * @desc Схема моделей текущего запроса.
-	 * @var Model_Scheme
-	 */
-	protected $_modelScheme;
-	
+{	
 	/**
 	 * @desc Подключенные трансляторы.
 	 * @var array
@@ -41,13 +34,10 @@ class Query_Translator
 	/**
 	 * @desc Транслирует запрос.
 	 * @param Query $query Запрос.
-	 * @param Model_Scheme $model_scheme Схема моделей.
 	 * @return mixed Результат трансляции.
 	 */
-	public function translate (Query $query, Model_Scheme $model_scheme)
+	public function translate (Query $query)
 	{
-		$this->_modelScheme = $model_scheme;
-		
 		$type = $query->type ();
 		$type = 
 			strtoupper (substr ($type, 0, 1)) . 

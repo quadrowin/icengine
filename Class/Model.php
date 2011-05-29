@@ -420,7 +420,7 @@ abstract class Model implements ArrayAccess
 				return null;
 			}
 			
-			$key_field = Model_Manager::modelScheme ()->keyField ($model);
+			$key_field = Model_Scheme::keyField ($model);
 			
 			if (!$data || !array_key_exists ($key_field, $data))
 			{
@@ -469,7 +469,7 @@ abstract class Model implements ArrayAccess
 	 */
 	public function keyField ()
 	{
-		return Model_Manager::modelScheme ()->keyField ($this->modelName ());
+		return Model_Scheme::keyField ($this->modelName ());
 	}
 	
 	/**
@@ -586,7 +586,7 @@ abstract class Model implements ArrayAccess
 					$this->_fields [$key] = $value;
 					if ($this->_autojoin)
 					{
-						$field = Model_Manager::modelScheme ()->keyField ($model);
+						$field = Model_Scheme::keyField ($model);
 						$this->joint ($model, array ($field => $value));
 					}
 				}

@@ -1,6 +1,6 @@
 <?php
 
-class Helper_Database 
+class Helper_Data_Source 
 {
 	/**
 	 * @desc Получить список колонок таблицы
