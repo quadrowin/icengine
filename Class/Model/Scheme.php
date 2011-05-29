@@ -202,11 +202,13 @@ abstract class Model_Scheme
 	{
 		$model = strtolower ($model);
 		
-		$name = self::$models [$model]['source'];
-		
 		if (!isset (self::$models [$model], self::$models [$model]['source']))
 		{
 			$name = 'default';
+		}
+		else
+		{
+			$name = self::$models [$model]['source'];
 		}
 		
 		return Data_Source_Manager::get ($name);

@@ -16,6 +16,12 @@ abstract class View_Render_Manager extends Manager_Abstract
 	private static $_views = array ();
 	
 	/**
+	 * @desc Стэк представлений.
+	 * @var array <View_Render_Abstract>
+	 */
+	private static $_viewStack = array ();
+	
+	/**
 	 * @var array
 	 */
 	private static $_templatesToRender = array ();
@@ -83,15 +89,17 @@ abstract class View_Render_Manager extends Manager_Abstract
 	 */
 	public static function getView ()
 	{
-		if (!self::$_views)
+		if (!self::$_viewStack)
 		{
 			Loader::load ('View_Render');
+			
 			$config = self::config ();
+		
 			self::pushViewByName ($config ['default_view']);
 			//self::$_view = new View_Render (array('name' => self::$_defaultView));
 		} 
 		
-		return end (self::$_views);
+		return end (self::$_viewStack);
 	}
 	
 	/**
@@ -108,8 +116,10 @@ abstract class View_Render_Manager extends Manager_Abstract
 	public static function popView ()
 	{
 //		echo 'pop' . count (self::$_views) . ' ' . end (self::$_views)->name;
-		$view = array_pop (self::$_views);
+		$view = array_pop (self::$_viewStack);
+		
 		$view->popVars ();
+
 		return $view;
 	}
 	
@@ -120,9 +130,9 @@ abstract class View_Render_Manager extends Manager_Abstract
 	 */
 	public static function pushView (View_Render_Abstract $view)
 	{
-		self::$_views [] = $view;
+		self::$_viewStack [] = $view;
 		return $view;
-	}
+	} 
 	
 	/**
 	 * 
