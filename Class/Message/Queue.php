@@ -11,35 +11,36 @@ Loader::load ('Message_Abstract');
  * @package IcEngine
  *
  */
-class Message_Queue
+abstract class Message_Queue
 {
 	
 	/**
 	 * @desc Все сообщения.
 	 * @var array <Message_Queue_Abstract>
 	 */
-	protected $_items;
+	protected static $_items;
 	
 	/**
 	 * @desc Сообщения по типам.
 	 * @var array <array <Message_Queue_Abstract>>
 	 */
-	protected $_byType = array ();
+	protected static $_byType = array ();
 	
 	/**
 	 * @desc Обработчики событий
 	 * @var array <callback>
 	 */
-	protected $_handlers = array ();
+	protected static $_handlers = array ();
 	
-	public function __construct ()
+	public static function flush ()
 	{
 		$config = Config_Manager::get (__CLASS__);
+		
 		if ($config->callbacks)
 		{
 			foreach ($config->callbacks as $name => $callback)
 			{
-				$this->setCallback (
+				self::setCallback (
 					$callback->type, $callback->function->asArray (),
 					is_numeric ($name) ? null : $name
 				);
@@ -52,14 +53,14 @@ class Message_Queue
 	 * @param integer $type Необходимый тип сообщений.
 	 * @return array <Message_Queue_Abstract> Массив сообщений.
 	 */
-	public function byType ($type)
+	public static function byType ($type)
 	{
-		if (!isset ($this->_byType [$type]))
+		if (!isset (self::$_byType [$type]))
 		{
 			return array ();
 		}
 		
-		return $this->_byType [$type];
+		return self::$_byType [$type];
 	}
 	
 	/**
@@ -69,7 +70,7 @@ class Message_Queue
 	 * @return Message_Abstract
 	 * 		
 	 */
-	public function push ($type, array $data = array ())
+	public static function push ($type, array $data = array ())
 	{
 		$class = 'Message_' . $type;
 		if (strpos ($class, '::') !== false || !Loader::load ($class))
@@ -82,12 +83,13 @@ class Message_Queue
 		
 		$message = new $class ($data, $type);
 		
-		$this->_items [$n] = $message;
-		$this->_byType [$type][] = $message;
+		self::$_items [$n] = $message;
 		
-		if (isset ($this->_handlers [$type]))
+		self::$_byType [$type][] = $message;
+		
+		if (isset (self::$_handlers [$type]))
 		{
-			foreach ($this->_handlers [$type] as $function)
+			foreach (self::$_handlers [$type] as $function)
 			{
 			    $message->notify ($function);
 			}
@@ -102,9 +104,9 @@ class Message_Queue
 	 * @param array $extends
 	 * @return Message_After_Load_Content
 	 */
-	public function pushAfterLoadContent (Model $model, array $extends = array ())
+	public static function pushAfterLoadContent (Model $model, array $extends = array ())
 	{
-		return $this->push (
+		return self::push (
 			'After_Load_Content', 
 			array_merge (
 				$extends,
@@ -124,18 +126,18 @@ class Message_Queue
 	 * @return Message_Abstract
 	 * 		Найденное сообщение. Если не найдено - null.
 	 */
-	public function last ($type, $offset = null)
+	public static function last ($type, $offset = null)
 	{
 		if (is_null ($offset))
 		{
-			$offset = count ($this->_items) - 1;
+			$offset = count (self::$_items) - 1;
 		}
 		
 		for ($i = $offset; $i >= 0; $i--)
 		{
-			if ($this->_items [$i]->type () == $type)
+			if (self::$_items [$i]->type () == $type)
 			{
-				return $this->_items [$i];
+				return self::$_items [$i];
 			}
 		}
 		
@@ -147,9 +149,9 @@ class Message_Queue
 	 * @param integer $offset
 	 * @return Message_After_Load_Content
 	 */
-	public function lastAfterLoadContent ($offset = null)
+	public static function lastAfterLoadContent ($offset = null)
 	{
-		return $this->last ('After_Load_Content', $offset);
+		return self::last ('After_Load_Content', $offset);
 	}
 	
 	/**
@@ -163,26 +165,26 @@ class Message_Queue
 	 * В случае, если события данного типа уже наступали (до добавления
 	 * обработчика), для каждого из них колбэк будет вызван.
 	 */
-	public function setCallback ($type, $function, $name = null, 
+	public static function setCallback ($type, $function, $name = null, 
 		$call_for_old = false)
 	{
-		if (!isset ($this->_handlers [$type]))
+		if (!isset (self::$_handlers [$type]))
 		{
-			$this->_handlers [$type] = array ();
+			self::$_handlers [$type] = array ();
 		}
 		
 		if (!$name)
 		{
-			$this->_handlers [$type][] = $function;
+			self::$_handlers [$type][] = $function;
 		}
 		else
 		{
-			$this->_handlers [$type][$name] = $function;
+			self::$_handlers [$type][$name] = $function;
 		}
 		
 		if ($call_for_old)
 		{
-			$olds = $this->byType ($type);
+			$olds = self::byType ($type);
 			foreach ($olds as $message)
 			{
 			    $message->notify ($function);

@@ -546,8 +546,7 @@ class Query {
 		Model_Scheme $model_scheme = null)
 	{
 		return Query_Translator::factory ($translator)->translate (
-			$this,
-			$model_scheme ? $model_scheme : DDS::modelScheme ()
+			$this
 		);
 	}
 	
