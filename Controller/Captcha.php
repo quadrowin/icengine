@@ -15,7 +15,7 @@ class Controller_Captcha extends Controller_Abstract
 			'code'	=> $code
 		));
 		
-		$this->_dispatcherIteration->setTemplate (null);
+		$this->_task->setTemplate (null);
 	}
 	
 }

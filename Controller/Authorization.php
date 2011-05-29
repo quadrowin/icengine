@@ -71,7 +71,7 @@ class Controller_Authorization extends Controller_Abstract
 			'exists'	=> (bool) $exists
 		));
 		
-		$this->_dispatcherIteration->setTemplate (null);
+		$this->_task->setTemplate (null);
 	}
 	
 	/**

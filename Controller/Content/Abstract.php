@@ -568,7 +568,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			die ();
 		}
 		
-		$this->_dispatcherIteration->setTemplate (null);
+		$this->_task->setTemplate (null);
 		$this->_output->send (array (
 			'redirect'	=> $referer,
 			'data'		=> array (
@@ -639,7 +639,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 
 		$url = $this->__deleteUrl ($content, $url);
 		
-		$this->_dispatcherIteration->setTemplate (null);
+		$this->_task->setTemplate (null);
 		
 		if (Request::isPost ())
 		{

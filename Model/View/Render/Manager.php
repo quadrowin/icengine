@@ -166,26 +166,4 @@ abstract class View_Render_Manager extends Manager_Abstract
 		return self::getView ()->render ($outputs);
 	}
 	
-	/**
-	 * @desc Рендер одной итерации диспетчера.
-	 * @param Controller_Dispatcher_Iteration $iteration
-	 * @return string
-	 */
-	public static function fetchIteration (
-		Controller_Dispatcher_Iteration $iteration)
-	{
-		/**
-		 * 
-		 * @var $transaction Data_Transport_Transaction
-		 */
-		$transaction = $iteration->getTransaction ();
-		
-		$view = self::getView ();
-		$view->assign ($transaction->buffer ());
-		
-		$result = $view->fetch ($iteration->getTemplate ());
-
-		return $result;
-	}
-	
 }

@@ -44,18 +44,12 @@ class Controller_Registration extends Controller_Abstract
 		
 		if (!$registration)
 		{
-			$this->_dispatcherIteration->setClassTpl (
-				__METHOD__,
-				'/fail_code_uncorrect'
-			);
+			$this->_task->setClassTpl (__METHOD__, 'fail_code_uncorrect');
 			return false;	
 		}
 		elseif ($registration->finished)
 		{
-			$this->_dispatcherIteration->setClassTpl (
-				__METHOD__,
-				'/fail_already_finished'
-			);
+			$this->_task->setClassTpl (__METHOD__, 'fail_already_finished');
 			return false;
 		}
 		
@@ -79,7 +73,7 @@ class Controller_Registration extends Controller_Abstract
 		{
 			// произошла ошибка
 			
-			$this->_dispatcherIteration->setClassTpl (reset ($registration));
+			$this->_task->setClassTpl (reset ($registration));
 			
 			$this->_output->send (array (
 				'registration'	=> $registration,

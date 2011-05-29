@@ -4,6 +4,7 @@
  * @desc Менеджер виджетов.
  * @author Юрий
  * @package IcEngine
+ * @deprecated Следует использовать Controller_Manager
  *
  */
 class Widget_Manager 

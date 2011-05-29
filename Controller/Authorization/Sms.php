@@ -60,9 +60,7 @@ class Controller_Authorization_Sms extends Controller_Abstract
 		if (!$this->config ()->sms_auth_enable)
 		{
 			$this->_output->send ('error', 'Sms auth disabled');
-			$this->_dispatcherIteration->setClassTpl (
-				__METHOD__, '/fail'
-			);
+			$this->_task->setClassTpl (__METHOD__, 'fail');
 			return;
 		}
 		
@@ -80,28 +78,17 @@ class Controller_Authorization_Sms extends Controller_Abstract
 		$phone = Helper_Phone::parseMobile ($phone);
 		$code = $this->config ()->sms_auth_prefix . $clear_code;
 		
-		$activation = IcEngine::$modelManager->modelByKey (
-			'Activation',
-			$activation_id
-		);
+		$activation = Model_Manager::byKey ('Activation', $activation_id);
 		
 		if (!$activation || $activation->code != $code)
 		{
-			$this->_sendError (
-				'incorrect code',
-				__METHOD__,
-				'/incorrect_code'
-			); 
+			$this->_sendError ('incorrect code', 'incorrect_code'); 
 			return;
 		}
 		
 		if ($activation->finished)
 		{
-			$this->_sendError (
-				'expired',
-				__METHOD__,
-				'/expired'
-			);
+			$this->_sendError ('expired', 'expired');
 			return ;
 		}
 		
@@ -113,11 +100,7 @@ class Controller_Authorization_Sms extends Controller_Abstract
 		
 		if ($exp > 0)
 		{
-			$this->_sendError (
-				'expired',
-				__METHOD__,
-				'/expired'
-			);
+			$this->_sendError ('expired', 'expired');
 			return ;
 		}
 		
@@ -125,20 +108,16 @@ class Controller_Authorization_Sms extends Controller_Abstract
 		/**
 		 * @var User $user
 		 */
-		$user = IcEngine::$modelManager->modelBy (
+		$user = Model_Manager::byQuery (
 			'User',
 			Query::instance ()
-			->where ('phone', $phone)
+				->where ('phone', $phone)
 		);
 		
 		if (!$user)
 		{
 			// Пользователья не существует
-			return $this->_sendError (
-				'user not found',
-				__METHOD__,
-				'userNotFound'
-			);
+			return $this->_sendError ('user not found', 'userNotFound');
 		}
 		
 		// пользователь зарегистрирован, авторизуем

@@ -82,8 +82,7 @@ class Controller_Abstract
 		
 		if (!$tc)
 		{
-			Loader::load ('Helper_Action_Page');
-			Helper_Action_Page::obsolete ();
+			$this->replaceAction ('Error', 'obsolete');
 			return;
 		}
 		
@@ -118,7 +117,6 @@ class Controller_Abstract
 				if (!$use_tc)
 				{
 					return $this->replaceAction ('Error', 'obsolete');
-					return false;
 				}
 			}
 		}

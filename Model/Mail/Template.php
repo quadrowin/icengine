@@ -50,7 +50,7 @@ class Mail_Template extends Model_Child
 	 */
 	public function body (array $data = array ())
 	{
-		$smarty = View_Render_Broker::pushViewByName ('Smarty')->smarty ();
+		$smarty = View_Render_Manager::pushViewByName ('Smarty')->smarty ();
 		$smarty->assign ($data);
 
 		$tpl_name = 'Mail/Template/' . $this->name . '.tpl';
@@ -60,19 +60,6 @@ class Mail_Template extends Model_Child
 		}
 		else
 		{
-	//	    $smarty = $this->smarty ();
-	//		View_Render_Broker::render (array (
-	//			array (
-	//				'template'	=> 'fuck.tpl',
-	//				'data'		=> $data,
-	//				'assign'	=> 'content'
-	//			),
-	//			array (
-	//				'template'	=> 'you.tpl',
-	//				'data'		=> $data
-	//			)
-	//		));
-
 			$smarty->register_resource (
 				$this->resourceKey () . 'b',
 				array (
@@ -87,7 +74,7 @@ class Mail_Template extends Model_Child
 			$body = $smarty->fetch ($this->resourceKey () . 'b:body');
 		}
 		
-		View_Render_Broker::popView ();
+		View_Render_Manager::popView ();
 		
 		$parent = $this->getParent ();
 		
@@ -145,7 +132,7 @@ class Mail_Template extends Model_Child
 			return '';
 		}
 		
-		$smarty = View_Render_Broker::pushViewByName ('Smarty')->smarty ();
+		$smarty = View_Render_Manager::pushViewByName ('Smarty')->smarty ();
 		
 		$smarty->assign ($data);
 		
@@ -161,7 +148,7 @@ class Mail_Template extends Model_Child
 		);
 		
 		$result = $smarty->fetch ($this->resourceKey () . 's:subject');
-		View_Render_Broker::popView ();
+		View_Render_Manager::popView ();
 		return $result;
 	}
 	
