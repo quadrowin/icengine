@@ -410,7 +410,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 			die ();
 		}
 		
-		$this->_dispatcherIteration->setTemplate (null);
+		$this->_task->setTemplate (null);
 		$this->_output->send (array (
 			'redirect'	=> $referer,
 			'data'		=> array (
@@ -464,7 +464,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 		
 		if (Request::isPost ())
 		{
-			$this->_dispatcherIteration->setTemplate (null);
+			$this->_task->setTemplate (null);
 			$this->_output->send (array (
 				'redirect'	=> $referer,
 				'data'		=> array (

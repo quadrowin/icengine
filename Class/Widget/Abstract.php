@@ -1,5 +1,12 @@
 <?php
-
+/**
+ * 
+ * @desc Абстрактный класс виджета.
+ * @author Юрий Шведов, Илья Колесников
+ * @package IcEngine
+ * @deprecated Следует использовать Controller_Manager
+ *
+ */
 abstract class Widget_Abstract
 {
 	

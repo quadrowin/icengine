@@ -194,7 +194,7 @@ class Controller_Controller extends Controller_Abstract
 			)
 		));
 		
-		$this->_dispatcherIteration->setTemplate(null);
+		$this->_task->setTemplate (null);
 	}
 	
 	

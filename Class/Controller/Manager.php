@@ -99,23 +99,6 @@ class Controller_Manager extends Manager_Abstract
 		$cfg = $config ['actions'][$controller . '::' . $action];
 		return $cfg ? $cfg : $config ['actions'] [$controller];
 	}
-	
-	/**
-	 * @desc Сохранение результата работы контроллера
-	 * @param Controller_Abstract $controller
-	 * @param Controller_Dispatcher_Iteration $iteration
-	 */
-	public static function afterAction (Controller_Abstract $controller, 
-		Controller_Dispatcher_Iteration $iteration)
-	{
-		$transaction = $controller->getOutput ()->endTransaction ();
-				
-		$iteration->setTransaction ($transaction);
-		
-		$controller
-			->setInput (array_pop (self::$_controllersInputs))
-			->setOutput (array_pop (self::$_controllersOutputs));
-	}
 
 	/**
 	 * 
@@ -468,7 +451,7 @@ class Controller_Manager extends Manager_Abstract
 	/**
 	 * 
 	 * @param Controller_Task|Route_Action|Controller_Action $action
-	 * @return Controller_Dispatcher_Iteration
+	 * @return Controller_Task
 	 */
 	public static function run ($task)
 	{

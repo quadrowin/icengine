@@ -16,7 +16,7 @@ class Controller_Chat_Session extends Controller_Abstract
 		
 		$session->save ();
 		
-		$this->_dispatcherIteration->setTemplate (NULL);
+		$this->_task->setTemplate (null);
 	}
 	
 	public function join ()

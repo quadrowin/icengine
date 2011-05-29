@@ -15,7 +15,7 @@ class Data_Provider_View extends Data_Provider_Abstract
 	
 	public function set ($key, $value, $expiration = 0, $tags = array ())
 	{
-		View_Render_Broker::getView ()->assign ($key, $value);
+		View_Render_Manager::getView ()->assign ($key, $value);
 	}
 	
 }
