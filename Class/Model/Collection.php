@@ -660,8 +660,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function keyField ()
 	{
-		return IcEngine::$modelManager->modelScheme ()->keyField (
-			$this->modelName ());
+		return Model_Scheme::keyField ($this->modelName ());
 	}
 	
 	/**
@@ -1133,7 +1132,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	public function unique ()
 	{
 		$model_name = $this->modelName ();
-		$kf = DDS::modelScheme ()->keyField ($model_name);
+		$kf = Model_Scheme::keyField ($model_name);
 		$keys = array_unique ($this->column ($kf));
 		
 		$collection = new self;

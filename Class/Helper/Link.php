@@ -100,8 +100,7 @@ class Helper_Link
 	    
 	    Loader::load ($collection_class);
 	    $result = new $collection_class ();
-	    $key_field_2 = IcEngine::$modelManager->modelScheme ()
-	        ->keyField ($linked_model_name);
+	    $key_field_2 = Model_Scheme::keyField ($linked_model_name);
 	    
 		if (strcmp ($model->table (), $linked_model_name) > 0)
 	    {

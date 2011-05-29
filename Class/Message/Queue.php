@@ -78,7 +78,7 @@ abstract class Message_Queue
 		    $class = 'Message_Abstract';
 		}
 
-		$n = count ($this->_items);
+		$n = count (self::$_items);
 		$data ['index'] = $n;
 		
 		$message = new $class ($data, $type);
