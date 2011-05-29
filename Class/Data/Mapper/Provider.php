@@ -193,8 +193,7 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 		$clone->setPart (Query::WHERE, $where);
 		
 		$this->_translated = $clone->translate (
-			self::TRANSLATOR,
-			DDS::modelScheme ()
+			self::TRANSLATOR
 		);
 		
 		if (false)

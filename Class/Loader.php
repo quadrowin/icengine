@@ -13,13 +13,13 @@ class Loader
 	 * @desc Пути.
 	 * @var array
 	 */
-	public static $pathes = array ();
+	protected static $_pathes = array ();
 	
 	/**
 	 * @desc Подключенные.
 	 * @var array
 	 */
-	public static $required = array ();
+	protected static $_required = array ();
 	
 	/**
 	 * @desc Добавление пути.
@@ -28,13 +28,13 @@ class Loader
 	 */
 	public static function addPath ($type, $path)
 	{
-		if (!isset (self::$pathes [$type]))
+		if (!isset (self::$_pathes [$type]))
 		{
-			self::$pathes [$type] = array ($path);
+			self::$_pathes [$type] = array ($path);
 		}
 		else
 		{
-			self::$pathes [$type][] = $path;
+			self::$_pathes [$type][] = $path;
 		}
 	}
 	
@@ -48,13 +48,16 @@ class Loader
 		{
 			$path = (array) $path;
 
-			if (isset (self::$pathes [$type]))
+			if (isset (self::$_pathes [$type]))
 			{
-				self::$pathes [$type] = array_merge (self::$pathes [$type], $path);
+				self::$_pathes [$type] = array_merge (
+					self::$_pathes [$type], 
+					$path
+				);
 			}
 			else
 			{
-				self::$pathes [$type] = $path;
+				self::$_pathes [$type] = $path;
 			}
 		}
 	}
@@ -68,7 +71,7 @@ class Loader
 	 */
 	public static function findFile ($file, $type = 'Class')
 	{
-		foreach (self::$pathes [$type] as $path)
+		foreach (self::$_pathes [$type] as $path)
 		{
 			$fn = $path . $file;
 			if (file_exists ($fn))
@@ -87,12 +90,17 @@ class Loader
 	 */
 	public static function getPathes ($type)
 	{
-		if (!isset (self::$pathes [$type]))
+		if (!func_num_args ())
+		{
+			return self::$_patches;
+		}
+		
+		if (!isset (self::$_pathes [$type]))
 		{
 			return array ();
 		}
 		
-		return self::$pathes [$type]; 
+		return self::$_pathes [$type]; 
 	}
 	
 	/**
@@ -103,9 +111,14 @@ class Loader
 	 */
 	public static function getRequired ($file, $type)
 	{
+		if (!func_num_args ())
+		{
+			return self::$_required;
+		}
+		
 		return 
-			isset (self::$required [$type]) && 
-			isset (self::$required [$type][$file]);
+			isset (self::$_required [$type]) && 
+			isset (self::$_required [$type][$file]);
 	}
 	
 	/**
@@ -129,15 +142,15 @@ class Loader
 //			));
 //		}
 		
-		if (!isset (self::$pathes [$type]))
+		if (!isset (self::$_pathes [$type]))
 		{
 			throw new Exception ('Path not found: ' . $type, E_USER_NOTICE);
 			return false;
 		}
 		
-		for ($i = count (self::$pathes [$type]) - 1; $i >= 0; --$i)
+		for ($i = count (self::$_pathes [$type]) - 1; $i >= 0; --$i)
 		{
-			$fn = self::$pathes [$type][$i] . $file;
+			$fn = self::$_pathes [$type][$i] . $file;
 			
 			if (file_exists ($fn))
 			{
@@ -151,8 +164,8 @@ class Loader
 		{
 			echo '<pre>Not found: ' . $file . "\n";
 			echo 'Pathes: ';
-			var_dump (self::$pathes);
-			var_dump (self::$pathes [$type]);
+			var_dump (self::$_pathes);
+			var_dump (self::$_pathes [$type]);
 			echo "\n\n";
 			debug_print_backtrace ();
 			echo '</pre>';
@@ -170,7 +183,7 @@ class Loader
 	 */
 	public static function setPath ($type, $path)
 	{
-		self::$pathes [$type] = (array) $path;
+		self::$_pathes [$type] = (array) $path;
 	}
 	
 	/**
@@ -182,13 +195,13 @@ class Loader
 	public static function setRequired ($file, $type, $required = true)
 	{
 		$required = $required ? true : null;
-		if (isset (self::$required [$type]))
+		if (isset (self::$_required [$type]))
 		{
-			self::$required [$type][$file] = $required;
+			self::$_required [$type][$file] = $required;
 		}
 		else
 		{
-			self::$required [$type] = array (
+			self::$_required [$type] = array (
 				$file	=> $required
 			);
 		}
