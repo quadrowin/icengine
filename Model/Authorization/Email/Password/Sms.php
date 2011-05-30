@@ -137,7 +137,7 @@ class Authorization_Email_Password_Sms extends Authorization_Abstract
 	 */
 	public function authorize ($data)
 	{
-		$user = Model_Manager::modelBy (
+		$user = Model_Manager::byQuery (
 			'User',
 			Query::instance ()
 				->where ('email', $data ['email'])
@@ -184,7 +184,7 @@ class Authorization_Email_Password_Sms extends Authorization_Abstract
 	 */
 	public function isRegistered ($login)
 	{
-		$user = Model_Manager::modelBy (
+		$user = Model_Manager::byQuery (
 			'User',
 			Query::instance ()
 				->where ('email', $login)
@@ -209,7 +209,7 @@ class Authorization_Email_Password_Sms extends Authorization_Abstract
 	 */
 	public function findUser ($data)
 	{
-		return Model_Manager::modelBy (
+		return Model_Manager::byQuery (
 			'User',
 			Query::instance ()
 				->where ('email', $data ['email'])

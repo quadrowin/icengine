@@ -33,7 +33,7 @@ class Authorization_Login_Password extends Authorization_Abstract
 		$password = $data ['password'];
 		$pass_md5 = md5 ($password);
 		
-		$user = Model_Manager::modelBy (
+		$user = Model_Manager::byQuery (
 			'User',
 			Query::instance ()
 			->where ('login', $login)
@@ -124,7 +124,7 @@ class Authorization_Login_Password extends Authorization_Abstract
 			return false;
 		}
 		
-		$user = Model_Manager::modelBy (
+		$user = Model_Manager::byQuery (
 			'User',
 			Query::instance ()
 				->where ('login', $login)

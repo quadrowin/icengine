@@ -103,7 +103,7 @@ class Authorization_Email_Password extends Authorization_Abstract
 			return false;
 		}
 		
-		$user = Model_Manager::modelBy (
+		$user = Model_Manager::byQuery (
 			'User',
 			Query::instance ()
 				->where ('email', $login)

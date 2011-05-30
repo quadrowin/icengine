@@ -174,7 +174,7 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 	 */
 	public function authorize ($data)
 	{
-		$user = Model_Manager::modelBy (
+		$user = Model_Manager::byQuery (
 			'User',
 			Query::instance ()
 				->where ('login', $data ['login'])
@@ -198,7 +198,7 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 			return 'Data_Validator_Authorization_User/denied';
 		}
 		
-		$activation = Model_Manager::modelBy (
+		$activation = Model_Manager::byQuery (
 			'Activation',
 			Query::instance ()
 				->where ('type', $this->config ()->activation_type)
@@ -230,7 +230,7 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 	 */
 	public function isRegistered ($login)
 	{
-		$user = Model_Manager::modelBy (
+		$user = Model_Manager::byQuery (
 			'User',
 			Query::instance ()
 				->where ('login', $login)
@@ -258,7 +258,7 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 	 */
 	public function findUser ($data)
 	{
-		return Model_Manager::modelBy (
+		return Model_Manager::byQuery (
 			'User',
 			Query::instance ()
 				->where ('login', $data ['login'])
@@ -354,7 +354,7 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 		 * @desc Провайдер
 		 * @var Mail_Provider_Abstract
 		 */
-		$provider = Model_Manager::modelBy (
+		$provider = Model_Manager::byQuery (
 			'Mail_Provider',
 			Query::instance ()
 				->where ('name', $provider ? $provider : $config ['sms_provider'])

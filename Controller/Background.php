@@ -46,7 +46,7 @@ class Controller_Background extends Controller_Abstract
 			'session_key'
 		);
 		
-		$session = Model_Manager::modelBy (
+		$session = Model_Manager::byQuery (
 			'Background_Agent_Session', 
 			Query::instance ()
 			->where ('id', $session_id)

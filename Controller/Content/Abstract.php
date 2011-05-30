@@ -70,7 +70,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			);	
 		}
 		
-		return Model_Manager::modelBy (
+		return Model_Manager::byQuery (
 			$this->__categoryModel (),
 			Query::instance ()
 				->where ('url', $url ? $url : Request::uri ())
@@ -99,7 +99,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			);
 		}
 		
-		return Model_Manager::modelBy (
+		return Model_Manager::byQuery (
 			$this->__contentModel (), 
 			Query::instance ()
 				->where ('url', $url ? $url : Request::uri ())
@@ -680,7 +680,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 	public function removeImage ()
 	{
 		$image_id = (int) $this->_input->receive ('image_id');
-		$image = Model_Manager::modelBy (
+		$image = Model_Manager::byQuery (
 			'Component_Image',
 			Query::instance ()
 				->where ('id', $image_id)
@@ -714,7 +714,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			'content_category_id'
 		);
 
-		$content = Model_Manager::modelBy (
+		$content = Model_Manager::byQuery (
 			'Content',
 			Query::instance ()
 				->where ('Content_Category__id', $content_category_id)
