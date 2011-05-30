@@ -602,7 +602,7 @@ abstract class Model implements ArrayAccess
 	 */
 	public function setAttribute ($key, $value = null)
 	{
-		IcEngine::$attributeManager->set ($this, $key, $value);
+		Attribute_Manager::set ($this, $key, $value);
 	}
 	
 	/**
