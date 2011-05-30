@@ -538,16 +538,11 @@ class Query {
 	/**
 	 * @desc Транслирует запрос указанным транслятором
 	 * @param string $translator Транслятор.
-	 * @param Model_Scheme $model_scheme Схема моделей (необходим для 
-	 * определения алиасов таблиц). 
 	 * @return mixed Транслированный запрос.
 	 */
-	public function translate ($translator = 'Mysql', 
-		Model_Scheme $model_scheme = null)
+	public function translate ($translator = 'Mysql')
 	{
-		return Query_Translator::factory ($translator)->translate (
-			$this
-		);
+		return Query_Translator::factory ($translator)->translate ($this);
 	}
 	
 	/**
