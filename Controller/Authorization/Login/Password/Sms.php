@@ -47,7 +47,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 	 */
 	protected function _authorization ()
 	{
-		return Model_Manager::modelBy (
+		return Model_Manager::byQuery (
 			'Authorization',
 			Query::instance ()
 				->where ('name', 'Login_Password_Sms')
@@ -169,7 +169,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 			'send'
 		);
 		
-		$user = Model_Manager::modelBy (
+		$user = Model_Manager::byQuery (
 			'User',
 			Query::instance ()
 				->where ('login', $login)
@@ -179,7 +179,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 		
 		if (!$user)
 		{
-			$user = Model_Manager::modelBy (
+			$user = Model_Manager::byQuery (
 				'User',
 				Query::instance ()
 					->where ('login', $login)

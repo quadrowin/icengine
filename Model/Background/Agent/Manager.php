@@ -129,7 +129,7 @@ class Background_Agent_Manager
 	 */
 	public function processAgent ($name)
 	{
-		$agent = Model_Manager::modelBy (
+		$agent = Model_Manager::byQuery (
 			'Background_Agent',
 			Query::instance ()
 				->where ('name', $name)
@@ -173,7 +173,7 @@ class Background_Agent_Manager
 	 */
 	public function startAgent ($name, array $params = array ())
 	{
-		$agent = Model_Manager::modelBy (
+		$agent = Model_Manager::byQuery (
 			'Background_Agent',
 			Query::instance ()
 				->where ('name', $name)
