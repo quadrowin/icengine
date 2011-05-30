@@ -204,12 +204,10 @@ abstract class Model_Scheme
 		
 		if (!isset (self::$models [$model], self::$models [$model]['source']))
 		{
-			$name = 'default';
+			return DDS::getDataSource ();
 		}
-		else
-		{
-			$name = self::$models [$model]['source'];
-		}
+		
+		$name = self::$models [$model]['source'];
 		
 		return Data_Source_Manager::get ($name);
 	}

@@ -39,19 +39,19 @@ class Data_Mapper_Mysql extends Data_Mapper_Abstract
 		$from = $query->getPart (Query::FROM);
 		foreach ($from as $info)
 		{
-			$tags [] = $this->_modelScheme->table ($info [Query::TABLE]);
+			$tags [] = Model_Scheme::table ($info [Query::TABLE]);
 		}
 		
 		$insert = $query->getPart (QUERY::INSERT);
 		if ($insert)
 		{
-	   		$tags [] = $this->_modelScheme->table ($insert);
+	   		$tags [] = Model_Scheme::table ($insert);
 		}
 	   	
 		$update = $query->getPart (QUERY::UPDATE);
 		if ($update)
 		{
-			$tags [] = $this->_modelScheme->table ($update);
+			$tags [] = Model_Scheme::table ($update);
 		}
 		
 		return array_unique ($tags);
