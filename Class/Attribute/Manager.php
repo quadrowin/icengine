@@ -20,24 +20,24 @@ class Attribute_Manager
 	 * 
 	 * @var Data_Source_Abstract
 	 */
-	protected $_source;
+	protected static $_source;
 	
 	/**
 	 * 
 	 * @param Data_Source_Abstract $source
 	 */
-	public function __construct (Data_Source_Abstract $source)
+	public static function init (Data_Source_Abstract $source)
 	{
-		$this->_source = $source;
+		self::$_source = $source;
 	}
 	
 	/**
 	 * @desc Удаляет все атрибуты модели.
 	 * @param Model $model
 	 */
-	public function deleteFor (Model $model)
+	public static function deleteFor (Model $model)
 	{
-	    $this->_source->execute (
+	    self::$_source->execute (
 	        Query::instance ()
 	        ->delete ()
 	        ->from (self::TABLE)
@@ -52,9 +52,9 @@ class Attribute_Manager
 	 * @param string $key Название атрибута.
 	 * @return mixed Значение атрибута.
 	 */
-	public function get (Model $model, $key)
+	public static function get (Model $model, $key)
 	{
-		$value = $this->_source->execute (
+		$value = self::$_source->execute (
 			Query::instance ()
 			->select ('value')
 			->from (self::TABLE)
@@ -72,7 +72,7 @@ class Attribute_Manager
 	 * @param string|array $key Название атрибута.
 	 * @param mixed $value Значение атрибута.
 	 */
-	public function set (Model $model, $key, $value)
+	public static function set (Model $model, $key, $value)
 	{
 	    $table = $model->table ();
 	    $row_id = $model->key ();
@@ -95,11 +95,11 @@ class Attribute_Manager
             $query->where ('`key` IN (?)', array_keys ($key));
 	    }
 	    
-	    $this->_source->execute ($query);
+	    self::$_source->execute ($query);
 
 		foreach ($key as $k => $value)
 		{
-			$this->_source->execute (
+			self::$_source->execute (
 				Query::instance ()->
 				insert (self::TABLE)->
 				values (array(
