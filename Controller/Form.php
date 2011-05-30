@@ -303,7 +303,7 @@ class Controller_Form extends Controller_Abstract
 		
 		$key_field = IcEngine::$modelManager->modelScheme ()->keyField ($model_name);
 		
-		$collection = IcEngine::$modelManager->forced ()->collectionBy (
+		$collection = Model_Collection_Manager::byQuery (
 			$model_name,
 			Query::instance ()
 			->where ("$key_field IN (?)", $ids)

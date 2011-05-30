@@ -11,7 +11,7 @@ class Subscribe_Subscriber extends Model
      */
     public static function byContact ($email, $autocreate = true)
     {
-        $subscriber = IcEngine::$modelManager->modelBy (
+        $subscriber = Model_Manager::byQuery (
             'Subscribe_Subscriber',
             Query::instance ()
             ->where ('contact', $email)

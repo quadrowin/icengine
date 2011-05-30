@@ -53,7 +53,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 
 	protected function __makeUniqueLink ($link, $category_id)
 	{
-		$content_category = IcEngine::$modelManager->collectionBy (
+		$content_category = Model_Collection_Manager::byQuery (
 			'Content_Category',
 			Query::instance ()
 				->where ('url', $link)

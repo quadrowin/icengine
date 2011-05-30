@@ -67,11 +67,11 @@ class User extends Model
 		
 		if (is_numeric ($alias))
 		{
-			$resource = IcEngine::$modelManager->get ('Acl_Resource', $alias);
+			$resource = Model_Manager::get ('Acl_Resource', $alias);
 		}
 		else
 		{
-			$resource = IcEngine::$modelManager->modelBy (
+			$resource = Model_Manager::byQuery (
 				'Acl_Resource',
 				Query::instance ()
 					->where ('alias', $alias)

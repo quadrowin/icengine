@@ -39,7 +39,7 @@ abstract class Controller_Authorization_Abstract extends Controller_Abstract
 			get_class ($this),
 			strlen ('Controller_Authorization_')
 		);
-		return IcEngine::$modelManager->modelBy (
+		return Model_Manager::byQuery (
 			'Authorization',
 			Query::instance ()
 			->where ('name', $name)

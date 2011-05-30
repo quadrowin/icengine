@@ -26,7 +26,7 @@ class Test_Mail_Provider_First_Success extends PHPUnit_Framework_TestCase
 	{
 		parent::setUp ();
 		
-		$this->Mail_Provider_First_Success = IcEngine::$modelManager->modelBy (
+		$this->Mail_Provider_First_Success = Model_Manager::byQuery (
 			'Mail_Provider',
 			Query::instance ()
 			->where ('name', 'First_Success')

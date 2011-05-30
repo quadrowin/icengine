@@ -27,7 +27,7 @@ class User_Loginza extends Model
 			return null;
 		}
 		
-		$loginza = Model_Manager::modelBy (
+		$loginza = Model_Manager::byQuery (
 			__CLASS__,
 			Query::instance ()
 				->where ('identity', $token->identity)
@@ -35,7 +35,7 @@ class User_Loginza extends Model
 		
 		if (!$loginza && $email_search && $token->email)
 		{
-			$other_loginza = Model_Manager::modelBy (
+			$other_loginza = Model_Manager::byQuery (
 				__CLASS__,
 				Query::instance ()
 					->where ('email', $token->email)
@@ -56,7 +56,7 @@ class User_Loginza extends Model
 		
 		if (!$loginza && $user_search && $token->email)
 		{
-			$user = Model_Manager::modelBy (
+			$user = Model_Manager::byQuery (
 				'User',
 				Query::instance ()
 					->where ('email', $token->email)

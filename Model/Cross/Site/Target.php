@@ -14,7 +14,7 @@ class Cross_Site_Target extends Model
 	 */
 	public static function byName ($name)
 	{
-		return IcEngine::$modelManager->modelBy (
+		return Model_Manager::byQuery (
 			__CLASS__,
 			Query::instance ()
 			->where ('name', $name)

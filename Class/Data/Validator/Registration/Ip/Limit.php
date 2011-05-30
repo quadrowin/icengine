@@ -11,7 +11,7 @@ class Data_Validator_Registration_Ip_Limit extends Data_Validator_Abstract
 	 */
 	public function validate ($data)
 	{
-		$regs = IcEngine::$modelManager->collectionBy (
+		$regs = Model_Collection_Manager::byQuery (
 			'Registration',
 			Query::instance ()
 			->where ('day', Helper_Date::eraDayNum ())

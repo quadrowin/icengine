@@ -145,7 +145,7 @@ class Controller_Authorization_Sms extends Controller_Abstract
 		/**
 		 * @var User $user
 		 */
-		$user = IcEngine::$modelManager->modelBy (
+		$user = Model_Manager::byQuery (
 			'User',
 			Query::instance ()
 			->where ('phone', $phone)

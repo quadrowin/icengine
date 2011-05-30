@@ -16,7 +16,7 @@ class Subscribe_Manager
 	 */
 	public static function byName ($name)
 	{
-		return IcEngine::$modelManager->modelBy (
+		return Model_Manager::byQuery (
 			'Subscribe',
 			Query::instance ()
 				->where ('name', $name)
