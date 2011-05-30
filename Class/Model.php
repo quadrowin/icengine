@@ -742,9 +742,7 @@ abstract class Model implements ArrayAccess
 		$pseudos = array ();
 		
 		// Список существующий в модели полей
-		$scheme = Model_Manager::modelScheme ()->fieldsNames (
-			$this->modelName ()
-		);
+		$scheme = Model_Scheme::fieldsNames ($this->modelName ());
 		
 		foreach ($this->_fields as $name => $value)
 		{

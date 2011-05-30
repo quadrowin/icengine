@@ -39,7 +39,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			//return $this->_helperReturn('Access', 'denied');
 		}
 		
-		$prefix = DDS::modelScheme ()->defaultPrefix;
+		$prefix = Model_Scheme::$defaultPrefix;
 		$tables = Helper_Database::tables ();
 		
 		for ($i = 0, $icount = sizeof ($tables); $i < $icount; $i++)
@@ -67,7 +67,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			//return $this->_helperReturn('Access', 'denied');
 		}
 
-		$prefix = DDS::modelScheme ()->defaultPrefix;
+		$prefix = Model_Scheme::$defaultPrefix;
 		
 		$class_name = $this->_className ($table, $prefix);
 		
@@ -104,7 +104,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			//return $this->_helperReturn('Access', 'denied');
 		}
 		
-		$prefix = DDS::modelScheme ()->defaultPrefix;
+		$prefix = Model_Scheme::$defaultPrefix;
 		
 		$class_name = $this->_className ($table, $prefix);
 		
