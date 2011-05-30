@@ -360,7 +360,7 @@ abstract class Model implements ArrayAccess
 	 */
 	public function getAttribute ($key)
 	{
-		return IcEngine::$attributeManager->get ($this, $key);
+		return Attribute_Manager::get ($this, $key);
 	}
 	
 	/**
