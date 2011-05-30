@@ -372,13 +372,11 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function diff (Model_Collection $collection)
 	{
-		$ms = DDS::modelScheme ();
-		
 		$model_name = $this->modelName ();
 		
-		$kf_this = $ms->keyField ($model_name);
+		$kf_this = Model_Scheme::keyField ($model_name);
 		
-		$kf_collection = $ms->keyField ($collection->modelName ());
+		$kf_collection = Model_Scheme::keyField ($collection->modelName ());
 		
 		$array_this = $this->column ($kf_this);
 		
