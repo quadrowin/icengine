@@ -64,7 +64,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		
 		if ($category_id)
 		{
-			return Model_Manager::modelByKey (
+			return Model_Manager::byKey (
 				$this->__categoryModel (),
 				$category_id
 			);	
@@ -93,7 +93,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		
 		if ($content_id)
 		{
-			return Model_Manager::modelByKey (
+			return Model_Manager::byKey (
 				$this->__contentModel (), 
 				$content_id
 			);
@@ -249,7 +249,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			return $this->replaceAction ('Error', 'notFound');
 		}
 
-		$parent = Model_Manager::modelByKey (
+		$parent = Model_Manager::byKey (
 			$this->__categoryModel (),
 			$category->parentKey ()
 		);
@@ -293,7 +293,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			return $this->replaceAction ('Error', 'notFound');
 		}
 		
-		$content_category = Model_Manager::modelByKey (
+		$content_category = Model_Manager::byKey (
 			$this->__categoryModel (),
 			$content->Content_Category__id
 		);
@@ -359,7 +359,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			}
 		}
 		
-		$category = Model_Manager::modelByKey (
+		$category = Model_Manager::byKey (
 			$this->__categoryModel (),
 			$category_id
 		);
@@ -501,7 +501,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		
 		if ($content_id)
 		{			
-			$content = Model_Manager::modelByKey (
+			$content = Model_Manager::byKey (
 				$this->__contentModel (),
 				$content_id
 			);
@@ -534,7 +534,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			
 			Loader::load ('Helper_Link');
 			
-			$content_category = Model_Manager::modelByKey (
+			$content_category = Model_Manager::byKey (
 				$this->__categoryModel (),
 				$category_id
 			);
@@ -592,7 +592,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			'url'
 		);
 		
-		$content = Model_Manager::modelByKey (
+		$content = Model_Manager::byKey (
 			$this->__contentModel (), 
 			$content_id
 		);
