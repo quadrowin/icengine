@@ -149,7 +149,7 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 				$config ['from_name'] : 
 				$this->_config ['from_name'];
 				
-		if ($config ['reply_address'])
+		if (isset ($config ['reply_address']) && $config ['reply_address'])
 		{
 			$mail->Sender = $config ['reply_address'];
 		}
