@@ -32,10 +32,14 @@ abstract class Message_Queue
 	 */
 	protected static $_handlers = array ();
 	
+	/**
+	 * @desc Сбрасывает колбэки сообщений на прописанные в конфиге.
+	 */
 	public static function flush ()
 	{
+		Debug::microtime ();
 		$config = Config_Manager::get (__CLASS__);
-		
+		Debug::microtime ();
 		if ($config->callbacks)
 		{
 			foreach ($config->callbacks as $name => $callback)
@@ -46,6 +50,7 @@ abstract class Message_Queue
 				);
 			}
 		}
+		Debug::microtime ();
 	}
 	
 	/**
