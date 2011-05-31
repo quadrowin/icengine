@@ -81,7 +81,7 @@ class Controller_Form extends Controller_Abstract
 				'linked'	=> true,
 				'value' 	=> User::getCurrent ()->id (),
 				'triggers'	=> array (
-					self::BEFORE_CREATE	=> array (new Controller_User, 'create'),
+					self::BEFORE_CREATE	=> array (),//new Controller_User, 'create'),
 					self::AFTER_CREATE	=> array ($this, 'create'),
 					self::BEFORE_EDIT	=> array (),
 					self::AFTER_EDIT	=> array (),
@@ -216,16 +216,14 @@ class Controller_Form extends Controller_Abstract
 			return $this->_accessDenied ();
 		}
 		
-		$model = IcEngine::$modelManager->get (
-			$model_name,
-			$id
-		);
+		$model = Model_Manager::get ($model_name, $id);
 		
 		$this->_output->send ('model', $model);
 	}
 	
 	public function create ()
 	{
+		$id = 0;
 		$model_name = $this->name ();
 		
 		if (!$this->_userCan ($model_name, $id, self::READ))
