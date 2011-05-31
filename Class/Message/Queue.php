@@ -37,18 +37,21 @@ abstract class Message_Queue
 	 */
 	public static function flush ()
 	{
+		Debug::microtime ();
 		$config = Config_Manager::get (__CLASS__);
-		
+		Debug::microtime ();
 		if ($config->callbacks)
 		{
 			foreach ($config->callbacks as $name => $callback)
 			{
 				self::setCallback (
-					$callback->type, $callback->function->asArray (),
+					$callback->type,
+					$callback->function->asArray (),
 					is_numeric ($name) ? null : $name
 				);
 			}
 		}
+		Debug::microtime ();
 	}
 	
 	/**
@@ -185,6 +188,7 @@ abstract class Message_Queue
 			self::$_handlers [$type][$name] = $function;
 		}
 		
+		Debug::microtime ();
 		if ($call_for_old)
 		{
 			$olds = self::byType ($type);
@@ -193,6 +197,7 @@ abstract class Message_Queue
 			    $message->notify ($function);
 			}
 		}
+		Debug::microtime ();
 	}
 	
 }
