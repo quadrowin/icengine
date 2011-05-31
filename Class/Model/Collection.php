@@ -465,12 +465,12 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		{
 			$this->_items = array ();
 		}
-		$model_manager = IcEngine::$modelManager;
+		
 		$kf = $this->keyField ();
 		foreach ($rows as $row)
 		{
 			$key = isset ($row ['id']) ? $row ['id'] : $row [$kf];
-			$this->_items [] = $model_manager->get ($model, $key, $row);
+			$this->_items [] = Model_Manager::get ($model, $key, $row);
 		}
 		return $this;
 	}
