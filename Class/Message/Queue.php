@@ -37,9 +37,8 @@ abstract class Message_Queue
 	 */
 	public static function flush ()
 	{
-		Debug::microtime ();
 		$config = Config_Manager::get (__CLASS__);
-		Debug::microtime ();
+		
 		if ($config->callbacks)
 		{
 			foreach ($config->callbacks as $name => $callback)
@@ -51,7 +50,6 @@ abstract class Message_Queue
 				);
 			}
 		}
-		Debug::microtime ();
 	}
 	
 	/**
@@ -126,11 +124,8 @@ abstract class Message_Queue
 	/**
 	 * 
 	 * @param string $type
-	 * 		
-	 * @param integer $offset
-	 * 		Отступ с конца списка
-	 * @return Message_Abstract
-	 * 		Найденное сообщение. Если не найдено - null.
+	 * @param integer $offset Отступ с конца списка
+	 * @return Message_Abstract Найденное сообщение. Если не найдено - null.
 	 */
 	public static function last ($type, $offset = null)
 	{
@@ -188,7 +183,6 @@ abstract class Message_Queue
 			self::$_handlers [$type][$name] = $function;
 		}
 		
-		Debug::microtime ();
 		if ($call_for_old)
 		{
 			$olds = self::byType ($type);
@@ -197,7 +191,6 @@ abstract class Message_Queue
 			    $message->notify ($function);
 			}
 		}
-		Debug::microtime ();
 	}
 	
 }
