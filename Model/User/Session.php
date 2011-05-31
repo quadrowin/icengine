@@ -24,17 +24,14 @@ class User_Session extends Model
 	{
 		Debug::microtime ();
 		
-		$session = Model_Manager::byQuery (
-		    'User_Session',
-		    Query::instance ()
-		        ->where ('phpSessionId', $session_id)
-		);
+		$session = Model_Manager::byKey ('User_Session', $session_id);
 		
 		Debug::microtime ();
 		
 		if (!$session && $autocreate)
 		{
     		$session = new User_Session (array (
+    			'id'			=> $session_id,
     			'User__id'		=> 0,
     			'phpSessionId'	=> $session_id,
     			'startTime'	    => Helper_Date::toUnix (),
@@ -42,7 +39,7 @@ class User_Session extends Model
     			'remoteIp'		=> Request::ip (),
     			'userAgent'	    => substr (getenv ('HTTP_USER_AGENT'), 0, 100)
     		));
-    		$session->save ();
+    		$session->save (true);
 		}
 		
 		Debug::microtime ();
