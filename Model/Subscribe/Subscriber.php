@@ -44,8 +44,7 @@ class Subscribe_Subscriber extends Model
         Loader::load ('Subscribe_Abstract');
         if (!($subscribe instanceof Subscribe_Abstract))
         {
-            $subscribe = IcEngine::$modelManager->get ('Subscribe', 
-                (int) $subscribe);
+            $subscribe = Model_Manager::get ('Subscribe', (int) $subscribe);
         }
         $join = $subscribe->subscriberJoin ($this);
         

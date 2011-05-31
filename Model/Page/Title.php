@@ -51,7 +51,7 @@ class Page_Title extends Model_Child
 			return null;
 		}
 		
-		return IcEngine::$modelManager->get ('Page_Title', $row ['id'], $row);
+		return Model_Manager::get ('Page_Title', $row ['id'], $row);
 	}
 	
 	/**

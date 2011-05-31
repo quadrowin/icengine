@@ -34,7 +34,6 @@ class Model_Proxy_Collection extends Model_Collection
 		{
 			$this->_items = array ();
 		}
-		$model_manager = IcEngine::$modelManager;
 		
 		foreach ($rows as $row)
 		{

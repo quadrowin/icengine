@@ -465,6 +465,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		{
 			$this->_items = array ();
 		}
+		
 		$kf = $this->keyField ();
 		foreach ($rows as $row)
 		{
@@ -477,8 +478,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	/**
 	 * @desc Создать коллекцию из запроса
 	 * @param Query $query
-	 * @param boolean $clear
-	 * 		Очистить коллекцию, перед добавлением
+	 * @param boolean $clear Очистить коллекцию, перед добавлением
 	 * @return Model_Collection
 	 */
 	public function fromQuery (Query $query, $clear = true)
