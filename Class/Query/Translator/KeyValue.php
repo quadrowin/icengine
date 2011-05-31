@@ -30,13 +30,10 @@ class Query_Translator_KeyValue extends Query_Translator
 	public $valuesDelim = ':';
 	
 	/**
-	 * Возвращает массив масок ключей
-	 * @param string $table
-	 * 		Таблица (модель).
-	 * @param array $where
-	 * 		Часть запроса Query::WHERE
-	 * @return array
-	 * 		Массив масок
+	 * @desc Возвращает массив масок ключей
+	 * @param string $table Таблица (модель).
+	 * @param array $where Часть запроса Query::WHERE
+	 * @return array Массив масок
 	 */
 	protected function _compileKeyMask ($table, array $where)
 	{
@@ -61,7 +58,7 @@ class Query_Translator_KeyValue extends Query_Translator
 		{
 			if (count ($index) < count ($where))
 			{
-				unset ($indexes[$i]);
+				unset ($indexes [$i]);
 			}
 			else
 			{
@@ -122,7 +119,7 @@ class Query_Translator_KeyValue extends Query_Translator
 						}
 						else
 						{
-							$index_values[$ii][$ici] = $where_value;
+							$index_values [$ii][$ici] = $where_value;
 						}
 					}
 				}
@@ -217,14 +214,10 @@ class Query_Translator_KeyValue extends Query_Translator
 		$tables = $query->part (Query::FROM);
 		
 		// Отдельно хранятся таблицы для INSERT и UPDATE
-		switch ($query->type ())
+		$type = $query->type ();
+		if ($type == Query::INSERT || $type == Query::UPDATE)
 		{
-			case Query::INSERT:
-				return $query->part (Query::INSERT);
-				break;
-			case Query::UPDATE:
-				return $query->part (Query::UPDATE);
-				break;
+			return $query->part ($type);
 		}
 		
 		// Иначе SELECT или DELETE
@@ -239,7 +232,7 @@ class Query_Translator_KeyValue extends Query_Translator
 	}
 	
 	/**
-	 * Извлекает первичный ключ записи из ключа кэша.
+	 * @desc Извлекает первичный ключ записи из ключа кэша.
 	 * @param string $key
 	 * @return string
 	 */
@@ -331,7 +324,7 @@ class Query_Translator_KeyValue extends Query_Translator
 	}
 	
 	/**
-	 * Возвращает массив масок для выбора ключей.
+	 * @desc Возвращает массив масок для выбора ключей.
 	 * @param Query $query
 	 * @return array
 	 * 		Маски ключий для выбора.

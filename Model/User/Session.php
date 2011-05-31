@@ -22,17 +22,15 @@ class User_Session extends Model
 	 */
 	public static function byPhpSessionId ($session_id, $autocreate = true)
 	{
-		if (empty ($session_id))
-		{
-		    Loader::load ('Zend_Exception');
-			throw new Zend_Exception ('Empty php session id received.');
-		}
+		Debug::microtime ();
 		
 		$session = Model_Manager::byQuery (
 		    'User_Session',
 		    Query::instance ()
 		        ->where ('phpSessionId', $session_id)
 		);
+		
+		Debug::microtime ();
 		
 		if (!$session && $autocreate)
 		{
@@ -46,6 +44,8 @@ class User_Session extends Model
     		));
     		$session->save ();
 		}
+		
+		Debug::microtime ();
 		
 		return $session;
 	}

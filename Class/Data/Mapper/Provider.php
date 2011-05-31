@@ -77,19 +77,26 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 	 */
     protected function _executeSelect (Query $query, Query_Options $options)
     {
+    	Debug::microtime ();
 		$translator = $this->translator ();
 		
 		$ids = array ();
 		$rows = array ();
 		
+		Debug::microtime ();
 		// Выбираем ID всех записей, подходящих под условие
 		foreach ($this->_translated as $pattern)
 		{
+			Debug::microtime ();
+			fb ($pattern);
 			$keys = $this->_provider->keys ($pattern);
+			Debug::microtime ();
 			
 			foreach ($keys as $key)
 			{
+				Debug::microtime ();
 				$id = $translator->extractId ($key);
+				Debug::microtime ();
 				
 				if (!isset ($ids [$id]))
 				{
@@ -179,22 +186,21 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
      */
 	public function execute (Data_Source_Abstract $source, Query $query, $options = null)
 	{
-		if (!($query instanceof Query))
-		{
-			return new Query_Result (null);
-		}
-		
+		Debug::microtime ();
 		$start = microtime (true);
 		
 		$clone = clone $query;
 		
+		Debug::microtime ();
 		$where = $clone->getPart (Query::WHERE);
 		$this->_filters->apply ($where, Query::VALUE);
 		$clone->setPart (Query::WHERE, $where);
 		
-		$this->_translated = $clone->translate (
-			self::TRANSLATOR
-		);
+		Debug::microtime ();
+		
+		$this->_translated = $clone->translate (self::TRANSLATOR);
+		
+		Debug::microtime ();
 		
 		if (false)
 		{
@@ -216,8 +222,12 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 		    $options = $this->getDefaultOptions ();
 		}
 		
+		Debug::microtime ();
+		
 		$m = $this->_queryMethods [$query->type ()];
 		$result = $this->{$m} ($query, $options);
+		
+		Debug::microtime ();
 		
 		if ($this->_errno)
 		{
