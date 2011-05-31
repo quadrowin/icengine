@@ -182,8 +182,10 @@ class Loader
 			return true;
 		}
 		
-		$file = str_replace ('_', '/', $class) . '.php';
-		return self::requireOnce ($file, $type);
+		return self::requireOnce (
+			str_replace ('_', '/', $class) . '.php',
+			$type
+		);
 	}
 	
 	/**
@@ -194,10 +196,13 @@ class Loader
 	{
 		foreach (func_get_args () as $class)
 		{
-			self::requireOnce (
-				str_replace ('_', '/', $class) . '.php',
-				'Class'
-			);
+			if (!class_exists ($class))
+			{
+				self::requireOnce (
+					str_replace ('_', '/', $class) . '.php',
+					'Class'
+				);
+			}
 		}
 	}
 	
