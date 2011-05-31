@@ -28,6 +28,7 @@ class Data_Validator_Registration_Email
 		if (
 			!filter_var ($email, FILTER_VALIDATE_EMAIL) ||
 			(
+				isset ($param ['maxLength']) &&
 				$param ['maxLength'] &&
 				strlen ($email) > $param ['maxLength']
 			)
