@@ -89,7 +89,12 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 		{
 			Debug::microtime ();
 			fb ($pattern);
-			$keys = $this->_provider->keys ($pattern);
+			
+			$keys =
+				(strpos ($pattern, '*') === false) ?
+					array ($pattern) :
+					$this->_provider->keys ($pattern);
+				
 			Debug::microtime ();
 			
 			foreach ($keys as $key)
