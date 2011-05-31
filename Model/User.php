@@ -213,14 +213,19 @@ class User extends Model
 	 */
 	public static function init ($session_id = null)
 	{
+		Debug::microtime ();
 		$session_id = $session_id ? $session_id : Request::sessionId ();
 		User_Session::setCurrent (
 			User_Session::byPhpSessionId (
 				$session_id ? $session_id : 'unknown')
 		);
 		
+		Debug::microtime ();
+		
 		self::$_current = User_Session::getCurrent ()->User;
 		User_Session::getCurrent ()->updateSession ();
+		
+		Debug::microtime ();
 		
 		return self::$_current;
 	}
