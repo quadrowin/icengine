@@ -169,7 +169,7 @@ class Registration extends Model
 	 * @param string $data ['email'] Email
 	 * @return Registration Сохраненная регистрация.
 	 */
-	public function create (array $data)
+	public static function create (array $data)
 	{
 		$registration = new Registration (array (
 			'id'			=> $data ['User__id'],
