@@ -155,6 +155,12 @@ class Debug
 	public static $startTime;
 	
 	/**
+	 * @desc Время последнего замера времени.
+	 * @var integer
+	 */
+	public static $lastTime;
+	
+	/**
 	 * @desc Скрытие всех возникающих ошибок.
 	 */
 	public static function disable ($default_display = false)
@@ -230,7 +236,7 @@ class Debug
 			self::$config ['die_on_error']
 		)
 		{
-			die ("<b>Terminated on fatal error.</b>");
+			die ("<b>Terminated on fatal error.</b><br />" . $log_text);
 		}
 		
 		return true;
@@ -572,28 +578,21 @@ class Debug
 	 * @author Eriomin Ivan
 	 * @tutorial
 	 *	include $engine_dir . '/includes/FirePHPCore/fb.php';
-	 *	Debug::microtime (__FILE__, __LINE__);
+	 *	Debug::microtime ('some special message');
 	 */
 	public static function microtime ()
 	{
-		$now = microtime (true);
+		$trace = array_slice (debug_backtrace (), 0, 1);
+		$text = $trace [0]['file'] . '@' . $trace [0]['line'] . ': ';
 		
-		if (!self::$startTime)
-		{
-			self::$startTime = $now;
-		}
+		$now = microtime (true);
+		$text .= round ($now - self::$lastTime, 5);
+		self::$lastTime = $now;
 		
 		if (func_num_args ())
 		{
-			$text = implode ('@', func_get_args ()) . ': ';
+			$text .= ' - ' . implode (', ', func_get_args ());
 		}
-		else
-		{
-			$trace = array_slice (debug_backtrace (), 0, 1);
-			$text = $trace [0]['file'] . '@' . $trace [0]['line'] . ': ';
-		}
-			
-		$text .= round ($now - self::$startTime, 3);
 		
 		if (function_exists ('fb') && !headers_sent ())
 		{
@@ -603,10 +602,38 @@ class Debug
 		{
 			echo $text;
 		}
+	}
+	
+	/**
+	 * @desc вывод в лог времени загрузки фаилов.
+	 * @author Yury Shvedov
+	 * @tutorial
+	 *	include $engine_dir . '/includes/FirePHPCore/fb.php';
+	 *	Debug::microtimeTotal ('some special message');
+	 */
+	public static function microtimeTotal ()
+	{
+		$trace = array_slice (debug_backtrace (), 0, 1);
+		$text = $trace [0]['file'] . '@' . $trace [0]['line'] . ': ';
 		
-		self::$startTime = $now;
+		$text .= round (microtime (true) - self::$startTime, 5);
+		
+		if (func_num_args ())
+		{
+			$text .= ' - ' . implode (', ', func_get_args ());
+		}
+		
+		if (function_exists ('fb') && !headers_sent ())
+		{
+			fb ($text);
+		}
+		else
+		{
+			echo $text;
+		}
 	}
 	
 }
 
 Debug::$startTime = microtime (true);
+Debug::$lastTime = microtime (true);

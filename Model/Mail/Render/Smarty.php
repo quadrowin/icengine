@@ -15,13 +15,13 @@ class Mail_Render_Smarty extends Mail_Render_Abstract
 	 */
 	public function render ($template, array $data)
 	{
-	    $view = View_Render_Broker::pushViewByName ('Smarty');
+	    $view = View_Render_Manager::pushViewByName ('Smarty');
 	    
 	    $view->assign ($data);
 	    
         $result = $view->fetch ($template);
         
-	    View_Render_Broker::popView ();
+	    View_Render_Manager::popView ();
 	    
 	    return $result;
 	}

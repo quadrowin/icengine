@@ -1,13 +1,25 @@
 <?php
-
-abstract class View_Render_Broker
+/**
+ * 
+ * @desc Менеджер рендеринга
+ * @author Юрий Шведов, Илья Колесников
+ * @package IcEngine
+ *
+ */
+abstract class View_Render_Manager extends Manager_Abstract
 {
 
 	/**
-	 * 
+	 * @desc Представления по имени.
 	 * @var array <View_Render_Abstract>
 	 */
 	private static $_views = array ();
+	
+	/**
+	 * @desc Стэк представлений.
+	 * @var array <View_Render_Abstract>
+	 */
+	private static $_viewStack = array ();
 	
 	/**
 	 * @var array
@@ -24,7 +36,7 @@ abstract class View_Render_Broker
 	 * @desc Конфиг
 	 * @var array
 	 */
-	public static $config = array (
+	protected static $_config = array (
 		/**
 		 * @desc Рендер по умолчанию
 		 * @var string
@@ -33,27 +45,61 @@ abstract class View_Render_Broker
 	);
 	
 	/**
-	 * Выводит результат работы шаблонизатора в браузер
+	 * @desc Возвращает рендер по названию.
+	 * @param string $name
+	 * @return View_Render_Abstract
 	 */
-	public static function display ()
+	public static function byName ($name)
 	{
-		return self::getView ()->display ();
+		if (isset (self::$_views [$name]))
+		{
+			return self::$_views [$name];
+		}
+		
+		$view = Model_Manager::byQuery (
+			'View_Render',
+			Query::instance ()
+				->where ('name', $name)
+		);
+		
+		if (!$view)
+		{
+			$class_name = 'View_Render_' . $name;
+			Loader::load ($class_name);
+			$view = new $class_name (array (
+				'id'	=> null,
+				'name'	=> $name
+			));
+		}
+		
+		return self::$_views [$name] = $view;
 	}
 	
 	/**
-	 * 
+	 * @desc Выводит результат работы шаблонизатора в браузер.
+	 */
+	public static function display ()
+	{
+		self::getView ()->display ();
+	}
+	
+	/**
+	 * @desc Возвращает текущий рендер.
 	 * @return View_Render_Abstract
 	 */
 	public static function getView ()
 	{
-		if (!self::$_views)
+		if (!self::$_viewStack)
 		{
 			Loader::load ('View_Render');
-			self::pushViewByName (self::$config ['default_view']);
+			
+			$config = self::config ();
+		
+			self::pushViewByName ($config ['default_view']);
 			//self::$_view = new View_Render (array('name' => self::$_defaultView));
 		} 
 		
-		return end (self::$_views);
+		return end (self::$_viewStack);
 	}
 	
 	/**
@@ -70,8 +116,10 @@ abstract class View_Render_Broker
 	public static function popView ()
 	{
 //		echo 'pop' . count (self::$_views) . ' ' . end (self::$_views)->name;
-		$view = array_pop (self::$_views);
+		$view = array_pop (self::$_viewStack);
+		
 		$view->popVars ();
+
 		return $view;
 	}
 	
@@ -82,9 +130,9 @@ abstract class View_Render_Broker
 	 */
 	public static function pushView (View_Render_Abstract $view)
 	{
-		self::$_views [] = $view;
+		self::$_viewStack [] = $view;
 		return $view;
-	}
+	} 
 	
 	/**
 	 * 
@@ -105,7 +153,7 @@ abstract class View_Render_Broker
 	 */
 	public static function pushViewByName ($name)
 	{
-		$view = View_Render::byName ($name);
+		$view = self::byName ($name);
 		$view->pushVars ();	
 		return self::pushView ($view);
 	}
@@ -125,65 +173,7 @@ abstract class View_Render_Broker
 	 */
 	public static function render (array $outputs)
 	{
-		$view = self::getView ();
-		
-		Loader::load ('Message_Before_Render');
-		Message_Before_Render::push ($view);
-		
-		// Рендерим в обратном порядке		
-		$outputs = array_reverse ($outputs);
-		
-		/**
-		 * @var Controller_Dispatcher_Iteration $item
-		 */
-		foreach ($outputs as $item)
-		{
-			/**
-			 * 
-			 * @var $transaction Data_Transport_Transaction
-			 */
-			$transaction = $item->getTransaction ();
-			
-			/**
-			 * @var $action Route_Action
-			 */
-//			$action = $item->getRouteAction ();
-			
-			$transaction->commit ();
-			
-			$template = $item->getTemplate ();
-			$result = $template ? $view->fetch ($template) : null;
-			
-			$view->assign (
-				$item->getAssignVar (),
-				$result
-			);
-		}
-		
-		Loader::load ('Message_After_Render');
-		Message_After_Render::push ($view);
-	}
-	
-	/**
-	 * @desc Рендер одной итерации диспетчера.
-	 * @param Controller_Dispatcher_Iteration $iteration
-	 * @return string
-	 */
-	public static function fetchIteration (
-		Controller_Dispatcher_Iteration $iteration)
-	{
-		/**
-		 * 
-		 * @var $transaction Data_Transport_Transaction
-		 */
-		$transaction = $iteration->getTransaction ();
-		
-		$view = self::getView ();
-		$view->assign ($transaction->buffer ());
-		
-		$result = $view->fetch ($iteration->getTemplate ());
-
-		return $result;
+		return self::getView ()->render ($outputs);
 	}
 	
 }

@@ -32,7 +32,7 @@ class Test_Mail_Provider_Sms_Yakoon extends PHPUnit_Framework_TestCase
 	{
 		parent::setUp ();
 		
-		$this->Mail_Provider_Sms_Yakoon = IcEngine::$modelManager->modelBy (
+		$this->Mail_Provider_Sms_Yakoon = Model_Manager::byQuery (
 			'Mail_Provider',
 			Query::instance ()
 			->where ('name', 'Sms_Yakoon')

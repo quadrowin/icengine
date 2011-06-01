@@ -10,7 +10,7 @@ class Mail_Provider extends Model_Factory
 {
 	public static function byName ($name)
 	{
-		return IcEngine::$modelManager->modelBy (
+		return Model_Manager::byQuery (
 			'Mail_Provider',
 			Query::instance ()
 				->where ('name', $name)

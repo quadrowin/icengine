@@ -64,13 +64,13 @@ class Controller_Content_Abstract extends Controller_Abstract
 		
 		if ($category_id)
 		{
-			return Model_Manager::modelByKey (
+			return Model_Manager::byKey (
 				$this->__categoryModel (),
 				$category_id
 			);	
 		}
 		
-		return Model_Manager::modelBy (
+		return Model_Manager::byQuery (
 			$this->__categoryModel (),
 			Query::instance ()
 				->where ('url', $url ? $url : Request::uri ())
@@ -93,13 +93,13 @@ class Controller_Content_Abstract extends Controller_Abstract
 		
 		if ($content_id)
 		{
-			return Model_Manager::modelByKey (
+			return Model_Manager::byKey (
 				$this->__contentModel (), 
 				$content_id
 			);
 		}
 		
-		return Model_Manager::modelBy (
+		return Model_Manager::byQuery (
 			$this->__contentModel (), 
 			Query::instance ()
 				->where ('url', $url ? $url : Request::uri ())
@@ -246,17 +246,17 @@ class Controller_Content_Abstract extends Controller_Abstract
 		
 		if (!$category)
 		{
-			return $this->_helperReturn ('Page', 'notFound');
+			return $this->replaceAction ('Error', 'notFound');
 		}
 
-		$parent = Model_Manager::modelByKey (
+		$parent = Model_Manager::byKey (
 			$this->__categoryModel (),
 			$category->parentKey ()
 		);
 		
 		if (!$parent)
 		{
-			return $this->_helperReturn ('Page', 'notFound');
+			return $this->replaceAction ('Error', 'notFound');
 		}
 		
 		$content_collection = Helper_Link::linkedItems (
@@ -290,17 +290,17 @@ class Controller_Content_Abstract extends Controller_Abstract
 			
 		if (!$content)
 		{
-			return $this->_helperReturn ('Page', 'notFound');
+			return $this->replaceAction ('Error', 'notFound');
 		}
 		
-		$content_category = Model_Manager::modelByKey (
+		$content_category = Model_Manager::byKey (
 			$this->__categoryModel (),
 			$content->Content_Category__id
 		);
 		
 		if (!$content_category)
 		{
-			return $this->_helperReturn ('Page', 'notFound');
+			return $this->replaceAction ('Error', 'notFound');
 		}
 
 		$this->_output->send (array (
@@ -346,7 +346,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		{
 			if (!$content_id)
 			{
-				return $this->_helperReturn ('Page', 'notFound');
+				return $this->replaceAction ('Error', 'notFound');
 			}
 			else
 			{
@@ -359,14 +359,14 @@ class Controller_Content_Abstract extends Controller_Abstract
 			}
 		}
 		
-		$category = Model_Manager::modelByKey (
+		$category = Model_Manager::byKey (
 			$this->__categoryModel (),
 			$category_id
 		);
 			
 		if (!$category)
 		{
-			return $this->_helperReturn ('Page', 'notFound');
+			return $this->replaceAction ('Error', 'notFound');
 		}
 		
 		if ($category->controller && $category->controller != $this->name ())
@@ -381,7 +381,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 
 		if (!User::authorized())
 		{
-			return $this->_helperReturn('Access', 'denied');
+			return $this->replaceAction ('Error', 'accessDenied');
 		}
 		
 		Loader::load ('Acl_Resource');
@@ -400,7 +400,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			)
 		)
 		{
-			return $this->_helperReturn ('Access', 'denied');
+			return $this->replaceAction ('Error', 'accessDenied');
 		}
 		
 		if (!isset ($content) || !$content)
@@ -463,7 +463,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 
 		if (!$utcode)
 		{
-			return $this->_helperReturn ('Page', 'obsolete');
+			return $this->replaceAction ('Error', 'obsolete');
 		}
 		
 		$tc = Temp_Content::byUtcode ($utcode);
@@ -495,7 +495,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			)
 		)
 		{
-			return $this->_helperReturn ('Access', 'denied');
+			return $this->replaceAction ('Error', 'accessDenied');
 		}
 		
 		$back = $tc->attr ('back');
@@ -505,7 +505,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		
 		if ($content_id)
 		{			
-			$content = Model_Manager::modelByKey (
+			$content = Model_Manager::byKey (
 				$this->__contentModel (),
 				$content_id
 			);
@@ -538,14 +538,14 @@ class Controller_Content_Abstract extends Controller_Abstract
 			
 			Loader::load ('Helper_Link');
 			
-			$content_category = Model_Manager::modelByKey (
+			$content_category = Model_Manager::byKey (
 				$this->__categoryModel (),
 				$category_id
 			);
 			
 			if (!$content_category)
 			{
-				return $this->_helperReturn ('Page', 'notFound');
+				return $this->replaceAction ('Error', 'notFound');
 			}
 			
 			Helper_Link::link (
@@ -572,7 +572,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			die ();
 		}
 		
-		$this->_dispatcherIteration->setTemplate (null);
+		$this->_task->setTemplate (null);
 		$this->_output->send (array (
 			'redirect'	=> $referer,
 			'data'		=> array (
@@ -596,14 +596,14 @@ class Controller_Content_Abstract extends Controller_Abstract
 			'url'
 		);
 		
-		$content = Model_Manager::modelByKey (
+		$content = Model_Manager::byKey (
 			$this->__contentModel (), 
 			$content_id
 		);
 		
 		if (!$content)
 		{
-			return $this->_helperReturn ('Page', 'notFound');
+			return $this->replaceAction ('Error', 'notFound');
 		}
 		
 		Loader::load ('Helper_Link');
@@ -615,7 +615,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		
 		if (!$category_collection->count ())
 		{
-			return $this->_helperReturn ('Access', 'denied');
+			return $this->replaceAction ('Error', 'accessDenied');
 		}
 		
 		$category = $category_collection->first ();
@@ -636,14 +636,14 @@ class Controller_Content_Abstract extends Controller_Abstract
 			)
 		)
 		{
-			return $this->_helperReturn ('Access', 'denied');
+			return $this->replaceAction ('Error', 'accessDenied');
 		}
 
 		$content->delete ();
 
 		$url = $this->__deleteUrl ($content, $url);
 		
-		$this->_dispatcherIteration->setTemplate (null);
+		$this->_task->setTemplate (null);
 		
 		if (Request::isPost ())
 		{
@@ -664,7 +664,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 	{
 	    if (!User::authorized ())
 		{
-			return $this->_helperReturn ('Access', 'denied');
+			return $this->replaceAction ('Error', 'accessDenied');
 		}
 
 		Loader::load ('Temp_Content');
@@ -684,7 +684,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 	public function removeImage ()
 	{
 		$image_id = (int) $this->_input->receive ('image_id');
-		$image = Model_Manager::modelBy (
+		$image = Model_Manager::byQuery (
 			'Component_Image',
 			Query::instance ()
 				->where ('id', $image_id)
@@ -718,7 +718,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			'content_category_id'
 		);
 
-		$content = Model_Manager::modelBy (
+		$content = Model_Manager::byQuery (
 			'Content',
 			Query::instance ()
 				->where ('Content_Category__id', $content_category_id)

@@ -310,45 +310,67 @@ class Route extends Model_Child
 	}
 	
 	/**
-	 * @desc Экшены, привязанные к этому роуту.
-	 * @return Controller_Action_Collection
+	 * @desc Сформировать роут экшины, привязаннык роуту.
+	 * @return Route_Action_Collection
 	 */
 	public function actions ()
 	{
+		Loader::load ('Route_Action');
+
 		if (isset ($this->_fields ['actions']))
 		{
-			$actions = Model_Collection_Manager::create ('Controller_Action')
+			$i = 0;
+			
+			$route_action_collection = Model_Collection_Manager::create (
+				'Route_Action'
+			)
 				->reset ();
 			
-			$this_actions = 
-				is_scalar ($this->_fields ['actions']) ?
-					array ($this->_fields ['actions']) :
-					$this->_fields ['actions'];
-			
-			foreach ($this_actions as $action)
+			foreach ((array) $this->_fields ['actions'] as $action => $assign)
 			{
-				$action = explode ('/', $action);
-				$actions->add (
-					new Controller_Action (array (
-						'controller'	=> $action [0],
-						'action'		=> isset ($action [1]) ? 
-							$action [1] : 
-							'index'
-					))
-				);
+				if (is_numeric ($action))
+				{
+					if (is_scalar ($assign))
+					{
+						$action	= $assign;
+						$assign = 'content';
+					}
+					else
+					{
+						$assign = reset ($assign);
+						$action = key ($assign);
+					}
+				}
+				
+				$tmp = explode ('/', $action);
+				
+				$controller = $tmp [0];
+				$action = !empty ($tmp [1]) ? $tmp [1] : 'index';
+				
+				$route_action = new Route_Action (array (
+					'Controller_Action'	=> new Controller_Action (array (
+						'controller'	=> $controller,
+						'action'		=> $action
+					)),
+					'Route'				=> $this,
+					'sort'				=> ++$i,
+					'assign'			=> $assign
+				));
+				
+				$route_action_collection->add ($route_action);
 			}
-			
-			return $actions;
+		}
+		else
+		{
+			$route_action_collection = Model_Collection_Manager::byQuery (
+				'Route_Action',
+				Query::instance ()
+					->where ('Route__id', $this->key ())
+					->order ('sort')
+			);
 		}
 		
-		return Model_Collection_Manager::byQuery (
-			'Controller_Action',
-			Query::instance ()
-				->from ('Route_Action')
-				->where ('Route_Action.Route__id', $this->key ())
-				->where ('Route_Action.Controller_Action__id=Controller_Action.id')
-				->order ('Route_Action.sort')
-		);
+		return $route_action_collection;
 	}
 	
 	/**

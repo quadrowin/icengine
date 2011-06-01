@@ -5,7 +5,7 @@ class Controller_Subscribe extends Controller_Abstract
     
     protected function _codeFail ()
     {
-        $this->_dispatcherIteration->setTemplate ('Controller/Subscribe/codeFail.tpl');
+        $this->_task->setTemplate ('Controller/Subscribe/codeFail.tpl');
     }
     
     /**
@@ -21,10 +21,10 @@ class Controller_Subscribe extends Controller_Abstract
             return null;
         }
         
-        $join = IcEngine::$modelManager->modelBy (
+        $join = Model_Manager::byQuery (
             'Subscribe_Subscriber_Join',
             Query::instance ()
-            ->where ('code', $code)
+            	->where ('code', $code)
         );
         
         if (!$join)

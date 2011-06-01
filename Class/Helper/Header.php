@@ -56,19 +56,19 @@ class Helper_Header
 	 * @desc Отправить статус в заголовке ответа
 	 * @param integer $status Статус.
 	 */
-	public static function setStatus ($status)
+	public static function setStatus ($status, $set_code = true)
 	{
-//		if (headers_sent ())
-//		{
-//			return;
-//		}
-//		if (isset (self::$statuses [$status]))
-//		{
-			foreach (self::$statuses [$status] as $text)
+		foreach (self::$statuses [$status] as $text)
+		{
+			if ($set_code)
+			{
+				header ($text, true, $status);
+			}
+			else
 			{
 				header ($text);
 			}
-//		}
+		}
 	}
 	
 	/**
@@ -81,26 +81,38 @@ class Helper_Header
 	 */
 	public static function redirect ($uri, $code = null)
 	{
-		if (substr ($uri, 0, 7) != 'http://')
-		{
-			$uri = 'http://' . $_SERVER ['HTTP_HOST'] . $uri;
-		}
+		$full_uri = 
+			substr ($uri, 0, 7) == 'http://' ?
+			$uri :
+			('http://' . $_SERVER ['HTTP_HOST'] . $uri);
 		
 		if (!headers_sent ())
 		{
 			if ($code)
 			{
-				header ("Location: $uri", true, $code);
+				header ("Location: $full_uri", true, $code);
 			}
 			else
 			{
-				header ("Location: $uri");
+				header ("Location: $full_uri");
 			}
 		}
 		else
 		{
-			echo '<script>window.location.href="' . $uri . '"</script>';
+			self::jsRedirect ($uri);
 		}
+	}
+	
+	/**
+	 * @desc Редирект через javascript.
+	 * @param string $uri Адрес для редиректа
+	 */
+	public static function jsRedirect ($uri)
+	{
+		echo 
+			'<script type="text/javascript">window.location.href="' . 
+			$uri .
+			'"</script>';
 	}
 	
 }

@@ -209,7 +209,7 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 		$this->_filters->apply ($where, Query::VALUE);
 		$clone->setPart (Query::WHERE, $where);
 		
-		$this->_sql = $clone->translate ('Mysql', $this->_modelScheme);
+		$this->_sql = $clone->translate ('Mysql');
 		
 		$result = null;
 		$this->_errno = 0;

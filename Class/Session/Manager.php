@@ -74,6 +74,9 @@ class Session_Manager
 	{
 	}
 	
+	/**
+	 * @desc Инициализация менеджера сессий
+	 */
 	public static function init ()
 	{
 		$config = self::config ();

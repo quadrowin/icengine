@@ -16,7 +16,7 @@ class Content_Extending extends Model
 	 */
 	public function content ()
 	{
-		return Model_Manager::modelByKey ('Content', $this->id);
+		return Model_Manager::byKey ('Content', $this->id);
 	}
 	
 	/**

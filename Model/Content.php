@@ -20,7 +20,7 @@ class Content extends Model
 			return null;
 		}
 		
-		$extending = Model_Manager::modelByKey ($this->extending, $this->id);
+		$extending = Model_Manager::byKey ($this->extending, $this->id);
 				
 		if (!$extending && $this->extending && $this->id)
 		{

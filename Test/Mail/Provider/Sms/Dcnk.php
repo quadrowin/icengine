@@ -24,7 +24,7 @@ class Test_Mail_Provider_Sms_Dcnk extends PHPUnit_Framework_TestCase
 	{
 		parent::setUp ();
 		
-		$this->Mail_Provider_Sms_Dcnk = IcEngine::$modelManager->modelBy (
+		$this->Mail_Provider_Sms_Dcnk = Model_Manager::byQuery (
 			'Mail_Provider',
 			Query::instance ()
 			->where ('name', 'Sms_Dcnk')

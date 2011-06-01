@@ -22,28 +22,6 @@ class Model_Manager
 	protected static $_forced = false;
 	
 	/**
-	 * @desc Экземпляр менеджера моделей
-	 * @var Model_Manager
-	 */
-	protected static $_instance;
-	
-	/**
-	 * @desc Данные о моделях.
-	 * @var Model_Scheme
-	 */
-	protected static $_modelScheme;
-	
-	/**
-	 * @param Model_Scheme $data_source
-	 */
-	public function __construct (Model_Scheme $model_scheme)
-	{
-		self::$_instance = $this;
-		Loader::load ('Model_Factory');
-		self::$_modelScheme = $model_scheme;
-	}
-	
-	/**
 	 * @desc Получение условий выборки из запроса
 	 * @param Query $query
 	 * @return array|null
@@ -86,8 +64,7 @@ class Model_Manager
 			->from ($object->modelName ())
 			->where ($object->keyField (), $key);
 		
-		$data = self::$_modelScheme
-			->dataSource ($object->modelName ())
+		$data = Model_Scheme::dataSource ($object->modelName ())
 			->execute ($query)
 			->getResult ()->asRow ();
 		
@@ -107,8 +84,7 @@ class Model_Manager
 		{
 			return ;
 		}
-		self::$_modelScheme
-			->dataSource ($object->modelName ())
+		Model_Scheme::dataSource ($object->modelName ())
 				->execute (
 					Query::instance ()
 						->delete ()
@@ -124,7 +100,7 @@ class Model_Manager
 	 */
 	protected static function _write (Model $object, $hard_insert = false)
 	{
-		$ds = self::$_modelScheme->dataSource ($object->modelName ());
+		$ds = Model_Scheme::dataSource ($object->modelName ());
 
 		$kf = $object->keyField ();
 		$id = $object->key ();
@@ -142,7 +118,7 @@ class Model_Manager
 		else
 		{
 			// Вставка
-			$new_id = self::$_modelScheme->generateKey ($object);
+			$new_id = Model_Scheme::generateKey ($object);
 			if ($new_id)
 			{
 				// Ключ указан
@@ -196,7 +172,7 @@ class Model_Manager
 		return self::byQuery (
 			$model,
 			Query::instance ()
-				->where (self::$_modelScheme->keyField ($model), $key)
+				->where (Model_Scheme::keyField ($model), $key)
 		);
 	}
 	
@@ -209,6 +185,7 @@ class Model_Manager
 	public static function byQuery ($model, Query $query)
 	{
 		$forced = self::$_forced;
+		
 		self::$_forced = false;
 		
 		$data = null;
@@ -226,8 +203,7 @@ class Model_Manager
 			}
 			
 			$data = 
-				self::$_modelScheme
-					->dataSource ($model)
+				Model_Scheme::dataSource ($model)
 					->execute ($query)
 					->getResult ()
 						->asRow ();
@@ -238,11 +214,11 @@ class Model_Manager
 			return null;
 		}
 		
-		$mm = $forced ? self::forced () : self::$_instance;
+		self::$_forced = $forced;
 		
-		return $mm->get (
+		return self::get (
 			$model,
-			$data [self::$_modelScheme->keyField ($model)],
+			$data [Model_Scheme::keyField ($model)],
 			$data
 		);
 	}
@@ -251,10 +227,9 @@ class Model_Manager
 	 * @desc Следующая модель будет создана без autojoin.
 	 * @return Model_Manager
 	 */
-	public static function forced ()
+	public static function forced ($value = true)
 	{
-		self::$_forced = true;
-		return self::$_instance;
+		self::$_forced = $value;
 	}
 	
 	/**
@@ -291,6 +266,7 @@ class Model_Manager
 				
 				$parents = class_parents ($model);
 				$parent = reset ($parents);
+				
 				if ('Model_Factory' == $parent)
 				{
 					$factory_name = $model;
@@ -298,19 +274,26 @@ class Model_Manager
 					{
 						self::$_factories [$factory_name] = new $model ();
 					}
-					$dmodel = self::$_factories [$factory_name]->delegateClass ($model, $key, $object);
+					
+					$dmodel = self::$_factories [$factory_name]
+						->delegateClass ($model, $key, $object);
+					
 					if (!Loader::load ($dmodel))
 					{
 						Loader::load ('Zend_Exception');
 						throw new Zend_Exception ('Delegate model not found: ' . $dmodel);
 					}
+					
 					$result = new $dmodel (array (), !$forced);
+					
 					$result->setModelFactory (self::$_factories [$factory_name]);
+					
 					if (is_array ($object) && $object)
 					{
 						$result->set ($object);
 					}
 				}
+				
 				else
 				{
 					$result = new $model (
@@ -357,112 +340,7 @@ class Model_Manager
 	public static function set (Model $object, $hard_insert = false)
 	{
 		self::_write ($object, $hard_insert);
+		
 		Resource_Manager::set ('Model', $object->resourceKey (), $object);
 	}
-	
-	/**
-	 * @desc Получение модели по запросу.
-	 * @param string $model
-	 * @param Query $query
-	 * @return Model|null
-	 * @deprecated Следует использовать byQuery.
-	 */
-	public static function modelBy ($model, Query $query)
-	{
-		$forced = self::$_forced;
-		self::$_forced = false;
-		
-		$data = null;
-		
-		if (is_null ($data))
-		{
-			if (!$query->getPart (Query::SELECT))
-			{
-				$query->select (array ($model => '*'));
-			}
-			
-			if (!$query->getPart (Query::FROM))
-			{
-				$query->from ($model, $model);
-			}
-			
-			$data = 
-				self::$_modelScheme
-					->dataSource ($model)
-					->execute ($query)
-					->getResult ()
-						->asRow ();
-		}
-		
-		if (!$data)
-		{
-			return null;
-		}
-		
-		$mm = $forced ? self::forced () : self::$_instance;
-		
-		return $mm->get (
-			$model,
-			$data [self::$_modelScheme->keyField ($model)],
-			$data
-		);
-	}
-	
-	/**
-	 * @desc Получение модели по первичному ключу.
-	 * @param string $model
-	 * @param integer $key
-	 * @return Model|null
-	 * @deprecated Следует использовать byKey.
-	 */
-	public static function modelByKey ($model, $key)
-	{
-		return self::byQuery (
-			$model,
-			Query::instance ()
-				->where (self::$_modelScheme->keyField ($model), $key)
-		);
-	}
-	
-	/**
-	 * @desc Возвращает схему моделей.
-	 * @return Model_Scheme
-	 */
-	public static function modelScheme ()
-	{
-		return self::$_modelScheme;
-	}
-	
-	/**
-	 * @desc Возвращает коллекцию по запросу.
-	 * Следует использовать Model_Collection_Manager::byQuery().
-	 * @param string $model
-	 * @param Query $query
-	 * @return Model_Collection
-	 * @deprecated
-	 */
-	public static function collectionBy ($model, Query $query)
-	{
-		$forced = self::$_forced;
-		self::$_forced = false;
-		
-		if (!Loader::load ($model))
-		{
-			return null;
-		}
-		
-		$class_collection = $model . '_Collection';
-		
-		if (!Loader::load ($class_collection))
-		{
-			return null;
-		}
-		
-		$collection = new $class_collection ();
-		$collection->setAutojoin (!$forced);
-		$collection->setQuery ($query);
-		
-		return $collection;
-	}
-	
 }

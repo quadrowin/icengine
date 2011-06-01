@@ -1,22 +1,28 @@
 <?php
 /**
  * 
- * @desc
- * @author Гурус
+ * @desc Задание на выполнение контроллера.
+ * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
  *
  */
-class Controller_Dispatcher_Iteration
+class Controller_Task
 {
+	/**
+	 * @desc Переменная, куда попадет результат
+	 * работы контролера
+	 * @var string
+	 */
+	protected $_assignVar = 'content';
 	
 	/**
-	 * @desc 
+	 * @desc Экшин
 	 * @var Controller_Action
 	 */
 	protected $_controllerAction;
 	
 	/**
-	 * 
+	 * @desc Игнорировать текущее задание
 	 * @var boolean
 	 */
 	protected $_ignore = false;
@@ -28,10 +34,10 @@ class Controller_Dispatcher_Iteration
 	protected $_index;
 	
 	/**
-	 * 
-	 * @var Route_Action
+	 * @desc Входные данные
+	 * @var Data_Transport
 	 */
-	protected $_routeAction;
+	protected $_input;
 	
 	/**
 	 * @desc Название шаблона
@@ -46,29 +52,26 @@ class Controller_Dispatcher_Iteration
 	protected $_transaction;
 	
 	/**
+	 * @desc Рендера
+	 * @var View_Render_Abstract
+	 */
+	protected $_viewRender;
+	
+	/**
 	 * 
 	 * @param Route_Action|Controller_Action $action
 	 */
 	public function __construct ($action)
 	{
 		Loader::load ('Route_Action');
+		
 		if ($action instanceof Route_Action)
 		{
-			$this->_routeAction = $action;
-			$action = $this->controllerAction ();
-		}
-		elseif ($action instanceof Controller_Action)
-		{
-//			$this->_routeAction = new Route_Action (array (
-//				'id'					=> null,
-//				'Route__id'				=> 0,
-//				'Controller_Action'		=> $action,
-//				'Controller_Action__id'	=> 0,
-//				'sort'					=> 0,
-//				'assign'				=> isset ($action->assign) ? 
-//					$action->assign : 
-//					'content'
-//			));
+			$this->_assignVar = $action->assign;
+			
+			$this->_viewRender = $action->Route->viewRender ();
+			
+			$action = $action->Controller_Action;
 		}
 		
 		$this->_controllerAction = $action;
@@ -83,14 +86,12 @@ class Controller_Dispatcher_Iteration
 	}
 	
 	/**
+	 * @desc Получить экшин
 	 * @return Controller_Action
 	 */
 	public function controllerAction ()
 	{
-		return
-			$this->_routeAction ? 
-				$this->_routeAction->Controller_Action :
-				$this->_controllerAction;
+		return $this->_controllerAction;
 	}
 	
 	/**
@@ -100,13 +101,11 @@ class Controller_Dispatcher_Iteration
 	 */
 	public function getAssignVar ()
 	{
-		return 
-			$this->_routeAction ? 
-				$this->_routeAction->assign :
-				'content';
+		return $this->_assignVar;
 	}
 	
 	/**
+	 * @desc Узнать игнорируется ли текущая задача
 	 * @return boolean
 	 */
 	public function getIgnore ()
@@ -115,6 +114,8 @@ class Controller_Dispatcher_Iteration
 	}
 	
 	/**
+	 * @desc Получить порядковый номер задания
+	 * в очереди заданий
 	 * @return integer
 	 */
 	public function getIndex ()
@@ -123,15 +124,16 @@ class Controller_Dispatcher_Iteration
 	}
 	
 	/**
-	 * @return Route_Action
+	 * @desc Получить транспорт входных данных
+	 * @return Data_Transport
 	 */
-	public function getRouteAction ()
+	public function getInput ()
 	{
-		return $this->_routeAction;
+		return $this->_input;
 	}
 
 	/**
-	 * @desc Возвращает шаблон.
+	 * @desc Возвращает имя шаблона.
 	 * @return string
 	 */
 	public function getTemplate ()
@@ -140,11 +142,21 @@ class Controller_Dispatcher_Iteration
 	}
 	
 	/**
+	 * @desc Получить транзакцию экшина
 	 * @return Data_Transport_Transaction
 	 */
 	public function getTransaction ()
 	{
 		return $this->_transaction;
+	}
+	
+	/**
+	 * @desc Получить рендер
+	 * @return View_Render_Abstract
+	 */
+	public function getViewRender ()
+	{
+		return $this->_viewRender;
 	}
 	
 	/**
@@ -163,7 +175,7 @@ class Controller_Dispatcher_Iteration
 	}
 	
 	/**
-	 * 
+	 * @desc Установить флаг игнорирования текущего задания
 	 * @param boolean $value
 	 */
 	public function setIgnore ($value)
@@ -172,19 +184,22 @@ class Controller_Dispatcher_Iteration
 	}
 	
 	/**
+	 * @desc Установить порядковый номер заания 
+	 * в очереди заданий
 	 * @param integer $value
 	 */
 	public function setIndex ($value)
 	{
 		$this->_index = $value;
 	}
-
+	
 	/**
-	 * @param Route_Action $value
+	 * @desc Установить транспорт для входных данных
+	 * @param Data_Transport $input
 	 */
-	public function setRouteAction (Route_Action $value)
+	public function setInput (Data_Transport $input)
 	{
-		$this->_routeAction = $value;
+		$this->_input = $input;
 	}
 
 	/**
@@ -197,11 +212,21 @@ class Controller_Dispatcher_Iteration
 	}
 	
 	/**
+	 * @desc Изменить транзакцию текущего экшина
 	 * @param Data_Transport_Transaction $value
 	 */
 	public function setTransaction (Data_Transport_Transaction $value)
 	{
 		$this->_transaction = $value;
+	}
+	
+	/**
+	 * @desc Изменить рендер
+	 * @param View_Render_Abstract $viewRender
+	 */
+	public function setViewRender (View_Render_Abstract $viewRender)
+	{
+		$this->_viewRender = $viewRender;	
 	}
 	
 }

@@ -13,13 +13,13 @@ class Loader
 	 * @desc Пути.
 	 * @var array
 	 */
-	public static $pathes = array ();
+	protected static $_pathes = array ();
 	
 	/**
 	 * @desc Подключенные.
 	 * @var array
 	 */
-	public static $required = array ();
+	protected static $_required = array ();
 	
 	/**
 	 * @desc Добавление пути.
@@ -28,13 +28,13 @@ class Loader
 	 */
 	public static function addPath ($type, $path)
 	{
-		if (!isset (self::$pathes [$type]))
+		if (!isset (self::$_pathes [$type]))
 		{
-			self::$pathes [$type] = array ($path);
+			self::$_pathes [$type] = array ($path);
 		}
 		else
 		{
-			self::$pathes [$type][] = $path;
+			self::$_pathes [$type][] = $path;
 		}
 	}
 	
@@ -48,13 +48,16 @@ class Loader
 		{
 			$path = (array) $path;
 
-			if (isset (self::$pathes [$type]))
+			if (isset (self::$_pathes [$type]))
 			{
-				self::$pathes [$type] = array_merge (self::$pathes [$type], $path);
+				self::$_pathes [$type] = array_merge (
+					self::$_pathes [$type], 
+					$path
+				);
 			}
 			else
 			{
-				self::$pathes [$type] = $path;
+				self::$_pathes [$type] = $path;
 			}
 		}
 	}
@@ -68,7 +71,7 @@ class Loader
 	 */
 	public static function findFile ($file, $type = 'Class')
 	{
-		foreach (self::$pathes [$type] as $path)
+		foreach (self::$_pathes [$type] as $path)
 		{
 			$fn = $path . $file;
 			if (file_exists ($fn))
@@ -87,12 +90,10 @@ class Loader
 	 */
 	public static function getPathes ($type)
 	{
-		if (!isset (self::$pathes [$type]))
-		{
-			return array ();
-		}
-		
-		return self::$pathes [$type]; 
+		return 
+			isset (self::$_pathes [$type]) ?
+			self::$_pathes [$type] :
+			array (); 
 	}
 	
 	/**
@@ -103,9 +104,7 @@ class Loader
 	 */
 	public static function getRequired ($file, $type)
 	{
-		return 
-			isset (self::$required [$type]) && 
-			isset (self::$required [$type][$file]);
+		return isset (self::$_required [$type][$file]);
 	}
 	
 	/**
@@ -116,31 +115,18 @@ class Loader
 	 */
 	public static function requireOnce ($file, $type)
 	{
-		if (self::getRequired ($file, $type))
+		if (isset (self::$_required [$type][$file]))
 		{
 			return true;
 		}
 		
-//		if (class_exists ('Loader_Cache'))
-//		{
-//			var_dump (array (
-//				'file'	=> $file,
-//				'type'	=> $type
-//			));
-//		}
-		
-		if (!isset (self::$pathes [$type]))
+		for ($i = count (self::$_pathes [$type]) - 1; $i >= 0; --$i)
 		{
-			throw new Exception ('Path not found: ' . $type, E_USER_NOTICE);
-			return false;
-		}
-		
-		for ($i = count (self::$pathes [$type]) - 1; $i >= 0; --$i)
-		{
-			$fn = self::$pathes [$type][$i] . $file;
+			$fn = self::$_pathes [$type][$i] . $file;
+			
 			if (file_exists ($fn))
 			{
-				self::setRequired ($file, $type);
+				self::$_required [$type][$file] = true;
 				require_once $fn;
 				return true;
 			}
@@ -150,8 +136,8 @@ class Loader
 		{
 			echo '<pre>Not found: ' . $file . "\n";
 			echo 'Pathes: ';
-			var_dump (self::$pathes);
-			var_dump (self::$pathes [$type]);
+			var_dump (self::$_pathes);
+			var_dump (self::$_pathes [$type]);
 			echo "\n\n";
 			debug_print_backtrace ();
 			echo '</pre>';
@@ -169,7 +155,7 @@ class Loader
 	 */
 	public static function setPath ($type, $path)
 	{
-		self::$pathes [$type] = (array) $path;
+		self::$_pathes [$type] = (array) $path;
 	}
 	
 	/**
@@ -180,44 +166,7 @@ class Loader
 	 */
 	public static function setRequired ($file, $type, $required = true)
 	{
-		$required = $required ? true : null;
-		if (isset (self::$required [$type]))
-		{
-			self::$required [$type][$file] = $required;
-		}
-		else
-		{
-			self::$required [$type] = array (
-				$file	=> $required
-			);
-		}
-	}
-	
-	/**
-	 * @desc Подключение класса.
-	 * @param string $class Название класса.
-	 * @param string $path Путь.
-	 * 	Имя файла или путь до него.
-	 * 	Путь должен заканчиваться символом "/"
-	 * @return boolean
-	 */
-	public static function loadClass ($class, $path = '')
-	{
-		if (class_exists ($class))
-		{
-			return true;
-		}
-		
-		if (empty ($path))
-		{
-			$path = $class . '.php';
-		}
-		elseif (substr ($path, -1, 1) == '/')
-		{
-			$path = $path . $class . '.php';
-		}
-		
-		return self::requireOnce ($path, 'Class');
+		self::$_required [$type][$file] = $required ? true : null;
 	}
 	
 	/**
@@ -233,27 +182,10 @@ class Loader
 			return true;
 		}
 		
-		$file = str_replace ('_', '/', $class) . '.php';
-		return self::requireOnce ($file, $type);
-	}
-	
-	
-	/**
-	 * @desc Подключение класса указанного типа.
-	 * @param string $class
-	 * @param string $type
-	 * @return boolean
-	 */
-	public static function loadExtClass ($class, $type = '')
-	{
-		$class_name = empty ($type) ? $class : $type . '_' . $class;
-		
-		if (class_exists ($class_name))
-		{
-			return true;
-		}
-		
-		return self::requireOnce ($class . '.php', $type);
+		return self::requireOnce (
+			str_replace ('_', '/', $class) . '.php',
+			$type
+		);
 	}
 	
 	/**
@@ -264,7 +196,13 @@ class Loader
 	{
 		foreach (func_get_args () as $class)
 		{
-			self::load ($class);
+			if (!class_exists ($class))
+			{
+				self::requireOnce (
+					str_replace ('_', '/', $class) . '.php',
+					'Class'
+				);
+			}
 		}
 	}
 	

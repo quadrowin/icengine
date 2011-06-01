@@ -60,16 +60,7 @@ class DDS
 	{
 		return (bool) self::$_source;
 	}
-	
-	/**
-	 * Используемая схема моделей
-	 * @return Model_Scheme
-	 */
-	public static function modelScheme ()
-	{
-	    return self::$_source->getDataMapper ()->getModelScheme ();
-	}
-	
+
 	/**
 	 * 
 	 * @param Data_Source_Abstract $source

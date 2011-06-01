@@ -360,7 +360,7 @@ abstract class Model implements ArrayAccess
 	 */
 	public function getAttribute ($key)
 	{
-		return IcEngine::$attributeManager->get ($this, $key);
+		return Attribute_Manager::get ($this, $key);
 	}
 	
 	/**
@@ -420,7 +420,7 @@ abstract class Model implements ArrayAccess
 				return null;
 			}
 			
-			$key_field = Model_Manager::modelScheme ()->keyField ($model);
+			$key_field = Model_Scheme::keyField ($model);
 			
 			if (!$data || !array_key_exists ($key_field, $data))
 			{
@@ -469,7 +469,7 @@ abstract class Model implements ArrayAccess
 	 */
 	public function keyField ()
 	{
-		return Model_Manager::modelScheme ()->keyField ($this->modelName ());
+		return Model_Scheme::keyField ($this->modelName ());
 	}
 	
 	/**
@@ -586,7 +586,7 @@ abstract class Model implements ArrayAccess
 					$this->_fields [$key] = $value;
 					if ($this->_autojoin)
 					{
-						$field = Model_Manager::modelScheme ()->keyField ($model);
+						$field = Model_Scheme::keyField ($model);
 						$this->joint ($model, array ($field => $value));
 					}
 				}
@@ -602,7 +602,7 @@ abstract class Model implements ArrayAccess
 	 */
 	public function setAttribute ($key, $value = null)
 	{
-		IcEngine::$attributeManager->set ($this, $key, $value);
+		Attribute_Manager::set ($this, $key, $value);
 	}
 	
 	/**
@@ -742,9 +742,7 @@ abstract class Model implements ArrayAccess
 		$pseudos = array ();
 		
 		// Список существующий в модели полей
-		$scheme = Model_Manager::modelScheme ()->fieldsNames (
-			$this->modelName ()
-		);
+		$scheme = Model_Scheme::fieldsNames ($this->modelName ());
 		
 		foreach ($this->_fields as $name => $value)
 		{

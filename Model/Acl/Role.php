@@ -38,10 +38,10 @@ class Acl_Role extends Model
 	 */
 	public static function byName ($name)
 	{
-	    return IcEngine::$modelManager->modelBy (
+	    return Model_Manager::byQuery (
 		    'Acl_Role',
 		    Query::instance ()
-		    ->where ('name', $name)
+		   		->where ('name', $name)
 		);
 	}
 	
@@ -53,11 +53,11 @@ class Acl_Role extends Model
 	 */
 	public static function byTypeNName ($type_id, $name)
 	{
-		return IcEngine::$modelManager->modelBy (
+		return Model_Manager::byQuery (
 		    'Acl_Role',
 		    Query::instance ()
-		    ->where ('Acl_Role_Type__id', $type_id)
-		    ->where ('name', $name)
+			    ->where ('Acl_Role_Type__id', $type_id)
+			    ->where ('name', $name)
 		);
 	}
 	

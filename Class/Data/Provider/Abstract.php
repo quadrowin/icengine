@@ -50,12 +50,16 @@ class Data_Provider_Abstract
 	public $prefixTag		= '_tag\\';
 	
 	/**
-	 * 
-	 * @param array $config
-	 * 		Параметры провайдера
+	 * @desc Создает и возвращает провайдер данных.
+	 * @param array $config Параметры провайдера.
 	 */
-	public function __construct ($config = array ())
+	public function __construct ($config = null)
 	{
+		if (!$config)
+		{
+			return;
+		}
+		
 		foreach ($config as $opt_name => $opt_value)
 		{
 			$this->setOption ($opt_name, $opt_value);
@@ -357,12 +361,9 @@ class Data_Provider_Abstract
 	}
 	
 	/**
-     * Увеличение значения ключа на указанную величину
-     * 
-     * @param string $key
-     * 		Ключ
-     * @param integer $value
-     * 		Величина
+     * @desc Увеличение значения ключа на указанную величину
+     * @param string $key Ключ
+     * @param integer $value Величина
 	 */
 	public function increment ($key, $value = 1)
 	{
@@ -373,13 +374,10 @@ class Data_Provider_Abstract
 	}
 	
 	/**
-	 * Проверяет, помечен ли ключ как удаленный.
-	 * 
-	 * @param string $key
-	 * 		Ключ
-	 * @return integer|false
-	 * 		Метка времени удаления.
-	 * 		Если ключ не помечен удаленным, то false.
+	 * @desc Проверяет, помечен ли ключ как удаленный.
+	 * @param string $key Ключ
+	 * @return integer|false Метка времени удаления.
+	 * Если ключ не помечен удаленным, то false.
 	 */
 	public function isDeleted ($key)
 	{

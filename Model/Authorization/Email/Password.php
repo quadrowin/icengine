@@ -19,7 +19,7 @@ class Authorization_Email_Password extends Authorization_Abstract
 		$password = $data ['password'];
 		$pass_md5 = md5 ($password);
 		
-		$user = IcEngine::$modelManager->modelBy (
+		$user = Model_Manager::byQuery (
 			'User',
 			Query::instance ()
 			->where ('email', $email)
@@ -103,7 +103,7 @@ class Authorization_Email_Password extends Authorization_Abstract
 			return false;
 		}
 		
-		$user = Model_Manager::modelBy (
+		$user = Model_Manager::byQuery (
 			'User',
 			Query::instance ()
 				->where ('email', $login)
@@ -129,7 +129,7 @@ class Authorization_Email_Password extends Authorization_Abstract
 	 */
 	public function findUser ($data)
 	{
-		return IcEngine::$modelManager->modelBy (
+		return Model_Manager::byQuery (
 			'User',
 			Query::instance ()
 				->where ('email', $data ['login'])
