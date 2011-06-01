@@ -26,7 +26,7 @@ class Cmd_Script_Controller extends Cmd_Script
 	        die ('Action not received.');
 	    }
 
-	    Loader::load ('Controller_Broker');
+	    Loader::load ('Controller_Manager');
 	    $controller = Controller_Manager::get ($args [2]);
 	    $action = $args [3];
 	    
