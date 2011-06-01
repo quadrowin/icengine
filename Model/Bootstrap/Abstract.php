@@ -224,15 +224,9 @@ abstract class Bootstrap_Abstract
 			'User_Session'
 		);
 		
-		Debug::microtime ();
-		
 		User_Guest::init ();
 		
-		Debug::microtime ();
-		
 		User::init ();
-		
-		Debug::microtime ();
 	}
 	
 	/**
