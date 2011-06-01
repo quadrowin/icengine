@@ -16,7 +16,7 @@ class Controller_Chat_Session extends Controller_Abstract
 		
 		$session->save ();
 		
-		$this->_task->setTemplate (null);
+		$this->_dispatcherIteration->setTemplate (null);
 	}
 	
 	public function join ()
@@ -33,9 +33,9 @@ class Controller_Chat_Session extends Controller_Abstract
 		
 		if (!$uri && !User::id ())
 		{
-			return $this->replaceAction (
-				'Error',
-				'accessDenied'
+			return $this->_helperReturn (
+				'Access',
+				'denied'
 			);
 		}
 		
