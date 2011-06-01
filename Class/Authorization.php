@@ -54,7 +54,7 @@ class Authorization
 	 */
 	public static function findUser ($login, $password)
 	{
-		return IcEngine::$modelManager->modelBy (
+		return Model_Manager::byQuery (
 			'User',
 			Query::instance ()
 			->where (self::$config ['login_field'], $login)

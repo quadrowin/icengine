@@ -2,11 +2,11 @@
 /**
  * 
  * @desc Класс хранящий и предоставляющий информацию о схеме моделей.
- * @author Юрий
+ * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
  *
  */
-class Model_Scheme
+abstract class Model_Scheme
 {
     
 	/**
@@ -19,13 +19,13 @@ class Model_Scheme
 	 * @desc Префикс по умолчанию для всех таблиц
 	 * @var string
 	 */
-	public $defaultPrefix = 'ice_';
+	public static $defaultPrefix = 'ice_';
     
 	/**
 	 * @desc Модели
 	 * @var array
 	 */
-	public $models = array (
+	public static $models = array (
 		/**
 		 * @desc Класс модели.
 		 * Обязательно в нижнем регистре.
@@ -68,16 +68,20 @@ class Model_Scheme
 		'alt_name'	=> 'abstract'
 	);
 	
-	public function __construct (Config_Array $config)
+	/**
+	 * @desc Инициализация схемы моделей
+	 * @param Config_Array $config
+	 */
+	public static function init (Config_Array $config)
 	{
 		if ($config->default_prefix)
 		{
-			$this->defaultPrefix = $config->default_prefix;
+			self::$defaultPrefix = $config->default_prefix;
 		}
 		
 		if ($config->models)
 		{
-			$this->models = $config->models->__toArray ();
+			self::$models = $config->models->__toArray ();
 		}
 	}
 	
@@ -88,19 +92,19 @@ class Model_Scheme
 	 * @return string|null.
 	 * 		Сгенерированный ключ или null, если правила не заданы.
 	 */
-	public function generateKey (Model $model)
+	public static function generateKey (Model $model)
 	{
 		$name = strtolower ($model->modelName ());
 		
 		if (!isset (
-			$this->models, $this->models [$name], 
-			$this->models [$name]['keyGen']
+			self::$models, self::$models [$name], 
+			self::$models [$name]['keyGen']
 		))
 		{
 			return null;
 		}
 		
-		$keygen = explode ('::', $this->models [$name]['keyGen'], 2);
+		$keygen = explode ('::', self::$models [$name]['keyGen'], 2);
 		
 		if (count ($keygen) != 2)
 		{
@@ -117,7 +121,7 @@ class Model_Scheme
 	 * @param string|Model $model Имя модели или экземпляр класса модели.
 	 * @return string Действительное имя таблицы.
 	 */
-	public function table ($model)
+	public static function table ($model)
 	{	
 		if (is_array ($model))
 		{
@@ -131,24 +135,24 @@ class Model_Scheme
 	    	is_object ($model) ? $model->modelName () : $model
 	    );
 
-		if (isset ($this->models [$model]))
+		if (isset (self::$models [$model]))
 		{
-			if (is_string ($this->models [$model]))
+			if (is_string (self::$models [$model]))
 			{
-				if (empty ($this->models [$model]))
+				if (empty (self::$models [$model]))
 				{
 					return $model;
 				} 
-				$model = $this->models [$model];
+				$model = self::$models [$model];
 			}
 			
-			if (isset ($this->models [$model]['table']))
+			if (isset (self::$models [$model]['table']))
 			{
-				return $this->models [$model]['table'];
+				return self::$models [$model]['table'];
 			}
-			elseif (isset ($this->models [$model]['prefix']))
+			elseif (isset (self::$models [$model]['prefix']))
 			{
-				return $this->models [$model]['prefix'] . $model;
+				return self::$models [$model]['prefix'] . $model;
 			}
 		}
 		elseif (strpos ($model, '`') !== false)
@@ -156,7 +160,7 @@ class Model_Scheme
 			return $model;
 		}
 		
-		return $this->defaultPrefix . $model;
+		return self::$defaultPrefix . $model;
 		
 //		$prefix = isset ($this->prefixes [$model]) ?
 //			$this->prefixes [$model] :
@@ -172,9 +176,9 @@ class Model_Scheme
 	 * @param string $table
 	 * @return string
 	 */
-	public function tableToModel ($table)
+	public static function tableToModel ($table)
 	{
-		foreach ($this->models as $name => $model)
+		foreach (self::$models as $name => $model)
 		{
 			if (isset ($model ['table']) && $model ['table'] == $table)
 			{
@@ -194,16 +198,18 @@ class Model_Scheme
 	 * @param string $model название модели.
 	 * @return Data_Source_Abstract
 	 */
-	public function dataSource ($model)
+	public static function dataSource ($model)
 	{
 		$model = strtolower ($model);
 		
-		if (!isset ($this->models [$model], $this->models [$model]['source']))
+		if (!isset (self::$models [$model], self::$models [$model]['source']))
 		{
 			return DDS::getDataSource ();
 		}
 		
-		return Data_Source_Manager::get ($this->models [$model]['source']);
+		$name = self::$models [$model]['source'];
+		
+		return Data_Source_Manager::get ($name);
 	}
 	
 	/**
@@ -211,13 +217,11 @@ class Model_Scheme
 	 * @param string $model Название модели.
 	 * @return array <string> Массив названий полей.
 	 */
-	public function fieldsNames ($model)
+	public static function fieldsNames ($model)
 	{
-		return $this->dataSource ($model)->execute (
-			Query::instance ()
-				->show ('COLUMNS')
-				->from ($model)
-		)->getResult ()->asColumn ('Field');
+		Loader::load ('Helper_Data_Source');
+		
+		return Helper_Data_Source::fields ($model);
 	}
 	
 	/**
@@ -225,16 +229,16 @@ class Model_Scheme
 	 * @param string $model Название модели.
 	 * @return array Массив индексов.
 	 */
-	public function indexes ($model)
+	public static function indexes ($model)
 	{
 		$model = strtolower ($model);
 		
-		if (!isset ($this->models [$model], $this->models [$model]['indexes']))
+		if (!isset (self::$models [$model], self::$models [$model]['indexes']))
 		{
 			return array ();
 		}
 		
-		return $this->models [$model]['indexes'];
+		return self::$models [$model]['indexes'];
 	}
 	
 	/**
@@ -242,16 +246,16 @@ class Model_Scheme
 	 * @param string $model Название модели.
 	 * @return string Имя ключевого поля.
 	 */
-	public function keyField ($model)
+	public static function keyField ($model)
 	{
 		$model = strtolower ($model);
 		
-		if (!isset ($this->models [$model], $this->models [$model]['key']))
+		if (!isset (self::$models [$model], self::$models [$model]['key']))
 		{
 			return self::DEFAULT_KEY_FIELD;
 		}
 		
-		return $this->models [$model]['key'];
+		return self::$models [$model]['key'];
 	}
     
 }

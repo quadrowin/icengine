@@ -22,22 +22,12 @@ class Controller_Password_Recovery extends Controller_Abstract
 			{
 				$recovery->startSession ();
 				
-				IcEngine::frontController ()
-					->getDispatcher ()
-					->currentIteration ()
-					->setTemplate (
-						Helper_Action::path (__METHOD__, '/code_ok')
-					);
+				$this->_task->setClassTpl (__METHOD__, 'code_ok');
 				return ;
 			}
 			else
 			{
-				IcEngine::frontController ()
-					->getDispatcher ()
-					->currentIteration ()
-					->setTemplate (
-						Helper_Action::path (__METHOD__, '/code_fail')
-					);
+				$this->_task->setClassTpl (__METHOD__, 'code_fail');
 				return ;
 			}
 		}
@@ -54,10 +44,8 @@ class Controller_Password_Recovery extends Controller_Abstract
 				'error'	=> true
 			));
 			
-			$this->_dispatcherIteration->setTemplate ( 
-				Helper_Action::path (__METHOD__, '/error_short_password')
-			);
-				
+			$this->_task->setClassTpl (__METHOD__, 'error_short_password');
+			
 			return ;
 		}
 		
@@ -70,9 +58,7 @@ class Controller_Password_Recovery extends Controller_Abstract
 				'error'	=> true
 			));
 			
-			$this->_dispatcherIteration->setTemplate ( 
-				Helper_Action::path (__METHOD__, '/error_recovery_not_found')
-			);
+			$this->_task->setClassTpl (__METHOD__, 'error_recovery_not_found');
 				
 			return ;
 		}
@@ -107,9 +93,7 @@ class Controller_Password_Recovery extends Controller_Abstract
 				'error'	=> true
 			));
 			
-			$this->_dispatcherIteration->setTemplate (
-				Helper_Action::path (__METHOD__, '/error_email_limit')
-			);
+			$this->_task->setTemplate (__METHOD__, 'error_email_limit');
 				
 			return ;
 		}
@@ -126,9 +110,7 @@ class Controller_Password_Recovery extends Controller_Abstract
 				'error'	=> true
 			));
 			
-			$this->_dispatcherIteration->setTemplate ( 
-				Helper_Action::path (__METHOD__, '/error_email_not_found')
-			);
+			$this->_task->setTemplate (__METHOD__, 'error_email_not_found');
 			
 			return ;
 		}
@@ -140,10 +122,8 @@ class Controller_Password_Recovery extends Controller_Abstract
 		// Всё правильно, создаем письмо с кодом
 		if (!Password_Recovery::sendRecoveryEmail ($user->id, $email))
 		{
-			$this->_dispatcherIteration->setTemplate (
-				Helper_Action::path (__METHOD__, '/error_sendmail')
-			);
-				
+			$this->_task->setTemplate (__METHOD__, 'error_sendmail');
+			
 			return ;
 		}
 	}

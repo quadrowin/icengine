@@ -11,18 +11,20 @@ class Controller_Abstract
 	
 	/**
 	 * @desc Последний вызванный экшен.
+	 * В случае, если был вызван replaceAction, может отличаться 
+	 * от $_task. 
 	 * @var string
 	 */
 	protected $_currentAction;
 	
 	/**
-	 * @desc Текущая итерация диспетчера
-	 * @var Controller_Dispatcher_Iteration
+	 * @desc Текущая задача.
+	 * @var Controller_Task
 	 */
-	protected $_dispatcherIteration;
+	protected $_task;
 	
 	/**
-	 * @desc Входные данные
+	 * @desc Входные данные.
 	 * @var Data_Transport
 	 */
 	protected $_input;
@@ -34,11 +36,14 @@ class Controller_Abstract
 	protected $_output;
 	
 	/**
-	 * @desc Конфиг контроллера
+	 * @desc Конфиг контроллера.
 	 * @var array
 	 */
 	protected $_config = array ();
 	
+	/**
+	 * @desc Создает и возвращает контроллер.
+	 */
 	public function __construct ()
 	{
 	}
@@ -49,7 +54,7 @@ class Controller_Abstract
 	 */
 	public function _afterAction ($action)
 	{
-		IcEngine::$messageQueue->push (
+		Message_Queue::push (
 			'after::' . get_class ($this) . '::' . $action
 		);
 	}
@@ -61,22 +66,12 @@ class Controller_Abstract
 	public function _beforeAction ($action)
 	{
 		$this->_currentAction = get_class ($this) . '::' . $action;
-		IcEngine::$messageQueue->push (
+		Message_Queue::push (
 			'before::' . $this->_currentAction
 		);
 	}
 	
-	/**
-	 * @desc Результатом работы контроллера будет вызов метода хелпера.
-	 * @param string $helper Название хелпера без перфикса "Helper_Action_".
-	 * @param string $method Название метода хелпера.
-	 */
-	public function _helperReturn ($helper, $method)
-	{
-		$helper = 'Helper_Action_' . $helper;
-		Loader::load ($helper);
-		call_user_func (array ($helper, $method));
-	}
+	public function _helperReturn () {}
 	
 	/**
 	 * @desc Временный контент для сохраняемых данных.
@@ -89,8 +84,7 @@ class Controller_Abstract
 		
 		if (!$tc)
 		{
-			Loader::load ('Helper_Action_Page');
-			Helper_Action_Page::obsolete ();
+			$this->replaceAction ('Error', 'obsolete');
 			return;
 		}
 		
@@ -124,8 +118,7 @@ class Controller_Abstract
 				
 				if (!$use_tc)
 				{
-					$this->_helperReturn ('Page', 'obsolete');
-					return false;
+					return $this->replaceAction ('Error', 'obsolete');
 				}
 			}
 		}
@@ -142,8 +135,9 @@ class Controller_Abstract
 		if (is_array ($valid))
 		{
 			// ошибка валидации
-			$this->_dispatcherIteration->setClassTpl (reset ($valid));
+			$this->_task->setClassTpl (reset ($valid));
 			
+			// TODO пиздец!
 			$this->_output->send (array (
 				'registration'	=> $valid,
 				'data'			=> array (
@@ -168,7 +162,7 @@ class Controller_Abstract
 	}
 	
 	/**
-	 * Сохранение данных с формы
+	 * @desc Сохранение данных с формы
 	 * @param Temp_Content $tc
 	 * @param array $scheme
 	 * @param string|Model $model_class [optional]
@@ -176,8 +170,7 @@ class Controller_Abstract
 	 * 		Если не задано, будет использвано имя контроллера.
 	 * 		Пример: для контроллера <i>Controller_Sample</i>, результатом
 	 * 		будет модель класса <i>Sample</i>.
-	 * @return Model|null
-	 * 		Сохраненная модель, либо null в случае ошибки.
+	 * @return Model|null Сохраненная модель, либо null в случае ошибки.
 	 */
 	public function _savePostModel (Temp_Content $tc, $scheme, 
 		$model_class = null)
@@ -191,14 +184,17 @@ class Controller_Abstract
 		
 		if (is_array ($valid))
 		{
-			$this->_dispatcherIteration->setTemplate (
+			$this->_task->setTemplate (
 				str_replace (array ('::', '_'), '/', reset ($valid)) . 
 				'.tpl'
 			);
 			$field = key ($valid);
 			$this->_output->send (array (
-				'field'		=> $field,
-				'field_title'	=>isset ($scheme [$field]['title']) ? $scheme [$field]['title'] : null,
+				'field'			=> $field,
+				'field_title'	=>
+					isset ($scheme [$field]['title']) ? 
+						$scheme [$field]['title'] : 
+						null,
 				'data'		=> array (
 					'field'	=> key ($valid),
 					'error'	=> current ($valid)
@@ -246,20 +242,20 @@ class Controller_Abstract
 		$this->_output->send ('error', $text);
 		if ($tpl)
 		{
-			$this->_dispatcherIteration->setClassTpl ($method, $tpl);
+			$this->_task->setClassTpl ($method, $tpl);
 		}
 		elseif ($method)
 		{
 			if (strpos ($method, '/') === false)
 			{
-				$this->_dispatcherIteration->setClassTpl (
+				$this->_task->setClassTpl (
 					$this->_currentAction,
 					'/' . ltrim ($method, '/')
 				);
 			}
 			else
 			{
-				$this->_dispatcherIteration->setClassTpl ($method);
+				$this->_task->setClassTpl ($method);
 			}
 		}
 	}
@@ -281,11 +277,12 @@ class Controller_Abstract
 	}
 	
 	/**
-	 * @return Controller_Dispatcher_Iteration
+	 * @desc Возвращает текущую задачу контролера
+	 * @return Controller_Task
 	 */
-	public function getDispatcherIteration ()
+	public function getTask ()
 	{
-		return $this->_dispatcherIteration;
+		return $this->_task;
 	}
 	
 	/**
@@ -336,7 +333,7 @@ class Controller_Abstract
 			$other = Controller_Manager::get ($controller);
 		}
 		
-		$this->_dispatcherIteration->setTemplate (
+		$this->_task->setTemplate (
 			'Controller/' .
 			str_replace ('_', '/', $controller) .
 			'/' . $action . '.tpl'
@@ -352,19 +349,19 @@ class Controller_Abstract
 			$other = Controller_Manager::get ($controller);
 			$other->setInput ($this->_input);
 			$other->setOutput ($this->_output);
-			$other->setDispatcherIteration ($this->_dispatcherIteration);
+			$other->setTask ($this->_task);
 			return $other->$action ();
 		}
 	}
 	
 	/**
 	 * 
-	 * @param Controller_Dispatcher_Iteration $iteration
+	 * @param Controller_Task $task
 	 * @return Controller_Abstract
 	 */
-	public function setDispatcherIteration ($iteration)
+	public function setTask ($task)
 	{
-		$this->_dispatcherIteration = $iteration;
+		$this->_task = $task;
 		return $this;
 	}
 	

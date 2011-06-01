@@ -59,7 +59,7 @@ class Password_Recovery extends Model
 	 */
 	public static function byCode ($code)
 	{
-	    return IcEngine::$modelManager->modelBy (
+	    return Model_Manager::byQuery (
 	        __CLASS__,
 	        Query::instance ()
 	        ->where ('code', $code)
@@ -114,7 +114,7 @@ class Password_Recovery extends Model
 	    Loader::load ('Common_Date');
 		$day = Helper_Date::eraDayNum ();
 		
-		return IcEngine::$modelManager->collectionBy (
+		return Model_Collection_Manager::byQuery (
 		    __CLASS__,
 		    Query::instance ()
 		    ->where ('day', $day)
@@ -132,7 +132,7 @@ class Password_Recovery extends Model
 	    Loader::load ('Common_Date');
 		$day = Helper_Date::eraDayNum ();
 		
-		return IcEngine::$modelManager->collectionBy (
+		return Model_Collection_Manager::byQuery (
 		    __CLASS__,
 		    Query::instance ()
 		    ->where ('day', $day)
@@ -172,7 +172,7 @@ class Password_Recovery extends Model
 					return self::STATE_EMAIL_QUERY_LIMIT;
 				}
 				
-				$user = IcEngine::$modelManager->modelBy (
+				$user = Model_Manager::byQuery (
 				    'User',
 				    Query::instance ()
 				    ->where ('email', $email)

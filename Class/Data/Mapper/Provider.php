@@ -1,15 +1,16 @@
 <?php
 
 /**
- * Мэппер данных через провайдер.
+ * @desc Мэппер данных через провайдер.
  * @author Юрий
+ * @package IcEngine
  *
  */
 class Data_Mapper_Provider extends Data_Mapper_Abstract
 {
 	
 	/**
-	 * Используемый транслятор
+	 * @desc Используемый транслятор
 	 * @var string
 	 */
 	const TRANSLATOR = 'KeyValue';
@@ -42,7 +43,7 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
     );
     
     /**
-     * Удаление
+     * @desc Удаление
      * @param Query $query
      * @param Query_Options $options
      */
@@ -56,6 +57,11 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 		return true;
 	}
     
+	/**
+	 * @desc Выполнения запроса на вставку
+	 * @param Query $query
+	 * @param Query_Options $options
+	 */
     protected function _executeInsert (Query $query, Query_Options $options)
     {
         foreach ($this->_translated [0] as $key)
@@ -85,7 +91,10 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 		// Выбираем ID всех записей, подходящих под условие
 		foreach ($this->_translated as $pattern)
 		{
-			$keys = $this->_provider->keys ($pattern);
+			$keys =
+				(strpos ($pattern, '*') === false) ?
+					array ($pattern) :
+					$this->_provider->keys ($pattern);
 			
 			foreach ($keys as $key)
 			{
@@ -130,11 +139,10 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 	}
 	
 	/**
-	 * Полный список ключей по маскам.
+	 * @desc Полный список ключей по маскам.
 	 * @param string $table
 	 * @param array $patterns
-	 * @return integer
-	 * 		Количество удаленных первичных ключей
+	 * @return integer Количество удаленных первичных ключей.
 	 */
 	protected function _fullDeleteByPatterns ($table, array $patterns)
 	{
@@ -179,30 +187,13 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
      */
 	public function execute (Data_Source_Abstract $source, Query $query, $options = null)
 	{
-		if (!($query instanceof Query))
-		{
-			return new Query_Result (null);
-		}
-		
-		$start = microtime (true);
-		
 		$clone = clone $query;
 		
 		$where = $clone->getPart (Query::WHERE);
 		$this->_filters->apply ($where, Query::VALUE);
 		$clone->setPart (Query::WHERE, $where);
 		
-		$this->_translated = $clone->translate (
-			self::TRANSLATOR,
-			DDS::modelScheme ()
-		);
-		
-		if (false)
-		{
-		    $f = fopen ('cache/redis.txt', 'ab');
-		    fwrite ($f, $this->_keyValue [0] . ':' . $this->_keyValue [1] . "\r\n");
-		    fclose ($f);
-		}
+		$this->_translated = $clone->translate (self::TRANSLATOR);
 		
 		$result = null;
 		$this->_errno = 0;
@@ -234,14 +225,10 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 			$result = array ();
 		}
 		
-		$finish = microtime (true);
-		
 		return new Query_Result (array (
 			'error'			=> $this->_error,
 			'errno'			=> $this->_errno,
 			'query'			=> $clone,
-			'startAt'		=> $start,
-			'finishedAt'	=> $finish,
 		    'foundRows'		=> $this->_foundRows,
 			'result'		=> $result,
 			'touchedRows'	=> $this->_numRows + $this->_affectedRows,
@@ -257,6 +244,15 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 	public function getProvider ()
 	{
 		return $this->_provider;
+	}
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see Data_Mapper_Abstract::saveResult()
+	 */
+	public function saveResult (Query $query, $options, Query_Result $result)
+	{
+		
 	}
 	
 	/**

@@ -3,17 +3,12 @@
  * 
  * @desc Класс движка. Необходим для инициализации фреймворка.
  * @author Юрий
- * @package IcEngine
+ * @package IcEngine 
  *
  */
 class IcEngine
 {
-	
-	/**
-	 * @desc Фронт контроллер.
-	 * @var Controller_Front
-	 */
-	private static $_frontController;
+	private static $_task;
 	
 	/**
 	 * @desc Путь до движка.
@@ -28,34 +23,10 @@ class IcEngine
 	private static $_root;
 	
 	/**
-	 * @desc Менеджер аттрибутов.
-	 * @var Attribute_Manager
-	 */
-	public static $attributeManager;
-	
-	/**
 	 * @desc Загрузчик
 	 * @var Bootstrap_Abstract
 	 */
-	public static $bootstrap;
-	
-	/**
-	 * @desc Очередь сообщений.
-	 * @var Message_Queue
-	 */
-	public static $messageQueue;
-	
-	/**
-	 * @desc Менеджер моделей
-	 * @var Model_Manager
-	 */
-	public static $modelManager;
-	
-	/**
-	 * @desc Схема моделей.
-	 * @var Model_Scheme
-	 */
-	public static $modelScheme;
+	protected static $_bootstrap;
 	
 	/**
 	 * @desc Возвращает путь до корня сайта.
@@ -69,26 +40,28 @@ class IcEngine
 	}
 	
 	/**
+	 * @desc Получить текущий бутстрап
+	 * @desc Bootstrap_Abstract
+	 */
+	public static function bootstrap ()
+	{
+		return self::$_bootstrap;
+	}
+	
+	/**
 	 * @desc Вывод результата работы.
 	 */
 	public static function flush ()
 	{
 		Resource_Manager::save ();
-		View_Render_Broker::display ();
-	}
-	
-	/**
-	 * @desc Создает и возвращает фронт контроллер.
-	 * @return Controller_Front
-	 */
-	public static function frontController ()
-	{
-		if (!self::$_frontController)
-		{
-			Loader::Load ('Controller_Front');
-			self::$_frontController = new Controller_Front ();
-		}
-		return self::$_frontController;
+
+		Controller_Manager::call (
+			'Render', 'index',
+			array (
+				'task'		=> self::$_task,
+				'render'	=> View_Render_Manager::byName ('Front')
+			)
+		);
 	}
 	
 	/**
@@ -126,11 +99,15 @@ class IcEngine
 	 */
 	public static function initBootstrap ($bootstrap)
 	{
-		Loader::load ('Bootstrap_Abstract');
-		Loader::load ('Bootstrap_Manager');
+		Loader::multiLoad (
+			'Bootstrap_Abstract',
+			'Bootstrap_Manager'
+		);
+		
 		require $bootstrap;
+		
 		$name = basename ($bootstrap, '.php');
-		self::$bootstrap = Bootstrap_Manager::get ($name);
+		self::$_bootstrap = Bootstrap_Manager::get ($name);
 	}
 	
 	/**
@@ -187,23 +164,18 @@ class IcEngine
 	}
 	
 	/**
-	 * @desc Проверка адреса страницы на существования роутера, который
-	 * привязан к этой странице.
-	 * @return Route|null
-	 */
-	public static function route ()
-	{
-		Loader::load ('Route');
-		return Route::byUrl (Request::uri ());
-	}
-	
-	/**
 	 * @desc Запуск рабочего цикла и вывод результата.
 	 */
 	public static function run ()
 	{
-		self::$bootstrap->run ();
-		self::frontController ()->run ();
+		Loader::load ('Data_Transport_Manager'); 
+		
+		self::$_bootstrap->run ();
+		
+		self::$_task = Controller_Manager::call (
+			'Front', 'index',
+			Data_Transport_Manager::get ('default_input')
+		);
 	}
 
 }

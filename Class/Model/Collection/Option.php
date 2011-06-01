@@ -1,8 +1,8 @@
 <?php
 /**
  * 
- * @desc
- * @author Юрий Шведов
+ * @desc Опция коллекции.
+ * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
  *
  */
@@ -13,7 +13,7 @@ class Model_Collection_Option
 	 * @desc Название опции
 	 * @var string
 	 */
-	private $_name;
+	protected $_name;
 	
 	/**
 	 * @desc Параметры
@@ -21,24 +21,59 @@ class Model_Collection_Option
 	 */
 	protected $_params;
 	
-	public function __construct ($name, array $params = array ())
+	/**
+	 * @desc Опция
+	 * @var Model_Collection_Option_Abstract
+	 */
+	protected $_option;
+	
+	/**
+	 * @desc Создает и возвращает опцию
+	 * @param string $name Название опции.
+	 * @param array $params Параметры применения.
+	 */
+	public function __construct ($name, $params = array ())
 	{
 		$this->_name = $name;
 		$this->_params = $params;
 	}
 	
+	/**
+	 * @desc Наложение опции.
+	 * @param string $type "before" or "after"
+	 * @param Model_Collection $collection
+	 * @param Query $query
+	 * @return mixed Результат наложения.
+	 */
+	public function execute ($type, $collection, Query $query)
+	{
+		if (!$this->_option)
+		{
+			$this->_option = Model_Collection_Option_Manager::get (
+				$this->_name,
+				$collection
+			);
+		}
+		
+		Loader::load ('Executor');
+		
+		return Executor::execute (
+			array ($this->_option, $type),
+			array ($collection, $query, $this->_params)
+		);
+	}
+	
+	/**
+	 * @desc Получить имя опшина
+	 * @return string
+	 */
 	public function getName ()
 	{
 		return $this->_name;
 	}
 	
-	public function setName ($name)
-	{
-		$this->_name = $name;
-		return $this;
-	}
-	
 	/**
+	 * @desc Возвращает параметры опции.
 	 * @return array
 	 */
 	public function getParams ()
@@ -46,9 +81,7 @@ class Model_Collection_Option
 		return $this->_params;
 	}
 	
-	public function modelName ()
-	{
-		return substr (get_class ($this), 0, -18);
-	}
-	
 }
+
+Loader::load ('Model_Collection_Option_Manager');
+Loader::load ('Model_Collection_Option_Abstract');

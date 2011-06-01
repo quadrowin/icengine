@@ -19,7 +19,7 @@ class Component_Rating_Scheme_Abstract extends Model_Factory_Delegate
 	 */
 	public function vote ($table, $row_id, $value)
 	{
-		$rating = IcEngine::$modelManager->modelBy (
+		$rating = Model_Manager::byQuery (
 			'Component_Rating',
 			Query::instance ()
 			->where ('table', $table)

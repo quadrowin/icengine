@@ -2,21 +2,36 @@
 /**
  * 
  * @desc Абстрактный класс опции коллекции.
- * @author Юрий Шведов
+ * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
  *
  */
-Loader::load ('Model_Collection_Option');
-abstract class Model_Collection_Option_Abstract extends Model_Collection_Option
+abstract class Model_Collection_Option_Abstract
 {
 	
+	/**
+	 * @desc Название опции
+	 * @var string
+	 */
+	private $_name;
+	
+	/**
+	 * @desc Создает и возвращает опцию
+	 */
 	public function __construct ()
 	{
+		$class = get_class ($this);
+		$delim = '_Collection_Option_';
+		$pos = strrpos ($class, $delim);
 		
+		$this->_name = substr (
+			$class,
+			$pos + strlen ($delim)
+		);
 	}
 	
 	/**
-	 * Вызывается после выполения запроса.
+	 * @desc Вызывается после выполения запроса.
 	 * @param Model_Collection $collection
 	 * @param Query $query
 	 * @param array $params
@@ -28,7 +43,7 @@ abstract class Model_Collection_Option_Abstract extends Model_Collection_Option
 	}
 		
 	/**
-	 * Вызывается перед выполнением запроса.
+	 * @desc Вызывается перед выполнением запроса.
 	 * Переменная <i>$query</i> отличается от запроса, возвращаемого методом
 	 * <i>$colleciton->query()</i>. По умолчанию эта переменная - клон
 	 * изначального запроса коллекции, на который наложены опции.
@@ -41,5 +56,16 @@ abstract class Model_Collection_Option_Abstract extends Model_Collection_Option
 	{
 		
 	}
+	
+	/**
+	 * @desc Возвращает название опции
+	 * @return string
+	 */
+	public function getName ()
+	{
+		return $this->_name;
+	}
+	
+	
 	
 }

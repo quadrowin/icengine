@@ -25,6 +25,7 @@ abstract class Model_Collection_Manager
 		Loader::load ($class_collection);
 		
 		$collection = new $class_collection ();
+		
 		$collection->setAutojoin (!$forced);
 		$collection->setQuery ($query);
 		
@@ -66,7 +67,7 @@ abstract class Model_Collection_Manager
 		
 		$key = md5 (
 			$model .
-			$query->translate ('Mysql', IcEngine::$modelScheme) .
+			$query->translate ('Mysql') .
 			serialize ($collection->getOptions ()->getItems ())
 		);
 		
@@ -86,9 +87,8 @@ abstract class Model_Collection_Manager
 		else
 		{
 			$query_result = 
-				IcEngine::$modelScheme
-					->dataSource ($model)
-						->execute ($query)->getResult ();
+				Model_Scheme::dataSource ($model)
+					->execute ($query)->getResult ();
 						
 			$collection->queryResult ($query_result);
 			
@@ -104,15 +104,20 @@ abstract class Model_Collection_Manager
 			);
 		}
 		
-		$model_manager = IcEngine::$modelManager;
 		$key_field = $collection->keyField ();
 
 		foreach ($pack ['items'] as &$item)
 		{
 			$key = $item [$key_field];
-			$item = !$forced ? 
-				$model_manager->get ($model, $key, $item) :
-				$model_manager->forced ()->get ($model, $key, $item);
+			
+			if ($forced)
+			{
+				Model_Manager::forced (true);	
+			}
+			
+			$item = Model_Manager::get ($model, $key, $item);
+			
+			Model_Manager::forced (false);
 		}
 		
 		$collection->setItems ($pack ['items']);

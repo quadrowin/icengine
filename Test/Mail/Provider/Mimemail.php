@@ -43,7 +43,7 @@ class Test_Mail_Provider_Mimemail extends PHPUnit_Framework_TestCase
 	{
 		parent::setUp ();
 		// TODO Auto-generated Test_Mail_Provider_Mimemail::setUp()
-		$this->Mail_Provider_Mimemail = IcEngine::$modelManager->modelBy (
+		$this->Mail_Provider_Mimemail = Model_Manager::byQuery (
 			'Mail_Provider',
 			Query::instance ()
 			->where ('name', 'Mimemail')

@@ -53,7 +53,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 
 	protected function __makeUniqueLink ($link, $category_id)
 	{
-		$content_category = IcEngine::$modelManager->collectionBy (
+		$content_category = Model_Collection_Manager::byQuery (
 			'Content_Category',
 			Query::instance ()
 				->where ('url', $link)
@@ -212,7 +212,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 		
 		if (!$parent_category)
 		{
-			return $this->_helperReturn ('Page', 'notFound');
+			return $this->replaceAction ('Error', 'notFound');
 		}
 		
 		$category_collection = $parent_category->childs ();
@@ -285,7 +285,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 		
 		if (!$parent)
 		{
-			return $this->_helperReturn ('Page', 'notFound');
+			return $this->replaceAction ('Error', 'notFound');
 		}
 		
 		// Параметры для передачи в фабрик методы
@@ -314,7 +314,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 			
 			if (!$content_category)
 			{
-				return $this->_helperReturn ('Page', 'notFound');
+				return $this->replaceAction ('Error', 'notFound');
 			}
 
 			$resource_edit = Acl_Resource::byNameCheck (
@@ -325,7 +325,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 			
 			if (!$resource_edit || !$resource_edit->userCan ($user))
 			{
-				return $this->_helperReturn ('Access', 'denied');
+				return $this->replaceAction ('Error', 'accessDenied');
 			}
 			
 			$content_category->update (array (
@@ -356,7 +356,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 				!$personal_role
 			)
 			{
-				return $this->_helperReturn ('Access', 'denied');
+				return $this->replaceAction ('Error', 'accessDenied');
 			}
 			
 			$category_class = $this->__categoryModel ();
@@ -410,7 +410,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 			die ();
 		}
 		
-		$this->_dispatcherIteration->setTemplate (null);
+		$this->_task->setTemplate (null);
 		$this->_output->send (array (
 			'redirect'	=> $referer,
 			'data'		=> array (
@@ -442,7 +442,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 
 		if (!$category)
 		{
-			return $this->_helperReturn ('Page', 'notFound');
+			return $this->replaceAction ('Error', 'notFound');
 		}
 
 		$user = User::getCurrent ();
@@ -455,7 +455,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 		
 		if (!$resource_delete || !$resource_delete->userCan ($user))
 		{
-			return $this->_helperReturn ('Access', 'denied');
+			return $this->replaceAction ('Error', 'accessDenied');
 		}
 		
 		$category->delete ();
@@ -464,7 +464,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 		
 		if (Request::isPost ())
 		{
-			$this->_dispatcherIteration->setTemplate (null);
+			$this->_task->setTemplate (null);
 			$this->_output->send (array (
 				'redirect'	=> $referer,
 				'data'		=> array (

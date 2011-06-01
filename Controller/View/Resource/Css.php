@@ -39,14 +39,13 @@ class Controller_View_Resource_Css extends Controller_Abstract
 			}
 		}
 		
-		$view = View_Render_Broker::getView ();
-		
-		$csses = $view->resources ()->getData (View_Resource_Manager::CSS);
+		$csses = View_Resource_Manager::getData (View_Resource_Manager::CSS);
 		
 		if ($config->packed_file)
 		{
-			$packer = $view->resources ()
-				->packer (View_Resource_Manager::CSS);
+			$packer = View_Resource_Manager::packer (
+				View_Resource_Manager::CSS
+			);
 					
 			$packer->pack ($csses, $config->packed_file);
 			

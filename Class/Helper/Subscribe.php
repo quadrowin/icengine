@@ -10,10 +10,7 @@ class Helper_Subscribe
 	 */
 	public static function subscribe ($email, $subscribe_id)
 	{
-		$subscribe = IcEngine::$modelManager->modelByKey (
-			'Subscribe',
-			$subscribe_id
-		);
+		$subscribe = Model_Manager::byKey ('Subscribe', $subscribe_id);
 		
 		if (!$subscribe)
 		{
@@ -40,10 +37,7 @@ class Helper_Subscribe
 	
 	public static function unsubscribe ($email, $subscribe_id)
 	{
-		$subscribe = IcEngine::$modelManager->modelByKey (
-			'Subscribe',
-			$subscribe_id
-		);
+		$subscribe = Model_Manager::byKey ('Subscribe', $subscribe_id);
 		
 		if (!$subscribe)
 		{

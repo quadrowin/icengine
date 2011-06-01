@@ -17,12 +17,6 @@ abstract class Data_Mapper_Abstract
 	
 	/**
 	 * 
-	 * @var Model_Scheme
-	 */
-	protected $_modelScheme;
-	
-	/**
-	 * 
 	 * @var Filter_Collection
 	 */
 	protected $_filters;
@@ -236,18 +230,10 @@ abstract class Data_Mapper_Abstract
 		return $this->_filters;
 	}
 	
-	/**
-	 * 
-	 * @return Model_Scheme
-	 */
-	public function getModelScheme ()
-	{
-		return $this->_modelScheme;
-	}
-	
 	public function initFilters ()
 	{
 		Loader::load ('Filter_Collection');
+		
 		$this->_filters = new Filter_Collection ();
 	}
 	
@@ -271,17 +257,6 @@ abstract class Data_Mapper_Abstract
 	public function setOption ($key, $value = null)
 	{
 		return false;
-	}
-	
-	/**
-	 * 
-	 * @param Model_Scheme $model_scheme
-	 * @return Data_Source_Abstract $this
-	 */
-	public function setModelScheme (Model_Scheme $model_scheme)
-	{
-		$this->_modelScheme = $model_scheme;
-		return $this;
 	}
 	
 }

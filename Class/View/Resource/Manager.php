@@ -6,11 +6,11 @@
  * @package IcEngine
  * 
  */
-class View_Resource_Manager
+class View_Resource_Manager extends Manager_Abstract
 {
 	
 	/**
-	 * Тип ресурса - CSS.
+	 * @desc Тип ресурса - CSS.
 	 * Файл стилей.
 	 * @var string
 	 */
@@ -24,28 +24,25 @@ class View_Resource_Manager
 	const JS = 'js';
 	
 	/**
-	 * Тип ресурса - JTPL.
+	 * @desc Тип ресурса - JTPL.
 	 * Шаблоны для javascript.
 	 * @var string
 	 */
 	const JTPL = 'jtpl';
 	
+	protected static $_config = array ();
+	
 	/**
-	 * Ресурсы.
+	 * @desc Ресурсы.
 	 * @var array <View_Resource_Item>
 	 */
-	protected $_resources = array ();
+	protected static $_resources = array ();
 	
 	/**
-	 * Упаковщики ресурсов.
+	 * @desc Упаковщики ресурсов.
 	 * @var array <View_Resrouce_Packer_Abstract>
 	 */
-	protected $_packers = array ();
-	
-	public function __construct ()
-	{
-		Loader::load ('View_Resource');
-	}
+	protected static $_packers = array ();
 	
 	/**
 	 * @desc Добавление ресурса
@@ -54,13 +51,13 @@ class View_Resource_Manager
 	 * @param string $type [optional] Тип ресурса
 	 * @param array $flags Параметры
 	 */
-	public function add ($data, $type = null, array $options = array ())
+	public static function add ($data, $type = null, array $options = array ())
 	{
 		if (is_array ($data))
 		{
 			foreach ($data as $d)
 			{
-				$this->add ($d, $type, $options);
+				self::add ($d, $type, $options);
 			}
 		}
 		else
@@ -70,13 +67,13 @@ class View_Resource_Manager
 				$type = strtolower (substr (strrchr ($data, '.'), 1));
 			}
 			
-			if (!isset ($this->_resources [$type]))
+			if (!isset (self::$_resources [$type]))
 			{
-				$this->_resources [$type] = array ();
+				self::$_resources [$type] = array ();
 			}
 			else 
 			{
-				foreach ($this->_resources [$type] as &$exists)
+				foreach (self::$_resources [$type] as &$exists)
 				{
 					if ($exists->href == $data)
 					{
@@ -86,7 +83,7 @@ class View_Resource_Manager
 			}
 			
 			$options ['href'] = $data;
-			$this->_resources [$type][] = new View_Resource ($options);
+			self::$_resources [$type][] = new View_Resource ($options);
 		}
 	}
 	
@@ -95,14 +92,14 @@ class View_Resource_Manager
 	 * @param string $type Тип
 	 * @return array Ресурсы
 	 */
-	public function getData ($type)
+	public static function getData ($type)
 	{
-		if (!isset ($this->_resources [$type]))
+		if (!isset (self::$_resources [$type]))
 		{
 			return array ();
 		}
 		
-		return $this->_resources [$type];
+		return self::$_resources [$type];
 	}
 	
 	/**
@@ -110,15 +107,17 @@ class View_Resource_Manager
 	 * @param string $type
 	 * @return View_Resource_Packer_Abstract
 	 */
-	public function packer ($type)
+	public static function packer ($type)
 	{
-		if (!isset ($this->_packers [$type]))
+		if (!isset (self::$_packers [$type]))
 		{
 			$class = 'View_Resource_Packer_' . ucfirst ($type);
 			Loader::load ($class);
-			$this->_packers [$type] = new $class ();
+			self::$_packers [$type] = new $class ();
 		}
-		return $this->_packers [$type];
+		return self::$_packers [$type];
 	}
 	
 }
+
+Loader::load ('View_Resource');

@@ -7,11 +7,11 @@
  * @package IcEngine
  *
  */
-class Data_Provider_Manager
+class Data_Provider_Manager extends Manager_Abstract
 {
 	
 	/**
-	 * Загруженные провайдеры.
+	 * @desc Загруженные провайдеры.
 	 * @var array <Data_Provider_Abstract>
 	 */
 	protected static $_providers = array ();
@@ -20,22 +20,7 @@ class Data_Provider_Manager
 	 * @desc Конфиг
 	 * @var array|Objective
 	 */
-	protected static $_config = array (
-		
-	);
-	
-	/**
-	 * @desc Загружает и возвращает конфиг
-	 * @return Objective
-	 */
-	protected static function _config ()
-	{
-		if (is_array (self::$_config))
-		{
-			self::$_config = Config_Manager::get (__CLASS__, self::$_config);
-		}
-		return self::$_config;
-	}
+	protected static $_config = array ();
 	
 	/**
 	 * @desc Возвращает провайдера.
@@ -44,33 +29,34 @@ class Data_Provider_Manager
 	 */
 	public static function get ($name)
 	{	
-		if (!isset (self::$_providers [$name]))
+		if (isset (self::$_providers [$name]))
 		{
-			$config = self::_config ()->$name;
-			
-			if (!$config ['provider'])
-			{
-				
-				$config = reset ($config);
-			}
-			
-			$class = 'Data_Provider_' . $config ['provider'];
-			
-			Loader::load ($class);
-			
-			/**
-			 * @desc Новый провайдер данных
-			 * @var Data_Provider_Abstract
-			 */
-			$provider = new $class ($config ['params']);
-			
-			if ($provider->available ())
-			{
-				self::$_providers [$name] = $provider;
-			}
+			return self::$_providers [$name];
 		}
 		
-		return self::$_providers [$name];
+		$cfg = self::config ()->$name;
+		
+		if ($cfg && $cfg ['provider'])
+		{
+			$provider_name = $cfg ['provider'];
+			$provider_params = $cfg ['params'];
+		}
+		else
+		{
+			$provider_name = $name;
+			$provider_params = null;
+		}
+		
+		$class_name = 'Data_Provider_' . $provider_name;
+		Loader::load ($class_name);
+		
+		/**
+		 * @desc Новый провайдер данных
+		 * @var Data_Provider_Abstract
+		 */
+		$provider = new $class_name ($provider_params);
+		
+		return self::$_providers [$name] = $provider;
 	}
 	
 }
