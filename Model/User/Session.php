@@ -22,11 +22,7 @@ class User_Session extends Model
 	 */
 	public static function byPhpSessionId ($session_id, $autocreate = true)
 	{
-		Debug::microtime ();
-		
 		$session = Model_Manager::byKey ('User_Session', $session_id);
-		
-		Debug::microtime ();
 		
 		if (!$session && $autocreate)
 		{
@@ -41,8 +37,6 @@ class User_Session extends Model
     		));
     		$session->save (true);
 		}
-		
-		Debug::microtime ();
 		
 		return $session;
 	}
