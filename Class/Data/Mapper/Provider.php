@@ -1,15 +1,16 @@
 <?php
 
 /**
- * Мэппер данных через провайдер.
+ * @desc Мэппер данных через провайдер.
  * @author Юрий
+ * @package IcEngine
  *
  */
 class Data_Mapper_Provider extends Data_Mapper_Abstract
 {
 	
 	/**
-	 * Используемый транслятор
+	 * @desc Используемый транслятор
 	 * @var string
 	 */
 	const TRANSLATOR = 'KeyValue';
@@ -42,7 +43,7 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
     );
     
     /**
-     * Удаление
+     * @desc Удаление
      * @param Query $query
      * @param Query_Options $options
      */
@@ -56,6 +57,11 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 		return true;
 	}
     
+	/**
+	 * @desc Выполнения запроса на вставку
+	 * @param Query $query
+	 * @param Query_Options $options
+	 */
     protected function _executeInsert (Query $query, Query_Options $options)
     {
         foreach ($this->_translated [0] as $key)
@@ -133,11 +139,10 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 	}
 	
 	/**
-	 * Полный список ключей по маскам.
+	 * @desc Полный список ключей по маскам.
 	 * @param string $table
 	 * @param array $patterns
-	 * @return integer
-	 * 		Количество удаленных первичных ключей
+	 * @return integer Количество удаленных первичных ключей.
 	 */
 	protected function _fullDeleteByPatterns ($table, array $patterns)
 	{
@@ -239,6 +244,15 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 	public function getProvider ()
 	{
 		return $this->_provider;
+	}
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see Data_Mapper_Abstract::saveResult()
+	 */
+	public function saveResult (Query $query, $options, Query_Result $result)
+	{
+		
 	}
 	
 	/**

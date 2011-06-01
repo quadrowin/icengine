@@ -258,4 +258,5 @@ abstract class Data_Mapper_Abstract
 	{
 		return false;
 	}
+	
 }
