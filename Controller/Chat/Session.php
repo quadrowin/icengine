@@ -16,7 +16,7 @@ class Controller_Chat_Session extends Controller_Abstract
 		
 		$session->save ();
 		
-		$this->_dispatcherIteration->setTemplate (NULL);
+		$this->_task->setTemplate (null);
 	}
 	
 	public function join ()
@@ -30,6 +30,14 @@ class Controller_Chat_Session extends Controller_Abstract
 			'name',
 			'uri'
 		);
+		
+		if (!$uri && !User::id ())
+		{
+			return $this->replaceAction (
+				'Error',
+				'accessDenied'
+			);
+		}
 		
 		$session_join = Registry::sget ('session_join');
 		

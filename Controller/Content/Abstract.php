@@ -458,6 +458,9 @@ class Controller_Content_Abstract extends Controller_Abstract
 			'url'
 		);
 		
+		// Убираем слешы
+		$text = stripslashes ($text);
+
 		if (!$utcode)
 		{
 			return $this->_helperReturn ('Page', 'obsolete');
@@ -474,6 +477,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		}
 		
 		$category_id = $tc->attr ('category_id');
+//		file_put_contents (IcEngine::root () . 'log/1.txt', $text);
 		
 		$user = User::getCurrent ();
 		
