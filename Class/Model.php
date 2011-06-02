@@ -28,7 +28,7 @@ abstract class Model implements ArrayAccess
 	 * @desc Конфиг
 	 * @var array|Objective
 	 */
-	protected $_config = array ();
+	protected	$_config = array ();
 	
 	/**
 	 * @desc Связанные данные
@@ -47,7 +47,7 @@ abstract class Model implements ArrayAccess
 	 * @desc Подгруженные объекты
 	 * @var array
 	 */
-	protected	$_joints;  
+	protected	$_joints = array ();
 	
 	/**
 	 * @desc Данные модели

@@ -59,8 +59,7 @@ class User_Session extends Model
 	}
 	
 	/**
-	 * @param integer $new_user_id [optional]
-	 * 		Изменить пользователя.
+	 * @param integer $new_user_id [optional] Изменить пользователя.
 	 * @return User_Session
 	 */
 	public function updateSession ($new_user_id = null)
