@@ -12,12 +12,6 @@ abstract class Model implements ArrayAccess
 {
 	
 	/**
-	 * @desc Автосоздание связанных объектов.
-	 * @var boolean
-	 */
-	protected	$_autojoin;
-	
-	/**
 	 * @desc Компоненты для модели.
 	 * Прикрепленные к модели изображения, видео, комментарии и пр.
 	 * @var array <Coponent_Collection>
@@ -28,7 +22,7 @@ abstract class Model implements ArrayAccess
 	 * @desc Конфиг
 	 * @var array|Objective
 	 */
-	protected	$_config = array ();
+	protected static $_config = array ();
 	
 	/**
 	 * @desc Связанные данные
@@ -83,17 +77,13 @@ abstract class Model implements ArrayAccess
 	/**
 	 * @desc Создает и возвращает модель.
 	 * @param array $fields Данные модели.
-	 * @param boolean $autojoin=true
-	 * 		Автосоздание связанны объектов.
-	 * 		Если false, поля вида Model__id не будут преобразованы в объекты
 	 */
-	public function __construct (array $fields = array (), $autojoin = true)
+	public function __construct (array $fields = array ())
 	{
 		self::$_objectIndex++;
 		
 		$this->_loaded = false;
 		$this->_fields = $fields;
-		$this->_autojoin = $autojoin;
 		
 		if ($fields)
 		{
@@ -285,16 +275,16 @@ abstract class Model implements ArrayAccess
 	 * @param string $class Класс модели, если отличен от get_class ($this)
 	 * @return Objective
 	 */
-	public function config ($class = null)
+	public static function config ($class = null)
 	{
-		if (is_array ($this->_config))
+		if (is_array (static::$_config))
 		{
-			$this->_config = Config_Manager::get (
-				$class ? $class : get_class ($this),
-				$this->_config
+			static::$_config = Config_Manager::get (
+				$class ? $class : get_called_class (),
+				static::$_config
 			);
 		}
-		return $this->_config;
+		return static::$_config;
 	}
 	
 	/**
@@ -379,15 +369,6 @@ abstract class Model implements ArrayAccess
 	public function getAttribute ($key)
 	{
 		return Attribute_Manager::get ($this, $key);
-	}
-	
-	/**
-	 * @desc Установлен ли автоджоин
-	 * @return boolean
-	 */
-	public function getAutojoin ()
-	{
-		return $this->_autojoin;
 	}
 	
 	/**
@@ -569,17 +550,6 @@ abstract class Model implements ArrayAccess
 	public function setAttribute ($key, $value = null)
 	{
 		Attribute_Manager::set ($this, $key, $value);
-	}
-	
-	/**
-	 * @desc Установить автоджоин
-	 * @param boolean $value
-	 * @return Model
-	 */
-	public function setAutojoin ($value)
-	{
-		$this->_autojoin = $value;
-		return $this;
 	}
 	
 	/**

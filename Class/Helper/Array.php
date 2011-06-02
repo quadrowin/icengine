@@ -26,10 +26,8 @@ class Helper_Array
 	}
 	
 	/**
-	 * Помечает массив для разбиения по коллонкам.
-	 * 
-	 * @param array $content
-	 * 		Данные
+	 * @desc Помечает массив для разбиения по коллонкам. 
+	 * @param array $content Данные
 	 * @param integer $cols_count
 	 * 		На сколько колонок разбить
 	 * @param string $start_mark

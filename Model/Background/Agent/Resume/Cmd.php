@@ -13,7 +13,7 @@ class Background_Agent_Resume_Cmd extends Background_Agent_Resume_Abstract
 	 * @desc Конфиг
 	 * @var array|Objective
 	 */
-	protected $_config = array (
+	protected static $_config = array (
 		// Шаблон команды для перезапуска процесса
 		'cmd_pattern'		=> 'php ics.php secret Background resume session_id={$session_id} session_key={$session_key}',
 		// изменить директорию перед запуском

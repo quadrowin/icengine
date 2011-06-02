@@ -20,7 +20,7 @@ class User extends Model
 	 * @desc Конфиг
 	 * @var array
 	 */
-	protected $_config = array (
+	protected static $_config = array (
 		// функция, вызываемая при логауте.
 		'logout_callback'	=> null
 	);

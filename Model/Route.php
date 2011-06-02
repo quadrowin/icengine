@@ -15,7 +15,7 @@ class Route extends Model_Child
 	 * @desc Config
 	 * @var array
 	 */
-	protected $_config = array (
+	protected static $_config = array (
 		/**
 		 * @desc Поля роута по умолчанию.
 		 * @var array

@@ -13,7 +13,7 @@ class Authorization_Login_Password extends Authorization_Abstract
 	 * @desc Configuration
 	 * @var array
 	 */
-	protected $_config = array (
+	protected static $_config = array (
 		// Авторегистрация
 		'autoregister'			=> false,
 		

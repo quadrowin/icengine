@@ -14,7 +14,7 @@ class Bill_Payment_Acceptor_Balance_Increment extends Bill_Payment_Acceptor_Abst
 	 * @desc Конфиг
 	 * @var array
 	 */
-	protected $_config = array (
+	protected static $_config = array (
 		// Комментарий к увеличению баланса
 		'increment_comment'		=> 'Пополнение баланса через платеж.'
 	);

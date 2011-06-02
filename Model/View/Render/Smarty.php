@@ -19,7 +19,7 @@ class View_Render_Smarty extends View_Render_Abstract
 	 * @desc Конфиг
 	 * @var array
 	 */
-	protected $_config = array (
+	protected static $_config = array (
 		/**
 		 * @desc Внешний шаблон.
 		 * Будет использоватья при выводе в браузер через метод display.

@@ -18,7 +18,6 @@ class Model_Manager_Delegee_Defined
 	 */
 	public static function get ($model, $key, $object)
 	{
-		
 		return new $model (is_array ($object) ? $object : array ());
 	}
 	

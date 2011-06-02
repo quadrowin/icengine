@@ -19,7 +19,7 @@ class Mail_Provider_Icq extends Mail_Provider_Abstract
 	 * @desc Конфиг
 	 * @var array
 	 */
-	protected $_config = array (
+	protected static $_config = array (
 		
 	);
 	
