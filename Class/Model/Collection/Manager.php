@@ -12,11 +12,9 @@ abstract class Model_Collection_Manager
 	 * @author Goorus
 	 * @param string $model Модель коллекции.
 	 * @param Query $query Запрос.
-	 * @param boolean $forced [optional]
-	 * 		Отключение автоджайна для моделей коллекции.
 	 * @return Model_Collection
 	 */
-	public static function byQuery ($model, Query $query, $forced = false)
+	public static function byQuery ($model, Query $query)
 	{
 		Loader::load ($model);
 		
@@ -26,7 +24,6 @@ abstract class Model_Collection_Manager
 		
 		$collection = new $class_collection ();
 		
-		$collection->setAutojoin (!$forced);
 		$collection->setQuery ($query);
 		
 		return $collection;
@@ -35,10 +32,9 @@ abstract class Model_Collection_Manager
 	/**
 	 * @desc Создает коллекцию по имени.
 	 * @param string $class_name Название класса модели или коллекции.
-	 * @param boolean $forced Включать ли автожоин.
 	 * @return Model_Collection Коллекция.
 	 */
-	public static function create ($class_name, $forced = false)
+	public static function create ($class_name)
 	{
 		if (substr ($class_name, -11) != '_Collection')
 		{
@@ -47,10 +43,6 @@ abstract class Model_Collection_Manager
 		
 		Loader::load ($class_name);
 		$collection = new $class_name;
-		if ($forced)
-		{
-			$collection->setAutojoin (false);
-		}
 		return $collection;
 	}
 	
@@ -58,10 +50,9 @@ abstract class Model_Collection_Manager
 	 * @desc получить коллекцию из хранилища по запросу и опшинам
 	 * @param Model_Collection
 	 * @param Query $query
-	 * @param boolean $forced
 	 */
 	public static function load (Model_Collection $collection, 
-		Query $query, $forced = false)
+		Query $query)
 	{
 		$model = $collection->modelName ();
 		

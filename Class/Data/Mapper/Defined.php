@@ -9,11 +9,36 @@
 class Data_Mapper_Defined extends Data_Mapper_Abstract
 {
 	
+	protected $_where;
+	
+	/**
+	 * @desc 
+	 * @param array $data
+	 * @param array $filter
+	 * @return array
+	 */
+	public function filter (array $row)
+	{
+		foreach ($this->_where as $where)
+		{
+			$condition = $where [Query::WHERE];
+			$value = $where [Query::VALUE];
+			
+			if ($row [$condition] != $value)
+			{
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
 	/**
 	 * @desc
 	 * @param Query $query
 	 */
-	protected function _selectQuery (Query $query)
+	protected function _selectQuery (Data_Source_Abstract $source, 
+		Query $query)
 	{
 		$select = $query->getPart (Query::SELECT);
 		
@@ -31,31 +56,33 @@ class Data_Mapper_Defined extends Data_Mapper_Abstract
 			));
 		}
 		
-		
 		Loader::load ($model_name);
 		
-		$where = $query->getPart (Query::WHERE);
+		$this->_where = $query->getPart (Query::WHERE);  
 		
-		$part = reset ($where);
+		$result = array_filter (
+			$model_name::$rows,
+			array ($this, 'filter')
+		);
 		
-		$id = $part [Query::VALUE];
-
-		$model = new $model_name;
-		
-		$rows = $model::$_rows;   
-		
-		$result = array (array_merge (
-			array ($part [Query::WHERE]	=> $id),
-			$rows [$id]
-		));
+		$found_rows = count ($result);
 		
 		return new Query_Result (array (
-			'result'	=> $result,	
-			'source'	=> $source
+			'error'			=> '',
+			'errno'			=> 0,
+			'query'			=> $query,
+			'startAt'		=> 0,
+			'finishedAt'	=> 0,
+			'foundRows'		=> $found_rows,
+			'result'		=> array_values ($result),
+			'touchedRows'	=> 0,
+			'insertKey'		=> 0,
+			'currency'		=> 1,
+			'source'		=> $source
 		));
 	}
 	
-	protected function _showQuery (Query $query)
+	protected function _showQuery (Data_Source_Abstract $source, Query $query)
 	{
 	}
 	
@@ -69,7 +96,7 @@ class Data_Mapper_Defined extends Data_Mapper_Abstract
 		
 		return call_user_func (
 			array ($this, '_' . $method . 'Query'),
-			$query
+			$source, $query
 		);
 	}
 }

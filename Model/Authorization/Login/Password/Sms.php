@@ -13,7 +13,7 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 	 * @desc Config
 	 * @var array
 	 */
-	protected $_config = array (
+	protected static $_config = array (
 		// Авторизовать только пользователей, имеющих одну из ролей.
 		// Роли перечисляются через запятую.
 		'auth_roles_names'			=> 'admin',

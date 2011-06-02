@@ -13,7 +13,7 @@ class Authorization_Loginza_Token extends Model
 	 * @desc Config
 	 * @var array
 	 */
-	protected $_config = array (
+	protected static $_config = array (
 		// Адрес логинзы, где хранится результат авторизации
 		'loginza_url'				=> 'http://loginza.ru/api/authinfo?token={$token}'
 	);

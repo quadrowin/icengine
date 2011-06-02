@@ -7,5 +7,11 @@
  */
 class Model_Defined extends Model
 {
-    public static $_rows = array ();
+	
+	/**
+	 * @desc 
+	 * @var array
+	 */
+    public static $rows = array ();
+    
 }

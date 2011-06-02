@@ -16,9 +16,9 @@ class Model_Manager
 	protected static $_config = array (
 		'delegee'	=> array (
 			'Model'				=> 'Simple',
-			'Model_Factory'		=> 'Factory',
+			'Model_Config'		=> 'Config',
 			'Model_Defined'		=> 'Defined',
-			'Config'			=> 'Config'
+			'Model_Factory'		=> 'Factory'
 		)
 	);
 	
@@ -253,7 +253,7 @@ class Model_Manager
 				$second = next ($parents);
 				
 				$parent = 
-					$second && isset ($self::$_config ['delegee'][$second])?
+					$second && isset ($self::$_config ['delegee'][$second]) ?
 					$second :
 					$first;
 				

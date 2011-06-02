@@ -13,7 +13,7 @@ class Background_Agent_Manager
 	 * @desc Конфиг
 	 * @var array
 	 */
-	protected $_config = array (
+	protected static $_config = array (
 	
 		// 
 		'default_agent_resume_id'	=> 0,

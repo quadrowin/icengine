@@ -9,7 +9,7 @@
 abstract class Subscribe_Abstract extends Model_Factory_Delegate
 {
 
-	protected $_config = array (
+	protected static $_config = array (
 		// Шаблон письма на подтверждение рассылки
 		'confirm_subscribe_template'	=> 'subscribe_activate',
 		// Шаблон письма на подтверждение отказа

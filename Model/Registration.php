@@ -19,7 +19,7 @@ class Registration extends Model
 	 * @desc Конфиг
 	 * @var array
 	 */	
-	protected $_config = array (
+	protected static $_config = array (
 		/**
 		 * Событие после подтверждения емейла
 		 * @var function (Registration)

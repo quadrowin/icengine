@@ -19,7 +19,7 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 	 * @desc Конфиг
 	 * @var array
 	 */
-	protected $_config = array (
+	protected static $_config = array (
 		// С ящика
 		'from_email'		=> 'root@icengine.com',
 		// От кого

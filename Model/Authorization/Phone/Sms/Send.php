@@ -13,7 +13,7 @@ class Authorization_Phone_Sms_Send extends Authorization_Abstract
 	 * @desc Config
 	 * @var array
 	 */
-	protected $_config = array (
+	protected static $_config = array (
 		// Авторегистрация
 		'autoregister'			=> false,
 		// Минимальная длина кода

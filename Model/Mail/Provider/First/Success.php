@@ -17,7 +17,7 @@ class Mail_Provider_First_Success extends Mail_Provider_Abstract
 	 * @desc Конфиг
 	 * @var array
 	 */
-	protected $_config = array (
+	protected static $_config = array (
 		// Набор провайдеров
 		'providers'		=> null//'Sms_Dcnk,Sms_Littlesms,Sms_Yakoon'
 	);

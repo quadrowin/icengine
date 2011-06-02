@@ -77,7 +77,7 @@ class Mail_Provider_Sms_Yakoon extends Mail_Provider_Abstract
 	 * @desc Конфиг
 	 * @var array|Objective
 	 */
-	protected $_config = array (
+	protected static $_config = array (
 		'nusoap_path'		=> 'sms/nusoap.php',
 		'service_url'		=> 'http://sms.yakoon.com/sms.asmx?wsdl',
 		'service_login'		=> '',
