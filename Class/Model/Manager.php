@@ -10,16 +10,16 @@ class Model_Manager
 {
 	
 	/**
-	 * @desc Фабрики моделей
+	 * @desc Конфиг
 	 * @var array
 	 */
-	protected static $_factories;
-	
-	/**
-	 * @desc Следующая модель будет создана с выключенным autojoin.
-	 * @var boolean
-	 */
-	protected static $_forced = false;
+	protected static $_config = array (
+		'delegee'	=> array (
+			'Model'				=> array ('Simple'),
+			'Model_Factory'		=> array ('Factory'),
+			'Model_Defined'		=> array ('Defined')
+		)
+	);
 	
 	/**
 	 * @desc Получение условий выборки из запроса
@@ -184,10 +184,6 @@ class Model_Manager
 	 */
 	public static function byQuery ($model, Query $query)
 	{
-		$forced = self::$_forced;
-		
-		self::$_forced = false;
-		
 		$data = null;
 		
 		if (is_null ($data))
@@ -214,8 +210,6 @@ class Model_Manager
 			return null;
 		}
 		
-		self::$_forced = $forced;
-		
 		return self::get (
 			$model,
 			$data [Model_Scheme::keyField ($model)],
@@ -224,27 +218,14 @@ class Model_Manager
 	}
 	
 	/**
-	 * @desc Следующая модель будет создана без autojoin.
-	 * @return Model_Manager
-	 */
-	public static function forced ($value = true)
-	{
-		self::$_forced = $value;
-	}
-	
-	/**
 	 * @desc Получение данных модели
 	 * @param string $model Название модели
 	 * @param string $key Ключ (id)
 	 * @param Model|array $object Объект или данные
-	 * @throws Zend_Exception
 	 * @return Model В случае успеха объект, иначе null.
 	 */
 	public static function get ($model, $key, $object = null)
 	{
-		$forced = self::$_forced;
-		self::$_forced = false;
-		
 		if ($object instanceof Model)
 		{
 			$result = $object;
@@ -264,51 +245,27 @@ class Model_Manager
 			{
 				Loader::load ($model);
 				
+				// Делегируемый класс определяем по первому или нулевому
+				// предку.
 				$parents = class_parents ($model);
-				$parent = reset ($parents);
+				$first = end ($parents);
+				$second = next ($parents);
 				
-				if ('Model_Factory' == $parent)
-				{
-					$factory_name = $model;
-					if (!isset (self::$_factories [$factory_name]))
-					{
-						self::$_factories [$factory_name] = new $model ();
-					}
-					
-					$dmodel = self::$_factories [$factory_name]
-						->delegateClass ($model, $key, $object);
-					
-					if (!Loader::load ($dmodel))
-					{
-						Loader::load ('Zend_Exception');
-						throw new Zend_Exception ('Delegate model not found: ' . $dmodel);
-					}
-					
-					$result = new $dmodel (array (), !$forced);
-					
-					$result->setModelFactory (self::$_factories [$factory_name]);
-					
-					if (is_array ($object) && $object)
-					{
-						$result->set ($object);
-					}
-				}
+				$parent = 
+					$second && isset ($self::$_config ['delegee'][$second])?
+					$second :
+					$first;
 				
-				else
-				{
-					$result = new $model (
-						is_array ($object) ? $object : array (),
-						!$forced
-					);
-					self::$_forced = false;
-				}
-				
-				if (!method_exists ($result, 'set'))
-				{
-					Loader::load ('Zend_Exception');
-					throw new Zend_Exception ('Error model class: ' . get_class ($result));
-					return;
-				}
+				$delegee = 
+					'Model_Manager_Delegee_' .
+					self::$_config ['delegee'][$parent];
+					
+				Loader::load ($delegee);
+					
+				$result = call_user_func (
+					array ($delegee, 'get'),
+					$model, $key, $object
+				);
 				
 				$result->set ($result->keyField (), $key);
 				Resource_Manager::set ('Model', $model . '__' . $key, $result);

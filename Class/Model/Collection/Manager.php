@@ -110,14 +110,7 @@ abstract class Model_Collection_Manager
 		{
 			$key = $item [$key_field];
 			
-			if ($forced)
-			{
-				Model_Manager::forced (true);	
-			}
-			
 			$item = Model_Manager::get ($model, $key, $item);
-			
-			Model_Manager::forced (false);
 		}
 		
 		$collection->setItems ($pack ['items']);
