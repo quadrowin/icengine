@@ -153,7 +153,7 @@ class Controller_Form extends Controller_Abstract
 			if (isset ($stat ['model']))
 			{
 				$current->save ();
-				$current = $model->joint ($stat ['model']);
+				$current = $model->field ($stat ['model']);
 				
 			}
 			if (!empty ($stat ['attribute']))

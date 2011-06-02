@@ -1,8 +1,19 @@
 <?php
-
+/**
+ * 
+ * @desc Мэппер для моделей, данные которых перечисленны в самом классе.
+ * @author Илья Колесников
+ * @package IcEngine
+ *
+ */
 class Data_Mapper_Defined extends Data_Mapper_Abstract
 {
-	public function execute (Data_Source_Abstract $source, Query $query, $options = null)
+	
+	/**
+	 * @desc
+	 * @param Query $query
+	 */
+	protected function _selectQuery (Query $query)
 	{
 		$select = $query->getPart (Query::SELECT);
 		
@@ -42,5 +53,23 @@ class Data_Mapper_Defined extends Data_Mapper_Abstract
 			'result'	=> $result,	
 			'source'	=> $source
 		));
+	}
+	
+	protected function _showQuery (Query $query)
+	{
+	}
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see Data_Mapper_Abstract::execute()
+	 */
+	public function execute (Data_Source_Abstract $source, Query $query, $options = null)
+	{
+		$method = strtolower ($query->type ());
+		
+		return call_user_func (
+			array ($this, '_' . $method . 'Query'),
+			$query
+		);
 	}
 }

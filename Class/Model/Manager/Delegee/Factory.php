@@ -22,7 +22,7 @@ class Model_Manager_Delegee_Factory
 	 * @param Model|array $object Объект или данные
 	 * @return Model В случае успеха объект, иначе null.
 	 */
-	public function get ($model, $key, $object)
+	public static function get ($model, $key, $object)
 	{
 		$factory_name = $model;
 		if (!isset (self::$_factories [$factory_name]))
