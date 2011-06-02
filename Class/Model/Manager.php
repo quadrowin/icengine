@@ -15,9 +15,10 @@ class Model_Manager
 	 */
 	protected static $_config = array (
 		'delegee'	=> array (
-			'Model'				=> array ('Simple'),
-			'Model_Factory'		=> array ('Factory'),
-			'Model_Defined'		=> array ('Defined')
+			'Model'				=> 'Simple',
+			'Model_Factory'		=> 'Factory',
+			'Model_Defined'		=> 'Defined',
+			'Config'			=> 'Config'
 		)
 	);
 	

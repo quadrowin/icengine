@@ -120,9 +120,11 @@ abstract class Model implements ArrayAccess
 			return $this->_joints [$field];
 		}
 		
-		if (array_key_exists ($field . '__id', $this->_fields))
+		$join_field = $field . '__id';
+		
+		if (array_key_exists ($join_field, $this->_fields))
 		{
-			return $this->joint ($field);
+			return $this->_joint ($field, $this->_fields [$join_field]);
 		}
 		
 		if (!$this->_loaded)
@@ -130,10 +132,10 @@ abstract class Model implements ArrayAccess
 			$this->load ();
 			if (
 				!array_key_exists ($field, $this->_fields) &&
-				array_key_exists ($field . '__id', $this->_fields)
+				array_key_exists ($join_field, $this->_fields)
 			)
 			{
-				return $this->joint ($field);
+				return $this->_joint ($field, $this->_fields [$join_field]);
 			}
 		}
 		
@@ -178,6 +180,22 @@ abstract class Model implements ArrayAccess
 	protected function _afterConstruct ()
 	{
 		
+	}
+	
+	/**
+	 * @desc Присоединить сущность.
+	 * @param string $model
+	 * @param array $data
+	 * @return Model Присоединенная модель.
+	 */
+	protected function _joint ($model, $key = null)
+	{
+		if ($key !== null)
+		{
+			$this->_joints [$model] = Model_Manager::byKey ($model, $key);
+		}
+		
+		return $this->_joints [$model];
 	}
 	
 	/**
@@ -401,53 +419,6 @@ abstract class Model implements ArrayAccess
 	}
 	
 	/**
-	 * @desc Присоединить сущность.
-	 * @param string $model
-	 * @param array $data
-	 * @return Model Присоединенная модель.
-	 * @throws Zend_Exception
-	 */
-	public function joint ($model, array $data = array ())
-	{
-		if ($data)
-		{
-			Loader::load ($model);
-						
-			if (!class_exists ($model))
-			{
-				Loader::load ('Zend_Exception');
-				throw new Zend_Exception ("Model $model not found.");
-				return null;
-			}
-			
-			$key_field = Model_Scheme::keyField ($model);
-			
-			if (!$data || !array_key_exists ($key_field, $data))
-			{
-				var_dump ($data, $this->_joints);
-				Loader::load ('Zend_Exception');
-				throw new Zend_Exception (
-					'In the model ' . get_class ($this) .
-					" no key field for model $model received."
-				);
-				return null;
-			}
-			
-			$this->_joints [$model] = Model_Manager::byKey (
-				$model,
-				$data [$key_field]
-			);
-//			$this->_joints [$model] = $this->modelManager ()->get (
-//				$model,
-//				$data [$key_field],
-//				$data
-//			);
-		}
-		
-		return $this->_joints [$model];
-	}
-	
-	/**
 	 * @desc Возвращает значение первичного ключа
 	 * @return string|null
 	 */
@@ -584,11 +555,6 @@ abstract class Model implements ArrayAccess
 				else
 				{
 					$this->_fields [$key] = $value;
-					if ($this->_autojoin)
-					{
-						$field = Model_Scheme::keyField ($model);
-						$this->joint ($model, array ($field => $value));
-					}
 				}
 			}
 		}
@@ -649,18 +615,13 @@ abstract class Model implements ArrayAccess
 	 * @param mixed $key Первичный ключ.
 	 * @return Model Эта модель.
 	 */
-	public function load ($key = null)
+	public function load ()
 	{
-		if (is_null ($key))
-		{
-			Model_Manager::get ($this->modelName (), $this->key (), $this);
-		}
-		else
-		{
-			Model_Manager::get ($this->modelName (), $key, $this);
-		}
-		
-		return $this;
+		return Model_Manager::get (
+			$this->modelName (),
+			$this->key (),
+			$this
+		);
 	}
 	
 	/**
