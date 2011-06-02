@@ -27,8 +27,16 @@ class Data_Source_Abstract
 	 */
 	private $_result;
 	
+	/**
+	 * @desc
+	 * @var integer
+	 */
 	protected static $_objCount = 0;
 	
+	/**
+	 * @desc
+	 * @var integer
+	 */
 	protected $_objIndex = null;
 	
 	/**
@@ -109,7 +117,7 @@ class Data_Source_Abstract
 	}
 	
 	/**
-	 * 
+	 * @desc Устанавливает результат запроса.
 	 * @param Query_Result $result
 	 * @return Data_Source_Abstract
 	 */
@@ -120,7 +128,7 @@ class Data_Source_Abstract
 	}
 	
 	/**
-	 * 
+	 * @desc Устанавливает запрос.
 	 * @param Query $query
 	 * @return Data_Source_Abstract
 	 */
@@ -131,7 +139,7 @@ class Data_Source_Abstract
 	}
 	
 	/**
-	 * 
+	 * @desc Устанавливает мэппер.
 	 * @param Data_Mapper_Abstract $mapper
 	 */
 	public function setDataMapper (Data_Mapper_Abstract $mapper)
@@ -141,6 +149,7 @@ class Data_Source_Abstract
 	}
 	
 	/**
+	 * @desc Проверяет, что последний запрос выполнен успешно.
 	 * @return boolean
 	 */
 	public function success ()
