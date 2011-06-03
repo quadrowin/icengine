@@ -133,6 +133,23 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
+	 * @desc Получить колонку объекта
+	 * @param string $column
+	 * @return array<string>
+	 */
+	public function column ($column)
+	{
+		$result = array ();
+		
+		foreach ($this as $item)
+		{
+			$result [] = $item->$column;
+		}
+		
+		return $result;
+	}
+	
+	/**
 	 * (non-PHPdoc)
 	 * @see Countable::count()
 	 */

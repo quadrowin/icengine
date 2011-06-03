@@ -6,6 +6,7 @@
  * @package IcEngine 
  *
  */
+
 class IcEngine
 {
 	private static $_task;
@@ -53,8 +54,8 @@ class IcEngine
 	 */
 	public static function flush ()
 	{
-		Resource_Manager::save ();
-
+		//Resource_Manager::save ();
+		
 		Controller_Manager::call (
 			'Render', 'index',
 			array (
@@ -91,7 +92,17 @@ class IcEngine
 		{
 			self::initBootstrap ($bootstap);
 		}
+		
+		register_shutdown_function (array (__CLASS__, 'shutdownHandler'));
 	}
+	
+	public static function shutdownHandler ()
+	{
+		if (!error_get_last ())
+		{
+			Resource_Manager::save ();
+		}
+	}	
 	
 	/**
 	 * @desc Подключает загрузчик и запускает его.

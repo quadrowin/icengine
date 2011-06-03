@@ -311,7 +311,17 @@ class Redis
 		{
 			return null;
 		}
-		return json_decode (urldecode ($r), true);
+		$r = json_decode (urldecode ($r), true);
+		
+		if ($r == '{}')
+		{
+			$r = null;
+		}
+		
+		echo $key . '<br />';
+		var_dump ($r);
+		
+		return $r;
 	}
 
 	public function set ($key, $value, $TTL = NULL)

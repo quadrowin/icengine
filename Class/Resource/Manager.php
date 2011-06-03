@@ -46,9 +46,11 @@ class Resource_Manager
 	protected static function _initTransport (Objective $conf)
 	{
 		Loader::load ('Data_Transport');
+		
 		$transport = new Data_Transport ();
 		
 		$providers = $conf->providers;
+		
 		if ($providers)
 		{
 			if (is_string ($providers))
@@ -113,12 +115,13 @@ class Resource_Manager
 	 * @return mixed
 	 */
 	public static function get ($type, $name)
-	{
+	{	
 		if (!isset (self::$_resources [$type][$name]))
 		{
 			self::$_resources [$type][$name] =
 				self::transport ($type)->receive ($name); 
 		}
+				
 		return self::$_resources [$type][$name];
 	}
 	

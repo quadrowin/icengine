@@ -16,6 +16,11 @@ class Filter_Model_Unserialize
 	 */
 	public function filter ($data)
 	{
+		if (!$data)
+		{
+			return null;
+		}
+
 		$p = strpos ($data, ':');
 		$class = substr ($data, 0, $p);
 		Loader::load ($class);
