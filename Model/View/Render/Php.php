@@ -24,11 +24,10 @@ class View_Render_Php extends View_Render_Abstract
 	
 	public function display ($tpl)
 	{
-		$tpl = $tpl ? $tpl : $this->_layout;
 		foreach ($this->_templatesPathes as $path)
 		{
 			$file = $path . $tpl;
-			if (file_exists($file))
+			if (file_exists ($file))
 			{
 				foreach ($this->_vars as $key => $value)
 				{
