@@ -132,7 +132,7 @@ class View_Render_Smarty extends View_Render_Abstract
 	 */
 	public function display ($tpl = null)
 	{
-		$tpl = $tpl ? $tpl : $this->_config ['layout'];
+		$tpl = $tpl ? $tpl : self::$_config ['layout'];
 		return $this->_smarty->display ($tpl);
 	}
 	
