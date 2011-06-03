@@ -6,7 +6,7 @@
  * @package IcEngine
  *
  */
-class Background_Agent_Manager
+class Background_Agent_Manager extends Manager_Abstract
 {
 	
 	/**
@@ -98,19 +98,6 @@ class Background_Agent_Manager
 		}
 		
 		return $sessions->count ();
-	}
-	
-	/**
-	 * @desc Загружает и возвращает конфиг
-	 * @return Objective
-	 */
-	public function config ()
-	{
-		if (is_array ($this->_config))
-		{
-			$this->_config = Config_Manager::get (__CLASS__, $this->_config);
-		}
-		return $this->_config;
 	}
 	
 	public static function instance ()
