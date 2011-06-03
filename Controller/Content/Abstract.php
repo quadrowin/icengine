@@ -225,7 +225,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 	protected function __saveUrl ($url, $referer, $title)
 	{
 		Loader::load ('Helper_Translit');
-		return $url = rtrim ($url, '/') . '/' . 
+		return rtrim ($url, '/') . '/' . 
 			Helper_Translit::makeUrlLink ($title) . '.html';
 	}
 	
@@ -477,7 +477,10 @@ class Controller_Content_Abstract extends Controller_Abstract
 		}
 		
 		$category_id = $tc->attr ('category_id');
-//		file_put_contents (IcEngine::root () . 'log/1.txt', $text);
+		$content_category = Model_Manager::byKey (
+			$this->__categoryModel (),
+			$category_id
+		);
 		
 		$user = User::getCurrent ();
 		
@@ -501,7 +504,10 @@ class Controller_Content_Abstract extends Controller_Abstract
 		$back = $tc->attr ('back');
 		$referer = $tc->attr ('referer');
 		$content_id = $tc->attr ('content_id');
-		$url = $this->__saveUrl ($url, $referer, $title);
+		$url = $this->__saveUrl (
+			$content_category->url,
+			$referer, $title
+		);
 		
 		if ($content_id)
 		{			
@@ -537,11 +543,6 @@ class Controller_Content_Abstract extends Controller_Abstract
 			$content->extending ();
 			
 			Loader::load ('Helper_Link');
-			
-			$content_category = Model_Manager::byKey (
-				$this->__categoryModel (),
-				$category_id
-			);
 			
 			if (!$content_category)
 			{
