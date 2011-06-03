@@ -22,7 +22,7 @@ class View_Render_Php extends View_Render_Abstract
 		return $result;
 	}
 	
-	public function display ($tpl = null)
+	public function display ($tpl)
 	{
 		$tpl = $tpl ? $tpl : $this->_layout;
 		foreach ($this->_templatesPathes as $path)

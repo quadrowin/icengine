@@ -84,7 +84,7 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	 * @desc Выводит результат работы шаблонизатор в браузер.
 	 * @param string $tpl
 	 */
-	abstract public function display ($tpl = null);
+	abstract public function display ($tpl);
 	
 	/**
 	 * @desc Обрабатывает шаблон и возвращает результат.

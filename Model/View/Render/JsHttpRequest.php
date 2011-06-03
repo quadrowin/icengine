@@ -40,7 +40,7 @@ class View_Render_JsHttpRequest extends View_Render_Abstract
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::display()
 	 */
-	public function display ($tpl = null)
+	public function display ($tpl)
 	{
 		$GLOBALS ['_RESULT'] = reset ($this->_vars);
 		die ();

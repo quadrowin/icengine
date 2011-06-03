@@ -269,6 +269,7 @@ class Query {
 	 * @param string $condition
 	 * @param mixed $value
 	 * @return Query
+	 * @deprecated
 	 */
 	public function orWhere ($condition)
 	{
