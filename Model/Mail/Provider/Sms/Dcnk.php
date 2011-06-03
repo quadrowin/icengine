@@ -68,13 +68,15 @@ class Mail_Provider_Sms_Dcnk extends Mail_Provider_Abstract
 		$result = null;
 		//echo $date . "<br>";
 		
+		$this_config = $this->config ();
+		
 		$params = array (
-			'msguser'		=> $this->_config ['msguser'],
-			'password'		=> $this->_config ['password'],
+			'msguser'		=> $this_config ['msguser'],
+			'password'		=> $this_config ['password'],
 			'text'			=> 
 				iconv (
-					$this->_config ['base_charset'],
-					$this->_config ['send_charset'],
+					$this_config ['base_charset'],
+					$this_config ['send_charset'],
 					$message->body
 				),
 			'dtsend'		=> 
@@ -92,7 +94,7 @@ class Mail_Provider_Sms_Dcnk extends Mail_Provider_Abstract
 		$result = $this->_client->call (
 			'SendTextMessage',
 			$params,
-			$this->_config ['msg_gate_url'],
+			$this_config ['msg_gate_url'],
 			'SendTextMessage'
 		);
 		$err = $this->_client->getError ();
@@ -113,17 +115,19 @@ class Mail_Provider_Sms_Dcnk extends Mail_Provider_Abstract
 	 */
 	function getStatus ($message_id)
 	{
+		$config = $this->config ();
+		
 		$params = array
 		(
-			'msguser'		=> $this->_config ['msguser'],
-			'password'		=> $this->_config ['password'],
+			'msguser'		=> $config ['msguser'],
+			'password'		=> $config ['password'],
 			'messageid'		=> $message_id
 		);
 		
 		$result = $this->_client->call (
 			'GetMessageState',
 			$params,
-			$this->_config ['msg_gate_url'],
+			$config ['msg_gate_url'],
 			'GetMessageState'
 		);
 		

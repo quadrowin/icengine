@@ -152,15 +152,17 @@ class Mail_Provider_Sms_Yakoon extends Mail_Provider_Abstract
 	 */
 	function sendSms ($phone, $text)
 	{
+		$config = $this->config ();
+		
 		Loader::load ('Helper_Translit');
 		//$_classes['common']->UpdateTableRecordInfoByIdValue('sms', 'sms_result', $sms['id'], 'sending');
 		//$_classes['common']->UpdateTableRecordInfoByIdValue('sms', 'provider', $sms['id'], 'yakoon');
 		$sms_result = $this->_client->call (
 			'Send',
 			array (
-				'Username'		=> $this->_config ['service_login'],
-				'Password'		=> md5 ($this->_config ['service_password']),
-				'Sender'		=> $this->_config ['service_sender'],
+				'Username'		=> $config ['service_login'],
+				'Password'		=> md5 ($config ['service_password']),
+				'Sender'		=> $config ['service_sender'],
 				'Recipient'		=> $phone,
 				'Template'		=> '',
 				'Content'		=> Helper_Translit::rus2translit ($text),
@@ -205,11 +207,13 @@ class Mail_Provider_Sms_Yakoon extends Mail_Provider_Abstract
 	 */
 	function getStatus ($sms_id)
 	{
+		$config = $this->config ();
+		
 		$sms_status = $this->_client->call (
 			'Status',
 			array (
-				'Username'	=> $this->_config ['service_login'],
-				'Password'	=> md5 ($this->_config ['service_password']),
+				'Username'	=> $config ['service_login'],
+				'Password'	=> md5 ($config ['service_password']),
 				'IDSms'		=> $sms_id,
 				'IDInt'		=> ''
 			)
