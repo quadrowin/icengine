@@ -163,7 +163,7 @@ class Data_Transport
 	{	
 		$keys = func_get_args ();
 		$results = array ();
-		
+	
 		if ($this->_transactions)
 		{
 			$buffer = end ($this->_transactions)->buffer ();
