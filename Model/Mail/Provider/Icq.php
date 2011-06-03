@@ -103,15 +103,17 @@ class Mail_Provider_Icq extends Mail_Provider_Abstract
 	{
 		$icq = $this->_icq ();
 		
+		$this_config = $this->config ();
+		
 		$base_charset = 
 			isset ($config ['base_charset']) ?
 				$config ['base_charset'] :
-				$this->_config ['base_charset'];
+				$this_config ['base_charset'];
 				
 		$send_charset = 
 			isset ($config ['send_charset']) ?
 				$config ['send_charset'] :
-				$this->_config ['send_charset'];
+				$this_config ['send_charset'];
 
 		// Необходимо перекодирвоание
 		$recoding =

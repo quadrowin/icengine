@@ -9,7 +9,6 @@
 abstract class Manager_Abstract
 {
 	
-	
 	/**
 	 * @desc Конфиги менеджера
 	 * @return Objective
