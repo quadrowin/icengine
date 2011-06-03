@@ -78,9 +78,9 @@ abstract class View_Render_Manager extends Manager_Abstract
 	/**
 	 * @desc Выводит результат работы шаблонизатора в браузер.
 	 */
-	public static function display ()
+	public static function display ($tpl)
 	{
-		self::getView ()->display ();
+		self::getView ()->display ($tpl);
 	}
 	
 	/**

@@ -66,7 +66,9 @@ class View_Render_Smarty extends View_Render_Abstract
 		$this->_smarty = new Smarty ();
 		
 		$this->_smarty->compile_dir = $config ['compile_path'];
-		$this->_smarty->template_dir = $config ['templates_path']->__toArray ();
+		$this->_smarty->template_dir = array_reverse (
+			$config ['templates_path']->__toArray ()
+		);
 		$this->_smarty->plugins_dir = $config ['plugins_path']->__toArray ();
 		
 		// Фильтры
@@ -76,6 +78,17 @@ class View_Render_Smarty extends View_Render_Abstract
 			Loader::load ($filter);
 			$filter::register ($this->_smarty);
 		}
+	}
+	
+	/**
+	 * @desc Получает идентификатор компилятор для шаблона.
+	 * Необходимо, т.к. шаблон зависит от путей шаблонизатора.
+	 * @param string $tpl
+	 * @return string
+	 */
+	protected function _compileId ($tpl)
+	{
+		return crc32 (json_encode ($this->_smarty->template_dir));
 	}
 	
 	/**
@@ -97,8 +110,8 @@ class View_Render_Smarty extends View_Render_Abstract
 	public function addTemplatesPath ($path)
 	{
 		$this->_smarty->template_dir = array_merge (
-			(array) $this->_smarty->template_dir,
-			(array) $path
+			array_reverse ((array) $path),
+			(array) $this->_smarty->template_dir
 		);
 	}
 	
@@ -130,10 +143,9 @@ class View_Render_Smarty extends View_Render_Abstract
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::display()
 	 */
-	public function display ($tpl = null)
+	public function display ($tpl)
 	{
-		$tpl = $tpl ? $tpl : self::$_config ['layout'];
-		return $this->_smarty->display ($tpl);
+		return $this->_smarty->display ($tpl, null, $this->_compileId ($tpl));
 	}
 	
 	/**

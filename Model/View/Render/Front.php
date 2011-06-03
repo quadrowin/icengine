@@ -21,14 +21,14 @@ class View_Render_Front extends View_Render_Abstract
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::display()
 	 */
-	public function display ($tpl = null)
+	public function display ($tpl)
 	{
 		$this->fetch ($tpl);
 	}
 	
-	public function fetch($tpl)
+	public function fetch ($tpl)
 	{
-		throw new Exception ('o.O');
+		throw new Exception ('хД');
 	}
 	 
 	/**
@@ -50,7 +50,7 @@ class View_Render_Front extends View_Render_Abstract
 		$render = $tasks [0]->getViewRender ();
 
 		$render->assign ($this->_vars);
-		$render->display ();
+		$render->display ($task->getTemplate ());
 	}
 	
 }
