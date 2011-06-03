@@ -94,14 +94,6 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	abstract public function fetch ($tpl);
 	
 	/**
-	 * @return string
-	 */
-	public function getLayout ()
-	{
-		return $this->config ['layout'];
-	}
-	
-	/**
 	 * @desc Возвращает массив путей до шаблонов.
 	 * @return array
 	 */
@@ -168,17 +160,6 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 		Message_After_Render::push ($this);
 		
 		return $result;
-	}
-	
-	/**
-	 * 
-	 * @param string $value
-	 * @return View_Render_Abstract
-	 */
-	public function setLayout ($value)
-	{
-		$this->_config ['layout'] = $value;
-		return $this;
 	}
 	
 	/**

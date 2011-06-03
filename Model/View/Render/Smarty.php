@@ -21,12 +21,6 @@ class View_Render_Smarty extends View_Render_Abstract
 	 */
 	protected static $_config = array (
 		/**
-		 * @desc Внешний шаблон.
-		 * Будет использоватья при выводе в браузер через метод display.
-		 * @var string
-		 */
-		'layout'			=> 'main.tpl',
-		/**
 		 * @desc Директория для скопилированных шаблонов Smarty
 		 * @var string
 		 */
