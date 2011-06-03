@@ -28,6 +28,15 @@ abstract class Model_Child extends Model
 	}
 	
 	/**
+	 * @desc Получить коллекцию дочерних элементов - псевдоним метода childs()
+	 * @return Model_Collection
+	 **/
+	public function children ()
+	{
+		return $this->childs ();
+	}
+	
+	/**
 	 * @desc Возвращает предка.
 	 * @return Model_Child
 	 */
