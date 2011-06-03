@@ -251,10 +251,10 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	{
 		$this
 			->getOptions ()
-			->setOptions (
+			->setItems (
 				$source
 					->getOptions ()
-					->getOptions ()
+					->getItems ()
 			);
 	}
 	
@@ -726,8 +726,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		
 		$this->_lastQuery = $query;
 		
-		Loader::load ('Model_Collection_Manager');
-		Model_Collection_Manager::load ($this, $query, !$this->_autojoin);
+		Model_Collection_Manager::load ($this, $query);
 		
 		$this->_options->executeAfter ($this, $query);
 		
