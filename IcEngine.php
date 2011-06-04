@@ -6,9 +6,13 @@
  * @package IcEngine 
  *
  */
-
 class IcEngine
 {
+	
+	/**
+	 * @desc Задача фронт контроллера.
+	 * @var Controller_Task
+	 */
 	private static $_task;
 	
 	/**
@@ -141,7 +145,7 @@ class IcEngine
 	 */
 	public static function initLoader ()
 	{
-		require self::$_path . 'Class/Loader.php';
+		require dirname (__FILE__) . '/Class/Loader.php';
 		
 		Loader::addPathes (array (
 			'Class'			=> array (

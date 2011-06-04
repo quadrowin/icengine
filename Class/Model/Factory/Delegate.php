@@ -16,6 +16,18 @@ class Model_Factory_Delegate extends Model
 	protected $_modelFactory;
 	
 	/**
+	 * @desc 
+	 * @param array $fields
+	 */
+	public function __construct (array $fields = array ())
+	{
+		// Находим фабрику
+		Loader::load ('Model_Manager_Delegee_Factory');
+		$this->_modelFactory = Model_Manager_Delegee_Factory::factory ($this);
+		parent::__construct ($fields);
+	}
+	
+	/**
 	 * (non-PHPdoc)
 	 * @see Model::modelName()
 	 */

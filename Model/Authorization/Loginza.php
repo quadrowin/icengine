@@ -1,4 +1,5 @@
 <?php
+Loader::load ('Authorization_Abstract');
 /**
  * 
  * @desc Авторизация через логинзу.

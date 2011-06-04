@@ -80,8 +80,8 @@ abstract class Model_Collection_Manager
 			
 			foreach ($pack ['items'] as $i => $item)
 			{
-				$items [] 	= $item [$i]['id'];
-				$addicts [] = $item [$i]['addicts'];
+				$items [] 	= $item ['id'];
+				$addicts [] = $item ['addicts'];
 			}
 			
 			$pack ['items']	= $items;
@@ -127,7 +127,7 @@ abstract class Model_Collection_Manager
 				}
 				$items [] = $item [$key_field];
 			}
-			
+						
 			$collection->data ('addicts', $addicts);
 				
 			$pack = array (
@@ -136,9 +136,13 @@ abstract class Model_Collection_Manager
 		}
 		
 		// Инициализируем модели коллекции
-		foreach ($pack ['items'] as &$item)
+		foreach ($pack ['items'] as $i => &$item)
 		{
 			$item = Model_Manager::get ($model, $item);
+			if (!empty ($addicts [$i]))
+			{
+				$item->set ($addicts [$i]);
+			}
 		}
 		
 		$collection->setItems ($pack ['items']);

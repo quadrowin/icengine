@@ -9,6 +9,12 @@
 class Model_Collection implements ArrayAccess, IteratorAggregate, Countable 
 {
 	/**
+	 * @desc Клонировать дату
+	 * @var integer
+	 */
+	const ASSIGN_DATA 		= 'Data';
+	
+	/**
 	 * @desc Клонировать фильтры
 	 * @var integer
 	 */
@@ -204,6 +210,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		if (!$flags)
 		{
 			$flags = array (
+				self::ASSIGN_DATA,
 				self::ASSIGN_FILTERS,
 				self::ASSIGN_MODELS,
 				self::ASSIGN_OPTIONS,
@@ -223,6 +230,15 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		}
 		
 		return $this;
+	}
+	
+	/**
+	 * @desc Клонировать дату коллекции
+	 * @param Model_Collection $source
+	 */
+	public function assignData (Model_Collection $source)
+	{
+		$this->data ($source->data ());
 	}
 	
 	/**

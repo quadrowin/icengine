@@ -54,6 +54,13 @@ abstract class Model implements ArrayAccess
 	 * @var boolean
 	 */
 	protected	$_loaded;
+
+	
+	/**
+	 * @desc Обновленные поля.
+	 * @var array <boolean>
+	 */
+	protected	$_updatedFields = array ();
 	
 	/**
 	 * @param string $method
@@ -380,6 +387,8 @@ abstract class Model implements ArrayAccess
 		return $this->_fields;
 	}
 	
+	
+	
 	/**
 	 * @desc Проверяет существование поля в модели.
 	 * @return boolean
@@ -613,14 +622,19 @@ abstract class Model implements ArrayAccess
 			{
 				$tmp = array ();
 				$args = $args->getPart (Query::WHERE);
-				for ($i = 0, $icount = sizeof ($args); $i < $icount; $i++)
+				
+				foreach ($args as $arg)
 				{
-					$tmp [$args [$i][Query::WHERE]] = $args [$i][Query::VALUE];
+					$tmp [$arg [Query::WHERE]] = $arg [Query::VALUE];
 				}
 			}
 		}
+		/**
+		 * @var Model $valid
+		 */
 		$valid = true;
-		foreach ((array) $args as $field=>$value)
+		
+		foreach ((array) $args as $field => $value)
 		{
 			if ($this->_fields [$field] != $value)
 			{
@@ -654,6 +668,10 @@ abstract class Model implements ArrayAccess
 	 */
 	public function update (array $data)
 	{
+		foreach ($data as $key => $value)
+		{
+			$this->_updatedFields [$key] = true;
+		}
 		$this->set ($data);
 		return $this->save ();
 	}
@@ -668,6 +686,11 @@ abstract class Model implements ArrayAccess
 	 */
 	public function updateCarefully (array $data)
 	{
+		foreach ($data as $key => $value)
+		{
+			$this->_updatedFields [$key] = true;
+		}
+		
 		$this->set ($data);
 		
 		$pseudos = array ();

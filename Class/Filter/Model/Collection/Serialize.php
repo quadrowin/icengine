@@ -17,12 +17,17 @@ class Filter_Model_Collection_Serialize
 	{	
 		$addicts = $data->data ('addicts');
 		
-		$data->data ('addicts', null);
+		$obj_data = $data->data ();
+		
+		if (isset ($obj_data ['addicts']))
+		{
+			unset ($obj_data ['addicts']);
+		}
 		
 		$pack = array (
 			'class'		=> get_class ($data),
 			'items'		=> $data->items (),
-			'data'		=> $data->data ()
+			'data'		=> $obj_data
 		);
 		
 		for ($i = 0, $icount = sizeof ($pack ['items']); $i < $icount; $i++)
@@ -30,8 +35,10 @@ class Filter_Model_Collection_Serialize
 			if ($pack ['items'][$i] instanceof Model)
 			{
 				$pack ['items'][$i] = array (
-					'id'		=> $pack ['items'][$i]->key (),
-					'addicts'	=> $addicts [$i]
+					'id'		=> is_object ($pack ['items'][$i])	? 
+						$pack ['items'][$i]->key () : 
+						$pack ['items'][$i],
+					'addicts'	=> isset ($addicts [$i]) ? $addicts [$i] : null
 				);
 			}
 		}

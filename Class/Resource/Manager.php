@@ -22,6 +22,13 @@ class Resource_Manager
 	protected static $_resources = array ();
 	
 	/**
+	 * @desc Обновленные в процессе ресурсы.
+	 * Необходимо для предотвращения постоянной записи неизменяемых ресурсов.
+	 * @var array <boolean>
+	 */
+	protected static $_updatedResources = array ();
+	
+	/**
 	 * @desc Конфиг
 	 * @var array
 	 */
@@ -37,6 +44,8 @@ class Resource_Manager
 		 */
 		'Resource_Manager'	=> array ()
 	);
+	
+	
 	
 	/**
 	 * @desc Возвращает транспорт согласно конфигу.
@@ -130,11 +139,14 @@ class Resource_Manager
 	 */
 	public static function save ()
 	{
-		foreach (self::$_resources as $type=>$resources)
+		foreach (self::$_resources as $type => $resources)
 		{
-			foreach ($resources as $name=>$resource)
+			foreach ($resources as $name => $resource)
 			{
-				self::transport ($type)->send ($name, $resource);
+				if (isset (self::$_updatedResources [$type][$name]))
+				{
+					self::transport ($type)->send ($name, $resource);
+				}
 			}
 		}
 	}
@@ -147,8 +159,8 @@ class Resource_Manager
 	 */
 	public static function set ($type, $name, $resource)
 	{
+		self::$_updatedResources [$type][$name] = true;
 		self::$_resources [$type][$name] = $resource;
-		//self::transport ($type)->send ($name, $resource);
 	}
 	
 	/**
