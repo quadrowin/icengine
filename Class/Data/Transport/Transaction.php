@@ -23,15 +23,19 @@ class Data_Transport_Transaction
      */
     protected $_transport;
     
+	/**
+	 * @desc Создает и возвращает транзакцию.
+	 * @param Data_Transport $transport Трансорт
+	 */
     public function __construct (Data_Transport $transport)
     {
         $this->_transport = $transport;
     }
     
     /**
-     * 
-     * @param string $key
-     * @return mixed
+     * @desc Получает и возвращает значение из транзации.
+     * @param string $key Ключ
+     * @return mixed Значение
      */
     public function receive ($key)
     {
@@ -39,12 +43,9 @@ class Data_Transport_Transaction
     }
     
     /**
-     * 
-     * 
-     * @param array|string $key
-     * 		Ключ или массив пар (Ключ => Значение)
-     * @param mixed $data
-     * 		Значение
+     * @desc Запись значения в транзакцию.
+     * @param array|string $key Ключ или массив пар (Ключ => Значение)
+     * @param mixed $data Значение
      */
     public function send ($key, $data = null)
     {
@@ -62,6 +63,7 @@ class Data_Transport_Transaction
     }
     
     /**
+	 * @desc Возвращает буффер транзации.
      * @return array
      */
     public function buffer ()
