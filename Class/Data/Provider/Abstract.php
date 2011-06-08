@@ -526,6 +526,7 @@ class Data_Provider_Abstract
 		if (func_num_args () > 1)
 		{
 			$this->_setOption ($key, func_get_arg (1));
+			return ;
 		}
 		foreach ($key as $k => $v)
 		{
