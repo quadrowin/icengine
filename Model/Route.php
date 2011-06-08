@@ -326,7 +326,12 @@ class Route extends Model_Child
 			)
 				->reset ();
 			
-			foreach ((array) $this->_fields ['actions'] as $action => $assign)
+			$actions =	
+				is_object ($this->_fields ['actions']) ?
+				$this->_fields ['actions']->__toArray () :
+				(array) $this->_fields ['actions'];
+			
+			foreach ($actions as $action => $assign)
 			{
 				if (is_numeric ($action))
 				{
