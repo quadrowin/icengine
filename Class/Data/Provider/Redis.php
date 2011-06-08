@@ -58,6 +58,32 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	
 	/**
 	 * (non-PHPdoc)
+	 * @see Data_Provider_Abstract::_setOption()
+	 */
+	public function _setOption ($key, $value)
+	{
+		switch ($key)
+		{
+			case 'mget_limit':
+				$this->mget_limit = $value;
+				return true;
+				
+			case 'servers':
+				foreach ($value as $server)
+				{
+					$this->addServer (
+						$server ['host'],
+						isset ($server ['port']) ? $server ['port'] : null,
+						isset ($server ['weight']) ? $server ['weight'] : null
+					);
+				}
+				return true;
+		}
+		return parent::_setOption ($key, $value);
+	}
+	
+	/**
+	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::add()
 	 */
 	public function add ($key, $value, $expiration = 0, $tags = array ())
@@ -386,33 +412,6 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 			$expiration = 0;
 		}
 		return $this->conn->set ($this->keyEncode ($key), $value, $expiration, $tags);
-	}
-	
-	/**
-	 * (non-PHPdoc)
-	 * @see Data_Provider_Abstract::setOption()
-	 */
-	public function setOption ($key, $value)
-	{
-		switch ($key)
-		{
-			case 'mget_limit':
-				$this->mget_limit = $value;
-				return true;
-				
-			case 'servers':
-				foreach ($value as $server)
-				{
-					$this->addServer (
-						$server ['host'],
-						isset ($server ['port']) ? $server ['port'] : null,
-						isset ($server ['weight']) ? $server ['weight'] : null
-					);
-				}
-				return true;
-		}
-		return parent::setOption ($key, $value);
-		//return $this->conn->setOption ($key, $value);
 	}
 	
 }
