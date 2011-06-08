@@ -318,9 +318,6 @@ class Redis
 			$r = null;
 		}
 		
-		echo $key . '<br />';
-		var_dump ($r);
-		
 		return $r;
 	}
 
