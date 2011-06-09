@@ -9,6 +9,9 @@ if (!class_exists ('Model_Child'))
  * @desc Модель для формирования заголовка страницы.
  * @package Ice_Vipgeo
  * 
+ * @property string $keywords Ключевые слова.
+ * @property string $description Описание.
+ * 
  */
 class Page_Title extends Model_Child
 {
@@ -25,9 +28,9 @@ class Page_Title extends Model_Child
 	 */
 	protected function _compile ()
 	{
-		if ($this->action)
+		if ($this->titleAction)
 		{
-			$a = explode ('/', $this->action);
+			$a = explode ('/', $this->titleAction);
 			$task = Controller_Manager::call (
 				$a [0],
 				isset ($a [1]) ? $a [1] : 'index',
@@ -49,6 +52,24 @@ class Page_Title extends Model_Child
 			$keys,
 			$vals,
 			$this->title
+		);
+	}
+	
+	/**
+	 * @desc Данные для страницы по хосту и адресу.
+	 * @param string $host
+	 * @param string $page 
+	 * @return Page_Title
+	 */
+	public static function byAddress ($host, $page)
+	{
+		return Model_Manager::byQuery (
+			'Page_Title',
+			Query::instance ()
+				->where ('(? RLIKE `host` OR `host`="")', $host)
+				->where ('? RLIKE `pattern`', $page)
+				->order ('`host`=""')
+				->limit (1)
 		);
 	}
 	
