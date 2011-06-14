@@ -12,7 +12,7 @@ class Helper_GeoIP
 	 * IP адрес текущего пользователя
 	 * @return City
 	 */
-	public function getCity ()
+	public static function getCity ()
 	{
 		$ip = ip2long (Request::ip ());
 
