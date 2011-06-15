@@ -211,7 +211,18 @@ class Debug
 		$debug = array_slice (debug_backtrace (), 1, 10);
 		self::removeUninterestingObjects ($debug);
 		
-		$log_text = 
+		$log_text =
+			(
+				isset ($_SERVER ['HTTP_HOST']) ? 
+				$_SERVER ['HTTP_HOST'] :
+				'empty host'
+			) .
+			(
+				isset ($_SERVER ['REQUEST_URI']) ? 
+				$_SERVER ['REQUEST_URI'] :
+				'/empty uri'
+			) . 
+			"\r\n" .
 			'[' . $errno . ':' . $errfile . '@' . $errline . '] ' . 
 			$errstr . "\r\n";
 		
