@@ -139,7 +139,7 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 			);
 		}
 		
-		$this_config = $this->config;
+		$this_config = $this->config ();
 		
 		$mail->From =
 			isset ($config ['from_email']) ? 

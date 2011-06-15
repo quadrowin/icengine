@@ -965,7 +965,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function setOption ($option)
 	{
-		$this->_options->setOption ($option);
+		//$this->_options->setOption ($option);
 	}
 	
 	/**
