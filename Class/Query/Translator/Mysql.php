@@ -380,7 +380,8 @@ class Query_Translator_Mysql extends Query_Translator
 			elseif (
 				strpos ($alias, self::SQL_WILDCARD) !== false ||
 				strpos ($alias, '(') !== false ||
-				strpos ($alias, ' ') !== false
+				strpos ($alias, ' ') !== false ||
+				strpos ($alias, '.') !== false
 			)
 			{
 				$columns [] = $source;
