@@ -41,6 +41,8 @@ class User extends Model
 	{
 		User_Session::getCurrent ()->updateSession ($this->id);
 		self::$_current = $this;
+		
+		$config = $this->config ();
 		if ($config ['login_callback'])
 		{
 			list ($class, $method) = explode (
@@ -54,6 +56,7 @@ class User extends Model
 				$this
 			);
 		}
+		
 		return $this;
 	}
 
