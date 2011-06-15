@@ -7,7 +7,10 @@
  * @package Morphy
  */
 
-include (dirname (__FILE__).'/Morphy/src/common.php');
+if (!class_exists ('phpMorphy'))
+{
+	include dirname (__FILE__) . '/Morphy/src/common.php';
+}
 
 abstract class Morphy
 {

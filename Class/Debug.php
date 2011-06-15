@@ -231,7 +231,8 @@ class Debug
 			if (isset ($debug_step ['file']))
 			{
 				$log_text .= 
-					'[' . $debug_step ['file'] . '@' . $debug_step ['line'] . ':' . 
+					'[' . $debug_step ['file'] . '@' . 
+					$debug_step ['line'] . ':' . 
 					$debug_step ['function'] . ']' . "\r\n";
 			}
 			else
