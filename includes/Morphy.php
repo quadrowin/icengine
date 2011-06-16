@@ -51,7 +51,3 @@ if (!class_exists ('Morphy'))
 		}
 	}
 }
-else
-{
-	$fail_var = $fail_var;
-}
