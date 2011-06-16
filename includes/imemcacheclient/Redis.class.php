@@ -308,12 +308,26 @@ class Redis
 		{
 			return null;
 		}
+		
 		return $plain ? $r : json_decode ($r, TRUE);
 	}
 
 	public function set ($key, $value, $TTL = NULL)
 	{
-		$value = json_encode ($value);
+		$r = iconv ('UTF-8', 'UTF-8//IGNORE', $r);
+		
+		if ($r != $value)
+		{
+			Debug::errorHandler (
+				E_USER_NOTICE, 
+				'Redis - пришел левак', 
+				__FILE__, 
+				__LINE__
+			);
+		}
+
+		$value = json_encode ($r);
+		
 		$r = $this->requestByKey ($key, 
 		'SET ' . $key . ' ' . strlen ($value) . "\r\n" . $value);
 		if ($TTL)
