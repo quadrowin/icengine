@@ -303,6 +303,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 	
 		// Получаем URL
 		$url = !$url ? $this->__saveUrl ($params, $category_id) : $url;
+		
 		$user = User::getCurrent ();
 		
 		if ($category_id)
@@ -353,7 +354,8 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 				
 			if (
 				!$resource_addContent->userCan ($user) || 
-				!$personal_role
+				!$personal_role ||
+				!User::id ()
 			)
 			{
 				return $this->replaceAction ('Error', 'accessDenied');
@@ -409,7 +411,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 			Helper_Header::redirect ($referer);
 			die ();
 		}
-		
+
 		$this->_task->setTemplate (null);
 		$this->_output->send (array (
 			'redirect'	=> $referer,
