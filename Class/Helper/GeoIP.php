@@ -20,9 +20,9 @@ class Helper_GeoIP
 	 * IP адрес текущего пользователя
 	 * @return City
 	 */
-	public static function getCity ()
+	public static function getCity ($ip = null)
 	{
-		$ip = self::ip2int (Request::ip ());
+		$ip = self::ip2int ($ip !== null ? $ip : Request::ip ());
 		
 		$city_name = DDS::execute (
 			Query::instance ()
