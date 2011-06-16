@@ -314,7 +314,7 @@ class Redis
 
 	public function set ($key, $value, $TTL = NULL)
 	{
-		$r = iconv ('UTF-8', 'UTF-8//IGNORE', $r);
+		$r = $value;//iconv ('UTF-8', 'UTF-8//IGNORE', $value);
 		
 		if ($r != $value)
 		{
