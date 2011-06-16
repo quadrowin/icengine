@@ -424,7 +424,9 @@ var Helper_Render_Smarty;
             funcText.push('if (_FLAGS.keepWhitespace == true) _OUT.write("');
             var s = text.substring(0, nlPrefix).replace('\n', '\\n'); // A macro IE fix from BJessen.
             if (s.charAt(s.length - 1) == '\n')
+			{
             	s = s.substring(0, s.length - 1);
+			}
             funcText.push(s);
             funcText.push('");');
         }
@@ -432,13 +434,17 @@ var Helper_Render_Smarty;
         for (var i = 0; i < lines.length; i++) {
             emitSectionTextLine(lines[i], funcText);
             if (i < lines.length - 1)
+			{
                 funcText.push('_OUT.write("\\n");\n');
+			}
         }
         if (nlSuffix + 1 < text.length) {
             funcText.push('if (_FLAGS.keepWhitespace == true) _OUT.write("');
             var s = text.substring(nlSuffix + 1).replace('\n', '\\n');
             if (s.charAt(s.length - 1) == '\n')
+			{
             	s = s.substring(0, s.length - 1);
+			}
             funcText.push(s);
             funcText.push('");');
         }
@@ -451,20 +457,28 @@ var Helper_Render_Smarty;
             var begMark = "{$", endMark = "}";
             var begExpr = line.indexOf(begMark, endExprPrev + endMarkPrev.length); // In "a${b}c", begExpr == 1
             if (begExpr < 0)
+			{
                 break;
-            if (line.charAt(begExpr + 2) == '%') {
+			}
+            if (line.charAt(begExpr + 2) == '%')
+			{
                 begMark = "{$%";
                 endMark = "%}";
             }
             var endExpr = line.indexOf(endMark, begExpr + begMark.length);         // In "a${b}c", endExpr == 4;
             if (endExpr < 0)
+			{
                 break;
+			}
             emitText(line.substring(endExprPrev + endMarkPrev.length, begExpr), funcText);                
             // Example: exprs == 'firstName|default:"John Doe"|capitalize'.split('|')
             var exprArr = line.substring(begExpr + begMark.length, endExpr).replace(/\|\|/g, "#@@#").split('|');
-			for (var k in exprArr) {
+			for (var k in exprArr)
+			{
                 if (exprArr[k].replace) // IE 5.x fix from Igor Poteryaev.
+				{
                     exprArr[k] = exprArr[k].replace(/#@@#/g, '||');
+				}
             }
             funcText.push('_OUT.write(');
             emitExpression(exprArr, exprArr.length - 1, funcText); 
@@ -476,9 +490,10 @@ var Helper_Render_Smarty;
     };
     
     var emitText = function(text, funcText) {
-        if (text == null ||
-            text.length <= 0)
+        if (text == null || text.length <= 0)
+		{
             return;
+		}
         text = text.replace(/\\/g, '\\\\');
         text = text.replace(/\n/g, '\\n');
         text = text.replace(/"/g,  '\\"');
