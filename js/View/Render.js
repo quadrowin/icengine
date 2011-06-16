@@ -31,7 +31,7 @@ var View_Render = {
 	 */
 	assign: function (key, value)
 	{
-		if (typeof (input) == 'object' && (input instanceof Array))
+		if (typeof key == 'object')
 		{
 			$.extend (View_Render.tplVars, key);
 		}
