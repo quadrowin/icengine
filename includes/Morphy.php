@@ -40,7 +40,7 @@ if (!class_exists ('Morphy'))
 					dirname (__FILE__) . '/Morphy/dicts/utf-8',
 					'ru_RU',
 					array (
-						'storage' => PHPMORPHY_STORAGE_FILE,
+						'storage' => PHPMORPHY_STORAGE_FILE, 
 						'predict_by_suffix' => true,
 						'predict_by_db' => true,
 						'graminfo_as_text' => true,
