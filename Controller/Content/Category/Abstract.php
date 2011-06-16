@@ -283,6 +283,8 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 			$parent_category_id
 		);
 		
+		fb ($parent);
+
 		if (!$parent)
 		{
 			return $this->replaceAction ('Error', 'notFound');
