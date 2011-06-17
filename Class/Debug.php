@@ -222,6 +222,11 @@ class Debug
 				$_SERVER ['REQUEST_URI'] :
 				'/empty uri'
 			) . 
+			(
+				isset ($_SERVER ['HTTP_REFERER']) ?
+				"\r\nreferer: " . $_SERVER ['HTTP_REFERER']  :
+				''
+			) .
 			"\r\n" .
 			'[' . $errno . ':' . $errfile . '@' . $errline . '] ' . 
 			$errstr . "\r\n";

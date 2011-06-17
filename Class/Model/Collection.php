@@ -992,7 +992,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * @desc Вернуть первый элемент коллекции, удалив его из коллекции
+	 * @desc Вернуть первый элемент коллекции, удалив его из коллекции.
 	 * @return Model|null
 	 */
 	public function shift ()
@@ -1001,7 +1001,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * @desc Перемешивает элементы коллекции
+	 * @desc Перемешивает элементы коллекции в случайном порядке.
 	 * @return Model_Collection
 	 */
 	public function shuffle ()
