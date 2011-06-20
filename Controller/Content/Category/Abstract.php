@@ -210,7 +210,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
 		
-		//$category->delete ();
+		$category->delete ();
 
 		$redirect = $this->_removeRedirect ($category, $referer);
 		
