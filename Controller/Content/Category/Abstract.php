@@ -332,8 +332,6 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 			$this->__categoryModel (),
 			$parent_category_id
 		);
-		
-		fb ($parent);
 
 		if (!$parent)
 		{
@@ -351,13 +349,14 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 		);
 		
 		// Получаем класс
-		$class = !$class ?  $this->__saveClass ($params) : $class;
+		$class = !$class ? $this->__saveClass ($params) : $class;
 	
 		// Получаем URL
 		$url = !$url ? $this->__saveUrl ($params, $category_id) : $url;
 		
 		$user = User::getCurrent ();
 		
+		$old_url = null;
 		if ($category_id)
 		{
 			$content_category = Model_Manager::byKey (
@@ -380,6 +379,8 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 			{
 				return $this->replaceAction ('Error', 'accessDenied');
 			}
+			
+			$old_url = $content_category->url;
 			
 			$content_category->update (array (
 				'title'						=> $title,
@@ -458,17 +459,22 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 			));
 		}
 		
-		if (!Request::isJsHttpRequest())
+		$redirect = 
+			$old_url == $referer ?
+			$url :
+			$referer;
+		
+		if (!Request::isJsHttpRequest ())
 		{
-			Helper_Header::redirect ($referer);
+			Helper_Header::redirect ($redirect);
 			die ();
 		}
 
 		$this->_task->setTemplate (null);
 		$this->_output->send (array (
-			'redirect'	=> $referer,
+			'redirect'	=> $redirect,
 			'data'		=> array (
-				'redirect'	=> $referer
+				'redirect'	=> $redirect
 			)
 		));
 	}
