@@ -1,16 +1,23 @@
 <?php
-
+/**
+ * 
+ * @desc Ресурс прав доступа.
+ * Роли получают доступ не на модель, а на ресурсы.
+ * Названия ресурсов следует строить 
+ * @package IcEngine
+ * 
+ */
 class Acl_Resource extends Model
 {
 	
     /**
-     * Разделитель составных частей имени ресурса.
+     * @desc Разделитель составных частей имени ресурса.
      * @var string
      */
 	const NAME_PART_DELIM = '\\';
 	
 	/**
-	 * Роли, имеющие доступ
+	 * @desc Роли, имеющие доступ
 	 * @var Acl_Role_Collection
 	 */
 	public $_roles;
@@ -61,9 +68,9 @@ class Acl_Resource extends Model
 	}
 	
 	/**
-	 * 
+	 * @desc Проверяет существование ресурса. Возвращает ресурс или null.
 	 * @param string|array $name
-	 * @return Acl_Resource
+	 * @return Acl_Resource Ресурс или null.
 	 */
 	public static function byNameCheck ($name)
 	{
@@ -107,7 +114,8 @@ class Acl_Resource extends Model
 	}
 	
 	/**
-	 * @return Acl_Role_Collection
+	 * @desc Возвращает коллекцию ролей, имеющих доступ к этому ресурсу.
+	 * @return Acl_Role_Collection Коллекция ролей.
 	 */
 	public function roles ()
 	{
@@ -121,10 +129,9 @@ class Acl_Resource extends Model
 	}
 	
 	/**
-	 * Имеет ли пользователь доступ
-	 * @param User $user
-	 * 		Пользователь
-	 * @return boolean
+	 * @desc Имеет ли пользователь доступ.
+	 * @param User $user Пользователь
+	 * @return boolean true, если пользователь имеет доступ, иначе - false.
 	 */
 	public function userCan (User $user)
 	{
