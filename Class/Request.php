@@ -99,11 +99,12 @@ class Request
 	 */
 	public static function isJsHttpRequest ()
 	{
+		global $JsHttpRequest_Active;
 		return 
 			isset ($_SERVER ['REQUEST_METHOD']) &&
 			$_SERVER ['REQUEST_METHOD'] == 'POST' &&
-			isset ($_GET ['JsHttpRequest']) && 
-			$_GET ['JsHttpRequest'];
+			isset ($JsHttpRequest_Active) && 
+			$JsHttpRequest_Active;
 	}
 	
 	/**
