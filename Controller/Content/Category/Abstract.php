@@ -173,6 +173,56 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 	}
 	
 	/**
+	 * @desc Удаление категории. Зависимые объекты удалит Garbage Collector.
+	 * Предназначен для вызова через ajax.
+	 * @author Yury Shvedov
+	 * @param integer $content_category_id - id категории
+	 * @param string $referer - URL, по которому будет направлен 
+	 * посетитель
+	 */
+	public function remove ()
+	{
+		list (
+			$id,
+			$referer
+		) = $this->_input->receive (
+			'id',
+			'referer'
+		);
+
+		$category = Model_Manager::byKey ($this->__categoryModel (), $id);
+
+		if (!$category)
+		{
+			return $this->replaceAction ('Error', 'notFound');
+		}
+
+		$user = User::getCurrent ();
+
+		$resource_delete = Acl_Resource::byNameCheck (array (
+			$this->__categoryModel (), 
+			$id, 
+			'delete'
+		));
+		
+		if (!$resource_delete || !$resource_delete->userCan ($user))
+		{
+			return $this->replaceAction ('Error', 'accessDenied');
+		}
+		
+		//$category->delete ();
+
+		$redirect = $this->_removeRedirect ($category, $referer);
+		
+		$this->_task->setTemplate (null);
+		$this->_output->send (array (
+			'data'		=> array (
+				'redirect'	=> $redirect
+			)
+		));
+	}
+	
+	/**
 	 * @desc Получить список дочерних категорий
 	 * @param integer $category_id - id категории
 	 * @param string url - url категории
@@ -421,6 +471,17 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 				'redirect'	=> $referer
 			)
 		));
+	}
+	
+	/**
+	 * @desc Ссылка редиректа при удалении.
+	 * @param Content_Category $category
+	 * @param string $referer
+	 * @return string 
+	 */
+	protected function _removeRedirect (Content_Category $category, $referer)
+	{
+		return $referer;
 	}
 	
 	/**
