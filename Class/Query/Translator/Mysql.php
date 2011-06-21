@@ -30,6 +30,7 @@ class Query_Translator_Mysql extends Query_Translator
 	const SQL_ON			= 'ON';
 	const SQL_ORDER_BY		= 'ORDER BY';
 	const SQL_QUOTE			= '"';
+	const SQL_REPLACE		= 'REPLACE';
 	const SQL_SELECT		= 'SELECT';
 	const SQL_SET			= 'SET';
 	const SQL_SHOW			= 'SHOW';
@@ -233,27 +234,29 @@ class Query_Translator_Mysql extends Query_Translator
 		return $result;
 	}
 	
+	/**
+	 * @desc Рендеринг INSERT запроса.
+	 * @param Query $query Запрос.
+	 * @return string Сформированный SQL запрос.
+	 */
 	public function _renderInsert (Query $query)
 	{
 		$table = $query->part (Query::INSERT);
-		$sql = 
-			self::SQL_INSERT . ' ' .
-			strtolower (Model_Scheme::table ($table)) . 
-			' (';
+		$sql = 'INSERT ' . strtolower (Model_Scheme::table ($table)) . ' (';
 		
 		$fields = array_keys ($query->part (Query::VALUES));
 		$values = array_values ($query->part (Query::VALUES));
 		
-		for ($i = 0; $i < count ($fields); $i++)
+		for ($i = 0, $icount = count ($fields); $i < $icount; $i++)
 		{
-			$fields[$i] = self::_escape ($fields[$i]);
-			$values[$i] = self::_quote ($values[$i]);
+			$fields [$i] = self::_escape ($fields [$i]);
+			$values [$i] = self::_quote ($values [$i]);
 		}
 		
 		$fields = implode (', ', $fields);
 		$values = implode (', ', $values);
 		
-		return $sql . $fields . ') ' . self::SQL_VALUES . ' (' . $values . ')';
+		return $sql . $fields . ') VALUES (' . $values . ')';
 	}
 	
 	public function _renderLimitoffset (Query $query)
@@ -263,17 +266,13 @@ class Query_Translator_Mysql extends Query_Translator
 		
 		if (!empty ($limit_count))
 		{
-			$sql .= ' ' . 
-				self::SQL_LIMIT . ' ' . 
-				(int) $query->part (Query::LIMIT_OFFSET) . 
-				self::SQL_COMMA . 
-				(int) $query->part (Query::LIMIT_COUNT);
+			$sql .= 
+				' LIMIT ' . (int) $query->part (Query::LIMIT_OFFSET) . 
+				self::SQL_COMMA . (int) $query->part (Query::LIMIT_COUNT);
 		}
 		elseif ($query->part (Query::LIMIT_OFFSET))
 		{
-			$sql .= ' ' . 
-				self::SQL_LIMIT . ' ' . 
-				(int) $query->part (Query::LIMIT_OFFSET);
+			$sql .= ' LIMIT ' . (int) $query->part (Query::LIMIT_OFFSET);
 		}
 		
 		return $sql;
@@ -282,10 +281,11 @@ class Query_Translator_Mysql extends Query_Translator
 	public function _renderOrder (Query $query)
 	{
 		$orders = $query->part (Query::ORDER);
-		if (empty ($orders))
+		if (!$orders)
 		{
 			return '';
 		}
+		
 		$columns = array ();
 		foreach ($orders as $order)
 		{
@@ -303,15 +303,43 @@ class Query_Translator_Mysql extends Query_Translator
 			}
 		}
 		
-		return 
-			self::SQL_ORDER_BY . ' ' . 
-			implode (self::SQL_COMMA, $columns);
+		return 'ORDER BY ' . implode (self::SQL_COMMA, $columns);
 	}
 	
+	/**
+	 * @desc Рендеринг REPLACE запроса.
+	 * @param Query $query Запрос
+	 * @return string Сформированный SQL запрос
+	 */
+	public function _renderReplace (Query $query)
+	{
+		$table = $query->part (Query::REPLACE);
+		$sql = 'REPLACE ' . strtolower (Model_Scheme::table ($table)) . ' (';
+		
+		$fields = array_keys ($query->part (Query::VALUES));
+		$values = array_values ($query->part (Query::VALUES));
+		
+		for ($i = 0, $icount = count ($fields); $i < $icount; $i++)
+		{
+			$fields [$i] = self::_escape ($fields [$i]);
+			$values [$i] = self::_quote ($values [$i]);
+		}
+		
+		$fields = implode (', ', $fields);
+		$values = implode (', ', $values);
+		
+		return $sql . $fields . ') VALUES (' . $values . ')';
+	}
+	
+	/**
+	 * @desc Рендеринг SELECT запроса.
+	 * @param Query $query Запрос
+	 * @return string Сформированный SQL запрос
+	 */
 	public function _renderSelect (Query $query)
 	{
 		$sql =
-			self::SQL_SELECT . ' ' .
+			'SELECT ' .
 			self::_partCalcFoundRows ($query) . ' ' . 
 			self::_partDistinct ($query) . ' ';
 		$parts = $query->parts ();
@@ -407,7 +435,7 @@ class Query_Translator_Mysql extends Query_Translator
 	 */
 	public function _renderShow (Query $query)
 	{
-		$sql = self::SQL_SHOW . ' ' . $this->_partDistinct ($query) . ' ';
+		$sql = 'SHOW ' . $this->_partDistinct ($query) . ' ';
 		
 		$sql .= $query->part (Query::SHOW);
 		
@@ -419,13 +447,18 @@ class Query_Translator_Mysql extends Query_Translator
 			self::_renderGroup ($query);
 	}
 	
+	/**
+	 * @desc Рендеринг UPDATE запроса.
+	 * @param Query $query Запрос.
+	 * @return Сформированный SQL запрос.
+	 */
 	public function _renderUpdate (Query $query)
 	{
 		$table = $query->part (Query::UPDATE);
 		$sql = 
-			self::SQL_UPDATE . ' ' . 
-			strtolower (Model_Scheme::table ($table)) . ' ' . 
-			self::SQL_SET . ' ';
+			'UPDATE ' . 
+			strtolower (Model_Scheme::table ($table)) . 
+			' SET ';
 			
 		$values = $query->part (Query::VALUES);
 		$sets = array();
@@ -452,12 +485,12 @@ class Query_Translator_Mysql extends Query_Translator
 	{
 		$wheres = $query->part (Query::WHERE);
 		
-		if (empty ($wheres))
+		if (!$wheres)
 		{
 			return '';
 		}
 		
-		$sql = self::SQL_WHERE . ' ';
+		$sql = 'WHERE ';
 		foreach ($wheres as $i => $where)
 		{
 			if ($i > 0)
