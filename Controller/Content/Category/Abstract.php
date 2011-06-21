@@ -127,7 +127,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 	}
 	
 	/**
-	 * @desc Фабрик метод для создания класса контролера
+	 * @desc Фабрик метод для создания css-класса контролера
 	 * @param array $params
 	 * @return string
 	 * @override
