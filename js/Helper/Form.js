@@ -109,7 +109,7 @@ var Helper_Form = {
 			return;
 		}
 		
-		if (result.data && result.alert)
+		if (result.data && result.data.alert)
 		{
 			alert (result.data.alert);
 		}
