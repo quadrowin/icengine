@@ -9,7 +9,7 @@
 	{if $tables}
 	<ul>
 		{foreach from=$tables item="i"}
-		<li><a href="/cp/table/{$i->Name}/">{$i->Comment}</a></li>
+		<li><a href="/cp/table/{$i->Name}/">{if $i->Comment} {$i->Comment} ({$i->Name}){else}{$i->Name}{/if}</a></li>
 		{/foreach}
 	</ul>
 	{/if}
