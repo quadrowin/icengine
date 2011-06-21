@@ -8,6 +8,11 @@
  */
 class IcEngine
 {
+	
+	/**
+	 * @desc Задача фронт контроллера.
+	 * @var Controller_Task
+	 */
 	private static $_task;
 	
 	/**
@@ -53,8 +58,8 @@ class IcEngine
 	 */
 	public static function flush ()
 	{
-		Resource_Manager::save ();
-
+		//Resource_Manager::save ();
+		
 		Controller_Manager::call (
 			'Render', 'index',
 			array (
@@ -91,7 +96,17 @@ class IcEngine
 		{
 			self::initBootstrap ($bootstap);
 		}
+		
+		register_shutdown_function (array (__CLASS__, 'shutdownHandler'));
 	}
+	
+	public static function shutdownHandler ()
+	{
+		if (!error_get_last ())
+		{
+			Resource_Manager::save ();
+		}
+	}	
 	
 	/**
 	 * @desc Подключает загрузчик и запускает его.
@@ -130,7 +145,7 @@ class IcEngine
 	 */
 	public static function initLoader ()
 	{
-		require self::$_path . 'Class/Loader.php';
+		require dirname (__FILE__) . '/Class/Loader.php';
 		
 		Loader::addPathes (array (
 			'Class'			=> array (

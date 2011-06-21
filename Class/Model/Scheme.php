@@ -220,8 +220,7 @@ abstract class Model_Scheme
 	public static function fieldsNames ($model)
 	{
 		Loader::load ('Helper_Data_Source');
-		
-		return Helper_Data_Source::fields ($model);
+		return Helper_Data_Source::fields ($model)->column ('Field');
 	}
 	
 	/**

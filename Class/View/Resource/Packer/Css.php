@@ -105,6 +105,11 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 	 */
 	public function _replaceUrl (array $matches)
 	{
+		if (substr ($matches [1], 0, 5 == 'data:'))
+		{
+			return 'url(' . $matches [1] . ')';
+		}
+		
 		if (substr ($matches [1], 0, 1) == '/')
 		{
 			$url = $matches [1];

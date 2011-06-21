@@ -43,6 +43,14 @@ class View_Render_JsHttpRequest extends View_Render_Abstract
 	public function display ($tpl)
 	{
 		$GLOBALS ['_RESULT'] = reset ($this->_vars);
+//		if (
+//			count ($GLOBALS ['_RESULT']) == 1 &&
+//			isset ($GLOBALS ['_RESULT']['content']) &&
+//			is_array ($GLOBALS ['_RESULT']['content'])
+//		)
+//		{
+//			$GLOBALS ['_RESULT'] = $GLOBALS ['_RESULT']['content'];
+//		}
 		die ();
 	}
 	

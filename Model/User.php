@@ -21,6 +21,8 @@ class User extends Model
 	 * @var array
 	 */
 	protected static $_config = array (
+		// колбэк после авторизации
+		'login_callback'	=> null,
 		// функция, вызываемая при логауте.
 		'logout_callback'	=> null
 	);
@@ -39,6 +41,22 @@ class User extends Model
 	{
 		User_Session::getCurrent ()->updateSession ($this->id);
 		self::$_current = $this;
+		
+		$config = $this->config ();
+		if ($config ['login_callback'])
+		{
+			list ($class, $method) = explode (
+				'::', 
+				$config ['login_callback']
+			);
+			
+			Loader::load ($class);
+			call_user_func (
+				array ($class, $method),
+				$this
+			);
+		}
+		
 		return $this;
 	}
 

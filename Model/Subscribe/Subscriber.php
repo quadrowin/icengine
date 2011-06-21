@@ -17,14 +17,17 @@ class Subscribe_Subscriber extends Model
             ->where ('contact', $email)
         );
         
-        if (!$subscriber && $autocreate)
+        if (!$subscriber)
         {
-            $subscriber = new Subscribe_Subscriber (array (
-                'active'		=> 1,
-                'date'			=> Helper_Date::toUnix (),
-            	'contact'		=> $email
-            ));
-            $subscriber->save ();
+			if ($autocreate)
+			{
+				$subscriber = new Subscribe_Subscriber (array (
+					'active'		=> 1,
+					'date'			=> Helper_Date::toUnix (),
+					'contact'		=> $email
+				));
+				$subscriber->save ();
+			}
         }
         else
         {

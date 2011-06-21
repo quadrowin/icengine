@@ -208,17 +208,7 @@ abstract class View_Resource_Packer_Abstract
 		
 		foreach ($resources as $resource)
 		{
-//			if (!$resource->filePath)
-//			{
-//				$resource->filePath = 
-//					rtrim (IcEngine::root (), '/') . $resource->href;
-//				$resource->filemtime =
-//					file_exists ($resource->filePath) ? 
-//					filemtime ($resource->filePath) : 0;
-//			}
-//			
 			$this->_currentResource = $resource;
-			
 			$packages [] = $this->packOne ($resource);
 		}
 		

@@ -12,7 +12,7 @@ var Helper_Render_Smarty;
     }
     if (Helper_Render_Smarty.evalEx == null)
     {
-        Helper_Render_Smarty.evalEx = function(src) { return eval(src); };
+        Helper_Render_Smarty.evalEx = function(src) {return eval(src);};
     }
 
     var UNDEFINED;
@@ -60,13 +60,26 @@ var Helper_Render_Smarty;
     };
     
     Helper_Render_Smarty.parseTemplate_etc = {};            // Exposed for extensibility.
-    Helper_Render_Smarty.parseTemplate_etc.statementTag = "foreachelse|foreach|if|elseif|else|var|macro";
+    Helper_Render_Smarty.parseTemplate_etc.statementTag = "foreachelse|foreach|if|elseif|else|assign|macro";
     Helper_Render_Smarty.parseTemplate_etc.statementDef = { // Lookup table for statement tags.
-        "if"     : { delta:  1, prefix: "if (", suffix: ") {", paramMin: 1 },
-        "else"   : { delta:  0, prefix: "} else {" },
-        "elseif" : { delta:  0, prefix: "} else if (", suffix: ") {", paramDefault: "true" },
-        "/if"    : { delta: -1, prefix: "}" },
-        "foreach"    : { delta:  1, paramMin: 2, 
+        "if"     : {
+			delta:  1,
+			prefix: "if (",
+			suffix: ") {",
+			paramMin: 1
+		},
+        "else"   : {
+			delta:  0,
+			prefix: "} else {"
+		},
+        "elseif" : {
+			delta:  0,
+			prefix: "} else if (",
+			suffix: ") {",
+			paramDefault: "true"
+		},
+        "/if"    : {delta: -1, prefix: "}"},
+        "foreach"    : {delta:  1, paramMin: 2, 
                      prefixFunc : function(stmtParts, state, tmplName, etc) {
                     	var token = stmtParts.join (' ').replace (' = ', '=', 'g');
                     	
@@ -163,7 +176,7 @@ var Helper_Render_Smarty;
                              "if (typeof(", listVar, "[", iterVar, "_index]) == 'function') {continue;}", // IE 5.x fix from Igor Poteryaev.
                              "__LENGTH_STACK__[__LENGTH_STACK__.length - 1]++;",
                              "var ", iterVar, " = ", listVar, "[", iterVar, "_index];" ].join("");
-                     } },
+                     }},
         "foreachelse" : {
         	delta:  0,
         	prefix: "} } if (__LENGTH_STACK__[__LENGTH_STACK__.length - 1] == 0) { if (",
@@ -174,10 +187,52 @@ var Helper_Render_Smarty;
         	delta: -1,
         	prefix: "} }; delete __LENGTH_STACK__[__LENGTH_STACK__.length - 1];"
         }, // Remove the just-finished for-loop from the stack of loop lengths.
-        "var"     : {
+        "assign"     : {
         	delta:  0,
-        	prefix: "var ",
-        	suffix: ";"
+			prefixFunc : function (stmtParts, state, tmplName, etc)
+            {
+				var var_index = 1;
+				var var_name = '';
+				
+				if (stmtParts [1].indexOf ('var=') < 0)
+				{
+					var_index = 3;
+					var_name = stmtParts [3];
+				}
+				else
+				{
+					var_name = stmtParts [1].substr (4);
+				}
+				
+				if (
+					var_name.substr (0, 1) == "'" ||
+					var_name.substr (0, 1) == '"'
+				)
+				{
+					var_name = var_name.substr (1, var_name.length - 2);
+				}
+				
+				var value = '';
+				
+				if (stmtParts [var_index + 1].substr (0, 6) == 'value=')
+				{
+					value = 
+						stmtParts [var_index + 1].substr (6) + " " +
+						stmtParts.slice (var_index + 2).join (" ");
+						
+				}
+				else
+				{
+					value = stmtParts.slice (var_index + 2).join (" ");
+				}
+				
+				if (value.substr (0, 1) == "'")
+				{
+					value = '"' + value.substr (1, value.length - 2) + '"';
+				}
+				
+                return [ "View_Render.assign('", var_name, "', ", value, ");"].join ('');
+            }
         },
         "macro"   : {
         	delta:  1, 
@@ -196,10 +251,10 @@ var Helper_Render_Smarty;
     };
     
     Helper_Render_Smarty.parseTemplate_etc.modifierDef = {
-        "eat"        : function(v)    { return ""; },
-        "escape"     : function(s)    { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); },
-        "capitalize" : function(s)    { return String(s).toUpperCase(); },
-        "default"    : function(s, d) { return s != null ? s : d; }
+		"eat"        : function(v)    { return ""; },
+		"escape"     : function(s)    { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); },
+		"capitalize" : function(s)    { return String(s).toUpperCase(); },
+		"default"    : function(s, d) {	return s ? s : d; }
     };
     
     Helper_Render_Smarty.parseTemplate_etc.modifierDef.h = Helper_Render_Smarty.parseTemplate_etc.modifierDef.escape;
@@ -220,7 +275,7 @@ var Helper_Render_Smarty;
             
             if (context.defined == null)
             {
-                context.defined = function(str) { return (context[str] != undefined); };
+                context.defined = function(str) {return (context[str] != undefined);};
             }
             
             for (var k in etc.modifierDef)
@@ -260,7 +315,7 @@ var Helper_Render_Smarty;
         this.name       = tmplName;
         this.source     = tmplContent; 
         this.sourceFunc = funcSrc;
-        this.toString   = function() { return "Helper_Render_Smarty.Template [" + tmplName + "]"; };
+        this.toString   = function() {return "Helper_Render_Smarty.Template [" + tmplName + "]";};
     };
     
     Helper_Render_Smarty.parseTemplate_etc.ParseError = function(name, line, message)
@@ -424,7 +479,9 @@ var Helper_Render_Smarty;
             funcText.push('if (_FLAGS.keepWhitespace == true) _OUT.write("');
             var s = text.substring(0, nlPrefix).replace('\n', '\\n'); // A macro IE fix from BJessen.
             if (s.charAt(s.length - 1) == '\n')
+			{
             	s = s.substring(0, s.length - 1);
+			}
             funcText.push(s);
             funcText.push('");');
         }
@@ -432,13 +489,17 @@ var Helper_Render_Smarty;
         for (var i = 0; i < lines.length; i++) {
             emitSectionTextLine(lines[i], funcText);
             if (i < lines.length - 1)
+			{
                 funcText.push('_OUT.write("\\n");\n');
+			}
         }
         if (nlSuffix + 1 < text.length) {
             funcText.push('if (_FLAGS.keepWhitespace == true) _OUT.write("');
             var s = text.substring(nlSuffix + 1).replace('\n', '\\n');
             if (s.charAt(s.length - 1) == '\n')
+			{
             	s = s.substring(0, s.length - 1);
+			}
             funcText.push(s);
             funcText.push('");');
         }
@@ -451,20 +512,28 @@ var Helper_Render_Smarty;
             var begMark = "{$", endMark = "}";
             var begExpr = line.indexOf(begMark, endExprPrev + endMarkPrev.length); // In "a${b}c", begExpr == 1
             if (begExpr < 0)
+			{
                 break;
-            if (line.charAt(begExpr + 2) == '%') {
+			}
+            if (line.charAt(begExpr + 2) == '%')
+			{
                 begMark = "{$%";
                 endMark = "%}";
             }
             var endExpr = line.indexOf(endMark, begExpr + begMark.length);         // In "a${b}c", endExpr == 4;
             if (endExpr < 0)
+			{
                 break;
+			}
             emitText(line.substring(endExprPrev + endMarkPrev.length, begExpr), funcText);                
             // Example: exprs == 'firstName|default:"John Doe"|capitalize'.split('|')
             var exprArr = line.substring(begExpr + begMark.length, endExpr).replace(/\|\|/g, "#@@#").split('|');
-			for (var k in exprArr) {
+			for (var k in exprArr)
+			{
                 if (exprArr[k].replace) // IE 5.x fix from Igor Poteryaev.
+				{
                     exprArr[k] = exprArr[k].replace(/#@@#/g, '||');
+				}
             }
             funcText.push('_OUT.write(');
             emitExpression(exprArr, exprArr.length - 1, funcText); 
@@ -476,9 +545,10 @@ var Helper_Render_Smarty;
     };
     
     var emitText = function(text, funcText) {
-        if (text == null ||
-            text.length <= 0)
+        if (text == null || text.length <= 0)
+		{
             return;
+		}
         text = text.replace(/\\/g, '\\\\');
         text = text.replace(/\n/g, '\\n');
         text = text.replace(/"/g,  '\\"');

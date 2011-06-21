@@ -8,6 +8,14 @@
  */
 class Controller_Admin_Database extends Controller_Abstract
 {
+	private function __roles ()
+	{
+		return Helper_Link::linkedItems (
+			User::getCurrent (),
+			'Acl_Role'
+		);
+	}
+	
 	private function _className ($table, $prefix)
 	{
 		if ($prefix)
@@ -29,18 +37,18 @@ class Controller_Admin_Database extends Controller_Abstract
 	
 	public function __construct ()
 	{
-		Loader::load ('Helper_Database');
+		Loader::load ('Helper_Data_Source');
 	}
 	
 	public function index ()
 	{
 		if (!User::getCurrent ()->isAdmin ())
 		{
-			//return $this->_helperReturn('Access', 'denied');
+			return $this->replaceAction ('Access', 'denied');
 		}
 		
 		$prefix = Model_Scheme::$defaultPrefix;
-		$tables = Helper_Database::tables ();
+		$tables = Helper_Data_Source::tables ();
 		
 		for ($i = 0, $icount = sizeof ($tables); $i < $icount; $i++)
 		{
@@ -60,28 +68,18 @@ class Controller_Admin_Database extends Controller_Abstract
 	
 	public function table ()
 	{
-		$table = $this->_input->receive ('table');
-		
-		if (!User::getCurrent ()->isAdmin () || !$table)
+		if (!User::getCurrent ()->isAdmin ())
 		{
-			//return $this->_helperReturn('Access', 'denied');
+			return $this->replaceAction ('Access', 'denied');
 		}
+		
+		$table = $this->_input->receive ('table');
 
 		$prefix = Model_Scheme::$defaultPrefix;
 		
 		$class_name = $this->_className ($table, $prefix);
 		
-		if (!Loader::load ($class_name))
-		{
-			//return $this->_helperReturn('Access', 'denied');
-		}
-		
 		$collection = Model_Collection_Manager::create ($class_name);
-		
-		if (!$collection->first () || !isset ($collection->first ()->name))
-		{
-			//return $this->_helperReturn('Access', 'denied');
-		}
 		
 		$this->_output->send (array (
 			'collection'	=> $collection,
@@ -91,6 +89,11 @@ class Controller_Admin_Database extends Controller_Abstract
 	
 	public function row ()
 	{
+		if (!User::getCurrent ()->isAdmin ())
+		{
+			return $this->replaceAction ('Access', 'denied');
+		}
+		
 		list (
 			$table,
 			$row_id
@@ -99,26 +102,16 @@ class Controller_Admin_Database extends Controller_Abstract
 			'id'	
 		);
 		
-		if (!$table)
-		{
-			//return $this->_helperReturn('Access', 'denied');
-		}
-		
 		$prefix = Model_Scheme::$defaultPrefix;
 		
 		$class_name = $this->_className ($table, $prefix);
-		
-		if (!Loader::load ($class_name))
-		{
-			//return $this->_helperReturn('Access', 'denied');
-		}
-		
+
 		$row = Model_Manager::byKey (
 			$class_name,
 			$row_id
 		);
 		
-		$fields = Helper_Database::fields (
+		$fields = Helper_Data_Source::fields (
 			substr ($table, strlen ($prefix))
 		);
 		
@@ -144,5 +137,82 @@ class Controller_Admin_Database extends Controller_Abstract
 			'fields'	=> $fields,
 			'table'		=> $table
 		));
+	}
+	
+	public function save ()
+	{
+		if (!User::getCurrent ()->isAdmin ())
+		{
+			return $this->replaceAction ('Access', 'denied');
+		}
+		
+		list (
+			$table,
+			$row_id,
+			$fields
+		) = $this->_input->receive (
+			'table',
+			'row_id',
+			'fields'
+		);
+		
+		$prefix = Model_Scheme::$defaultPrefix;
+		
+		$class_name = $this->_className ($table, $prefix);
+		
+		/*
+		 * @var Model $row
+		 */
+		$row = Model_Manager::byKey (
+			$class_name,
+			$row_id
+		);
+		
+		if ($row)
+		{
+			$row->update ($fields);
+		}
+		else
+		{
+			$row->set ($fields);
+			$row->save ();
+		}
+		
+		Helper_Header::redirect ('/cp/table/' . $table . '/');
+	}
+	
+	public function delete ()
+	{
+		if (!User::getCurrent ()->isAdmin ())
+		{
+			return $this->replaceAction ('Access', 'denied');
+		}
+		
+		list (
+			$table,
+			$row_id
+		) = $this->_input->receive (
+			'table',
+			'row_id'
+		);
+		
+		$prefix = Model_Scheme::$defaultPrefix;
+		
+		$class_name = $this->_className ($table, $prefix);
+		
+		/*
+		 * @var Model $row
+		 */
+		$row = Model_Manager::byKey (
+			$class_name,
+			$row_id
+		);
+		
+		if ($row)
+		{
+			$row->delete ();
+		}
+		
+		Helper_Header::redirect ('/cp/table/' . $table . '/');
 	}
 }

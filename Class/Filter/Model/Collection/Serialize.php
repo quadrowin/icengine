@@ -8,30 +8,38 @@
  */
 class Filter_Model_Collection_Serialize
 {
-	
 	/**
 	 * @desc Сериализация коллекции моделей в строку 
 	 * @param Model_Collection $data
 	 * @return string
 	 */
 	public function filter ($data)
-	{
-		if (!($data instanceof Model_Collection))
+	{	
+		$addicts = $data->data ('addicts');
+		
+		$obj_data = $data->data ();
+		
+		if (isset ($obj_data ['addicts']))
 		{
-			return json_encode ($data);
+			unset ($obj_data ['addicts']);
 		}
 		
 		$pack = array (
-			'class'	=> get_class ($data),
-			'items'	=> $data->items (),
-			'data'	=> $data->data ()
+			'class'		=> get_class ($data),
+			'items'		=> $data->items (),
+			'data'		=> $obj_data
 		);
 		
 		for ($i = 0, $icount = sizeof ($pack ['items']); $i < $icount; $i++)
 		{
 			if ($pack ['items'][$i] instanceof Model)
 			{
-				$pack ['items'][$i] = $pack ['items'][$i]->getFields ();
+				$pack ['items'][$i] = array (
+					'id'		=> is_object ($pack ['items'][$i])	? 
+						$pack ['items'][$i]->key () : 
+						$pack ['items'][$i],
+					'addicts'	=> isset ($addicts [$i]) ? $addicts [$i] : null
+				);
 			}
 		}
 		
