@@ -3,6 +3,7 @@
  * 
  * @desc Базовая модель категории контента
  * @author Юрий Шведов
+ * @package IcEngine
  *
  */
 Loader::load ('Model_Child');

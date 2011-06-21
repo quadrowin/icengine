@@ -211,7 +211,23 @@ class Debug
 		$debug = array_slice (debug_backtrace (), 1, 10);
 		self::removeUninterestingObjects ($debug);
 		
-		$log_text = 
+		$log_text =
+			(
+				isset ($_SERVER ['HTTP_HOST']) ? 
+				$_SERVER ['HTTP_HOST'] :
+				'empty host'
+			) .
+			(
+				isset ($_SERVER ['REQUEST_URI']) ? 
+				$_SERVER ['REQUEST_URI'] :
+				'/empty uri'
+			) . 
+			(
+				isset ($_SERVER ['HTTP_REFERER']) ?
+				"\r\nreferer: " . $_SERVER ['HTTP_REFERER']  :
+				''
+			) .
+			"\r\n" .
 			'[' . $errno . ':' . $errfile . '@' . $errline . '] ' . 
 			$errstr . "\r\n";
 		
@@ -220,7 +236,8 @@ class Debug
 			if (isset ($debug_step ['file']))
 			{
 				$log_text .= 
-					'[' . $debug_step ['file'] . '@' . $debug_step ['line'] . ':' . 
+					'[' . $debug_step ['file'] . '@' . 
+					$debug_step ['line'] . ':' . 
 					$debug_step ['function'] . ']' . "\r\n";
 			}
 			else

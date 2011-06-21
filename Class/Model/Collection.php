@@ -9,6 +9,12 @@
 class Model_Collection implements ArrayAccess, IteratorAggregate, Countable 
 {
 	/**
+	 * @desc Клонировать дату
+	 * @var integer
+	 */
+	const ASSIGN_DATA 		= 'Data';
+	
+	/**
 	 * @desc Клонировать фильтры
 	 * @var integer
 	 */
@@ -204,6 +210,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		if (!$flags)
 		{
 			$flags = array (
+				self::ASSIGN_DATA,
 				self::ASSIGN_FILTERS,
 				self::ASSIGN_MODELS,
 				self::ASSIGN_OPTIONS,
@@ -223,6 +230,15 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		}
 		
 		return $this;
+	}
+	
+	/**
+	 * @desc Клонировать дату коллекции
+	 * @param Model_Collection $source
+	 */
+	public function assignData (Model_Collection $source)
+	{
+		$this->data ($source->data ());
 	}
 	
 	/**
@@ -251,10 +267,10 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	{
 		$this
 			->getOptions ()
-			->setOptions (
+			->setItems (
 				$source
 					->getOptions ()
-					->getOptions ()
+					->getItems ()
 			);
 	}
 	
@@ -726,8 +742,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		
 		$this->_lastQuery = $query;
 		
-		Loader::load ('Model_Collection_Manager');
-		Model_Collection_Manager::load ($this, $query, !$this->_autojoin);
+		Model_Collection_Manager::load ($this, $query);
 		
 		$this->_options->executeAfter ($this, $query);
 		
@@ -950,7 +965,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function setOption ($option)
 	{
-		$this->_options->setOption ($option);
+		//$this->_options->setOption ($option);
 	}
 	
 	/**
@@ -977,7 +992,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * @desc Вернуть первый элемент коллекции, удалив его из коллекции
+	 * @desc Вернуть первый элемент коллекции, удалив его из коллекции.
 	 * @return Model|null
 	 */
 	public function shift ()
@@ -986,7 +1001,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * @desc Перемешивает элементы коллекции
+	 * @desc Перемешивает элементы коллекции в случайном порядке.
 	 * @return Model_Collection
 	 */
 	public function shuffle ()

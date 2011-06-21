@@ -1,4 +1,5 @@
 <?php
+Loader::load ('Authorization_Abstract');
 /**
  * 
  * @desc Аавторизация через отправку пользователю СМС сообщения с кодом.

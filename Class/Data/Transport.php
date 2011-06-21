@@ -66,8 +66,10 @@ class Data_Transport
 	public function beginTransaction ()
 	{
 	    Loader::load ('Data_Transport_Transaction');
+		
 	    $transaction = new Data_Transport_Transaction ($this);
 	    $this->_transactions [] = $transaction;
+		
 	    return $transaction;
 	}
 	
@@ -128,11 +130,23 @@ class Data_Transport
 	}
 
 	/**
+	 * @desc Композит на массив провайдеров
+	 * @return Composite 
+	 */
+	public function providers ()
+	{
+		Loader::load ('Composite');
+		
+		return new Composite ($this->_providers);
+	}
+	
+	/**
 	 * @desc Инициализация или сброс фильтров.
 	 */
 	public function resetFilters ()
 	{
 		Loader::load ('Filter_Collection');
+		
 		$this->_inputFilters = new Filter_Collection ();
 		$this->_outputFilters = new Filter_Collection ();
 	}
@@ -143,6 +157,7 @@ class Data_Transport
 	public function resetValidators ()
 	{
 		Loader::load ('Data_Validator_Collection');
+		
 		$this->_validators = new Data_Validator_Collection ();
 	}
 
@@ -163,7 +178,7 @@ class Data_Transport
 	{	
 		$keys = func_get_args ();
 		$results = array ();
-		
+	
 		if ($this->_transactions)
 		{
 			$buffer = end ($this->_transactions)->buffer ();
@@ -186,9 +201,8 @@ class Data_Transport
 				$data = null;
 				for ($j = 0, $jcount = count ($this->_providers); $j < $jcount; ++$j)
 				{
-				    /**
-				     * 
-				     * @var $provider Data_Provider_Abstract
+				    /*
+				     * @var Data_Provider_Abstract $provider
 				     */
 					$provider = $this->_providers [$j];
 					$chunk = $provider->get ($keys [$i]);
