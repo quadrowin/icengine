@@ -1,0 +1,43 @@
+--- Abstract.php
++++ Abstract.php
+@@ -14,39 +14,6 @@
+  * @author Юрий
+  * @package IcEngine
+  *
+-<?php
+-/**
+- * 
+- * @desc Базовая схема рейтинга
+- * @author Юрий
+- * @package IcEngine
+- *
+- */
+-class Component_Rating_Scheme_Abstract extends Model_Factory_Delegate
+-{
+-	
+-	/**
+-	 * @desc Изменение рейтинга
+-	 * @param string $table Модель
+-	 * @param integer $row_id Запись
+-	 * @param integer $value Изменение рейтинга.
+-	 * 		Может быть величиной изменения или типом, в зависимости от
+-	 * 		схемы.
+-	 * @return Component_Rating
+-	 */
+-	public function vote ($table, $row_id, $value)
+-	{
+-		$rating = IcEngine::$modelManager->modelBy (
+-			'Component_Rating',
+-			Query::instance ()
+-			->where ('table', $table)
+-			->where ('rowId', $row_id)
+-		);
+-		
+-		return $rating->increment ($value);
+-	}
+-	
+-}
+\ No newline at end of file
+ 	 * @param string $table Модель
+ 	 * @param integer $row_id Запись
+ 	 * @param integer $value Изменение рейтинга.
