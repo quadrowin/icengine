@@ -589,6 +589,11 @@ abstract class Model implements ArrayAccess
 		return $this->modelName ();
 	}
 	
+	public function title ()
+	{
+		return $this->name;
+	}
+	
 	/**
 	 * @desc Загрузка данных модели.
 	 * @param mixed $key Первичный ключ.
