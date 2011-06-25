@@ -25,10 +25,7 @@ class Controller_Paginator extends Controller_Abstract
 			'tpl'
 		);
 		
-	    /**
-		 * @var Paginator $paginator
-		 */
-		
+	    /* @var $paginator Paginator */
 		$paginator->buildPages ();
 		
 		$this->_output->send ('paginator', $paginator);
