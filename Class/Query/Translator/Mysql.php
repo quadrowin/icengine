@@ -127,7 +127,7 @@ class Query_Translator_Mysql extends Query_Translator
 		$i = 0;
 		
 		$from = $query->part (Query::FROM);
-		
+	
 		if (!$from)
 		{
 			return;
