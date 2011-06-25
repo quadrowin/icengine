@@ -115,7 +115,7 @@ class View_Resource_Manager extends Manager_Abstract
 	 * @desc Загружает ресурсы
 	 * @param string $base_url
 	 * @param string $base_dir
-	 * @param string|array <string> $dirs
+	 * @param array|objective <string> $dirs
 	 * @param string $type
 	 */
 	public static function load ($base_url, $base_dir, $dirs, $type = null)
@@ -136,7 +136,7 @@ class View_Resource_Manager extends Manager_Abstract
 				'filePath'	=> ''
 			);
 			
-			if ($options ['nopack'])
+			if ($pattern [0] == '-')
 			{
 				$pattern = substr ($pattern, 1);
 			}

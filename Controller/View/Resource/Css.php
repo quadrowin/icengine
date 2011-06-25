@@ -24,7 +24,8 @@ class Controller_View_Resource_Css extends Controller_Abstract
 			View_Resource_Manager::load (
 				$config->base_url,
 				$config->base_dir,
-				$config->dirs
+				$config->dirs,
+				View_Resource_Manager::CSS
 			);
 		}
 		else
@@ -34,7 +35,8 @@ class Controller_View_Resource_Css extends Controller_Abstract
 				View_Resource_Loader::load (
 					$source ['base_url'],
 					$source ['base_dir'],
-					$source ['patterns']
+					$source ['patterns'],
+					View_Resource_Manager::CSS
 				);
 			}
 		}
