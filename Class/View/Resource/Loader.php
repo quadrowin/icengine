@@ -55,9 +55,10 @@ class View_Resource_Loader
 				
 				$files = array ();
 				
-				for ($dir = reset ($list); $dir; $dir = next ($list))
+				for ($dir = reset ($list); $dir !== false; $dir = next ($list))
 				{
 					$subdirs = scandir ($base_dir . $dir);
+					$path = $dir ? $dir . '/' : '';
 					
 					for ($j = 0, $count = sizeof ($subdirs); $j < $count; $j++)
 					{
@@ -69,17 +70,17 @@ class View_Resource_Loader
 							continue;
 						}
 						
-						$fn = $base_dir . $dir . '/' . $subdirs [$j];
+						$fn = $base_dir . $path . $subdirs [$j];
 						
 						if (is_dir ($fn))
 						{
-							array_push ($list, $dir . '/' . $subdirs [$j]);
+							array_push ($list, $path . $subdirs [$j]);
 						}
 						elseif (fnmatch ($pattern, $fn))
 						{
 							$files [] = array (
-								$base_url . $dir . '/' . $subdirs [$j],
-								$base_dir . $dir . '/' . $subdirs [$j]
+								$base_url . $path . $subdirs [$j],
+								$base_dir . $path . $subdirs [$j]
 							);
 						}
 					}

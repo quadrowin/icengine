@@ -1,13 +1,166 @@
 <?php
+
 /**
- * 
- * @desc
+ * @desc Админка для баз данных 
  * @author Илья Колесников
  * @package IcEngine
- *
  */
 class Controller_Admin_Database extends Controller_Abstract
 {
+	/**
+	 * @var array<string>
+	 */
+	protected $_config = array (
+		'sort'	=> array (
+			'City'	=> 'name'
+		)
+	);
+	
+	/**
+	 * @desc Получить сопряжение полей таблицы на разрешенные
+	 * ACL поля для пользователя
+	 * @param string $table
+	 * @param array $fields
+	 * @return array<string>
+	 */
+	private function __aclFields ($table, $fields)
+	{
+		$acl_fields = $this->__fields ($table);
+
+		Loader::load ('Helper_Array');
+		
+		$tmp_fields = Helper_Array::column ($fields, 'Field');
+		
+		$acl_fields = array_intersect ($acl_fields, $tmp_fields);
+		
+		return $acl_fields;
+	}
+	
+	/**
+	 * @desc Получить сопряжение таблиц на разрешенные
+	 * ACL таблицы для пользователя
+	 * @param array $fields
+	 * @return array<string>
+	 */
+	private function __aclTables ($tables)
+	{
+		$acl_tables = $this->__tables ();
+		
+		Loader::load ('Helper_Array');
+		
+		$table_names = Helper_Array::column ($tables, 'Name');
+		
+		return array_intersect ($table_names, $acl_tables);
+	}
+	
+	/**
+	 * @desc Получить имя класса по таблице и префиксу
+	 * @param string $table
+	 * @param string $prefix
+	 * @return string
+	 */
+	private function __className ($table, $prefix)
+	{
+		$class_name = Model_Scheme::tableToModel ($table);
+		
+		return $class_name;
+	}
+
+	/**
+	 * (non-PHPDoc)
+	 */
+	public function __construct ()
+	{
+		Loader::load ('Helper_Data_Source');
+	}
+	
+	/**
+	 * @desc Получить ACL разрешенные поля таблицы
+	 * @param string $table
+	 * @return array <string>
+	 */
+	private function __fields ($table)
+	{
+		$resources = $this->__resources ();
+		
+		$result = array ();
+		
+		$name = 'Table/' . $table . '/';
+		
+		$len = strlen ($name);
+		
+		foreach ($resources as $r)
+		{
+			if (substr ($r, 0, $len) === $name)
+			{
+				$result [] = substr ($r, $len);
+			}
+		}
+		
+		return $result;
+	}
+	
+	/**
+	 * @desc Залогоровать операцию
+	 * @param string $action
+	 * @param string $table
+	 * @param array<string> $fields
+	 * @return void
+	 */
+	private function __log ($action, $table, $fields)
+	{
+		Loader::load ('Admin_Log');
+		
+		foreach ((array) $fields as $field => $value)
+		{
+			die ($field);
+			$log = new Admin_Log (array (
+				'User__id'		=> User::id (),
+				'action'		=> $action,
+				'table'			=> $table,
+				'field'			=> $field,
+				'value'			=> $value,
+				'createdAt'		=> Helper_Date::toUnix ()
+			));
+			
+			$log->save ();
+		}
+	}
+	
+	/**
+	 * @desc Получить ресурсы ACl и префиксом Table/
+	 * @param null|Acl_Role $role
+	 * @return array <string>
+	 */
+	private function __resources ($role = null)
+	{
+		$query = Query::instance ()
+			->select ('name')
+			->from ('Acl_Resource')
+			->innerJoin (
+				'Link',
+				'Link.fromRowId=Acl_Resource.id'
+			)
+			->where ('Link.fromTable', 'Acl_Resource')
+			->where ('Link.toTable', 'Acl_Role')
+			->where ('Link.toRowId', 
+				is_null ($role) ? 
+					$this->__roles ()->column ('id') :
+					$role->key ()
+			)
+			->where ('Acl_Resource.name LIKE "Table/%"');
+		
+		$resources = DDS::execute ($query)
+			->getResult ()
+				->asColumn ('name');
+		
+		return (array) $resources;
+	}
+	
+	/**
+	 * @desc Получить все роли пользователя
+	 * @return Acl_Role_Collection
+	 */
 	private function __roles ()
 	{
 		return Helper_Link::linkedItems (
@@ -16,107 +169,306 @@ class Controller_Admin_Database extends Controller_Abstract
 		);
 	}
 	
-	private function _className ($table, $prefix)
+	/**
+	 * @desc Получить ACL разрешенные таблицы
+	 * @return array <string>
+	 */
+	private function __tables ()
 	{
-		if ($prefix)
+		$resources = $this->__resources ();
+		
+		$result = array ();
+		
+		foreach ($resources as $r)
 		{
-			$table = substr ($table, strlen ($prefix));
+			$tmp = explode ('/', $r);
+			$result [] = $tmp [1];
 		}
 		
-		$parts = explode ('_', $table);
-		
-		for ($i = 0, $icount = sizeof ($parts); $i < $icount; $i++)
-		{
-			$parts [$i] = ucfirst ($parts [$i]);
-		}
-		
-		$class_name = implode ('_', $parts);
-		
-		return $class_name;
+		return $result;
 	}
 	
-	public function __construct ()
-	{
-		Loader::load ('Helper_Data_Source');
-	}
-	
-	public function index ()
+	/**
+	 * @desc Сохраняем права на поля таблиц
+	 * @return void
+	 */
+	public function aclSave ()
 	{
 		if (!User::getCurrent ()->isAdmin ())
 		{
-			return $this->replaceAction ('Access', 'denied');
+			return $this->replaceAction ('Error', 'accessDenied');
 		}
 		
-		$prefix = Model_Scheme::$defaultPrefix;
+		$role_id = $this->_input->receive ('role_id');
+		
+		$role = Model_Manager::byKey (
+			'Acl_Role',
+			$role_id
+		);
+		
+		if (!$role)
+		{
+			return;
+		}
+		
+		$resources = $this->__resources ($role);
+		
+		$resource_collection = Model_Collection_Manager::byQuery (
+			'Acl_Resource',
+			Query::instance ()
+				->where ('name', $resources)
+		);
+			
+		foreach ($resource_collection as $resource)
+		{
+			Helper_Link::unlink ($role, $resource);
+		}
+		
+		$resources = $this->_input->receive ('resources');
+		
+		Loader::load ('Acl_Resource');
+		
+		foreach ($resources as $resource_name)
+		{
+			$resource = Model_Manager::byQuery (
+				'Acl_Resource',
+				Query::instance ()
+					->where ('name', $resource_name)
+			);
+			
+			if (!$resource)
+			{
+				$resource = new Acl_Resource (array (
+					'name'						=> $resource_name,
+					'Acl_Resource_Type__id '	=> 1
+				));
+				
+				$resource->save ();
+			}
+		
+			Helper_Link::link ($role, $resource);
+		}
+		
+		Loader::load ('Helper_Header');
+		
+		Helper_Header::redirect ('/cp/acl/');
+	}
+	
+	/**
+	 * @desc Получить список полей для создания прав
+	 * @return void
+	 */
+	public function aclField ()
+	{
+		if (!User::getCurrent ()->isAdmin ())
+		{
+			return $this->replaceAction ('Error', 'accessDenied');
+		}
+		
+		$role_id = $this->_input->receive ('role_id');
+		
+		$role = Model_Manager::byKey (
+			'Acl_Role',
+			$role_id
+		);
+		
+		if (!$role)
+		{
+			return;
+		}
+		
+		$resources = $this->__resources ($role);
+		
 		$tables = Helper_Data_Source::tables ();
 		
-		for ($i = 0, $icount = sizeof ($tables); $i < $icount; $i++)
+		$result = array ();
+		
+		foreach ($tables as $table)
 		{
-			if (
-				!$tables [$i]->Comment || 
-				($prefix && strpos ($tables [$i]->Name, $prefix) !== 0)
-			)
+			$fields = Helper_Data_Source::fields ('`' . $table ['Name'] . '`');
+			 
+			$result [$table ['Name']] = array (
+				'table'		=> $table,
+				'fields'	=> array ()
+			);
+			
+			foreach ($fields as $field)
 			{
-				unset ($tables [$i]);
+				$resource_name = 'Table/' . $table ['Name'] . '/' . $field ['Field'];
+				
+				$result [$table ['Name']]['fields'][] = array (
+					'field'		=> $field,
+					'resource'	=> $resource_name,
+					'on'		=> in_array ($resource_name, $resources)
+				);
 			}
 		}
 		
 		$this->_output->send (array (
-			'tables'	=> $tables,
+			'tables'	=> $result,
+			'role_id'	=> $role->key ()
 		));
 	}
 	
-	public function table ()
+	/**
+	 * @desc Получаем список ролей
+	 * @return void
+	 */
+	public function aclRoll ()
 	{
 		if (!User::getCurrent ()->isAdmin ())
 		{
-			return $this->replaceAction ('Access', 'denied');
+			return $this->replaceAction ('Error', 'accessDenied');
 		}
 		
-		$table = $this->_input->receive ('table');
-
-		$prefix = Model_Scheme::$defaultPrefix;
+		$role_names = array ('admin', 'conent-manager', 'seo');
 		
-		$class_name = $this->_className ($table, $prefix);
-		
-		$collection = Model_Collection_Manager::create ($class_name);
+		$role_collection = Model_Collection_Manager::byQuery (
+			'Acl_Role',
+			Query::instance ()
+				->where ('name', $role_names)
+		);
 		
 		$this->_output->send (array (
-			'collection'	=> $collection,
-			'table'			=> $table
+			'role_collection'	=> $role_collection
 		));
 	}
 	
-	public function row ()
+	/**
+	 * @desc Удаление записи
+	 * @return void
+	 */
+	public function delete ()
 	{
-		if (!User::getCurrent ()->isAdmin ())
-		{
-			return $this->replaceAction ('Access', 'denied');
-		}
-		
 		list (
 			$table,
 			$row_id
 		) = $this->_input->receive (
 			'table',
-			'id'	
+			'row_id'
 		);
 		
 		$prefix = Model_Scheme::$defaultPrefix;
 		
 		$class_name = $this->_className ($table, $prefix);
+		
+		$fields = Helper_Data_Source::fields ($class_name);
+		
+		$acl_fields = $this->__aclFields ($table, $fields);
+		
+		if (!$acl_fields)
+		{
+			return $this->replaceAction ('Error', 'accessDenied');
+		}
+		
+		/*
+		 * @var Model $row
+		 */
+		$row = Model_Manager::byKey (
+			$class_name,
+			$row_id
+		);
+				
+		if ($row)
+		{
+			$row->delete ();
+			
+			$this->__log (
+				__METHOD__,
+				$table,
+				array (null)
+			);
+		}
+		
+		Helper_Header::redirect ('/cp/table/' . $table . '/');
+	}
+	
+	/**
+	 * @desc Список таблиц
+	 * @return void
+	 */
+	public function index ()
+	{
+		$tables = Helper_Data_Source::tables ();;
+		
+		$tmp_tables = $this->__aclTables ($tables);
+		
+		if (!$tmp_tables/* || !User::id ()*/)
+		{
+			return $this->replaceAction ('Error', 'accessDenied');
+		}
+		
+		$result = array ();
+		
+		foreach ($tables as $table)
+		{
+			if (in_array ($table ['Name'], $tmp_tables))
+			{
+				$result [] = $table;
+			}
+		}
+		
+		Helper_Array::mosort ($result, 'Comment');
+		
+		$tmp = array ();
+		
+		foreach ($result as $i => $r)
+		{
+			if (!$r ['Comment'])
+			{
+				$tmp [] = $r;
+				unset ($result [$i]);
+			}
+		}
+		
+		Helper_Array::mosort ($tmp, 'Name');
+		
+		$result = array_merge ($result, $tmp);
+		
+		$this->_output->send (array (
+			'tables'	=> $result,
+		));
+	}
+	
+	/**
+	 * @desc Поля записи
+	 * @return void
+	 */
+	public function row ()
+	{
+		list (
+			$table,
+			$row_id
+		) = $this->_input->receive (
+			'table',
+			'row_id'	
+		);
 
+		$fields = Helper_Data_Source::fields ('`' . $table . '`');
+		
+		$acl_fields = $this->__aclFields ($table, $fields);
+		
+		if (!$acl_fields/* || !User::id ()*/)
+		{
+			return $this->replaceAction ('Error', 'accessDenied');
+		}
+		
+		$prefix = Model_Scheme::$defaultPrefix;
+		
+		$class_name = $this->__className ($table, $prefix);
+		
 		$row = Model_Manager::byKey (
 			$class_name,
 			$row_id
 		);
 		
-		$fields = Helper_Data_Source::fields (
-			substr ($table, strlen ($prefix))
-		);
-		
-		foreach ($fields as $field)
+		foreach ($fields as $i => $field)
 		{
+			if (!in_array ($field ['Field'], $acl_fields))
+			{
+				unset ($fields [$i]);
+			}
+			
 			if (strpos ($field->Field, '__id') !== false)
 			{
 				$field->Values = Model_Collection_Manager::create (
@@ -135,83 +487,143 @@ class Controller_Admin_Database extends Controller_Abstract
 		$this->_output->send (array (
 			'row'		=> $row,
 			'fields'	=> $fields,
-			'table'		=> $table
+			'table'		=> $table,
+			'keyField'	=> Model_Scheme::keyField ($class_name)
 		));
 	}
 	
-	public function save ()
+	/**
+	 * @desc Список записей
+	 * @return void
+	 */
+	public function table ()
 	{
-		if (!User::getCurrent ()->isAdmin ())
+		$tables = Helper_Data_Source::tables ();;
+		
+		$tmp_tables = $this->__aclTables ($tables);
+
+		$table = $this->_input->receive ('table');
+		
+		$acl_fields = $this->__fields ($table);
+		
+		if (!in_array ($table, $tmp_tables) || !$acl_fields/* || !User::id ()*/)
 		{
-			return $this->replaceAction ('Access', 'denied');
+			return $this->replaceAction ('Error', 'accessDenied');
+		}
+
+		$prefix = Model_Scheme::$defaultPrefix;
+		
+		$class_name = $this->__className ($table, $prefix);
+		
+		$collection = Model_Collection_Manager::create ($class_name);
+		
+		$sort = $this->config ()->sort->$class_name;
+		
+		if ($sort)
+		{
+			$collection->addOptions (array (
+				'name'	=> '::Order_Asc',
+				'field'	=> $sort
+			));
 		}
 		
+		Loader::load ('Paginator');
+		
+		$paginator = Paginator::fromGet ();
+		
+		$collection->setPaginator ($paginator);
+		
+		$collection->load ();
+		
+		$paginator_html = Controller_Manager::html (
+			'Paginator/index',
+			array (
+				'data'	=> $paginator,
+				'tpl'	=> 'admin'
+			)
+		);
+		
+		$this->_output->send (array (
+			'collection'		=> $collection,
+			'table'				=> $table,
+			'paginator_html'	=> $paginator_html
+		));
+	}
+	
+	/**
+	 * @desc Сохранение записи
+	 * @return void
+	 */
+	public function save ()
+	{
 		list (
 			$table,
 			$row_id,
-			$fields
+			$column
 		) = $this->_input->receive (
 			'table',
 			'row_id',
-			'fields'
+			'column'
 		);
 		
 		$prefix = Model_Scheme::$defaultPrefix;
 		
-		$class_name = $this->_className ($table, $prefix);
+		$class_name = $this->__className ($table, $prefix);
 		
-		/*
-		 * @var Model $row
-		 */
-		$row = Model_Manager::byKey (
+		$fields = Helper_Data_Source::fields ('`' . $table . '`');
+		 
+		$acl_fields = $this->__aclFields ($table, $fields);
+		 
+		if (!$acl_fields/* || !User::id ()*/)
+		{
+			return $this->replaceAction ('Error', 'accessDenied');
+		}
+		
+		/* @var $row Model */
+		$row = Model_Manager::get (
 			$class_name,
 			$row_id
 		);
 		
-		if ($row)
+		
+		foreach ($column as $field => $value)
 		{
-			$row->update ($fields);
+			if (!in_array ($field, $acl_fields))
+			{
+				unset ($column [$field]);
+			}
+		}
+		
+		$updated_fields = $column;
+		
+		if ($row->key ())
+		{
+			foreach ($column as $field => $value)
+			{
+				if ($value === $row->field ($field))
+				{
+					unset ($updated_fields [$field]);
+				}
+			}
+			
+			if ($updated_fields)
+			{
+				$row->update ($updated_fields);
+			}
 		}
 		else
 		{
-			$row->set ($fields);
+			$row->set ($updated_fields);
 			$row->save ();
 		}
 		
-		Helper_Header::redirect ('/cp/table/' . $table . '/');
-	}
-	
-	public function delete ()
-	{
-		if (!User::getCurrent ()->isAdmin ())
-		{
-			return $this->replaceAction ('Access', 'denied');
-		}
-		
-		list (
+		$this->__log (
+			__METHOD__,
 			$table,
-			$row_id
-		) = $this->_input->receive (
-			'table',
-			'row_id'
+			$updated_fields
 		);
 		
-		$prefix = Model_Scheme::$defaultPrefix;
-		
-		$class_name = $this->_className ($table, $prefix);
-		
-		/*
-		 * @var Model $row
-		 */
-		$row = Model_Manager::byKey (
-			$class_name,
-			$row_id
-		);
-		
-		if ($row)
-		{
-			$row->delete ();
-		}
+		Loader::load ('Helper_Header');
 		
 		Helper_Header::redirect ('/cp/table/' . $table . '/');
 	}
