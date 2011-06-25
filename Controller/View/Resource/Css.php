@@ -17,11 +17,11 @@ class Controller_View_Resource_Css extends Controller_Abstract
 	{
 		$config = $this->config ();
 		
-		Loader::load ('View_Resource_Loader');
+		Loader::load ('View_Resource_Manager');
 		
 		if (isset ($config->dirs))
 		{
-			View_Resource_Loader::load (
+			View_Resource_Manager::load (
 				$config->base_url,
 				$config->base_dir,
 				$config->dirs

@@ -17,14 +17,15 @@ class Controller_View_Resource_Js extends Controller_Abstract
 	{
 		$config = $this->config ();
 		
-		Loader::load ('View_Resource_Loader');
+		Loader::load ('View_Resource_Manager');
 		
 		foreach ($config->sources as $source)
 		{
-			View_Resource_Loader::load (
+			View_Resource_Manager::load (
 				$source ['base_url'],
 				$source ['base_dir'],
-				$source ['patterns']
+				$source ['patterns'],
+				View_Resource_Manager::JS
 			);
 		}
 		

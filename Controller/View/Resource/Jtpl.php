@@ -17,13 +17,13 @@ class Controller_View_Resource_Jtpl extends Controller_Abstract
 	{
 		$config = $this->config ();
 		
-		Loader::load ('View_Resource_Loader');
+		Loader::load ('View_Resource_Manager');
 		
 		$sources = $config->sources;
 		
 		foreach ($config->sources as $source)
 		{
-			View_Resource_Loader::load (
+			View_Resource_Manager::load (
 				$source ['base_url'],
 				$source ['base_dir'],
 				$source ['patterns'],
