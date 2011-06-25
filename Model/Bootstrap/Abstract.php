@@ -91,8 +91,6 @@ abstract class Bootstrap_Abstract
 			
 		$this->initModelManager ();
 		
-		$this->initWidgetManager ();
-		
 		$this->initView ();
 		
 		$this->initUser ();

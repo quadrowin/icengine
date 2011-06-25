@@ -442,9 +442,9 @@ class Route extends Model_Child
 	{
 		$render = $this->View_Render;
 		
-		if (!$render && isset ($this->_date ['viewRenderName']))
+		if (!$render && isset ($this->_fields ['viewRenderName']))
 		{
-			$render = View_Render::byName ($this->_date ['viewRenderName']);
+			$render = View_Render_Manager::byName ($this->_fields ['viewRenderName']);
 		}
 		
 		return $render;

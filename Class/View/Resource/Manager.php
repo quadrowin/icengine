@@ -30,6 +30,15 @@ class View_Resource_Manager extends Manager_Abstract
 	 */
 	const JTPL = 'jtpl';
 	
+	/**
+	 * @var string
+	 */
+	const JRES = 'jres';
+	
+	/**
+	 *
+	 * @var array 
+	 */
 	protected static $_config = array ();
 	
 	/**
