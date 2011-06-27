@@ -1,11 +1,27 @@
 <?php
 /**
+ * 
  * @desc Менеджер коллекций
  * @author Илья Колесников, Юрий Шведов
  * @package IcEngine
+ * 
  */
-abstract class Model_Collection_Manager
+abstract class Model_Collection_Manager extends Manager_Abstract
 {
+	
+	/**
+	 * @desc Конфиг
+	 * @var array
+	 */
+	protected static $_config = array (
+		'delegee'	=> array (
+			'Model'				=> 'Simple',
+			'Model_Config'		=> 'Simple',
+			'Model_Defined'		=> 'Defined',
+			'Model_Factory'		=> 'Simple'
+		)
+	);
+	
 	/**
 	 * @desc Возвращает коллекцию по запросу.
 	 * @author Юрий Шведов
@@ -29,15 +45,11 @@ abstract class Model_Collection_Manager
 	 */
 	public static function create ($model)
 	{
-		Loader::load ($model);
-		
 		$class_collection = $model . '_Collection';
 		
-		Loader::load ($class_collection);
+		Loader::multiLoad ($model, $class_collection);
 		
-		$collection = new $class_collection ();
-		
-		return $collection;
+		return new $class_collection ();
 	}
 	
 	/**
@@ -90,48 +102,26 @@ abstract class Model_Collection_Manager
 		}
 		else
 		{
-			// Выполняем запрос, получаем элементы коллеции
-			$query_result = 
-				Model_Scheme::dataSource ($model)
-					->execute ($query)
-						->getResult ();
-						
-			$collection->queryResult ($query_result);
-			
-			// Если установлен флаг CALC_FOUND_ROWS,
-			// то назначаем ему значение
-			if ($query->getPart (Query::CALC_FOUND_ROWS))
-			{
-				$collection->data ('foundRows', $query_result->foundRows ());
-			}
-			
-			Loader::load ('Helper_Data_Source');
-		
-			$fields = Helper_Data_Source::fields ($collection->table ())
-				->column ('Field');
+			// Делегируемый класс определяем по первому или нулевому
+			// предку.
+			$parents = class_parents ($model);
+			$first = end ($parents);
+			$second = next ($parents);
 
-			$table = $query_result->asTable ();
-			
-			$key_field = Model_Scheme::keyField ($model);
-			
-			$items = array ();
-			
-			foreach ($table as $i => $item)
-			{
-				foreach ($item as $field=>$value)
-				{
-					if (!in_array ($field, $fields))
-					{
-						$addicts [$i][$field] = $value;
-					}	
-				}
-				$items [] = $item [$key_field];
-			}
-						
-			$collection->data ('addicts', $addicts);
-				
-			$pack = array (
-				'items'	=> $items,
+			$parent = 
+				$second && isset (self::$_config ['delegee'][$second]) ?
+				$second :
+				$first;
+
+			$delegee = 
+				'Model_Collection_Manager_Delegee_' .
+				self::$_config ['delegee'][$parent];
+
+			Loader::load ($delegee);
+
+			$pack = call_user_func (
+				array ($delegee, 'load'),
+				$collection, $query
 			);
 		}
 		

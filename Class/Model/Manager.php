@@ -6,7 +6,7 @@
  * @package IcEngine
  *
  */
-class Model_Manager
+class Model_Manager extends Manager_Abstract
 {
 	
 	/**
@@ -253,7 +253,7 @@ class Model_Manager
 				$second = next ($parents);
 				
 				$parent = 
-					$second && isset ($self::$_config ['delegee'][$second]) ?
+					$second && isset (self::$_config ['delegee'][$second]) ?
 					$second :
 					$first;
 				
