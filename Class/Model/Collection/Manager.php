@@ -123,6 +123,8 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 				array ($delegee, 'load'),
 				$collection, $query
 			);
+			
+			$addicts = $collection->data ('addicts');
 		}
 		
 		// Инициализируем модели коллекции
