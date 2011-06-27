@@ -11,11 +11,52 @@
 	<p><a href="/cp/row/{$table}/0/">Добавить</a></p>
 	
 	{if $collection}
+		
+	{if !$fields}
 	<ul>
 		{foreach from=$collection item="i"}
-		<li><a href="/cp/row/{$table}/{$i->id}/">{$i->name}</a></li>
+		<li style="
+		{if $styles}
+		{foreach from=$styles item="column" key="c"}
+		{foreach from=$column item="style" key="v"}
+		{if $i->$c==$v}{$style};{/if}	
+		{/foreach}
+		{/foreach}
+		{/if}	
+		"><a href="/cp/row/{$table}/{$i->key()}/">{$i->title()}</a></li>
 		{/foreach}
 	</ul>
+	{else}
+	<table cellpadding="5" cellspacing="0" border="1" width="100%">
+		<thead>
+			<tr> 
+				{foreach from=$fields item="field"}
+				<th>{if $field->Comment}{$field->Comment}{else}{$field->Field}{/if}</th>
+				{/foreach}
+			</tr>
+		</thead>
+		<tbody>
+			{foreach from=$collection item="i"}
+			<tr>
+				{foreach from=$fields item="field"}
+				{assign var="field" value=$field->Field}
+				<td style="
+				{if $styles}
+				{foreach from=$styles item="column" key="c"}
+				{foreach from=$column item="style" key="v"}
+				{if $i->$c==$v}{$style};{/if}	
+				{/foreach}
+				{/foreach}
+				{/if}	
+				">{if $field == $title || in_array($field,$links)}<a href="/cp/row/{$table}/{$i->key()}/">
+					{if $field==$title}{$i->title()}{else}{$i->$field}{/if}</a>
+				{else}{$i->$field}{/if}</td>
+				{/foreach}
+			</tr>
+			{/foreach}
+		</tbody>
+	</table>
+	{/if}
 	{/if}
 	
 	{$paginator_html}
