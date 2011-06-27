@@ -560,18 +560,38 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		$events  = array ();
 		
-		$evt = $this->config ()->events->$class_name;
+		$tmp = $this->config ()->events->$class_name;
 		
-		if ($evt)
+		if ($tmp)
 		{
-			$events = $evt->__toArray ();
+			$events = $tmp->__toArray ();
+		}
+		
+		$plugins = array ();
+		
+		$tmp = $this->config ()->plugins->$class_name;
+		
+		if ($tmp)
+		{
+			$plugins = $tmp->__toArray ();	
+		}
+		
+		$tabs = array ();
+		
+		$tmp = $this->config ()->tabs;
+		
+		if ($tmp)
+		{
+			$tabs = $tmp->__toArray ();
 		}
 		
 		$this->_output->send (array (
 			'row'		=> $row,
 			'fields'	=> $fields,
 			'table'		=> $table,
+			'tabs'		=> $tabs,
 			'events'	=> $events,
+			'plugins'	=> $plugins,
 			'keyField'	=> Model_Scheme::keyField ($class_name)
 		));
 	}
