@@ -30,8 +30,8 @@ Class.extend = function (def)
 	classDef.prototype.parent = function () {
 		var name = arguments.callee.caller._name;
 		superClass [name].apply (this, arguments);
-	}
+	};
 	classDef.extend = this.extend;
 	
-	return classDef;	
+	return classDef;
 };
