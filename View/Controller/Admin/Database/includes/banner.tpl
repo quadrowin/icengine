@@ -9,7 +9,9 @@
 		var admAjaxPath = '/admin/ajax';
 		var bannerInterfaceLoaded = false;
 	</script>
+	
 	<script src="/admin/js/bannerworks.js"></script>
+	
 	<script type="text/javascript">
 	$(function ()
 	{

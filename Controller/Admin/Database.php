@@ -401,15 +401,23 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		$result = array ();
 		
+		Loader::load ('Table_Rate');
+		
 		foreach ($tables as $table)
 		{
+			$table ['Rate'] = 0;
+			
 			if (in_array ($table ['Name'], $tmp_tables))
 			{
+				$rate = Table_Rate::byTable ($table ['Name']);
+				
+				$table ['Rate'] = $rate->value; 
+				
 				$result [] = $table;
 			}
 		}
 		
-		Helper_Array::mosort ($result, 'Comment');
+		Helper_Array::mosort ($result, 'Rate DESC,Comment');
 		
 		$tmp = array ();
 		
@@ -444,6 +452,10 @@ class Controller_Admin_Database extends Controller_Abstract
 			'table',
 			'row_id'	
 		);
+		
+		Loader::load ('Table_Rate');
+		
+		$rate = Table_Rate::byTable ($table)->inc ();
 
 		$fields = Helper_Data_Source::fields ('`' . $table . '`');
 		
@@ -610,6 +622,10 @@ class Controller_Admin_Database extends Controller_Abstract
 		$tmp_tables = $this->__aclTables ($tables->__toArray ());
 
 		$table = $this->_input->receive ('table');
+		
+		Loader::load ('Table_Rate');
+		
+		$rate = Table_Rate::byTable ($table)->inc ();
 		
 		$acl_fields = $this->__fields ($table);
 
