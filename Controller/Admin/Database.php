@@ -355,7 +355,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		$acl_fields = $this->__aclFields ($table, $fields);
 		
-		if (!$acl_fields/* || !User::id()*/)
+		if (!$acl_fields || !User::id())
 		{
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
@@ -394,22 +394,30 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		$tmp_tables = $this->__aclTables ($tables);
 		
-		if (!$tmp_tables/* || !User::id ()*/)
+		if (!$tmp_tables || !User::id ())
 		{
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
 		
 		$result = array ();
 		
+		Loader::load ('Table_Rate');
+		
 		foreach ($tables as $table)
 		{
-			//if (in_array ($table ['Name'], $tmp_tables))
-			//{
+			$table ['Rate'] = 0;
+			
+			if (in_array ($table ['Name'], $tmp_tables))
+			{
+				$rate = Table_Rate::byTable ($table ['Name']);
+				
+				$table ['Rate'] = $rate->value; 
+				
 				$result [] = $table;
-		//	}
+			}
 		}
 		
-		Helper_Array::mosort ($result, 'Comment');
+		Helper_Array::mosort ($result, 'Rate DESC,Comment');
 		
 		$tmp = array ();
 		
@@ -444,14 +452,18 @@ class Controller_Admin_Database extends Controller_Abstract
 			'table',
 			'row_id'	
 		);
+		
+		Loader::load ('Table_Rate');
+		
+		$rate = Table_Rate::byTable ($table)->inc ();
 
 		$fields = Helper_Data_Source::fields ('`' . $table . '`');
 		
 		$acl_fields = $this->__aclFields ($table, $fields);
 		
-		if (!$acl_fields/* || !User::id ()*/)
+		if (!$acl_fields || !User::id ())
 		{
-			//return $this->replaceAction ('Error', 'accessDenied');
+			return $this->replaceAction ('Error', 'accessDenied');
 		}
 		
 		$prefix = Model_Scheme::$defaultPrefix;
@@ -468,7 +480,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			// На поле нет разрешения
 			if (!in_array ($field ['Field'], $acl_fields))
 			{
-				//unset ($fields [$i]);
+				unset ($fields [$i]);
 			}
 			
 			// Тип поля - enum
@@ -558,6 +570,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			}
 		}
 		
+		// Получаем эвенты
 		$events  = array ();
 		
 		$tmp = $this->config ()->events->$class_name;
@@ -567,6 +580,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			$events = $tmp->__toArray ();
 		}
 		
+		// Получаем плагины
 		$plugins = array ();
 		
 		$tmp = $this->config ()->plugins->$class_name;
@@ -576,6 +590,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			$plugins = $tmp->__toArray ();	
 		}
 		
+		// Получаем список вкладок
 		$tabs = array ();
 		
 		$tmp = $this->config ()->tabs;
@@ -602,25 +617,30 @@ class Controller_Admin_Database extends Controller_Abstract
 	 */
 	public function table ()
 	{
-		$tables = Helper_Data_Source::tables ();;
-		
-		$tmp_tables = $this->__aclTables ($tables);
+		$tables = Helper_Data_Source::tables ();
+
+		$tmp_tables = $this->__aclTables ($tables->__toArray ());
 
 		$table = $this->_input->receive ('table');
 		
-		$acl_fields = $this->__fields ($table);
+		Loader::load ('Table_Rate');
 		
-		if (!in_array ($table, $tmp_tables) || !$acl_fields/* || !User::id ()*/)
+		$rate = Table_Rate::byTable ($table)->inc ();
+		
+		$acl_fields = $this->__fields ($table);
+
+		if (!in_array ($table, $tmp_tables) || !$acl_fields || !User::id ())
 		{
-		//	return $this->replaceAction ('Error', 'accessDenied');
+			return $this->replaceAction ('Error', 'accessDenied');
 		}
 
 		$prefix = Model_Scheme::$defaultPrefix;
 		
 		$class_name = $this->__className ($table, $prefix);
-		
+
 		$collection = Model_Collection_Manager::create ($class_name);
 		
+		// Получаем фильтры
 		$filters = $this->config ()->filters->$class_name;
 		
 		if ($filters)
@@ -633,6 +653,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			}
 		}
 		
+		// Сортируем коллекцию, если есть конфиг для сортировки
 		$sort = $this->config ()->sort->$class_name;
 		
 		if ($sort)
@@ -645,6 +666,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		Loader::load ('Paginator');
 		
+		// Накладываем лимиты
 		$limit = $this->config ()->limits->$class_name;
 		
 		if ($limit)
@@ -669,7 +691,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		$acl_fields = array ();
 		
 		$class_fields = $this->config ()->fields->$class_name;
-			
+
 		$fields = null;
 		
 		if ($class_fields)
@@ -679,7 +701,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			$fields = Helper_Data_Source::fields ('`' . $table . '`');
 
 			$acl_fields = $this->__aclFields ($table, $fields);
-			
+
 			foreach ($fields as $i => $field)
 			{
 				if (
@@ -687,7 +709,7 @@ class Controller_Admin_Database extends Controller_Abstract
 					!in_array ($field ['Field'], $class_fields)
 				)
 				{
-					//unset ($fields [$i]);
+					unset ($fields [$i]);
 				}
 			}
 		}
@@ -695,7 +717,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		$title = $this->config ()->titles->$class_name;
 		
 		$links = $this->config ()->links->$class_name;
-		
+
 		if ($links)
 		{
 			$links = $links->__toArray ();
@@ -738,7 +760,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		 
 		$acl_fields = $this->__aclFields ($table, $fields);
 		 
-		if (!$acl_fields/* || !User::id ()*/)
+		if (!$acl_fields || !User::id ())
 		{
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
@@ -748,7 +770,6 @@ class Controller_Admin_Database extends Controller_Abstract
 			$class_name,
 			$row_id
 		);
-		
 		
 		foreach ($column as $field => $value)
 		{
@@ -777,8 +798,11 @@ class Controller_Admin_Database extends Controller_Abstract
 		}
 		else
 		{
-			$row->set ($updated_fields);
-			$row->save ();
+			if ($updated_fields)
+			{
+				$row->set ($updated_fields);
+				$row->save ();
+			}
 		}
 		
 		$this->__log (
