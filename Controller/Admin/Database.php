@@ -112,7 +112,6 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		foreach ((array) $fields as $field => $value)
 		{
-			die ($field);
 			$log = new Admin_Log (array (
 				'User__id'		=> User::id (),
 				'action'		=> $action,
