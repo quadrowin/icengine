@@ -355,7 +355,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		$acl_fields = $this->__aclFields ($table, $fields);
 		
-		if (!$acl_fields/* || !User::id()*/)
+		if (!$acl_fields || !User::id())
 		{
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
@@ -394,7 +394,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		$tmp_tables = $this->__aclTables ($tables);
 		
-		if (!$tmp_tables/* || !User::id ()*/)
+		if (!$tmp_tables || !User::id ())
 		{
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
@@ -403,10 +403,10 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		foreach ($tables as $table)
 		{
-			//if (in_array ($table ['Name'], $tmp_tables))
-			//{
+			if (in_array ($table ['Name'], $tmp_tables))
+			{
 				$result [] = $table;
-		//	}
+			}
 		}
 		
 		Helper_Array::mosort ($result, 'Comment');
@@ -449,9 +449,9 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		$acl_fields = $this->__aclFields ($table, $fields);
 		
-		if (!$acl_fields/* || !User::id ()*/)
+		if (!$acl_fields || !User::id ())
 		{
-			//return $this->replaceAction ('Error', 'accessDenied');
+			return $this->replaceAction ('Error', 'accessDenied');
 		}
 		
 		$prefix = Model_Scheme::$defaultPrefix;
@@ -468,7 +468,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			// На поле нет разрешения
 			if (!in_array ($field ['Field'], $acl_fields))
 			{
-				//unset ($fields [$i]);
+				unset ($fields [$i]);
 			}
 			
 			// Тип поля - enum
@@ -558,6 +558,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			}
 		}
 		
+		// Получаем эвенты
 		$events  = array ();
 		
 		$tmp = $this->config ()->events->$class_name;
@@ -567,6 +568,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			$events = $tmp->__toArray ();
 		}
 		
+		// Получаем плагины
 		$plugins = array ();
 		
 		$tmp = $this->config ()->plugins->$class_name;
@@ -576,6 +578,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			$plugins = $tmp->__toArray ();	
 		}
 		
+		// Получаем список вкладок
 		$tabs = array ();
 		
 		$tmp = $this->config ()->tabs;
@@ -610,9 +613,9 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		$acl_fields = $this->__fields ($table);
 		
-		if (!in_array ($table, $tmp_tables) || !$acl_fields/* || !User::id ()*/)
+		if (!in_array ($table, $tmp_tables) || !$acl_fields || !User::id ())
 		{
-		//	return $this->replaceAction ('Error', 'accessDenied');
+			return $this->replaceAction ('Error', 'accessDenied');
 		}
 
 		$prefix = Model_Scheme::$defaultPrefix;
@@ -621,6 +624,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		$collection = Model_Collection_Manager::create ($class_name);
 		
+		// Получаем фильтры
 		$filters = $this->config ()->filters->$class_name;
 		
 		if ($filters)
@@ -633,6 +637,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			}
 		}
 		
+		// Сортируем коллекцию, если есть конфиг для сортировки
 		$sort = $this->config ()->sort->$class_name;
 		
 		if ($sort)
@@ -645,6 +650,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		Loader::load ('Paginator');
 		
+		// Накладываем лимиты
 		$limit = $this->config ()->limits->$class_name;
 		
 		if ($limit)
@@ -687,7 +693,7 @@ class Controller_Admin_Database extends Controller_Abstract
 					!in_array ($field ['Field'], $class_fields)
 				)
 				{
-					//unset ($fields [$i]);
+					unset ($fields [$i]);
 				}
 			}
 		}
@@ -738,7 +744,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		 
 		$acl_fields = $this->__aclFields ($table, $fields);
 		 
-		if (!$acl_fields/* || !User::id ()*/)
+		if (!$acl_fields || !User::id ())
 		{
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
@@ -748,7 +754,6 @@ class Controller_Admin_Database extends Controller_Abstract
 			$class_name,
 			$row_id
 		);
-		
 		
 		foreach ($column as $field => $value)
 		{
