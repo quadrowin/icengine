@@ -32,6 +32,10 @@
 	<div style = "clear: both;"></div>
 
 	{literal}
+	<script type="text/javascript">
+		var imageLoadNumber = 0;
+		var imgInterfaceLoaded = false;
+	</script>
 	<script type="text/javascript" src="/admin/imageOptimizer/js/works.js"></script>
 	<script type="text/javascript">
 	$(function ()
