@@ -112,6 +112,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		foreach ((array) $fields as $field => $value)
 		{
+			die ($field);
 			$log = new Admin_Log (array (
 				'User__id'		=> User::id (),
 				'action'		=> $action,
@@ -605,13 +606,13 @@ class Controller_Admin_Database extends Controller_Abstract
 	public function table ()
 	{
 		$tables = Helper_Data_Source::tables ();;
-		
-		$tmp_tables = $this->__aclTables ($tables);
+
+		$tmp_tables = $this->__aclTables ($tables->__toArray ());
 
 		$table = $this->_input->receive ('table');
 		
 		$acl_fields = $this->__fields ($table);
-		
+
 		if (!in_array ($table, $tmp_tables) || !$acl_fields || !User::id ())
 		{
 			return $this->replaceAction ('Error', 'accessDenied');
@@ -620,7 +621,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		$prefix = Model_Scheme::$defaultPrefix;
 		
 		$class_name = $this->__className ($table, $prefix);
-		
+
 		$collection = Model_Collection_Manager::create ($class_name);
 		
 		// Получаем фильтры
@@ -674,7 +675,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		$acl_fields = array ();
 		
 		$class_fields = $this->config ()->fields->$class_name;
-			
+
 		$fields = null;
 		
 		if ($class_fields)
@@ -684,7 +685,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			$fields = Helper_Data_Source::fields ('`' . $table . '`');
 
 			$acl_fields = $this->__aclFields ($table, $fields);
-			
+
 			foreach ($fields as $i => $field)
 			{
 				if (
@@ -700,7 +701,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		$title = $this->config ()->titles->$class_name;
 		
 		$links = $this->config ()->links->$class_name;
-		
+
 		if ($links)
 		{
 			$links = $links->__toArray ();
