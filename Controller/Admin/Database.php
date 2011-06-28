@@ -782,8 +782,11 @@ class Controller_Admin_Database extends Controller_Abstract
 		}
 		else
 		{
-			$row->set ($updated_fields);
-			$row->save ();
+			if ($updated_fields)
+			{
+				$row->set ($updated_fields);
+				$row->save ();
+			}
 		}
 		
 		$this->__log (
