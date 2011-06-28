@@ -222,7 +222,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		{
 			Helper_Link::unlink ($role, $resource);
 			
-			$resources->delete ();
+			$resource->delete ();
 		}
 		
 		$resources = $this->_input->receive ('resources');
