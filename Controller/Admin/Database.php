@@ -221,6 +221,8 @@ class Controller_Admin_Database extends Controller_Abstract
 		foreach ($resource_collection as $resource)
 		{
 			Helper_Link::unlink ($role, $resource);
+			
+			$resources->delete ();
 		}
 		
 		$resources = $this->_input->receive ('resources');
@@ -229,21 +231,12 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		foreach ($resources as $resource_name)
 		{
-			$resource = Model_Manager::byQuery (
-				'Acl_Resource',
-				Query::instance ()
-					->where ('name', $resource_name)
-			);
-			
-			if (!$resource)
-			{
-				$resource = new Acl_Resource (array (
-					'name'						=> $resource_name,
-					'Acl_Resource_Type__id '	=> 1
-				));
-				
-				$resource->save ();
-			}
+			$resource = new Acl_Resource (array (
+				'name'						=> $resource_name,
+				'Acl_Resource_Type__id '	=> 1
+			));
+
+			$resource->save ();
 		
 			Helper_Link::link ($role, $resource);
 		}
