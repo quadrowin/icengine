@@ -604,7 +604,7 @@ class Controller_Admin_Database extends Controller_Abstract
 	 */
 	public function table ()
 	{
-		$tables = Helper_Data_Source::tables ();;
+		$tables = Helper_Data_Source::tables ();
 		
 		$tmp_tables = $this->__aclTables ($tables);
 
