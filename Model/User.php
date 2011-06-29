@@ -330,6 +330,11 @@ class User extends Model
 		return $role;
 	}
 	
+	public function title ()
+	{
+		return $this->login . ' ' . $this->name;
+	}
+	
 }
 
 Loader::load ('User_Guest');

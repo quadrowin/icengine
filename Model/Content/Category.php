@@ -52,4 +52,9 @@ class Content_Category extends Model_Child
 		return $this;
 	}
 	
+	public function title ()
+	{
+		return $this->title . ' ' . $this->url;
+	}
+	
 }
