@@ -106,6 +106,11 @@ class Page_Title extends Model_Child
 			$this->_compile ();
 	}
 	
+	public function title ()
+	{
+		return $this->pattern . ' ' . $this->title;
+	}
+	
 	/**
 	 * @desc Получение или установка значения.
 	 * @param string|array $key Ключ или массв пар ключ-значение.
