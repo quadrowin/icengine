@@ -29,7 +29,7 @@ var Controller_Admin_Link = {
 		
 		cont.empty ();
 		
-		for (var i = 0, l = items.length; i < l; i++)
+		for (var i = 0, l = items.length; i < l; ++i)
 		{
 			var p = $('<p></p>').appendTo (cont);
 			
@@ -37,7 +37,7 @@ var Controller_Admin_Link = {
 			
 			check.val (items [i].id);
 			
-			check.attr ('id', 'ch' + items [i].id)
+			check.attr ('id', 'ch' + items [i].id);
 			
 			p.html (p.html () + ' ' + items [i].id + '. ' + items [i].name);
 		}
@@ -115,5 +115,5 @@ $(document).ready (function ()
 	$('#model-save').click (function ()
 	{
 		Controller_Admin_Link.save ();
-	})
-})
+	});
+});
