@@ -1,17 +1,29 @@
-var cont;
-
+/**
+ *
+ * @desc Контроллер админки для связей
+ * @author Ilya Koleznikov
+ * @package IcEngine
+ *
+ */
 var Controller_Admin_Link = {
+	
+	/**
+	 * @desc Управляющий элемент
+	 * @var jQuery
+	 */
+	control: null,
+	
 	appendItems: function (result)
 	{
 		var items = result.data.items;
 		
-		cont.parent ().show ();	
+		Controller_Admin_Link.control.parent ().show ();	
 		
-		cont [0].options.length = 0;
+		Controller_Admin_Link.control [0].options.length = 0;
 		
 		for (var i = 0, l = items.length; i < l; i++)
 		{
-			cont [0].options [i] = new Option (
+			Controller_Admin_Link.control [0].options [i] = new Option (
 				items [i].id + '. ' + items [i].name,
 				items [i].id,
 				false,
@@ -25,19 +37,19 @@ var Controller_Admin_Link = {
 	{
 		var items = result.data.items;
 		
-		cont.parent ().show ();
+		Controller_Admin_Link.control.parent ().show ();
 		
-		cont.empty ();
+		Controller_Admin_Link.control.empty ();
 		
-		for (var i = 0, l = items.length; i < l; i++)
+		for (var i = 0, l = items.length; i < l; ++i)
 		{
-			var p = $('<p></p>').appendTo (cont);
+			var p = $('<p></p>').appendTo (Controller_Admin_Link.control);
 			
 			var check = $('<input type="checkbox" class="model-id" ' + (items [i].linked > 0 ? ' checked' : '') + ' />').appendTo (p);
 			
 			check.val (items [i].id);
 			
-			check.attr ('id', 'ch' + items [i].id)
+			check.attr ('id', 'ch' + items [i].id);
 			
 			p.html (p.html () + ' ' + items [i].id + '. ' + items [i].name);
 		}
@@ -100,20 +112,18 @@ $(document).ready (function ()
 {
 	$('#table1_id').change (function ()
 	{
-		cont = $('#model1');
-		
+		Controller_Admin_Link.control = $('#model1');
 		Controller_Admin_Link.items ($(this).val ()); 
 	});	
 	
 	$('#table2_id').change (function ()
 	{
-		cont = $('#model2');
-		
+		Controller_Admin_Link.control = $('#model2');
 		Controller_Admin_Link.linkRoll ($(this).val ()); 
 	});	
 	
 	$('#model-save').click (function ()
 	{
 		Controller_Admin_Link.save ();
-	})
-})
+	});
+});
