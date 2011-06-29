@@ -23,7 +23,7 @@
 		{/foreach}
 		{/foreach}
 		{/if}	
-		"><a href="/cp/row/{$table}/{$i->key()}/">{$i->title()}</a></li>
+		"><b>{$i->key()}</b>. <a href="/cp/row/{$table}/{$i->key()}/">{$i->title()}</a></li>
 		{/foreach}
 	</ul>
 	{else}
@@ -49,8 +49,9 @@
 							{/foreach}
 						{/if}	
 					">
+					<b><a href="/cp/row/{$table}/{$row->key()}/">{$row->key()}</a></b>. 
 					{if $field == $title || in_array($field,$links)}
-					<a href="/cp/row/{$table}/{$row->key()}/">{$row->key()}{if $field==$title}{$row->title()}{else}{$row->$field}{/if}</a>
+					<a href="/cp/row/{$table}/{$row->key()}/">{if $field==$title}{$row->title()}{else}{$row->$field}{/if}</a>
 					{else}{$row->$field}{/if}</td>
 				{/foreach}
 			</tr>
