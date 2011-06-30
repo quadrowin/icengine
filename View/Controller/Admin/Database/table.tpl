@@ -37,7 +37,7 @@
 		{/foreach}
 	</ul>
 	{else}
-	<table cellpadding="5" cellspacing="0" border="1" width="100%">
+	<table cellpadding="5" cellspacing="5" border="1" width="100%">
 		<thead>
 			<tr> 
 				{foreach from=$fields item="field"}
@@ -76,7 +76,12 @@
 						{/if}	
 					">
 					{if $field==$title}{$row->title()}{else}{$row->$field}{/if}</a>
-					{else}{$row->$field}{/if}</td>
+					{else}{$row->$field}{/if}
+					{if in_array($field,$limitators)}
+					{assign var="old" value=$row->data('old')}
+					 (<a href="?limitator={$field}/{if isset($old[$field])}{$old[$field]}{else}{$row->$field}{/if}">огр.</a>)
+					{/if}
+					</td>
 				{/foreach}
 			</tr>
 			{/foreach}
@@ -85,6 +90,6 @@
 	{/if}
 	{/if}
 	
-	{$paginator_html}
+	{if isset($paginator_html)}{$paginator_html}{/if}
 	
 </div>
