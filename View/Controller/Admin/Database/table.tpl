@@ -23,7 +23,17 @@
 		{/foreach}
 		{/foreach}
 		{/if}	
-		"><b style="display:inline-block;width:20px"><a href="/cp/row/{$table}/{$i->key()}/">{$i->key()}</a></b>. <a href="/cp/row/{$table}/{$i->key()}/">{$i->title()}</a></li>
+		"><span style="display:inline-block;width:40px"><a href="/cp/row/{$table}/{$i->key()}/">{$i->key()}</a></span>
+			
+		<a href="/cp/row/{$table}/{$i->key()}/"style="
+			{if $link_styles}
+				{foreach from=$link_styles item="column" key="c"}
+					{foreach from=$column item="style" key="v"}
+						{if $row->$c==$v}{$style};{/if}	
+					{/foreach}
+				{/foreach}
+			{/if}	
+		">{$i->title()}</a></li>
 		{/foreach}
 	</ul>
 	{else}
@@ -38,6 +48,7 @@
 		<tbody>
 			{foreach from=$collection item="row"}
 			<tr>
+				<span style="display:inline-block;width:40px"><a href="/cp/row/{$table}/{$row->key()}/">{$row->key()}</a></span>
 				{foreach from=$fields item="field"}
 					{assign var="field" value=$field->Field}
 					<td style="
@@ -49,9 +60,17 @@
 							{/foreach}
 						{/if}	
 					">
-					<b><a href="/cp/row/{$table}/{$row->key()}/">{$row->key()}</a></b>. 
 					{if $field == $title || in_array($field,$links)}
-					<a href="/cp/row/{$table}/{$row->key()}/">{if $field==$title}{$row->title()}{else}{$row->$field}{/if}</a>
+					<a href="/cp/row/{$table}/{$row->key()}/" style="
+						{if $link_styles}
+							{foreach from=$link_styles item="column" key="c"}
+								{foreach from=$column item="style" key="v"}
+									{if $row->$c==$v}{$style};{/if}	
+								{/foreach}
+							{/foreach}
+						{/if}	
+					">
+					{if $field==$title}{$row->title()}{else}{$row->$field}{/if}</a>
 					{else}{$row->$field}{/if}</td>
 				{/foreach}
 			</tr>

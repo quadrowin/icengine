@@ -732,6 +732,7 @@ class Controller_Admin_Database extends Controller_Abstract
 				? $title : $this->config ()->default_title, 
 			'links'				=> $links,
 			'styles'			=> $this->config ()->styles->$class_name,
+			'link_styles'		=> $this->config ()->link_styles->$class_name,
 			'paginator_html'	=> $paginator_html
 		));
 	}
