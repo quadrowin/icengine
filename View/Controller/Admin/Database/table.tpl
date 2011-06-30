@@ -60,7 +60,7 @@
 						{/if}	
 					">
 					{if $smarty.foreach.field.first} 
-					{if !$fields->$keyField}
+					{if !in_array($keyField,$sfields)}
 					<span style="display:inline-block;width:40px">
 						<a href="/cp/row/{$table}/{$row->key()}/">{$row->key()}</a></span>
 					{/if}
