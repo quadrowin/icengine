@@ -22,6 +22,7 @@ class Query {
 	const JOIN				= 'JOIN';
 	const LEFT_JOIN			= 'LEFT JOIN';
 	const ORDER				= 'ORDER';
+	const REPLACE			= 'REPLACE';
 	const SELECT			= 'SELECT';
 	const SET				= 'SET';
 	const SHOW				= 'SHOW';
@@ -37,7 +38,10 @@ class Query {
 	const SQL_AND			= 'AND';
 	const SQL_OR			= 'OR';
 	
-	// Части выборки по умолчанию
+	/**
+	 * @desc Части запроса по умолчанию.
+	 * @var array
+	 */
 	public static $_defaults = array (
 		self::CALC_FOUND_ROWS	=> false,
 		self::DISTINCT			=> false,
@@ -306,6 +310,18 @@ class Query {
 	public function parts ()
 	{
 		return $this->_parts;
+	}
+	
+	/**
+	 * @desc Запрос преобразуется в запрос на replace.
+	 * @param string $table таблица.
+	 * @return Query Этот запрос.
+	 */
+	public function replace ($table)
+	{
+		$this->_parts [self::REPLACE] = $table;
+		$this->_type = self::REPLACE;
+		return $this;
 	}
 	
 	/**

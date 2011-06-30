@@ -24,6 +24,7 @@ class Page_Title extends Model_Child
 	
 	/**
 	 * @desc Компиляция заголовка.
+	 * @param string $field
 	 * @return string
 	 */
 	protected function _compile ($field = 'title')
@@ -96,6 +97,7 @@ class Page_Title extends Model_Child
 	
 	/**
 	 * @desc Получене результирующего заголовка.
+	 * @param string $field Поле
 	 * @return string
 	 */
 	public function compile ($field = 'title')
@@ -104,6 +106,15 @@ class Page_Title extends Model_Child
 		return 
 			($parent ? $parent->compile ($field) : '') .
 			$this->_compile ($field);
+	}
+	
+	/**
+	 * @desc Тайтл модели для универсальной админки.
+	 * @return string 
+	 */
+	public function title ()
+	{
+		return $this->pattern . ' ' . $this->title;
 	}
 	
 	/**

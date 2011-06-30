@@ -1,12 +1,12 @@
 function Class () { };
-Class.prototype.construct = function () { };
+Class.prototype.initialize = function () { };
 Class.extend = function (def)
 {
 	var classDef = function ()
 	{
 		if (arguments [0] !== Class)
 		{
-			this.construct.apply (this, arguments);
+			this.initialize.apply (this, arguments);
 		}
 	};
 	var proto = new this (Class);
@@ -17,7 +17,8 @@ Class.extend = function (def)
 		var item = def [n];
 		if (item instanceof Function)
 		{
-			item.$ = superClass;
+			item._name = n;
+			//item.$ = superClass;
 		}
 		else
 		{
@@ -26,7 +27,11 @@ Class.extend = function (def)
 		proto [n] = item;
 	}
 	classDef.prototype = proto;
+	classDef.prototype.parent = function () {
+		var name = arguments.callee.caller._name;
+		superClass [name].apply (this, arguments);
+	};
 	classDef.extend = this.extend;
 	
-	return classDef;	
+	return classDef;
 };

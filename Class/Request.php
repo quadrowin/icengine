@@ -74,6 +74,16 @@ class Request
 			$_SERVER ['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'
 		);
 	}
+	
+	/**
+	 * @desc Проверяет, что скрипт был вызван через консоль.
+	 * @return boolean true, если скрипт был вызван из командной строки, 
+	 * иначе - false.
+	 */
+	public static function isConsole ()
+	{
+		return isset ($_SERVER ['argv'], $_SERVER ['argc']);
+	}
 		
 	/**
 	 * @desc Проверяет, передены ли файлы от пользователя.
@@ -99,11 +109,12 @@ class Request
 	 */
 	public static function isJsHttpRequest ()
 	{
+		global $JsHttpRequest_Active;
 		return 
 			isset ($_SERVER ['REQUEST_METHOD']) &&
 			$_SERVER ['REQUEST_METHOD'] == 'POST' &&
-			isset ($_GET ['JsHttpRequest']) && 
-			$_GET ['JsHttpRequest'];
+			isset ($JsHttpRequest_Active) && 
+			$JsHttpRequest_Active;
 	}
 	
 	/**

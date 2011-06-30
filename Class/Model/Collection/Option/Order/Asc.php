@@ -25,7 +25,7 @@ class Model_Collection_Option_Order_Asc extends Model_Collection_Option_Abstract
 				$collection->keyField () . '`'
 			);
 		
-		$query->order (array ($field => Query::DESC));
+		$query->order (array ($field => Query::ASC));
 	}
 	
 }
