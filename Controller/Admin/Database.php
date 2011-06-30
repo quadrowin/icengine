@@ -8,15 +8,6 @@
 class Controller_Admin_Database extends Controller_Abstract
 {
 	/**
-	 * @var array<string>
-	 */
-	protected $_config = array (
-		'sort'	=> array (
-			'City'	=> 'name'
-		)
-	);
-	
-	/**
 	 * @desc Получить сопряжение полей таблицы на разрешенные
 	 * ACL поля для пользователя
 	 * @param string $table
@@ -62,6 +53,13 @@ class Controller_Admin_Database extends Controller_Abstract
 	private function __className ($table, $prefix)
 	{
 		$class_name = Model_Scheme::tableToModel ($table);
+
+		$prefix = ucfirst ($prefix);
+		
+		if (strpos ($class_name, $prefix) === 0)
+		{
+			$class_name = substr ($class_name, strlen ($prefix));
+		}
 		
 		return $class_name;
 	}
@@ -72,6 +70,7 @@ class Controller_Admin_Database extends Controller_Abstract
 	public function __construct ()
 	{
 		Loader::load ('Helper_Data_Source');
+
 	}
 	
 	/**
@@ -350,13 +349,13 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		$prefix = Model_Scheme::$defaultPrefix;
 		
-		$class_name = $this->_className ($table, $prefix);
+		$class_name = $this->__className ($table, $prefix);
 		
-		$fields = Helper_Data_Source::fields ($class_name);
+		$fields = Helper_Data_Source::fields ('`' . $table . '`');
 		
 		$acl_fields = $this->__aclFields ($table, $fields);
 		
-		if (!$acl_fields)
+		if (!$acl_fields/* || !User::id()*/)
 		{
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
@@ -380,6 +379,8 @@ class Controller_Admin_Database extends Controller_Abstract
 			);
 		}
 		
+		Loader::load ('Helper_Header');
+		
 		Helper_Header::redirect ('/cp/table/' . $table . '/');
 	}
 	
@@ -402,10 +403,10 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		foreach ($tables as $table)
 		{
-			if (in_array ($table ['Name'], $tmp_tables))
-			{
+			//if (in_array ($table ['Name'], $tmp_tables))
+			//{
 				$result [] = $table;
-			}
+		//	}
 		}
 		
 		Helper_Array::mosort ($result, 'Comment');
@@ -450,7 +451,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		if (!$acl_fields/* || !User::id ()*/)
 		{
-			return $this->replaceAction ('Error', 'accessDenied');
+			//return $this->replaceAction ('Error', 'accessDenied');
 		}
 		
 		$prefix = Model_Scheme::$defaultPrefix;
@@ -464,11 +465,83 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		foreach ($fields as $i => $field)
 		{
+			// На поле нет разрешения
 			if (!in_array ($field ['Field'], $acl_fields))
 			{
-				unset ($fields [$i]);
+				//unset ($fields [$i]);
 			}
 			
+			// Тип поля - enum
+			if (strpos ($field->Type, 'enum(') === 0)
+			{
+				$values = substr ($field->Type, 6, -1);
+				$values = explode (',', $values);
+				
+				$collection = Model_Collection_Manager::create (
+					$class_name
+				)
+					->reset ();
+				
+				foreach ($values as $v)
+				{
+					$v = trim ($v, "' ");
+					
+					$collection->add (new $class_name (array (
+						'id'	=> $v,
+						'name'	=> $v
+					)));
+				}
+				
+				$field->Values = $collection;
+			}
+			
+			$text_value = Model_Manager::byQuery (
+				'Text_Value',
+				Query::instance ()
+					->where ('tv_field_table', $table)
+					->where ('tv_field_name', $field->Field)
+			);
+			
+			// Есть запись для поля таблицы в таблице подстановок
+			if ($text_value && $text_value->tv_text_field)
+			{
+				$query = Query::instance ()
+					->select ($text_value->tv_text_table . '.' . 
+						$text_value->tv_text_link_field)
+				
+					->select ($text_value->tv_text_table . '.' .
+						$text_value->tv_text_field);
+				
+				$query
+					->from ('`' . $text_value->tv_text_table . '`' );
+				
+				if ($text_value->tv_text_link_condition)
+				{
+					$query
+						->where ($text_value->tv_text_link_condition);
+				}
+				
+				$result = DDS::execute ($query)
+					->getResult ()
+						->asTable ();
+				
+				$collection = Model_Collection_Manager::create (
+					$class_name
+				)
+					->reset ();
+				
+				foreach ($result as $item)
+				{
+					$collection->add (new $class_name (array (
+						'id'	=> $item [$text_value->tv_text_link_field],
+						'name'	=> $item [$text_value->tv_text_field]
+					)));
+				}
+				
+				$field->Values = $collection;
+			}
+			
+			// Поле - поле для связи
 			if (strpos ($field->Field, '__id') !== false)
 			{
 				$field->Values = Model_Collection_Manager::create (
@@ -476,6 +549,7 @@ class Controller_Admin_Database extends Controller_Abstract
 				);
 			}
 			
+			// Ссылка на родителя
 			if ($field->Field == 'parentId')
 			{
 				$field->Values = Model_Collection_Manager::create (
@@ -484,10 +558,40 @@ class Controller_Admin_Database extends Controller_Abstract
 			}
 		}
 		
+		$events  = array ();
+		
+		$tmp = $this->config ()->events->$class_name;
+		
+		if ($tmp)
+		{
+			$events = $tmp->__toArray ();
+		}
+		
+		$plugins = array ();
+		
+		$tmp = $this->config ()->plugins->$class_name;
+		
+		if ($tmp)
+		{
+			$plugins = $tmp->__toArray ();	
+		}
+		
+		$tabs = array ();
+		
+		$tmp = $this->config ()->tabs;
+		
+		if ($tmp)
+		{
+			$tabs = $tmp->__toArray ();
+		}
+		
 		$this->_output->send (array (
 			'row'		=> $row,
 			'fields'	=> $fields,
 			'table'		=> $table,
+			'tabs'		=> $tabs,
+			'events'	=> $events,
+			'plugins'	=> $plugins,
 			'keyField'	=> Model_Scheme::keyField ($class_name)
 		));
 	}
@@ -508,7 +612,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		if (!in_array ($table, $tmp_tables) || !$acl_fields/* || !User::id ()*/)
 		{
-			return $this->replaceAction ('Error', 'accessDenied');
+		//	return $this->replaceAction ('Error', 'accessDenied');
 		}
 
 		$prefix = Model_Scheme::$defaultPrefix;
@@ -516,6 +620,18 @@ class Controller_Admin_Database extends Controller_Abstract
 		$class_name = $this->__className ($table, $prefix);
 		
 		$collection = Model_Collection_Manager::create ($class_name);
+		
+		$filters = $this->config ()->filters->$class_name;
+		
+		if ($filters)
+		{
+			$filters = $filters->__toArray ();
+			
+			foreach ($filters as $field => $value)
+			{
+				$collection->where ($field, call_user_func ($value));
+			}
+		}
 		
 		$sort = $this->config ()->sort->$class_name;
 		
@@ -528,6 +644,13 @@ class Controller_Admin_Database extends Controller_Abstract
 		}
 		
 		Loader::load ('Paginator');
+		
+		$limit = $this->config ()->limits->$class_name;
+		
+		if ($limit)
+		{
+			$_GET ['limit'] = $limit;
+		}
 		
 		$paginator = Paginator::fromGet ();
 		
@@ -543,9 +666,50 @@ class Controller_Admin_Database extends Controller_Abstract
 			)
 		);
 		
+		$acl_fields = array ();
+		
+		$class_fields = $this->config ()->fields->$class_name;
+			
+		$fields = null;
+		
+		if ($class_fields)
+		{
+			$class_fields = $class_fields->__toArray ();
+	
+			$fields = Helper_Data_Source::fields ('`' . $table . '`');
+
+			$acl_fields = $this->__aclFields ($table, $fields);
+			
+			foreach ($fields as $i => $field)
+			{
+				if (
+					!in_array ($field ['Field'], $acl_fields) ||
+					!in_array ($field ['Field'], $class_fields)
+				)
+				{
+					//unset ($fields [$i]);
+				}
+			}
+		}
+		
+		$title = $this->config ()->titles->$class_name;
+		
+		$links = $this->config ()->links->$class_name;
+		
+		if ($links)
+		{
+			$links = $links->__toArray ();
+		}
+		
 		$this->_output->send (array (
 			'collection'		=> $collection,
+			'fields'			=> $fields,
+			'class_name'		=> $class_name,
 			'table'				=> $table,
+			'title'				=> !empty ($title) 
+				? $title : $this->config ()->default_title, 
+			'links'				=> $links,
+			'styles'			=> $this->config ()->styles->$class_name,
 			'paginator_html'	=> $paginator_html
 		));
 	}
