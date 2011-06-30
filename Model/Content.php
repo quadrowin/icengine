@@ -34,4 +34,9 @@ class Content extends Model
 		return $extending;
 	}
 	
+	public function title ()
+	{
+		return $this->title . ' ' . $this->url;
+	}
+	
 }

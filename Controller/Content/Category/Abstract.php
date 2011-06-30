@@ -127,7 +127,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 	}
 	
 	/**
-	 * @desc Фабрик метод для создания класса контролера
+	 * @desc Фабрик метод для создания css-класса контролера
 	 * @param array $params
 	 * @return string
 	 * @override
@@ -170,6 +170,56 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 		$result = rtrim ($url, '/') . '/' . $this->__saveClass ($params);
 		$link = $this->__makeUniqueLink($result, $category_id);
 		return $link;
+	}
+	
+	/**
+	 * @desc Удаление категории. Зависимые объекты удалит Garbage Collector.
+	 * Предназначен для вызова через ajax.
+	 * @author Yury Shvedov
+	 * @param integer $content_category_id - id категории
+	 * @param string $referer - URL, по которому будет направлен 
+	 * посетитель
+	 */
+	public function remove ()
+	{
+		list (
+			$id,
+			$referer
+		) = $this->_input->receive (
+			'id',
+			'referer'
+		);
+
+		$category = Model_Manager::byKey ($this->__categoryModel (), $id);
+
+		if (!$category)
+		{
+			return $this->replaceAction ('Error', 'notFound');
+		}
+
+		$user = User::getCurrent ();
+
+		$resource_delete = Acl_Resource::byNameCheck (array (
+			$this->__categoryModel (), 
+			$id, 
+			'delete'
+		));
+		
+		if (!$resource_delete || !$resource_delete->userCan ($user))
+		{
+			return $this->replaceAction ('Error', 'accessDenied');
+		}
+		
+		$category->delete ();
+
+		$redirect = $this->_removeRedirect ($category, $referer);
+		
+		$this->_task->setTemplate (null);
+		$this->_output->send (array (
+			'data'		=> array (
+				'redirect'	=> $redirect
+			)
+		));
 	}
 	
 	/**
@@ -282,8 +332,6 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 			$this->__categoryModel (),
 			$parent_category_id
 		);
-		
-		fb ($parent);
 
 		if (!$parent)
 		{
@@ -301,13 +349,14 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 		);
 		
 		// Получаем класс
-		$class = !$class ?  $this->__saveClass ($params) : $class;
+		$class = !$class ? $this->__saveClass ($params) : $class;
 	
 		// Получаем URL
 		$url = !$url ? $this->__saveUrl ($params, $category_id) : $url;
 		
 		$user = User::getCurrent ();
 		
+		$old_url = null;
 		if ($category_id)
 		{
 			$content_category = Model_Manager::byKey (
@@ -330,6 +379,8 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 			{
 				return $this->replaceAction ('Error', 'accessDenied');
 			}
+			
+			$old_url = $content_category->url;
 			
 			$content_category->update (array (
 				'title'						=> $title,
@@ -408,19 +459,35 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 			));
 		}
 		
-		if (!Request::isJsHttpRequest())
+		$redirect = 
+			$old_url == $referer ?
+			$url :
+			$referer;
+		
+		if (!Request::isJsHttpRequest ())
 		{
-			Helper_Header::redirect ($referer);
+			Helper_Header::redirect ($redirect);
 			die ();
 		}
 
 		$this->_task->setTemplate (null);
 		$this->_output->send (array (
-			'redirect'	=> $referer,
+			'redirect'	=> $redirect,
 			'data'		=> array (
-				'redirect'	=> $referer
+				'redirect'	=> $redirect
 			)
 		));
+	}
+	
+	/**
+	 * @desc Ссылка редиректа при удалении.
+	 * @param Content_Category $category
+	 * @param string $referer
+	 * @return string 
+	 */
+	protected function _removeRedirect (Content_Category $category, $referer)
+	{
+		return $referer;
 	}
 	
 	/**

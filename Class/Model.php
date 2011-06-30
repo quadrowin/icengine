@@ -590,6 +590,15 @@ abstract class Model implements ArrayAccess
 	}
 	
 	/**
+	 * @desc Возвращает имя сущности
+	 * @return string
+	 */
+	public function title ()
+	{
+		return $this->name;
+	}
+	
+	/**
 	 * @desc Загрузка данных модели.
 	 * @param mixed $key Первичный ключ.
 	 * @return Model Эта модель.

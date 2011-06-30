@@ -110,19 +110,19 @@ class IcEngine
 	
 	/**
 	 * @desc Подключает загрузчик и запускает его.
-	 * @param string $bootstrap Путь до загрузчика.
+	 * @param string $path Путь до загрузчика.
 	 */
-	public static function initBootstrap ($bootstrap)
+	public static function initBootstrap ($path)
 	{
 		Loader::multiLoad (
 			'Bootstrap_Abstract',
 			'Bootstrap_Manager'
 		);
 		
-		require $bootstrap;
+		require $path;
 		
-		$name = basename ($bootstrap, '.php');
-		self::$_bootstrap = Bootstrap_Manager::get ($name);
+		$name = basename ($path, '.php');
+		self::$_bootstrap = Bootstrap_Manager::get ($name, $path);
 	}
 	
 	/**
@@ -183,9 +183,9 @@ class IcEngine
 	 */
 	public static function run ()
 	{
-		Loader::load ('Data_Transport_Manager'); 
-		
 		self::$_bootstrap->run ();
+		
+		Loader::load ('Data_Transport_Manager');
 		
 		self::$_task = Controller_Manager::call (
 			'Front', 'index',

@@ -37,7 +37,15 @@ class Data_Source_Manager
 		 * @desc Массив источников
 		 * @var array
 		 */ 
-		'sources'	=> array ()
+		'sources'	=> array (
+			'default'	=> array (
+				'source'	=> 'Abstract',
+				'mapper'	=> 'Null',
+				'mapper_options'	=> array (
+					
+				)
+			)
+		)
 	);
 	
 	/**
