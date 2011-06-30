@@ -621,7 +621,13 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		$tmp_tables = $this->__aclTables ($tables->__toArray ());
 
-		$table = $this->_input->receive ('table');
+		list (
+			$table,
+			$limitator
+		) = $this->_input->receive (
+			'table',
+			'limitator'
+		);
 		
 		Loader::load ('Table_Rate');
 		
@@ -666,27 +672,40 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		Loader::load ('Paginator');
 		
-		// Накладываем лимиты
-		$limit = $this->config ()->limits->$class_name;
-		
-		if ($limit)
+		if (!$limitator)
 		{
-			$_GET ['limit'] = $limit;
+			// Накладываем лимиты
+			$limit = $this->config ()->limits->$class_name;
+
+			if ($limit)
+			{
+				$_GET ['limit'] = $limit;
+			}
+
+			$paginator = Paginator::fromGet ();
+
+			$collection->setPaginator ($paginator);
+
+			$collection->load ();
+
+			$paginator_html = Controller_Manager::html (
+				'Paginator/index',
+				array (
+					'data'	=> $paginator,
+					'tpl'	=> 'admin'
+				)
+			);
+			
+			$this->_output->send (array (
+				'paginator_html'	=> $paginator_html
+			));
 		}
 		
-		$paginator = Paginator::fromGet ();
+		list ($field, $value) = explode ('/', $limitator);
 		
-		$collection->setPaginator ($paginator);
-		
-		$collection->load ();
-		
-		$paginator_html = Controller_Manager::html (
-			'Paginator/index',
-			array (
-				'data'	=> $paginator,
-				'tpl'	=> 'admin'
-			)
-		);
+		$collection = $collection->filter (array (
+			$field => $value
+		));
 		
 		$acl_fields = array ();
 		
@@ -731,10 +750,19 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		$includes = $this->config ()->includes->$class_name;
 		
+		$limitators = $this->config ()->limitators->$class_name;
+		
+		if ($limitators)
+		{
+			$limitators = $limitators->__toArray ();
+		}
+		
 		if ($includes)
 		{
 			foreach ($collection as $item)
 			{
+				$old = array ();
+				
 				foreach ($includes as $field => $model)
 				{
 					$model = Model_Manager::byKey (
@@ -744,8 +772,14 @@ class Controller_Admin_Database extends Controller_Abstract
 					
 					if ($model)
 					{
+						$old [$field] = $item->$field;
 						$item->$field = $model->title ();
 					}
+				}
+				
+				if ($old)
+				{
+					$item->data ('old', $old);
 				}
 			}
 		}
@@ -756,13 +790,13 @@ class Controller_Admin_Database extends Controller_Abstract
 			'sfields'			=> $sfields,
 			'class_name'		=> $class_name,
 			'table'				=> $table,
+			'limitators'		=> $limitators,
 			'title'				=> !empty ($title) 
 				? $title : $this->config ()->default_title, 
 			'links'				=> $links,
 			'keyField'			=> Model_Scheme::keyField ($class_name),
 			'styles'			=> $this->config ()->styles->$class_name,
-			'link_styles'		=> $this->config ()->link_styles->$class_name,
-			'paginator_html'	=> $paginator_html
+			'link_styles'		=> $this->config ()->link_styles->$class_name
 		));
 	}
 	
