@@ -87,6 +87,8 @@
 			{/foreach}
 		</tbody>
 	</table>
+	{if $limitator}
+	<p><a href="/cp/table/{$table}/">Все записи</a></p>
 	{/if}
 	{/if}
 	

@@ -791,6 +791,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			'class_name'		=> $class_name,
 			'table'				=> $table,
 			'limitators'		=> $limitators,
+			'limitator'			=> $limitator,
 			'title'				=> !empty ($title) 
 				? $title : $this->config ()->default_title, 
 			'links'				=> $links,
