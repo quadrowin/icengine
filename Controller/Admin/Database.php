@@ -694,6 +694,8 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		$fields = null;
 		
+		$sfields = array ();
+		
 		if ($class_fields)
 		{
 			$class_fields = $class_fields->__toArray ();
@@ -710,6 +712,10 @@ class Controller_Admin_Database extends Controller_Abstract
 				)
 				{
 					unset ($fields [$i]);
+				}
+				else
+				{
+					$sfields [] = $field ['Field'];
 				}
 			}
 		}
@@ -747,6 +753,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		$this->_output->send (array (
 			'collection'		=> $collection,
 			'fields'			=> $fields,
+			'sfields'			=> $sfields,
 			'class_name'		=> $class_name,
 			'table'				=> $table,
 			'title'				=> !empty ($title) 
