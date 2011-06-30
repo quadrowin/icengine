@@ -588,7 +588,7 @@ abstract class Model implements ArrayAccess
 	{
 		return $this->modelName ();
 	}
-	
+
 	/**
 	 * @desc Возвращает имя сущности
 	 * @return string
