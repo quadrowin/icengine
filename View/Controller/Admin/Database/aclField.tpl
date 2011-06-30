@@ -10,7 +10,7 @@
 	<form method="post" action="/cp/acl/role/save/">
 		<input type="hidden" name="role_id" value="{$role_id}" />
 		{foreach from=$tables item="i"}
-		<br /><h2>{$i.table->Name}{if $i.table->Comment} ({$i.table->Comment}){/if}</h2><br />
+		<br /><h2><input type="checkbox" onclick="Controller_Admin_Database.multiCheck ($(this), '{$i.table->Name}');" />{$i.table->Name}{if $i.table->Comment} ({$i.table->Comment}){/if}</h2><br />
 			{foreach from=$i.fields item="j"}
 			<li><input type="checkbox" name="resources[]" value="{$j.resource}"{if $j.on} checked{/if} /> 
 				{$j.field->Field}{if $j.field->Comment} ({$j.field->Comment}){/if}
