@@ -23,7 +23,7 @@
 		{/foreach}
 		{/foreach}
 		{/if}	
-		"><b>{$i->key()}</b>. <a href="/cp/row/{$table}/{$i->key()}/">{$i->title()}</a></li>
+		"><b style="display:inline-block;width:20px"><a href="/cp/row/{$table}/{$i->key()}/">{$i->key()}</a></b>. <a href="/cp/row/{$table}/{$i->key()}/">{$i->title()}</a></li>
 		{/foreach}
 	</ul>
 	{else}
