@@ -9,8 +9,8 @@ var Helper_Plural = {
 	
 	/**
 	 * @desc Возвращает слово в соответствующей форме.
-	 * @param integer value Значение
-	 * @param string|arrya forms Формы слова
+	 * @param n integer Значение
+	 * @param forms string|array Формы слова
 	 */
 	get: function (n, forms)
 	{

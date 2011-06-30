@@ -590,7 +590,7 @@ abstract class Model implements ArrayAccess
 	}
 
 	/**
-	 * @desc Получить имя сущности
+	 * @desc Возвращает имя сущности
 	 * @return string
 	 */
 	public function title ()
