@@ -25,7 +25,7 @@
 		{/if}	
 		"><span style="display:inline-block;width:40px"><a href="/cp/row/{$table}/{$i->key()}/">{$i->key()}</a></span>
 			
-		<a href="/cp/row/{$table}/{$i->key()}/"style="
+		<a href="/cp/row/{$table}/{$i->key()}/" style="
 			{if $link_styles}
 				{foreach from=$link_styles item="column" key="c"}
 					{foreach from=$column item="style" key="v"}
@@ -48,8 +48,7 @@
 		<tbody>
 			{foreach from=$collection item="row"}
 			<tr>
-				<span style="display:inline-block;width:40px"><a href="/cp/row/{$table}/{$row->key()}/">{$row->key()}</a></span>
-				{foreach from=$fields item="field"}
+				{foreach from=$fields item="field" name="field"}
 					{assign var="field" value=$field->Field}
 					<td style="
 						{if $styles}
@@ -60,6 +59,10 @@
 							{/foreach}
 						{/if}	
 					">
+					{if $smarty.foreach.field.first}
+					<span style="display:inline-block;width:40px">
+						<a href="/cp/row/{$table}/{$row->key()}/">{$row->key()}</a></span>
+					{/if}
 					{if $field == $title || in_array($field,$links)}
 					<a href="/cp/row/{$table}/{$row->key()}/" style="
 						{if $link_styles}
