@@ -723,6 +723,27 @@ class Controller_Admin_Database extends Controller_Abstract
 			$links = $links->__toArray ();
 		}
 		
+		$includes = $this->config ()->includes->$class_name;
+		
+		if ($includes)
+		{
+			foreach ($collection as $item)
+			{
+				foreach ($includes as $field => $model)
+				{
+					$model = Model_Manager::byKey (
+						$model,
+						$item->$field
+					);
+					
+					if ($model)
+					{
+						$item->$field = $model->title ();
+					}
+				}
+			}
+		}
+		
 		$this->_output->send (array (
 			'collection'		=> $collection,
 			'fields'			=> $fields,
