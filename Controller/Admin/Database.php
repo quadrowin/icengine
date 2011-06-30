@@ -752,6 +752,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			'title'				=> !empty ($title) 
 				? $title : $this->config ()->default_title, 
 			'links'				=> $links,
+			'keyField'			=> Model_Scheme::keyField ($class_name),
 			'styles'			=> $this->config ()->styles->$class_name,
 			'link_styles'		=> $this->config ()->link_styles->$class_name,
 			'paginator_html'	=> $paginator_html
