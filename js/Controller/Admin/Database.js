@@ -14,8 +14,8 @@ var Controller_Admin_Database = {
 	 */
 	multiCheck: function ($sender, value_filter)
 	{
-		var $checkboxes = $('input[type=checkbox][name^=resources][value^=' + value_filter + ']');
-		$checkboxes.attr ('checked', $checkboxes.attr ('checked'));
+		var $checkboxes = $('input[type=checkbox][name^="resources"][value^="' + value_filter + '"]');
+		$checkboxes.attr ('checked', $sender.is(':checked'));
 	}
 	
 };
