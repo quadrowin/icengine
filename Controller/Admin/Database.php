@@ -611,7 +611,7 @@ class Controller_Admin_Database extends Controller_Abstract
 					$value = call_user_func ($value);
 				}
 				
-				$row->$field ['Field'] = $value;
+				$row->set ($field ['Field'], $value);
 			}
 			
 		}
