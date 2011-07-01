@@ -516,6 +516,15 @@ class Controller_Admin_Database extends Controller_Abstract
 			// Есть запись для поля таблицы в таблице подстановок
 			if ($text_value && $text_value->tv_text_field)
 			{
+				$field_filters = array ();
+				
+				$tmp = $this->config ()->field_filters->$class_name;
+				
+				if ($tmp)
+				{
+					$field_filters = $tmp->__toArray ();
+				}
+				
 				$query = Query::instance ()
 					->select ($text_value->tv_text_table . '.' . 
 						$text_value->tv_text_link_field)
@@ -530,6 +539,16 @@ class Controller_Admin_Database extends Controller_Abstract
 				{
 					$query
 						->where ($text_value->tv_text_link_condition);
+				}
+				
+				if (isset ($field_filters [$field->Field]))
+				{
+					foreach ($field_filters [$field->Field] as $field_filter)
+					{
+						$value = call_user_func ($field_filter->value);
+						
+						$query->where ($field_filter->field, $value);
+					}
 				}
 				
 				$result = DDS::execute ($query)
