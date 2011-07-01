@@ -545,7 +545,12 @@ class Controller_Admin_Database extends Controller_Abstract
 				{
 					foreach ($field_filters [$field->Field] as $field_filter)
 					{
-						$value = call_user_func ($field_filter ['value']);
+						$value = $field_filter ['value'];
+						
+						if (strpos ($value, '::') !== false)
+						{
+							$value = call_user_func ($field_filter ['value']);
+						}
 						
 						$query->where ($field_filter ['field'], $value);
 					}
@@ -673,7 +678,11 @@ class Controller_Admin_Database extends Controller_Abstract
 			
 			foreach ($filters as $field => $value)
 			{
-				$collection->where ($field, call_user_func ($value));
+				if (strpos ($value, '::') !== false)
+				{
+					$value = call_user_func ($value);
+				}
+				$collection->where ($field, $value);
 			}
 		}
 		
