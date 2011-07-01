@@ -30,6 +30,7 @@
 					{/foreach} 
 				</select>
 				{elseif $i->Type=='tinyint(1)'}
+				<input name="column[{$i->Field}]" type="hidden" value="0" />
 				<input id="column-{$i->Field}" type="checkbox" value="1" name="column[{$i->Field}]"{if !empty($row->$column)} checked="checked"{/if}
 					{if isset($events[$field])}
 					{foreach from=$events[$field] item="method" key="event"}
