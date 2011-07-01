@@ -20,7 +20,7 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		Loader::load ('Helper_Array');
 		
-		$tmp_fields = Helper_Array::column ($fields, 'Field');
+		$tmp_fields = Helper_Array::column ($fields->__toArray (), 'Field');
 		
 		$acl_fields = array_intersect ($acl_fields, $tmp_fields);
 		
@@ -469,10 +469,19 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		$class_name = $this->__className ($table, $prefix);
 		
-		$row = Model_Manager::byKey (
+		$row = Model_Manager::get (
 			$class_name,
 			$row_id
 		);
+		
+		$auto_select = array ();
+		
+		$tmp = $this->config ()->auto_select->$class_name;
+		
+		if ($tmp)
+		{
+			$auto_select = $tmp->__toArray ();
+		}
 		
 		foreach ($fields as $i => $field)
 		{
@@ -591,6 +600,20 @@ class Controller_Admin_Database extends Controller_Abstract
 					$class_name
 				);
 			}
+			
+			// Автовыбор
+			if (isset ($auto_select [$field ['Field']]) && !$row->key ())
+			{
+				$value = $auto_select [$field ['Field']];
+				
+				if (strpos ($value, '::') !== false)
+				{
+					$value = call_user_func ($value);
+				}
+				
+				$row->$field ['Field'] = $value;
+			}
+			
 		}
 		
 		// Получаем эвенты
