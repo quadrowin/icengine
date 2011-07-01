@@ -894,7 +894,29 @@ class Controller_Admin_Database extends Controller_Abstract
 			}
 		}
 		
+		$modificators = array ();
+		
+		$tmp = $this->config ()->modificators->$class_name;
+		
+		if ($tmp)
+		{
+			$modificators = $tmp->__toArray ();
+		}
+		
 		$updated_fields = $column;
+		
+		foreach ($updated_fields as $field => $value)
+		{
+			if (isset ($modificators [$field]))
+			{
+				$value = call_user_func (
+					$modificators [$field],
+					$value
+				);
+
+				$updated_fields [$field] = $value;
+			}
+		}
 		
 		if ($row->key ())
 		{
