@@ -545,9 +545,9 @@ class Controller_Admin_Database extends Controller_Abstract
 				{
 					foreach ($field_filters [$field->Field] as $field_filter)
 					{
-						$value = call_user_func ($field_filter->value);
+						$value = call_user_func ($field_filter ['value']);
 						
-						$query->where ($field_filter->field, $value);
+						$query->where ($field_filter ['field'], $value);
 					}
 				}
 				
