@@ -105,6 +105,8 @@ var Controller_Chat = Class.extend ({
 		$this.$join_id = result.data.join_id;
 		$this.$name	 = result.data.name;
 		$this.$code  = result.data.code;
+
+		//$this.receiveAll ($this.$join_id);
 	},
 	receiveAll: function (join_id)
 	{
