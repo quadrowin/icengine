@@ -750,12 +750,14 @@ class Controller_Admin_Database extends Controller_Abstract
 				'paginator_html'	=> $paginator_html
 			));
 		}
-		
-		list ($field, $value) = explode ('/', $limitator);
-		
-		$collection = $collection->filter (array (
-			$field => $value
-		));
+		else
+		{
+			list ($field, $value) = explode ('/', $limitator);
+
+			$collection = $collection->filter (array (
+				$field => $value
+			));
+		}
 		
 		$acl_fields = array ();
 		
