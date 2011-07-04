@@ -69,7 +69,10 @@ class Page_Title extends Model_Child
 			Query::instance ()
 				->where ('(? RLIKE `host` OR `host`="")', $host)
 				->where ('? RLIKE `pattern`', $page)
-				->order ('`host`=""')
+				->order (array (
+					'rate'		=> Query::DESC,
+					'`host`=""'	=> Query::ASC
+				))
 				->limit (1)
 		);
 	}

@@ -153,11 +153,20 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 				
 		if (isset ($config ['reply_address']) && $config ['reply_address'])
 		{
-			$mail->Sender = $config ['reply_address'];
+			$reply_name = 
+				isset ($config ['reply_name']) 
+				? $config ['reply_name'] 
+				: '';
+			$mail->AddReplyTo ($config ['reply_address'], $reply_name);
 		}
 		elseif ($this_config ['reply_address'])
 		{
-			$mail->Sender = $this_config ['reply_address']; 
+			$reply_name =
+				isset ($this_config ['reply_name']) 
+				? $this_config ['reply_name']
+				: '';
+			
+			$mail->AddReplyTo ($this_config ['reply_address'], $reply_name);
 		}
 				
 		if ($this_config ['send_charset'])
