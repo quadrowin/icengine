@@ -950,6 +950,8 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		Loader::load ('Helper_Header');
 		
+		echo DDS::getDataSource ()->getQuery ()->translate ();
+
 		Helper_Header::redirect ('/cp/table/' . $table . '/');
 	}
 }
