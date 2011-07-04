@@ -31,14 +31,6 @@ class Controller_Chat_Session extends Controller_Abstract
 			'uri'
 		);
 		
-		if (!$uri && !User::id ())
-		{
-			return $this->replaceAction (
-				'Error',
-				'accessDenied'
-			);
-		}
-		
 		$session_join = Registry::sget ('session_join');
 		
 		if ($session_join)
