@@ -60,12 +60,12 @@
 						{/if}	
 					">
 					{if $smarty.foreach.field.first} 
-					{if !in_array($keyField,$sfields)}
+					{if !$sfields || ($sfields && !in_array($keyField,$sfields))}
 					<span style="display:inline-block;width:40px">
 						<a href="/cp/row/{$table}/{$row->key()}/">{$row->key()}</a></span>
 					{/if}
 					{/if}
-					{if $field == $title || in_array($field,$links)}
+					{if $field == $title || ($links && in_array($field,$links))}
 					<a href="/cp/row/{$table}/{$row->key()}/" style="
 						{if $link_styles}
 							{foreach from=$link_styles item="column" key="c"}
@@ -77,7 +77,7 @@
 					">
 					{if $field==$title}{$row->title()}{else}{$row->$field}{/if}</a>
 					{else}{$row->$field}{/if}
-					{if in_array($field,$limitators)}
+					{if $limitators && in_array($field,$limitators)}
 					{assign var="old" value=$row->data('old')}
 					 (<a href="?limitator={$field}/{if isset($old[$field])}{$old[$field]}{else}{$row->$field}{/if}">огр.</a>)
 					{/if}
