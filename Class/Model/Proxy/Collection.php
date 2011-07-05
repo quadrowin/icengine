@@ -10,18 +10,21 @@ class Model_Proxy_Collection extends Model_Collection
 {
 	
 	/**
-	 * Проксируемая модель.
+	 * @desc Проксируемая модель.
 	 * @var string
 	 */
 	protected $_modelName;
 	
+	/**
+	 * @desc Создает и возвращает коллекцию проксируемых моделей.
+	 * @param string $model_name Проксируемая модель
+	 */
 	public function __construct ($model_name)
 	{
 		$this->_modelName = $model_name;
 		Loader::load ('Model_Proxy');
-		Loader::load ('Model_Collection_Option_Item_Collection');
-    	$this->_options =
-    	    new Model_Collection_Option_Item_Collection ($this->modelName ());
+		Loader::load ('Model_Collection_Option_Collection');
+    	$this->_options = new Model_Collection_Option_Collection ($this);
 	}
 	
 	/**
@@ -41,6 +44,15 @@ class Model_Proxy_Collection extends Model_Collection
 		}
 		
 		return $this;
+	}
+	
+	/**
+	 * @desc 
+	 * @return string Название проксируемой модели
+	 */
+	public function modelName ()
+	{
+		return $this->_modelName;
 	}
 	
 }
