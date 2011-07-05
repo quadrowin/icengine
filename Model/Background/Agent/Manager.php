@@ -139,6 +139,10 @@ class Background_Agent_Manager extends Manager_Abstract
 		{
 			$session->process ();
 		}
+		else
+		{
+			echo "no sessions\n";
+		}
 	}
 	
 	/**
