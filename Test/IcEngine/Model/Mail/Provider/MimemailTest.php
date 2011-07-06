@@ -5,7 +5,7 @@ require_once 'PHPUnit\Framework\TestCase.php';
 /**
  * Mail_Provider_Mimemail test case.
  */
-class Test_Mail_Provider_Mimemail extends PHPUnit_Framework_TestCase
+class Test_Mail_Provider_MimemailTest extends PHPUnit_Framework_TestCase
 {
 
 	/**
@@ -65,23 +65,7 @@ class Test_Mail_Provider_Mimemail extends PHPUnit_Framework_TestCase
 	 */
 	public function __construct ()
 	{
-		if (!class_exists ('IcEngine'))
-		{
-			date_default_timezone_set ('UTC');
-			
-			require dirname (__FILE__) . '/../../../IcEngine.php';
-			IcEngine::init ();
-			Loader::load ('Loader_Auto');
-			Loader_Auto::register ();
-			
-			Loader::addPath ('includes', IcEngine::root () . 'includes/');
-			
-			IcEngine::initApplication (
-				'Icengine',
-				IcEngine::path () . 'Class/Application/Behavior/Icengine.php'
-			);
-			IcEngine::run ();
-		}
+
 	}
 
 	/**
