@@ -817,9 +817,17 @@ class Controller_Admin_Database extends Controller_Abstract
 				
 				foreach ($includes as $field => $model)
 				{
-					$model = Model_Manager::byKey (
+					$ffield = 'id';
+				
+					if (strpos ($model, '/') !== false)
+					{
+						list ($model, $ffield) = explode ('/', $model);
+					}
+					
+					$model = Model_Manager::byQuery (
 						$model,
-						$item->$field
+						Query::instance ()
+							->where ($ffield, $item->$field)
 					);
 					
 					if ($model)
