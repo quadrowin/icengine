@@ -5,7 +5,7 @@ require_once 'PHPUnit\Framework\TestCase.php';
 /**
  * test case.
  */
-class Test_Mail_Provider_Littlesms extends PHPUnit_Framework_TestCase
+class Test_Mail_Provider_LittlesmsTest extends PHPUnit_Framework_TestCase
 {
 
 	/**
