@@ -106,7 +106,7 @@ class Controller_Admin_Database extends Controller_Abstract
 	 * @param array<string> $fields
 	 * @return void
 	 */
-	private function __log ($action, $table, $fields)
+	private function __log ($action, $table, $row_id, $fields)
 	{
 		Loader::load ('Admin_Log');
 		
@@ -116,6 +116,7 @@ class Controller_Admin_Database extends Controller_Abstract
 				'User__id'		=> User::id (),
 				'action'		=> $action,
 				'table'			=> $table,
+				'rowID'			=> $row_id,
 				'field'			=> $field,
 				'value'			=> $value,
 				'createdAt'		=> Helper_Date::toUnix ()
@@ -374,7 +375,10 @@ class Controller_Admin_Database extends Controller_Abstract
 			$this->__log (
 				__METHOD__,
 				$table,
-				array (null)
+				$row_id,
+				array (
+					'id'	=> $row_id
+				)
 			);
 		}
 		
@@ -955,6 +959,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		$this->__log (
 			__METHOD__,
 			$table,
+			$row_id,
 			$updated_fields
 		);
 		
