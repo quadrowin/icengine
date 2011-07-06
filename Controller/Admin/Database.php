@@ -821,7 +821,7 @@ class Controller_Admin_Database extends Controller_Abstract
 				
 				foreach ($includes as $field => $model)
 				{
-					$ffield = 'id';
+					$ffield = Model_Scheme::keyField ($model);
 				
 					if (strpos ($model, '/') !== false)
 					{
