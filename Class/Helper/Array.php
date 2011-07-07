@@ -15,7 +15,7 @@ class Helper_Array
 	 * @param string $column Название колонки.
 	 * @return array Колонка $column исходного массива
 	 */
-	public static function column (array $input, $column)
+	public static function column ($input, $column)
 	{
 		$result = array ();
 		foreach ($input as $row)
