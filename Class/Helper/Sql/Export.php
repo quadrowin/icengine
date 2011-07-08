@@ -92,6 +92,9 @@ class Helper_Sql_Export
 				Query::instance ()
 					->select ('*')
 					->from ($table),
+			'insert'	=> 
+				Query::instance ()
+					->insert ($table),
 			'eol'		=> "\r\n",
 			'flush'		=> true
 		);
@@ -101,11 +104,11 @@ class Helper_Sql_Export
 		$eol = $options ['eol'];
 		$step = $options ['step'];
 		$select = $options ['select'];
+		/* var Query $select */
 		
 		$last_count = $step;
-		$insert = 
-			Query::instance ()
-				->insert ($table);
+		$insert = $options ['insert'];
+		/* var Query $insert */
 		
 		for ($offset = 0; $last_count == $step; $offset += $step)
 		{
