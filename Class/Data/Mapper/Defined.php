@@ -1,0 +1,102 @@
+<?php
+/**
+ * 
+ * @desc Мэппер для моделей, данные которых перечисленны в самом классе.
+ * @author Илья Колесников
+ * @package IcEngine
+ *
+ */
+class Data_Mapper_Defined extends Data_Mapper_Abstract
+{
+	
+	protected $_where;
+	
+	/**
+	 * @desc 
+	 * @param array $data
+	 * @param array $filter
+	 * @return array
+	 */
+	public function filter (array $row)
+	{
+		foreach ($this->_where as $where)
+		{
+			$condition = $where [Query::WHERE];
+			$value = $where [Query::VALUE];
+			
+			if ($row [$condition] != $value)
+			{
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * @desc
+	 * @param Query $query
+	 */
+	protected function _selectQuery (Data_Source_Abstract $source, 
+		Query $query)
+	{
+		$select = $query->getPart (Query::SELECT);
+		
+		$model_name = reset ($select);
+		
+		if (is_array ($model_name))
+		{
+			$model_name = reset ($model_name);
+		}
+		else
+		{
+			return new Query_Result (array (
+				'source'	=> $source,
+				'result'	=> array ()
+			));
+		}
+		
+		Loader::load ($model_name);
+		
+		$this->_where = $query->getPart (Query::WHERE);  
+		
+		$result = array_filter (
+			$model_name::$rows,
+			array ($this, 'filter')
+		);
+		
+		$found_rows = count ($result);
+		
+		return new Query_Result (array (
+			'error'			=> '',
+			'errno'			=> 0,
+			'query'			=> $query,
+			'startAt'		=> 0,
+			'finishedAt'	=> 0,
+			'foundRows'		=> $found_rows,
+			'result'		=> array_values ($result),
+			'touchedRows'	=> 0,
+			'insertKey'		=> 0,
+			'currency'		=> 1,
+			'source'		=> $source
+		));
+	}
+	
+	protected function _showQuery (Data_Source_Abstract $source, Query $query)
+	{
+	}
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see Data_Mapper_Abstract::execute()
+	 */
+	public function execute (Data_Source_Abstract $source, Query $query, $options = null)
+	{
+		$method = strtolower ($query->type ());
+		
+		return call_user_func (
+			array ($this, '_' . $method . 'Query'),
+			$source, $query
+		);
+	}
+}
