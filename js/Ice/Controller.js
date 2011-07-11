@@ -57,7 +57,7 @@ Ice.Controller = {
 			return;
 		}
 		
-		var callback = Controller._callbacks [back];
+		var callback = Ice.Controller._callbacks [back];
 		js.result.back = 
 			Ice.Controller._callbacksData [back] ? 
 			Ice.Controller._callbacksData [back] : null;
