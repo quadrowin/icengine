@@ -31,26 +31,32 @@ var Helper_Render_Smarty;
         };
     }
 
-    Helper_Render_Smarty.parseTemplate = function(tmplContent, optTmplName, optEtc)
+    Helper_Render_Smarty.parseTemplate = function (tmplContent, optTmplName, optEtc)
     {
         if (optEtc == null)
+		{
             optEtc = Helper_Render_Smarty.parseTemplate_etc;
+		}
         var funcSrc = parse(tmplContent, optTmplName, optEtc);
-	
+		
         var func = Helper_Render_Smarty.evalEx(funcSrc, optTmplName, 1);
 
         if (func != null)
+		{
             return new optEtc.Template(optTmplName, tmplContent, funcSrc, func, optEtc);
+		}
         return null;
     };
     
     try
     {
-        String.prototype.process = function(context, optFlags)
+        String.prototype.process = function (context, optFlags)
         {
-            var template = Helper_Render_Smarty.parseTemplate(this, null);
+            var template = Helper_Render_Smarty.parseTemplate (this, null);
             if (template != null)
-                return template.process(context, optFlags);
+			{
+                return template.process (context, optFlags);
+			}
             return this;
         };
     }
@@ -60,8 +66,9 @@ var Helper_Render_Smarty;
     };
     
     Helper_Render_Smarty.parseTemplate_etc = {};            // Exposed for extensibility.
-    Helper_Render_Smarty.parseTemplate_etc.statementTag = "foreachelse|foreach|if|elseif|else|assign|macro";
+    Helper_Render_Smarty.parseTemplate_etc.statementTag = 'foreachelse|foreach|if|elseif|else|assign|macro';
     Helper_Render_Smarty.parseTemplate_etc.statementDef = { // Lookup table for statement tags.
+		// if-else
         "if"     : {
 			delta:  1,
 			prefix: "if (",
@@ -79,118 +86,123 @@ var Helper_Render_Smarty;
 			paramDefault: "true"
 		},
         "/if"    : {delta: -1, prefix: "}"},
-        "foreach"    : {delta:  1, paramMin: 2, 
-                     prefixFunc : function(stmtParts, state, tmplName, etc) {
-                    	var token = stmtParts.join (' ').replace (' = ', '=', 'g');
-                    	
-                    	var parts = token.split (' ');
-                    	var foreach = parts [0];
-                    	var from = parts [1];
-                    	
-                		if (from.indexOf ('=') > 0)
-                		{
-                			fromVar = from.split ('=')[1];
-                			from = from.split ('=')[0];
-                		}
-                		else
-                		{
-                			throw new etc.ParseError(tmplName, state.line, "bad for loop statement: " + stmtParts.join(' '));
-                		}
+		// foreach
+        "foreach"    : {
+			delta:  1,
+			paramMin: 2, 
+			prefixFunc : function(stmtParts, state, tmplName, etc)
+			{
+				var token = stmtParts.join (' ').replace (' = ', '=', 'g');
+				
+				var parts = token.split (' ');
+				var foreach = parts [0];
+				var from = parts [1];
+				
+				if (from.indexOf ('=') > 0)
+				{
+					fromVar = from.split ('=')[1];
+					from = from.split ('=')[0];
+				}
+				else
+				{
+					throw new etc.ParseError(tmplName, state.line, "bad for loop statement: " + stmtParts.join(' '));
+				}
+				
+				fromVar = fromVar.substr (1, fromVar.length - 1);
+				
+				if (!fromVar)
+				{
+					throw new etc.ParseError(tmplName, state.line, "bad for loop statement: " + stmtParts.join(' '));
+				}
+				
+				var item = parts [2];
+				
+				if (item.indexOf ('=') > 0)
+				{
+					iterVar = item.split ('=')[1];
+					item = item.split ('=')[0];
+				}
+				else
+				{
+					throw new etc.ParseError (tmplName, state.line, "bad for loop statement: " + stmtParts.join(' '));
+				}
                 		
-                		fromVar = fromVar.substr (1, fromVar.length - 1);
-                		
-                		if (!fromVar)
-                		{
-                			throw new etc.ParseError(tmplName, state.line, "bad for loop statement: " + stmtParts.join(' '));
-                		}
-                		
-                		var item = parts [2];
-                		
-                		if (item.indexOf ('=') > 0)
-                		{
-                			iterVar = item.split ('=')[1];
-                			item = item.split ('=')[0];
-                		}
-                		else
-                		{
-                			throw new etc.ParseError (tmplName, state.line, "bad for loop statement: " + stmtParts.join(' '));
-                		}
-                		
-                    	if (iterVar.substr (0,1) == '"' || iterVar.substr (0,1) == "'")
-                        {
-                        	iterVar = iterVar.substr (1, iterVar.length - 2);
-                        }
-                    	
-                        if (from != "from" || item != 'item')
-                        {
-                            throw new etc.ParseError (tmplName, state.line, "bad for loop statement: " + stmtParts.join(' '));
-                        }
-                        
-                        var keyVar = '__KEY__';
-                        var nameVar = '__NAME__';
-
-                        var sts = [ 'key', 'name' ];
-                        
-                        for (var i = 0, l = sts.length; i < l; i++)
-                        {
-	                        for (var j in sts)
-	                        {
-	                        	if (parts [3 + i])
-	                        	{
-	                        		st = parts [3 + i].split ('=')[0];
-	                        		if (st)
-	                        		{
-	                        			if (st == sts [j])
-	                        			{
-	                        				tmp = parts [3 + i].split ('=')[1];
-	                        				if (tmp.substr (0,1) == '"' || tmp.substr (0,1) == "'")
-	                                        {
-	                        					tmp = tmp.substr (1, tmp.length - 2);
-	                                        }
-	                        				eval (st + 'Var="' + tmp + '";');
-	                        			}
-	                        		}
-	                        	}
-	                        }
-                        }
-
-                        var listVar = "__LIST__" + iterVar;
-                        
-                        return [ "var ", listVar, " = ", fromVar, ";",
-                             "var c=0;",
-                             "for(var i in ", listVar,"){c++;};",
-                             // Fix from Ross Shaull for hash looping, make sure that we have an array of loop lengths to treat like a stack.
-                             "var __LENGTH_STACK__;",
-                             "if (typeof(__LENGTH_STACK__) == 'undefined' || !__LENGTH_STACK__.length) __LENGTH_STACK__ = new Array();", 
-                             "__LENGTH_STACK__[__LENGTH_STACK__.length] = 0;", // Push a new for-loop onto the stack of loop lengths.
-                             "if ((", listVar, ") != null) { ",
-                             "var ", iterVar, "_ct = 0;",       // iterVar_ct variable, added by B. Bittman     
-                             "for (var ", iterVar, "_index in ", listVar, ") { ",
-                             keyVar, "=", iterVar, "_index;",
-                             "if(!smarty){var smarty={section:{},foreach:{}};};",
-                             "if(!smarty.foreach.", nameVar, "){smarty.foreach.", nameVar, "={last:0,first:1,iteration:1};};",
-                             iterVar, "_ct++;",
-                             "smarty.foreach.", nameVar, ".iteration=", iterVar, "_ct;", 
-                             "if(", iterVar, "_ct", ">0){smarty.foreach.",nameVar, ".first=0;};",
-                             "if(", iterVar, "_ct==c){smarty.foreach.",nameVar, ".last=1;};",
-                             "if (typeof(", listVar, "[", iterVar, "_index]) == 'function') {continue;}", // IE 5.x fix from Igor Poteryaev.
-                             "__LENGTH_STACK__[__LENGTH_STACK__.length - 1]++;",
-                             "var ", iterVar, " = ", listVar, "[", iterVar, "_index];" ].join("");
-                     }},
-        "foreachelse" : {
-        	delta:  0,
-        	prefix: "} } if (__LENGTH_STACK__[__LENGTH_STACK__.length - 1] == 0) { if (",
-        	suffix: ") {",
-        	paramDefault: "true"
-        },
-        "/foreach"    : {
-        	delta: -1,
-        	prefix: "} }; delete __LENGTH_STACK__[__LENGTH_STACK__.length - 1];"
-        }, // Remove the just-finished for-loop from the stack of loop lengths.
-        "assign"     : {
-        	delta:  0,
+				if (iterVar.substr (0,1) == '"' || iterVar.substr (0,1) == "'")
+				{
+					iterVar = iterVar.substr (1, iterVar.length - 2);
+				}
+				
+				if (from != "from" || item != 'item')
+				{
+					throw new etc.ParseError (tmplName, state.line, "bad for loop statement: " + stmtParts.join(' '));
+				}
+				
+				var keyVar = '__KEY__';
+				var nameVar = '__NAME__';
+				
+				var sts = ['key', 'name'];
+				
+				for (var i = 0, l = sts.length; i < l; ++i)
+				{
+					for (var j in sts)
+					{
+						if (parts [3 + i])
+						{
+							st = parts [3 + i].split ('=')[0];
+							if (st)
+							{
+								if (st == sts [j])
+								{
+									tmp = parts [3 + i].split ('=')[1];
+									if (tmp.substr (0,1) == '"' || tmp.substr (0,1) == "'")
+									{
+										tmp = tmp.substr (1, tmp.length - 2);
+									}
+									eval (st + 'Var="' + tmp + '";');
+								}
+							}
+						}
+					}
+				}
+				
+				var listVar = "__LIST__" + iterVar;
+				
+				return [ "var ", listVar, " = ", fromVar, ";",
+					"var c=0;",
+					"for(var i in ", listVar,"){c++;};",
+					// Fix from Ross Shaull for hash looping, make sure that we have an array of loop lengths to treat like a stack.
+					"var __LENGTH_STACK__;",
+					"if (typeof(__LENGTH_STACK__) == 'undefined' || !__LENGTH_STACK__.length) __LENGTH_STACK__ = new Array();", 
+					"__LENGTH_STACK__[__LENGTH_STACK__.length] = 0;", // Push a new for-loop onto the stack of loop lengths.
+					"if ((", listVar, ") != null) { ",
+					"var ", iterVar, "_ct = 0;",       // iterVar_ct variable, added by B. Bittman     
+					"for (var ", iterVar, "_index in ", listVar, ") { ",
+					keyVar, "=", iterVar, "_index;",
+					"if(!smarty){var smarty={section:{},foreach:{}};};",
+					"if(!smarty.foreach.", nameVar, "){smarty.foreach.", nameVar, "={last:0,first:1,iteration:1};};",
+					iterVar, "_ct++;",
+					"smarty.foreach.", nameVar, ".iteration=", iterVar, "_ct;", 
+					"if(", iterVar, "_ct", ">0){smarty.foreach.",nameVar, ".first=0;};",
+					"if(", iterVar, "_ct==c){smarty.foreach.",nameVar, ".last=1;};",
+					"if (typeof(", listVar, "[", iterVar, "_index]) == 'function') {continue;}", // IE 5.x fix from Igor Poteryaev.
+					"__LENGTH_STACK__[__LENGTH_STACK__.length - 1]++;",
+					"var ", iterVar, " = ", listVar, "[", iterVar, "_index];" ].join("");
+			}
+		},
+		"foreachelse" : {
+			delta:  0,
+			prefix: "} } if (__LENGTH_STACK__[__LENGTH_STACK__.length - 1] == 0) { if (",
+			suffix: ") {",
+			paramDefault: "true"
+		},
+		"/foreach"    : {
+			delta: -1,
+			prefix: "} }; delete __LENGTH_STACK__[__LENGTH_STACK__.length - 1];"
+		}, // Remove the just-finished for-loop from the stack of loop lengths.
+		"assign"     : {
+			delta:  0,
 			prefixFunc : function (stmtParts, state, tmplName, etc)
-            {
+			{
 				var var_index = 1;
 				var var_name = '';
 				
@@ -234,27 +246,109 @@ var Helper_Render_Smarty;
                 return [ "View_Render.assign('", var_name, "', ", value, ");"].join ('');
             }
         },
-        "macro"   : {
-        	delta:  1, 
-            prefixFunc : function(stmtParts, state, tmplName, etc)
-            {
-            	var macroName = stmtParts[1].split('(')[0];
-                return [ "var ", macroName, " = function", 
-                                   stmtParts.slice(1).join(' ').substring(macroName.length),
-                                   "{ var _OUT_arr = []; var _OUT = { write: function(m) { if (m) _OUT_arr.push(m); } }; " ].join('');
-            }
-        }, 
-        "/macro"  : {
-        	delta: -1,
-        	prefix: " return _OUT_arr.join(''); };"
-        }
-    };
-    
-    Helper_Render_Smarty.parseTemplate_etc.modifierDef = {
-		"eat"        : function(v)    { return ""; },
-		"escape"     : function(s)    { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); },
-		"capitalize" : function(s)    { return String(s).toUpperCase(); },
-		"default"    : function(s, d) {	return s ? s : d; }
+		"macro"   : {
+			delta:  1, 
+			prefixFunc : function(stmtParts, state, tmplName, etc)
+			{
+				var macroName = stmtParts[1].split('(')[0];
+				return [ "var ", macroName, " = function", 
+					stmtParts.slice(1).join(' ').substring(macroName.length),
+					"{ var _OUT_arr = []; var _OUT = { write: function(m) { if (m) _OUT_arr.push(m); } }; " ].join('');
+			}
+		},
+		"/macro"  : {
+			delta: -1,
+			prefix: " return _OUT_arr.join(''); };"
+		}
+	};
+	
+	Helper_Render_Smarty.parseTemplate_etc.modifierDef = {
+		// Quote string with slashes
+		addslashes: function (str)
+		{    
+			return str.replace(/(["'\\])/g, "\\$1").replace('/\0/g', "\\0");
+		},
+		"eat"        : function (v)    { return ""; },
+		"escape"     : function (s)    { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); },
+		"capitalize" : function (s)    { return String(s).toUpperCase(); },
+		"default"    : function (s, d) {	return s ? s : d; },
+		// Convert special characters to HTML entities  
+		"htmlspecialchars": function (string, quote_style, charset, double_encode)
+		{
+			// version: 1103.1210
+			// discuss at: http://phpjs.org/functions/htmlspecialchars    
+			// +   original by: Mirek Slugen
+			// +   improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+			// +   bugfixed by: Nathan
+			// +   bugfixed by: Arno
+			// +    revised by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)    
+			// +    bugfixed by: Brett Zamir (http://brett-zamir.me)
+			// +      input by: Ratheous
+			// +      input by: Mailfaker (http://www.weedem.fr/)
+			// +      reimplemented by: Brett Zamir (http://brett-zamir.me)
+			// +      input by: felix    
+			// +    bugfixed by: Brett Zamir (http://brett-zamir.me)
+			// %        note 1: charset argument not supported
+			// *     example 1: htmlspecialchars("<a href='test'>Test</a>", 'ENT_QUOTES');
+			// *     returns 1: '&lt;a href=&#039;test&#039;&gt;Test&lt;/a&gt;'
+			// *     example 2: htmlspecialchars("ab\"c'd", ['ENT_NOQUOTES', 'ENT_QUOTES']);    
+			// *     returns 2: 'ab"c&#039;d'
+			// *     example 3: htmlspecialchars("my "&entity;" is still here", null, null, false);
+			// *     returns 3: 'my &quot;&entity;&quot; is still here'
+			var optTemp = 0,
+				i = 0,
+				noquotes = false;
+				
+			if (typeof quote_style === 'undefined' || quote_style === null)
+			{
+				quote_style = 2;
+			}
+			string = string.toString ();
+			// Put this first to avoid double-encoding
+			if (double_encode !== false)
+			{ 
+				string = string.replace (/&/g, '&amp;');
+			}
+			string = string.replace (/</g, '&lt;').replace (/>/g, '&gt;');
+			var OPTS = {
+				'ENT_NOQUOTES': 0,
+				'ENT_HTML_QUOTE_SINGLE': 1,
+				'ENT_HTML_QUOTE_DOUBLE': 2,
+				'ENT_COMPAT': 2,        'ENT_QUOTES': 3,
+				'ENT_IGNORE': 4
+			};
+			if (quote_style === 0)
+			{
+				noquotes = true;
+			}
+			// Allow for a single string or an array of string flags
+			if (typeof quote_style !== 'number')
+			{ 
+				quote_style = [].concat (quote_style);
+				for (i = 0; i < quote_style.length; i++)
+				{
+					// Resolve string input to bitwise e.g. 'PATHINFO_EXTENSION' becomes 4            
+					if (OPTS [quote_style [i]] === 0)
+					{
+						noquotes = true;
+					}
+					else if (OPTS [quote_style [i]])
+					{
+						optTemp = optTemp | OPTS [quote_style [i]];
+					}        
+				}
+				quote_style = optTemp;
+			}
+			if (quote_style & OPTS.ENT_HTML_QUOTE_SINGLE)
+			{
+				string = string.replace(/'/g, '&#039;');
+			}
+			if (!noquotes)
+			{
+				string = string.replace(/"/g, '&quot;');
+			}
+			return string;
+		}
     };
     
     Helper_Render_Smarty.parseTemplate_etc.modifierDef.h = Helper_Render_Smarty.parseTemplate_etc.modifierDef.escape;
@@ -332,6 +426,8 @@ var Helper_Render_Smarty;
     
     var parse = function(body, tmplName, etc)
     {
+		// remove comments
+		body = body.replace (/{\*(.|\s)+?\*}/gm, '');
         body = cleanWhiteSpace (body);
         var funcText = [ "var Helper_Render_Smarty_Template_TEMP = function(_OUT, _CONTEXT, _FLAGS) { with (_CONTEXT) {" ];
         var state    = {
