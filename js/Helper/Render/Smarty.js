@@ -40,7 +40,7 @@ var Helper_Render_Smarty;
         var funcSrc = parse(tmplContent, optTmplName, optEtc);
 		
         var func = Helper_Render_Smarty.evalEx(funcSrc, optTmplName, 1);
-
+		
         if (func != null)
 		{
             return new optEtc.Template(optTmplName, tmplContent, funcSrc, func, optEtc);
@@ -269,7 +269,7 @@ var Helper_Render_Smarty;
 	
 	Helper_Render_Smarty.parseTemplate_etc.modifierDef = {
 		// Quote string with slashes
-		addslashes: function (str)
+		"addslashes": function (str)
 		{    
 			return str.replace(/(["'\\])/g, "\\$1").replace('/\0/g', "\\0");
 		},
@@ -303,7 +303,7 @@ var Helper_Render_Smarty;
 			var optTemp = 0,
 				i = 0,
 				noquotes = false;
-				
+			
 			if (typeof quote_style === 'undefined' || quote_style === null)
 			{
 				quote_style = 2;
@@ -352,6 +352,7 @@ var Helper_Render_Smarty;
 			{
 				string = string.replace(/"/g, '&quot;');
 			}
+			
 			return string;
 		}
     };
@@ -422,6 +423,7 @@ var Helper_Render_Smarty;
         this.name    = name;
         this.line    = line;
         this.message = message;
+		console.log (this);
     };
     
     Helper_Render_Smarty.parseTemplate_etc.ParseError.prototype.toString = function()
