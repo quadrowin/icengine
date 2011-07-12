@@ -72,6 +72,11 @@ var Helper_Render_Smarty;
         "if"     : {
 			delta:  1,
 			prefix: "if (",
+//			prefixFunc : function(stmtParts, state, tmplName, etc) {
+//				stmtParts.splice (0, 1);
+//				var condition = stmtParts.join (' ');
+//				return condition;
+//			},
 			suffix: ") {",
 			paramMin: 1
 		},
