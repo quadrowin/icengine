@@ -351,8 +351,9 @@ class Registration extends Model
 		$reg = $reg->register ($data);
 		
 		return 
-			$reg ? 
-			$reg : array ('unknown' => 'Data_Validator_Registration/unknown');
+			$reg 
+			? $reg 
+			: array ('unknown' => 'Data_Validator_Registration/unknown');
 	}
 	
 }
