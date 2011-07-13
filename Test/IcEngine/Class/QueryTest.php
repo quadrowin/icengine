@@ -40,10 +40,9 @@ class QueryTest extends PHPUnit_Framework_TestCase {
 	 * @todo Implement testCalcFoundRows().
 	 */
 	public function testCalcFoundRows() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-				'This test has not been implemented yet.'
-		);
+		
+		$query = Query::instance ()->calcFoundRows ();
+		$this->assertEquals ($query->part ('CALC_FOUND_ROWS'), true);
 	}
 
 	/**
@@ -125,10 +124,8 @@ class QueryTest extends PHPUnit_Framework_TestCase {
 	 * @todo Implement testInstance().
 	 */
 	public function testInstance() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-				'This test has not been implemented yet.'
-		);
+		
+		$this->assertEquals (new Query (), Query::instance ());
 	}
 
 	/**
@@ -250,6 +247,7 @@ class QueryTest extends PHPUnit_Framework_TestCase {
 	 * @todo Implement testPart().
 	 */
 	public function testPart() {
+		
 		$query = Query::instance ()-> from ('Test');
 		
 		$res = $query->part ('FROM');
@@ -358,29 +356,50 @@ class QueryTest extends PHPUnit_Framework_TestCase {
 	 * @todo Implement testSingleInnerJoin().
 	 */
 	public function testSingleInnerJoin() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-				'This test has not been implemented yet.'
-		);
+		
+		$query = Query::instance ()->singleInnerJoin ('Test', 'condition');
+		$res = $query->part ('FROM');
+		$this->assertEquals ($res['Test']['TABLE'], 'Test');
+		$this->assertEquals ($res['Test']['WHERE'], 'condition');
+		$this->assertEquals ($res['Test']['JOIN'], 'INNER JOIN');
+		
+		$query->singleInnerJoin ('Test', 'condition2');
+		$res = $query->part ('FROM');
+		$this->assertEquals ($res['Test']['TABLE'], 'Test');
+		$this->assertNotEquals ($res['Test']['WHERE'], 'condition2');
+		$this->assertEquals ($res['Test']['WHERE'], 'condition');
+		$this->assertEquals ($res['Test']['JOIN'], 'INNER JOIN');
+		
 	}
 
 	/**
 	 * @todo Implement testSingleLeftJoin().
 	 */
 	public function testSingleLeftJoin() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-				'This test has not been implemented yet.'
-		);
+		
+		$query = Query::instance ()->singleLeftJoin ('Test', 'condition');
+		$res = $query->part ('FROM');
+		$this->assertEquals ($res['Test']['TABLE'], 'Test');
+		$this->assertEquals ($res['Test']['WHERE'], 'condition');
+		$this->assertEquals ($res['Test']['JOIN'], 'LEFT JOIN');
+		
+		$query->singleLeftJoin ('Test', 'condition2');
+		$res = $query->part ('FROM');
+		$this->assertEquals ($res['Test']['TABLE'], 'Test');
+		$this->assertNotEquals ($res['Test']['WHERE'], 'condition2');
+		$this->assertEquals ($res['Test']['WHERE'], 'condition');
+		$this->assertEquals ($res['Test']['JOIN'], 'LEFT JOIN');
 	}
 
 	/**
 	 * @todo Implement testToCountQuery().
 	 */
 	public function testToCountQuery() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-				'This test has not been implemented yet.'
+		
+		$query = Query::instance ()->toCountQuery ();
+		$this->assertEquals (
+				$query->part('SELECT'), 
+				array ( "COUNT(1) AS `count`" => "COUNT(1) AS `count`" )
 		);
 	}
 
@@ -388,30 +407,47 @@ class QueryTest extends PHPUnit_Framework_TestCase {
 	 * @todo Implement testTranslate().
 	 */
 	public function testTranslate() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-				'This test has not been implemented yet.'
-		);
+		
+		$query = Query::instance ()->from('Test')->where ('condition');	
+		$this->assertEquals  ($query->translate (), 'SELECT    FROM `ice_test` AS `Test` WHERE condition   ');
+		
+		$query = Query::instance ()->from('Test')->where ('condition');
+		$this->assertEquals  ($query->translate ('Mysql'), 'SELECT    FROM `ice_test` AS `Test` WHERE condition   ');
 	}
 
 	/**
 	 * @todo Implement testType().
 	 */
 	public function testType() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-				'This test has not been implemented yet.'
-		);
+		$query = Query::instance ()->from('Test');
+		$this->assertEquals  ($query->type (), 'SELECT');
 	}
 
 	/**
 	 * @todo Implement testLimit().
 	 */
 	public function testLimit() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-				'This test has not been implemented yet.'
-		);
+		$query = Query::instance ()->limit ();
+		$this->assertEquals($query->part('LIMITCOUNT'), 0);
+		$this->assertEquals($query->part('LIMITOFFSET'), 0);
+		
+		$query = Query::instance ()->limit (10);
+		$this->assertEquals($query->part('LIMITCOUNT'), 10);
+		$this->assertEquals($query->part('LIMITOFFSET'), 0);
+		
+		$query = Query::instance ()->limit (10, 20);
+		$this->assertEquals($query->part('LIMITCOUNT'), 10);
+		$this->assertEquals($query->part('LIMITOFFSET'), 20);
+		
+		$query = Query::instance ()->limit (null);
+		$this->assertNotNull($query->part('LIMITCOUNT'));
+		$this->assertEquals($query->part('LIMITCOUNT'), 0);
+		$this->assertEquals($query->part('LIMITOFFSET'), 0); 
+		
+		$query = Query::instance ()->limit (null, null);
+		$this->assertNotNull($query->part('LIMITCOUNT'));
+		$this->assertEquals($query->part('LIMITCOUNT'), 0);
+		$this->assertEquals($query->part('LIMITOFFSET'), 0); 
 	}
 
 	/**
