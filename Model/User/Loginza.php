@@ -48,7 +48,8 @@ class User_Loginza extends Model
 					'identity'	=> $token->identity,
 					'email'		=> $token->email,
 					'provider'	=> $token->provider,
-					'data'		=> $token->data
+					'data'		=> $token->data,
+					'createdAt'	=> Helper_Date::toUnix ()
 				));
 				return $loginza->save ();
 			}
@@ -69,7 +70,8 @@ class User_Loginza extends Model
 					'identity'		=> $loginza->identity,
 					'email'			=> $token->emiail,
 					'provider'		=> $token->provider,
-					'data'			=> $token->data
+					'data'			=> $token->data,
+					'createdAt'		=> Helper_Date::toUnix ()
 				));
 				return $loginza->save ();
 			}
