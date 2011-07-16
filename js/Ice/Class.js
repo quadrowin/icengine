@@ -10,17 +10,7 @@ Ice.Class = function () {};
  */
 Ice.Class.prototype.__construct = function () {};
 
-/**
- * @desc Идентификаторы функций класса
- * @var integer
- */
-Ice.Class.__id = 1;
-
-/**
- * @desc Массив функций
- * @var array
- */ 
-Ice.Class.__funcList = [Ice.Class.__construct];
+Ice.__temp = 0;
 
 /**
  * @desc Функция для создания дочерних классов.
@@ -28,53 +18,48 @@ Ice.Class.__funcList = [Ice.Class.__construct];
  */
 Ice.Class.extend = function (def)
 {
-    var classDef = function ()
-    {
-        if (arguments [0] !== Ice.Class)
-        {
-            this.__construct.apply (this, arguments);
-        }
-    };
 	
-    var proto = new this (Ice.Class);
-    var superClass = this.prototype;
+	var class_def = function ()
+	{
+		if (arguments [0] !== Ice.Class)
+		{
+			this.__construct.apply (this, arguments);
+		}
+	};
 	
-    for (var n in def)
-    {
-        var item = def [n];
-        if (item instanceof Function)
-        {
-			if (n in superClass)
+	var proto = new this (Ice.Class);
+	var super_class = this.prototype;
+	
+	for (var n in def)
+	{
+		var item = def [n];
+		if (item instanceof Function)
+		{
+			if (n in super_class)
 			{
-				item.__parentId = superClass [n].__id;
+				item.__parentMethod = super_class [n];
 			}
 			
-			Ice.Class.__funcList.push (item);
-			
-            item.__name = n;
-			item.__id = Ice.Class.__id++;
-			
-        }
-        else
-        {
-            classDef [n] = item;
-        }
-        proto [n] = item;
-    }
+			item.__name = n;
+		}
+		else
+		{
+			class_def [n] = item;
+		}
+		proto [n] = item;
+	}
 	
-    classDef.prototype = proto;
+	class_def.prototype = proto;
 	
 	/**
 	 * @desc Вызываем одноименную функцию родителя
 	 */
-    classDef.prototype.parent = function ()
+	class_def.prototype.parent = function ()
 	{
-		var parent_func_id = arguments.callee.caller.__parentId;
-		
-		Ice.Class.__funcList [parent_func_id].apply (this, arguments);
+		arguments.callee.caller.__parentMethod.apply (this, arguments);
 	};
 	
-    classDef.extend = this.extend;
+	class_def.extend = this.extend;
 	
-	return classDef;
+	return class_def;
 };
