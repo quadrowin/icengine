@@ -11,6 +11,18 @@ Ice.Class = function () {};
 Ice.Class.prototype.__construct = function () {};
 
 /**
+ * @desc Идентификаторы функций класса
+ * @var integer
+ */
+Ice.Class.__id = 1;
+
+/**
+ * @desc Массив функций
+ * @var array
+ */ 
+Ice.Class.__funcList = [Ice.Class.__construct];
+
+/**
  * @desc Функция для создания дочерних классов.
  * @var function
  */
@@ -23,6 +35,7 @@ Ice.Class.extend = function (def)
             this.__construct.apply (this, arguments);
         }
     };
+	
     var proto = new this (Ice.Class);
     var superClass = this.prototype;
 	
@@ -31,7 +44,16 @@ Ice.Class.extend = function (def)
         var item = def [n];
         if (item instanceof Function)
         {
-            item._name = n;
+			if (n in superClass)
+			{
+				item.__parentId = superClass [n].__id;
+			}
+			
+			Ice.Class.__funcList.push (item);
+			
+            item.__name = n;
+			item.__id = Ice.Class.__id++;
+			
         }
         else
         {
@@ -39,12 +61,19 @@ Ice.Class.extend = function (def)
         }
         proto [n] = item;
     }
+	
     classDef.prototype = proto;
+	
+	/**
+	 * @desc Вызываем одноименную функцию родителя
+	 */
     classDef.prototype.parent = function ()
 	{
-        var name = arguments.callee.caller._name;
-        superClass [name].apply (this, arguments);
+		var parent_func_id = arguments.callee.caller.__parentId;
+		
+		Ice.Class.__funcList [parent_func_id].apply (this, arguments);
 	};
+	
     classDef.extend = this.extend;
 	
 	return classDef;
