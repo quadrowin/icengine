@@ -15,13 +15,13 @@ Ice.Helper_Array = {
 	{
 		while (!rnd || rnd == 0)
 		{
-			rnd = Math.random ();
+			rnd = Math.random ().toString ().substr (4);
 		}
 		rnd = rnd.toString ().replace ('.', '');
-		while (rnd.length < 10)
-		{
-			rnd *= 7;
-		}
+		do {
+			rnd *= ('9' + rnd.substr (0, 1));
+			rnd = rnd.toString ();
+		} while (rnd.length < 10);
 		var p = 0;
 		a.sort (function () {
 			++p;
