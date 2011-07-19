@@ -109,8 +109,6 @@ class Executor
 		
 		$cache = self::getCacher ()->get ($key);
 		
-		var_dump ($cache);
-		
 		$tag_valid = false;
 		
 		if (
@@ -123,15 +121,6 @@ class Executor
 			$tag_valid = true;
 		}
 		
-		if ($options->tags)
-		{
-			echo 1;
-			print_r ($cache ['t']);
-			echo 2;
-			print_r ($options->tags->__toArray ());
-			print_r (array_diff ($options->tags->__toArray (), $cache ['t']));
-			echo (int) $tag_valid;
-		}
 		if ($cache)
 		{
 			 if ((
