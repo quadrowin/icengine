@@ -10,42 +10,56 @@ Ice.Class = function () {};
  */
 Ice.Class.prototype.__construct = function () {};
 
+Ice.__temp = 0;
+
 /**
  * @desc Функция для создания дочерних классов.
  * @var function
  */
 Ice.Class.extend = function (def)
 {
-    var classDef = function ()
-    {
-        if (arguments [0] !== Ice.Class)
-        {
-            this.__construct.apply (this, arguments);
-        }
-    };
-    var proto = new this (Ice.Class);
-    var superClass = this.prototype;
 	
-    for (var n in def)
-    {
-        var item = def [n];
-        if (item instanceof Function)
-        {
-            item._name = n;
-        }
-        else
-        {
-            classDef [n] = item;
-        }
-        proto [n] = item;
-    }
-    classDef.prototype = proto;
-    classDef.prototype.parent = function ()
+	var class_def = function ()
 	{
-        var name = arguments.callee.caller._name;
-        superClass [name].apply (this, arguments);
+		if (arguments [0] !== Ice.Class)
+		{
+			this.__construct.apply (this, arguments);
+		}
 	};
-    classDef.extend = this.extend;
 	
-	return classDef;
+	var proto = new this (Ice.Class);
+	var super_class = this.prototype;
+	
+	for (var n in def)
+	{
+		var item = def [n];
+		if (item instanceof Function)
+		{
+			if (n in super_class)
+			{
+				item.__parentMethod = super_class [n];
+			}
+			
+			item.__name = n;
+		}
+		else
+		{
+			class_def [n] = item;
+		}
+		proto [n] = item;
+	}
+	
+	class_def.prototype = proto;
+	
+	/**
+	 * @desc Вызываем одноименную функцию родителя
+	 */
+	class_def.prototype.parent = function ()
+	{
+		arguments.callee.caller.__parentMethod.apply (this, arguments);
+	};
+	
+	class_def.extend = this.extend;
+	
+	return class_def;
 };
