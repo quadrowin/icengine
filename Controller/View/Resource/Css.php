@@ -19,7 +19,7 @@ class Controller_View_Resource_Css extends Controller_Abstract
 		
 		Loader::load ('View_Resource_Manager');
 		
-		if (isset ($config->dirs))
+		if ($config->dirs)
 		{
 			View_Resource_Manager::load (
 				$config->base_url,

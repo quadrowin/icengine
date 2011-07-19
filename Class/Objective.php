@@ -42,30 +42,6 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * @desc Данные объекта в виде массива.
-	 * Данные типа Objective рекурсивно будут приведены к массивам.
-	 * @return array
-	 */
-	public function __toArray ()
-	{
-		$data = array ();
-		
-		foreach ($this->_data as $key => $value) 
-		{
-			if ($value instanceof Objective) 
-			{
-				$data [$key] = $value->__toArray ();
-			} 
-			else
-			{
-				$data [$key] = $value;
-			}
-		}
-		
-		return $data;
-	}
-	
-	/**
 	 * @desc Клонирование (выполняется рекурсивно)
 	 */
 	public function __clone ()
@@ -97,6 +73,16 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
+	 * @desc Проверяет существование поля.
+	 * @param string $key
+	 * @return boolean
+	 */
+	public function __isset ($key)
+	{
+		return isset ($this->_data [$key]);
+	}
+	
+	/**
 	 * 
 	 * @param string $key
 	 * @param mixed $value
@@ -111,6 +97,30 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 		{
 			$this->_data [$key] = $value;
 		}
+	}
+	
+	/**
+	 * @desc Данные объекта в виде массива.
+	 * Данные типа Objective рекурсивно будут приведены к массивам.
+	 * @return array
+	 */
+	public function __toArray ()
+	{
+		$data = array ();
+		
+		foreach ($this->_data as $key => $value) 
+		{
+			if ($value instanceof Objective) 
+			{
+				$data [$key] = $value->__toArray ();
+			} 
+			else
+			{
+				$data [$key] = $value;
+			}
+		}
+		
+		return $data;
 	}
 	
 	/**
