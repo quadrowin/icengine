@@ -3,27 +3,21 @@
 require_once 'PHPUnit\Framework\TestCase.php';
 
 /**
- * Mail_Provider_Sms_Yakoon test case.
+ * Mail_Provider_First_Success test case.
  */
-class Test_Mail_Provider_Sms_Yakoon extends PHPUnit_Framework_TestCase
+class Test_Mail_Provider_First_SuccessTest extends PHPUnit_Framework_TestCase
 {
 
 	/**
-	 * @desc Телфон для теста
+	 * @desc Номер для проверки
 	 * @var string
 	 */
 	private $_number = '+79134236328';
 	
 	/**
-	 * @var Mail_Provider_Sms_Yakoon
+	 * @var Mail_Provider_First_Success
 	 */
-	private $Mail_Provider_Sms_Yakoon;
-	
-	/**
-	 * @desc id СМС у оператора
-	 * @var integer
-	 */
-	private $_messageId = 0;
+	private $Mail_Provider_First_Success;
 
 	/**
 	 * Prepares the environment before running a test.
@@ -32,10 +26,10 @@ class Test_Mail_Provider_Sms_Yakoon extends PHPUnit_Framework_TestCase
 	{
 		parent::setUp ();
 		
-		$this->Mail_Provider_Sms_Yakoon = Model_Manager::byQuery (
+		$this->Mail_Provider_First_Success = Model_Manager::byQuery (
 			'Mail_Provider',
 			Query::instance ()
-			->where ('name', 'Sms_Yakoon')
+			->where ('name', 'First_Success')
 		);
 	}
 
@@ -44,8 +38,8 @@ class Test_Mail_Provider_Sms_Yakoon extends PHPUnit_Framework_TestCase
 	 */
 	protected function tearDown ()
 	{
-		// TODO Auto-generated Test_Mail_Provider_Sms_Yakoon::tearDown()
-		$this->Mail_Provider_Sms_Yakoon = null;
+		// TODO Auto-generated Test_Mail_Provider_First_Success::tearDown()
+		$this->Mail_Provider_First_Success = null;
 		parent::tearDown ();
 	}
 
@@ -74,7 +68,7 @@ class Test_Mail_Provider_Sms_Yakoon extends PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * Tests Mail_Provider_Sms_Yakoon->send()
+	 * Tests Mail_Provider_First_Success->send()
 	 */
 	public function testSend ()
 	{
@@ -84,44 +78,25 @@ class Test_Mail_Provider_Sms_Yakoon extends PHPUnit_Framework_TestCase
 			'toEmail'				=> $this->_number,
 			'toName'				=> 'you',
 			'subject'				=> '',
-			'body'					=> 'Yakoon: ' . Helper_Date::toUnix (),
+			'body'					=> Helper_Date::toUnix (),
 			'time'					=> Helper_Date::toUnix (),
 			'sended'				=> 0,
 			'sendTime'				=> Helper_Date::toUnix (),
 			'sendDay'				=> Helper_Date::eraDayNum (),
 			'sendTries'				=> 0,
 			'toUserId'				=> 0,
-			'Mail_Provider__id'		=> $this->Mail_Provider_Sms_Yakoon->id,
+			'Mail_Provider__id'		=> $this->Mail_Provider_First_Success->id,
 			'params'				=> ''
 		));
 		
 		$config = array ();
 		
-		$this->_messageId = $this->Mail_Provider_Sms_Yakoon->send (
+		$this->_messageId = $this->Mail_Provider_First_Success->send (
 			$message,
 			$config
 		);
 		
 		Debug::vardump ('message id: ', $this->_messageId);
-	}
-
-	/**
-	 * Tests Mail_Provider_Sms_Yakoon->sendSms()
-	 */
-	public function testSendSms ()
-	{
-		// TODO Auto-generated Test_Mail_Provider_Sms_Yakoon->testSendSms()
-		$this->markTestIncomplete ("sendSms test not implemented");
-		$this->Mail_Provider_Sms_Yakoon->sendSms(/* parameters */);
-	}
-
-	/**
-	 * Tests Mail_Provider_Sms_Yakoon->getStatus()
-	 */
-	public function testGetStatus ()
-	{
-		$s = $this->Mail_Provider_Sms_Yakoon->getStatus ($this->_messageId);
-		Debug::vardump ($s);
 	}
 }
 
