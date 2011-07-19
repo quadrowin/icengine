@@ -66,11 +66,18 @@ var Helper_Form = {
 				{
 					data [this.name] = this;
 				}
-				else if (this.type == "checkbox")
+				else if (this.type == 'checkbox')
 				{
 					if (this.checked)
 					{
 						data [this.name] = this.value ? this.value : 'on';
+					}
+				}
+				else if (this.type == 'radio')
+				{
+					if (this.checked)
+					{
+						data [this.name] = this.value;
 					}
 				}
 				else

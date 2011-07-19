@@ -84,13 +84,14 @@ class Authorization_Loginza_Token extends Model
 		self::$_current->set (array (
 			'data'		=> $result,
 			'email'		=> 
-				isset ($data ['email']) ? 
-					$data ['email'] : 
-					'',
+				isset ($data ['email'])
+				? $data ['email']
+				: '',
+			'identity'	=> $data ['identity'],
 			'provider'	=> 
-				isset ($data ['provider']) ?
-					$data ['provider'] :
-					'' 
+				isset ($data ['provider'])
+				? $data ['provider'] 
+				: '' 
 		));
 		
 		return self::$_current;
