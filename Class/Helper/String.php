@@ -558,19 +558,3 @@ if (!function_exists ('lcfirst'))
 		return strtolower (substr ($str, 0, 1)) . substr ($str, 1);
 	}
 }
-
-/*
-// * prefixedInts Test
- * 
-$tests = array ('a1bb22c333', '444a4b4c4d4', '1234', 'abcd', '1a1', 'y2010m12d2', 'sgn+2ch');
-
-echo '<pre>';
-foreach ($tests as $test)
-{
-    echo $test . ' =&gt; ';
-    $result = Common_String::prefixedInts ($test);
-    print_r ($result);
-    echo "\r\n\r\n";
-}
-echo '<pre>';
-*/
