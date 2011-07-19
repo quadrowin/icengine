@@ -2,6 +2,8 @@
 
 date_default_timezone_set ('UTC');
 		
+$_SERVER ['PHPUNIT'] = 1;
+
 require __DIR__ . '/../IcEngine.php';
 IcEngine::init (
 	__DIR__ . '/../../',

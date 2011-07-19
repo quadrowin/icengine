@@ -293,7 +293,7 @@ class Redis
 		if ($end != "\r\n")
 		{
 			trigger_error ('Unknown response end: \'' . $end . '\'', 
-			E_USER_WARNING);
+			E_USER_WARNING); 
 			return FALSE;
 		}
 		return $data;
@@ -307,10 +307,12 @@ class Redis
 	public function get ($key, $plain = FALSE)
 	{
 		$r = $this->requestByKey ($key, 'GET ' . $key);
-		if ($r === NULL)
+		
+		if (!$r)
 		{
 			return null;
 		}
+
 		$r = json_decode (urldecode ($r), true);
 		
 		if ($r == '{}')

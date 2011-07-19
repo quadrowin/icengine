@@ -7,6 +7,7 @@
  * @package IcEngine
  *
  */
+
 class Objective implements ArrayAccess, IteratorAggregate, Countable
 {
 		
@@ -62,15 +63,6 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 		}
 		
 		return $data;
-	}
-	
-	/**
-	 * @param string $key
-	 * @return boolean
-	 */
-	public function __isset ($key)
-	{
-		return isset ($this->_data [$key]);
 	}
 	
 	/**
@@ -133,6 +125,7 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
+	 * 
 	 * @desc Получить колонку объекта
 	 * @param string $column
 	 * @return array<string>
@@ -143,7 +136,8 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 		
 		foreach ($this as $item)
 		{
-			$result [] = $item->$column;
+			$result [] = ($item instanceof Objective)
+					? $item->$column : null;
 		}
 		
 		return $result;
@@ -172,22 +166,31 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	 * @param string $path
 	 * @return mixed
 	 */
-	public function get ($path = '')
+	public function get ()
 	{
 		$result = $this->__toArray ();
-		if ($path)
+		if (func_num_args () == 1)
 		{
-			if (strpos ($path, '.'))
+			$path = func_get_arg (0);
+			
+			if (strpos ($path, '/'))
 			{
-				$path = explode ('.', $path);
+				$path = explode ('/', $path);
 				foreach ($path as $value)
 				{
-					$result = $result [$value];
+					if (isset ($result [$value]))
+					{
+						$result = $result [$value];
+					}
+					else
+					{
+						return null;
+					}
 				}
 			}
 			else
 			{
-				$result = $result [$path];
+				$result = isset ($result [$path]) ? $result [$path] : null;
 			}
 		}
 		return $result;
