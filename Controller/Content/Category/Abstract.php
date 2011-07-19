@@ -77,8 +77,8 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 				$link = $linka [0];
 				$unique = (isset ($linka [1]) ? $linka [1] : 0) + 1;
 			}
-			$link_tmp = $link.'_'.$unique;
-			$result = $this->__makeUniqueLink($link_tmp);
+			$link_tmp = $link . '_' . $unique;
+			$result = $this->__makeUniqueLink ($link_tmp);
 		}
 		
 		return $result;
@@ -149,7 +149,9 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 	 */
 	protected function __saveReferer (array $params, Model $content_category, $url)
 	{
-		$referer = $params ['referer'];
+		$referer = isset ($params ['referer']) 
+		? $params ['referer']
+		: '';
 		return ($content_category->url != $url) ? $url : $referer; 
 	}
 	

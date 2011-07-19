@@ -162,6 +162,7 @@ class Route extends Model_Child
 //				var_dump (array (
 //					'route'		=> $route ['pattern'], 
 //					'pattern'	=> $pattern,
+//					'weight'	=> $route ['weight'],
 //					'preg'		=> preg_match ('#' . $route ['pattern'] . '#', $pattern)
 //				));
 				
@@ -178,6 +179,7 @@ class Route extends Model_Child
 						$route->asArray ()
 					);
 					$row ['id'] = $id;
+//					echo 'change';
 				}
 			}
 		}

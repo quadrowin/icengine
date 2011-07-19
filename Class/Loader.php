@@ -135,9 +135,9 @@ class Loader
 		if (true)
 		{
 			echo '<pre>Not found: ' . $file . "\n";
-			echo 'Pathes: ';
-			var_dump (self::$_pathes);
-			var_dump (self::$_pathes [$type]);
+//			echo 'Pathes: ';
+//			var_dump (self::$_pathes);
+//			var_dump (self::$_pathes [$type]);
 			echo "\n\n";
 			debug_print_backtrace ();
 			echo '</pre>';
