@@ -268,7 +268,7 @@ class Request
 				$file [$field] = reset ($values);
 			}
 			
-			return new Request_File (reset ($file));
+			return new Request_File ($file);
 		}
 		
 		return new Request_File ($files [$index]);
