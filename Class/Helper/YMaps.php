@@ -253,6 +253,8 @@ class Helper_YMaps
 			'&fromId=&when=' . urlencode ($options ['when']) . 
 			'&toId=c213';
 		
+		$html = file_get_contents ($url);
+		
 		return self::parseYandexRasp ($html);
 	}
 	
