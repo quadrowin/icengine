@@ -313,39 +313,38 @@ class Redis
 			return null;
 		}
 
-		$r = json_decode (urldecode ($r), true);
-		
-		if ($r == '{}')
-		{
-			$r = null;
-		}
-		
-		return $r;
+		return json_decode ($r, true);
 	}
 
 	public function set ($key, $value, $TTL = NULL)
 	{
-		if (!is_scalar ($value))
-		{
-			$value = json_encode ($value);
-		}
+		$value = json_encode ($value);
 		
-		$value = urlencode ($value);
+		$k = $this->getConnectionByKey ($key);
+		
+		$n = "\r\n";
 		
 		if (!$TTL)
 		{
-			$r = $this->requestByKey ($key, 
-			'SET ' . $key . ' "' . $value . '"');
+			$m = 
+				'*3' . $n .
+				'$3' . $n . 'SET' . $n .
+				'$' . strlen ($key) . $n . $key . $n .
+				'$' . strlen ($value) . $n . $value . $n;
+			$r = $this->write ($k, $m);
 		}
 		else
 		{
-			$r = $this->requestByKey ($key,
-			'SETEX ' . $key . ' ' . (int) $TTL . ' "' . $value . '"');
+			$m = 
+				'*4' . $n .
+				'$5' . $n . 'SETEX' . $n .
+				'$' . strlen ($key) . $n . $key . $n .
+				'$' . strlen ($TTL) . $n . $TTL . $n .
+				'$' . strlen ($value) . $n . $value . $n;
+			$r = $this->write ($k, $m);
 		}
-		if ($r === NULL)
-		{
-			return FALSE;
-		}
+		$r = $this->getResponse ($k);
+		
 		return $r;
 	}
 

@@ -124,6 +124,25 @@ class Helper_YMapsTest extends PHPUnit_Framework_TestCase
 				$outputs [$i] * 0.01
 			);
 		}
+
+	}
+	
+	public function testParseYandexRasp ()
+	{
+		$html = file_get_contents ('/var/test.txt');
+		
+		var_dump (Helper_YMaps::parseYandexRasp ($html));
+	}
+	
+	public function testTimeInWay ()
+	{
+		$times = Helper_YMaps::timeInWay (
+			'Новокузнецк',
+			'Москва',
+			array ('type' => 'plane')
+		);
+		
+		var_dump ($times);
 	}
 
 }
