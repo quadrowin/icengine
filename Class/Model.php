@@ -136,7 +136,7 @@ abstract class Model implements ArrayAccess
 			}
 		}
 		
-		return $this->_fields [$field];
+		return isset ($this->_fields [$field]) ? $this->_fields [$field] : null;
 	}
 	
 	/**
