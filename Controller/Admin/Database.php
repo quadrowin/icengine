@@ -964,6 +964,25 @@ class Controller_Admin_Database extends Controller_Abstract
 			$updated_fields
 		);
 		
+		$after_save = $this->config ()->afterSave->$class_name;
+		
+		if ($after_save)
+		{
+			foreach ($after_save as $action)
+			{
+				list ($controller, $action) = explode ('::', $action);
+				
+				Controller_Manager::call (
+					$controller,
+					$action,
+					array (
+						'table'			=> $table,
+						'row'			=> $row
+					)
+				);
+			}
+		}
+		
 		Loader::load ('Helper_Header');
 		
 		//echo DDS::getDataSource ()->getQuery ()->translate ();
