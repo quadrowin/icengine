@@ -14,9 +14,12 @@ class Helper_YMaps
 	 * @param string $key
 	 * @param string $address
 	 * @param integer $limit 
-	 * @return mixed|null
+	 * @param boolean $only_pos
+	 * @return stdClass|array|null Объект, содержащий данные о точке.
+	 * Позицию можно получить
 	 */
-	public static function geocodePoint ($key, $address, $limit = 1)
+	public static function geocodePoint ($key, $address, $limit = 1, 
+		$only_pos = false)
 	{
 		$params = array (
 			'geocode'	=> $address,		// адрес
@@ -29,8 +32,6 @@ class Helper_YMaps
 			http_build_query ($params)
 		));
 		
-		var_dump ($response);
-		
 		if (isset ($response->error) && $response->error)
 		{
 			return null;
@@ -38,8 +39,11 @@ class Helper_YMaps
 		
 		if ($response->response->GeoObjectCollection->metaDataProperty->GeocoderResponseMetaData->found > 0)
 		{
-			return $response->response->GeoObjectCollection->featureMember[0];
-			////->GeoObject->Point->pos;
+			$r = $response->response->GeoObjectCollection->featureMember [0];
+			return 
+				$only_pos
+				? explode (' ', (string) $r->GeoObject->Point->pos)
+				: $r;
 		}
 		
 		return null;
@@ -211,8 +215,15 @@ class Helper_YMaps
 				$in_way = strip_tags ($matches [6][$key]);
 				// $in_way = '4 ч    20 мин'
 				$in_way = str_replace ('ч', ':', $matches [6][$key]);
-				// $in_way = '4 :    20 мин'
+				// $in_way = '4 :    20 мин'/ '4: 5 мин' / '4:'
 				$in_way = preg_replace ('/[^0-9:]/', '', $in_way);
+				// $in_way '4:20' / '4:5'
+				$in_way = explode (':', $in_way);
+				while (strlen ($in_way [1]) < 2)
+				{
+					$in_way [1] = '0' . $in_way [1];
+				}
+				$in_way = $in_way [0] . ':' . $in_way [1];
 				$results [] = array (
 					trim (strip_tags ($matches [1][$key])),
 					strip_tags ($matches [3][$key]),
