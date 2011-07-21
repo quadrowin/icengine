@@ -258,7 +258,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 					->where (
 						'url', 
 						rtrim ($url ? $url : Request::uri (), '/')
-					)	
+					)
 			);
 		}
 		
