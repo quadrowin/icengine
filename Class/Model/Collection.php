@@ -92,6 +92,10 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	protected $_queryResult;
 	
+	public static $DIFF_EDIT_ADD = 'add';
+	
+	public static $DIFF_EDIT_DEL = 'del';
+	
 	/**
 	 * @desc Создает и возвращает коллекцию моделей.
 	 * Так же подключает связанный класс модели.
@@ -424,6 +428,52 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		
 		return $result;
 	}
+
+	
+	/**
+	 * @desc Получить массив, содержащий добавленные и удаленные модели
+	 * @param Model_Collection $collection
+	 * @return array
+	 */
+    public function diffEdit($collection)
+    {
+	$collection_add = Model_Collection_Manager::create($collection->modelName());
+	$collection_add->reset();
+
+	$collection_del = Model_Collection_Manager::create($collection->modelName());
+	$collection_del->reset();
+
+	// текущее колличество клиник 
+	$collection_count = $this->count();
+
+	foreach ($collection as $model)
+	{
+	    if ($this->hasByKey($model))
+	    {
+		$collection_count--;
+	    }
+	    else
+	    {
+		$collection_add->add($model);
+	    }
+	}
+
+	// если $collection_count не 0, делаем вывод, что есть удаленные клиники
+	if ($collection_count)
+	{
+	    foreach ($this as $model)
+	    {
+		if (!$collection->hasByKey($model))
+		{
+		    $collection_del->add($model);
+		}
+	    }
+	}
+	return array(
+	    self::$DIFF_EDIT_ADD => $collection_add,
+	    self::$DIFF_EDIT_DEL => $collection_del
+	);
+    }
 	
 	/**
 	 * @desc Исключает из коллекции элемент с указанным индексом.
@@ -575,6 +625,24 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 			{
 				return $i;
 			}
+		}
+	}
+	
+	/**
+	 * 
+	 * @desc Ищет в коллекции эквивалентную (совпадение первичных ключей) заданой модель, и,
+	 * если находит, то возвращает ее (из коллекции в которой ищется)
+	 * @param Model $item
+	 * @return null|Model
+	 */
+	public function hasByKey (Model $item)
+	{
+	    foreach ($this as $i)
+		{
+		    if (/*$i instanceof $item->modelName() && */$i->key() == $item->key()) // хочу так - не рабтает( //dp
+ 		    {	
+			return $i;
+		    }
 		}
 	}
 	
