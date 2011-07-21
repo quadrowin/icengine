@@ -240,7 +240,7 @@ class Helper_YMaps
 		$options = array_merge (
 			array (
 				'type'	=> null,
-				'when'	=> 'на+все+дни'
+				'when'	=> 'на все дни'
 			),
 			$options
 		);
@@ -249,11 +249,14 @@ class Helper_YMaps
 			'http://rasp.yandex.ru/search/' .
 			($options ['type'] ? $options ['type'] . '/' : '') . 
 			'?toName=' . urlencode ($to) . 
+			//'&toId=c213' .
 			'&fromName=' . urlencode ($from) . 
-			'&fromId=&when=' . urlencode ($options ['when']) . 
-			'&toId=c213';
+			//'&fromId=' .
+			'&when=' . urlencode ($options ['when']);
 		
 		$html = file_get_contents ($url);
+		
+		echo "$url\n";
 		
 		return self::parseYandexRasp ($html);
 	}
