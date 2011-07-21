@@ -111,12 +111,9 @@ class Controller_Manager extends Manager_Abstract
 
 				if ($tags)
 				{
-					$cfg ['tags'] = $tags;
-					return $cfg;
+					$cfg ['current_tags'] = $tags;
 				}
 			}
-			
-			unset ($cfg ['tags']);
 		}
 		
 		return $cfg;
