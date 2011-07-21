@@ -435,7 +435,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 * @param Model_Collection $collection
 	 * @return array
 	 */
-    public function diffEdit($collection)
+    public function diffEdit($collection, $fields = array())
     {
 	$collection_add = Model_Collection_Manager::create($collection->modelName());
 	$collection_add->reset();
@@ -443,12 +443,11 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	$collection_del = Model_Collection_Manager::create($collection->modelName());
 	$collection_del->reset();
 
-	// текущее колличество клиник 
 	$collection_count = $this->count();
 
 	foreach ($collection as $model)
 	{
-	    if ($this->hasByKey($model))
+	    if ($this->hasByFields($model, $fields))
 	    {
 		$collection_count--;
 	    }
@@ -458,17 +457,18 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	    }
 	}
 
-	// если $collection_count не 0, делаем вывод, что есть удаленные клиники
+	// если $collection_count не 0, делаем вывод, что есть удаленные модели
 	if ($collection_count)
 	{
 	    foreach ($this as $model)
 	    {
-		if (!$collection->hasByKey($model))
+		if (!$collection->hasByFields($model, $fields))
 		{
 		    $collection_del->add($model);
 		}
 	    }
 	}
+	
 	return array(
 	    self::$DIFF_EDIT_ADD => $collection_add,
 	    self::$DIFF_EDIT_DEL => $collection_del
@@ -628,23 +628,40 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		}
 	}
 	
-	/**
-	 * 
-	 * @desc Ищет в коллекции эквивалентную (совпадение первичных ключей) заданой модель, и,
-	 * если находит, то возвращает ее (из коллекции в которой ищется)
-	 * @param Model $item
-	 * @return null|Model
-	 */
-	public function hasByKey (Model $item)
+    /**
+     * 
+     * @desc Ищет в коллекции эквивалентную по полям (если $fields пустой массив - по совпадению
+     *  первичных ключей) заданой модель, и, если находит, то возвращает ее (из коллекции в которой ищется)
+     * @param Model $item
+     * @return null|Model
+     */
+    public function hasByFields(Model $item, $fields = array())
+    {
+	$model = null;
+	foreach ($this as $i)
 	{
-	    foreach ($this as $i)
+	    if (empty($fields))
+	    {
+		if (/* $i instanceof $item->modelName() && */$i->key() == $item->key()) // хочу так - не рабтает( //dp
 		{
-		    if (/*$i instanceof $item->modelName() && */$i->key() == $item->key()) // хочу так - не рабтает( //dp
- 		    {	
-			return $i;
+		    $model = $i;
+		}
+	    }
+	    else
+	    {
+		$model = $i;
+		foreach ($fields as $field)
+		{
+		    if ($i->field($field) != $item->field($field))
+		    {
+			$model = null;
+			break;
 		    }
 		}
+	    }
 	}
+	return $model;
+    }
 	
 	/**
 	 * @desc Возвращает модель из коллекции
