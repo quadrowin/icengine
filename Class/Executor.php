@@ -113,9 +113,9 @@ class Executor
 		
 		if (
 			$options && 
-			$options->tags && 
+			$options->current_tags && 
 			isset ($cache ['t']) && 
-			!array_diff ($options->tags->__toArray (), $cache ['t'])
+			!array_diff ($options->current_tags->__toArray (), $cache ['t'])
 		)
 		{
 			$tag_valid = true;
@@ -156,9 +156,9 @@ class Executor
 		
 		$tags = array ();
 		
-		if ($options->tags)
+		if ($options->current_tags)
 		{
-			foreach ($options->tags as $tag => $e)
+			foreach ($options->current_tags as $tag => $e)
 			{
 				$tags [$tag] = $e;
 			}
