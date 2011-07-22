@@ -23,11 +23,16 @@
 					{/if}
 				>
 					<option value="0">Не указано</option>
+					{assign var="selected" value=0}
 					{foreach from=$i->Values item="j"}
-					<option value="{$j->key()}"{if $row->$column==$j->key()} selected="selected"{/if}>
+					<option value="{$j->key()}"{if $row->$column==$j->key()} selected="selected"
+						{assign var="selected" value=1}{/if}>
 						{$j->name|truncate:"100"}
 					</option>
 					{/foreach} 
+					{if $row && $row->$column && !$selected}
+					<option value="{$row->$column}">Указано значение {$row->$column}</option>	
+					{/if}
 				</select>
 				{elseif $i->Type=='tinyint(1)'}
 				<input name="column[{$i->Field}]" type="hidden" value="0" />
