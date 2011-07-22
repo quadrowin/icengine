@@ -170,7 +170,8 @@ class Helper_Link
 	{
 	    if (strcmp ($model1->table (), $model2->table ()) > 0)
 	    {
-	        $model1 = $tmp = $model2;
+			$tmp = $model1;
+	        $model1 = $model2;
 	        $model2 = $tmp;
 	    }
 	    
