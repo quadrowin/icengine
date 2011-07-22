@@ -211,7 +211,8 @@ class Controller_Admin_Database extends Controller_Abstract
 		}
 		
 		$resources = $this->__resources ($role);
-		
+		var_dump ($resources);
+		die ();
 		$resource_collection = Model_Collection_Manager::byQuery (
 			'Acl_Resource',
 			Query::instance ()
