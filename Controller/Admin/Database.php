@@ -320,7 +320,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
 		
-		$role_names = array ('admin', 'conent-manager', 'seo');
+		$role_names = array ('admin', 'content-manager', 'seo');
 		
 		$role_collection = Model_Collection_Manager::byQuery (
 			'Acl_Role',
