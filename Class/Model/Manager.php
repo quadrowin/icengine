@@ -176,6 +176,27 @@ class Model_Manager extends Manager_Abstract
 				->where (Model_Scheme::keyField ($model), $key)
 		);
 	}
+
+	/**
+	 * @desc Получение модели по опциям.
+	 * @param string $model Название модели.
+	 * @param mixed $option Опция
+	 * @param mixed $_ [optional]
+	 * @return Model|null
+	 */
+	public static function byOptions ($model, $option)
+	{
+		$c = Model_Collection_Manager::create ($model)
+			->addOptions (array (
+				'name'		=> '::Limit',
+				'count'		=> 1
+			));
+		for ($i = 1; $i < func_num_args (); ++$i)
+		{
+			$c->addOptions (func_get_arg ($i));
+		}
+		return $c->first ();
+	}
 	
 	/**
 	 * @desc Получение модели по запросу.
