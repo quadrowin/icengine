@@ -27,9 +27,9 @@ class Quine
 	public static function get ()
 	{
 		return
-			substr (self::SRC1, 0, self::POS) . 
-			chr (39) . self::SRC1 . chr (39) .
-			substr (self::SRC1, self::POS);
+			substr (self::SRC, 0, self::POS) . 
+			chr (39) . self::SRC . chr (39) .
+			substr (self::SRC, self::POS);
 	}
 	
 }
