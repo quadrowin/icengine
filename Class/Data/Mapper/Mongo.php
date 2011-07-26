@@ -11,7 +11,7 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 	
 	/**
 	 * @desc Соединение с монго.
-	 * @var resource
+	 * @var Mongo
 	 */
 	protected $_connection;
 	
@@ -76,12 +76,13 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 	/**
 	 * @desc Подключение к БД
 	 * @param Objective|array $config [optional]
+	 * @return Mongo
 	 */
 	public function connect ($config = null)
 	{
-		if ($this->_linkIdentifier)
+		if ($this->_connection)
 		{
-			return ;
+			return $this->_connection;
 		}
 		
 		if ($config)
@@ -103,6 +104,7 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 		$this->_connection = new Mongo ($url, array ("connect" => true));		
 		$this->_connection->selectDB ($this->_connectionOptions ['database']);
 		
+		return $this->_connection;
 //		$this->_collectionName = $config ['collection'];
 //		$this->_collection = $this->_connection->selectCollection (
 //			$this->_databaseName,
@@ -130,58 +132,86 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 		$this->_filters->apply ($where, Query::VALUE);
 		$clone->setPart (Query::WHERE, $where);
 		
-		$sql = $clone->translate ('Mongo');
+		$q = $clone->translate ('Mongo');
 		
+		$collection = $this->connect ()->selectCollection (
+			$this->_connectionOptions ['database'],
+			$q ['collection']
+		);
+		
+		$found_rows = 0;
 		$result = null;
 		$insert_id = null;
 		$tags = implode ('.', $this->_getTags ($clone));
 		switch ($query->type ())
 		{
 			case Query::DELETE:
-				Mysql::delete ($tags, $sql);
-				$touched_rows = Mysql::affectedRows ();
+				$r = $collection->remove ($q ['criteria']);
+				//Mysql::delete ($tags, $sql);
+				$touched_rows = 1;
 				break;
 			case Query::INSERT:
-				$insert_id = Mysql::insert ($tags, $sql);
-				$touched_rows = Mysql::affectedRows ();
+				$r = $collection->insert ($q ['a']);
+				$insert_id = $q ['a'] ['_id'];
+				$touched_rows = 1;
 				break;
-			case Query::SELECT; case Query::SHOW:
-				$result = Mysql::select ($tags, $sql);
-				$touched_rows = Mysql::numRows ();
+			case Query::SELECT:
+				if ($q ['find_one'])
+				{
+					$r = $collection->findOne ($q ['query'], $q ['fields']);
+				}
+				else
+				{
+					$r = $collection->find ($q ['query'], $q ['fields']);
+				}
+				if ($query->part (Query::CALC_FOUND_ROWS))
+				{
+					$found_rows = $r->count ();
+				}
+				if ($q ['sort'])
+				{
+					$r->sort ($q ['sort']);
+				}
+				if ($q ['skip'])
+				{
+					$r->skip ($q ['skip']);
+				}
+				if ($q ['limit'])
+				{
+					$r->limit ($q ['limit']);
+				}
+				//$result = Mysql::select ($tags, $sql);
+				$touched_rows = $r->count (true);
+				break;
+			case Query::SHOW:
+				
 				break;
 			case Query::UPDATE:
-				Mysql::update ($tags, $sql);
-				$touched_rows = Mysql::affectedRows ();
+				
+				var_dump ($q);
+				
+				$collection->update (
+					$q ['criteria'],
+					$q ['newobj'],
+					$q ['options']
+				);
+				//Mysql::update ($tags, $sql);
+				$touched_rows = 1; // unknown count
 				break;
 		}
-		$errno = mysql_errno ();
-		$error = mysql_error ();
 		
-		if (!empty ($errno))
-		{
-			Loader::load ('Data_Mapper_Mysql_Exception');
-			throw new Data_Mapper_Mysql_Exception ($error . "\n$sql", $errno);
-		}
+		//$error = $this->_connection->lastError ();
 		
-		if (empty ($errno) && is_null ($result))
+		if ($result == null)
 		{
 			$result = array ();
 		}
 		
 		$finish = microtime (true);
 		
-		$found_rows = 0;
-		if (
-			$query->part (Query::CALC_FOUND_ROWS) &&
-			method_exists ('Mysql', 'foundRows')
-		)
-		{
-			$found_rows = Mysql::foundRows ();
-		}
-		
 		return new Query_Result (array (
-			'error'			=> $error,
-			'errno'			=> $errno,
+			'error'			=> '',
+			'errno'			=> 0,
 			'query'			=> $clone,
 			'startAt'		=> $start,
 			'finishedAt'	=> $finish,
