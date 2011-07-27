@@ -10,8 +10,16 @@ Loader::load ('Object_Interface');
  */
 abstract class Model implements ArrayAccess
 {
+	/**
+	 * @desc Поля реализации.
+	 * @var array
+	 */
 	protected  $_addicts = array ();
 	
+	/**
+	 * @desc Базовая модель (без дополнительных полей).
+	 * @var Model
+	 */
 	protected  $_generic;
 	
 	/**
@@ -75,9 +83,7 @@ abstract class Model implements ArrayAccess
 	{
 		if (strlen ($method) > 3 && strncmp ($method, 'get', 3) == 0)
 		{
-			$model = is_null ($this->_generic) ? $this : $this->_generic;
-			
-			return $model->attr (
+			return $this->attr (
 				strtolower ($method [3]) .
 				substr ($method, 4)
 			);
@@ -469,9 +475,7 @@ abstract class Model implements ArrayAccess
 	 */
 	public function getAttribute ($key)
 	{
-		$model = is_null ($this->_generic) ? $this : $this->_generic;
-		
-		return Attribute_Manager::get ($model, $key);
+		return Attribute_Manager::get ($this, $key);
 	}
 	
 	/**
@@ -489,7 +493,7 @@ abstract class Model implements ArrayAccess
 	 */
 	public function hasField ($field)
 	{
-		if (!is_null ($this->_generic))
+		if ($this->_generic)
 		{
 			return isset ($this->_addicts [$field]) ||
 				$this->_generic->hasField ($field);
@@ -510,11 +514,6 @@ abstract class Model implements ArrayAccess
 	
 	public function getJoint ($model)
 	{
-		if (!is_null ($this->_generic))
-		{
-			return $this->_generic->getJoin ($model);
-		}
-		
 		return $this->_joints [$model];
 	}
 	
@@ -524,12 +523,10 @@ abstract class Model implements ArrayAccess
 	 */
 	public function isLoaded ()
 	{
-		if (!is_null ($this->_generic))
-		{
-			return $this->_generic->isLoaded ();
-		}
-		
-		return $this->_loaded;
+		return 
+			$this->_generic
+			? $this->_generic->isLoaded ()
+			: $this->_loaded;
 	}
 	
 	/**
@@ -537,17 +534,15 @@ abstract class Model implements ArrayAccess
 	 * @return string|null
 	 */
 	public function key ()
-	{
-		$model = is_null ($this->_generic) ? $this : $this->_generic;
+	{		
+		$kf = $this->keyField ();
 		
-		$kf = $model->keyField ();
-		
-		if (!$model->hasField ($kf))
+		if (!$this->hasField ($kf))
 		{
 			return null;
 		}
 		
-		return $model->field ($kf);
+		return $this->field ($kf);
 	}
 	
 	/**
@@ -575,7 +570,7 @@ abstract class Model implements ArrayAccess
 	 */
 	public function offsetExists ($offset)
 	{
-		if (!is_null ($this->_generic))
+		if ($this->_generic)
 		{
 			return $this->_generic->hasField ($offset);
 		}
@@ -605,7 +600,7 @@ abstract class Model implements ArrayAccess
 	 */
 	public function offsetUnset ($offset)
 	{
-		if (!is_null ($this->_generic))
+		if ($this->_generic)
 		{
 			return $this->_generic->unsetField ($offset);
 		}
@@ -618,7 +613,7 @@ abstract class Model implements ArrayAccess
 	 */
 	public function reset ()
 	{
-		if (!is_null ($this->_generic))
+		if ($this->_generic)
 		{
 			$this->_addicts = array ();
 			$this->_generic->reset ();
@@ -639,9 +634,7 @@ abstract class Model implements ArrayAccess
 	 */
 	public function resourceKey ()
 	{
-		$model = is_null ($this->_generic) ? $this : $this->_generic;
-		
-		return $model->modelName () . '__' . $model->key ();
+		return $this->modelName () . '__' . $this->key ();
 	}
 	
 	/**
@@ -651,9 +644,10 @@ abstract class Model implements ArrayAccess
 	 */
 	public function save ($hard_insert = false)
 	{
-		$model = is_null ($this->_generic) ? $this : $this->_generic;
-		
-		Model_Manager::set ($model, $hard_insert);
+		Model_Manager::set (
+			$this->_generic ? $this->_generic : $this,
+			$hard_insert
+		);
 		
 		return $this;
 	}
@@ -702,18 +696,11 @@ abstract class Model implements ArrayAccess
 	 */
 	public function setAttribute ($key, $value = null)
 	{
-		$model = is_null ($this->_generic) ? $this : $this->_generic;
-		
-		Attribute_Manager::set ($model, $key, $value);
+		Attribute_Manager::set ($this, $key, $value);
 	}
 	
 	public function setJoint ($model, $value)
 	{
-		if (!is_null ($this->_generic))
-		{
-			$this->_generic->setJoin ($model, $value);
-			return;
-		}
 		$this->_joints [$model] = $value;
 	}
 	
@@ -725,14 +712,14 @@ abstract class Model implements ArrayAccess
 	 */
 	public function sfield ($key)
 	{
-		if (!is_null ($this->_generic))
+		if ($this->_generic)
 		{
-			if (array_key_exists ($field, $this->_addicts))
+			if (array_key_exists ($key, $this->_addicts))
 			{
-				return $this->_addicts [$field];
+				return $this->_addicts [$key];
 			}
 
-			return $this->_generic->sfield ($field);
+			return $this->_generic->sfield ($key);
 		}
 		
 		if (func_num_args () > 1)
