@@ -10,17 +10,18 @@ Loader::load ('Object_Interface');
  */
 abstract class Model implements ArrayAccess
 {
+
+	/**
+	 * @desc Базовая модель (без дополнительных полей).
+	 * @var Model
+	 */
+	protected  $_generic = null;
+	
 	/**
 	 * @desc Поля реализации.
 	 * @var array
 	 */
 	protected  $_addicts = array ();
-	
-	/**
-	 * @desc Базовая модель (без дополнительных полей).
-	 * @var Model
-	 */
-	protected  $_generic;
 	
 	/**
 	 * @desc Компоненты для модели.
@@ -95,19 +96,39 @@ abstract class Model implements ArrayAccess
 	/**
 	 * @desc Создает и возвращает модель.
 	 * @param array $fields Данные модели.
+	 * @param Model $model [optional]
 	 */
 	public function __construct (array $fields = array (), $model = null)
 	{
-		if (!is_null ($model))
+		$this->_loaded = false;
+		
+		if ($model)
 		{
 			$this->_fields = array ();
 			$this->_addicts = $fields;
 			$this->_generic = $model;
+			
+			// Поля, которые должны различаться у реализаций и генерика
+			static $realized = array (
+				'_generic'	=> null,
+				'_addicts'	=> null,
+				'_joints'	=> null
+			);
+			
+			$vars = get_class_vars (get_class ($this));
+			$vars = array_diff_key ($vars, $realized);
+			
+			foreach ($vars as $var => $v)
+			{
+				$r = new ReflectionProperty ($this, $var);
+				if (!$r->isStatic ())
+				{
+					$this->$var = &$model->__getField ($var);
+				}
+			}
 		}
 		else 
 		{
-			$this->_loaded = false;
-		
 			self::$_objectIndex++;
 
 			$this->_fields = $fields;
@@ -128,13 +149,13 @@ abstract class Model implements ArrayAccess
 	 */
 	public function __get ($field)
 	{
-		if (!is_null ($this->_generic))
+		if ($this->_generic)
 		{
 			if (array_key_exists ($field, $this->_addicts))
 			{
 				return $this->_addicts [$field];
 			}
-			return $this->_generic->__get ($field);
+			return $this->_generic->$field;
 		}
 		
 		if (array_key_exists ($field, $this->_fields))
@@ -170,15 +191,26 @@ abstract class Model implements ArrayAccess
 	}
 	
 	/**
+	 * @desc Позволяет обращаться к протектед и private полям.
+	 * @param string $field
+	 * @return mixed
+	 */
+	public function &__getField ($field)
+	{
+		return $this->$field;
+	}
+	
+	/**
 	 * (non-PHPDoc)
 	 * @return boolean
 	 */
 	public function __isset ($key)
 	{
-		if (!is_null ($this->_generic))
+		if ($this->_generic)
 		{
-			return isset ($this->_addicts [$key]) ||
-				$this->_generic->__isset ($key);
+			return 
+				isset ($this->_addicts [$key]) ||
+				isset ($this->_generic->$key);
 		}
 		return isset ($this->_fields [$key]);
 	}
@@ -190,22 +222,19 @@ abstract class Model implements ArrayAccess
 	 */
 	public function __set ($field, $value)
 	{
-		if (!is_null ($this->_generic))
+		if ($this->_generic)
 		{
-			if (!$this->_generic->isLoaded ())
+			if (array_key_exists ($field, $this->_addicts))
 			{
-				$this->_generic->load ();
+				$this->_addicts [$field] = $value;
+				return ;
 			}
-
-			if (array_key_exists ($field, $this->_generic->asRow ())) 
-			{
-				return $this->_generic->field ($field, $value);
-			}
-
-			$this->_addicts [$field] = $value;
 			
-			return $this;
+			$this->_generic->$field = $value;
+			
+			return ;
 		}
+		
 		if (!array_key_exists ($field, $this->_fields) && !$this->_loaded)
 		{
 			$this->load ();
@@ -251,6 +280,10 @@ abstract class Model implements ArrayAccess
 		return $model->getJoint ($model_name);
 	}
 	
+	/**
+	 * @desc Возвращает дополнительные поля модели.
+	 * @return array
+	 */
 	public function addicts ()
 	{
 		return $this->_addicts;
