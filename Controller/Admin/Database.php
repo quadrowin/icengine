@@ -578,14 +578,16 @@ class Controller_Admin_Database extends Controller_Abstract
 				)
 					->reset ();
 				
+				$kf = Model_Scheme::keyField ($class_name);
+
 				foreach ($result as $item)
 				{
 					$collection->add (new $class_name (array (
-						'id'	=> $item [$text_value->tv_text_link_field],
+						$kf	=> $item [$text_value->tv_text_link_field],
 						'name'	=> $item [$text_value->tv_text_field]
 					)));
 				}
-				
+				//print_r ($collection->items ());
 				$field->Values = $collection;
 			}
 			
@@ -918,7 +920,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		}
 		
 		$updated_fields = $column;
-		
+
 		foreach ($updated_fields as $field => $value)
 		{
 			if (isset ($modificators [$field]))
