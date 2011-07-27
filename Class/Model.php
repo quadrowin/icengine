@@ -529,7 +529,7 @@ abstract class Model implements ArrayAccess
 			return $this->_generic->isLoaded ();
 		}
 		
-		return $model->_loaded;
+		return $this->_loaded;
 	}
 	
 	/**
@@ -662,7 +662,7 @@ abstract class Model implements ArrayAccess
 	 * @desc Установка значений полей без обновления источника.
 	 * При использовании этого метод не проверяется сущестовование полей
 	 * у модели. Это позволяет установить поля для создаваемой модели,
-	 * однако может привести к ошибкам в дальнейшем при сохранее, если 
+	 * однако может привести к ошибкам в дальнейшем при сохранении, если 
 	 * были заданы несуществующие поля.
 	 * @param string|array $field Имя поля или массив пар "поле - значение".
 	 * @param string $value Значение поля для случае, если первым параметром 
@@ -670,47 +670,28 @@ abstract class Model implements ArrayAccess
 	 */
 	public function set ($field, $value = null)
 	{
-		if (!is_null ($this->_generic))
-		{
-			if ($this->_generic->hasField ($field)) 
-			{
-				$this->_generic->field ($field, $value);
-				return $this;
-			}
-			
-			$this->_addicts [$field] = $value;
-
-			return $this;
-		}
-		
-		$this->_loaded = true;
-		
 		$fields = is_array ($field) ? $field : array ($field => $value);
 		
-		$this_model = $this->modelName ();
-		
-		foreach ($fields as $key => $value)
+		if (!is_null ($this->_generic))
 		{
-			$p = strpos ($key, '__');
-			if ($p === false)
+			foreach ($fields as $field => $value)
 			{
-				$this->_fields [$key] = $value;
-			}
-			else
-			{
-				$model = substr ($key, 0, $p);
-				$field = substr ($key, $p + 2);
-			
-				if ($model == $this_model)
+				if ($this->_generic->hasField ($field)) 
 				{
-					$this->_fields [$field] = $value;
+					$this->_generic->set ($field, $value);
 				}
 				else
 				{
-					$this->_fields [$key] = $value;
+					$this->_addicts [$field] = $value;
 				}
 			}
+			return ;
 		}
+		
+		$this->_fields = array_merge (
+			$this->_fields,
+			$fields
+		);
 	}
 	
 	/**
@@ -792,20 +773,20 @@ abstract class Model implements ArrayAccess
 	 */
 	public function load ()
 	{
-		$model = is_null ($this->_generic) ? $this : $this->_generic;
+		if ($this->_generic)
+		{
+			$this->_generic->load ();
+		}
+		else
+		{
+			Model_Manager::get (
+				$this->modelName (),
+				$this->key (),
+				$this
+			);
+		}
 		
-		$model->loaded ();
-		
-		return Model_Manager::get (
-			$model->modelName (),
-			$model->key (),
-			$model
-		);
-	}
-	
-	public function loaded ()
-	{
-		$this->_loaded = true;
+		return $this;
 	}
 	
 	/**
