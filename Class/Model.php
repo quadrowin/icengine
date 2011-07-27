@@ -10,6 +10,9 @@ Loader::load ('Object_Interface');
  */
 abstract class Model implements ArrayAccess
 {
+	protected  $_addicts = array ();
+	
+	protected  $_generic;
 	
 	/**
 	 * @desc Компоненты для модели.
@@ -72,7 +75,9 @@ abstract class Model implements ArrayAccess
 	{
 		if (strlen ($method) > 3 && strncmp ($method, 'get', 3) == 0)
 		{
-			return $this->attr (
+			$model = is_null ($this->_generic) ? $this : $this->_generic;
+			
+			return $model->attr (
 				strtolower ($method [3]) .
 				substr ($method, 4)
 			);
@@ -85,19 +90,29 @@ abstract class Model implements ArrayAccess
 	 * @desc Создает и возвращает модель.
 	 * @param array $fields Данные модели.
 	 */
-	public function __construct (array $fields = array ())
+	public function __construct (array $fields = array (), $model = null)
 	{
-		self::$_objectIndex++;
-		
-		$this->_loaded = false;
-		$this->_fields = $fields;
-		
-		if ($fields)
+		if (!is_null ($model))
 		{
-			$this->set ($fields);
+			$this->_fields = array ();
+			$this->_addicts = $fields;
+			$this->_generic = $model;
 		}
+		else 
+		{
+			$this->_loaded = false;
 		
-		$this->_afterConstruct ();
+			self::$_objectIndex++;
+
+			$this->_fields = $fields;
+
+			if ($fields)
+			{
+				$this->set ($fields);
+			}
+
+			$this->_afterConstruct ();
+		}
 	}
 	
 	/**
@@ -107,6 +122,15 @@ abstract class Model implements ArrayAccess
 	 */
 	public function __get ($field)
 	{
+		if (!is_null ($this->_generic))
+		{
+			if (array_key_exists ($field, $this->_addicts))
+			{
+				return $this->_addicts [$field];
+			}
+			return $this->_generic->__get ($field);
+		}
+		
 		if (array_key_exists ($field, $this->_fields))
 		{
 			return $this->_fields [$field];
@@ -145,6 +169,11 @@ abstract class Model implements ArrayAccess
 	 */
 	public function __isset ($key)
 	{
+		if (!is_null ($this->_generic))
+		{
+			return isset ($this->_addicts [$key]) ||
+				$this->_generic->__isset ($key);
+		}
 		return isset ($this->_fields [$key]);
 	}
 	
@@ -155,6 +184,22 @@ abstract class Model implements ArrayAccess
 	 */
 	public function __set ($field, $value)
 	{
+		if (!is_null ($this->_generic))
+		{
+			if (!$this->_generic->isLoaded ())
+			{
+				$this->_generic->load ();
+			}
+
+			if (array_key_exists ($field, $this->_generic->asRow ())) 
+			{
+				return $this->_generic->field ($field, $value);
+			}
+
+			$this->_addicts [$field] = $value;
+			
+			return $this;
+		}
 		if (!array_key_exists ($field, $this->_fields) && !$this->_loaded)
 		{
 			$this->load ();
@@ -181,18 +226,28 @@ abstract class Model implements ArrayAccess
 	
 	/**
 	 * @desc Присоединить сущность.
-	 * @param string $model
+	 * @param string $model_name
 	 * @param array $data
 	 * @return Model Присоединенная модель.
 	 */
-	protected function _joint ($model, $key = null)
+	protected function _joint ($model_name, $key = null)
 	{
+		$model = is_null ($this->_generic) ? $this : $this->_generic;
+
 		if ($key !== null)
 		{
-			$this->_joints [$model] = Model_Manager::byKey ($model, $key);
+			$model->setJoint (
+				$model_name,
+				Model_Manager::byKey ($model_name, $key)
+			);
 		}
 		
-		return $this->_joints [$model];
+		return $model->getJoint ($model_name);
+	}
+	
+	public function addicts ()
+	{
+		return $this->_addicts;
 	}
 	
 	/**
@@ -201,7 +256,14 @@ abstract class Model implements ArrayAccess
 	 */
 	public function asRow ()
 	{
-		return $this->_fields;
+		if (is_null ($this->_generic))
+		{
+			return $this->_fields;
+		}
+		return array_merge (
+			$this->_addicts,
+			$this->_generic->asRow ()
+		);
 	}
 	
 	/**
@@ -214,6 +276,13 @@ abstract class Model implements ArrayAccess
 	 */
 	public function attr ($key)
 	{
+		if (!is_null ($this->_generic))
+		{
+			return call_user_func_array (
+				array ($this->_generic, __METHOD__),
+				func_get_args ()
+			);
+		}
 		if (func_num_args () == 1)
 		{
 			if (!is_array ($key))
@@ -250,6 +319,14 @@ abstract class Model implements ArrayAccess
 	 */
 	public function component ($type)
 	{
+		if (!is_null ($this->_generic))
+		{
+			return call_user_func_array (
+				array ($this->_generic, __METHOD__),
+				func_get_args ()
+			);
+		}
+		
 		$index = null;
 		
 		if (func_num_args () > 1)
@@ -302,6 +379,13 @@ abstract class Model implements ArrayAccess
 	 */
 	public function data ($key)
 	{
+		if (!is_null ($this->_generic))
+		{
+			return call_user_func_array (
+				array ($this->_generic, __METHOD__),
+				func_get_args ()
+			);
+		}
 		if (func_num_args () == 1)
 		{
 			return isset ($this->_data [$key]) ? $this->_data [$key] : null;
@@ -315,10 +399,13 @@ abstract class Model implements ArrayAccess
 	 */
 	public function delete ()
 	{
-		$key = $this->key ();
+		$model = is_null ($this->_generic) ? $this : $this->_generic;
+		
+		$key = $model->key ();
+		
 		if ($key)
 		{
-			Model_Manager::remove ($this);
+			Model_Manager::remove ($model);
 		}
 	}
 	
@@ -330,13 +417,15 @@ abstract class Model implements ArrayAccess
 	 * @param string $model_name
 	 * @return Model_Collection
 	 */
-	public function external ($model)
+	public function external ($model_name)
 	{
-		$field = '`' . $model . '`.`' . $this->modelName () . '__id`';
+		$model = is_null ($this->_generic) ? $this : $this->_generic;
+		
+		$field = '`' . $model_name . '`.`' . $model->modelName () . '__id`';
 		return Model_Collection_Manager::byQuery (
-			$model,
+			$model_name,
 			Query::instance ()
-				->where ($field, $this->key ())
+				->where ($field, $model->key ())
 		);
 	}
 	
@@ -367,6 +456,11 @@ abstract class Model implements ArrayAccess
 		Object_Pool::push ($this);
 	}
 	
+	public function generic ()
+	{
+		return $this->_generic;
+	}
+	
 	/**
 	 * @desc Получение значения атрибута
 	 * @param string $key Название атрибута.
@@ -375,7 +469,9 @@ abstract class Model implements ArrayAccess
 	 */
 	public function getAttribute ($key)
 	{
-		return Attribute_Manager::get ($this, $key);
+		$model = is_null ($this->_generic) ? $this : $this->_generic;
+		
+		return Attribute_Manager::get ($model, $key);
 	}
 	
 	/**
@@ -384,10 +480,8 @@ abstract class Model implements ArrayAccess
 	 */
 	public function getFields ()
 	{
-		return $this->_fields;
+		return $this->asRow ();
 	}
-	
-	
 	
 	/**
 	 * @desc Проверяет существование поля в модели.
@@ -395,6 +489,12 @@ abstract class Model implements ArrayAccess
 	 */
 	public function hasField ($field)
 	{
+		if (!is_null ($this->_generic))
+		{
+			return isset ($this->_addicts [$field]) ||
+				$this->_generic->hasField ($field);
+		}
+		
 		if (!isset ($this->_fields))
 		{
 			if ($this->_loaded)
@@ -408,20 +508,46 @@ abstract class Model implements ArrayAccess
 		return isset ($this->_fields [$field]);
 	}
 	
+	public function getJoint ($model)
+	{
+		if (!is_null ($this->_generic))
+		{
+			return $this->_generic->getJoin ($model);
+		}
+		
+		return $this->_joints [$model];
+	}
+	
+	/**
+	 * @desc Определяет загружена ли модель
+	 * @return boolean
+	 */
+	public function isLoaded ()
+	{
+		if (!is_null ($this->_generic))
+		{
+			return $this->_generic->isLoaded ();
+		}
+		
+		return $model->_loaded;
+	}
+	
 	/**
 	 * @desc Возвращает значение первичного ключа
 	 * @return string|null
 	 */
 	public function key ()
 	{
-		$kf = $this->keyField ();
+		$model = is_null ($this->_generic) ? $this : $this->_generic;
 		
-		if (!is_array ($this->_fields) || !isset ($this->_fields [$kf]))
+		$kf = $model->keyField ();
+		
+		if (!$model->hasField ($kf))
 		{
 			return null;
 		}
 		
-		return $this->_fields [$kf];
+		return $model->field ($kf);
 	}
 	
 	/**
@@ -449,6 +575,11 @@ abstract class Model implements ArrayAccess
 	 */
 	public function offsetExists ($offset)
 	{
+		if (!is_null ($this->_generic))
+		{
+			return $this->_generic->hasField ($offset);
+		}
+		
 		return isset ($this->_fields [$offset]);
 	}
 
@@ -474,6 +605,11 @@ abstract class Model implements ArrayAccess
 	 */
 	public function offsetUnset ($offset)
 	{
+		if (!is_null ($this->_generic))
+		{
+			return $this->_generic->unsetField ($offset);
+		}
+		
 		unset ($this->_fields [$offset]);
 	}
 	
@@ -482,6 +618,13 @@ abstract class Model implements ArrayAccess
 	 */
 	public function reset ()
 	{
+		if (!is_null ($this->_generic))
+		{
+			$this->_addicts = array ();
+			$this->_generic->reset ();
+			
+			return;
+		}
 		$this->_attributes = array ();
 		$this->_data = array ();
 		$this->_fields = array ();
@@ -496,7 +639,9 @@ abstract class Model implements ArrayAccess
 	 */
 	public function resourceKey ()
 	{
-		return $this->modelName () . '__' . $this->key ();
+		$model = is_null ($this->_generic) ? $this : $this->_generic;
+		
+		return $model->modelName () . '__' . $model->key ();
 	}
 	
 	/**
@@ -506,7 +651,10 @@ abstract class Model implements ArrayAccess
 	 */
 	public function save ($hard_insert = false)
 	{
-		Model_Manager::set ($this, $hard_insert);
+		$model = is_null ($this->_generic) ? $this : $this->_generic;
+		
+		Model_Manager::set ($model, $hard_insert);
+		
 		return $this;
 	}
 	
@@ -522,6 +670,21 @@ abstract class Model implements ArrayAccess
 	 */
 	public function set ($field, $value = null)
 	{
+		if (!is_null ($this->_generic))
+		{
+			if ($this->_generic->hasField ($field)) 
+			{
+				$this->_generic->field ($field, $value);
+				return $this;
+			}
+			
+			$this->_addicts [$field] = $value;
+
+			return $this;
+		}
+		
+		$this->_loaded = true;
+		
 		$fields = is_array ($field) ? $field : array ($field => $value);
 		
 		$this_model = $this->modelName ();
@@ -558,7 +721,19 @@ abstract class Model implements ArrayAccess
 	 */
 	public function setAttribute ($key, $value = null)
 	{
-		Attribute_Manager::set ($this, $key, $value);
+		$model = is_null ($this->_generic) ? $this : $this->_generic;
+		
+		Attribute_Manager::set ($model, $key, $value);
+	}
+	
+	public function setJoint ($model, $value)
+	{
+		if (!is_null ($this->_generic))
+		{
+			$this->_generic->setJoin ($model, $value);
+			return;
+		}
+		$this->_joints [$model] = $value;
 	}
 	
 	/**
@@ -569,6 +744,16 @@ abstract class Model implements ArrayAccess
 	 */
 	public function sfield ($key)
 	{
+		if (!is_null ($this->_generic))
+		{
+			if (array_key_exists ($field, $this->_addicts))
+			{
+				return $this->_addicts [$field];
+			}
+
+			return $this->_generic->sfield ($field);
+		}
+		
 		if (func_num_args () > 1)
 		{
 			$this->set ($key, func_get_arg (1));
@@ -595,7 +780,9 @@ abstract class Model implements ArrayAccess
 	 */
 	public function title ()
 	{
-		return $this->name;
+		$model = is_null ($this->_generic) ? $this : $this->_generic;
+		
+		return $model->name;
 	}
 	
 	/**
@@ -605,11 +792,20 @@ abstract class Model implements ArrayAccess
 	 */
 	public function load ()
 	{
+		$model = is_null ($this->_generic) ? $this : $this->_generic;
+		
+		$model->loaded ();
+		
 		return Model_Manager::get (
-			$this->modelName (),
-			$this->key (),
-			$this
+			$model->modelName (),
+			$model->key (),
+			$model
 		);
+	}
+	
+	public function loaded ()
+	{
+		$this->_loaded = true;
 	}
 	
 	/**
@@ -619,6 +815,11 @@ abstract class Model implements ArrayAccess
 	 */
 	public function validate ($fields)
 	{
+		if (!is_null ($this->_generic))
+		{
+			return $this->_generic->validate ($fields);
+		}
+		
 		$args = func_get_args ();
 		if (sizeof ($args) == 2)
 		{
@@ -663,6 +864,20 @@ abstract class Model implements ArrayAccess
 	 */
 	public function unsetField ($name)
 	{
+		if (!is_null ($this->_generic))
+		{
+			if (array_key_exists ($name, $this->_addicts))
+			{
+				unset ($this->_addicts [$name]);
+				return;
+			}
+			else
+			{
+				$this->_generic->unsetField ($name);
+				return;
+			}
+		}
+		
 		if (array_key_exists ($name, $this->_fields))
 		{
 			unset ($this->_fields [$name]);
@@ -677,6 +892,30 @@ abstract class Model implements ArrayAccess
 	 */
 	public function update (array $data)
 	{
+		if (!is_null ($this->_generic))
+		{
+			if (!$this->_generic->isLoaded ())
+			{
+				$this->_generic->load ();
+			}
+
+			foreach ($data as $field=>$value)
+			{
+				if (!$this->_generic->hasField ($field))
+				{
+					$this->_addicts [$field] = $value;
+					unset ($data [$field]);
+				}
+			}
+
+			if ($data)
+			{
+				$this->_generic->update ($data);
+			}
+			
+			return $this;
+		}
+		
 		foreach ($data as $key => $value)
 		{
 			$this->_updatedFields [$key] = true;
@@ -695,6 +934,30 @@ abstract class Model implements ArrayAccess
 	 */
 	public function updateCarefully (array $data)
 	{
+		if (!is_null ($this->_generic))
+		{
+			if (!$this->_generic->isLoaded ())
+			{
+				$this->_generic->load ();
+			}
+
+			foreach ($data as $field=>$value)
+			{
+				if (!$this->_generic->hasField ($field))
+				{
+					$this->_addicts [$field] = $value;
+					unset ($data [$field]);
+				}
+			}
+
+			if ($data)
+			{
+				$this->_generic->update ($data);
+			}
+			
+			return $this;
+		}
+		
 		foreach ($data as $key => $value)
 		{
 			$this->_updatedFields [$key] = true;

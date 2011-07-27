@@ -47,7 +47,7 @@ class Model_Manager extends Manager_Abstract
 		return $conditions;
 	}
 	
-	/**
+	/**0
 	 * @desc Получение данных модели из источника данных.
 	 * @param Model $object
 	 */
@@ -248,6 +248,8 @@ class Model_Manager extends Manager_Abstract
 	 */
 	public static function get ($model, $key, $object = null)
 	{
+		$result = null;
+		
 		if ($object instanceof Model)
 		{
 			$result = $object;
@@ -281,7 +283,7 @@ class Model_Manager extends Manager_Abstract
 				$delegee = 
 					'Model_Manager_Delegee_' .
 					self::$_config ['delegee'][$parent];
-					
+
 				Loader::load ($delegee);
 					
 				$result = call_user_func (
@@ -296,7 +298,17 @@ class Model_Manager extends Manager_Abstract
 		
 		self::_read ($result);
 		
-		return $result;
+		// В случае factory
+		$model = get_class ($result);
+		
+		$generic = $result->generic ();
+		
+		$result = !is_null ($generic) ? $generic : $result;
+		
+		return new $model (
+			array (),
+			$result
+		);
 	}
 	
 	/**
