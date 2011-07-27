@@ -189,6 +189,68 @@ class Helper_Date
 	}
 	
 	/**
+	 * @desc Возвращает максимальную из дат
+	 * @param DateTime $a
+	 * @param DateTime $b 
+	 * @return DateTime
+	 */
+	public static function max ($a, $b)
+	{
+		if (!($a instanceof DateTime))
+		{
+			if ($a == null)
+			{
+				return $b;
+			}
+			$a = self::parseDateTime ($a);
+		}
+		
+		if (!($b instanceof DateTime))
+		{
+			if ($b == null)
+			{
+				return $a;
+			}
+			$b = self::parseDateTime ($b);
+		}
+		
+		$diff = $a->diff ($b);
+		
+		return $diff->invert ? $b : $a;
+	}
+	
+	/**
+	 * @desc Возвращает минимальную из дат
+	 * @param DateTime $a
+	 * @param DateTime $b 
+	 * @return DateTime
+	 */
+	public static function min ($a, $b)
+	{
+		if (!($a instanceof DateTime))
+		{
+			if ($a == null)
+			{
+				return $b;
+			}
+			$a = self::parseDateTime ($a);
+		}
+		
+		if (!($b instanceof DateTime))
+		{
+			if ($b == null)
+			{
+				return $a;
+			}
+			$b = self::parseDateTime ($b);
+		}
+		
+		$diff = $a->diff ($b);
+		
+		return $diff->invert ? $a : $b;
+	}
+	
+	/**
 	 * @desc Сравнение месяцев двух дат.
 	 * @param integer $date1 Первая дата.
 	 * @param integer $date2 Вторая дата.
