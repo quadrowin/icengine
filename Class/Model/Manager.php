@@ -71,7 +71,12 @@ class Model_Manager extends Manager_Abstract
 		
 		if ($data)
 		{
-			$object->set ($data);
+			// array_merge чтобы не затереть поля, которые были 
+			// установленны через set
+			$object->set (array_merge (
+				$data,
+				$object->asRow ()
+			));
 		}
 	}
 	
