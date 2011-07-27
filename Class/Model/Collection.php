@@ -92,9 +92,11 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	protected $_queryResult;
 	
-	public static $DIFF_EDIT_ADD = 'add';
+	public static $DIFF_EDIT_ADD = 'added';
 	
-	public static $DIFF_EDIT_DEL = 'del';
+	public static $DIFF_EDIT_NO = 'not_changed';
+	
+	public static $DIFF_EDIT_DEL = 'removed';
 	
 	/**
 	 * @desc Создает и возвращает коллекцию моделей.
@@ -440,6 +442,9 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	$collection_add = Model_Collection_Manager::create($collection->modelName());
 	$collection_add->reset();
 
+	$collection_no = Model_Collection_Manager::create($collection->modelName());
+	$collection_no->reset();
+	
 	$collection_del = Model_Collection_Manager::create($collection->modelName());
 	$collection_del->reset();
 
@@ -447,8 +452,11 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 
 	foreach ($collection as $model)
 	{
-	    if ($this->hasByFields($model, $fields))
+	    $diff_model = $this->hasByFields($model, $fields);
+
+	    if ($diff_model)
 	    {
+		$collection_no->add($diff_model);
 		$collection_count--;
 	    }
 	    else
@@ -471,6 +479,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	
 	return array(
 	    self::$DIFF_EDIT_ADD => $collection_add,
+	    self::$DIFF_EDIT_NO => $collection_no,
 	    self::$DIFF_EDIT_DEL => $collection_del
 	);
     }
@@ -633,6 +642,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
      * @desc Ищет в коллекции эквивалентную по полям (если $fields пустой массив - по совпадению
      *  первичных ключей) заданой модель, и, если находит, то возвращает ее (из коллекции в которой ищется)
      * @param Model $item
+     * @param array $fields
      * @return null|Model
      */
     public function hasByFields(Model $item, $fields = array())
@@ -658,6 +668,9 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 			break;
 		    }
 		}
+	    }
+	    if ($model) {
+		break;
 	    }
 	}
 	return $model;
