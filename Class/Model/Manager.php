@@ -308,12 +308,14 @@ class Model_Manager extends Manager_Abstract
 		
 		$generic = $result->generic ();
 		
-		$result = !is_null ($generic) ? $generic : $result;
+		$result = $generic ? $generic : $result;
 		
-		return new $model (
+		$result = new $model (
 			array (),
 			$result
 		);
+		
+		return $result;
 	}
 	
 	/**
