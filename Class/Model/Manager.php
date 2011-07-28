@@ -315,7 +315,7 @@ class Model_Manager extends Manager_Abstract
 			$result
 		);
 		
-		return $result;
+		return $result->key () ? $result : $generic;
 	}
 	
 	/**

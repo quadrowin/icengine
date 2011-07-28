@@ -699,7 +699,7 @@ abstract class Model implements ArrayAccess
 	{
 		$fields = is_array ($field) ? $field : array ($field => $value);
 		
-		if (!is_null ($this->_generic))
+		if ($this->_generic)
 		{
 			foreach ($fields as $field => $value)
 			{
