@@ -816,12 +816,8 @@ abstract class Model implements ArrayAccess
 	 */
 	public function validate ($fields)
 	{
-		if (!is_null ($this->_generic))
-		{
-			return $this->_generic->validate ($fields);
-		}
-		
 		$args = func_get_args ();
+		
 		if (sizeof ($args) == 2)
 		{
 			$args = array ($args [0] => $args [1]);
@@ -847,7 +843,7 @@ abstract class Model implements ArrayAccess
 		
 		foreach ((array) $args as $field => $value)
 		{
-			if ($this->_fields [$field] != $value)
+			if ($this->$field != $value)
 			{
 				$valid = false;
 				break;
