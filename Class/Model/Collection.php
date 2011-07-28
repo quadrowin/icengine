@@ -463,6 +463,30 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
+	 * 
+	 * @desc Фильтрация. Возвращает экземпляр новой коллекции
+	 * @param string $field
+	 * @param string $value
+	 * @return Model_Collection
+	 */
+	public function filterExt ($field, $value)
+	{
+		$collection = new $this;
+		$collection->reset ();
+		
+		foreach ($this as $item)
+		{
+			$valid = true;
+			if ($item->hasField($field) && $item->field($field) == $value)
+		 	{
+				$collection->add ($item);
+			}
+		}
+		
+		return $collection;
+	}
+	
+	/**
 	 * @desc Возвращает первый элемент коллекции.
 	 * @return Model
 	 */
