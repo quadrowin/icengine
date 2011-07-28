@@ -14,7 +14,8 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 	 * @var array
 	 */
 	protected static $_config = array (
-		'delegee'	=> array (
+		'cache_provider'	=> 'mysqli_cache',
+		'delegee'			=> array (
 			'Model'				=> 'Simple',
 			'Model_Config'		=> 'Simple',
 			'Model_Defined'		=> 'Defined',
@@ -62,6 +63,29 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 		// Название модели
 		$model = $collection->modelName ();
 		
+		$from = $query->getPart (Query::FROM);
+		
+		$collection_tags = array ();
+		
+		$tags = array ();
+		
+		$tag_valid = true;
+		
+		if ($from)
+		{
+			$tables = array ();
+		
+			$provider = Data_Provider_Manager::get (
+				self::config ()->cache_provider
+			);
+			
+			foreach ($from as $f)
+			{
+				$tables [] = Model_Scheme::table ($f [Query::TABLE]);
+			}
+			
+			$tags = $provider->getTags ($tables);
+		}
 		// Генерируем ключ коллекции
 		$key = md5 (
 			$model .
@@ -96,11 +120,19 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 				$addicts [] = $item ['addicts'];
 			}
 			
+			$collection_tags = $pack ['t'];
+			
+			if (array_diff ($tags, $collection_tags))
+			{
+				$tag_valid = false;
+			}
+			
 			$pack ['items']	= $items;
 			
 			$collection->data ('addicts', $addicts);
 		}
-		else
+		
+		if (!is_array ($pack) || !$tag_valid)
 		{
 			// Делегируемый класс определяем по первому или нулевому
 			// предку.
@@ -123,6 +155,8 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 				array ($delegee, 'load'),
 				$collection, $query
 			);
+			
+			$collection->data ('t', $tags);
 			
 			$addicts = $collection->data ('addicts');
 		}

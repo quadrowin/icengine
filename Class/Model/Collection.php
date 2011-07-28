@@ -439,49 +439,54 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
     public function diffEdit($collection, $fields = array())
     {
-	$collection_add = Model_Collection_Manager::create($collection->modelName());
-	$collection_add->reset();
+		$collection_add = Model_Collection_Manager::create(
+			$collection->modelName()
+		);
+		
+		$collection_add->reset();
 
 	$collection_no = Model_Collection_Manager::create($collection->modelName());
 	$collection_no->reset();
 	
-	$collection_del = Model_Collection_Manager::create($collection->modelName());
-	$collection_del->reset();
+		$collection_del = Model_Collection_Manager::create(
+			$collection->modelName()
+		);
+		$collection_del->reset();
 
-	$collection_count = $this->count();
+		$collection_count = $this->count();
 
-	foreach ($collection as $model)
-	{
+		foreach ($collection as $model)
+		{
 	    $diff_model = $this->hasByFields($model, $fields);
 
 	    if ($diff_model)
-	    {
+			{
 		$collection_no->add($diff_model);
-		$collection_count--;
-	    }
-	    else
-	    {
-		$collection_add->add($model);
-	    }
-	}
-
-	// если $collection_count не 0, делаем вывод, что есть удаленные модели
-	if ($collection_count)
-	{
-	    foreach ($this as $model)
-	    {
-		if (!$collection->hasByFields($model, $fields))
-		{
-		    $collection_del->add($model);
+				$collection_count--;
+			}
+			else
+			{
+				$collection_add->add($model);
+			}
 		}
-	    }
-	}
-	
-	return array(
-	    self::$DIFF_EDIT_ADD => $collection_add,
+
+		// если $collection_count не 0, делаем вывод, что есть удаленные модели
+		if ($collection_count)
+		{
+			foreach ($this as $model)
+			{
+				if (!$collection->hasByFields ($model, $fields))
+				{
+					$collection_del->add($model);
+				}
+			}
+		}
+
+		return array(
+			self::$DIFF_EDIT_ADD => $collection_add,
 	    self::$DIFF_EDIT_NO => $collection_no,
-	    self::$DIFF_EDIT_DEL => $collection_del
-	);
+			self::$DIFF_EDIT_DEL => $collection_del
+		);
     }
 	
 	/**

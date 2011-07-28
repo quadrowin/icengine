@@ -63,6 +63,7 @@ class Router
 			for ($i = 0; $i < $len; $i++)
 			{
 				$st = strpos ($parts [$i], ':');
+
 				if ($st !== false)
 				{
 					Request::param (

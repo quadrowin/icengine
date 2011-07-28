@@ -348,7 +348,7 @@ class Query_Translator_Mysql extends Query_Translator
 			self::_partCalcFoundRows ($query) . ' ' . 
 			self::_partDistinct ($query) . ' ';
 		$parts = $query->parts ();
-		
+
 		$columns = array ();
 		foreach ($parts [Query::SELECT] as $alias => $sparts)
 		{
@@ -395,11 +395,17 @@ class Query_Translator_Mysql extends Query_Translator
 				strpos ($sparts, self::SQL_WILDCARD) === false &&
 				strpos ($sparts, '(') === false &&
 				strpos ($sparts, ' ') === false &&
-				strpos ($sparts, '.') === false &&
-				strpos ($sparts, '`') === false
+				strpos ($sparts, '`') === false &&
+				strpos ($sparts, '.') === false 
 			)
 			{
 				$source = $this->_escape ($sparts);
+			}
+			elseif (strpos ($sparts, self::SQL_WILDCARD) !== false)
+			{
+				$source = explode ('.', $sparts);
+				$source [0] = $this->_escape ($source [0]);
+				$source = implode ('.', $source);
 			}
 			else
 			{

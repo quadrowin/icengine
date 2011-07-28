@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * 
+ * @desc Коллекция источников данных
+ * @author Yury Shvedov, Ilya Kolesnikov
+ * @package IcEngine
+ * 
+ */
 class Data_Source_Collection
 {
 	
