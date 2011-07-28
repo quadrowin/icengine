@@ -27,7 +27,8 @@
 					{foreach from=$i->Values item="j"}
 					<option value="{$j->key()}"{if $row->$column==$j->key()} selected="selected"
 						{assign var="selected" value=1}{/if}>
-						{$j->title()|truncate:"100"}
+						{assign var="temp" value=$j->title()}
+						{$temp|truncate:"100"}
 					</option>
 					{/foreach} 
 					{if $row && $row->$column && !$selected}
