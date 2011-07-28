@@ -39,10 +39,7 @@ class View_Resource_Packer_Js extends View_Resource_Packer_Abstract
 			$result = '';
 		}
 		
-		if (
-			isset ($this->_currentResource->nopack) &&
-			$this->_currentResource->nopack
-		)
+		if ($this->_currentResource->nopack)
 		{
 			$result .= $resource->content () . "\n";
 		}

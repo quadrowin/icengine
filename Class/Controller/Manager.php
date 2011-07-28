@@ -96,8 +96,27 @@ class Controller_Manager extends Manager_Abstract
 	protected static function _cacheConfig ($controller, $action)
 	{
 		$config = self::config ();
+		
 		$cfg = $config ['actions'][$controller . '::' . $action];
-		return $cfg ? $cfg : $config ['actions'] [$controller];
+		
+		$cfg = $cfg ? $cfg : $config ['actions'] [$controller];
+		
+		if (isset ($cfg ['tags'], $cfg ['tag_provider']))
+		{
+			$provider = Data_Provider_Manager::get ($cfg ['tag_provider']);
+			
+			if ($provider)
+			{
+				$tags = $provider->getTags ($cfg ['tags']->__toArray ());
+
+				if ($tags)
+				{
+					$cfg ['current_tags'] = $tags;
+				}
+			}
+		}
+		
+		return $cfg;
 	}
 
 	/**

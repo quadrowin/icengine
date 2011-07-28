@@ -7,6 +7,7 @@
  * @package IcEngine
  *
  */
+
 class Objective implements ArrayAccess, IteratorAggregate, Countable
 {
 		
@@ -41,39 +42,6 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * @desc Данные объекта в виде массива.
-	 * Данные типа Objective рекурсивно будут приведены к массивам.
-	 * @return array
-	 */
-	public function __toArray ()
-	{
-		$data = array ();
-		
-		foreach ($this->_data as $key => $value) 
-		{
-			if ($value instanceof Objective) 
-			{
-				$data [$key] = $value->__toArray ();
-			} 
-			else
-			{
-				$data [$key] = $value;
-			}
-		}
-		
-		return $data;
-	}
-	
-	/**
-	 * @param string $key
-	 * @return boolean
-	 */
-	public function __isset ($key)
-	{
-		return isset ($this->_data [$key]);
-	}
-	
-	/**
 	 * @desc Клонирование (выполняется рекурсивно)
 	 */
 	public function __clone ()
@@ -105,6 +73,16 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
+	 * @desc Проверяет существование поля.
+	 * @param string $key
+	 * @return boolean
+	 */
+	public function __isset ($key)
+	{
+		return isset ($this->_data [$key]);
+	}
+	
+	/**
 	 * 
 	 * @param string $key
 	 * @param mixed $value
@@ -122,6 +100,30 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
+	 * @desc Данные объекта в виде массива.
+	 * Данные типа Objective рекурсивно будут приведены к массивам.
+	 * @return array
+	 */
+	public function __toArray ()
+	{
+		$data = array ();
+		
+		foreach ($this->_data as $key => $value) 
+		{
+			if ($value instanceof Objective) 
+			{
+				$data [$key] = $value->__toArray ();
+			} 
+			else
+			{
+				$data [$key] = $value;
+			}
+		}
+		
+		return $data;
+	}
+	
+	/**
 	 * @desc Данные объекта как массив.
 	 * Если существуют данные типа Objective, они будут переданны как 
 	 * объект без приведения к массиву (в отличие от __toArray)
@@ -133,6 +135,7 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
+	 * 
 	 * @desc Получить колонку объекта
 	 * @param string $column
 	 * @return array<string>
@@ -143,7 +146,8 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 		
 		foreach ($this as $item)
 		{
-			$result [] = $item->$column;
+			$result [] = ($item instanceof Objective)
+					? $item->$column : null;
 		}
 		
 		return $result;
@@ -172,22 +176,31 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	 * @param string $path
 	 * @return mixed
 	 */
-	public function get ($path = '')
+	public function get ()
 	{
 		$result = $this->__toArray ();
-		if ($path)
+		if (func_num_args () == 1)
 		{
-			if (strpos ($path, '.'))
+			$path = func_get_arg (0);
+			
+			if (strpos ($path, '/'))
 			{
-				$path = explode ('.', $path);
+				$path = explode ('/', $path);
 				foreach ($path as $value)
 				{
-					$result = $result [$value];
+					if (isset ($result [$value]))
+					{
+						$result = $result [$value];
+					}
+					else
+					{
+						return null;
+					}
 				}
 			}
 			else
 			{
-				$result = $result [$path];
+				$result = isset ($result [$path]) ? $result [$path] : null;
 			}
 		}
 		return $result;

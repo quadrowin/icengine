@@ -1,7 +1,9 @@
 <div id="tab-data">
 
+	{if $row}
 	<p><a href="/cp/row/{$table}/{$row->key()}/delete/" onclick="if(!confirm('Вы действительно хотите удалить запись?'))return false" style="color:red;font-weight:bold">Удалить</a></p>
-
+	{/if}
+		
 	{if $fields}
 	<form method="post" action="/cp/row/{$table}/save/">
 	<input type="hidden" name="row_id" value="{if $row}{$row->key()}{else}0{/if}" />
@@ -21,13 +23,19 @@
 					{/if}
 				>
 					<option value="0">Не указано</option>
+					{assign var="selected" value=0}
 					{foreach from=$i->Values item="j"}
-					<option value="{$j->key()}"{if $row->$column==$j->key()} selected="selected"{/if}>
+					<option value="{$j->key()}"{if $row->$column==$j->key()} selected="selected"
+						{assign var="selected" value=1}{/if}>
 						{$j->name|truncate:"100"}
 					</option>
 					{/foreach} 
+					{if $row && $row->$column && !$selected}
+					<option value="{$row->$column}">Указано значение {$row->$column}</option>	
+					{/if}
 				</select>
 				{elseif $i->Type=='tinyint(1)'}
+				<input name="column[{$i->Field}]" type="hidden" value="0" />
 				<input id="column-{$i->Field}" type="checkbox" value="1" name="column[{$i->Field}]"{if !empty($row->$column)} checked="checked"{/if}
 					{if isset($events[$field])}
 					{foreach from=$events[$field] item="method" key="event"}

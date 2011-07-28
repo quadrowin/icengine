@@ -42,7 +42,7 @@ class View_Resource_Packer_Jres extends View_Resource_Packer_Abstract
 		$content = $resource->content ();
 		
 		$content = 
-			'Resource_Manager.set (\'' . $resource->localPath . '\', new Resource ' . $content . ');';
+			'Ice.Resource_Manager.set ("Jres", "' . $resource->localPath . '", ' . $content . ');';
 		
 		if (
 			isset ($this->_currentResource->nopack) &&

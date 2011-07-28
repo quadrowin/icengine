@@ -20,7 +20,7 @@ class Router
 	 */
 	public static function getRoute () 
 	{
-		if (is_null (self::$_route))
+		if (is_null (self::$_route)) 
 		{
 			$url = Request::uri ();
 	
@@ -63,6 +63,7 @@ class Router
 			for ($i = 0; $i < $len; $i++)
 			{
 				$st = strpos ($parts [$i], ':');
+
 				if ($st !== false)
 				{
 					Request::param (

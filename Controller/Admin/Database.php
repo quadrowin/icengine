@@ -20,7 +20,7 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		Loader::load ('Helper_Array');
 		
-		$tmp_fields = Helper_Array::column ($fields, 'Field');
+		$tmp_fields = Helper_Array::column ($fields->__toArray (), 'Field');
 		
 		$acl_fields = array_intersect ($acl_fields, $tmp_fields);
 		
@@ -106,17 +106,17 @@ class Controller_Admin_Database extends Controller_Abstract
 	 * @param array<string> $fields
 	 * @return void
 	 */
-	private function __log ($action, $table, $fields)
+	private function __log ($action, $table, $row_id, $fields)
 	{
 		Loader::load ('Admin_Log');
 		
 		foreach ((array) $fields as $field => $value)
 		{
-			die ($field);
 			$log = new Admin_Log (array (
 				'User__id'		=> User::id (),
 				'action'		=> $action,
 				'table'			=> $table,
+				'rowID'			=> $row_id,
 				'field'			=> $field,
 				'value'			=> $value,
 				'createdAt'		=> Helper_Date::toUnix ()
@@ -320,7 +320,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
 		
-		$role_names = array ('admin', 'conent-manager', 'seo');
+		$role_names = array ('admin', 'content-manager', 'seo');
 		
 		$role_collection = Model_Collection_Manager::byQuery (
 			'Acl_Role',
@@ -375,7 +375,10 @@ class Controller_Admin_Database extends Controller_Abstract
 			$this->__log (
 				__METHOD__,
 				$table,
-				array (null)
+				$row_id,
+				array (
+					'id'	=> $row_id
+				)
 			);
 		}
 		
@@ -470,10 +473,19 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		$class_name = $this->__className ($table, $prefix);
 		
-		$row = Model_Manager::byKey (
+		$row = Model_Manager::get (
 			$class_name,
 			$row_id
 		);
+		
+		$auto_select = array ();
+		
+		$tmp = $this->config ()->auto_select->$class_name;
+		
+		if ($tmp)
+		{
+			$auto_select = $tmp->__toArray ();
+		}
 		
 		foreach ($fields as $i => $field)
 		{
@@ -517,6 +529,15 @@ class Controller_Admin_Database extends Controller_Abstract
 			// Есть запись для поля таблицы в таблице подстановок
 			if ($text_value && $text_value->tv_text_field)
 			{
+				$field_filters = array ();
+				
+				$tmp = $this->config ()->field_filters->$class_name;
+				
+				if ($tmp)
+				{
+					$field_filters = $tmp->__toArray ();
+				}
+				
 				$query = Query::instance ()
 					->select ($text_value->tv_text_table . '.' . 
 						$text_value->tv_text_link_field)
@@ -533,6 +554,21 @@ class Controller_Admin_Database extends Controller_Abstract
 						->where ($text_value->tv_text_link_condition);
 				}
 				
+				if (isset ($field_filters [$field->Field]))
+				{
+					foreach ($field_filters [$field->Field] as $field_filter)
+					{
+						$value = $field_filter ['value'];
+						
+						if (strpos ($value, '::') !== false)
+						{
+							$value = call_user_func ($field_filter ['value']);
+						}
+						
+						$query->where ($field_filter ['field'], $value);
+					}
+				}
+				
 				$result = DDS::execute ($query)
 					->getResult ()
 						->asTable ();
@@ -542,14 +578,16 @@ class Controller_Admin_Database extends Controller_Abstract
 				)
 					->reset ();
 				
+				$kf = Model_Scheme::keyField ($class_name);
+
 				foreach ($result as $item)
 				{
 					$collection->add (new $class_name (array (
-						'id'	=> $item [$text_value->tv_text_link_field],
+						$kf	=> $item [$text_value->tv_text_link_field],
 						'name'	=> $item [$text_value->tv_text_field]
 					)));
 				}
-				
+				//print_r ($collection->items ());
 				$field->Values = $collection;
 			}
 			
@@ -568,6 +606,20 @@ class Controller_Admin_Database extends Controller_Abstract
 					$class_name
 				);
 			}
+			
+			// Автовыбор
+			if (isset ($auto_select [$field ['Field']]) && !$row->key ())
+			{
+				$value = $auto_select [$field ['Field']];
+				
+				if (strpos ($value, '::') !== false)
+				{
+					$value = call_user_func ($value);
+				}
+				
+				$row->set ($field ['Field'], $value);
+			}
+			
 		}
 		
 		// Получаем эвенты
@@ -621,7 +673,13 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		$tmp_tables = $this->__aclTables ($tables->__toArray ());
 
-		$table = $this->_input->receive ('table');
+		list (
+			$table,
+			$limitator
+		) = $this->_input->receive (
+			'table',
+			'limitator'
+		);
 		
 		Loader::load ('Table_Rate');
 		
@@ -649,7 +707,11 @@ class Controller_Admin_Database extends Controller_Abstract
 			
 			foreach ($filters as $field => $value)
 			{
-				$collection->where ($field, call_user_func ($value));
+				if (strpos ($value, '::') !== false)
+				{
+					$value = call_user_func ($value);
+				}
+				$collection->where ($field, $value);
 			}
 		}
 		
@@ -666,33 +728,50 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		Loader::load ('Paginator');
 		
-		// Накладываем лимиты
-		$limit = $this->config ()->limits->$class_name;
-		
-		if ($limit)
+		if (!$limitator)
 		{
-			$_GET ['limit'] = $limit;
+			// Накладываем лимиты
+			$limit = $this->config ()->limits->$class_name;
+
+			if ($limit)
+			{
+				$_GET ['limit'] = $limit;
+			}
+
+			$paginator = Paginator::fromGet ();
+
+			$collection->setPaginator ($paginator);
+
+			$collection->load ();
+
+			$paginator_html = Controller_Manager::html (
+				'Paginator/index',
+				array (
+					'data'	=> $paginator,
+					'tpl'	=> 'admin'
+				)
+			);
+			
+			$this->_output->send (array (
+				'paginator_html'	=> $paginator_html
+			));
 		}
-		
-		$paginator = Paginator::fromGet ();
-		
-		$collection->setPaginator ($paginator);
-		
-		$collection->load ();
-		
-		$paginator_html = Controller_Manager::html (
-			'Paginator/index',
-			array (
-				'data'	=> $paginator,
-				'tpl'	=> 'admin'
-			)
-		);
+		else
+		{
+			list ($field, $value) = explode ('/', $limitator);
+
+			$collection = $collection->filter (array (
+				$field => $value
+			));
+		}
 		
 		$acl_fields = array ();
 		
 		$class_fields = $this->config ()->fields->$class_name;
 
 		$fields = null;
+		
+		$sfields = array ();
 		
 		if ($class_fields)
 		{
@@ -711,6 +790,10 @@ class Controller_Admin_Database extends Controller_Abstract
 				{
 					unset ($fields [$i]);
 				}
+				else
+				{
+					$sfields [] = $field ['Field'];
+				}
 			}
 		}
 		
@@ -723,16 +806,64 @@ class Controller_Admin_Database extends Controller_Abstract
 			$links = $links->__toArray ();
 		}
 		
+		$includes = $this->config ()->includes->$class_name;
+		
+		$limitators = $this->config ()->limitators->$class_name;
+		
+		if ($limitators)
+		{
+			$limitators = $limitators->__toArray ();
+		}
+		
+		if ($includes)
+		{
+			foreach ($collection as $item)
+			{
+				$old = array ();
+				
+				foreach ($includes as $field => $model)
+				{
+					$ffield = Model_Scheme::keyField ($model);
+				
+					if (strpos ($model, '/') !== false)
+					{
+						list ($model, $ffield) = explode ('/', $model);
+					}
+					
+					$model = Model_Manager::byQuery (
+						$model,
+						Query::instance ()
+							->where ($ffield, $item->$field)
+					);
+					
+					if ($model)
+					{
+						$old [$field] = $item->$field;
+						$item->$field = $model->title ();
+					}
+				}
+				
+				if ($old)
+				{
+					$item->data ('old', $old);
+				}
+			}
+		}
+		
 		$this->_output->send (array (
 			'collection'		=> $collection,
 			'fields'			=> $fields,
+			'sfields'			=> $sfields,
 			'class_name'		=> $class_name,
 			'table'				=> $table,
+			'limitators'		=> $limitators,
+			'limitator'			=> $limitator,
 			'title'				=> !empty ($title) 
 				? $title : $this->config ()->default_title, 
 			'links'				=> $links,
+			'keyField'			=> Model_Scheme::keyField ($class_name),
 			'styles'			=> $this->config ()->styles->$class_name,
-			'paginator_html'	=> $paginator_html
+			'link_styles'		=> $this->config ()->link_styles->$class_name
 		));
 	}
 	
@@ -779,7 +910,30 @@ class Controller_Admin_Database extends Controller_Abstract
 			}
 		}
 		
+		$modificators = array ();
+		
+		$tmp = $this->config ()->modificators->$class_name;
+		
+		if ($tmp)
+		{
+			$modificators = $tmp->__toArray ();
+		}
+		
 		$updated_fields = $column;
+
+		foreach ($updated_fields as $field => $value)
+		{
+			if (isset ($modificators [$field]))
+			{
+				$value = call_user_func (
+					$modificators [$field],
+					$value
+				);
+				//echo $value . '<br />';
+				$column [$field] = $value;
+				$updated_fields [$field] = $value;
+			}
+		}
 		
 		if ($row->key ())
 		{
@@ -808,11 +962,33 @@ class Controller_Admin_Database extends Controller_Abstract
 		$this->__log (
 			__METHOD__,
 			$table,
+			$row_id,
 			$updated_fields
 		);
 		
+		$after_save = $this->config ()->afterSave->$class_name;
+		
+		if ($after_save)
+		{
+			foreach ($after_save as $action)
+			{
+				list ($controller, $action) = explode ('::', $action);
+				
+				Controller_Manager::call (
+					$controller,
+					$action,
+					array (
+						'table'			=> $table,
+						'row'			=> $row
+					)
+				);
+			}
+		}
+		
 		Loader::load ('Helper_Header');
 		
+		//echo DDS::getDataSource ()->getQuery ()->translate ();
+
 		Helper_Header::redirect ('/cp/table/' . $table . '/');
 	}
 }

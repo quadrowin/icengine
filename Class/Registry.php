@@ -1,16 +1,22 @@
 <?php
 
+/**
+ * @desc Регистр глобальных переменных
+ * @package IcEngine
+ * @author Юрий Шведов
+ * @copyright i-complex.ru
+ */
 class Registry
 {
 	
 	/**
-	 * Хранимые данные
+	 * @desc Хранимые данные
 	 * @var array
 	 */
 	public static $data = array ();
 	
 	/**
-	 * Возвращает true, если значение задано и отлично от null.
+	 * @desc Возвращает true, если значение задано и отлично от null. 
 	 * Иначе false.
 	 * @param string $index
 	 * @return boolean
@@ -21,7 +27,7 @@ class Registry
 	}
 	
 	/**
-	 * Чтение значения
+	 * @desc Чтение значения
 	 * @param string $index
 	 * @return mixed
 	 */
@@ -31,7 +37,7 @@ class Registry
 	}
 	
 	/**
-	 * Запись значения
+	 * @desc Запись значения
 	 * @param string $index
 	 * @param mixed $value
 	 */
@@ -41,7 +47,7 @@ class Registry
 	}
 	
 	/**
-	 * silent get. Не вызывает ошибки, если значение не определено.
+	 * @desc silent get. Не вызывает ошибки, если значение не определено.
 	 * @param string $index
 	 * @return mixed|null
 	 */
@@ -51,7 +57,7 @@ class Registry
 	}
 	
 	/**
-	 * Получение по ссылке
+	 * @desc Получение по ссылке
 	 * @param string $index
 	 * @return $mixed
 	 */
@@ -61,7 +67,7 @@ class Registry
 	}
 	
 	/**
-	 * Передача по ссылке 
+	 * @desc Передача по ссылке 
 	 * @param string $index
 	 * @param mixed $value
 	 */

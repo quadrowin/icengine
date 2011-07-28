@@ -152,6 +152,15 @@ class View_Render_Smarty extends View_Render_Abstract
 	}
 	
 	/**
+	 * @desc Возвращает массив путей до шаблонов.
+	 * @return array
+	 */
+	public function getTemplatesPathes ()
+	{
+		return $this->_smarty->template_dir;
+	}
+	
+	/**
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::getVar()
 	 */

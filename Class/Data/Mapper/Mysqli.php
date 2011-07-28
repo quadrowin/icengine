@@ -232,9 +232,8 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 			Loader::load ('Data_Mapper_Mysqli_Exception');
 			if (class_exists ('Debug'))
 			{
-				fb ($this->_sql);
 				Debug::errorHandler (
-					E_USER_ERROR, $this->_error,
+					E_USER_ERROR, $this->_sql . '; ' . $this->_error,
 					__FILE__, __LINE__
 				);
 			}

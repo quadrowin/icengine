@@ -681,7 +681,47 @@ class Controller_Content_Abstract extends Controller_Abstract
 
 		$this->_output->send ('image', $image);
 	}
+	
+	public function remove ()
+	{
+		$id = $this->_input->receive ('id');
+		
+		$content = Model_Manager::byKey ($this->__contentModel (), $id);
+		
+		if (!$content)
+		{
+			return $this->replaceAction ('Error', 'notFound');
+		}
+		
+		$category = $content->Content_Category;
+		
+		if (!$category)
+		{
+			return $this->replaceAction ('Error', 'accessDenied');
+		}
+		
+		$user = User::getCurrent ();
 
+		$resource_addContent = Acl_Resource::byNameCheck (
+			$this->__categoryModel (),
+			$category->key (),
+			'addContent'
+		);
+		  
+		if (
+			!User::getCurrent ()->isAdmin () &&
+			(
+				!$resource_addContent || 
+				!$resource_addContent->userCan ($user)
+			)
+		)
+		{
+			return $this->replaceAction ('Error', 'accessDenied');
+		}
+
+		$content->delete ();
+	}
+	
 	public function removeImage ()
 	{
 		$image_id = (int) $this->_input->receive ('image_id');
