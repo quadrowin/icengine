@@ -327,7 +327,8 @@ class JsHttpRequest
 
         // Try to use very fast json_encode: 3-4 times faster than a manual encoding.
         if (function_exists('array_walk_recursive') && function_exists('json_encode') && $this->_unicodeConvMethod) {
-            $this->_nonAsciiChars = join("", array_map('chr', range(128, 255)));
+			range (0, 1); // some PHP bug fix
+            $this->_nonAsciiChars = join("", array_map('chr', range (128, 255)));
             $this->_toUtfFailed = false;
             $resultUtf8 = $result;
             array_walk_recursive($resultUtf8, array(&$this, '_toUtf8_callback'), $this->SCRIPT_ENCODING);

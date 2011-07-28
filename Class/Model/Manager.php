@@ -47,7 +47,7 @@ class Model_Manager extends Manager_Abstract
 		return $conditions;
 	}
 	
-	/**
+	/**0
 	 * @desc Получение данных модели из источника данных.
 	 * @param Model $object
 	 */
@@ -71,7 +71,12 @@ class Model_Manager extends Manager_Abstract
 		
 		if ($data)
 		{
-			$object->set ($data);
+			// array_merge чтобы не затереть поля, которые были 
+			// установленны через set
+			$object->set (array_merge (
+				$data,
+				$object->asRow ()
+			));
 		}
 	}
 	
@@ -176,6 +181,27 @@ class Model_Manager extends Manager_Abstract
 				->where (Model_Scheme::keyField ($model), $key)
 		);
 	}
+
+	/**
+	 * @desc Получение модели по опциям.
+	 * @param string $model Название модели.
+	 * @param mixed $option Опция
+	 * @param mixed $_ [optional]
+	 * @return Model|null
+	 */
+	public static function byOptions ($model, $option)
+	{
+		$c = Model_Collection_Manager::create ($model)
+			->addOptions (array (
+				'name'		=> '::Limit',
+				'count'		=> 1
+			));
+		for ($i = 1; $i < func_num_args (); ++$i)
+		{
+			$c->addOptions (func_get_arg ($i));
+		}
+		return $c->first ();
+	}
 	
 	/**
 	 * @desc Получение модели по запросу.
@@ -227,6 +253,8 @@ class Model_Manager extends Manager_Abstract
 	 */
 	public static function get ($model, $key, $object = null)
 	{
+		$result = null;
+		
 		if ($object instanceof Model)
 		{
 			$result = $object;
@@ -260,7 +288,7 @@ class Model_Manager extends Manager_Abstract
 				$delegee = 
 					'Model_Manager_Delegee_' .
 					self::$_config ['delegee'][$parent];
-					
+
 				Loader::load ($delegee);
 					
 				$result = call_user_func (
@@ -274,6 +302,18 @@ class Model_Manager extends Manager_Abstract
 		}
 		
 		self::_read ($result);
+		
+		// В случае factory
+		$model = get_class ($result);
+		
+		$generic = $result->generic ();
+		
+		$result = $generic ? $generic : $result;
+		
+		$result = new $model (
+			array (),
+			$result
+		);
 		
 		return $result;
 	}
