@@ -92,6 +92,12 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	protected $_queryResult;
 	
+	public static $DIFF_EDIT_ADD = 'added';
+	
+	public static $DIFF_EDIT_NO = 'not_changed';
+	
+	public static $DIFF_EDIT_DEL = 'removed';
+	
 	/**
 	 * @desc Создает и возвращает коллекцию моделей.
 	 * Так же подключает связанный класс модели.
@@ -424,6 +430,64 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		
 		return $result;
 	}
+
+	
+	/**
+	 * @desc Получить массив, содержащий добавленные и удаленные модели
+	 * @param Model_Collection $collection
+	 * @return array
+	 */
+    public function diffEdit($collection, $fields = array())
+    {
+		$collection_add = Model_Collection_Manager::create(
+			$collection->modelName()
+		);
+		
+		$collection_add->reset();
+
+	$collection_no = Model_Collection_Manager::create($collection->modelName());
+	$collection_no->reset();
+	
+		$collection_del = Model_Collection_Manager::create(
+			$collection->modelName()
+		);
+		$collection_del->reset();
+
+		$collection_count = $this->count();
+
+		foreach ($collection as $model)
+		{
+	    $diff_model = $this->hasByFields($model, $fields);
+
+	    if ($diff_model)
+			{
+		$collection_no->add($diff_model);
+				$collection_count--;
+			}
+			else
+			{
+				$collection_add->add($model);
+			}
+		}
+
+		// если $collection_count не 0, делаем вывод, что есть удаленные модели
+		if ($collection_count)
+		{
+			foreach ($this as $model)
+			{
+				if (!$collection->hasByFields ($model, $fields))
+				{
+					$collection_del->add($model);
+				}
+			}
+		}
+
+		return array(
+			self::$DIFF_EDIT_ADD => $collection_add,
+	    self::$DIFF_EDIT_NO => $collection_no,
+			self::$DIFF_EDIT_DEL => $collection_del
+		);
+    }
 	
 	/**
 	 * @desc Исключает из коллекции элемент с указанным индексом.
@@ -601,6 +665,45 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 			}
 		}
 	}
+	
+    /**
+     * 
+     * @desc Ищет в коллекции эквивалентную по полям (если $fields пустой массив - по совпадению
+     *  первичных ключей) заданой модель, и, если находит, то возвращает ее (из коллекции в которой ищется)
+     * @param Model $item
+     * @param array $fields
+     * @return null|Model
+     */
+    public function hasByFields(Model $item, $fields = array())
+    {
+	$model = null;
+	foreach ($this as $i)
+	{
+	    if (empty($fields))
+	    {
+		if (/* $i instanceof $item->modelName() && */$i->key() == $item->key()) // хочу так - не рабтает( //dp
+		{
+		    $model = $i;
+		}
+	    }
+	    else
+	    {
+		$model = $i;
+		foreach ($fields as $field)
+		{
+		    if ($i->field($field) != $item->field($field))
+		    {
+			$model = null;
+			break;
+		    }
+		}
+	    }
+	    if ($model) {
+		break;
+	    }
+	}
+	return $model;
+    }
 	
 	/**
 	 * @desc Возвращает модель из коллекции

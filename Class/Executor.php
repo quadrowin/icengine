@@ -39,7 +39,13 @@ class Executor
 		 * @var array
 		 */
 		'functions'			=> array (
-		)
+		),
+		/**
+		 * @desc Провайдер поставки тэгов
+		 */
+		'tag_provider'		=> null,
+		
+		'tags'				=> array ()
 	);
 	
 	/**
@@ -103,11 +109,24 @@ class Executor
 		
 		$cache = self::getCacher ()->get ($key);
 		
+		$tag_valid = false;
+		
+		if (
+			$options && 
+			$options->current_tags && 
+			isset ($cache ['t']) && 
+			!array_diff ($options->current_tags->__toArray (), $cache ['t'])
+		)
+		{
+			$tag_valid = true;
+		}
+		
 		if ($cache)
 		{
-			 if (
-				$cache ['a'] + $expiration > time () || 
-				$expiration == 0
+			 if ((
+					$cache ['a'] + $expiration > time () || 
+					$expiration == 0
+				)	&& $tag_valid
 			)
 			{
 				if (!$hits)
@@ -127,15 +146,32 @@ class Executor
 				return $cache ['v'];
 			}
 		}
-		
+
 		$value = self::_executeUncaching ($function, $args);
+
+		$cache_value = array (
+			'v' => $value,
+			'a' => time ()
+		);
+		
+		$tags = array ();
+		
+		if ($options->current_tags)
+		{
+			foreach ($options->current_tags as $tag => $e)
+			{
+				$tags [$tag] = $e;
+			}
+		}
+		
+		if ($tags)
+		{
+			$cache_value ['t'] = $tags;
+		}
 		
 		self::$_cacher->set (
 			$key, 
-			array (
-				'v' => $value,
-				'a' => time ()
-			)
+			$cache_value
 		);
 		
 		if ($hits)

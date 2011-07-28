@@ -42,7 +42,7 @@
 	{
 		LoadImageInterface (
 			'{/literal}{$table}{literal}', 
-			'{/literal}{$row->key()}{literal}', 
+			'{/literal}{if $row}{$row->key()}{else}0{/if}{literal}', 
 			'/admin', 
 			'/admin/imageOptimizer'
 		);

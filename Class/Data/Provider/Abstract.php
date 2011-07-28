@@ -349,7 +349,7 @@ class Data_Provider_Abstract
 	}
 	
 	/**
-	 * Получение значений тегов.
+	 * Установка и получение значений тегов.
 	 * @param array $tags
 	 * 		Названия тегов
 	 * @return array

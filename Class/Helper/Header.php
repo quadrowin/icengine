@@ -84,7 +84,7 @@ class Helper_Header
 		$full_uri = 
 			substr ($uri, 0, 7) == 'http://' ?
 			$uri :
-			('http://' . $_SERVER ['HTTP_HOST'] . $uri);
+			('http://' . Request::host () . $uri);
 		
 		if (!headers_sent ())
 		{

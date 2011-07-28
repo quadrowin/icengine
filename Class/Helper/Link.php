@@ -170,19 +170,31 @@ class Helper_Link
 	{
 	    if (strcmp ($model1->table (), $model2->table ()) > 0)
 	    {
-	        $model1 = $tmp = $model2;
+			$tmp = $model1;
+	        $model1 = $model2;
 	        $model2 = $tmp;
 	    }
 	    
-	    $link = self::_link (
+	    /*$link = self::_link (
 	        $model1->table (), $model1->key (),
 	        $model2->table (), $model2->key ()
-	    );
+	    );*/
+		
+		$link_collection = Model_Collection_Manager::byQuery (
+		    'Link',
+		    Query::instance ()
+			    ->where ('fromTable',	$model1->table ())
+			    ->where ('fromRowId',	$model1->key ())
+			    ->where ('toTable',		$model2->table ())
+			    ->where ('toRowId',		$model2->key ())
+		);
 	    
-	    if ($link)
+	    /*if ($link)
 	    {
 	        return $link->delete ();
-	    }
+	    }*/
+		
+		$link_collection->delete ();
 	}
 	
 	/**

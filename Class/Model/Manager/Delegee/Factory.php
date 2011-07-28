@@ -57,7 +57,7 @@ class Model_Manager_Delegee_Factory
 			->delegateClass ($model, $key, $object);
 		
 		Loader::load ($dmodel);
-		
+
 		$result = new $dmodel (array ());
 		
 		$result->setModelFactory (self::$_factories [$factory_name]);

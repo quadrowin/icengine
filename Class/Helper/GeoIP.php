@@ -33,8 +33,6 @@ class Helper_GeoIP
 				->where ('net_ru.end_ip>=?', $ip)
 				->where ('net_ru.city_id=net_city.id')
 		)->getResult ()->asValue ();
-		
-		fb ($city_name);
 
 		return Model_Manager::byQuery (
 			'City',
@@ -47,8 +45,6 @@ class Helper_GeoIP
 			->from ('Net_City_Ip')
 			->where ('begin_ip<=?', $ip)
 			->where ('end_ip>=?', $ip);
-		
-		fb ($query->translate ());
 
 		$city_id = DDS::execute ($query)
 			->getResult ()

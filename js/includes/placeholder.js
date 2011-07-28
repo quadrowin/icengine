@@ -1,14 +1,3 @@
-/*********************************************
-
-	jQuery extended placeholder plugin.
-	Text, password, and textarea fields supported.
-	Version: 0.9.2
-	Author: Sergey Estrin
-	Site: http://g-rain-design.ru/en/jquery/placeholder/
-	Released under the MIT License.
-
-*********************************************/
-
 (function($) {
 
 	$.fn.placeholder_clear = function() {
