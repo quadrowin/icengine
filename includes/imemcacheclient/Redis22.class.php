@@ -144,83 +144,7 @@ class Redis
 		{
 			return;
 		}
-		foreach ($keys as $key)
-		{
-			if ($key)
-			{
-				$this->delete ($key);
-			}
-		}
-//		$len = 1024;
-//		
-//		$sock = reset ($this->pool);
-//		fwrite ($sock, 'KEYS ' . $pattern . '*' . "\r\n");
-//		$data = fread ($sock, $len);
-//		$p = strpos ($data, "\r");
-//		if (! $p)
-//		{
-//			echo "empty answer";
-//			return;
-//		}
-//		// Длина ответа с ключами
-//		$keys_length = substr ($data, 1, $p - 1);
-//		if (! $keys_length)
-//		{
-//			return;
-//		}
-//		$data = ltrim (substr ($data, $p + 1), " \r\n");
-//		$rest = '';
-//		$start_time = time ();
-//		for (;;)
-//		{
-//			$p = strpos ($data, "\r");
-//			if ($p !== false)
-//			{
-//				$data = substr ($data, 0, $p);
-//				$readed = $keys_length;
-//			}
-//			$parts = explode (" ", $rest . $data);
-//			if ($parts)
-//			{
-//				$rest = array_pop ($parts);
-//			}
-//			else
-//			{
-//				$rest = '';
-//			}
-//			foreach ($parts as $part)
-//			{
-//				$part = trim ($part, " \r\n");
-//				fwrite ($sock, 'DEL ' . $part . "\r\n");
-//			}
-//			if ($keys_length <= $readed)
-//			{
-//				break;
-//			}
-//			
-//			if (min ($len, $keys_length - $readed) < 1)
-//			{
-//				trigger_error (
-//					var_export (
-//						$len . ':' . $keys_length . ':' . $readed . ':' .
-//						min ($len, $keys_length - $readed),
-//						true
-//					),
-//					E_USER_WARNING
-//				);
-//			}
-//			
-//			$data = fread ($sock, min ($len, $keys_length - $readed));
-//				
-//			$l = strlen ($data);
-//			$readed += $l;
-//		}
-//		
-//		$rest = trim ($rest, " \r\n");
-//		if ($rest)
-//		{
-//			fwrite ($sock, 'DEL ' . $rest . "\r\n");
-//		}
+		$this->delete ($keys);
 	}
 
 	private function disconnect ($k)
@@ -322,25 +246,25 @@ class Redis
 		
 		$k = $this->getConnectionByKey ($key);
 		
-		$n = "\r\n";
+		$rn = "\r\n";
 		
 		if (!$TTL)
 		{
 			$m = 
-				'*3' . $n .
-				'$3' . $n . 'SET' . $n .
-				'$' . strlen ($key) . $n . $key . $n .
-				'$' . strlen ($value) . $n . $value . $n;
+				'*3' . $rn .
+				'$3' . $rn . 'SET' . $rn .
+				'$' . strlen ($key) . $rn . $key . $rn .
+				'$' . strlen ($value) . $rn . $value . $rn;
 			$r = $this->write ($k, $m);
 		}
 		else
 		{
 			$m = 
-				'*4' . $n .
-				'$5' . $n . 'SETEX' . $n .
-				'$' . strlen ($key) . $n . $key . $n .
-				'$' . strlen ($TTL) . $n . $TTL . $n .
-				'$' . strlen ($value) . $n . $value . $n;
+				'*4' . $rn .
+				'$5' . $rn . 'SETEX' . $rn .
+				'$' . strlen ($key) . $rn . $key . $rn .
+				'$' . strlen ($TTL) . $rn . $TTL . $rn .
+				'$' . strlen ($value) . $rn . $value . $rn;
 			$r = $this->write ($k, $m);
 		}
 		$r = $this->getResponse ($k);
@@ -469,15 +393,42 @@ class Redis
 		}
 		return $this->requestByKey ($key, 'DECRBY ' . $key . ' ' . $number);
 	}
+	
+	/**
+	 * @desc Удаление одного или нескольких ключей.
+	 * @param string|array $keys
+	 * @return mixed Ответ редиса
+	 */
+	public function delete ($keys)
+	{
+		$keys = (array) $keys;
+		
+		$k = $this->getConnectionByKey (reset ($keys));
+		
+		$rn = "\r\n";
+		$words_count = count ($keys) + 1;
+		
+		$m = 
+			'*' . $words_count . $rn .
+			'$3' . $rn .
+			'DEL' . $rn;
+		
+		foreach ($keys as $key)
+		{
+			$m .= '$' . strlen ($key) . $rn . $key . $rn;
+		}
+		
+		$this->write ($k, $m);
+		
+		$r = $this->getResponse ($k);
+		
+		return $r;
+		
+	}
 
 	public function exists ($key)
 	{
 		return $this->requestByKey ($key, 'EXISTS ' . $key);
-	}
-
-	public function delete ($key)
-	{
-		return $this->requestByKey ($key, 'DEL ' . $key);
 	}
 
 	public function type ($key)

@@ -22,11 +22,10 @@ class Model_Proxy extends Model
 	 * @param array $fields
 	 * @param boolean $autojoin
 	 */
-	public function __construct ($modelName, array $fields = array (), 
-	    $autojoin = true)
+	public function __construct ($modelName, array $fields = array ())
 	{
 		$this->_modelName = $modelName;
-		parent::__construct ($fields, $autojoin);
+		parent::__construct ($fields);
 	}
 	
 	public function load ($key = null)
