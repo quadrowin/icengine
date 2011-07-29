@@ -60,15 +60,23 @@ class Query_Result
 	 */
 	public function asRow ()
 	{
-		if (
-			!isset ($this->_result ['result'][0]) ||
-			empty ($this->_result ['result'][0])
-		)
+		if (empty ($this->_result ['result']))
 		{
 			return null;
 		}
 		
-		return $this->_result ['result'][0];
+		// результат - массив
+		if (is_array ($this->_result ['result']))
+		{
+			$result = reset ($this->_result ['result']);
+			return is_array ($result) ? $result : null;
+		}
+		
+		// результат - объект
+		foreach ($this->_result ['result'] as $result)
+		{
+			return $result;
+		}
 	}
 	
 	/**

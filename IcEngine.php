@@ -100,14 +100,6 @@ class IcEngine
 		register_shutdown_function (array (__CLASS__, 'shutdownHandler'));
 	}
 	
-	public static function shutdownHandler ()
-	{
-		if (!error_get_last ())
-		{
-			Resource_Manager::save ();
-		}
-	}	
-	
 	/**
 	 * @desc Подключает загрузчик и запускает его.
 	 * @param string $path Путь до загрузчика.
@@ -191,6 +183,14 @@ class IcEngine
 			'Front', 'index',
 			Data_Transport_Manager::get ('default_input')
 		);
+	}
+	
+	public static function shutdownHandler ()
+	{
+		if (!error_get_last ())
+		{
+			Resource_Manager::save ();
+		}
 	}
 
 }

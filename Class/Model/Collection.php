@@ -92,9 +92,11 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	protected $_queryResult;
 	
-	public static $DIFF_EDIT_ADD = 'add';
+	public static $DIFF_EDIT_ADD = 'added';
 	
-	public static $DIFF_EDIT_DEL = 'del';
+	public static $DIFF_EDIT_NO = 'not_changed';
+	
+	public static $DIFF_EDIT_DEL = 'removed';
 	
 	/**
 	 * @desc Создает и возвращает коллекцию моделей.
@@ -437,42 +439,54 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
     public function diffEdit($collection, $fields = array())
     {
-	$collection_add = Model_Collection_Manager::create($collection->modelName());
-	$collection_add->reset();
+		$collection_add = Model_Collection_Manager::create(
+			$collection->modelName()
+		);
+		
+		$collection_add->reset();
 
-	$collection_del = Model_Collection_Manager::create($collection->modelName());
-	$collection_del->reset();
-
-	$collection_count = $this->count();
-
-	foreach ($collection as $model)
-	{
-	    if ($this->hasByFields($model, $fields))
-	    {
-		$collection_count--;
-	    }
-	    else
-	    {
-		$collection_add->add($model);
-	    }
-	}
-
-	// если $collection_count не 0, делаем вывод, что есть удаленные модели
-	if ($collection_count)
-	{
-	    foreach ($this as $model)
-	    {
-		if (!$collection->hasByFields($model, $fields))
-		{
-		    $collection_del->add($model);
-		}
-	    }
-	}
+	$collection_no = Model_Collection_Manager::create($collection->modelName());
+	$collection_no->reset();
 	
-	return array(
-	    self::$DIFF_EDIT_ADD => $collection_add,
-	    self::$DIFF_EDIT_DEL => $collection_del
-	);
+		$collection_del = Model_Collection_Manager::create(
+			$collection->modelName()
+		);
+		$collection_del->reset();
+
+		$collection_count = $this->count();
+
+		foreach ($collection as $model)
+		{
+	    $diff_model = $this->hasByFields($model, $fields);
+
+	    if ($diff_model)
+			{
+		$collection_no->add($diff_model);
+				$collection_count--;
+			}
+			else
+			{
+				$collection_add->add($model);
+			}
+		}
+
+		// если $collection_count не 0, делаем вывод, что есть удаленные модели
+		if ($collection_count)
+		{
+			foreach ($this as $model)
+			{
+				if (!$collection->hasByFields ($model, $fields))
+				{
+					$collection_del->add($model);
+				}
+			}
+		}
+
+		return array(
+			self::$DIFF_EDIT_ADD => $collection_add,
+	    self::$DIFF_EDIT_NO => $collection_no,
+			self::$DIFF_EDIT_DEL => $collection_del
+		);
     }
 	
 	/**
@@ -504,6 +518,30 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		{
 			$valid = true;
 			if ($item->validate ($fields))
+		 	{
+				$collection->add ($item);
+			}
+		}
+		
+		return $collection;
+	}
+	
+	/**
+	 * 
+	 * @desc Фильтрация. Возвращает экземпляр новой коллекции
+	 * @param string $field
+	 * @param string $value
+	 * @return Model_Collection
+	 */
+	public function filterExt ($field, $value)
+	{
+		$collection = new $this;
+		$collection->reset ();
+		
+		foreach ($this as $item)
+		{
+			$valid = true;
+			if ($item->hasField($field) && $item->field($field) == $value)
 		 	{
 				$collection->add ($item);
 			}
@@ -633,6 +671,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
      * @desc Ищет в коллекции эквивалентную по полям (если $fields пустой массив - по совпадению
      *  первичных ключей) заданой модель, и, если находит, то возвращает ее (из коллекции в которой ищется)
      * @param Model $item
+     * @param array $fields
      * @return null|Model
      */
     public function hasByFields(Model $item, $fields = array())
@@ -658,6 +697,9 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 			break;
 		    }
 		}
+	    }
+	    if ($model) {
+		break;
 	    }
 	}
 	return $model;

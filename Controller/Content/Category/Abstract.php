@@ -417,6 +417,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 			}
 			
 			$category_class = $this->__categoryModel ();
+			var_dump ($parent);
 			
 			var_dump ($parent);
 			

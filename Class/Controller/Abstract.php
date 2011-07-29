@@ -231,15 +231,23 @@ class Controller_Abstract
 	
 	/**
 	 * @desc Завершение работы контроллера ошибкой.
-	 * @param string $text Текст ошибки.
+	 * @param string $text Текст ошибки. Не отображается пользователю,
+	 * виден в консоли отладки.
 	 * @param string $method Экшен, в котором произошла ошибка (__METHOD__) 
 	 * или шаблон (в этому случае метод будет взять из _currentAction).
-	 * Необходим для определения шаблона.  
+	 * Необходим для определения шаблона. Если не передан, будет 
+	 * взято из $text.
 	 * @param string $tpl [optional] Шаблон.
 	 */
-	protected function _sendError ($text, $method, $tpl = null)
+	protected function _sendError ($text, $method = null, $tpl = null)
 	{
 		$this->_output->send ('error', $text);
+		
+		if (!$method)
+		{
+			$method = $text;
+		}
+		
 		if ($tpl)
 		{
 			$this->_task->setClassTpl ($method, $tpl);

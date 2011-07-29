@@ -218,12 +218,13 @@ abstract class Bootstrap_Abstract
 	public function initUser ()
 	{
 		Loader::multiLoad (
+			'User_Abstract',
 			'User',
+			'User_Guest',
 			'User_Session'
 		);
 		
 		User_Guest::init ();
-		
 		User::init ();
 	}
 	
