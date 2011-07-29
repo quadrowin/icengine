@@ -76,7 +76,7 @@ abstract class Component_Collection extends Model_Collection
 	    
 	    foreach ($items as $item)
 	    {
-	        /* @var $item Component */
+	        /* @var $item Model_Component */
 	        $item->rejoin ($this->_model);
 //	        update (array (
 //	            'table'	=> $this->_model->table (),
