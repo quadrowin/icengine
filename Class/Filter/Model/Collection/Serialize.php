@@ -27,7 +27,8 @@ class Filter_Model_Collection_Serialize
 		$pack = array (
 			'class'		=> get_class ($data),
 			'items'		=> $data->items (),
-			'data'		=> $obj_data
+			'data'		=> $obj_data,
+			't'			=> $data->data ('t')
 		);
 		
 		for ($i = 0, $icount = sizeof ($pack ['items']); $i < $icount; $i++)

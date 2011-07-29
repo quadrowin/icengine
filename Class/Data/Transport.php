@@ -243,6 +243,29 @@ class Data_Transport
 	}
 	
 	/**
+	 * @desc Возвращает массив пар "ключ - значение"
+	 * @param string $_ Название переменной
+	 * @return array
+	 */
+	public function receiveArray ()
+	{
+		if (func_num_args () == 1)
+		{
+			return array (
+				func_get_arg (0) => $this->receive (func_get_arg (0))
+			);
+		}
+		
+		return array_combine (
+			func_get_args (),
+			call_user_func_array (
+				array ($this, 'receive'),
+				func_get_args ()
+			)
+		);
+	}
+	
+	/**
 	 * @desc Очистка данных всех провайдеров и сброс транзаций.
 	 * @return Data_Transport
 	 */

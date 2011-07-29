@@ -22,11 +22,6 @@ abstract class View_Render_Manager extends Manager_Abstract
 	private static $_viewStack = array ();
 	
 	/**
-	 * @var array
-	 */
-	private static $_templatesToRender = array ();
-	
-	/**
 	 * 
 	 * @var string
 	 */
@@ -66,6 +61,7 @@ abstract class View_Render_Manager extends Manager_Abstract
 		{
 			$class_name = 'View_Render_' . $name;
 			Loader::load ($class_name);
+			
 			$view = new $class_name (array (
 				'id'	=> null,
 				'name'	=> $name

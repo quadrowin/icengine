@@ -83,7 +83,7 @@ class Session_Manager
 		if ($config ['provider'])
 		{
 			self::initProvider (
-				Data_Provider_Manager::get($config ['provider'])
+				Data_Provider_Manager::get ($config ['provider'])
 			);
 		}
 	}
