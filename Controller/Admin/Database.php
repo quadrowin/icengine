@@ -578,11 +578,22 @@ class Controller_Admin_Database extends Controller_Abstract
 				)
 					->reset ();
 				
-				$kf = Model_Scheme::keyField ($class_name);
+
+				$model_class_name = Model_Scheme::tableToModel ($text_value->tv_text_table);
+				$file = str_replace ('_', '/', $model_class_name) . '.php';
+				if (Loader::findFile ($file))
+				{
+					Loader::load ($model_class_name);
+				}
+				else
+				{
+					$model_class_name = $class_name;
+				}
+				$kf = Model_Scheme::keyField ($model_class_name);
 
 				foreach ($result as $item)
 				{
-					$collection->add (new $class_name (array (
+					$collection->add (new $model_class_name (array (
 						$kf	=> $item [$text_value->tv_text_link_field],
 						'name'	=> $item [$text_value->tv_text_field]
 					)));
