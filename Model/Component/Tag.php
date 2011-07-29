@@ -12,7 +12,7 @@
  * @property integer $rowId ПК модели
  * 
  */
-class Component_Tag extends Component
+class Component_Tag extends Model_Component
 {
 
 	/**
