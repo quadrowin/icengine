@@ -27,68 +27,81 @@ class Query_Translator_Mongo extends Query_Translator
 			return array ();
 		}
 		
-		static $operations = array (
-			'!='	=> '$ne',
-			'>='	=> '$gte',
-			'<='	=> '$lte',
-			'='		=> null,
-			'>'		=> '$gt',
-			'<'		=> '$lt',
-			' IN '	=> '$in'
-		);
-		
 		$criteria = array ();
-		foreach ($wheres as $i => $where)
+		
+		foreach ($wheres as $where)
 		{
-			$w = $where [Query::WHERE];
-			$v = true;
-			foreach ($operations as $op => $solve)
-			{
-				$p = strpos ($w, $op);
-				if ($p)
-				{
-					$ok = true;
-					$value = trim (substr ($w, $p + strlen ($op)));
-					$w = trim (substr ($w, 0, $p));
-					
-					// В случае условия вида '? <= age'
-					if ($w == '?')
-					{
-						$temp = $value;
-						$value = $w;
-						$w = $temp;
-					}
-
-					if ($op == '=')
-					{
-						$v = $value;
-						break;
-					}
-					elseif (is_string ($solve))
-					{
-						$v = array ($solve => $value);
-						break;
-					}
-					else
-					{
-						throw new Zend_Exception ('Unknown');
-					}
-				}
-			}
-			
-			if (array_key_exists (Query::VALUE, $where))
-			{
-				$v = $where [Query::VALUE];
-				if (is_array ($v))
-				{
-					$v = array ('$in'	=> $v);
-				}
-			}
-			
-			$criteria [$w] = $v;
+			$this->_getCriteriaPart ($criteria, $where);
 		}
 		
 		return $criteria;
+	}
+	
+	public function _getCriteriaPart (&$criteria, $where)
+	{
+		static $operations = array (
+			'!='		=> '$ne',
+			'>='		=> '$gte',
+			'<='		=> '$lte',
+			'='			=> null,
+			'>'			=> '$gt',
+			'<'			=> '$lt',
+			' NOT IN '	=> '$nin',
+			' IN '		=> '$in'
+		);
+		
+		$w = $where [Query::WHERE];
+		$v = true;
+		
+		foreach ($operations as $op => $solve)
+		{
+			$p = strpos ($w, $op);
+			if ($p)
+			{
+				$ok = true;
+				$value = trim (substr ($w, $p + strlen ($op)));
+				$w = trim (substr ($w, 0, $p));
+
+				// В случае условия вида '? <= age'
+				if ($w == '?')
+				{
+					$temp = $value;
+					$value = $w;
+					$w = $temp;
+				}
+
+				if ($op == '=')
+				{
+					$criteria [$w] = $value;
+					return ;
+				}
+				elseif (is_string ($solve))
+				{
+					if (array_key_exists (Query::VALUE, $where))
+					{
+						$criteria [$w] = array ($solve => $where [Query::VALUE]);
+						return ;
+					}
+					$criteria [$w] = array ($solve => $value);
+					return ;
+				}
+
+				throw new Zend_Exception ('Unknown');
+				return ;
+			}
+		}
+
+		if (array_key_exists (Query::VALUE, $where))
+		{
+			$v = $where [Query::VALUE];
+			if (is_array ($v))
+			{
+				$criteria [$w] = array ('$in' => $v);
+				return ;
+			}
+		}
+		
+		$criteria [$w] = $v;
 	}
 	
 	/**
@@ -112,7 +125,7 @@ class Query_Translator_Mongo extends Query_Translator
 		//foreach ($from as $alias => $from)
 		
 		reset ($from);
-		return key ($from);
+		return strtolower (Model_Scheme::table (key ($from)));
 	}
 	
 	/**
@@ -149,7 +162,7 @@ class Query_Translator_Mongo extends Query_Translator
 		
 		foreach ($orders as $order)
 		{
-			if ($order [1] == self::SQL_DESC)
+			if ($order [1] == Query::DESC)
 			{
 				$sort [$order [0]] = -1;
 			}

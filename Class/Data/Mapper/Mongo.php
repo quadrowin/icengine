@@ -105,15 +105,6 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 		$this->_connection->selectDB ($this->_connectionOptions ['database']);
 		
 		return $this->_connection;
-//		$this->_collectionName = $config ['collection'];
-//		$this->_collection = $this->_connection->selectCollection (
-//			$this->_databaseName,
-//			$this->_collectionName
-//		);
-//		$this->_collection->ensureIndex (
-//			array ('k' => 1),
-//			array ('unique' => true)
-//		);
 	}
 	
 	public function execute (Data_Source_Abstract $source, Query $query, 
@@ -143,6 +134,7 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 		$result = null;
 		$insert_id = null;
 		$tags = implode ('.', $this->_getTags ($clone));
+		
 		switch ($query->type ())
 		{
 			case Query::DELETE:
@@ -151,23 +143,42 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 				$touched_rows = 1;
 				break;
 			case Query::INSERT:
-				$r = $collection->insert ($q ['a']);
-				$insert_id = $q ['a'] ['_id'];
+				if (isset ($q ['a']['_id']))
+				{
+					$insert_id = $q ['a']['_id'];
+					$collection->update (
+						array (
+							'_id'		=> $insert_id
+						),
+						$q ['a'],
+						array (
+							'upsert'	=> true
+						)
+					);
+				}
+				else
+				{
+					$r = $collection->insert ($q ['a']);
+					$insert_id = $q ['a'] ['_id'];
+				}
+				
 				$touched_rows = 1;
 				break;
 			case Query::SELECT:
 				if ($q ['find_one'])
 				{
-					$r = $collection->findOne ($q ['query'], $q ['fields']);
+					$r = $collection->findOne ($q ['query']);
 				}
 				else
 				{
-					$r = $collection->find ($q ['query'], $q ['fields']);
+					$r = $collection->find ($q ['query']);
 				}
+				
 				if ($query->part (Query::CALC_FOUND_ROWS))
 				{
 					$found_rows = $r->count ();
 				}
+				
 				if ($q ['sort'])
 				{
 					$r->sort ($q ['sort']);
@@ -182,14 +193,14 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 				}
 				//$result = Mysql::select ($tags, $sql);
 				$touched_rows = $r->count (true);
+				
+				$result = $r;
+				
 				break;
 			case Query::SHOW:
 				
 				break;
 			case Query::UPDATE:
-				
-				var_dump ($q);
-				
 				$collection->update (
 					$q ['criteria'],
 					$q ['newobj'],
