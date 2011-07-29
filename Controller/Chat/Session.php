@@ -89,12 +89,29 @@ class Controller_Chat_Session extends Controller_Abstract
 			);
 		}
 		
+		Loader::load ('Chat_Companion');
+		
+		$companion = Model_Manager::byQuery (
+			'Chat_Companion',
+			Query::instance ()
+				->where ('phpSessionId', User_Session::getCurrent ()->phpSessionId)
+				->where ('Chat_Session_Join__id', 0)
+		);
+		
+		if ($companion)
+		{
+			$companion->update (array (
+				'Chat_Session_Join__id'	=> $join->key ()
+			));
+		}
+		
 		$this->_output->send (array (
 			'data'	=> array (
-				'join_id'	=> $join->key (),
-				'name'		=> $name,
-				'code'		=> $code,
-				'uri'		=> $uri
+				'join_id'		=> $join->key (),
+				'session_id'	=> $session->key (),
+				'name'			=> $name,
+				'code'			=> $code,
+				'uri'			=> $uri
 			)
 		));
 	}
@@ -105,13 +122,11 @@ class Controller_Chat_Session extends Controller_Abstract
 	 */
 	public function sessionsList ()
 	{
-		$user = User::getCurrent ();
-		
 		// Все джоины пользователя
 		$join_collection = Model_Collection_Manager::byQuery (
 			'Chat_Session_Join',
 			Query::instance ()
-				->where ('phpSessionId', $user->phpSessionId)
+				->where ('phpSessionId', User_Session::getCurrent ()->phpSessionId)
 		);
 		
 		if (!$join_collection->count ())
@@ -159,7 +174,9 @@ class Controller_Chat_Session extends Controller_Abstract
 			$data [$join->Chat_Session__id] = array (
 				'session_id'	=> $session_id,
 				'name'			=> $companion->name,
+				'companion_id'	=> $companion->rowId,
 				'my_join_id'	=> $join->key (),
+				'has_message'	=> 0,
 				'join_id'		=> isset ($other_joins [$session_id])
 					? $other_joins [$session_id] : null
 			);
@@ -173,7 +190,7 @@ class Controller_Chat_Session extends Controller_Abstract
 				Query::instance ()
 					->where ('Chat_Session_Join__id', $other_ids)
 					->where ('readed', 0)
-					->group ('Chat_Sesson_Join__id')
+					->group ('Chat_Session_Join__id')
 			);
 		
 		// Узнаем были ли новые сообщения от конкретного собеседника
@@ -189,7 +206,9 @@ class Controller_Chat_Session extends Controller_Abstract
 			'readed'	=> 1
 		));
 		
-		return $this->_input->receive (array (
+		$this->_task->setTemplate (null);
+		
+		return $this->_output->send (array (
 			'data'	=> array (
 				'sessions'	=> array_values ($data)
 			)
