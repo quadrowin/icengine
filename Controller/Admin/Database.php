@@ -894,6 +894,8 @@ class Controller_Admin_Database extends Controller_Abstract
 			'column'
 		);
 		
+		//print_r ($_POST);
+
 		$prefix = Model_Scheme::$defaultPrefix;
 		
 		$class_name = $this->__className ($table, $prefix);
@@ -967,6 +969,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			{
 				$row->set ($updated_fields);
 				$row->save ();
+				//echo DDS::getDataSource ()->getQuery ()->translate ();
 			}
 		}
 		
