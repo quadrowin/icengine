@@ -138,7 +138,7 @@ class Helper_Date
     	return 31 - (($month - 1) % 7 % 2) - (($month == 2) << !!($year % 4));
     }
 	
-	public static function datetime ($string, $showYear)
+	public static function datetime ($string, $showYear = false)
 	{
 		$year = strtok($string, "-");
 		$month = strtok("-");
