@@ -169,6 +169,14 @@ class Loader
 		self::$_required [$type][$file] = $required ? true : null;
 	}
 	
+	/**
+	 * @desc Попытка подключить указанный класс. В случае ошибки
+	 * не возникает исключения.
+	 * @param string $class Название класса.
+	 * @param string $type [optional]
+	 * @return boolean true в случае, если файл класса подключен или класс
+	 * уже подключен, иначе false.
+	 */
 	public static function tryLoad ($class, $type = 'Class')
 	{
 		if (class_exists ($class))
