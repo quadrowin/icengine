@@ -47,7 +47,7 @@ class Model_Manager extends Manager_Abstract
 		return $conditions;
 	}
 	
-	/**0
+	/**
 	 * @desc Получение данных модели из источника данных.
 	 * @param Model $object
 	 */
@@ -55,7 +55,7 @@ class Model_Manager extends Manager_Abstract
 	{
 		$key = $object->key ();
 		
-		if (!$key)
+		if ($key == null)
 		{
 			return;
 		}
