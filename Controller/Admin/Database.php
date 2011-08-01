@@ -526,10 +526,11 @@ class Controller_Admin_Database extends Controller_Abstract
 					->where ('tv_field_name', $field->Field)
 			);
 			
+			//echo DDS::getDataSource ()->getQuery ()->translate () . '<br />';
+
 			// Есть запись для поля таблицы в таблице подстановок
 			if ($text_value && $text_value->tv_text_field)
 			{
-				echo 1;
 				$field_filters = array ();
 				
 				$tmp = $this->config ()->field_filters->$class_name;
@@ -606,8 +607,37 @@ class Controller_Admin_Database extends Controller_Abstract
 			// Поле - поле для связи
 			if (strpos ($field->Field, '__id') !== false)
 			{
-				$field->Values = Model_Collection_Manager::create (
-					substr ($field->Field, 0, -4)
+				$field_filters = array ();
+				
+				$tmp = $this->config ()->field_filters->$class_name;
+				
+				if ($tmp)
+				{
+					$field_filters = $tmp->__toArray ();
+				}
+				
+				$cn = substr ($field->Field, 0, -4);
+				
+				$query = Query::instance ();
+				
+				if (isset ($field_filters [$field->Field]))
+				{
+					foreach ($field_filters [$field->Field] as $field_filter)
+					{
+						$value = $field_filter ['value'];
+						
+						if (strpos ($value, '::') !== false)
+						{
+							$value = call_user_func ($field_filter ['value']);
+						}
+						
+						$query->where ($field_filter ['field'], $value);
+					}
+				}
+				
+				$field->Values = Model_Collection_Manager::byQuery (
+					$cn,
+					$query
 				);
 			}
 			
