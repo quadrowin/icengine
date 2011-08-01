@@ -169,6 +169,30 @@ class Loader
 		self::$_required [$type][$file] = $required ? true : null;
 	}
 	
+	public static function tryLoad ($class, $type = 'Class')
+	{
+		if (class_exists ($class))
+		{
+			return true;
+		}
+		
+		$file = str_replace ('_', '/', $class) . '.php';
+		
+		for ($i = count (self::$_pathes [$type]) - 1; $i >= 0; --$i)
+		{
+			$fn = self::$_pathes [$type][$i] . $file;
+			
+			if (file_exists ($fn))
+			{
+				self::$_required [$type][$file] = true;
+				require_once $fn;
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
 	/**
 	 * @desc Подключение класса.
 	 * @param string $class_name Название класса.
