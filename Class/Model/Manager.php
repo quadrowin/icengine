@@ -315,7 +315,7 @@ class Model_Manager extends Manager_Abstract
 			$result
 		);
 		
-		return $result->key () ? $result : new $model (array ());
+		return $result->key () != null ? $result : new $model (array ());
 	}
 	
 	/**
