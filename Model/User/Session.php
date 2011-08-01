@@ -20,7 +20,7 @@ class User_Session extends Model
 	 * @param string $session_id
 	 * @return User_Session
 	 */
-	public static function byPhpSessionId ($session_id, $autocreate = true)
+		public static function byPhpSessionId ($session_id, $autocreate = true)
 	{
 		if (empty ($session_id))
 		{
@@ -37,6 +37,7 @@ class User_Session extends Model
 		if (!$session && $autocreate)
 		{
     		$session = new User_Session (array (
+    			'id'		=> $session_id,
     			'User__id'		=> 0,
     			'phpSessionId'	=> $session_id,
     			'startTime'	    => Helper_Date::toUnix (),
