@@ -999,8 +999,8 @@ class Controller_Admin_Database extends Controller_Abstract
 				$row->set (Model_Scheme::keyField ($row->modelName ()), null);
 				$row->set ($updated_fields);
 				$row->save ();
-				print_r ($row);
-				echo DDS::getDataSource ()->getQuery ()->translate ();
+				//print_r ($row);
+				//echo DDS::getDataSource ()->getQuery ()->translate ();
 			}
 		}
 		
@@ -1034,6 +1034,6 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		//echo DDS::getDataSource ()->getQuery ()->translate ();
 
-		//Helper_Header::redirect ('/cp/table/' . $table . '/');
+		Helper_Header::redirect ('/cp/table/' . $table . '/');
 	}
 }

@@ -50,14 +50,15 @@ class Model_Manager extends Manager_Abstract
 	/**
 	 * @desc Получение данных модели из источника данных.
 	 * @param Model $object
+	 * @return boolean
 	 */
 	protected static function _read (Model $object)
 	{
 		$key = $object->key ();
 		
-		if ($key == null)
+		if (!$key)
 		{
-			return;
+			return false;
 		}
 		
 		$query = Query::instance ()
@@ -77,7 +78,9 @@ class Model_Manager extends Manager_Abstract
 				$data,
 				$object->asRow ()
 			));
+			return true;
 		}
+		return false;
 	}
 	
 	/**
@@ -301,10 +304,19 @@ class Model_Manager extends Manager_Abstract
 			}
 		}
 		
-		self::_read ($result);
+		$readed = self::_read ($result);
 		
 		// В случае factory
 		$model = get_class ($result);
+		
+		if (!$readed)
+		{
+			return new $model (
+				$key
+				? array ( $result->keyField () => $key )
+				: array ()
+			);
+		}
 		
 		$generic = $result->generic ();
 		
@@ -315,7 +327,7 @@ class Model_Manager extends Manager_Abstract
 			$result
 		);
 		
-		return $result->key () != null ? $result : new $model (array ());
+		return $result->key () ? $result : new $model (array ());
 	}
 	
 	/**
