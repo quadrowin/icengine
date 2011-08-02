@@ -20,10 +20,10 @@ abstract class Model_Child extends Model
 			$this->modelName (),
 			Query::instance ()
 				->where (
-					'`' . $this->modelName() . '`.parentId',
+					'`' . $this->modelName () . '`.parentId',
 					$this->key ()
 				)
-				->where ('`' . $this->modelName() . '`.parentId != 0')
+				->where ('`' . $this->modelName () . '`.parentId != 0')
 		);
 	}
 	
