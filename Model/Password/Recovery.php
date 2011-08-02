@@ -111,7 +111,6 @@ class Password_Recovery extends Model
 	 */
 	public static function queryCountOnEmail ($email)
 	{
-	    Loader::load ('Common_Date');
 		$day = Helper_Date::eraDayNum ();
 		
 		return Model_Collection_Manager::byQuery (
@@ -129,7 +128,6 @@ class Password_Recovery extends Model
 	 */
 	public static function queryCountOnIp ($ip)
 	{
-	    Loader::load ('Common_Date');
 		$day = Helper_Date::eraDayNum ();
 		
 		return Model_Collection_Manager::byQuery (
@@ -258,8 +256,6 @@ class Password_Recovery extends Model
 	 */
 	public static function processOld ()
 	{
-	    Loader::load ('Common_Date');
-		
 		$from = 1;
 		$to = 7;
 		$sec_in_day = 24 * 60 * 60;
@@ -287,7 +283,6 @@ class Password_Recovery extends Model
 	 */
 	public static function sendRecoveryEmail ($user_id, $email)
 	{
-	    Loader::load ('Common_Date');
 		$code = self::generateUniqueCode (time ());
 		
 		$recovery = new Password_Recovery (array (
