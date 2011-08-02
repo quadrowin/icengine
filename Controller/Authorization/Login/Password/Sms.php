@@ -189,26 +189,23 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 		
 		if (!$user)
 		{
-			$this->_sendError (
+			return $this->_sendError (
 				'password incorrect',
 				'Data_Validator_Authorization_Password/invalid'
 			);
-			return ;
 		}
 		
 		if (!$user->active)
 		{
-			$this->_sendError (
+			return $this->_sendError (
 				'user unactive',
 				'Data_Validator_Authorization_User/unactive'
 			);
-			return ;
 		}
 		
 		if (!$user->phone)
 		{
-			$this->_sendError ('no phone', 'noPhone');
-			return ;
+			return $this->_sendError ('noPhone');
 		}
 		
 		$count = $user->attr (self::SMS_SEND_COUNTER_ATTR);
@@ -227,12 +224,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 			)
 		)
 		{
-			$this->_sendError (
-				'sms limit',
-				__METHOD__,
-				'/smsLimit'
-			);
-			return ;
+			return $this->_sendError ('smsLimit');
 		}
 		
 		$activation = $this->_authorization ()->sendActivationSms (array (

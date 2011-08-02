@@ -241,7 +241,12 @@ class Controller_Abstract
 	 */
 	protected function _sendError ($text, $method = null, $tpl = null)
 	{
-		$this->_output->send ('error', $text);
+		$this->_output->send (array (
+			'error'	=> $text,
+			array (
+				'error'	=> $text
+			)
+		));
 		
 		if (!$method)
 		{
@@ -358,7 +363,9 @@ class Controller_Abstract
 			$other->setInput ($this->_input);
 			$other->setOutput ($this->_output);
 			$other->setTask ($this->_task);
-			return $other->$action ();
+			$other->_beforeAction ($action);
+			$other->$action ();
+			$other->_afterAction ($action);
 		}
 	}
 	
