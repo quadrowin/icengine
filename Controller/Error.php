@@ -30,6 +30,13 @@ class Controller_Error extends Controller_Abstract
 	}
 	
 	/**
+	 * @desc Пустое вместо
+	 */
+	public function blank ()
+	{
+	}
+	
+	/**
 	 * @desc Страница не найдена
 	 */
 	public function notFound ()
