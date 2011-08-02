@@ -363,6 +363,8 @@ class Request
 	}
 	
 	/**
+	 * @desc Возвращает название сервера.
+	 * В зависимости от настроек nginx может вернуть "*.server.com"
 	 * @return string
 	 */
 	public static function server ()
