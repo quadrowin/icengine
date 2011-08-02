@@ -100,7 +100,7 @@ class Password_Recovery extends Model
 	public function href ()
 	{
 		return 
-			"http://" . Request::server () . 
+			"http://" . Request::host () . 
 			"/recovery?code=" . $this->code; 
 	}
 	
