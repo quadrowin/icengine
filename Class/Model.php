@@ -528,7 +528,7 @@ abstract class Model implements ArrayAccess
 	{
 		if ($this->_generic)
 		{
-			return isset ($this->_addicts [$field]) ||
+			return array_key_exists ($field, $this->_addicts) ||
 				$this->_generic->hasField ($field);
 		}
 		
@@ -542,7 +542,7 @@ abstract class Model implements ArrayAccess
 			$this->load ();
 		}
 		
-		return isset ($this->_fields [$field]);
+		return array_key_exists ($field, $this->_fields);
 	}
 	
 	public function getJoint ($model)
