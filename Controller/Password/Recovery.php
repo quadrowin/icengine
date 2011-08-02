@@ -89,13 +89,7 @@ class Controller_Password_Recovery extends Controller_Abstract
 		// лимит запросов на e-mail
 		if ($query_count >= Password_Recovery::MAX_QUERY_PER_EMAIL)
 		{
-			$this->_output->send ('data', array (
-				'error'	=> true
-			));
-			
-			$this->_task->setTemplate (__METHOD__, 'error_email_limit');
-				
-			return ;
+			return $this->_sendError ('error_email_limit');
 		}
 		
 		$user = Model_Manager::byQuery (
@@ -106,13 +100,7 @@ class Controller_Password_Recovery extends Controller_Abstract
 		
 		if (!$user)
 		{
-			$this->_output->send ('data', array (
-				'error'	=> true
-			));
-			
-			$this->_task->setTemplate (__METHOD__, 'error_email_not_found');
-			
-			return ;
+			return $this->_sendError ('error_email_not_found');
 		}
 		
 		$this->_output->send ('data', array (
@@ -122,9 +110,7 @@ class Controller_Password_Recovery extends Controller_Abstract
 		// Всё правильно, создаем письмо с кодом
 		if (!Password_Recovery::sendRecoveryEmail ($user->id, $email))
 		{
-			$this->_task->setTemplate (__METHOD__, 'error_sendmail');
-			
-			return ;
+			return $this->_sendError ('error_sendmail');
 		}
 	}
 	
