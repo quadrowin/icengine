@@ -70,6 +70,7 @@ abstract class Bootstrap_Abstract
 			'Model_Collection',
 			'Model_Factory',
 			'Model_Factory_Delegate',
+			'Model_Option',
 			'Component',
 			'Controller_Abstract',
 			'Controller_Front',
