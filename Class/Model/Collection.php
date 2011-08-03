@@ -104,8 +104,8 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function __construct ()
 	{
-		Loader::load ('Model_Collection_Option_Collection');
-		$this->_options = new Model_Collection_Option_Collection ($this);
+		Loader::load ('Model_Option_Collection');
+		$this->_options = new Model_Option_Collection ($this);
 		Loader::load ($this->modelName ());
 	}
 	
@@ -876,13 +876,13 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 				$this->_paginator->offset ());
 		}
 		
-		$this->_options->executeBefore ($this, $query);
+		$this->_options->executeBefore ($query);
 		
 		$this->_lastQuery = $query;
 		
 		Model_Collection_Manager::load ($this, $query);
 		
-		$this->_options->executeAfter ($this, $query);
+		$this->_options->executeAfter ($query);
 		
 		if ($this->_paginator)
 		{
