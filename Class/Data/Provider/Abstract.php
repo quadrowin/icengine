@@ -483,6 +483,14 @@ class Data_Provider_Abstract
 		return array ();
 	}
 	
+	public function mset (array $values)
+	{
+		foreach ($values as $k => $v)
+		{
+			$this->set ($k, $v);
+		}
+	}
+	
 	/**
      * @desc Добавляет в начало 
      * @param string $key Ключ

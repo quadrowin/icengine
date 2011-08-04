@@ -43,14 +43,20 @@ class View_Render_Cli extends View_Render_Abstract
 		foreach ($tasks as $t)
 		{
 			$render = $t->getViewRender ();
-			$result = $render->render ($t);
+			$result = 
+				$render 
+				? $render->render ($t)
+				: null;
 			$this->assign ($t->getAssignVar (), $result);
 		}
 		
 		$render = $tasks [0]->getViewRender ();
-
-		$render->assign ($this->_vars);
-		$render->display ($task->getTemplate ());
+		
+		if ($render)
+		{
+			$render->assign ($this->_vars);
+			$render->display ($task->getTemplate ());
+		}
 	}
 	
 }
