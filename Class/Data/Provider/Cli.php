@@ -1,8 +1,8 @@
 <?php
 
-if (!class_exists ('Data_Provider_Abstract'))
+if (!class_exists ('Data_Provider_Buffer'))
 {
-	include __DIR__ . '/Abstract.php';
+	include __DIR__ . '/Buffer.php';
 }
 /**
  * 
@@ -12,21 +12,15 @@ if (!class_exists ('Data_Provider_Abstract'))
  * @package IcEngine
  *
  */
-class Data_Provider_Buffer extends Data_Provider_Abstract
+class Data_Provider_Cli extends Data_Provider_Buffer
 {
 	
 	/**
-	 * @desc Содержимое буфера.
-	 * @var array
-	 */
-	protected $_buffer;
-	
-	/**
-	 * Возвращает объект буфера данных.
+	 * @desc Возвращает объект буфера данных.
 	 */
 	public function __construct ()
 	{
-		$this->_buffer = array ();
+		$this->_buffer = $_SERVER ['argv'];
 	}
 		
 	/**

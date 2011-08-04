@@ -21,7 +21,7 @@ class Controller_Cli extends Controller_Abstract
 		
 		foreach ($argv as $arg)
 		{
-			$p = strpos ('=', $arg);
+			$p = strpos ($arg, '=');
 			if ($p)
 			{
 				$buffer->set (
@@ -44,20 +44,18 @@ class Controller_Cli extends Controller_Abstract
 		
 		try
 		{
-			$ca = explode ('/', $this->_input->receive (0));
+			$ca = $this->_input->receive (1);
+			$action = explode ('/', $ca);
 			
 			$action = Controller_Dispatcher::dispatch (
-				$ca [0],
-				isset ($ca [1]) ? $ca [1] : 'index'
+				$action [0] ? $action [0] : $ca,
+				isset ($action [1]) && $action [1] ? $action [1] : 'index'
 			);
 			
 			Loader::load ('Controller_Action');
-			$action = new Controller_Action (array (
-				'controller'	=> $ca [0],
-				'action'		=> $ca [1]
-			));
+			$action = new Controller_Action ($action);
 			
-			$task = new Controller_Task ($actions);
+			$task = new Controller_Task ($action);
 			$task->setInput ($this->_parsedInput ());
 			
 			/**

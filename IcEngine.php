@@ -37,6 +37,8 @@ class IcEngine
 	
 	public static $frontController = 'Front';
 	
+	public static $frontInput = 'default_input';
+	
 	public static $frontRender = 'Front';
 	
 	/**
@@ -186,7 +188,7 @@ class IcEngine
 		self::$_task = Controller_Manager::call (
 			self::$frontController,
 			self::$frontAction,
-			Data_Transport_Manager::get ('default_input')
+			Data_Transport_Manager::get (self::$frontInput)
 		);
 	}
 	

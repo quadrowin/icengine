@@ -19,6 +19,11 @@ class Data_Transport_Manager extends Manager_Abstract
 		 * @var array
 		 */
 		'transports'	=> array (
+			'cli_input'		=> array (
+				'providers'	=> array (
+					'Cli'
+				)
+			),
 			/**
 			 * @desc транспорт входных данные по умолчанию
 			 * @var array
