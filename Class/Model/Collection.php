@@ -504,9 +504,8 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * 
 	 * @desc Фильтрация. Возвращает экземпляр новой коллекции
-	 * @param array<string> $fields
+	 * @param array $fields
 	 * @return Model_Collection
 	 */
 	public function filter ($fields)
@@ -516,7 +515,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		
 		foreach ($this as $item)
 		{
-			$valid = true;
 			if ($item->validate ($fields))
 		 	{
 				$collection->add ($item);
@@ -527,8 +525,44 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * 
-	 * @desc Фильтрация. Возвращает экземпляр новой коллекции
+	 * @desc Подсчет количества моделей в коллекции, соответсвующих условию.
+	 * @param type $fields 
+	 * @return integer Количество моделей, соответвующих фильтру.
+	 */
+	public function filterGetCount ($fields)
+	{
+		$count = 0;
+		foreach ($this as $item)
+		{
+			if ($item->validate ($fields))
+		 	{
+				++$count;
+			}
+		}
+		return $count;
+	}
+	
+	/**
+	 * @desc Возвращает первую модель, соответсвующую фильтру.
+	 * @param array $fields 
+	 * @return Model|null
+	 */
+	public function filterGetFirst ($fields)
+	{
+		foreach ($this as $item)
+		{
+			if ($item->validate ($fields))
+			{
+				return $item;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * @desc Фильтрация. Возвращает экземпляр новой коллекции.
+	 * Проверяет существование в моделях фильтруемых полей, в случае 
+	 * отсутствия ошибки не возникает.
 	 * @param string $field
 	 * @param string $value
 	 * @return Model_Collection
@@ -540,8 +574,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		
 		foreach ($this as $item)
 		{
-			$valid = true;
-			if ($item->hasField($field) && $item->field($field) == $value)
+			if ($item->hasField ($field) && $item->field ($field) == $value)
 		 	{
 				$collection->add ($item);
 			}
