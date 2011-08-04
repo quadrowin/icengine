@@ -23,20 +23,6 @@ class Acl_Resource extends Model
 	public $_roles;
 	
 	/**
-	 * Получает ресурс по алиасу
-	 * @param string $alias
-	 * @return Acl_Resource
-	 */
-	public static function byAlias ($alias)
-	{
-	    return Model_Manager::byQuery (
-	        'Acl_Resource',
-	        Query::instance ()
-	        	->where ('alias', $alias)
-	    );
-	}
-	
-	/**
 	 * 
 	 * @param string|array $name
 	 * @param $autocreate
