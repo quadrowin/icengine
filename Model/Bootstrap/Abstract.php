@@ -238,17 +238,6 @@ abstract class Bootstrap_Abstract
 	}
 	
 	/**
-	 * @desc Инициализация менеджера виджетов.
-	 */
-	public function initWidgetManager ()
-	{
-		Loader::multiLoad  (
-			'Widget_Abstract',
-			'Widget_Manager'
-		);
-	}
-	
-	/**
 	 * @desc Возвращает название загрузчика.
 	 * @return string
 	 */

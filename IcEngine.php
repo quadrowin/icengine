@@ -10,28 +10,34 @@ class IcEngine
 {
 	
 	/**
-	 * @desc Задача фронт контроллера.
-	 * @var Controller_Task
+	 * @desc Загрузчик
+	 * @var Bootstrap_Abstract
 	 */
-	private static $_task;
+	protected static $_bootstrap;
 	
 	/**
 	 * @desc Путь до движка.
 	 * @var string
 	 */
-	private static $_path;
+	protected static $_path;
 	
 	/**
 	 * @desc Путь до корня сайта.
 	 * @var string
 	 */
-	private static $_root;
+	protected static $_root;
 	
-	/**
-	 * @desc Загрузчик
-	 * @var Bootstrap_Abstract
+/**
+	 * @desc Задача фронт контроллера.
+	 * @var Controller_Task
 	 */
-	protected static $_bootstrap;
+	protected static $_task;
+	
+	public static $frontAction = 'index';
+	
+	public static $frontController = 'Front';
+	
+	public static $frontRender = 'Front';
 	
 	/**
 	 * @desc Возвращает путь до корня сайта.
@@ -58,13 +64,11 @@ class IcEngine
 	 */
 	public static function flush ()
 	{
-		//Resource_Manager::save ();
-		
 		Controller_Manager::call (
 			'Render', 'index',
 			array (
 				'task'		=> self::$_task,
-				'render'	=> View_Render_Manager::byName ('Front')
+				'render'	=> View_Render_Manager::byName (self::$frontRender)
 			)
 		);
 	}
@@ -180,7 +184,8 @@ class IcEngine
 		Loader::load ('Data_Transport_Manager');
 		
 		self::$_task = Controller_Manager::call (
-			'Front', 'index',
+			self::$frontController,
+			self::$frontAction,
 			Data_Transport_Manager::get ('default_input')
 		);
 	}
