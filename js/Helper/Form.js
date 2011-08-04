@@ -137,7 +137,11 @@ var Helper_Form = {
 				// последнее вхождение ".result-msg", позволяет
 				// подменять нижнюю часть формы, которая будет содержать
 				// новый .result-msg
-				var $div = $form.parent ().find ('.result-msg');
+				var $div = $form.find ('.result-msg');
+				if (!$div.length)
+				{
+					$div = $form.parent ().find ('.result-msg');
+				}
 				var $subdiv = $div.find ('.result-msg');
 				while ($subdiv.length)
 				{
