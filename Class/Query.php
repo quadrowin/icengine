@@ -97,8 +97,13 @@ class Query {
 		if (is_array ($table))
 		{
 			reset ($table);
-			$aliases = (array) current ($table);
-			$table = key ($table);
+			$aliases = (array) key ($table);
+			$table = current ($table);
+			
+			if (!$aliases)
+			{
+				$aliases = array ($table);
+			}
 		}
 		else
 		{
@@ -158,7 +163,7 @@ class Query {
 	public function from ($table, $alias = null)
 	{
 		$this->_join (
-			$alias ? array ($table => $alias) : $table, 
+			$alias ? array ($alias => $table) : $table, 
 			self::FROM
 		);
 		return $this;
