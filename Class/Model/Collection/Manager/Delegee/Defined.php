@@ -9,47 +9,49 @@ class Model_Collection_Manager_Delegee_Defined
 	
 	public static function load (Model_Collection $collection, Query $query)
 	{
-		// Выполняем запрос, получаем элементы коллеции
-		$query_result = 
-			Model_Scheme::dataSource ($model)
-				->execute ($query)
-					->getResult ();
+		$model_name = $collection->modelName ();
+		
+		Loader::load ($model_name);
 
-		$collection->query ($query_result);
+		$rows = $model_name::$rows;
+		$collection->reset ();
 
-		// Если установлен флаг CALC_FOUND_ROWS,
-		// то назначаем ему значение
-		if ($query->getPart (Query::CALC_FOUND_ROWS))
+		foreach ($rows as $row)
 		{
-			$collection->data ('foundRows', $query_result->foundRows ());
+			$collection->add (new $model_name ($row));
+		}
+		
+		$where = $query->getPart (Query::WHERE);
+		
+		$filter = array ();
+		
+		foreach ($where as $w)
+		{
+			$field = rtrim ($w [Query::WHERE], '?');
+			
+			$filter [$field] = $w [Query::VALUE]; 
 		}
 
-		Loader::load ('Helper_Data_Source');
-
-		$fields = Helper_Data_Source::fields ($collection->table ())
-			->column ('Field');
-
-		$table = $query_result->asTable ();
-
-		$key_field = Model_Scheme::keyField ($model);
-
+		$order = $query->getPart (Query::ORDER);
+		
+		$sort = array ();
+		
+		foreach ($order as $o)
+		{
+			$sort [] = $o [0];	
+		}
+		
+		$collection = $collection
+			->filter ($filter)
+			->sort (implode (',', $sort));
+		
 		$items = array ();
-		$addicts = array ();
-
-		foreach ($table as $i => $item)
+		
+		foreach ($collection as $item)
 		{
-			foreach ($item as $field=>$value)
-			{
-				if (!in_array ($field, $fields))
-				{
-					$addicts [$i][$field] = $value;
-				}	
-			}
-			$items [] = $item [$key_field];
+			$items [] = $item ['id'];
 		}
-
-		$collection->data ('addicts', $addicts);
-
+		
 		return array (
 			'items'	=> $items,
 		);

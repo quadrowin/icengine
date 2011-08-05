@@ -8,7 +8,6 @@
  */
 class Model_Manager_Delegee_Defined
 {
-	
 	/**
 	 * @desc 
 	 * @param string $model Название модели
@@ -18,6 +17,16 @@ class Model_Manager_Delegee_Defined
 	 */
 	public static function get ($model, $key, $object)
 	{
+		$rows = $model::$rows;
+		
+		foreach ($rows as $row)
+		{
+			if ($row ['id'] == $key)
+			{
+				return new $model ($row);
+			}
+		}
+		
 		return new $model (is_array ($object) ? $object : array ());
 	}
 	
