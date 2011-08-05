@@ -504,6 +504,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
+	 * 
 	 * @desc Фильтрация. Возвращает экземпляр новой коллекции
 	 * @param array $fields
 	 * @return Model_Collection
@@ -513,11 +514,70 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		$collection = new $this;
 		$collection->reset ();
 		
+		$first_fields = array ();
+		
+		foreach ($fields as $field => $value)
+		{
+			$s = substr ($field, -2, 2);
+			
+			if ($s == '=' || ctype_alnum ($s))
+			{
+				unset ($fields [$field]);
+				
+				$field = rtrim ($field, '=');
+				$field = str_replace (' ', '', $field);
+				
+				$first_fields [$field] = $value;
+			}
+		}
+		
 		foreach ($this as $item)
 		{
-			if ($item->validate ($fields))
+			$valid = true;
+			if (!$first_fields || $item->validate ($first_fields))
 		 	{
-				$collection->add ($item);
+				if ($fields)
+				{
+					foreach ($fields as $field => $value)
+					{
+						$field = str_replace (' ', '', $field);
+						
+						$s = substr ($field, -2, 2);
+						
+						if (ctype_alnum ($s [0]))
+						{
+							$s = $s [1];
+						}
+	
+						$field = substr ($field, 0, -1 * strlen ($s));
+						
+						switch ($s)
+						{
+							case '>': 
+								$valid = $item->$field > $value; 
+								break;
+							case '>=': 
+								$valid = $item->$field >= $value; 
+								break;
+							case '<': $valid = $item->$field < $value; 
+								break;
+							case '<=': $valid = $item->$field <= $value; 
+								break;
+							case '!=': $valid = $item->$field != $value; 
+								break;
+						}
+						
+						if (!$valid)
+						{
+							break;
+						}
+					}
+				}
+				
+				if ($valid)
+				{
+					$collection->add ($item);
+				}
 			}
 		}
 		

@@ -137,8 +137,9 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 			// Делегируемый класс определяем по первому или нулевому
 			// предку.
 			$parents = class_parents ($model);
+			
 			$first = end ($parents);
-			$second = next ($parents);
+			$second = prev ($parents);
 
 			$parent = 
 				$second && isset (self::$_config ['delegee'][$second]) ?
@@ -155,7 +156,7 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 				array ($delegee, 'load'),
 				$collection, $query
 			);
-			
+	
 			$collection->data ('t', $tags);
 			
 			$addicts = $collection->data ('addicts');
@@ -165,6 +166,7 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 		foreach ($pack ['items'] as $i => &$item)
 		{
 			$item = Model_Manager::get ($model, $item);
+	
 			if (!empty ($addicts [$i]))
 			{
 				$item->set ($addicts [$i]);

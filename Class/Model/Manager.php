@@ -281,7 +281,7 @@ class Model_Manager extends Manager_Abstract
 				// предку.
 				$parents = class_parents ($model);
 				$first = end ($parents);
-				$second = next ($parents);
+				$second = prev ($parents);
 				
 				$parent = 
 					$second && isset (self::$_config ['delegee'][$second]) ?
@@ -326,6 +326,8 @@ class Model_Manager extends Manager_Abstract
 			array (),
 			$result
 		);
+		
+		Model_Scheme::setScheme ($result);
 		
 		return $result->key () ? $result : new $model (array ());
 	}
