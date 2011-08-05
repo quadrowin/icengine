@@ -52,7 +52,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 				self::DEFAULT_CONNECTION_CLASS_FILE;
 				
 		Loader::requireOnce ($file, 'includes');
-		$this->conn = Redis::instance ();
+		$this->conn = Redis_Wrapper::instance ();
 		parent::__construct ($config);
 	}
 	

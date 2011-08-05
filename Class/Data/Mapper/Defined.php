@@ -19,18 +19,50 @@ class Data_Mapper_Defined extends Data_Mapper_Abstract
 	 */
 	public function filter (array $row)
 	{
+		$valid = true;
+		
 		foreach ($this->_where as $where)
 		{
-			$condition = $where [Query::WHERE];
+			$field = $where [Query::WHERE];
 			$value = $where [Query::VALUE];
 			
-			if ($row [$condition] != $value)
+			$field = str_replace (' ', '', $field);
+						
+			$s = substr ($field, -2, 2);
+
+			if (ctype_alnum ($s [0]))
 			{
-				return false;
+				$s = $s [1];
+			}
+			
+			if (ctype_alnum ($s))
+			{
+				$s = '=';
+			}
+
+			$field = substr ($field, 0, -1 * strlen ($s));
+
+			switch ($s)
+			{
+				case '=': 
+					$valid = $row [$field] == $value; 
+					break;
+				case '>': 
+					$valid = $row [$field] > $value; 
+					break;
+				case '>=': 
+					$valid = $row [$field] >= $value; 
+					break;
+				case '<': $valid = $row [$field] < $value; 
+					break;
+				case '<=': $valid = $row [$field] <= $value; 
+					break;
+				case '!=': $valid = $row [$field] != $value; 
+					break;
 			}
 		}
 		
-		return true;
+		return $valid;
 	}
 	
 	/**

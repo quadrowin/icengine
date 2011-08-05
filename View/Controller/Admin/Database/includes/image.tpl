@@ -1,6 +1,6 @@
 <div id="tab-image">
 	{if $row}
-	<script src="http://www.google.com/jsapi" type="text/javascript"></script>
+	{*<script src="http://www.google.com/jsapi" type="text/javascript"></script>
 	
 	{literal}
 	<script language="javascript" type="text/javascript">
@@ -23,11 +23,11 @@
 		google.setOnLoadCallback(OnLoad);
 		
 	</script>
-	{/literal}
+	{/literal*}
 	
 	<div id="img-edit-dialog" title="Настройка изображения"></div>
 	
-	<div id="searchcontrol" style = "width: 300px; float: right;">Loading</div>
+	{*<div id="searchcontrol" style = "width: 300px; float: right;">Loading</div>*}
 	<div id = "table-images"></div>
 	<div style = "clear: both;"></div>
 
