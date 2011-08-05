@@ -8,7 +8,7 @@
     @description Connector for Redis (http://code.google.com/p/redis/)
     @license LGPL, BSD-compabible. Adding to the Redis repository permitted.
 */
-class Redis
+class Redis_Wrapper
 {
 
 	/**
