@@ -69,6 +69,102 @@ abstract class Model_Scheme
 	);
 	
 	/**
+	 * @desc Схемы моделей
+	 * @var array
+	 */
+	private static $_modelSchemes = array ();
+	
+	/**
+	 * @desc Схема по умолчанию
+	 * @var array 
+	 */
+	private static $_defaultScheme = array (
+		'int'		=> array (
+			'size'		=> 11,
+		),
+		'tinyint'	=> array (
+			'size'		=> 1
+		),
+		'varchar'	=> array (
+			'collation'	=> 'utf8_general_ci',
+			'default'	=> ''
+		)
+	);
+	
+	/**
+	 * @desc Создает схему модели на основании полей, 
+	 * полученных от mysql
+	 * @param array $fields
+	 * @return array 
+	 */
+	private static function _makeScheme ($fields)
+	{
+		$scheme = array ();
+		
+		foreach ($fields as $field)
+		{
+			$size = null;
+			
+			$auto_inc = false;
+			
+			if ($field ['Extra'] == 'auto_increment')
+			{
+				$auto_inc = true;
+			}
+			
+			$type = $field ['Type'];
+			$br_pos = strpos ($type, '(');
+			if ($br_pos !== false)
+			{
+				$size = substr ($type, $br_pos);
+				$type = substr ($type, 0, $br_pos);
+				$size = (int) trim ($size, '()');
+			}
+			
+			$collation = null;
+			
+			if ($field ['Collation'])
+			{
+				$collation = $field ['Collation'];
+			}
+			
+			$comment = $field ['Comment'];
+			
+			$default = $field ['Default'];
+			
+			$s = array (
+				'type'		=> $type,
+				'comment'	=> $comment
+			);
+			
+			if ($auto_inc)
+			{
+				$s ['auto_inc'] = true;
+			}
+			
+			if (
+				$type == 'varchar' ||
+				strpos ($type, 'text') !== false
+			)
+			{
+				$s ['collation'] = $collation;
+			}
+			
+			if (strpos ($type, 'text') === false)
+			{
+				$s ['size'] = $size;
+				$s ['default'] = $default;
+			}
+			
+			$field = $field ['Field'];
+			
+			$scheme [$field] = $s;
+		}
+		
+		return $scheme;
+	}
+	
+	/**
 	 * @desc Инициализация схемы моделей
 	 * @param Config_Array $config
 	 */
@@ -224,6 +320,49 @@ abstract class Model_Scheme
 	}
 	
 	/**
+	 * @desc Получить схему модели
+	 * @param string $model_name
+	 * @return array
+	 */
+	public static function getScheme ($model_name)
+	{
+		if (!isset (self::$_modelSchemes [$model_name]))
+		{
+			$scheme = Resource_Manager::get (
+				__CLASS__,
+				$model_name
+			);
+
+			if (!$scheme)
+			{
+				Loader::load ($model_name);
+				$scheme = $model_name::scheme ();
+			}
+			
+			if (empty ($scheme ['fields']))
+			{				
+				Loader::load ('Helper_Data_Source');
+				
+				$table = self::table ($model_name);
+				
+				$fields = Helper_Data_Source::fields ('`' . $table . '`');
+
+				$fields = self::_makeScheme ($fields);
+				
+				$scheme = array (
+					'fields'	=> $fields,
+					'keys'		=> array ()
+				);
+
+			}
+			
+			self::setScheme ($model_name, $scheme);
+		}
+		
+		return self::$_modelSchemes [$model_name];
+	}
+	
+	/**
 	 * @desc Индексы модели.
 	 * @param string $model Название модели.
 	 * @return array Массив индексов.
@@ -255,6 +394,43 @@ abstract class Model_Scheme
 		}
 		
 		return self::$models [$model]['key'];
+	}
+	
+	/**
+	 * @desc Изменить схему модели
+	 * @param Model $model 
+	 */
+	public static function setScheme ($model, $scheme = null)
+	{
+		$model_name = $model;
+	
+		if ($model instanceof Model)
+		{
+			$model_name = $model->modelName ();
+			$scheme = $model->scheme ();
+		}
+		
+		if (isset ($scheme ['fields']))
+		{
+			foreach ($scheme ['fields'] as &$field)
+			{
+				if (isset (self::$_defaultScheme [$field ['type']]))
+				{
+					$field = array_merge (
+						$field, 
+						self::$_defaultScheme [$field ['type']]
+					);
+				}
+			}
+		}
+		
+		self::$_modelSchemes [$model_name] = $scheme;
+		
+		Resource_Manager::set (
+			__CLASS__, 
+			$model_name, 
+			$scheme
+		);
 	}
     
 }
