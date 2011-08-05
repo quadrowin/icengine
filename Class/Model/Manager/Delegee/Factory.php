@@ -51,6 +51,11 @@ class Model_Manager_Delegee_Factory
 		if (!isset (self::$_factories [$factory_name]))
 		{
 			self::$_factories [$factory_name] = new $model ();
+			$abstract = $factory_name . '_Abstract';
+			if (!class_exists ($abstract))
+			{
+				Loader::load ($abstract);
+			}
 		}
 		
 		$dmodel = self::$_factories [$factory_name]
