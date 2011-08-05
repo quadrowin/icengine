@@ -28,8 +28,9 @@ class Model_Collection_Manager_Delegee_Simple
 
 		Loader::load ('Helper_Data_Source');
 
-		$fields = Helper_Data_Source::fields ($collection->table ())
-			->column ('Field');
+		$scheme = Model_Scheme::getScheme ($model);
+		
+		$fields = array_keys ($scheme ['fields']);
 
 		$table = $query_result->asTable ();
 
