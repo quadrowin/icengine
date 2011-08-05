@@ -67,6 +67,15 @@ abstract class Model implements ArrayAccess
 	 */
 	protected	$_loaded;
 
+	/**
+	 * @desc Схема модели
+	 * @var array
+	 */
+	protected static $_scheme = array (
+		'fields'	=> array (),
+		'keys'		=> array ()
+	);
+	
 	
 	/**
 	 * @desc Обновленные поля.
@@ -686,6 +695,15 @@ abstract class Model implements ArrayAccess
 	}
 	
 	/**
+	 * @desc Получить схему модели
+	 * @return array
+	 */
+	public static function scheme ()
+	{
+		return static::$_scheme;
+	}
+	
+	/**
 	 * @desc Установка значений полей без обновления источника.
 	 * При использовании этого метод не проверяется сущестовование полей
 	 * у модели. Это позволяет установить поля для создаваемой модели,
@@ -843,7 +861,7 @@ abstract class Model implements ArrayAccess
 		
 		foreach ((array) $args as $field => $value)
 		{
-			if ($this->$field != $value)
+			if (!in_array ($this->$field, (array) $value))
 			{
 				$valid = false;
 				break;
