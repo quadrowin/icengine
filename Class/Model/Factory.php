@@ -8,7 +8,7 @@
  * @package IcEngine
  *
  */
-class Model_Factory 
+class Model_Factory extends Model
 {
 	
 	/**
