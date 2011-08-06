@@ -520,7 +520,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		{
 			$s = substr ($field, -2, 2);
 			
-			if ($s == '=' || ctype_alnum ($s))
+			if ($s [0] == '=' || ctype_alnum ($s))
 			{
 				unset ($fields [$field]);
 				
