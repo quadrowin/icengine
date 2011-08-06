@@ -87,8 +87,11 @@ class Query {
 	}
 	
 	/**
-	 * 
-	 * @param string|array $table
+	 * @desc Добавление джойна таблицы к запросу
+	 * @param string|array $table Название таблицы или
+	 * пара (table => alias) или, в случае нескольких алиасов 
+	 * (table => array (alias1, alias2,...)).
+	 * Джойн нескольких таблиц не поддерживается.
 	 * @param string $type
 	 * @param string $condition optional
 	 */
@@ -96,15 +99,9 @@ class Query {
 	{
 		if (is_array ($table))
 		{
-			$table = array_flip ($table);
 			reset ($table);
-			$aliases = (array) key ($table);
-			$table = current ($table);
-			
-			if (!$aliases)
-			{
-				$aliases = array ($table);
-			}
+			$aliases = (array) current ($table);
+			$table = key ($table);
 		}
 		else
 		{
