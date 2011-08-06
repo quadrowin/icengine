@@ -16,6 +16,14 @@ abstract class Model_Scheme
     const DEFAULT_KEY_FIELD = 'id';
 	
 	/**
+	 * @desc Схема линка по умолчанию
+	 * @var array
+	 */
+	public static $defaultLinkScheme = array (
+		
+	);
+	
+	/**
 	 * @desc Префикс по умолчанию для всех таблиц
 	 * @var string
 	 */
@@ -394,6 +402,21 @@ abstract class Model_Scheme
 		}
 		
 		return self::$models [$model]['key'];
+	}
+	
+	/**
+	 * @desc Возвращает схему связи.
+	 * @param string $model1
+	 * @param string $model2
+	 * @return array
+	 */
+	public static function linkScheme ($model1, $model2)
+	{
+		$model1 = strtolower ($model1);
+		
+	    return empty (self::$models [$model1]['links'][$model2])
+			? self::$defaultLinkScheme
+			: self::$models [$model1]['links'][$model2];
 	}
 	
 	/**
