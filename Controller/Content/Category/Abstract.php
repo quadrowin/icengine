@@ -281,17 +281,6 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 			$parent_category,
 			$this->__contentModel ()
 		);
-
-		$agency_link = $this->_input->receive('agency_link');
-		$agency = null;
-		if ($agency_link)
-		{
-			$agency = Model_Manager::byQuery(
-				'Agency',
-				Query::instance()
-					->where('linka', $agency_link.'.html')
-			);
-		}
 		
 		$this->_output->send (array (
 			'categories'		=>	$category_collection,
@@ -299,8 +288,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 			'referer'			=>	$this->__rollReferer ($parent_category, $url),
 			'current'			=>	$parent_category,
 			'parent'			=>	$parent_category->getParent (),
-			'canEdit'			=>	$this->__rollAcl ($parent_category),
-			'agency'			=>	$agency
+			'canEdit'			=>	$this->__rollAcl ($parent_category)
 		));
 		
 		$this->__rollAfter ();

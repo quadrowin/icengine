@@ -266,13 +266,25 @@ class Controller_Content_Abstract extends Controller_Abstract
 
 		$parent_url = rtrim ($parent->url, '/') . '.html';
 
+		$agency_link = $this->_input->receive('agency_link');
+		$agency = null;
+		if ($agency_link)
+		{
+			$agency = Model_Manager::byQuery(
+				'Agency',
+				Query::instance()
+					->where('linka', $agency_link.'.html')
+			);
+		}
+
 		$this->_output->send (array (
 			'contents'		=> $content_collection,
 			'category'		=> $category,
 			'canEdit'		=> $this->__checkAcl ($category),
 			'parent'		=> $parent,
 			'parent_url'	=> $parent_url,
-			'referer'		=> $this->__rollReferer ($category)
+			'referer'		=> $this->__rollReferer ($category),
+			'agency'		=> $agency
 		));
 	}
 	
@@ -303,12 +315,24 @@ class Controller_Content_Abstract extends Controller_Abstract
 			return $this->replaceAction ('Error', 'notFound');
 		}
 
+		$agency_link = $this->_input->receive('agency_link');
+		$agency = null;
+		if ($agency_link)
+		{
+			$agency = Model_Manager::byQuery(
+				'Agency',
+				Query::instance()
+					->where('linka', $agency_link.'.html')
+			);
+		}
+
 		$this->_output->send (array (
 			'content'	=> $content,
 			'category'	=> $content_category,
 			'url'		=> $content_category->url,
-			'referer'		=> $this->__rollReferer ($content_category),
-			'canEdit'	=> $this->__checkAcl ($content_category)
+			'referer'	=> $this->__rollReferer ($content_category),
+			'canEdit'	=> $this->__checkAcl ($content_category),
+			'agency'	=> $agency
 		));
 	}
 	
