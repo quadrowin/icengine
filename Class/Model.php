@@ -858,10 +858,14 @@ abstract class Model implements ArrayAccess
 		 * @var Model $valid
 		 */
 		$valid = true;
-		
+
 		foreach ((array) $args as $field => $value)
 		{
-			if (!in_array ($this->$field, (array) $value))
+			$value = (array) $value;
+			
+			$value = array_map ('trim', $value);
+			
+			if (!in_array ($this->$field, $value))
 			{
 				$valid = false;
 				break;
