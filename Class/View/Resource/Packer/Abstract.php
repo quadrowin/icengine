@@ -71,6 +71,12 @@ abstract class View_Resource_Packer_Abstract
 	);
 	
 	/**
+	 * @desc Пул конфигов.
+	 * @var array <Config_Array>
+	 */
+	protected $_configPool = array ();
+	
+	/**
 	 * @desc Собирает префикс для файла.
 	 * @return string Префикс для файла.
 	 */
@@ -105,7 +111,7 @@ abstract class View_Resource_Packer_Abstract
 		if (
 			!$result_file || 
 			!file_exists ($result_file) || 
-			!$this->config ()->state_file ||
+			!$config->state_file ||
 			!file_exists ($config ['state_file'])
 		)
 		{
@@ -149,6 +155,7 @@ abstract class View_Resource_Packer_Abstract
 		foreach ($state ['resources'] as $i => $res)
 		{
 			if (
+				!isset ($resouces [$i]) ||
 				$res ['filemtime'] != $resources [$i]->filemtime () ||
 				$res ['file_path'] != $resources [$i]->filePath 
 			)
@@ -199,6 +206,8 @@ abstract class View_Resource_Packer_Abstract
 	 */
 	public function pack (array $resources, $result_file = '')
 	{
+		$config = $this->config ();
+		
 		$packages = array ();
 		
 		if ($this->cacheValid ($resources, $result_file))
@@ -214,7 +223,6 @@ abstract class View_Resource_Packer_Abstract
 		
 		$packages = $this->compile ($packages);
 		
-		$config = $this->config ();
 		if ($config ['charset_base'] != $config ['charset_output'])
 		{
 			$packages = iconv (
@@ -241,15 +249,37 @@ abstract class View_Resource_Packer_Abstract
 	abstract public function packOne (View_Resource $resource);
 	
 	/**
+	 * @desc Возвращание конфигов к исходному состоянию.
+	 */
+	public function popConfig ()
+	{
+		$this->config = array_pop ($this->_configPool);
+	}
+	
+	/**
+	 * @desc Наложение конфигов.
+	 */
+	public function pushConfig (Objective $config)
+	{
+		$this->_configPool [] = $this->config ();
+		$this->_config = new Objective (array_merge (
+			$this->_config->asArray (),
+			$config->asArray ()
+		));
+	}
+	
+	/**
 	 * @desc Сохраняет информацию о текущем состоянии файлов.
 	 * @param array $resources
 	 * @param string $result_file
 	 */
 	public function saveValidState (array $resources, $result_file)
 	{
+		$config = $this->config ();
+		
 		if (
 			!$result_file ||  
-			!$this->config ()->state_file
+			!$config->state_file
 		)
 		{
 			return false;
@@ -261,9 +291,9 @@ abstract class View_Resource_Packer_Abstract
 			'resources'		=> array ()
 		);
 		
-		foreach ($resources as $resource)
+		foreach ($resources as $i => $resource)
 		{
-			$state ['resources'][] = array (
+			$state ['resources'][$i] = array (
 				'file_path'	=> $resource->filePath,
 				'filemtime'	=> $resource->filemtime ()
 			);
@@ -272,7 +302,7 @@ abstract class View_Resource_Packer_Abstract
 		$this->_cacheTimestamp = $state ['result_time'];
 		
 		$state = json_encode ($state);
-		file_put_contents ($this->config ()->state_file, $state);
+		file_put_contents ($config->state_file, $state);
 	}
 	
 }
