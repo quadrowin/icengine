@@ -279,139 +279,132 @@ class View_Resource_Manager extends Manager_Abstract
 	/**
 	 * @desc Загружает ресурсы
 	 * @param string $base_dir
-	 * @param array|objective <string> $patterns
+	 * @param string $pattern
 	 * @param string $type
 	 * @return array Массив с загруженными ресурсами.
 	 */
-	public static function patternLoad ($base_dir, $patterns, $type = null)
+	public static function patternLoad ($base_dir, $pattern, $type = null)
 	{
 		$base_dir = str_replace ('\\', '/', $base_dir);
 		$base_dir = rtrim ($base_dir, '/') . '/' ;
-		
-		if (!$base_url)
-		{
-			$base_url = $base_dir;
-		}
+		$base_url = $base_dir;
 		
 		$result = array ();
 		
-		foreach ($patterns as $pattern)
+		$options = array (
+			'source'	=> $pattern,
+			'nopack'	=> ($pattern [0] == '-'),
+			'filePath'	=> ''
+		);
+
+		if ($pattern [0] == '-')
 		{
-			$options = array (
-				'source'	=> $pattern,
-				'nopack'	=> ($pattern [0] == '-'),
-				'filePath'	=> ''
+			$pattern = substr ($pattern, 1);
+		}
+
+		$dbl_star_pos = strpos ($pattern, '**');
+		$star_pos = strpos ($pattern, '*');
+
+		if ($dbl_star_pos !== false)
+		{
+			// Путь вида "js/**.js"
+			// Включает поддиректории.
+
+			// $dirs [i] = "js/**.js"
+			$dir = trim (substr ($pattern, 0, $dbl_star_pos), '/');
+			// $dir = "js"
+			$pattern = substr ($pattern, $dbl_star_pos + 1);
+			// $pattern = "*.js"
+
+			$list = array (
+				$dir
 			);
-			
-			if ($pattern [0] == '-')
+
+			$files = array ();
+
+			for ($dir = reset ($list); $dir !== false; $dir = next ($list))
 			{
-				$pattern = substr ($pattern, 1);
-			}
-			
-			$dbl_star_pos = strpos ($pattern, '**');
-			$star_pos = strpos ($pattern, '*');
-			
-			if ($dbl_star_pos !== false)
-			{
-				// Путь вида "js/**.js"
-				// Включает поддиректории.
-				
-				// $dirs [i] = "js/**.js"
-				$dir = trim (substr ($pattern, 0, $dbl_star_pos), '/');
-				// $dir = "js"
-				$pattern = substr ($pattern, $dbl_star_pos + 1);
-				// $pattern = "*.js"
-				
-				$list = array (
-					$dir
-				);
-				
-				$files = array ();
-				
-				for ($dir = reset ($list); $dir !== false; $dir = next ($list))
+				$subdirs = scandir ($base_dir . $dir);
+				$path = $dir ? $dir . '/' : '';
+
+				for ($j = 0, $count = sizeof ($subdirs); $j < $count; $j++)
 				{
-					$subdirs = scandir ($base_dir . $dir);
-					$path = $dir ? $dir . '/' : '';
-					
-					for ($j = 0, $count = sizeof ($subdirs); $j < $count; $j++)
+					if (
+						$subdirs [$j][0] == '.' ||
+						$subdirs [$j][0] == '_'
+					)
 					{
-						if (
-							$subdirs [$j][0] == '.' ||
-							$subdirs [$j][0] == '_'
-						)
-						{
-							continue;
-						}
-						
-						$fn = $base_dir . $path . $subdirs [$j];
-						
-						if (is_dir ($fn))
-						{
-							array_push ($list, $path . $subdirs [$j]);
-						}
-						elseif (fnmatch ($pattern, $fn))
-						{
-							$files [] = array (
-								$base_url . $path . $subdirs [$j],
-								$base_dir . $path . $subdirs [$j]
-							);
-						}
+						continue;
+					}
+
+					$fn = $base_dir . $path . $subdirs [$j];
+
+					if (is_dir ($fn))
+					{
+						array_push ($list, $path . $subdirs [$j]);
+					}
+					elseif (fnmatch ($pattern, $fn))
+					{
+						$files [] = array (
+							$base_url . $path . $subdirs [$j],
+							$base_dir . $path . $subdirs [$j]
+						);
 					}
 				}
-				
-				$base_dir_len = strlen ($base_dir);
-				for ($j = 0, $count = sizeof ($files); $j < $count; $j++)
+			}
+
+			$base_dir_len = strlen ($base_dir);
+			for ($j = 0, $count = sizeof ($files); $j < $count; $j++)
+			{
+				$file = $files [$j][0];
+				$options ['source'] = $file;
+				$options ['filePath'] = $files [$j][1];
+				$options ['localPath'] = substr (
+					$files [$j][1],
+					$base_dir_len
+				);
+				$result [$file] = self::add ($file, $type, $options);
+			}
+		}
+		elseif ($star_pos !== false)
+		{
+			// Путь вида "js/*.js"
+			// Включает файлы, подходящие под маску в текущей директории
+
+			// $dirs [i] = "js/*.js"
+			$dir = trim (substr ($pattern, 0, $star_pos), '/');
+			// $dir = "js"
+			$pattern = substr ($pattern, $star_pos);
+			// $pattern = "*.js"
+
+			$iterator = new DirectoryIterator ($base_dir . '/' . $dir);
+
+			foreach ($iterator as $file)
+			{
+				$fn = $file->getFilename ();
+				if (
+					$file->isFile () &&
+					$fn [0] != '.' && 
+					$fn [0] != '_' &&
+					fnmatch ($pattern, $fn)
+				)
 				{
-					$file = $files [$j][0];
+					$local_path = $dir . '/' . $fn;
+					$file = $base_url . $local_path;
 					$options ['source'] = $file;
-					$options ['filePath'] = $files [$j][1];
-					$options ['localPath'] = substr (
-						$files [$j][1],
-						$base_dir_len
-					);
+					$options ['filePath'] = $base_dir . $local_path;
+					$options ['localPath' ] = $local_path;
 					$result [$file] = self::add ($file, $type, $options);
 				}
 			}
-			elseif ($star_pos !== false)
-			{
-				// Путь вида "js/*.js"
-				// Включает файлы, подходящие под маску в текущей директории
-				
-				// $dirs [i] = "js/*.js"
-				$dir = trim (substr ($pattern, 0, $star_pos), '/');
-				// $dir = "js"
-				$pattern = substr ($pattern, $star_pos);
-				// $pattern = "*.js"
-				
-				$iterator = new DirectoryIterator ($base_dir . '/' . $dir);
-				
-				foreach ($iterator as $file)
-				{
-					$fn = $file->getFilename ();
-					if (
-						$file->isFile () &&
-						$fn [0] != '.' && 
-						$fn [0] != '_' &&
-						fnmatch ($pattern, $fn)
-					)
-					{
-						$local_path = $dir . '/' . $fn;
-						$file = $base_url . $local_path;
-						$options ['source'] = $file;
-						$options ['filePath'] = $base_dir . $local_path;
-						$options ['localPath' ] = $local_path;
-						$result [$file] = self::add ($file, $type, $options);
-					}
-				}
-			}
-			else
-			{
-				// Указан путь до файла: "js/scripts.js"
-				$file = $base_url . $pattern;
-				$options ['filePath'] = $base_dir . $pattern;
-				$options ['localPath'] = $pattern;
-				$result [$file] = self::add ($file, $type, $options);
-			}
+		}
+		else
+		{
+			// Указан путь до файла: "js/scripts.js"
+			$file = $base_url . $pattern;
+			$options ['filePath'] = $base_dir . $pattern;
+			$options ['localPath'] = $pattern;
+			$result [$file] = self::add ($file, $type, $options);
 		}
 		
 		return $result;
