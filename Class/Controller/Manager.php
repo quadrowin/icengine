@@ -346,6 +346,8 @@ class Controller_Manager extends Manager_Abstract
 		
 		$cache_config = self::_cacheConfig ($a [0], $a [1]);
 		
+//		fb ($a [0] . '/' . $a [1] . '/' . var_export ($cache_config, true));
+		
 		return Executor::execute (
 			array (__CLASS__, 'htmlUncached'),
 			array ($a, $args, $html_only),
