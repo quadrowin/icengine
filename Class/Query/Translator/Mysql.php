@@ -599,15 +599,15 @@ class Query_Translator_Mysql extends Query_Translator
 			}
 			else
 			{
-				if (
-					strpos ($value, '(') === false &&
-					strpos ($value, ')') === false
-				)
-				{
-					$value = $this->_quote ($value); 
-				}
+//				if (
+//					strpos ($value, '(') === false &&
+//					strpos ($value, ')') === false
+//				)
+//				{
+//					$value = $this->_quote ($value); 
+//				}
 				
-				$value = '=' . $value;
+				$value = '=' . $this->_quote ($value);
 			}
 			
 			if (
@@ -626,13 +626,15 @@ class Query_Translator_Mysql extends Query_Translator
 		{
 			return str_replace (
 				self::WHERE_VALUE_CHAR, 
-				is_array ($value) ? $this->_renderInArray ($value) 
-					: (
-						strpos ($value, '(') !== false ||
-						strpos ($value, ')') !== false 
-							? $value
-							: $this->_quote ($value)
-					),
+				is_array ($value) 
+					? $this->_renderInArray ($value) 
+					: $this->_quote ($value),
+//					: (
+//						strpos ($value, '(') !== false ||
+//						strpos ($value, ')') !== false 
+//							? $value
+//							: $this->_quote ($value)
+//					),
 				$condition
 			);
 		}
