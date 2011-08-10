@@ -249,7 +249,7 @@ class Helper_Date
 			$b = self::parseDateTime ($b);
 		}
 		
-		$diff = $a->diff ($b);fb ($a); fb ($b); fb ($diff);
+		$diff = $a->diff ($b);
 		
 		return $diff->invert ? $a : $b;
 	}
