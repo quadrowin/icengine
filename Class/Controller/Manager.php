@@ -347,12 +347,32 @@ class Controller_Manager extends Manager_Abstract
 		$cache_config = self::_cacheConfig ($a [0], $a [1]);
 		
 //		fb ($a [0] . '/' . $a [1] . '/' . var_export ($cache_config, true));
+
+		$start_time = microtime (true);
 		
-		return Executor::execute (
+		$html = Executor::execute (
 			array (__CLASS__, 'htmlUncached'),
 			array ($a, $args, $html_only),
 			$cache_config
 		);
+		
+		$dt = microtime (true) - $start_time;
+		
+		if ($dt > 1)
+		{
+			$f = fopen (IcEngine::root () . 'log/contrlog.txt', 'a');
+			fwrite (
+				$f,
+				date ('m-d H:i:s') . ' ' . 
+				$a [0] . '/' . $a [1] . '/' . 
+				$dt . '/' . 
+				var_export ($cache_config, true) . 
+				"\r\n"
+			);
+			fclose ($f);
+		}
+		
+		return $html;
 	}
 	
 	/**
