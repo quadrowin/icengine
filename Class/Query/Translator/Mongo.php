@@ -194,9 +194,15 @@ class Query_Translator_Mongo extends Query_Translator
 	 */
 	public function _renderDelete (Query $query)
 	{
+		$table = $query->part (Query::DELETE);
+		if (is_array ($table))
+		{
+			$table = reset ($table);
+		}
 		return array (
-			'collection'	=> self::_getFromCollection ($query, false),
-			'criteria'		=> self::_getCriteria ($query)
+			'collection'	=> strtolower (Model_Scheme::table ($table)),
+			'criteria'		=> self::_getCriteria ($query),
+			'options'		=> array ('justOne'	=> false)
 		);
 	}
 	
