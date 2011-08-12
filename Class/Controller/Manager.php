@@ -346,7 +346,7 @@ class Controller_Manager extends Manager_Abstract
 		
 		$cache_config = self::_cacheConfig ($a [0], $a [1]);
 		
-		Debug::microtime ($a [0] . '/' . $a [1] . '/ ' . var_export ($cache_config, true));
+//		Debug::microtime ($a [0] . '/' . $a [1] . '/ ' . var_export ($cache_config, true));
 		$start_time = microtime (true);
 		
 		$html = Executor::execute (
@@ -357,7 +357,7 @@ class Controller_Manager extends Manager_Abstract
 		
 		$dt = microtime (true) - $start_time;
 		
-		Debug::microtime ($a [0] . '/' . $a [1] . '/ ' . round ($dt, 5));
+//		Debug::microtime ($a [0] . '/' . $a [1] . '/ ' . round ($dt, 5));
 		
 		if ($dt > 1)
 		{
