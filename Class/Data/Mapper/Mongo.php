@@ -194,7 +194,14 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 				//$result = Mysql::select ($tags, $sql);
 				$touched_rows = $r->count (true);
 				
-				$result = $r;
+				$result = array ();
+				foreach ($r as $tr)
+				{
+//					fb ($tr);
+					$result [] = $tr;
+				}
+				// Так не работает, записи начинают повторяться
+//				$result = $r;
 				
 				break;
 			case Query::SHOW:
