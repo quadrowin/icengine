@@ -138,7 +138,7 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 		switch ($query->type ())
 		{
 			case Query::DELETE:
-				$r = $collection->remove ($q ['criteria']);
+				$r = $collection->remove ($q ['criteria'], $q ['options']);
 				//Mysql::delete ($tags, $sql);
 				$touched_rows = 1;
 				break;
