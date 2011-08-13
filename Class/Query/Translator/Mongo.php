@@ -79,10 +79,10 @@ class Query_Translator_Mongo extends Query_Translator
 				{
 					if (array_key_exists (Query::VALUE, $where))
 					{
-						$criteria [$w] = array ($solve => $where [Query::VALUE]);
+						$criteria [$w][$solve] = $where [Query::VALUE];
 						return ;
 					}
-					$criteria [$w] = array ($solve => $value);
+					$criteria [$w][$solve] = $value;
 					return ;
 				}
 
@@ -96,7 +96,7 @@ class Query_Translator_Mongo extends Query_Translator
 			$v = $where [Query::VALUE];
 			if (is_array ($v))
 			{
-				$criteria [$w] = array ('$in' => $v);
+				$criteria [$w]['$in'] = $v;
 				return ;
 			}
 		}
@@ -358,7 +358,41 @@ class Query_Translator_Mongo extends Query_Translator
 			'sort'			=> self::_getSort ($query),
 			'skip'			=> (int) $query->part (Query::LIMIT_OFFSET),
 			'limit'			=> (int) $query->part (Query::LIMIT_COUNT),
-			'find_one'		=> (int) $query->part (Query::LIMIT_COUNT) == 1
+			'find_one'		=> 
+				$query->part (Query::LIMIT_COUNT) == 1 &&
+				$query->part (Query::LIMIT_OFFSET) == 0 && 
+				!$query->part (Query::ORDER) &&
+				!$query->part (Query::CALC_FOUND_ROWS)
+		);
+	}
+	
+	/**
+	 * @desc Рендеринг SHOW запроса
+	 * @param Query $query 
+	 */
+	public function _renderShow (Query $query)
+	{
+		$from = $query->part (Query::FROM);
+	
+		if (!$from)
+		{
+			return;
+		}
+		
+		if (count ($from) > 1)
+		{
+			throw new Zend_Exception ('Multi from not supported.');
+		}
+		
+		//foreach ($from as $alias => $from)
+		
+		
+		reset ($from);
+		$table = key ($from);
+		return array (
+			'show'			=> $query->part (Query::SHOW),
+			'collection'	=> strtolower (Model_Scheme::table ($table)),
+			'model'			=> $table
 		);
 	}
 	
