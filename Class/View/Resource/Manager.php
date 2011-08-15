@@ -294,11 +294,17 @@ class View_Resource_Manager extends Manager_Abstract
 		$options = array (
 			'source'	=> $pattern,
 			'nopack'	=> ($pattern [0] == '-'),
-			'filePath'	=> ''
+			'filePath'	=> '',
+			'exclude'	=> false
 		);
-
+		
 		if ($pattern [0] == '-')
 		{
+			$pattern = substr ($pattern, 1);
+		}
+		elseif ($pattern [0] == '^')
+		{
+			$options ['exclude'] = true;
 			$pattern = substr ($pattern, 1);
 		}
 
