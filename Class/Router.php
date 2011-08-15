@@ -13,7 +13,7 @@ class Router
 	 * @var Route
 	 */
 	private static $_route;
-	
+
 	/**
 	 * @desc Разбирает запрос и извлекат параметры согласно
 	 * @return Route
@@ -34,12 +34,12 @@ class Router
 				{
 					if (strpos ($get, '=') === false)
 					{
-						$_GET ['get'] = 1;
+						$_REQUEST ['get'] = $_GET ['get'] = 1;
 					}
 					else
 					{
 						$tmp = explode ('=', $get);
-						$_GET [$tmp [0]] = $tmp [1];
+						$_REQUEST [$tmp [0]] = $_GET [$tmp [0]] = $tmp [1];
 					}
 				}
 			}
