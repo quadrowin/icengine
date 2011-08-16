@@ -19,10 +19,12 @@ class Controller_View_Resource extends Controller_Abstract
 		$config = $this->config ();
 		list (
 			$type,
-			$params
+			$params,
+			$name_filter
 		) = $this->_input->receive (
 			'type',
-			'params'
+			'params',
+			'name'
 		);
 		
 		$vars = array ();
@@ -40,7 +42,10 @@ class Controller_View_Resource extends Controller_Abstract
 		
 		foreach ($config->targets as $name => $target)
 		{
-			if ($type && $type != $target->type)
+			if (
+				($type && $type != $target->type) || 
+				($name_filter && $name_filter != $name)
+			)
 			{
 				continue;
 			}
