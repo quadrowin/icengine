@@ -57,7 +57,7 @@
 				{if $i->Field==$keyField && $row->$column}
 				<b>{$row->$column}</b>
 				{else}
-				<input id="column-{$i->Field}"{if strpos($i->Type,'time')!==false || strpos($i->Type,'date')!==false} class="datepicker"{/if} size="44" type="text" name="column[{$i->Field}]" value="{if isset($row->$column)}{$row->$column|htmlspecialchars}{/if}"
+				<input id="column-{$i->Field}"{if strpos($i->Type,'time')!==false || strpos($i->Type,'date')!==false} class="icadmin_datepicker"{/if} size="44" type="text" name="column[{$i->Field}]" value="{if isset($row->$column)}{$row->$column|htmlspecialchars}{/if}"
 					{if isset($events[$field])}
 					{foreach from=$events[$field] item="method" key="event"}
 					 on{$event}="javascript:{$method};"	
@@ -88,8 +88,8 @@
 <script type="text/javascript">
 $(function ()
 {
-	$('input[type=text].datepicker').datepicker ({
-		dateFormat: 'yy-mm-dd 00:00:00' 
+	$('input[type=text].icadmin_datepicker').datepicker ({
+		dateFormat: 'yy-mm-dd' 
 	});
 });
 </script>
