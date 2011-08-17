@@ -186,7 +186,7 @@ class Controller_Xmpp_Daemon extends Controller_Abstract
 	public function _log ($text)
 	{
 		
-		echo $text;
+//		echo $text;
 		
 		if (!$this->_logging)
 		{
