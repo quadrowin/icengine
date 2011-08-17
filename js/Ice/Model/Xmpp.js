@@ -176,33 +176,34 @@ Ice.Model_Xmpp = Ice.Class.extend ({
 	{
 		this.log ('Strophe incoming message.');
 		
-		var to = msg.getAttribute ('to');
-		var from = msg.getAttribute ('from');
-		var type = msg.getAttribute ('type');
-		var elems = msg.getElementsByTagName ('body');
-
-		if (type == "chat" && elems.length > 0)
-		{
-			var body = elems[0];
-
-			this.log (
-				'ECHOBOT: I got a message from ' + from + ': ' + 
-				Strophe.getText (body)
-			);
-
-			// echo
+		// echo
+//		var to = msg.getAttribute ('to');
+//		var from = msg.getAttribute ('from');
+//		var type = msg.getAttribute ('type');
+//		var elems = msg.getElementsByTagName ('body');
+//		if (type == "chat" && elems.length > 0)
+//		{
+//			var body = elems[0];
+//
+//			this.log (
+//				'ECHOBOT: I got a message from ' + from + ': ' + 
+//				Strophe.getText (body)
+//			);
+//
 //			var reply = $msg ({to: from, from: to, type: 'chat'})
 //				.cnode (Strophe.copyElement (body));
 //			this.connection.send (reply.tree ());
-
-			this.log ('ECHOBOT: I sent ' + from + ': ' + Strophe.getText (body));
-		}
+//
+//			this.log ('ECHOBOT: I sent ' + from + ': ' + Strophe.getText (body));
+//		}
 		
 		if (this.params.onMessage)
 		{
 			this.params.onMessage (msg);
 		}
 		
+		// we must return true to keep the handler alive.  
+		// returning false would remove it after it finishes.
 		return true;
 	},
 	
@@ -216,9 +217,15 @@ Ice.Model_Xmpp = Ice.Class.extend ({
 		var msg = $msg ({
 			to: to,
 			from: this.connection.jid,
-			type: 'chat',
-			url: document.URL
-		}).c ('body').t (message);
+			type: 'chat'
+		})
+			.c (
+				'body',
+				{
+					ref: document.URL
+				},
+				message
+			);
 		
 		this.connection.send (msg.tree ());
 	}
