@@ -158,7 +158,7 @@ Ice.Model_Xmpp = Ice.Class.extend ({
 		
 		a = this;
 		this.connection.addHandler (
-			function () { a.onMessage.apply (a, arguments); },
+			function () { return a.onMessage.apply (a, arguments); },
 			null, 'message', null, null,  null
 		);
 		this.connection.send ($pres ().tree ());
@@ -190,9 +190,10 @@ Ice.Model_Xmpp = Ice.Class.extend ({
 				Strophe.getText (body)
 			);
 
-			var reply = $msg ({to: from, from: to, type: 'chat'})
-				.cnode (Strophe.copyElement (body));
-			this.connection.send (reply.tree ());
+			// echo
+//			var reply = $msg ({to: from, from: to, type: 'chat'})
+//				.cnode (Strophe.copyElement (body));
+//			this.connection.send (reply.tree ());
 
 			this.log ('ECHOBOT: I sent ' + from + ': ' + Strophe.getText (body));
 		}
@@ -215,8 +216,9 @@ Ice.Model_Xmpp = Ice.Class.extend ({
 		var msg = $msg ({
 			to: to,
 			from: this.connection.jid,
-			type: 'chat'
-		}).c ('body').t (document.URL + '\n' + message);
+			type: 'chat',
+			url: document.URL
+		}).c ('body').t (message);
 		
 		this.connection.send (msg.tree ());
 	}
