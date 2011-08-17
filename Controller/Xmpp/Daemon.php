@@ -4,6 +4,30 @@
  * @desc Description of Daemon
  * @author Юрий Шведов
  * 
+ * Installation:
+ *
+ *	- Change it's owner to whichever user is running the server, ie. ejabberd
+ *	  $ chown ejabberd:ejabberd /var/lib/ejabberd/joomla-login
+ *
+ * 	- Change the access mode so it is readable only to the user ejabberd and has exec
+ *	  $ chmod 700 /var/lib/ejabberd/joomla-login
+ *
+ *	- Edit your ejabberd.cfg file, comment out your auth_method and add:
+ *	  {auth_method, external}.
+ *	  {extauth_program, "/var/lib/ejabberd/joomla-login"}.
+ *
+ *	- Restart your ejabberd service, you should be able to login with your Joomla auth info
+ *
+ * Other hints:
+ *	- if your users have a space or a @ in their username, they'll run into trouble
+ *	  registering with any client so they should be instructed to replace these chars
+ *	  " " (space) is replaced with "%20"
+ *	  "@" is replaced with "(a)"
+ *
+ *	- if your users have special chars and you're not using UTF-8 for Joomla, set
+ *	  sJoomlaCharset below to match your Joomla encoding
+ *
+ * 
  */
 class Controller_Xmpp_Daemon extends Controller_Abstract
 {
@@ -215,6 +239,13 @@ class Controller_Xmpp_Daemon extends Controller_Abstract
 	public function process ()
 	{
 		$iHeader = fgets (STDIN, 3);
+		
+		if (!$iHeader)
+		{
+			// Выход
+			die ();
+		}
+		
 		$aLength = unpack ("n", $iHeader);
 		$iLength = $aLength ["1"];
 		
