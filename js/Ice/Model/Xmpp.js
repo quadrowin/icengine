@@ -58,11 +58,6 @@ Ice.Model_Xmpp = Ice.Class.extend ({
 		var a = this;
 		this.connection.rawInput = function () { a.logInput.apply (a, arguments); };
 		this.connection.rawOutput = function () { a.logOutput.apply (a, arguments); };
-		this.connection.addHandler (
-			function () { a.onMessage.apply (a, arguments); },
-			null, 'message', null, null,  null
-		);
-//		this.connection.send ($pres ().tree ());
 		
 		this.parent ();
 	},
@@ -127,7 +122,6 @@ Ice.Model_Xmpp = Ice.Class.extend ({
 	onConnect: function (status)
 	{
 		this.status = status;
-		console.log (this.onConnectCallbacks [status]);
 		this.onConnectCallbacks [status].apply (this, arguments);
 	},
 	
@@ -161,6 +155,14 @@ Ice.Model_Xmpp = Ice.Class.extend ({
 	onConnectConnected: function ()
 	{
 		this.log ('Strophe is connected.');
+		
+		a = this;
+		this.connection.addHandler (
+			function () { a.onMessage.apply (a, arguments); },
+			null, 'message', null, null,  null
+		);
+		this.connection.send ($pres ().tree ());
+		
 		if (this.params.onConnected)
 		{
 			this.params.onConnected (this);
