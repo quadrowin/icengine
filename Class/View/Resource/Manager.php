@@ -287,7 +287,7 @@ class View_Resource_Manager extends Manager_Abstract
 	{
 		$base_dir = str_replace ('\\', '/', $base_dir);
 		$base_dir = rtrim ($base_dir, '/') . '/' ;
-		$base_url = $base_dir;
+		$base_url = '/';
 		
 		$result = array ();
 		
