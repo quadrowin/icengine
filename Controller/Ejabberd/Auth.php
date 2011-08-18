@@ -1,7 +1,7 @@
 <?php
 /**
  * 
- * @desc Description of Daemon
+ * @desc Демон для авторизации в ejabberd через сайт.
  * @author Юрий Шведов
  * 
  * Installation:
@@ -14,9 +14,9 @@
  *
  *	- Edit your ejabberd.cfg file, comment out your auth_method and add:
  *	  {auth_method, external}.
- *	  {extauth_program, "/var/lib/ejabberd/joomla-login"}.
+ *	  {extauth_program, "php ics.php secret:localhost Ejabberd_Auth daemon"}.
  *
- *	- Restart your ejabberd service, you should be able to login with your Joomla auth info
+ *	- Restart your ejabberd service, you should be able to login with your site auth info
  *
  * Other hints:
  *	- if your users have a space or a @ in their username, they'll run into trouble
@@ -24,12 +24,12 @@
  *	  " " (space) is replaced with "%20"
  *	  "@" is replaced with "(a)"
  *
- *	- if your users have special chars and you're not using UTF-8 for Joomla, set
- *	  sJoomlaCharset below to match your Joomla encoding
+ *	- if your users have special chars and you're not using UTF-8, set
+ *	  config ['charset'] below to match your Joomla encoding
  *
  * 
  */
-class Controller_Xmpp_Daemon extends Controller_Abstract
+class Controller_Ejabberd_Auth extends Controller_Abstract
 {
 	
 	/**
@@ -43,10 +43,22 @@ class Controller_Xmpp_Daemon extends Controller_Abstract
 	 * @var array|Objective
 	 */
 	protected $_config = array (
-		// Кодировка базы
+		/**
+		 * @desc Кодировка базы
+		 * @var string
+		 */
 		'charset'	=> 'UTF-8',
-		// Ведение логов
-		'logging'	=> false
+		/**
+		 * @desc Файл для записи логов
+		 * @var string
+		 */
+		'logging'	=> false,
+		/**
+		 * @desc Разрешить использовать в качестве пароля
+		 * идентификатор сессии.
+		 * @var boolean
+		 */
+		'session_auth'	=> true
 	);
 	
 	public function __construct ()
@@ -103,6 +115,13 @@ class Controller_Xmpp_Daemon extends Controller_Abstract
 		if ($user ['password'] != $auth_key)
 		{
 			$this->_log ("[exAuth] invalid password for " . $jid);
+			
+			if (!$this->_config->session_auth)
+			{
+				fwrite (STDOUT, pack ("nn", 2, 0));
+				return;
+			}
+			
 			// Если не совпал пароль проверяем сессию
 			$user_session = Model_Scheme::dataSource ('User_Session')
 				->execute (
@@ -171,7 +190,7 @@ class Controller_Xmpp_Daemon extends Controller_Abstract
 			->from ('User')
 			->where ('jid', $jid);
 
-		$this->_log ("[debug] query isuser: ". $query->translate ('Mysql'));
+		$this->_log ("[debug] query isuser: " . $query->translate ('Mysql'));
 		// т.к. модели будут кэшироваться и постоянно отжирать память,
 		// выбираем просто в массив
 		$user = Model_Scheme::dataSource ('User')
@@ -223,9 +242,9 @@ class Controller_Xmpp_Daemon extends Controller_Abstract
 	}
 	
 	/**
-	 * @desc 
+	 * @desc Запуск цикла демона авторизации
 	 */
-	public function index ()
+	public function daemon ()
 	{
 		for (;;)
 		{
@@ -238,46 +257,45 @@ class Controller_Xmpp_Daemon extends Controller_Abstract
 	 */
 	public function process ()
 	{
-		$iHeader = fgets (STDIN, 3);
+		$header = fgets (STDIN, 3);
 		
-		if (!$iHeader)
+		if (!$header)
 		{
 			// Выход
 			die ();
 		}
 		
-		$aLength = unpack ("n", $iHeader);
-		$iLength = $aLength ["1"];
+		$length = unpack ('n', $header);
+		$length = $length [1];
 		
-		if ($iLength > 0)
+		if ($length > 0)
 		{
 			// ovo znaci da smo nesto dobili
-			$sData = fgets (STDIN, $iLength + 1);
-			if (
-				$this->config ()->charset &&
-				strtoupper ($this->_config->charset) != "UTF-8"
-			)
+			$data = fgets (STDIN, $length + 1);
+			
+			$cfg_charset = $this->config ()->charset;
+			if ($cfg_charset && strtoupper ($cfg_charset) != "UTF-8")
 			{
-				$sData = iconv ("UTF-8", $this->_config->charset, $sData);
+				$data = iconv ("UTF-8", $cfg_charset, $data);
 			}
 			
-			$this->_log ("[debug] received data: ". $sData);
+			$this->_log ("[debug] received data: " . $data);
 			
-			$aCommand = explode (":", $sData);
+			$commands = explode (":", $data);
 			
-			if (is_array ($aCommand))
+			if (is_array ($commands))
 			{
-				$method = '_cmd' . ucfirst ($aCommand [0]);
+				$method = '_cmd' . ucfirst ($commands [0]);
 				
 				if (method_exists ($this, $method))
 				{
-					$this->$method ($aCommand);
+					$this->$method ($commands);
 				}
 				else
 				{
 					// ako je uhvaceno ista drugo
-					$this->_log ("[exAuth] unknown command " . $aCommand [0]);
-					fwrite(STDOUT, pack("nn", 2, 0));
+					$this->_log ("[exAuth] unknown command " . $commands [0]);
+					fwrite (STDOUT, pack ("nn", 2, 0));
 				}
 			}
 			else
@@ -286,10 +304,10 @@ class Controller_Xmpp_Daemon extends Controller_Abstract
 				fwrite (STDOUT, pack ("nn", 2, 0));
 			}
 		}
-		unset ($iHeader);
-		unset ($aLength);
-		unset ($iLength);
-		unset ($aCommand);
+		
+		unset ($header);
+		unset ($length);
+		unset ($commands);
 	}
 	
 }
