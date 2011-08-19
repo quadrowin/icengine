@@ -30,20 +30,9 @@ class TracerTest extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @depends testLog
-	 * @todo Implement testFlushFile().
-	 */
-	public function testFlushFile() {
-		$file = 'C:/temp/tracer.txt';
-		Tracer::flushFile ($file);
-		$this->assertFileExists ($file);
-	}
-
-	/**
 	 * @todo Implement testLog().
 	 */
 	public function testLog() {
-		// Remove the following lines when you implement this test.
 		Tracer::log ('base level');
 		sleep (1);
 		Tracer::log ('step into', 1);
@@ -53,15 +42,25 @@ class TracerTest extends PHPUnit_Framework_TestCase {
 		Tracer::log ('with type', 0, 'test');
 		sleep (1);
 		Tracer::log ('level back', -1);
-		
+		$this->assertTrue (count (Tracer::$logs) >= 5);
+	}
+	
+	/**
+	 * @todo Implement testFlushFile().
+	 */
+	public function testFlushFile() {
+		$file = 'C:/temp/tracer.txt';
+		Tracer::flushFile ($file);
+		$this->assertFileExists ($file);
 	}
 
 	/**
 	 * @todo Implement testMicrotime().
+	 * @depends testLog
 	 */
 	public function testMicrotime() {
 		$start = Tracer::microtime ();
-		// Remove the following lines when you implement this test.
+		
 		for ($i = 1; $i < 10; ++$i)
 		{
 			sleep (1);

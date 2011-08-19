@@ -71,8 +71,8 @@ class Tracer
 				$f,
 				$border . 
 				round ($log ['a'] - self::$startTime, 5) . "\t" .
-				$dt . "\t" .
-				$type . "\t" .
+				round ($dt, 5) . "\t" .
+				$log ['t'] . "\t" .
 				(
 					is_scalar ($log ['m'])
 					? $log ['m']
