@@ -30,11 +30,11 @@
 					<option value="0">Не указано</option>
 					{assign var="selected" value=0}
 					{foreach from=$i->Values item="j"}
-					<option value="{$j->key()}"{if isset ($row->$column) && $row->$column==$j->key()} selected="selected"
+						<option value="{$j->key()}"{if isset ($row->$column) && $row->$column==$j->key()} selected="selected"
 						{assign var="selected" value=1}{/if}>
 						{assign var="temp" value=$j->title()}
 						{$temp|truncate:"100"}
-					</option>
+						</option>
 					{/foreach} 
 					{if $row && isset ($row->$column) && $row->$column && !$selected}
 					<option value="{$row->$column}">Указано значение {$row->$column}</option>	
