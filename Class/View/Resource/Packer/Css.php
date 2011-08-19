@@ -109,6 +109,10 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 		{
 			return 'url(' . $matches [1] . ')';
 		}
+		elseif (substr ($matches [1], 0, 5) == 'http:')
+		{
+			return 'url(' . $matches [1] . ')';
+		}
 		
 		if (substr ($matches [1], 0, 1) == '/')
 		{
