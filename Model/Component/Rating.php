@@ -40,7 +40,7 @@ class Component_Rating extends Model_Component
 			$log = Model_Manager::byQuery (
 					'Component_Rating_Log', 
 					Query::instance ()
-						->where ('session', User_Session::getCurrent ())
+						->where ('session', User_Session::getCurrent ()->phpSessionId)
 						->where ('table', $this->table)
 						->where ('rowId', $this->rowId)
 						->order (array ('time' => Query::DESC))
