@@ -138,7 +138,7 @@ class Route extends Model_Child
 		 */ 
 		$pattern = preg_replace ('#/[0-9]{1,}/#i', '/?/', $url);
 		$pattern = preg_replace ('#/[0-9]{1,}/#i', '/?/', $pattern);
-		
+//		fb ($pattern);
 		$router = Resource_Manager::get ('Route_Cache', $pattern);
 		
 		if ($router !== null)
@@ -183,7 +183,7 @@ class Route extends Model_Child
 				}
 			}
 		}
-		
+//		fb($row);
 		if (!$row && $config ['use_default_source'])
 		{
 			$select = Query::instance ()
@@ -203,8 +203,8 @@ class Route extends Model_Child
 		
 			$row = DDS::execute ($select)->getResult ()->asRow ();
 		}
-		
-		//var_dump(DDS::getDataSource()->getQuery('Mysql'), $row);
+//		fb($row);
+//		var_dump(DDS::getDataSource()->getQuery('Mysql'), $row);
 		if (!$row)
 		{
 			Resource_Manager::set ('Route_Cache', $pattern, false);
