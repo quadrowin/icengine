@@ -20,7 +20,11 @@ class View_Resource extends Objective
 	 * @var string
 	 */
 	public $href;
-	
+	/**
+	 * Путь до ресурса относительно корня сайта
+	 * @var string
+	 */
+	public $src;
 	/**
 	 * Тип ресурса.
 	 * @var string

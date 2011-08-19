@@ -183,10 +183,12 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 			isset ($resource->filePath)
 		)
 		{
-			$prefix = str_replace (
-				'{$source}',
-				$resource->filePath,
-				$this->config ()->item_prefix
+			$prefix = strtr (
+				$this->config ()->item_prefix,
+				array (
+					'{$source}' => $resource->filePath,
+					'{$src}'	=> $resource->src,
+				)
 			);
 		}
 		else
