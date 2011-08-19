@@ -28,10 +28,12 @@ class View_Resource_Packer_Jres extends View_Resource_Packer_Abstract
 			isset ($resource->filePath)
 		)
 		{
-			$result = str_replace (
-				'{$source}',
-				$resource->filePath,
-				$this->config ()->item_prefix
+			$result = strtr (
+				$this->config ()->item_prefix,
+				array (
+					'{$source}' => $resource->filePath,
+					'{$src}'	=> $resource->localPath,
+				)
 			);
 		}
 		else
