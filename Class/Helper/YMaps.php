@@ -160,7 +160,7 @@ class Helper_YMaps
 	public static function parseYandexRasp ($html)
 	{
 		$html = str_replace (array ("\r", "\n"), '', $html);
-		file_put_contents ('/var/1.txt', $html);
+		//file_put_contents ('/var/1.txt', $html);
 		$regexp = '#<tbody class="js-datetime-group">.+?' .
 			'<div class="b-timetable__tripname">(.+?)</div>' . // рейс
 			'.+?' .
