@@ -103,7 +103,7 @@ class Controller_Cli_Scheme extends Controller_Abstract
 		Controller_Manager::call (
 			'Redis_Clear',
 			'clearContent'
-		);f
+		);
 		
 		$model = $this->_input->receive ('model');
 		

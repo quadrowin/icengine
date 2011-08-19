@@ -109,6 +109,10 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 		{
 			return 'url(' . $matches [1] . ')';
 		}
+		elseif (substr ($matches [1], 0, 5) == 'http:')
+		{
+			return 'url(' . $matches [1] . ')';
+		}
 		
 		if (substr ($matches [1], 0, 1) == '/')
 		{
@@ -179,10 +183,12 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 			isset ($resource->filePath)
 		)
 		{
-			$prefix = str_replace (
-				'{$source}',
-				$resource->filePath,
-				$this->config ()->item_prefix
+			$prefix = strtr (
+				$this->config ()->item_prefix,
+				array (
+					'{$source}' => $resource->filePath,
+					'{$src}'	=> $resource->localPath,
+				)
 			);
 		}
 		else
