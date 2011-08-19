@@ -370,7 +370,6 @@ class View_Resource_Manager extends Manager_Abstract
 					$files [$j][1],
 					$base_dir_len
 				);
-				$options ['src'] = str_replace (IcEngine::root (), '/', $files [$j][1]);
 				$result [$file] = self::add ($file, $type, $options);
 			}
 		}
@@ -401,7 +400,6 @@ class View_Resource_Manager extends Manager_Abstract
 					$file = $base_url . $local_path;
 					$options ['source'] = $file;
 					$options ['filePath'] = $base_dir . $local_path;
-					$options ['src'] = $local_path;
 					$options ['localPath' ] = $local_path;
 					$result [$file] = self::add ($file, $type, $options);
 				}
@@ -413,7 +411,6 @@ class View_Resource_Manager extends Manager_Abstract
 			$file = $base_url . $pattern;
 			$options ['filePath'] = $base_dir . $pattern;
 			$options ['localPath'] = $pattern;
-			$options ['src'] = 	$file;
 			$result [$file] = self::add ($file, $type, $options);
 		}
 		

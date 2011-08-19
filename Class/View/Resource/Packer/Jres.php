@@ -32,7 +32,7 @@ class View_Resource_Packer_Jres extends View_Resource_Packer_Abstract
 				$this->config ()->item_prefix,
 				array (
 					'{$source}' => $resource->filePath,
-					'{$src}'	=> $resource->src,
+					'{$src}'	=> $resource->localPath,
 				)
 			);
 		}
