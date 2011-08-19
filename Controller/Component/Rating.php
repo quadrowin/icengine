@@ -8,35 +8,6 @@
  */
 class Controller_Component_Rating extends Controller_Abstract
 {
-	
-	/**
-	 *
-	 * @param type $rs		int R составляющая цвета начала диапозона
-	 * @param type $gs		int G составляющая цвета начала диапозона
-	 * @param type $bs		int B составляющая цвета начала диапозона
-	 * @param type $rf		int R составляющая цвета конца диапозона
-	 * @param type $gf		int G составляющая цвета конца диапозона
-	 * @param type $bf		int B составляющая цвета конца диапозона
-	 * @param type $rateMin минимальное значение рейтинга
-	 * @param type $rateMax максисмальное значение рейтинга
-	 * @param type $rateValue  значение текущее рейтинга
-	 */
-	public function colorForRate ($rs, $gs, $bs, $rf, $gf, $bf, $rateMin, $rateMax, $rateValue)
-	{
-		// преращение цветов
-		$dr =$rf-$rs;
-		$dg =$gf-$gs;
-		$db =$bf-$bs;
-		// диапозон изменения рейтинга
-		$range = $rateMax - $rateMin;
-		
-		$outR = ($rateValue-$rateMin)/$range*$dr+$rs;
-		$outG = ($rateValue-$rateMin)/$range*$dg+$gs;
-		$outB = ($rateValue-$rateMin)/$range*$db+$bs;
-		
-		return 'rgb(' . round($outR) . ',' . round($outG) . ',' . round($outB) . ')';
-		
-	}
 	/**
 	 * @desc Голосование
 	 * @param string $table 
