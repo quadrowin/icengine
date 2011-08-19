@@ -25,7 +25,9 @@
 				if (x != '' || y != '') {
 				
 					map.setCenter (new YMaps.GeoPoint (x, y), 6, YMaps.MapType.HYBRID);
-					map.openBalloon (new YMaps.GeoPoint (x, y), '', {hasCloseButton: true, mapAutoPan: 0});
+					//map.openBalloon (new YMaps.GeoPoint (x, y), '', {hasCloseButton: true, mapAutoPan: 0});		
+					var placemark = new YMaps.Placemark(map.getCenter(), {draggable: true});
+					map.addOverlay(placemark);
 				}
 				
 				else if (name!= '') {
@@ -35,9 +37,11 @@
 						if (this.length())
 						{
 							map.setCenter (this.get(0).getGeoPoint(), 6, YMaps.MapType.HYBRID);
-							map.openBalloon (this.get(0).getGeoPoint(), name, {hasCloseButton: true, mapAutoPan: 0});
+							//map.openBalloon (this.get(0).getGeoPoint(), name, {hasCloseButton: true, mapAutoPan: 0});
 							$("#column-gp_longitude").val(this.get(0).getGeoPoint().getX());
 							$("#column-gp_latitude").val(this.get(0).getGeoPoint().getY());
+							var placemark = new YMaps.Placemark(map.getCenter(), {draggable: true});
+							map.addOverlay(placemark);
 						}
 						else
 						{
@@ -56,6 +60,19 @@
 
 				// переключатель типа карты (спутник, гибрид)
 				map.addControl (new YMaps.TypeControl ());
+				
+				var myEventListener = YMaps.Events.observe(map, map.Events.ContextMenu, function (map, mEvent) {
+					placemark.setGeoPoint(mEvent.getGeoPoint());
+					$("#column-gp_longitude").val(placemark.getGeoPoint().getX());
+					$("#column-gp_latitude").val(placemark.getGeoPoint().getY());
+				}, this);
+				
+				YMaps.Events.observe(placemark, placemark.Events.DragEnd, function (obj) {
+					$("#column-gp_longitude").val(placemark.getGeoPoint().getX());
+					$("#column-gp_latitude").val(placemark.getGeoPoint().getY());
+				obj.update();
+				});
+				
 			}
 			
 			$(function() {
