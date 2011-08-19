@@ -217,8 +217,11 @@ abstract class View_Resource_Packer_Abstract
 		
 		foreach ($resources as $resource)
 		{
-			$this->_currentResource = $resource;
-			$packages [] = $this->packOne ($resource);
+			if (!$resource->exclude)
+			{
+				$this->_currentResource = $resource;
+				$packages [] = $this->packOne ($resource);
+			}
 		}
 		
 		$packages = $this->compile ($packages);

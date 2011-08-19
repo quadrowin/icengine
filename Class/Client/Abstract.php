@@ -8,6 +8,9 @@
  */
 abstract class Client_Abstract
 {
+	
+	protected $_config;
+	
 	/**
 	 * 
 	 * @desc Получить имя клиента без префикса "Client_"
@@ -17,4 +20,5 @@ abstract class Client_Abstract
 	{
 		return substr (__CLASS__, 7);
 	}
+	
 }

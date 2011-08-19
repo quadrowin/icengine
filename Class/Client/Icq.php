@@ -10,7 +10,6 @@ Loader::load ('Client_Abstract');
  */
 class Client_Icq extends Client_Abstract
 {
-	private $_config;
 	
 	/**
 	 * 
