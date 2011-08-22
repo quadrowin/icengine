@@ -138,7 +138,7 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 		switch ($query->type ())
 		{
 			case Query::DELETE:
-				$r = $collection->remove ($q ['criteria']);
+				$r = $collection->remove ($q ['criteria'], $q ['options']);
 				//Mysql::delete ($tags, $sql);
 				$touched_rows = 1;
 				break;
@@ -167,38 +167,85 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 			case Query::SELECT:
 				if ($q ['find_one'])
 				{
-					$r = $collection->findOne ($q ['query']);
+					$result = array (
+						$collection->findOne ($q ['query'])
+					);
 				}
 				else
 				{
+//					fb (json_encode ($q ['query']));
+					
 					$r = $collection->find ($q ['query']);
-				}
 				
-				if ($query->part (Query::CALC_FOUND_ROWS))
-				{
-					$found_rows = $r->count ();
+					if ($query->part (Query::CALC_FOUND_ROWS))
+					{
+						$found_rows = $r->count ();
+					}
+
+					if ($q ['sort'])
+					{
+						$r->sort ($q ['sort']);
+					}
+					if ($q ['skip'])
+					{
+						$r->skip ($q ['skip']);
+					}
+					if ($q ['limit'])
+					{
+						$r->limit ($q ['limit']);
+					}
+					//$result = Mysql::select ($tags, $sql);
+					$touched_rows = $r->count (true);
+
+					$result = array ();
+					foreach ($r as $tr)
+					{
+//						fb ($tr);
+						$result [] = $tr;
+					}
+					// Так не работает, записи начинают повторяться
+//					$result = $r;
 				}
-				
-				if ($q ['sort'])
-				{
-					$r->sort ($q ['sort']);
-				}
-				if ($q ['skip'])
-				{
-					$r->skip ($q ['skip']);
-				}
-				if ($q ['limit'])
-				{
-					$r->limit ($q ['limit']);
-				}
-				//$result = Mysql::select ($tags, $sql);
-				$touched_rows = $r->count (true);
-				
-				$result = $r;
-				
 				break;
 			case Query::SHOW:
-				
+				$touched_rows = 0;
+				$show = strtoupper ($q ['show']);
+				if ($show == 'DELETE_INDEXES')
+				{
+					$result = array ($collection->deleteIndexes ());
+				}
+				elseif ($show == 'ENSURE_INDEXES')
+				{
+					// Создание индексов
+					$result = Model_Scheme::getScheme ($q ['model']);
+					$result = $result ['keys'];
+					foreach ($result as $key)
+					{
+						$temp = array ();
+						$options = array ();
+						if (isset ($key ['primary']))
+						{
+							$temp = (array) $key ['primary'];
+							$options ['unique'] = true;
+						}
+						elseif (isset ($key ['index']))
+						{
+							$temp = (array) $key ['index'];
+						}
+						
+						$keys = array ();
+						foreach ($temp as $index)
+						{
+							$keys [$index] = 1;
+						}
+						
+						$collection->ensureIndex ($keys, $options);
+					}
+				}
+				else
+				{
+					$result = null;
+				}
 				break;
 			case Query::UPDATE:
 				$collection->update (

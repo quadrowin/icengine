@@ -61,7 +61,8 @@ class Query_Translator_Mysql extends Query_Translator
 			strpos ($value, '`') === false
 		)
 		{
-			return self::SQL_ESCAPE . mysql_real_escape_string ($value) . self::SQL_ESCAPE;
+			//return self::SQL_ESCAPE . mysql_real_escape_string ($value) . self::SQL_ESCAPE;
+			return self::SQL_ESCAPE . addslashes (iconv ('UTF-8', 'UTF-8//IGNORE', $value)) . self::SQL_ESCAPE;
 		}
 		return $value;
 	}
@@ -79,7 +80,8 @@ class Query_Translator_Mysql extends Query_Translator
 			die ();
 		}
 //		if (is_array ($value)) debug_print_backtrace();
-		return self::SQL_QUOTE . mysql_real_escape_string ($value) . self::SQL_QUOTE;
+//		return self::SQL_QUOTE . mysql_real_escape_string ($value) . self::SQL_QUOTE;
+		return self::SQL_QUOTE . addslashes (iconv ('UTF-8', 'UTF-8//IGNORE', $value)) . self::SQL_QUOTE;
 	}
 	
 	public function _partCalcFoundRows (Query $query)
@@ -599,15 +601,15 @@ class Query_Translator_Mysql extends Query_Translator
 			}
 			else
 			{
-				if (
-					strpos ($value, '(') === false &&
-					strpos ($value, ')') === false
-				)
-				{
-					$value = $this->_quote ($value); 
-				}
+//				if (
+//					strpos ($value, '(') === false &&
+//					strpos ($value, ')') === false
+//				)
+//				{
+//					$value = $this->_quote ($value); 
+//				}
 				
-				$value = '=' . $value;
+				$value = '=' . $this->_quote ($value);
 			}
 			
 			if (
@@ -626,13 +628,15 @@ class Query_Translator_Mysql extends Query_Translator
 		{
 			return str_replace (
 				self::WHERE_VALUE_CHAR, 
-				is_array ($value) ? $this->_renderInArray ($value) 
-					: (
-						strpos ($value, '(') !== false ||
-						strpos ($value, ')') !== false 
-							? $value
-							: $this->_quote ($value)
-					),
+				is_array ($value) 
+					? $this->_renderInArray ($value) 
+					: $this->_quote ($value),
+//					: (
+//						strpos ($value, '(') !== false ||
+//						strpos ($value, ')') !== false 
+//							? $value
+//							: $this->_quote ($value)
+//					),
 				$condition
 			);
 		}

@@ -109,24 +109,27 @@ class Executor
 		
 		$cache = self::getCacher ()->get ($key);
 		
-		$tag_valid = false;
+		$tag_valid = true;
 		
 		if (
-			$options && 
 			$options->current_tags && 
-			isset ($cache ['t']) && 
-			!array_diff ($options->current_tags->__toArray (), $cache ['t'])
+			(
+				!isset ($cache ['t']) || 
+				array_diff ($options->current_tags->__toArray (), $cache ['t'])
+			)
 		)
 		{
-			$tag_valid = true;
+			$tag_valid = false;
 		}
 		
 		if ($cache)
 		{
-			 if ((
+			if (
+				(
 					$cache ['a'] + $expiration > time () || 
 					$expiration == 0
-				)	&& $tag_valid
+				) && 
+				$tag_valid
 			)
 			{
 				if (!$hits)
