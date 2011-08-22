@@ -495,6 +495,11 @@ class Controller_Admin_Database extends Controller_Abstract
 				unset ($fields [$i]);
 			}
 			
+			if (!$row->key () && $field ['Field'] != $row->keyField ())
+			{
+				$row->set ($field ['Field'], $field ['Default']);
+			}
+			
 			// Тип поля - enum
 			if (strpos ($field->Type, 'enum(') === 0)
 			{

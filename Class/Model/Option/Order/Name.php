@@ -8,23 +8,22 @@
  * @package IcEngine
  *
  */
-class Model_Collection_Option_Order_Name extends Model_Collection_Option_Abstract
+class Model_Option_Order_Name extends Model_Option
 {
 	
 	/**
 	 * (non-PHPdoc)
-	 * @see Model_Collection_Option_Abstract::before()
+	 * @see Model_Option::before()
 	 */
-	public function before (Model_Collection $collection, 
-		Query $query, array $params)
+	public function before ()
 	{
-		$field = '`' . $collection->modelName () . '`.`name`';
+		$field = '`' . $this->collection->modelName () . '`.`name`';
 		
 		$desc = 
-			isset ($params ['order']) &&
-			strtoupper ($params ['order']) == 'DESC'; 
+			isset ($this->params ['order']) &&
+			strtoupper ($this->params ['order']) == 'DESC'; 
 		
-		$query->order (array (
+		$this->query->order (array (
 			$field => $desc ? Query::DESC : Query::ASC
 		));
 	}

@@ -1,12 +1,17 @@
+{assign var="is_new" value=true}
+{if $row && $row->sfield ($row->keyField ())}
+	{assign var="is_new" value=false}
+{/if}
+
 <div id="tab-data">
 
-	{if $row}
-	<p><a href="/cp/row/{$table}/{$row->key()}/delete/" onclick="if(!confirm('Вы действительно хотите удалить запись?'))return false" style="color:red;font-weight:bold">Удалить</a></p>
+	{if !$is_new}
+		<p><a href="/cp/row/{$table}/{$row->key()}/delete/" onclick="if(!confirm('Вы действительно хотите удалить запись?'))return false" style="color:red;font-weight:bold">Удалить</a></p>
 	{/if}
 		
 	{if $fields}
 	<form method="post" action="/cp/row/{$table}/save/">
-	<input type="hidden" name="row_id" value="{if $row}{$row->key()}{else}0{/if}" />
+	<input type="hidden" name="row_id" value="{if $is_new}0{else}{$row->key()}{/if}" />
 	<table width="100%">
 		{foreach from=$fields item="i" name="i"}
 		{assign var="field" value=$i->Field}
@@ -25,11 +30,11 @@
 					<option value="0">Не указано</option>
 					{assign var="selected" value=0}
 					{foreach from=$i->Values item="j"}
-					<option value="{$j->key()}"{if isset ($row->$column) && $row->$column==$j->key()} selected="selected"
+						<option value="{$j->key()}"{if isset ($row->$column) && $row->$column==$j->key()} selected="selected"
 						{assign var="selected" value=1}{/if}>
 						{assign var="temp" value=$j->title()}
 						{$temp|truncate:"100"}
-					</option>
+						</option>
 					{/foreach} 
 					{if $row && isset ($row->$column) && $row->$column && !$selected}
 					<option value="{$row->$column}">Указано значение {$row->$column}</option>	
@@ -54,10 +59,10 @@
 					{/if}
 				>{if isset($row->$column)}{$row->$column|htmlspecialchars}{/if}</textarea>
 				{else}
-				{if $i->Field==$keyField && $row->$column}
-				<b>{$row->$column}</b>
+				{if $i->Field==$keyField && $row->sfield($column)}
+					<b>{$row->sfield($column)}</b>
 				{else}
-				<input id="column-{$i->Field}"{if strpos($i->Type,'time')!==false || strpos($i->Type,'date')!==false} class="datepicker"{/if} size="44" type="text" name="column[{$i->Field}]" value="{if isset($row->$column)}{$row->$column|htmlspecialchars}{/if}"
+				<input id="column-{$i->Field}"{if strpos($i->Type,'time')!==false || strpos($i->Type,'date')!==false} class="icadmin_datepicker"{/if} size="44" type="text" name="column[{$i->Field}]" value="{if isset($row->$column)}{$row->$column|htmlspecialchars}{/if}"
 					{if isset($events[$field])}
 					{foreach from=$events[$field] item="method" key="event"}
 					 on{$event}="javascript:{$method};"	
@@ -88,8 +93,8 @@
 <script type="text/javascript">
 $(function ()
 {
-	$('input[type=text].datepicker').datepicker ({
-		dateFormat: 'yy-mm-dd 00:00:00' 
+	$('input[type=text].icadmin_datepicker').datepicker ({
+		dateFormat: 'yy-mm-dd' 
 	});
 });
 </script>

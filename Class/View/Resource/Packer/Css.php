@@ -105,7 +105,11 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 	 */
 	public function _replaceUrl (array $matches)
 	{
-		if (substr ($matches [1], 0, 5 == 'data:'))
+		if (substr ($matches [1], 0, 5) == 'data:')
+		{
+			return 'url(' . $matches [1] . ')';
+		}
+		elseif (substr ($matches [1], 0, 5) == 'http:')
 		{
 			return 'url(' . $matches [1] . ')';
 		}
@@ -179,10 +183,12 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 			isset ($resource->filePath)
 		)
 		{
-			$prefix = str_replace (
-				'{$source}',
-				$resource->filePath,
-				$this->config ()->item_prefix
+			$prefix = strtr (
+				$this->config ()->item_prefix,
+				array (
+					'{$source}' => $resource->filePath,
+					'{$src}'	=> $resource->localPath,
+				)
 			);
 		}
 		else

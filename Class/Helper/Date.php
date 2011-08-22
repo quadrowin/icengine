@@ -251,7 +251,7 @@ class Helper_Date
 		
 		$diff = $a->diff ($b);
 		
-		return $diff->invert ? $b : $a;
+		return $diff->invert ? $a : $b;
 	}
 	
 	/**
@@ -282,7 +282,7 @@ class Helper_Date
 		
 		$diff = $a->diff ($b);
 		
-		return $diff->invert ? $a : $b;
+		return $diff->invert ? $b : $a;
 	}
 	
 	/**

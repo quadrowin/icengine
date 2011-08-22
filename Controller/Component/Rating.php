@@ -8,7 +8,6 @@
  */
 class Controller_Component_Rating extends Controller_Abstract
 {
-	
 	/**
 	 * @desc Голосование
 	 * @param string $table 

@@ -87,8 +87,11 @@ class Query {
 	}
 	
 	/**
-	 * 
-	 * @param string|array $table
+	 * @desc Добавление джойна таблицы к запросу
+	 * @param string|array $table Название таблицы или
+	 * пара (table => alias) или, в случае нескольких алиасов 
+	 * (table => array (alias1, alias2,...)).
+	 * Джойн нескольких таблиц не поддерживается.
 	 * @param string $type
 	 * @param string $condition optional
 	 */
@@ -97,13 +100,8 @@ class Query {
 		if (is_array ($table))
 		{
 			reset ($table);
-			$aliases = (array) key ($table);
-			$table = current ($table);
-			
-			if (!$aliases)
-			{
-				$aliases = array ($table);
-			}
+			$aliases = (array) current ($table);
+			$table = key ($table);
 		}
 		else
 		{
@@ -163,7 +161,7 @@ class Query {
 	public function from ($table, $alias = null)
 	{
 		$this->_join (
-			$alias ? array ($alias => $table) : $table, 
+			$alias ? array ($table => $alias) : $table, 
 			self::FROM
 		);
 		return $this;
