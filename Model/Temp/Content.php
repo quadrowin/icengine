@@ -95,7 +95,7 @@ class Temp_Content extends Model
 		// ucac7fe407f8e5e1c683005867edd74439452c4.39068717
 		$u = uniqid ('', true);
 		// Вырезаем точку
-		return 'uc' . md5 (time ()) . substr ($u, 9, 5) . substr ($u, 15);
+		return md5 (time ()) . substr ($u, 9, 5) . substr ($u, 15);
 	}
 	
 	public static function idForNew (Temp_Content $tc)
