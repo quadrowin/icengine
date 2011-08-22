@@ -86,4 +86,22 @@ class Component_Rating extends Model_Component
 		return $this;
 	}
 	
+	/**
+	 * @desc 
+	 * @param string $table
+	 * @param string $row_id
+	 * @param mixed $value
+	 * @return integer 
+	 */
+	public static function voteFor ($table, $row_id, $value)
+	{
+		$scheme = Model_Manager::byQuery (
+			'Component_Rating_Scheme',
+			Query::instance ()
+				->where ('table', $table)
+		);
+		
+		return $scheme->vote ($table, $row_id, $value);
+	}
+	
 }
