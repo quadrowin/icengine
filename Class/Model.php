@@ -68,6 +68,12 @@ abstract class Model implements ArrayAccess
 	protected	$_loaded;
 
 	/**
+	 * @desc Плагины
+	 * @var array
+	 */
+	protected	$_plugins;
+	
+	/**
 	 * @desc Схема модели
 	 * @var array
 	 */
@@ -98,6 +104,15 @@ abstract class Model implements ArrayAccess
 				substr ($method, 4)
 			);
 		}
+		
+		if (isset ($this->_plugins [$method]))
+		{
+			return call_user_func_array (
+				$this->_plugins [$method], 
+				array ($this) + $params
+			);
+		}
+		
 		Loader::load ('Model_Exception');
 		throw new Model_Exception ("Method $method not found");
 	}
@@ -648,6 +663,16 @@ abstract class Model implements ArrayAccess
 		}
 		
 		unset ($this->_fields [$offset]);
+	}
+	
+	/**
+	 * @desc Регистрирует плагин для модели
+	 * @param string $name
+	 * @param array $method 
+	 */
+	public function registerPlugin ($name, $method)
+	{
+		$this->_plugins [$name] = $method;
 	}
 	
 	/**
