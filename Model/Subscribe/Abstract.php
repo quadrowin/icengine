@@ -52,24 +52,33 @@ abstract class Subscribe_Abstract extends Model_Factory_Delegate
 		Loader::load ('Helper_Process');
 		Loader::load ('Subscribe_Subscriber_Status');
 		
-		$subscribe_session = new Subscribe_Session (array (
-			'Subscribe__id'			=> $this->key (),
-			'beginDate'				=> Helper_Date::toUnix (),
-			'finishDate'			=> Helper_Date::NULL_DATE,
-			'status'				=> Helper_Process::NONE,
-			'comment'				=> $comment,
-			'Mail_Template__id'		=> !is_null ($mail_template) 
-				? $mail_template->key ()
-				: 0
-		));
+		$subscribe_session = Model_Manager::byQuery (
+			'Subscribe_Session',
+			Query::instance ()
+				->where ('status', Helper_Process::ONGOING)
+		);
 		
-		$subscribe_session->save ();
-		
-		if (!$subscribe_session->key ())
+		if (!$subscribe_session)
 		{
-			return;
-		}
+			$subscribe_session = new Subscribe_Session (array (
+				'Subscribe__id'			=> $this->key (),
+				'beginDate'				=> Helper_Date::toUnix (),
+				'finishDate'			=> Helper_Date::NULL_DATE,
+				'status'				=> Helper_Process::NONE,
+				'comment'				=> $comment,
+				'Mail_Template__id'		=> !is_null ($mail_template) 
+					? $mail_template->key ()
+					: 0
+			));
 		
+			$subscribe_session->save ();
+
+			if (!$subscribe_session->key ())
+			{
+				return;
+			}
+		}
+				
 		foreach ($subscriber_collection as $subscriber)
 		{
 			$status = new Subscribe_Subscriber_Status (array (
