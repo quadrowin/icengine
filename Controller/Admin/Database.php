@@ -7,6 +7,16 @@
  */
 class Controller_Admin_Database extends Controller_Abstract
 {
+	
+	/**
+	 * @desc Config
+	 * @var array|Objective
+	 */
+	protected $_config = array (
+		// Роли, имеющие доступ к админке
+		'access_roles'	=> array ('admin')
+	);
+	
 	/**
 	 * @desc Получить сопряжение полей таблицы на разрешенные
 	 * ACL поля для пользователя
@@ -70,7 +80,6 @@ class Controller_Admin_Database extends Controller_Abstract
 	public function __construct ()
 	{
 		Loader::load ('Helper_Data_Source');
-
 	}
 	
 	/**
@@ -127,7 +136,7 @@ class Controller_Admin_Database extends Controller_Abstract
 	}
 	
 	/**
-	 * @desc Получить ресурсы ACl и префиксом Table/
+	 * @desc Получить ресурсы Aсl и префиксом Table/
 	 * @param null|Acl_Role $role
 	 * @return array <string>
 	 */
@@ -188,154 +197,28 @@ class Controller_Admin_Database extends Controller_Abstract
 	}
 	
 	/**
-	 * @desc Сохраняем права на поля таблиц
-	 * @return void
+	 * @desc Проверяет, есть ли у текущего пользователя доступ
+	 * к экшенам этого контроллера
+	 * @return boolean true, если пользователь имеет доступ, иначе false.
 	 */
-	public function aclSave ()
+	protected function _checkAccess ()
 	{
-		if (!User::getCurrent ()->isAdmin ())
+		$user = User::getCurrent ();
+		$roles = $this->config ()->access_roles;
+		
+		foreach ($roles as $role)
 		{
-			return $this->replaceAction ('Error', 'accessDenied');
-		}
-		
-		$role_id = $this->_input->receive ('role_id');
-		
-		$role = Model_Manager::byKey (
-			'Acl_Role',
-			$role_id
-		);
-		
-		if (!$role)
-		{
-			return;
-		}
-		
-		$resources = $this->__resources ($role);
-		
-		$resource_collection = Model_Collection_Manager::byQuery (
-			'Acl_Resource',
-			Query::instance ()
-				->where ('name', $resources)
-		);
-			
-		foreach ($resource_collection as $resource)
-		{
-			Helper_Link::unlink ($role, $resource);
-		}
-		
-		$resources = $this->_input->receive ('resources');
-		
-		Loader::load ('Acl_Resource');
-		
-		foreach ($resources as $resource_name)
-		{
-			$resource = Model_Manager::byQuery (
-				'Acl_Resource',
-				Query::instance ()
-					->where ('name', $resource_name)
-			);
-			
-			if (!$resource)
+			if ($user->hasRole ($role))
 			{
-				$resource = new Acl_Resource (array (
-					'name'						=> $resource_name,
-					'Acl_Resource_Type__id '	=> 1
-				));
-
-				$resource->save ();
-			}
-			
-			Helper_Link::link ($role, $resource);
-		}
-		
-		Loader::load ('Helper_Header');
-		
-		Helper_Header::redirect ('/cp/acl/');
-	}
-	
-	/**
-	 * @desc Получить список полей для создания прав
-	 * @return void
-	 */
-	public function aclField ()
-	{
-		if (!User::getCurrent ()->isAdmin ())
-		{
-			return $this->replaceAction ('Error', 'accessDenied');
-		}
-		
-		$role_id = $this->_input->receive ('role_id');
-		
-		$role = Model_Manager::byKey (
-			'Acl_Role',
-			$role_id
-		);
-		
-		if (!$role)
-		{
-			return;
-		}
-		
-		$resources = $this->__resources ($role);
-		
-		$tables = Helper_Data_Source::tables ();
-		
-		$result = array ();
-		
-		foreach ($tables as $table)
-		{
-			$fields = Helper_Data_Source::fields ('`' . $table ['Name'] . '`');
-			 
-			$result [$table ['Name']] = array (
-				'table'		=> $table,
-				'fields'	=> array ()
-			);
-			
-			foreach ($fields as $field)
-			{
-				$resource_name = 'Table/' . $table ['Name'] . '/' . $field ['Field'];
-				
-				$result [$table ['Name']]['fields'][] = array (
-					'field'		=> $field,
-					'resource'	=> $resource_name,
-					'on'		=> in_array ($resource_name, $resources)
-				);
+				return true;
 			}
 		}
 		
-		$this->_output->send (array (
-			'tables'	=> $result,
-			'role_id'	=> $role->key ()
-		));
-	}
-	
-	/**
-	 * @desc Получаем список ролей
-	 * @return void
-	 */
-	public function aclRoll ()
-	{
-		if (!User::getCurrent ()->isAdmin ())
-		{
-			return $this->replaceAction ('Error', 'accessDenied');
-		}
-		
-		$role_names = array ('admin', 'content-manager', 'seo');
-		
-		$role_collection = Model_Collection_Manager::byQuery (
-			'Acl_Role',
-			Query::instance ()
-				->where ('name', $role_names)
-		);
-		
-		$this->_output->send (array (
-			'role_collection'	=> $role_collection
-		));
+		return false;
 	}
 	
 	/**
 	 * @desc Удаление записи
-	 * @return void
 	 */
 	public function delete ()
 	{
@@ -355,7 +238,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		$acl_fields = $this->__aclFields ($table, $fields);
 		
-		if (!$acl_fields || !User::id())
+		if (!$acl_fields || !User::id ())
 		{
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
@@ -389,7 +272,6 @@ class Controller_Admin_Database extends Controller_Abstract
 	
 	/**
 	 * @desc Список таблиц
-	 * @return void
 	 */
 	public function index ()
 	{
@@ -444,7 +326,6 @@ class Controller_Admin_Database extends Controller_Abstract
 	
 	/**
 	 * @desc Поля записи
-	 * @return void
 	 */
 	public function row ()
 	{
@@ -712,7 +593,6 @@ class Controller_Admin_Database extends Controller_Abstract
 	
 	/**
 	 * @desc Список записей
-	 * @return void
 	 */
 	public function table ()
 	{
@@ -916,7 +796,6 @@ class Controller_Admin_Database extends Controller_Abstract
 	
 	/**
 	 * @desc Сохранение записи
-	 * @return void
 	 */
 	public function save ()
 	{
@@ -1045,4 +924,5 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		Helper_Header::redirect ('/cp/table/' . $table . '/');
 	}
+	
 }

@@ -6,7 +6,8 @@
  * @package IcEngine
  * 
  */
-class User_Abstract extends Model {
+class User_Abstract extends Model
+{
 	
 	/**
 	 * @desc Конфиг
@@ -170,27 +171,30 @@ class User_Abstract extends Model {
 	}
 
 	/**
-	 * @desc Проверяет, имеет ли пользователь указанную роль.
+	 * @desc Проверяет, имеет ли пользователь хотя бы одну из указанных ролей.
 	 * @param Acl_Role|string $role Роль или название роли
+	 * @param $_
 	 * @return boolean Имеет ли пользователь роль.
 	 */
 	public function hasRole ($role)
 	{
-		if (!$role)
+		foreach (func_get_args () as $role)
 		{
-			return false;
-		}
-		
-		if (!is_object ($role))
-		{
-			$role = Acl_Role::byName ($role);
-			if (!$role)
+			if ($role)
 			{
-				return false;
+				if (!is_object ($role))
+				{
+					$role = Acl_Role::byName ($role);
+				}
+				
+				if ($role && Helper_Link::wereLinked ($this, $role))
+				{
+					return true;
+				}
 			}
 		}
 		
-		return Helper_Link::wereLinked ($this, $role);
+		return false;
 	}
 	
 	/**
