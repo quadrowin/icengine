@@ -3,6 +3,10 @@
 	{assign var="is_new" value=false}
 {/if}
 
+$(function () {
+	editor ('extended');
+});
+
 <div id="tab-data">
 
 	{if !$is_new}
