@@ -374,6 +374,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			if (!in_array ($field ['Field'], $acl_fields))
 			{
 				unset ($fields [$i]);
+				continue;
 			}
 			
 			if (!$row->key () && $field ['Field'] != $row->keyField ())
