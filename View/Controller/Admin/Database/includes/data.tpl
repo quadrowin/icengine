@@ -59,13 +59,15 @@
 				>
 				{elseif strpos($i->Type,'text')!==false}
 				<p><span class="pseudo-link" onclick="toggleEditor('textarea-{$i->Field}')">WYSIWYG</span></p>
-				<textarea rows="8" cols="50" id="textarea-{$i->Field}" name="column[{$i->Field}]"
+				<div style="width: 90%;">
+				<textarea rows="8" cols="50" style="width: 250px;" id="textarea-{$i->Field}" name="column[{$i->Field}]"
 					{if isset($events[$field])}
 					{foreach from=$events[$field] item="method" key="event"}
 					 on{$event}="{$method}"	
 					{/foreach}
 					{/if}
 				>{if isset($row->$column)}{$row->$column|htmlspecialchars}{/if}</textarea>
+				</div>
 				{else}
 				{if $i->Field==$keyField && $row->sfield($column)}
 					<b>{$row->sfield($column)}</b>
