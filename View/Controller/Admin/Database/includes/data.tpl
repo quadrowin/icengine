@@ -3,9 +3,13 @@
 	{assign var="is_new" value=false}
 {/if}
 
-$(function () {
-	editor ('extended');
-});
+{literal}
+	<script type="text/javascript">
+	$(function () {
+		editor ('extended');
+	});
+	</script>
+{/literal}
 
 <div id="tab-data">
 
