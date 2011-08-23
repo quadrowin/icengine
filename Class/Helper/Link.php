@@ -271,8 +271,9 @@ class Helper_Link
 	{
 	    if (strcmp ($model1->modelName (), $model2->modelName ()) > 0)
 	    {
-	        $model1 = $tmp = $model2;
-	        $model2 = $tmp;
+			$tmp = $model1;
+			$model1 = $model2;
+			$model2 = $tmp;
 	    }
 	    
 		 $scheme = Model_Scheme::linkScheme (
