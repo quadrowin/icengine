@@ -393,14 +393,18 @@ class Controller_Admin_Database extends Controller_Abstract
 				)
 					->reset ();
 				
+				Loader::load ('Model_Proxy');
 				foreach ($values as $v)
 				{
 					$v = trim ($v, "' ");
 					
-					$collection->add (new $class_name (array (
-						'id'	=> $v,
-						'name'	=> $v
-					)));
+					$collection->add (new Model_Proxy (
+						'Dummy',
+						array (
+							'id'	=> $v,
+							'name'	=> $v
+						)
+					));
 				}
 				
 				$field->Values = $collection;
