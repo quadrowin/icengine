@@ -131,7 +131,7 @@ abstract class Bootstrap_Abstract
 	public function initAttributeManager ()
 	{
 		Loader::load ('Attribute_Manager');
-		Attribute_Manager::init (DDS::getDataSource ());
+		Attribute_Manager::init ();
 	}
 	
 	/**
