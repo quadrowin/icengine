@@ -166,6 +166,33 @@ var Debug = {
 		console.log (arguments);
 	},
 	
+	/**
+	 * @desc
+	 * @param obj Object
+	 * @param evnt string
+	 * @param handler mixed
+	 */
+	onError: function (obj, evnt, handler)
+	{
+		return true;
+	},
+	
+	/**
+	 * @desc 
+	 * @param remove boolean [optional]
+	 */
+	onErrorSet: function (remove)
+	{
+		if (remove)
+		{
+			window.onerror = null;
+		}
+		else
+		{
+			window.onerror = Debug.onError;
+		}
+	},
+	
 	printStackTrace: function () {
 		  var callstack = [];
 		  var isCallstackPopulated = false;
