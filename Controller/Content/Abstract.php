@@ -274,6 +274,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 				'Agency',
 				Query::instance()
 					->where('linka', $agency_link.'.html')
+					->where('city', City::id ())
 			);
 		}
 
@@ -323,6 +324,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 				'Agency',
 				Query::instance()
 					->where('linka', $agency_link.'.html')
+					->where('city', City::id ())
 			);
 		}
 
