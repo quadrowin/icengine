@@ -2,13 +2,12 @@
 /**
  * 
  * @desc Трейсер
- * @author Юрий Шведов
+ * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
  * 
  */
 class Tracer
 {
-	
 	/**
 	 * @desc Состояние трейсера.
 	 * @var boolean
@@ -16,111 +15,120 @@ class Tracer
 	public static $enabled = true;
 	
 	/**
-	 * @desc лог событий
-	 * @var array
+	 * @desc Сливать ли в файл для каждой
+	 * @var type 
 	 */
-	public static $logs = array ();
+	public static $flushPerSession = true;
 	
-	/**
-	 * @desc Время подключения трейсераs
-	 * @var float
-	 */
-	public static $startTime;
+	public static $sessions = array ();
 	
-	/**
-	 * @desc Запись результата работы в файл
-	 * @param mixed $target Куда направить результат.
-	 */
-	public static function flushFile ($file, $mode = 'w')
+	public static $currentSession = 0;
+	
+	public static function begin ()
 	{
-		$f = fopen ($file, $mode);
+		if (!self::$enabled)
+		{
+			return;
+		}
 		
-		fwrite (
-			$f,
-			date ('Y-m-d H:i:s ') .
-			(
-				isset ($_SERVER ['HTTP_HOST']) 
-				? $_SERVER ['HTTP_HOST'] 
-				: 'nohost'
-			) .
-			'/' .
-			(
-				isset ($_SERVER ['REQUEST_URI'])
-				? $_SERVER ['REQUEST_URI']
-				: 'nouri'
-			) .
-			"\r\n"
+		self::$currentSession++;
+		
+		self::$sessions [self::$currentSession] = array (
+			'args'	=> func_get_args (),
+			'mt'	=> microtime (true),
+			'time'	=> time (),
+			'logs'	=> array ()
 		);
-		
-		$border = '';
-		$level = 0;
-		// Время по уровням
-		$times = array ($level => self::$startTime);
-		
-		foreach (self::$logs as $log)
-		{
-			if ($log ['l'] < 0)
-			{
-				$border = substr ($border, 0, -1);
-				--$level;
-			}
-			
-			$dt = $log ['a'] - $times [$level];
-			
-			fwrite (
-				$f,
-				$border . 
-				round ($log ['a'] - self::$startTime, 5) . "\t" .
-				round ($dt, 5) . "\t" .
-				$log ['t'] . "\t" .
-				(
-					is_scalar ($log ['m'])
-					? $log ['m']
-					: json_encode ($log ['m'])
-				) .
-				"\r\n"
-			);
-			
-			if ($log ['l'] > 0)
-			{
-				++$level;
-				$border .= "\t";
-				$times [$level] = $log ['m'];
-			}
-		}
-		fwrite ($f, "\r\n");
-		
-		fclose ($f);
 	}
 	
-	/**
-	 * @desc Записо события
-	 * @param string $message
-	 * @param integer $level (-1, 0, +1)
-	 * @param string $type 
-	 */
-	public static function log ($message, $level = 0, $type = '')
+	public static function end ()
 	{
-		if (self::$enabled)
+		if (!self::$enabled)
 		{
-			self::$logs [] = array (
-				'a'		=> time (),
-				'm'		=> $message,
-				't'		=> $type,
-				'l'		=> $level
-			);
+			return;
+		}
+		
+		$args = func_get_args ();
+		
+		if ($args)
+		{
+			self::log ($args);
+		}
+		
+		self::$sessions [self::$currentSession]['endTime'] = time ();
+		
+		self::$currentSession--;
+		
+		if (self::$flushPerSession)
+		{
+			self::flush (self::$sessions [self::$currentSession + 1]);
 		}
 	}
 	
-	/**
-	 * @desc Возвращает время, прошедшее с подключение трейсера.
-	 * @return float 
-	 */
-	public static function microtime ()
+	public static function log ()
 	{
-		return microtime (true) - self::$startTime;
+		if (!self::$enabled)
+		{
+			return;
+		}
+		
+		if (!isset (self::$sessions [self::$currentSession]['logs']))
+		{
+			self::$sessions [self::$currentSession]['logs'] = array ();
+		}
+		
+		$mt = microtime (true);
+		
+		$logs = self::$sessions [self::$currentSession]['logs'];
+		
+		$current_index = sizeof ($logs);
+		
+		self::$sessions [self::$currentSession]['logs'][] = array (
+			'args'	=> func_get_args (),
+			'mt'	=> $mt,
+			'delta'	=> microtime (true) - (
+				isset ($logs [$current_index - 1])
+					? $logs [$current_index - 1]['mt']
+					: self::$sessions [self::$currentSession]['mt']
+				)
+		);
 	}
 	
-}
+	public static function flushAll ()
+	{
+		if (!self::$enabled)
+		{
+			return;
+		}
+		
+		foreach (self::$sessions as $session)
+		{
+			self::flush ($session);
+		}
+	}
+	
+	public static function flush ($session)
+	{
+		if (!self::$enabled)
+		{
+			return;
+		}
+		
+		$file_name = IcEngine::root () . 'log/tracer';
+		
+		$output  = 'Session start at ' . date ('Y-m-d H:i:s', $session ['time']) . PHP_EOL;
+		$output .= 'Args: ' . serialize ($session ['args']) . PHP_EOL;
+		$output .= 'Microtime: ' . $session ['mt'] . PHP_EOL;
+		$output .= 'Logs: ' . PHP_EOL;
 
-Tracer::$startTime = microtime (true);
+		foreach ($session ['logs'] as $i => $log)
+		{
+			$output .= '#' . $i . ' '. $log ['mt'] . ' ' . $log ['delta'] . ' ' .
+				serialize ($log ['args']) . PHP_EOL;
+		}
+
+		$output  .= 'Session finished at ' . date ('Y-m-d H:i:s', $session ['endTime']) . PHP_EOL;
+		
+		file_put_contents ($file_name, $output, FILE_APPEND);
+	}
+}

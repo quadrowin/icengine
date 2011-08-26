@@ -304,8 +304,8 @@ class Model_Manager extends Manager_Abstract
 			}
 		}
 		
-		$readed = self::_read ($result);
-		
+		$readed = !$object ? self::_read ($result) : true;
+	
 		// В случае factory
 		$model = get_class ($result);
 		

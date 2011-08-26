@@ -122,7 +122,7 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 			
 			$collection_tags = $pack ['t'];
 			
-			if (array_diff ($tags, $collection_tags))
+			if ($collection_tags && array_diff ($tags, $collection_tags))
 			{
 				$tag_valid = false;
 			}
@@ -145,7 +145,7 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 				$second && isset (self::$_config ['delegee'][$second]) ?
 				$second :
 				$first;
-
+ 
 			$delegee = 
 				'Model_Collection_Manager_Delegee_' .
 				self::$_config ['delegee'][$parent];
@@ -162,11 +162,42 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 			$addicts = $collection->data ('addicts');
 		}
 		
+		static $key_fields = array ();
+		
 		// Инициализируем модели коллекции
 		foreach ($pack ['items'] as $i => &$item)
 		{
-			$item = Model_Manager::get ($model, $item);
-	
+			if (!is_array ($item))
+			{
+				$item = Model_Manager::get ($model, $item);
+			}
+			else 
+			{
+				if (isset ($key_fields [$model]))
+				{
+					$kf = $key_fields [$model];
+				}
+				else 
+				{
+					$kf = Model_Scheme::keyField ($model);
+					$key_fields [$model] = $kf;
+				}
+				
+				if (isset ($item [$kf]))
+				{
+					$item = Model_Manager::get (
+						$model,
+						$item [$kf],
+						$item
+					);
+				}
+				else 
+				{
+					unset ($pack ['items'][$i]);
+					continue;
+				}
+			}
+			
 			if (!empty ($addicts [$i]))
 			{
 				$item->set ($addicts [$i]);

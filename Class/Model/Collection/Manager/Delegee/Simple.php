@@ -34,8 +34,6 @@ class Model_Collection_Manager_Delegee_Simple
 
 		$table = $query_result->asTable ();
 
-		$key_field = Model_Scheme::keyField ($model);
-
 		$items = array ();
 		$addicts = array ();
 
@@ -47,8 +45,15 @@ class Model_Collection_Manager_Delegee_Simple
 				{
 					$addicts [$i][$field] = $value;
 				}	
+				else 
+				{
+					if (!isset ($items [$i]))
+					{
+						$items [$i] = array ();
+					}
+					$items [$i][$field] = $value;
+				}
 			}
-			$items [] = $item [$key_field];
 		}
 
 		$collection->data ('addicts', $addicts);

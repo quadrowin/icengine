@@ -165,6 +165,14 @@ class Controller_Manager extends Manager_Abstract
 		Loader::load ('Controller_Task');
 		Loader::load ('Route_Action');
 		
+		Tracer::begin (
+			__CLASS__,
+			__METHOD__,
+			__LINE__,
+			$name,
+			$method
+		);
+		
 		if (!$task)
 		{
 			$task = new Controller_Task (
@@ -217,6 +225,8 @@ class Controller_Manager extends Manager_Abstract
 			->setOutput ($temp_output)
 			->setTask ($temp_task);
 			
+		Tracer::end (null);
+		
 		return $task;
 	}
 	
@@ -399,6 +409,14 @@ class Controller_Manager extends Manager_Abstract
 			$a [1] = 'index';
 		}
 		
+		Tracer::begin (
+			__CLASS__,
+			__METHOD__,
+			__LINE__,
+			$a [0],
+			$a [1]
+		);
+		
 		$iteration = self::call ($a [0], $a [1], $args);
 		
 		$buffer = $iteration->getTransaction ()->buffer ();
@@ -442,6 +460,8 @@ class Controller_Manager extends Manager_Abstract
 			
 			View_Render_Manager::popView ();
 		}
+		
+		Tracer::end (null);
 		
 		return $html_only ? $result ['html'] : $result;
 	}
