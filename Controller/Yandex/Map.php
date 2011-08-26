@@ -91,4 +91,14 @@ class Controller_Yandex_Map extends Controller_Abstract
 		));
 	}
 	
+	/**
+	 * @desc Добавляет скрипт, который позволит позже вызвать метод
+	 * Controller_Yandex_Map.lazyLoad js контроллера для инициализации
+	 * карты.
+	 */
+	public function lazyLoad ()
+	{
+		$this->includeScript ();
+	}
+	
 }
