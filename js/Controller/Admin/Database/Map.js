@@ -290,7 +290,7 @@ var Base64 = new function ()
 		}
 
 		return chr;
-	}
+	};
 
 	this.encode = function (input) 
 	{
