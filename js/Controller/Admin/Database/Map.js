@@ -151,9 +151,11 @@ var layers =
 			name: layerDesc.name, 
 			center: layerDesc.center, content: []
 		};
+		
+		var i;
 
 		// import styles
-		for (var i = 0; i < layerDesc.styles.length; i++) 
+		for (i = 0; i < layerDesc.styles.length; i++) 
 		{
 			YMaps.Styles.add (
 				layerDesc.styles [i].name, 
@@ -162,7 +164,7 @@ var layers =
 		}
 
 		// import objects
-		for (var i = 0; i < layerDesc.objects.length; i++) 
+		for (i = 0; i < layerDesc.objects.length; i++) 
 		{
 			var o = this.createMapOverlay (layerDesc.objects [i]);
 
@@ -186,6 +188,7 @@ var layers =
 				return this.data [i];
 			}
 		}
+		return null;
 	},
 
 	// show layer with name
