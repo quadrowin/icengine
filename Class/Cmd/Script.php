@@ -41,7 +41,7 @@ abstract class Cmd_Script
 			die ('Secret not received.');
 		}
 		
-		if (self::SECRET != $args [1])
+		if (self::SECRET != substr ($args [1], 0, strlen (self::SECRET)))
 		{
 		    die ('Secret incorrect.');
 		}
