@@ -151,9 +151,11 @@ var layers =
 			name: layerDesc.name, 
 			center: layerDesc.center, content: []
 		};
+		
+		var i;
 
 		// import styles
-		for (var i = 0; i < layerDesc.styles.length; i++) 
+		for (i = 0; i < layerDesc.styles.length; i++) 
 		{
 			YMaps.Styles.add (
 				layerDesc.styles [i].name, 
@@ -162,7 +164,7 @@ var layers =
 		}
 
 		// import objects
-		for (var i = 0; i < layerDesc.objects.length; i++) 
+		for (i = 0; i < layerDesc.objects.length; i++) 
 		{
 			var o = this.createMapOverlay (layerDesc.objects [i]);
 
@@ -186,6 +188,7 @@ var layers =
 				return this.data [i];
 			}
 		}
+		return null;
 	},
 
 	// show layer with name
@@ -265,7 +268,7 @@ function encodePoints (points)
 
 	// Весь массив кодируется в Base64
 	return Base64.encode (array);
-}
+};
 
 
 
@@ -287,7 +290,7 @@ var Base64 = new function ()
 		}
 
 		return chr;
-	}
+	};
 
 	this.encode = function (input) 
 	{
@@ -326,7 +329,7 @@ var Base64 = new function ()
 		return output;
 	}
 
-}
+};
 
 $(document).ready (function ()
 {
