@@ -268,7 +268,7 @@ function encodePoints (points)
 
 	// Весь массив кодируется в Base64
 	return Base64.encode (array);
-}
+};
 
 
 
@@ -329,7 +329,7 @@ var Base64 = new function ()
 		return output;
 	}
 
-}
+};
 
 $(document).ready (function ()
 {
