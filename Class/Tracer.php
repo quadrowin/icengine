@@ -61,7 +61,10 @@ class Tracer
 		
 		if (self::$flushPerSession)
 		{
-			self::flush (self::$sessions [self::$currentSession + 1]);
+			self::flush (
+				self::$sessions [self::$currentSession + 1],
+				self::$currentSession
+			);
 		}
 	}
 	
@@ -83,14 +86,16 @@ class Tracer
 		
 		$current_index = sizeof ($logs);
 		
+		$delta = microtime (true) - (
+			isset ($logs [$current_index - 1])
+				? $logs [$current_index - 1]['mt']
+				: self::$sessions [self::$currentSession]['mt']
+			);
+		
 		self::$sessions [self::$currentSession]['logs'][] = array (
 			'args'	=> func_get_args (),
 			'mt'	=> $mt,
-			'delta'	=> microtime (true) - (
-				isset ($logs [$current_index - 1])
-					? $logs [$current_index - 1]['mt']
-					: self::$sessions [self::$currentSession]['mt']
-				)
+			'delta'	=> $delta
 		);
 	}
 	
@@ -107,7 +112,7 @@ class Tracer
 		}
 	}
 	
-	public static function flush ($session)
+	public static function flush ($session, $offset = 0)
 	{
 		if (!self::$enabled)
 		{
@@ -116,18 +121,28 @@ class Tracer
 		
 		$file_name = IcEngine::root () . 'log/tracer';
 		
-		$output  = 'Session start at ' . date ('Y-m-d H:i:s', $session ['time']) . PHP_EOL;
-		$output .= 'Args: ' . serialize ($session ['args']) . PHP_EOL;
-		$output .= 'Microtime: ' . $session ['mt'] . PHP_EOL;
-		$output .= 'Logs: ' . PHP_EOL;
+		$offset = $offset 
+			? str_repeat ("\t", $offset)
+			: '';
+		
+		$output  = 
+			$offset . 'Start at ' . date ('Y-m-d H:i:s', $session ['time']) . 
+			PHP_EOL .
+			$offset . 'Args: ' . json_encode ($session ['args']) . 
+			PHP_EOL .
+			$offset . 'Microtime: ' . $session ['mt'] . 
+			PHP_EOL .
+			$offset . 'Logs: ' . PHP_EOL;
 
 		foreach ($session ['logs'] as $i => $log)
 		{
-			$output .= '#' . $i . ' '. $log ['mt'] . ' ' . $log ['delta'] . ' ' .
-				serialize ($log ['args']) . PHP_EOL;
+			$output .= $offset . '#' . $i . ' '. 
+				round ($log ['mt'], 4) . ' ' . 
+				round ($log ['delta'], 6) . ' ' . 
+				json_encode ($log ['args']) . PHP_EOL;
 		}
 
-		$output  .= 'Session finished at ' . date ('Y-m-d H:i:s', $session ['endTime']) . PHP_EOL;
+		$output  .= $offset . 'Finished at ' . date ('Y-m-d H:i:s', $session ['endTime']) . PHP_EOL;
 		
 		file_put_contents ($file_name, $output, FILE_APPEND);
 	}
