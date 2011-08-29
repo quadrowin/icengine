@@ -126,7 +126,11 @@ class Tracer
 			: '';
 		
 		$output  = 
-			$offset . 'Start at ' . date ('Y-m-d H:i:s', $session ['time']) . 
+			$offset . 'Start: ' . date ('Y-m-d H:i:s', $session ['time']) .
+			PHP_EOL .
+			$offset . 'Finish: ' . date ('Y-m-d H:i:s', $session ['endTime']) . 
+			PHP_EOL .
+			$offset . 'Delta: ' . ($session ['endTime'] - $session ['time']) . 
 			PHP_EOL .
 			$offset . 'Args: ' . json_encode ($session ['args']) . 
 			PHP_EOL .
@@ -141,8 +145,6 @@ class Tracer
 				round ($log ['delta'], 6) . ' ' . 
 				json_encode ($log ['args']) . PHP_EOL;
 		}
-
-		$output  .= $offset . 'Finished at ' . date ('Y-m-d H:i:s', $session ['endTime']) . PHP_EOL;
 		
 		file_put_contents ($file_name, $output, FILE_APPEND);
 	}
