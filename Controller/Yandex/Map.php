@@ -98,7 +98,16 @@ class Controller_Yandex_Map extends Controller_Abstract
 	 */
 	public function lazyLoad ()
 	{
-		$this->includeScript ();
+		static $loaded = false;
+		if ($loaded)
+		{
+			$this->_task->setTemplate (null);
+		}
+		else
+		{
+			$loaded = true;
+			$this->includeScript ();
+		}
 	}
 	
 }
