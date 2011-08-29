@@ -39,7 +39,7 @@ class Model_Collection_Manager_Delegee_Simple
 
 		foreach ($table as $i => $item)
 		{
-			foreach ($item as $field=>$value)
+			foreach ($item as $field => $value)
 			{
 				if (!in_array ($field, $fields))
 				{
