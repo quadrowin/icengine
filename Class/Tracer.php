@@ -35,8 +35,7 @@ class Tracer
 		
 		self::$sessions [self::$currentSession] = array (
 			'args'	=> func_get_args (),
-			'mt'	=> microtime (true),
-			'time'	=> time (),
+			'begin'	=> microtime (true),
 			'logs'	=> array ()
 		);
 	}
@@ -55,7 +54,7 @@ class Tracer
 			self::log ($args);
 		}
 		
-		self::$sessions [self::$currentSession]['endTime'] = time ();
+		self::$sessions [self::$currentSession]['end'] = microtime (true);
 		
 		self::$currentSession--;
 		
@@ -80,21 +79,21 @@ class Tracer
 			self::$sessions [self::$currentSession]['logs'] = array ();
 		}
 		
-		$mt = microtime (true);
+		$time = microtime (true);
 		
 		$logs = self::$sessions [self::$currentSession]['logs'];
 		
 		$current_index = sizeof ($logs);
 		
-		$delta = microtime (true) - (
+		$delta = $time - (
 			isset ($logs [$current_index - 1])
-				? $logs [$current_index - 1]['mt']
-				: self::$sessions [self::$currentSession]['mt']
+				? $logs [$current_index - 1]['time']
+				: self::$sessions [self::$currentSession]['begin']
 			);
 		
 		self::$sessions [self::$currentSession]['logs'][] = array (
 			'args'	=> func_get_args (),
-			'mt'	=> $mt,
+			'time'	=> $time,
 			'delta'	=> $delta
 		);
 	}
@@ -126,22 +125,20 @@ class Tracer
 			: '';
 		
 		$output  = 
-			$offset . 'Start: ' . date ('Y-m-d H:i:s', $session ['time']) .
+			$offset . 'Begin: ' . date ('Y-m-d H:i:s', $session ['begin']) .
 			PHP_EOL .
-			$offset . 'Finish: ' . date ('Y-m-d H:i:s', $session ['endTime']) . 
+			$offset . 'End: ' . date ('Y-m-d H:i:s', $session ['end']) . 
 			PHP_EOL .
-			$offset . 'Delta: ' . ($session ['endTime'] - $session ['time']) . 
+			$offset . 'Delta: ' . round ($session ['end'] - $session ['begin'], 6) . 
 			PHP_EOL .
 			$offset . 'Args: ' . json_encode ($session ['args']) . 
-			PHP_EOL .
-			$offset . 'Microtime: ' . $session ['mt'] . 
 			PHP_EOL .
 			$offset . 'Logs: ' . PHP_EOL;
 
 		foreach ($session ['logs'] as $i => $log)
 		{
 			$output .= $offset . '#' . $i . ' '. 
-				round ($log ['mt'], 4) . ' ' . 
+				round ($log ['time'], 4) . ' ' . 
 				round ($log ['delta'], 6) . ' ' . 
 				json_encode ($log ['args']) . PHP_EOL;
 		}
