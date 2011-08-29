@@ -256,7 +256,7 @@ class Model_Manager extends Manager_Abstract
 	 */
 	public static function get ($model, $key, $object = null)
 	{
-		$cached = false;
+		$cached = $object != null;
 		$result = null;
 		
 		if ($object instanceof Model)

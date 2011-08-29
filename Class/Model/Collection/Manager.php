@@ -165,11 +165,11 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 		static $key_fields = array ();
 		
 		// Инициализируем модели коллекции
-		foreach ($pack ['items'] as $i => &$item)
+		foreach ($pack ['items'] as $i => $item)
 		{
 			if (!is_array ($item))
 			{
-				$item = Model_Manager::get ($model, $item);
+				$pack ['items'][$i] = Model_Manager::get ($model, $item);
 			}
 			else 
 			{
@@ -185,7 +185,7 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 				
 				if (isset ($item [$kf]))
 				{
-					$item = Model_Manager::get (
+					$pack ['items'][$i] = Model_Manager::get (
 						$model,
 						$item [$kf],
 						$item
@@ -200,7 +200,7 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 			
 			if (!empty ($addicts [$i]))
 			{
-				$item->set ($addicts [$i]);
+				$pack ['items'][$i]->set ($addicts [$i]);
 			}
 		}
 		
