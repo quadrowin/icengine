@@ -45,18 +45,18 @@ class View_Resource_Packer_Js extends View_Resource_Packer_Abstract
 		{
 			$result .= $resource->content ();
 		}
-	    else
-	    {
+		else
+		{
 			$result .= 
 				preg_replace (
-					'#\n\s*?/\*(.*)\*/#iUs', 
-					'',
+					'#\n\s*/\*.*\*/#Us', 
+					"\n",
 					$resource->content ()
 				);
 //			$packer = new JavaScriptPacker ($resource->content (), 0);
 //			$result .= $packer->pack ();
-	    }
-	    
+		}
+		
 		return $result . $this->config ()->item_postfix;
 	}
 	
