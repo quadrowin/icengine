@@ -454,6 +454,7 @@ class Query_Translator_Mysql extends Query_Translator
 			self::_renderWhere ($query) . ' ' .
 			self::_renderGroup ($query) . ' ' .
 			self::_renderOrder ($query) . ' ' .
+			self::_renderUseIndex ($query) . ' ' .
 			self::_renderLimitoffset ($query);
 	}
 	
@@ -508,6 +509,17 @@ class Query_Translator_Mysql extends Query_Translator
 		}
 		
 		return $sql . implode (', ', $sets) . ' ' . $this->_renderWhere ($query);
+	}
+	
+	public function _renderUseIndex (Query $query)
+	{
+		$indexes = $query->part (Query::INDEX);
+		if (!$indexes)
+		{
+			return '';
+		}
+		
+		return 'USE INDEX(' . implode (',', $indexes) . ')';
 	}
 	
 	public function _renderWhere (Query $query)
