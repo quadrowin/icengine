@@ -129,7 +129,7 @@ class Tracer
 			PHP_EOL .
 			$offset . 'End: ' . date ('Y-m-d H:i:s', $session ['end']) . 
 			PHP_EOL .
-			$offset . 'Delta: ' . round ($session ['end'] - $session ['begin'], 6) . 
+			$offset . 'Delta: ' . round ($session ['end'] - $session ['begin'], 4) . 
 			PHP_EOL .
 			$offset . 'Args: ' . json_encode ($session ['args']) . 
 			PHP_EOL .
@@ -139,7 +139,7 @@ class Tracer
 		{
 			$output .= $offset . '#' . $i . ' '. 
 				round ($log ['time'], 4) . ' ' . 
-				round ($log ['delta'], 6) . ' ' . 
+				round ($log ['delta'], 4) . ' ' . 
 				json_encode ($log ['args']) . PHP_EOL;
 		}
 		
