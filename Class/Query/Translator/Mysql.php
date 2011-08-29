@@ -451,10 +451,10 @@ class Query_Translator_Mysql extends Query_Translator
 		
 		return $sql . implode (self::SQL_COMMA, $columns) . ' ' . 
 			self::_renderFrom ($query) . ' ' .
+			self::_renderUseIndex ($query) . ' ' .
 			self::_renderWhere ($query) . ' ' .
 			self::_renderGroup ($query) . ' ' .
 			self::_renderOrder ($query) . ' ' .
-			self::_renderUseIndex ($query) . ' ' .
 			self::_renderLimitoffset ($query);
 	}
 	
