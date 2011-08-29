@@ -4,10 +4,9 @@ syntax: regexp
 \.chg\..*$
 \.rej$
 \.conflict\~$
-
+\.#
 relre:\.svn
 
 syntax: glob
 
 nbproject/
-.#
