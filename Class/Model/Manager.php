@@ -256,10 +256,12 @@ class Model_Manager extends Manager_Abstract
 	 */
 	public static function get ($model, $key, $object = null)
 	{
+		$cached = false;
 		$result = null;
 		
 		if ($object instanceof Model)
 		{
+			$cached = true;
 			$result = $object;
 		}
 		else
@@ -268,6 +270,7 @@ class Model_Manager extends Manager_Abstract
 			
 			if ($result instanceof Model)
 			{
+				$cached = true;
 				if (is_array ($object))
 				{
 					$result->set ($object);
@@ -304,7 +307,8 @@ class Model_Manager extends Manager_Abstract
 			}
 		}
 		
-		$readed = !$object ? self::_read ($result) : true;
+		$readed = !$cached ? self::_read ($result) : true;
+//		$readed = self::_read ($result);
 	
 		// В случае factory
 		$model = get_class ($result);
@@ -327,7 +331,7 @@ class Model_Manager extends Manager_Abstract
 			$result
 		);
 		
-		Model_Scheme::setScheme ($result);
+//		Model_Scheme::setScheme ($result);
 		
 		return $result->key () ? $result : new $model (array ());
 	}
