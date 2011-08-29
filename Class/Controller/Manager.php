@@ -165,13 +165,16 @@ class Controller_Manager extends Manager_Abstract
 		Loader::load ('Controller_Task');
 		Loader::load ('Route_Action');
 		
-		Tracer::begin (
-			__CLASS__,
-			__METHOD__,
-			__LINE__,
-			$name,
-			$method
-		);
+		if (class_exists ('Tracer'))
+		{
+			Tracer::begin (
+				__CLASS__,
+				__METHOD__,
+				__LINE__,
+				$name,
+				$method
+			);
+		}
 		
 		if (!$task)
 		{
@@ -224,8 +227,11 @@ class Controller_Manager extends Manager_Abstract
 			->setInput ($temp_input)
 			->setOutput ($temp_output)
 			->setTask ($temp_task);
-			
-		Tracer::end (null);
+		
+		if (class_exists ('Tracer'))
+		{
+			Tracer::end (null);
+		}
 		
 		return $task;
 	}
