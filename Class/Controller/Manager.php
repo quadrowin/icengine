@@ -415,13 +415,16 @@ class Controller_Manager extends Manager_Abstract
 			$a [1] = 'index';
 		}
 		
-		Tracer::begin (
-			__CLASS__,
-			__METHOD__,
-			__LINE__,
-			$a [0],
-			$a [1]
-		);
+		if (class_exists ('Tracer'))
+		{
+			Tracer::begin (
+				__CLASS__,
+				__METHOD__,
+				__LINE__,
+				$a [0],
+				$a [1]
+			);
+		}
 		
 		$iteration = self::call ($a [0], $a [1], $args);
 		
@@ -467,7 +470,10 @@ class Controller_Manager extends Manager_Abstract
 			View_Render_Manager::popView ();
 		}
 		
-		Tracer::end (null);
+		if (class_exists ('Tracer'))
+		{
+			Tracer::end ();
+		}
 		
 		return $html_only ? $result ['html'] : $result;
 	}

@@ -20,10 +20,21 @@ class Tracer
 	 */
 	public static $flushPerSession = true;
 	
+	/**
+	 * @desc
+	 * @var array
+	 */
 	public static $sessions = array ();
 	
+	/**
+	 * @desc 
+	 * @var integer
+	 */
 	public static $currentSession = 0;
 	
+	/**
+	 * @desc Начало блока
+	 */
 	public static function begin ()
 	{
 		if (!self::$enabled)
@@ -40,6 +51,9 @@ class Tracer
 		);
 	}
 	
+	/**
+	 * @desc Окончание блока
+	 */
 	public static function end ()
 	{
 		if (!self::$enabled)
@@ -67,6 +81,9 @@ class Tracer
 		}
 	}
 	
+	/**
+	 * @desc запись в лог метки
+	 */
 	public static function log ()
 	{
 		if (!self::$enabled)
@@ -98,6 +115,9 @@ class Tracer
 		);
 	}
 	
+	/**
+	 * @desc Вывод полного лога
+	 */
 	public static function flushAll ()
 	{
 		if (!self::$enabled)
@@ -111,6 +131,11 @@ class Tracer
 		}
 	}
 	
+	/**
+	 * @desc Вывод
+	 * @param array $session
+	 * @param integer $offset [optional] Смещение
+	 */
 	public static function flush ($session, $offset = 0)
 	{
 		if (!self::$enabled)
