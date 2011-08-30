@@ -250,7 +250,11 @@ class Controller_Ejabberd_Auth extends Controller_Abstract
 		{
 			if (!$this->process ())
 			{
-				return $this->_task->setTemplate (null);
+				if ($this->_task)
+				{
+					$this->_task->setTemplate (null);
+				}
+				return ;
 			}
 		}
 	}
