@@ -41,7 +41,7 @@ class Router
 						$tmp = explode ('=', $get);
 						$_REQUEST [$tmp [0]] = $_GET [$tmp [0]] = $tmp [1];
 					}
-				}
+				} 
 			}
 			
 			$url = $url ? $url : '/';
@@ -70,6 +70,14 @@ class Router
 						substr ($parts [$i], $st + 1), 
 						isset ($route [$i]) ? substr ($route [$i], $st) : 0
 					);
+				}
+			}
+			
+			if (isset (self::$_route->params))
+			{
+				foreach (self::$_route->params as $param=>$value)
+				{
+					Request::param ($param, $value);
 				}
 			}
 		}
