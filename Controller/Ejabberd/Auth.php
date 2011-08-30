@@ -248,14 +248,7 @@ class Controller_Ejabberd_Auth extends Controller_Abstract
 	{
 		for (;;)
 		{
-			if (!$this->process ())
-			{
-				if ($this->_task)
-				{
-					$this->_task->setTemplate (null);
-				}
-				return ;
-			}
+			$this->process ();
 		}
 	}
 	
@@ -266,17 +259,9 @@ class Controller_Ejabberd_Auth extends Controller_Abstract
 	{
 		$header = fgets (STDIN, 3);
 		
-		// Дважды дожидаемся пустого заголовка - это будет признаком
-		// завершения 
-		static $empty_header = 0;
-		
-		if ($header == '')
+		if (!$header)
 		{
-			if ($empty_header)
-			{
-				return false;
-			}
-			return $empty_header = true;
+			return;
 		}
 		
 		$length = unpack ('n', $header);
