@@ -1,6 +1,7 @@
 <?php
 /**
- * DDS Default Data Source
+ * 
+ * @desc DDS Default Data Source
  * 
  * Easy way to call querys to DB like
  * DDS::execute ($query)
@@ -13,13 +14,13 @@ class DDS
 {
 
 	/**
-	 * 
+	 * @desc По умолчанию
 	 * @var Data_Source_Abstract
 	 */
 	protected static $_source;
 	
 	/**
-	 * 
+	 * @desc Экранирование
 	 * @param string $string
 	 * @return string
 	 */
@@ -29,10 +30,10 @@ class DDS
 	}
 	
 	/**
-	 * 
-	 * @param Query $query
-	 * @param Query_Options $options
-	 * @return Data_Source_Abstract
+	 * @desc Выполняет запрос и возвращает текущний источник
+	 * @param Query $query Запрос
+	 * @param Query_Options $options Опции
+	 * @return Data_Source_Abstract источник данных
 	 */
 	public static function execute (Query $query, $options = null)
 	{
@@ -40,7 +41,22 @@ class DDS
 	}
 	
 	/**
-	 * 
+	 * @desc Выполняет запрос и возвращает текущний источник.
+	 * Источник данных будет определен автоматически.
+	 * @param Query $query Запрос
+	 * @param Query_Options $options Опции
+	 * @return Data_Source_Abstract источник данных
+	 */
+	public static function executeAuto (Query $query, $options = null)
+	{
+		$from = $query->getPart (Query::FROM);
+		$from = reset ($from);
+		$source = Model_Scheme::dataSource ($from [Query::TABLE]);
+		return $source->execute ($query, $options);
+	}
+	
+	/**
+	 * @desc Возвращает текущий источник по умолчанию
 	 * @return Data_Source_Abstract
 	 */
 	public static function getDataSource ()

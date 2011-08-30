@@ -248,7 +248,14 @@ class Controller_Ejabberd_Auth extends Controller_Abstract
 	{
 		for (;;)
 		{
-			$this->process ();
+			if (!$this->process ())
+			{
+				if ($this->_task)
+				{
+					$this->_task->setTemplate (null);
+				}
+				return ;
+			}
 		}
 	}
 	
@@ -258,6 +265,19 @@ class Controller_Ejabberd_Auth extends Controller_Abstract
 	public function process ()
 	{
 		$header = fgets (STDIN, 3);
+		
+		// Дважды дожидаемся пустого заголовка - это будет признаком
+		// завершения 
+		static $empty_header = 0;
+		
+		if ($header == '')
+		{
+			if ($empty_header)
+			{
+				return false;
+			}
+			return $empty_header = true;
+		}
 		
 		$length = unpack ('n', $header);
 		$length = $length [1];
@@ -302,6 +322,8 @@ class Controller_Ejabberd_Auth extends Controller_Abstract
 		unset ($header);
 		unset ($length);
 		unset ($commands);
+		
+		return true;
 	}
 	
 }
