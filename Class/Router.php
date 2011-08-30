@@ -73,7 +73,7 @@ class Router
 				}
 			}
 			
-			if (self::$_route->params)
+			if (isset (self::$_route->params))
 			{
 				foreach (self::$_route->params as $param => $value)
 				{
