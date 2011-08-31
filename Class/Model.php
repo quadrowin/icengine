@@ -449,12 +449,20 @@ abstract class Model implements ArrayAccess
 				func_get_args ()
 			);
 		}
+		
 		if (func_num_args () == 1)
 		{
-			return isset ($this->_data [$key]) ? $this->_data [$key] : null;
+			if (is_scalar ($key))
+			{
+				return isset ($this->_data [$key]) ? $this->_data [$key] : null;
+			}
+			
+			$this->_data = array_merge ($this->_data, $key);
 		}
-		
-		$this->_data [$key] = func_get_arg (1);
+		else
+		{
+			$this->_data [$key] = func_get_arg (1);
+		}
 	}
 	
 	/**

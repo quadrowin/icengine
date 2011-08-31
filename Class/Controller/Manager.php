@@ -165,6 +165,17 @@ class Controller_Manager extends Manager_Abstract
 		Loader::load ('Controller_Task');
 		Loader::load ('Route_Action');
 		
+		if (class_exists ('Tracer'))
+		{
+			Tracer::begin (
+				__CLASS__,
+				__METHOD__,
+				__LINE__,
+				$name,
+				$method
+			);
+		}
+		
 		if (!$task)
 		{
 			$task = new Controller_Task (
@@ -216,7 +227,12 @@ class Controller_Manager extends Manager_Abstract
 			->setInput ($temp_input)
 			->setOutput ($temp_output)
 			->setTask ($temp_task);
-			
+		
+		if (class_exists ('Tracer'))
+		{
+			Tracer::end (null);
+		}
+		
 		return $task;
 	}
 	
@@ -399,6 +415,17 @@ class Controller_Manager extends Manager_Abstract
 			$a [1] = 'index';
 		}
 		
+		if (class_exists ('Tracer'))
+		{
+			Tracer::begin (
+				__CLASS__,
+				__METHOD__,
+				__LINE__,
+				$a [0],
+				$a [1]
+			);
+		}
+		
 		$iteration = self::call ($a [0], $a [1], $args);
 		
 		$buffer = $iteration->getTransaction ()->buffer ();
@@ -441,6 +468,11 @@ class Controller_Manager extends Manager_Abstract
 			}
 			
 			View_Render_Manager::popView ();
+		}
+		
+		if (class_exists ('Tracer'))
+		{
+			Tracer::end ();
 		}
 		
 		return $html_only ? $result ['html'] : $result;

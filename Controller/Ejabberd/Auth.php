@@ -259,6 +259,11 @@ class Controller_Ejabberd_Auth extends Controller_Abstract
 	{
 		$header = fgets (STDIN, 3);
 		
+		if (!$header)
+		{
+			return;
+		}
+		
 		$length = unpack ('n', $header);
 		$length = $length [1];
 		
@@ -302,6 +307,8 @@ class Controller_Ejabberd_Auth extends Controller_Abstract
 		unset ($header);
 		unset ($length);
 		unset ($commands);
+		
+		return true;
 	}
 	
 }

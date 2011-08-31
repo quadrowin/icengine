@@ -31,7 +31,7 @@ class Filter_Model_Collection_Serialize
 			't'			=> $data->data ('t')
 		);
 		
-		for ($i = 0, $icount = sizeof ($pack ['items']); $i < $icount; $i++)
+		for ($i = 0, $icount = sizeof ($pack ['items']); $i < $icount; ++$i)
 		{
 			if ($pack ['items'][$i] instanceof Model)
 			{
