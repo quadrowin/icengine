@@ -26,7 +26,7 @@ class Controller_Admin_Database_Map extends Controller_Abstract
 		);
 		
 		$class_name = Model_Scheme::tableToModel ($table);
-		
+
 		$row = Model_Manager::byKey (
 			$class_name,
 			$row_id
