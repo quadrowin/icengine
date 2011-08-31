@@ -270,67 +270,6 @@ function encodePoints (points)
 	return Base64.encode (array);
 };
 
-
-
-// Класс для работы с Base64
-// За основу взят класс с http://www.webtoolkit.info/
-var Base64 = new function () 
-{
-	var _keyStr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' +
-		'abcdefghijklmnopqrstuvwxyz0123456789-_=';
-
-	this.encode4bytes = function (x) 
-	{
-		var chr = [];
-
-		for (var i = 0; i < 4; i++) 
-		{
-			chr[i] = x & 0x000000ff;
-			x = x >> 8;
-		}
-
-		return chr;
-	};
-
-	this.encode = function (input) 
-	{
-		var output = '',
-			chr1, chr2, chr3, enc1, enc2, enc3, enc4,
-			i = 0,
-			inputIsString = (typeof input == 'string');
-
-		while (i < input.length) 
-		{
-			chr1 = input [i++];
-			chr2 = input [i++];
-			chr3 = input [i++];
-
-			enc1 = chr1 >> 2;
-
-			enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
-
-			enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
-
-			enc4 = chr3 & 63;
-
-			if (isNaN (chr2)) 
-			{
-				enc3 = enc4 = 64;
-			} 
-			else if (isNaN (chr3)) 
-			{
-				enc4 = 64;
-			}      
-
-			output +=
-				_keyStr.charAt (enc1) + _keyStr.charAt (enc2) +
-				_keyStr.charAt (enc3) + _keyStr.charAt (enc4);
-		}
-		return output;
-	}
-
-};
-
 $(document).ready (function ()
 {
 	$('#saveGeoObject').live ('click', function ()
