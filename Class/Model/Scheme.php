@@ -282,17 +282,26 @@ abstract class Model_Scheme
 	 */
 	public static function tableToModel ($table)
 	{
+		$prefix = self::$defaultPrefix;
+		
 		foreach (self::$models as $name => $model)
 		{
 			if (isset ($model ['table']) && $model ['table'] == $table)
 			{
 				$name = explode ('_', $name);
+	
 				$name = array_map ('ucfirst', $name);
 				return implode ('_', $name);
 			}
 		}
 
 		$table = explode('_', $table);
+
+		if ($table [0] . '_' == $prefix)
+		{
+			array_shift ($table);
+		}
+		
 		$table = array_map('ucfirst', $table);
 		return implode('_', $table);
 	}
