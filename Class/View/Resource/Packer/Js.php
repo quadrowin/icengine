@@ -43,14 +43,20 @@ class View_Resource_Packer_Js extends View_Resource_Packer_Abstract
 		
 		if ($this->_currentResource->nopack)
 		{
-			$result .= $resource->content () . "\n";
+			$result .= $resource->content ();
 		}
-	    else
-	    {
-			$packer = new JavaScriptPacker ($resource->content (), 0);
-			$result .= $packer->pack ();
-	    }
-	    
+		else
+		{
+			$result .= 
+				preg_replace (
+					'#\n\s*/\*.*\*/#Us', 
+					"\n",
+					$resource->content ()
+				);
+//			$packer = new JavaScriptPacker ($resource->content (), 0);
+//			$result .= $packer->pack ();
+		}
+		
 		return $result . $this->config ()->item_postfix;
 	}
 	

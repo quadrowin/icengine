@@ -24,6 +24,7 @@ class Route extends Model_Child
 			'route'				=> '',
 			'active'			=> 1,
 			'View_Render__id'	=> 1,
+			'params'			=> array (),
 			'weight'			=> 0,
 			'title'				=> '',
 			'model'				=> '',
@@ -175,8 +176,8 @@ class Route extends Model_Child
 				)
 				{
 					$row = array_merge (
-						$config ['empty_route']->asArray (),
-						$route->asArray ()
+						$config ['empty_route']->__toArray (),
+						$route->__toArray ()
 					);
 					$row ['id'] = $id;
 //					echo 'change';

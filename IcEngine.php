@@ -159,6 +159,21 @@ class IcEngine
 	}
 	
 	/**
+	 * @desc Подключение класса Tracer
+	 */
+	public static function initTracer ($params = null)
+	{
+		static $loaded = false;
+		if (!$loaded)
+		{
+			$loaded = true;
+			require dirname (__FILE__) . '/Class/Tracer.php';
+		}
+		
+//		call_user_func_array (array ('Tracer', 'init'), func_get_args ());
+	}
+	
+	/**
 	 * @desc Путь до корня движка
 	 * @return string
 	 */

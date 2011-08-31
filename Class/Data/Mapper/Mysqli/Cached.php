@@ -126,8 +126,24 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 			$this->_foundRows = $cache ['f'];
 			return $cache ['v'];
 		}
+	
+		$start = 0;
+		
+		if (class_exists ('Tracer'))
+		{
+			Tracer::begin (
+				__CLASS__,  
+				__METHOD__,
+				__LINE__
+			);
+		}
 		
 		$result = mysql_query ($this->_sql);
+
+		if (class_exists ('Tracer'))
+		{
+			Tracer::end ($this->_sql);
+		}
 		
 		if (!is_resource ($result))
 		{

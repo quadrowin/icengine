@@ -1,7 +1,7 @@
 {if $hide_errors}
 	{literal}
 		<script type="text/javascript">
-   			function ymapifault (err) {if ((typeof console).toLowerCase () == "object" && console.log) console.log ("yandex fail: ", err);};
+   			if (typeof ymapifault == undefined){function ymapifault (err) {if ((typeof console).toLowerCase () == "object" && console.log) console.log ("yandex fail: ", err);};}
 		</script>
 	{/literal}
 {/if}
