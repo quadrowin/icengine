@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Транслятор в Mongo запрос
  * @author Yury Shvedov
  * @package IcEngine
@@ -8,10 +8,10 @@
  */
 class Query_Translator_Mongo extends Query_Translator
 {
-	
+
 	const SQL_WILDCARD		= '*';
 	const WHERE_VALUE_CHAR	= '?';
-	
+
 	/**
 	 * @desc Формирует условие выбора.
 	 * OR не поддерживается.
@@ -21,22 +21,22 @@ class Query_Translator_Mongo extends Query_Translator
 	public function _getCriteria (Query $query)
 	{
 		$wheres = $query->part (Query::WHERE);
-		
+
 		if (!$wheres)
 		{
 			return array ();
 		}
-		
+
 		$criteria = array ();
-		
+
 		foreach ($wheres as $where)
 		{
 			$this->_getCriteriaPart ($criteria, $where);
 		}
-		
+
 		return $criteria;
 	}
-	
+
 	public function _getCriteriaPart (&$criteria, $where)
 	{
 		static $operations = array (
@@ -49,10 +49,10 @@ class Query_Translator_Mongo extends Query_Translator
 			' NOT IN '	=> '$nin',
 			' IN '		=> '$in'
 		);
-		
+
 		$w = $where [Query::WHERE];
 		$v = true;
-		
+
 		foreach ($operations as $op => $solve)
 		{
 			$p = strpos ($w, $op);
@@ -100,10 +100,10 @@ class Query_Translator_Mongo extends Query_Translator
 				return ;
 			}
 		}
-		
+
 		$criteria [$w] = $v;
 	}
-	
+
 	/**
 	 * @desc Возвращает название коллекции.
 	 * @return string
@@ -111,40 +111,40 @@ class Query_Translator_Mongo extends Query_Translator
 	public function _getFromCollection (Query $query, $use_alias = true)
 	{
 		$from = $query->part (Query::FROM);
-	
+
 		if (!$from)
 		{
 			return;
 		}
-		
+
 		if (count ($from) > 1)
 		{
 			throw new Zend_Exception ('Multi from not supported.');
 		}
-		
+
 		//foreach ($from as $alias => $from)
 		
 		reset ($from);
 		return strtolower (Model_Scheme::table (key ($from)));
 	}
-	
+
 	/**
 	 *
-	 * @param type $query 
+	 * @param type $query
 	 * @return array|null
 	 */
 	public function _getGroup ($query)
 	{
 		$group = $query->part (Query::GROUP);
-		
+
 		if (!$group)
 		{
 			return null;
 		}
-		
+
 		throw new Zend_Exception ('Group not supported yet.');
 	}
-	
+
 	/**
 	 * @desc Сортировка
 	 * @param Query $query
@@ -157,9 +157,9 @@ class Query_Translator_Mongo extends Query_Translator
 		{
 			return array ();
 		}
-		
+
 		$sort = array ();
-		
+
 		foreach ($orders as $order)
 		{
 			if ($order [1] == Query::DESC)
@@ -171,10 +171,10 @@ class Query_Translator_Mongo extends Query_Translator
 				$sort [$order [0]] = 1;
 			}
 		}
-		
+
 		return $sort;
 	}
-	
+
 	/**
 	 *
 	 * @param Query $query
@@ -186,7 +186,7 @@ class Query_Translator_Mongo extends Query_Translator
 			'count'	=> (bool) $query->part (Query::CALC_FOUND_ROWS)
 		);
 	}
-	
+
 	/**
 	 * @desc Формирует запрос на удаление
 	 * @param Query $query
@@ -194,18 +194,13 @@ class Query_Translator_Mongo extends Query_Translator
 	 */
 	public function _renderDelete (Query $query)
 	{
-		$table = $query->part (Query::DELETE);
-		if (is_array ($table))
-		{
-			$table = reset ($table);
-		}
 		return array (
-			'collection'	=> strtolower (Model_Scheme::table ($table)),
+			'collection'	=> self::_getFromCollection ($query),
 			'criteria'		=> self::_getCriteria ($query),
 			'options'		=> array ('justOne'	=> false)
 		);
 	}
-	
+
 	/**
 	 * @desc Рендеринг INSERT запроса.
 	 * @param Query $query Запрос.
@@ -219,7 +214,7 @@ class Query_Translator_Mongo extends Query_Translator
 			'a'				=> $query->part (Query::VALUES)
 		);
 	}
-	
+
 	/**
 	 * @desc отступ и лимит.
 	 * @param Query $query
@@ -229,7 +224,7 @@ class Query_Translator_Mongo extends Query_Translator
 	{
 		$sql = '';
 		$limit_count = $query->part (Query::LIMIT_COUNT);
-		
+
 		if ($limit_count)
 		{
 			return array (
@@ -243,10 +238,10 @@ class Query_Translator_Mongo extends Query_Translator
 				'skip'	=> (int) $query->part (Query::LIMIT_OFFSET)
 			);
 		}
-		
+
 		return array ();
 	}
-	
+
 	/**
 	 * @desc Рендеринг REPLACE запроса.
 	 * @param Query $query Запрос
@@ -261,20 +256,20 @@ class Query_Translator_Mongo extends Query_Translator
 			'arg0'			=> $values
 		);
 	}
-	
+
 	/**
-	 * @desc Рендеринг SELECT (find) запроса. 
+	 * @desc Рендеринг SELECT (find) запроса.
 	 * @param Query $query Запрос
 	 * @return string Сформированный Mongo запрос
 	 */
 	public function _renderSelect (Query $query)
 	{
 		$fields = array ();
-		
+
 		if (false)
 		{
 			$select = $query->part (Query::SELECT);
-			
+
 			foreach ($parts [Query::SELECT] as $alias => $sparts)
 			{
 				if (is_array ($sparts))
@@ -287,8 +282,8 @@ class Query_Translator_Mongo extends Query_Translator
 						}
 						else
 						{
-							$source = 
-								$this->_escape ($sparts [0]) . 
+							$source =
+								$this->_escape ($sparts [0]) .
 								self::SQL_DOT;
 						}
 
@@ -350,7 +345,7 @@ class Query_Translator_Mongo extends Query_Translator
 				}
 			}
 		}
-		
+
 		return array (
 			'collection'	=> self::_getFromCollection ($query),
 			'query'			=> self::_getCriteria ($query),
@@ -358,35 +353,35 @@ class Query_Translator_Mongo extends Query_Translator
 			'sort'			=> self::_getSort ($query),
 			'skip'			=> (int) $query->part (Query::LIMIT_OFFSET),
 			'limit'			=> (int) $query->part (Query::LIMIT_COUNT),
-			'find_one'		=> 
+			'find_one'		=>
 				$query->part (Query::LIMIT_COUNT) == 1 &&
-				$query->part (Query::LIMIT_OFFSET) == 0 && 
+				$query->part (Query::LIMIT_OFFSET) == 0 &&
 				!$query->part (Query::ORDER) &&
 				!$query->part (Query::CALC_FOUND_ROWS)
 		);
 	}
-	
+
 	/**
 	 * @desc Рендеринг SHOW запроса
-	 * @param Query $query 
+	 * @param Query $query
 	 */
 	public function _renderShow (Query $query)
 	{
 		$from = $query->part (Query::FROM);
-	
+
 		if (!$from)
 		{
 			return;
 		}
-		
+
 		if (count ($from) > 1)
 		{
 			throw new Zend_Exception ('Multi from not supported.');
 		}
-		
+
 		//foreach ($from as $alias => $from)
-		
-		
+
+
 		reset ($from);
 		$table = key ($from);
 		return array (
@@ -395,7 +390,7 @@ class Query_Translator_Mongo extends Query_Translator
 			'model'			=> $table
 		);
 	}
-	
+
 	/**
 	 * @desc Рендеринг UPDATE запроса.
 	 * @param Query $query Запрос.
@@ -414,5 +409,5 @@ class Query_Translator_Mongo extends Query_Translator
 			)
 		);
 	}
-	
+
 }

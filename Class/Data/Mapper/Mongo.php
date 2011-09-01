@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Мэппер для работы с MongoDB
  * @author Юрий Шведов
  * @package IcEngine
@@ -8,13 +8,13 @@
  */
 class Data_Mapper_Mongo extends Data_Mapper_Abstract
 {
-	
+
 	/**
 	 * @desc Соединение с монго.
 	 * @var Mongo
 	 */
 	protected $_connection;
-	
+
 	/**
 	 * @desc Параметры соединения
 	 * @var array
@@ -26,39 +26,39 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 		'database'	=> 'unknown',
 		'charset'	=> 'utf8'
 	);
-	
+
 	/**
-	 * 
+	 *
 	 * @param Query $query
 	 * @return array
 	 */
 	public function _getTags (Query $query)
 	{
 		$tags = array ();
-		
+
 		$from = $query->getPart (Query::FROM);
 		foreach ($from as $info)
 		{
 			$tags [] = Model_Scheme::table ($info [Query::TABLE]);
 		}
-		
+
 		$insert = $query->getPart (QUERY::INSERT);
 		if ($insert)
 		{
 	   		$tags [] = Model_Scheme::table ($insert);
 		}
-	   	
+
 		$update = $query->getPart (QUERY::UPDATE);
 		if ($update)
 		{
 			$tags [] = Model_Scheme::table ($update);
 		}
-		
+
 		return array_unique ($tags);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param mixed $result
 	 * @param mixed $options
 	 * @return boolean
@@ -72,7 +72,7 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 
 		return $options->getNotEmpty () && empty ($result) ? false : true;
 	}
-	
+
 	/**
 	 * @desc Подключение к БД
 	 * @param Objective|array $config [optional]
@@ -84,57 +84,57 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 		{
 			return $this->_connection;
 		}
-		
+
 		if ($config)
 		{
 			$this->setOption ($config);
 		}
-		
+
 		$url = 'mongodb://';
 		if (
-			$this->_connectionOptions ['username'] && 
+			$this->_connectionOptions ['username'] &&
 			$this->_connectionOptions ['password']
 		)
 		{
-			$url .= 
-				$this->_connectionOptions ['username'] . ':' . 
+			$url .=
+				$this->_connectionOptions ['username'] . ':' .
 				$this->_connectionOptions ['password'] . '@';
 		}
 		$url .= $this->_connectionOptions ['host'];
-		$this->_connection = new Mongo ($url, array ("connect" => true));		
+		$this->_connection = new Mongo ($url, array ("connect" => true));
 		$this->_connection->selectDB ($this->_connectionOptions ['database']);
-		
+
 		return $this->_connection;
 	}
-	
-	public function execute (Data_Source_Abstract $source, Query $query, 
+
+	public function execute (Data_Source_Abstract $source, Query $query,
 		$options = null)
 	{
 		if (!($query instanceof Query))
 		{
 			return new Query_Result (null);
 		}
-		
+
 		$start = microtime (true);
-		
+
 		$clone = clone $query;
-		
+
 		$where = $clone->getPart (Query::WHERE);
 		$this->_filters->apply ($where, Query::VALUE);
 		$clone->setPart (Query::WHERE, $where);
-		
+
 		$q = $clone->translate ('Mongo');
-		
+
 		$collection = $this->connect ()->selectCollection (
 			$this->_connectionOptions ['database'],
 			$q ['collection']
 		);
-		
+
 		$found_rows = 0;
 		$result = null;
 		$insert_id = null;
 		$tags = implode ('.', $this->_getTags ($clone));
-		
+
 		switch ($query->type ())
 		{
 			case Query::DELETE:
@@ -161,7 +161,7 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 					$r = $collection->insert ($q ['a']);
 					$insert_id = $q ['a'] ['_id'];
 				}
-				
+
 				$touched_rows = 1;
 				break;
 			case Query::SELECT:
@@ -174,9 +174,9 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 				else
 				{
 //					fb (json_encode ($q ['query']));
-					
+
 					$r = $collection->find ($q ['query']);
-				
+
 					if ($query->part (Query::CALC_FOUND_ROWS))
 					{
 						$found_rows = $r->count ();
@@ -232,13 +232,13 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 						{
 							$temp = (array) $key ['index'];
 						}
-						
+
 						$keys = array ();
 						foreach ($temp as $index)
 						{
 							$keys [$index] = 1;
 						}
-						
+
 						$collection->ensureIndex ($keys, $options);
 					}
 				}
@@ -257,16 +257,16 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 				$touched_rows = 1; // unknown count
 				break;
 		}
-		
+
 		//$error = $this->_connection->lastError ();
-		
+
 		if ($result == null)
 		{
 			$result = array ();
 		}
-		
+
 		$finish = microtime (true);
-		
+
 		return new Query_Result (array (
 			'error'			=> '',
 			'errno'			=> 0,
@@ -281,7 +281,7 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 			'source'		=> $source
 		));
 	}
-	
+
 	/**
 	 * @desc Возвращает ресурс соединения с mysql.
 	 * @return resource
@@ -291,7 +291,7 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 		$this->connect ();
 		return $this->_linkIdentifier;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Mapper_Abstract::setOption()
@@ -306,7 +306,7 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 			}
 			return;
 		}
-		
+
 		if (isset ($this->_connectionOptions [$key]))
 		{
 			Loader::load ('Crypt_Manager');
@@ -315,5 +315,5 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 		}
 		return parent::setOption ($key, $value);
 	}
-	
+
 }
