@@ -3,13 +3,13 @@
 	{assign var="is_new" value=false}
 {/if}
 
-{literal}
+{*literal}
 	<script type="text/javascript">
 	$(function () {
 		editor ('extended');
-	});
+	}); 
 	</script>
-{/literal}
+{/literal*}
 
 <div id="tab-data">
 
