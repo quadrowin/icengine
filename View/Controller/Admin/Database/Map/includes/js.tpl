@@ -25,6 +25,7 @@
 
 			mapEditor.map.addControl (new YMaps.Zoom ());
 			mapEditor.map.addControl (new YMaps.ToolBar ());
+			mapEditor.map.addControl (new YMaps.TypeControl ());
 			mapEditor.map.addControl (new YMaps.ScaleLine ());
 
 			mapEditor.map.enableScrollZoom ({smooth:true});

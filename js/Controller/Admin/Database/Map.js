@@ -289,15 +289,7 @@ $(document).ready (function ()
 				},
 				function (result)
 				{
-					alert (result.html);
-					if (result.data.success)
-					{
-						alert ('Success');
-					}
-					else
-					{
-						alert ('Fail');
-					}
+					
 				},
 				false
 			);
