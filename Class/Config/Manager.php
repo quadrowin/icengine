@@ -13,7 +13,7 @@ class Config_Manager
 	 * @desc Путь до конфигов от корня сайта
 	 * @var string
 	 */
-	const PATH_TO_CONFIG = 'config/';
+	const PATH_TO_CONFIG = 'Ice/Config/';
 	
 	/**
 	 * @desc Флаг означающий, что идет процесс загрузки конфига,

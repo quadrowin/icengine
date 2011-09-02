@@ -127,11 +127,8 @@ class Model_Manager extends Manager_Abstract
 		else
 		{
 			// Вставка
-			$new_id = Model_Scheme::generateKey ($object);
-			if ($new_id)
+			if ($id)
 			{
-				// Ключ указан
-				$object->set ($kf, $new_id);
 				$ds->execute (
 					Query::instance ()
 						->insert ($object->modelName ())
@@ -140,24 +137,39 @@ class Model_Manager extends Manager_Abstract
 			}
 			else
 			{
-				if (!$id)
+				// Генерация первичного ключа
+				$new_id = Model_Scheme::generateKey ($object);
+				if ($new_id)
 				{
-					$object->unsetField ($kf);
-					$id = $ds->execute (
-						Query::instance ()
-							->insert ($object->modelName ())
-							->values ($object->asRow ())
-					)->getResult ()->insertId ();
-					
-					$object->set ($kf, $id);
-				}
-				else
-				{
+					// Ключ указан
+					$object->set ($kf, $new_id);
 					$ds->execute (
 						Query::instance ()
 							->insert ($object->modelName ())
 							->values ($object->asRow ())
 					);
+				}
+				else
+				{
+					if (!$id)
+					{
+						$object->unsetField ($kf);
+						$id = $ds->execute (
+							Query::instance ()
+								->insert ($object->modelName ())
+								->values ($object->asRow ())
+						)->getResult ()->insertId ();
+
+						$object->set ($kf, $id);
+					}
+					else
+					{
+						$ds->execute (
+							Query::instance ()
+								->insert ($object->modelName ())
+								->values ($object->asRow ())
+						);
+					}
 				}
 			}
 		}
