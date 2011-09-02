@@ -59,8 +59,8 @@ class Subscribe_Session extends Model
 	 */
 	public function setStatus ($status)
 	{
-		$this->status = $status;
-		$this->save ();
-		return $this;
+		return $this->update (array (
+			'status'	=> $status
+		));
 	}
 }

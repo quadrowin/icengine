@@ -141,7 +141,7 @@ class Background_Agent_Manager extends Manager_Abstract
 		}
 		else
 		{
-			echo "no sessions\n";
+			echo "no background agent sessions\n";
 		}
 	}
 	
