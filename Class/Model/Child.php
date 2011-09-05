@@ -100,7 +100,8 @@ abstract class Model_Child extends Model
 	 */
 	public function parentKey ()
 	{
-		return $this->parentId;
+		return $this->hasField('parentId') ?
+				$this->parentId : 0;
 	}
 	
 	/**
