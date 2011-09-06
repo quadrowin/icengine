@@ -2,13 +2,12 @@
 
 function internal_error_handler_hide ($errno, $errstr, $errfile, $errline)
 {
-	//echo '['.$errno.':'.$errfile.'@'.$errline.'] '.$errstr."\n<br />";
-	return true;
+
 }
 
 function internal_error_handler_ignore ($errno, $errstr, $errfile, $errline)
 {
-	return true;
+//	echo '['.$errno.':'.$errfile.'@'.$errline.'] '.$errstr."\n1<br />";
 }
 
 function internal_exception_handler_ignore ($exception)
@@ -37,13 +36,17 @@ class Debug
 	 * @var array
 	 */
 	protected static $_configPresets = array (
+		// Вывод сообщений отладки на экран
+		'echo'	=> array (
+			'echo_active'		=> true,
+		),
 		// Только firebug
 		'fb'	=> array (
-			'firebug_active'	=> false
+			'firebug_active'	=> true
 		),
-		// Скрывать все ошибки
-		'hide'	=> array (
-			'echo_active'		=> false
+		// Вывод ошибок на экран
+		true	=> array (
+			'echo_active'		=> true
 		)
 	);
 	
@@ -71,7 +74,7 @@ class Debug
 		 * @desc Отображение в браузер, вывод через stdOut.
 		 * @var boolean
 		 */
-		'echo_active'				=> true,
+		'echo_active'				=> false,
 		
 		/**
 		 * @desc Отображение в файл.
@@ -145,16 +148,26 @@ class Debug
 	 */
 	public static $debug_messages_count = 0;
 	
-	public static $start_time = 0;
+	/**
+	 * @desc Время подключения класса дебага.
+	 * @var integer
+	 */
+	public static $startTime;
+	
+	/**
+	 * @desc Время последнего замера времени.
+	 * @var integer
+	 */
+	public static $lastTime;
 	
 	/**
 	 * @desc Скрытие всех возникающих ошибок.
 	 */
-	public static function disable ()
+	public static function disable ($default_display = false)
 	{
 		error_reporting (null);
-		ini_set ('display_errors', false);
-		ini_set ('html_errors', false);
+		ini_set ('display_errors', $default_display);
+		ini_set ('html_errors', $default_display);
 		ini_set ('track_errors', true);
 		
 		set_error_handler ('internal_error_handler_hide');
@@ -174,14 +187,13 @@ class Debug
 			// Игнорим сообщение про open_basedir из smarty
 			(
 				self::$config ['ignore_open_basedir_warning'] &&
-				($errno == E_WARNING) &&
-				strpos ($errfile, '/core.get_include_path.php') &&
-				($errline == 35)
+				$errno == E_WARNING &&
+				strpos ($errfile, 'smarty/internals/core.get_include_path.php')
 			) ||
 			// Варнинг unlink
 			(
 				self::$config ['ignore_unlink_warning'] &&
-				($errno = E_WARNING) &&
+				$errno == E_WARNING &&
 				substr ($errstr, 0, 7) == 'unlink('
 			)
 		)
@@ -199,7 +211,23 @@ class Debug
 		$debug = array_slice (debug_backtrace (), 1, 10);
 		self::removeUninterestingObjects ($debug);
 		
-		$log_text = 
+		$log_text =
+			(
+				isset ($_SERVER ['HTTP_HOST']) ? 
+				$_SERVER ['HTTP_HOST'] :
+				'empty host'
+			) .
+			(
+				isset ($_SERVER ['REQUEST_URI']) ? 
+				$_SERVER ['REQUEST_URI'] :
+				'/empty uri'
+			) . 
+			(
+				isset ($_SERVER ['HTTP_REFERER']) ?
+				"\r\nreferer: " . $_SERVER ['HTTP_REFERER']  :
+				''
+			) .
+			"\r\n" .
 			'[' . $errno . ':' . $errfile . '@' . $errline . '] ' . 
 			$errstr . "\r\n";
 		
@@ -208,7 +236,8 @@ class Debug
 			if (isset ($debug_step ['file']))
 			{
 				$log_text .= 
-					'[' . $debug_step ['file'] . '@' . $debug_step ['line'] . ':' . 
+					'[' . $debug_step ['file'] . '@' . 
+					$debug_step ['line'] . ':' . 
 					$debug_step ['function'] . ']' . "\r\n";
 			}
 			else
@@ -224,7 +253,7 @@ class Debug
 			self::$config ['die_on_error']
 		)
 		{
-			die ("<b>Terminated on fatal error.</b>");
+			die ("<b>Terminated on fatal error.</b><br />" . $log_text);
 		}
 		
 		return true;
@@ -232,23 +261,30 @@ class Debug
 	
 	/**
 	 * @desc Включение внутреннего обработчика ошибок.
-	 * @param array|Objective $config Настройки.
+	 * @param mixed $config Настройки.
 	 */
 	public static function init ($config)
 	{
-		error_reporting (E_ALL);
-		ini_set ('display_errors', true);
+		if ($config === false)
+		{
+			self::disable ();
+		}
+		
+		error_reporting (E_ALL | E_STRICT);
+		
+		ini_set ('display_errors', false);
 		ini_set ('html_errors', true);
 		ini_set ('track_errors', true);
 
 		$memory_start = function_exists ('memory_get_usage') ? memory_get_usage(true) : 0;
 		
-		if ($config)
+		foreach (func_get_args () as $cfg)
 		{
-			self::setOptions ($config);
+			self::setOptions ($cfg);
 		}
 		
-		set_error_handler ("Debug::errorHandler");
+		set_error_handler (array (__CLASS__, 'errorHandler'));
+		register_shutdown_function (array (__CLASS__, 'shutdownHandler'));
 	}
 	
 	/**
@@ -306,12 +342,7 @@ class Debug
 	 */
 	public static function pushErrorHandler ($type)
 	{
-		error_reporting (null);
-		ini_set ('display_errors', false);
-		ini_set ('html_errors', false);
-		ini_set ('track_errors', false);
-		
-		set_error_handler ('internalErrorHandler_' . $type);
+		set_error_handler ('internal_error_handler_' . $type);
 	}
 	
 	/**
@@ -353,20 +384,37 @@ class Debug
 	 */
 	public static function setOptions ($config)
 	{
-		if (!$config)
+		if (is_scalar ($config))
 		{
-			self::setOutput ();
-			return;
-		}
-		
-		if (is_scalar ($config) && isset (self::$_configPresets [$config]))
-		{
-			$config = self::$_configPresets [$config];
+			if (isset (self::$_configPresets [$config]))
+			{
+				// подключение файрпхп
+				if ($config == 'fb' && !function_exists ('fb'))
+				{
+					require dirname (__FILE__) . '/../includes/FirePHPCore/fb.php';
+				}
+				$config = self::$_configPresets [$config];
+			}
+			elseif (strpos ($config, 'dir:') === 0)
+			{
+				$path = rtrim (substr ($config, 4), '\\/') . '/';
+				$config = array (
+					'file_active'		=> true,
+					'file_error'		=> $path . 'error.txt',
+					'file_warn'			=> $path . 'warning.txt',
+					'file_log'			=> $path . 'notice.txt'
+				);
+			}
 		}
 		
 		if (is_object ($config) && $config instanceof Objective)
 		{
 			$config = $config->__toArray ();
+		}
+		
+		if (!$config)
+		{
+			return;
 		}
 		
 		self::$config = array_merge (self::$config, $config);
@@ -421,6 +469,18 @@ class Debug
 		else
 		{
 			self::$config ['file_active'] = false;
+		}
+	}
+	
+	/**
+	 * @desc Обработчик завершения работы скрипта
+	 */
+	public static function shutdownHandler ()
+	{
+		$e = error_get_last ();
+		if ($e)
+		{
+			self::errorHandler ($e ['type'], $e ['message'], $e ['file'], $e ['line']);
 		}
 	}
 	
@@ -535,20 +595,21 @@ class Debug
 	 * @author Eriomin Ivan
 	 * @tutorial
 	 *	include $engine_dir . '/includes/FirePHPCore/fb.php';
-	 *	Debug::microtime (__FILE__, __LINE__);
+	 *	Debug::microtime ('some special message');
 	 */
-	public static function microtime()
+	public static function microtime ()
 	{
-		$now = microtime (true);
+		$trace = array_slice (debug_backtrace (), 0, 1);
+		$text = $trace [0]['file'] . '@' . $trace [0]['line'] . ': ';
 		
-		if (!self::$start_time)
+		$now = microtime (true);
+		$text .= round ($now - self::$lastTime, 5);
+		self::$lastTime = $now;
+		
+		if (func_num_args ())
 		{
-			self::$start_time = $now;
+			$text .= ' - ' . implode (', ', func_get_args ());
 		}
-		$text = func_num_args () ?
-			(implode (':', func_get_args ()) . ':') : '';
-			
-		$text .= round($now - self::$start_time, 3) . ' second';
 		
 		if (function_exists ('fb') && !headers_sent ())
 		{
@@ -556,10 +617,40 @@ class Debug
 		}
 		else
 		{
-			echo round($now - self::$start_time, 3) . ' second';
+			echo $text;
+		}
+	}
+	
+	/**
+	 * @desc вывод в лог времени загрузки фаилов.
+	 * @author Yury Shvedov
+	 * @tutorial
+	 *	include $engine_dir . '/includes/FirePHPCore/fb.php';
+	 *	Debug::microtimeTotal ('some special message');
+	 */
+	public static function microtimeTotal ()
+	{
+		$trace = array_slice (debug_backtrace (), 0, 1);
+		$text = $trace [0]['file'] . '@' . $trace [0]['line'] . ': ';
+		
+		$text .= round (microtime (true) - self::$startTime, 5);
+		
+		if (func_num_args ())
+		{
+			$text .= ' - ' . implode (', ', func_get_args ());
 		}
 		
-		self::$start_time = $now;
+		if (function_exists ('fb') && !headers_sent ())
+		{
+			fb ($text);
+		}
+		else
+		{
+			echo $text;
+		}
 	}
 	
 }
+
+Debug::$startTime = microtime (true);
+Debug::$lastTime = microtime (true);

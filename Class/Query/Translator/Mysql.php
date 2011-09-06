@@ -2,7 +2,7 @@
 /**
  * 
  * @desc Транслятор в SQL запрос
- * @author Гурус
+ * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
  *
  */
@@ -30,6 +30,7 @@ class Query_Translator_Mysql extends Query_Translator
 	const SQL_ON			= 'ON';
 	const SQL_ORDER_BY		= 'ORDER BY';
 	const SQL_QUOTE			= '"';
+	const SQL_REPLACE		= 'REPLACE';
 	const SQL_SELECT		= 'SELECT';
 	const SQL_SET			= 'SET';
 	const SQL_SHOW			= 'SHOW';
@@ -60,7 +61,8 @@ class Query_Translator_Mysql extends Query_Translator
 			strpos ($value, '`') === false
 		)
 		{
-			return self::SQL_ESCAPE . mysql_real_escape_string ($value) . self::SQL_ESCAPE;
+			//return self::SQL_ESCAPE . mysql_real_escape_string ($value) . self::SQL_ESCAPE;
+			return self::SQL_ESCAPE . addslashes (iconv ('UTF-8', 'UTF-8//IGNORE', $value)) . self::SQL_ESCAPE;
 		}
 		return $value;
 	}
@@ -78,7 +80,8 @@ class Query_Translator_Mysql extends Query_Translator
 			die ();
 		}
 //		if (is_array ($value)) debug_print_backtrace();
-		return self::SQL_QUOTE . mysql_real_escape_string ($value) . self::SQL_QUOTE;
+//		return self::SQL_QUOTE . mysql_real_escape_string ($value) . self::SQL_QUOTE;
+		return self::SQL_QUOTE . addslashes (iconv ('UTF-8', 'UTF-8//IGNORE', $value)) . self::SQL_QUOTE;
 	}
 	
 	public function _partCalcFoundRows (Query $query)
@@ -98,13 +101,24 @@ class Query_Translator_Mysql extends Query_Translator
 	 */
 	protected function _partDistinct (Query $query)
 	{
-		return $query->part (Query::DISTINCT, '');
+		return $query->part (Query::DISTINCT) ? self::SQL_DISTINCT : '';
 	}
 	
 	public function _renderDelete (Query $query)
 	{
+		$parts = $query->parts ();
+		//$parts = implode(', ', $parts[Query::DELETE]);
+		foreach($parts[Query::DELETE] as $key => $part)
+		{
+			$parts[Query::DELETE][$key] = strpos ($part, self::SQL_ESCAPE) !== false ?
+				$part :
+				strtolower (Model_Scheme::table ($part));
+			$parts[Query::DELETE][$key] = $this->_escape ($parts[Query::DELETE][$key]);
+		}
+		$tables = count($parts[Query::DELETE]) > 0 ? ' '.implode(', ', $parts[Query::DELETE]).' ' : ' ';
+
 		return 
-			self::SQL_DELETE . ' ' .
+			self::SQL_DELETE . $tables .
 			self::_renderFrom ($query, false) . ' ' . 
 			self::_renderWhere ($query);
 	}
@@ -115,6 +129,11 @@ class Query_Translator_Mysql extends Query_Translator
 		$i = 0;
 		
 		$from = $query->part (Query::FROM);
+	
+		if (!$from)
+		{
+			return;
+		}
 		
 		if (count ($from) > 1)
 		{
@@ -130,14 +149,24 @@ class Query_Translator_Mysql extends Query_Translator
 			}
 		}
 		
-		foreach ($from as $alias => $from)
+		$froms = $from;
+		
+		foreach ($froms as $alias => $from)
 		{
-			$table =
-				strpos ($from [Query::TABLE], self::SQL_ESCAPE) !== false ? 
-				$from [Query::TABLE] :
-				strtolower ($this->_modelScheme->table ($from [Query::TABLE]));
+			if ($from [Query::TABLE] instanceof Query)
+			{
+				$table = '(' . $this->_renderSelect ($from [Query::TABLE]) . ')';
+			}
+			else 
+			{
+				$table =
+					strpos ($from [Query::TABLE], self::SQL_ESCAPE) !== false ? 
+					$from [Query::TABLE] :
+					strtolower (Model_Scheme::table ($from [Query::TABLE]));
+
+				$table = $this->_escape ($table);
+			}
 			
-			$table = $this->_escape ($table);
 			$alias = $this->_escape ($alias);
 			
 			if ($from [Query::JOIN] == Query::FROM)
@@ -222,27 +251,29 @@ class Query_Translator_Mysql extends Query_Translator
 		return $result;
 	}
 	
+	/**
+	 * @desc Рендеринг INSERT запроса.
+	 * @param Query $query Запрос.
+	 * @return string Сформированный SQL запрос.
+	 */
 	public function _renderInsert (Query $query)
 	{
 		$table = $query->part (Query::INSERT);
-		$sql = 
-			self::SQL_INSERT . ' ' .
-			strtolower ($this->_modelScheme->table ($table)) . 
-			' (';
+		$sql = 'INSERT ' . strtolower (Model_Scheme::table ($table)) . ' (';
 		
 		$fields = array_keys ($query->part (Query::VALUES));
 		$values = array_values ($query->part (Query::VALUES));
 		
-		for ($i = 0; $i < count ($fields); $i++)
+		for ($i = 0, $icount = count ($fields); $i < $icount; $i++)
 		{
-			$fields[$i] = self::_escape ($fields[$i]);
-			$values[$i] = self::_quote ($values[$i]);
+			$fields [$i] = self::_escape ($fields [$i]);
+			$values [$i] = self::_quote ($values [$i]);
 		}
 		
 		$fields = implode (', ', $fields);
 		$values = implode (', ', $values);
 		
-		return $sql . $fields . ') ' . self::SQL_VALUES . ' (' . $values . ')';
+		return $sql . $fields . ') VALUES (' . $values . ')';
 	}
 	
 	public function _renderLimitoffset (Query $query)
@@ -252,17 +283,13 @@ class Query_Translator_Mysql extends Query_Translator
 		
 		if (!empty ($limit_count))
 		{
-			$sql .= ' ' . 
-				self::SQL_LIMIT . ' ' . 
-				(int) $query->part (Query::LIMIT_OFFSET) . 
-				self::SQL_COMMA . 
-				(int) $query->part (Query::LIMIT_COUNT);
+			$sql .= 
+				' LIMIT ' . (int) $query->part (Query::LIMIT_OFFSET) . 
+				self::SQL_COMMA . (int) $query->part (Query::LIMIT_COUNT);
 		}
 		elseif ($query->part (Query::LIMIT_OFFSET))
 		{
-			$sql .= ' ' . 
-				self::SQL_LIMIT . ' ' . 
-				(int) $query->part (Query::LIMIT_OFFSET);
+			$sql .= ' LIMIT ' . (int) $query->part (Query::LIMIT_OFFSET);
 		}
 		
 		return $sql;
@@ -271,10 +298,11 @@ class Query_Translator_Mysql extends Query_Translator
 	public function _renderOrder (Query $query)
 	{
 		$orders = $query->part (Query::ORDER);
-		if (empty ($orders))
+		if (!$orders)
 		{
 			return '';
 		}
+		
 		$columns = array ();
 		foreach ($orders as $order)
 		{
@@ -292,96 +320,138 @@ class Query_Translator_Mysql extends Query_Translator
 			}
 		}
 		
-		return 
-			self::SQL_ORDER_BY . ' ' . 
-			implode (self::SQL_COMMA, $columns);
+		return 'ORDER BY ' . implode (self::SQL_COMMA, $columns);
 	}
 	
+	/**
+	 * @desc Рендеринг REPLACE запроса.
+	 * @param Query $query Запрос
+	 * @return string Сформированный SQL запрос
+	 */
+	public function _renderReplace (Query $query)
+	{
+		$table = $query->part (Query::REPLACE);
+		$sql = 'REPLACE ' . strtolower (Model_Scheme::table ($table)) . ' (';
+		
+		$fields = array_keys ($query->part (Query::VALUES));
+		$values = array_values ($query->part (Query::VALUES));
+		
+		for ($i = 0, $icount = count ($fields); $i < $icount; $i++)
+		{
+			$fields [$i] = self::_escape ($fields [$i]);
+			$values [$i] = self::_quote ($values [$i]);
+		}
+		
+		$fields = implode (', ', $fields);
+		$values = implode (', ', $values);
+		
+		return $sql . $fields . ') VALUES (' . $values . ')';
+	}
+	
+	/**
+	 * @desc Рендеринг SELECT запроса.
+	 * @param Query $query Запрос
+	 * @return string Сформированный SQL запрос
+	 */
 	public function _renderSelect (Query $query)
 	{
-		$sql =
-			self::SQL_SELECT . ' ' .
-			self::_partCalcFoundRows ($query) . ' ' . 
-			self::_partDistinct ($query) . ' ';
+		$sql = '';
+		
 		$parts = $query->parts ();
 		
-		$columns = array ();
-		foreach ($parts [Query::SELECT] as $alias => $sparts)
+		if ($parts [Query::SELECT])
 		{
-			if (is_array ($sparts))
+			$sql =
+				'SELECT ' .
+				self::_partCalcFoundRows ($query) . ' ' . 
+				self::_partDistinct ($query) . ' ';
+
+			$columns = array ();
+			foreach ($parts [Query::SELECT] as $alias => $sparts)
 			{
-				if (count ($sparts) > 1)
+				if (is_array ($sparts))
 				{
-					if (empty ($sparts [0]))
+					if (count ($sparts) > 1)
 					{
-						$source = '';
+						if (empty ($sparts [0]))
+						{
+							$source = '';
+						}
+						else
+						{
+							$source = 
+								$this->_escape ($sparts [0]) . 
+								self::SQL_DOT;
+						}
+
+						if (
+							strpos ($sparts [1], self::SQL_WILDCARD) !== false ||
+							strpos ($sparts [1], '(') === false ||
+							strpos ($sparts [1], ' ') === false ||
+							strpos ($sparts [1], '.') === false ||
+							strpos ($sparts [1], '`') === false
+						)
+						{
+							$source .= $sparts [1];
+						}
+						else
+						{
+							$source .= $this->_escape ($sparts [1]);
+						}
+					}
+					elseif (strpos ($sparts [0], self::SQL_WILDCARD) !== false)
+					{
+						$source = $sparts [0];
 					}
 					else
 					{
-						$source = 
-							$this->_escape ($sparts [0]) . 
-							self::SQL_DOT;
-					}
-							
-					if (
-						strpos ($sparts [1], self::SQL_WILDCARD) !== false ||
-						strpos ($sparts [1], '(') === false ||
-						strpos ($sparts [1], ' ') === false ||
-						strpos ($sparts [1], '.') === false ||
-						strpos ($sparts [1], '`') === false
-					)
-					{
-						$source .= $sparts [1];
-					}
-					else
-					{
-						$source .= $this->_escape ($sparts [1]);
+						$source = $this->_escape ($sparts [0]);
 					}
 				}
-				elseif (strpos ($sparts [0], self::SQL_WILDCARD) !== false)
+				elseif (
+					strpos ($sparts, self::SQL_WILDCARD) === false &&
+					strpos ($sparts, '(') === false &&
+					strpos ($sparts, ' ') === false &&
+					strpos ($sparts, '`') === false &&
+					strpos ($sparts, '.') === false 
+				)
 				{
-					$source = $sparts [0];
+					$source = $this->_escape ($sparts);
+				}
+				elseif (strpos ($sparts, self::SQL_WILDCARD) !== false)
+				{
+					$source = explode ('.', $sparts);
+					$source [0] = $this->_escape ($source [0]);
+					$source = implode ('.', $source);
 				}
 				else
 				{
-					$source = $this->_escape ($sparts [0]);
+					$source = $sparts;
 				}
-			}
-			elseif (
-				strpos ($sparts, self::SQL_WILDCARD) === false &&
-				strpos ($sparts, '(') === false &&
-				strpos ($sparts, ' ') === false &&
-				strpos ($sparts, '.') === false &&
-				strpos ($sparts, '`') === false
-			)
-			{
-				$source = $this->_escape ($sparts);
-			}
-			else
-			{
-				$source = $sparts;
-			}
-			
-			if (is_numeric ($alias))
-			{
-				$columns [] = $source;
-			}
-			elseif (
-				strpos ($alias, self::SQL_WILDCARD) !== false ||
-				strpos ($alias, '(') !== false ||
-				strpos ($alias, ' ') !== false
-			)
-			{
-				$columns [] = $source;
-			}
-			else
-			{
-				$columns [] = $source . ' AS ' . $this->_escape ($alias);
+
+				if (is_numeric ($alias))
+				{
+					$columns [] = $source;
+				}
+				elseif (
+					strpos ($alias, self::SQL_WILDCARD) !== false ||
+					strpos ($alias, '(') !== false ||
+					strpos ($alias, ' ') !== false ||
+					strpos ($alias, '.') !== false
+				)
+				{
+					$columns [] = $source;
+				}
+				else
+				{
+					$columns [] = $source . ' AS ' . $this->_escape ($alias);
+				}
 			}
 		}
 		
 		return $sql . implode (self::SQL_COMMA, $columns) . ' ' . 
 			self::_renderFrom ($query) . ' ' .
+			self::_renderUseIndex ($query) . ' ' .
 			self::_renderWhere ($query) . ' ' .
 			self::_renderGroup ($query) . ' ' .
 			self::_renderOrder ($query) . ' ' .
@@ -395,7 +465,7 @@ class Query_Translator_Mysql extends Query_Translator
 	 */
 	public function _renderShow (Query $query)
 	{
-		$sql = self::SQL_SHOW . ' ' . $this->_partDistinct ($query) . ' ';
+		$sql = 'SHOW ' . $this->_partDistinct ($query) . ' ';
 		
 		$sql .= $query->part (Query::SHOW);
 		
@@ -407,13 +477,18 @@ class Query_Translator_Mysql extends Query_Translator
 			self::_renderGroup ($query);
 	}
 	
+	/**
+	 * @desc Рендеринг UPDATE запроса.
+	 * @param Query $query Запрос.
+	 * @return Сформированный SQL запрос.
+	 */
 	public function _renderUpdate (Query $query)
 	{
 		$table = $query->part (Query::UPDATE);
 		$sql = 
-			self::SQL_UPDATE . ' ' . 
-			strtolower ($this->_modelScheme->table ($table)) . ' ' . 
-			self::SQL_SET . ' ';
+			'UPDATE ' . 
+			strtolower (Model_Scheme::table ($table)) . 
+			' SET ';
 			
 		$values = $query->part (Query::VALUES);
 		$sets = array();
@@ -436,16 +511,38 @@ class Query_Translator_Mysql extends Query_Translator
 		return $sql . implode (', ', $sets) . ' ' . $this->_renderWhere ($query);
 	}
 	
-	public function _renderWhere (Query $query)
+	public function _renderUseIndex (Query $query)
 	{
-		$wheres = $query->part (Query::WHERE);
-		
-		if (empty ($wheres))
+		$indexes = $query->part (Query::INDEX);
+		if (!$indexes)
 		{
 			return '';
 		}
 		
-		$sql = self::SQL_WHERE . ' ';
+		return 'USE INDEX(' . implode (',', $indexes) . ')';
+	}
+	
+	public function _renderWhere (Query $query)
+	{
+		$wheres = $query->part (Query::WHERE);
+		
+		if (!$wheres)
+		{
+			return '';
+		}
+		
+		$sql = 'WHERE ';
+		
+		//print_r ($wheres);
+		
+		foreach ($wheres as $i => $where)
+		{
+			if (isset ($where ['empty']))
+			{
+				$sql = '';
+			}
+		}
+		
 		foreach ($wheres as $i => $where)
 		{
 			if ($i > 0)
@@ -456,16 +553,37 @@ class Query_Translator_Mysql extends Query_Translator
 			
 			if (array_key_exists (Query::VALUE, $where))
 			{
-				 $sql .= $this->_quoteCondition (
+				if ($where [Query::VALUE] instanceof Query)
+				{
+	
+					$where [Query::VALUE] = '(' . $this->_renderSelect (
+						$where [Query::VALUE] 
+					) . ')';
+				}
+				
+				$sql .= $this->_quoteCondition (
 					$where [Query::WHERE],
 					$where [Query::VALUE] 
 				);
 			}
 			else
 			{
-				 $sql .= $this->_quoteCondition (
-					$where [Query::WHERE] 
-				);
+				if ($where [Query::WHERE] instanceof Query)
+				{
+					$w = $where [Query::WHERE]->getPart (Query::WHERE);
+				
+					$w [0]['empty'] = true;
+					
+					$where [Query::WHERE]->setPart (Query::WHERE, $w);
+
+					$sql .= '(' . $this->_renderSelect ($where [Query::WHERE]) . ')';
+				}
+				else
+				{
+					 $sql .= $this->_quoteCondition (
+						$where [Query::WHERE] 
+					);
+				}
 			}
 		}
 		
@@ -495,7 +613,15 @@ class Query_Translator_Mysql extends Query_Translator
 			}
 			else
 			{
-				$value = '=' . $this->_quote ($value); 
+//				if (
+//					strpos ($value, '(') === false &&
+//					strpos ($value, ')') === false
+//				)
+//				{
+//					$value = $this->_quote ($value); 
+//				}
+				
+				$value = '=' . $this->_quote ($value);
 			}
 			
 			if (
@@ -514,7 +640,15 @@ class Query_Translator_Mysql extends Query_Translator
 		{
 			return str_replace (
 				self::WHERE_VALUE_CHAR, 
-				is_array ($value) ? $this->_renderInArray ($value) : $this->_quote ($value),
+				is_array ($value) 
+					? $this->_renderInArray ($value) 
+					: $this->_quote ($value),
+//					: (
+//						strpos ($value, '(') !== false ||
+//						strpos ($value, ')') !== false 
+//							? $value
+//							: $this->_quote ($value)
+//					),
 				$condition
 			);
 		}

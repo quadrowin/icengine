@@ -4,6 +4,7 @@
  * @desc Помощник представления для работы с Css
  * @author Юрий Шведов
  * @package IcEngine
+ * @deprecated Следует использовать Controller_View_Resource_Css
  *
  */
 class View_Helper_Css extends View_Helper_Abstract
@@ -14,7 +15,7 @@ class View_Helper_Css extends View_Helper_Abstract
 	 * @var string
 	 */
 	const TEMPLATE = 
-		"\t<link href=\"{\$url}\" rel=\"stylesheet\" type=\"text/css\" />\n";
+		"\t<link href=\"{\$url}?{\$ts}\" rel=\"stylesheet\" type=\"text/css\" />\n";
 	
 	public function get (array $params)
 	{
@@ -57,15 +58,33 @@ class View_Helper_Css extends View_Helper_Abstract
 					
 			$packer->pack ($csses, $config->packed_file);
 				
-			$result = 
-				str_replace ('{$url}', $config->packed_url, self::TEMPLATE);
+			$result = str_replace (
+				array (
+					'{$url}',
+					'{$ts}'
+				),
+				array (
+					$config->packed_url,
+					$packer->cacheTimestamp ()
+				),
+				self::TEMPLATE
+			);
 		}
 		else
 		{
 			foreach ($csses as $css)
 			{
-				$result .=
-					str_replace ('{$url}', $css ['href'], self::TEMPLATE);
+				$result .= str_replace (
+					array (
+						'{$url}',
+						'{$ts}'
+					),
+					array (
+						$css ['href'],
+						$css->filemtime ()
+					),
+					self::TEMPLATE
+				);
 			}
 		}
 		

@@ -76,14 +76,15 @@ class Request
 	}
 	
 	/**
-	 * @desc Проверяет, переданы ли GET параметры.
-	 * @return boolean
+	 * @desc Проверяет, что скрипт был вызван через консоль.
+	 * @return boolean true, если скрипт был вызван из командной строки, 
+	 * иначе - false.
 	 */
-	public static function isGet ()
+	public static function isConsole ()
 	{
-		return !empty ($_GET);
+		return isset ($_SERVER ['argv'], $_SERVER ['argc']);
 	}
-	
+		
 	/**
 	 * @desc Проверяет, передены ли файлы от пользователя.
 	 * @return boolean
@@ -94,7 +95,32 @@ class Request
 	}
 	
 	/**
-	 * 
+	 * @desc Проверяет, переданы ли GET параметры.
+	 * @return boolean
+	 */
+	public static function isGet ()
+	{
+		return !empty ($_GET);
+	}
+	
+	/**
+	 * @desc Проверяет, был ли это запрос через JsHttpRequest
+	 * @return boolean
+	 */
+	public static function isJsHttpRequest ()
+	{
+		global $JsHttpRequest_Active;
+		
+		return (
+			isset ($_SERVER ['REQUEST_METHOD']) &&
+			$_SERVER ['REQUEST_METHOD'] == 'POST' &&
+			isset ($JsHttpRequest_Active) && 
+			$JsHttpRequest_Active
+		);
+	}
+	
+	/**
+	 * @desc Проверяет, что это был POST запрос
 	 * @return boolean
 	 */
 	public static function isPost ()
@@ -170,6 +196,8 @@ class Request
 	 */
 	public static function postIds ()
 	{
+		$item_ids = array ();
+		
 		if (isset ($_REQUEST ['id']))
 		{
 			$item_ids = array ((int) $_REQUEST ['id']);
@@ -182,10 +210,7 @@ class Request
 				$item_ids = explode (',', $item_ids);
 			}
 		}
-		else
-		{
-			return array ();
-		}
+		return $item_ids;
 	}
 	
 	/**
@@ -242,6 +267,7 @@ class Request
 			{
 				$file [$field] = reset ($values);
 			}
+			
 			return new Request_File ($file);
 		}
 		
@@ -276,7 +302,7 @@ class Request
 	 * @desc Возвращает часть адреса без параметров GET.
 	 * @return string Часть URI до знака "?"
 	 */
-	public static function uri ()
+	public static function uri ($without_get = true)
 	{
 		if (!isset ($_SERVER ['REQUEST_URI']))
 		{
@@ -284,10 +310,14 @@ class Request
 		}
 		
 		$url = $_SERVER ['REQUEST_URI'];
-		$p = strpos ($url, '?');
-		if ($p !== false)
+		
+		if ($without_get)
 		{
-		    return substr ($url, 0, $p);
+			$p = strpos ($url, '?');
+			if ($p !== false)
+			{
+				return substr ($url, 0, $p);
+			}
 		}
 		return $url;
 	}
@@ -319,7 +349,8 @@ class Request
 	 */
 	public static function referer ()
 	{
-		return $_SERVER ['HTTP_REFFERER'];
+		return isset ($_SERVER ['HTTP_REFFERER'])
+			? $_SERVER ['HTTP_REFFERER'] : '';
 	}
 	
 	/**
@@ -327,22 +358,26 @@ class Request
 	 */
 	public static function requestMethod ()
 	{
-		return $_SERVER ['REQUEST_METHOD'];
+		return isset ($_SERVER ['REQUEST_METHOD']) 
+			? $_SERVER ['REQUEST_METHOD'] : 'GET';
 	}
 	
 	/**
+	 * @desc Возвращает название сервера.
+	 * В зависимости от настроек nginx может вернуть "*.server.com"
 	 * @return string
 	 */
 	public static function server ()
 	{
-		return $_SERVER ['SERVER_NAME'];
+		return isset ($_SERVER ['SERVER_NAME'])
+			? $_SERVER ['SERVER_NAME'] : '';
 	}
 	
 	/**
 	 * @return string
 	 */
 	public static function sessionId ()
-	{
+	{ 
 		if (!class_exists ('Session_Manager'))
 		{
 			Loader::load ('Session_Manager');

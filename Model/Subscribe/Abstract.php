@@ -9,7 +9,7 @@
 abstract class Subscribe_Abstract extends Model_Factory_Delegate
 {
 
-	protected $_config = array (
+	protected static $_config = array (
 		// Шаблон письма на подтверждение рассылки
 		'confirm_subscribe_template'	=> 'subscribe_activate',
 		// Шаблон письма на подтверждение отказа
@@ -40,48 +40,43 @@ abstract class Subscribe_Abstract extends Model_Factory_Delegate
 	
 	/**
 	 * @desc Создает сессию рассылки. Готовит статусы для отправки
-	 * @param Model_Collection $subscriber_collection
+	 * @param Model_Collection $subscribers
 	 * @param null|Mail_Template $mail_template
 	 * @param string $comment
 	 * @return Model
 	 */
-	public function createSession (Model_Collection $subscriber_collection, 
+	public function createSession (Model_Collection $subscribers, 
 		$mail_template = null, $comment = '')
 	{
 		Loader::load ('Subscribe_Session');
 		Loader::load ('Helper_Process');
 		Loader::load ('Subscribe_Subscriber_Status');
 		
-		$subscribe_session = new Subscribe_Session (array (
+		$session = new Subscribe_Session (array (
 			'Subscribe__id'			=> $this->key (),
 			'beginDate'				=> Helper_Date::toUnix (),
 			'finishDate'			=> Helper_Date::NULL_DATE,
 			'status'				=> Helper_Process::NONE,
 			'comment'				=> $comment,
-			'Mail_Template__id'		=> !is_null ($mail_template) 
+			'Mail_Template__id'		=> $mail_template
 				? $mail_template->key ()
 				: 0
 		));
-		
-		$subscribe_session->save ();
-		
-		if (!$subscribe_session->key ())
-		{
-			return;
-		}
-		
-		foreach ($subscriber_collection as $subscriber)
+
+		$session->save ();
+				
+		foreach ($subscribers as $subscriber)
 		{
 			$status = new Subscribe_Subscriber_Status (array (
 				'Subscribe_Subscriber__id'		=> $subscriber->key (),
 				'Subscribe__id'					=> $this->key (),
-				'Subscribe_Session__id'			=> $subscribe_session->key (),
+				'Subscribe_Session__id'			=> $session->key (),
 				'status'						=> Helper_Process::NONE
 			));
 			$status->save ();
 		}
 		
-		return $subscribe_session;
+		return $session;
 	}
 	
 	/**

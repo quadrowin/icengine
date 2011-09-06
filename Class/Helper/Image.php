@@ -29,7 +29,7 @@ class Helper_Image
 	protected static $_configLoaded = false;
 	
 	/**
-	 * Код ошибки, возникшей в процессе обработки изображения.
+	 * @desc Код ошибки, возникшей в процессе обработки изображения.
 	 * @var integer
 	 */
 	public static $code;
@@ -84,10 +84,29 @@ class Helper_Image
 	const TEMP_PATH = 'images/tmp/';
 	
 	/**
+	 * @desc Последнее сообщение об ошибке
+	 * @var string
+	 */
+	public static $lastError = '';
+	
+	/**
 	 * @desc Шаблон для имени файла
 	 * @var string
 	 */
 	public static $template = '{name}/{prefix}/{key}.{ext}';
+	
+	/**
+	 * @desc Запись сообщения об ошибке
+	 * @param string $message
+	 * @param string $template
+	 * @return null
+	 */
+	protected static function _error ($error)
+	{
+		self::$code = 400;
+		self::$lastError = $error;
+		return null;
+	}
 	
 	/**
 	 * 
@@ -124,7 +143,7 @@ class Helper_Image
 		return 
 			(isset (self::$config ['types']) && isset (self::$config ['types'][$type])) ?
 			self::$config ['types'][$type]->asArray() :
-			array ();
+			self::$config ['types']['default']->asArray();
 	}
 	
 	public static function initConfig ()
@@ -201,7 +220,7 @@ class Helper_Image
 	}
 	
 	/**
-	 * Простая загрузка изображения.
+	 * @desc Простая загрузка изображения.
 	 * @param string $table
 	 * @param integer $row_id
 	 * @param string $type
@@ -215,9 +234,7 @@ class Helper_Image
 		if (!$file)
 		{
 			self::$code = 400;
-			Loader::load ('Zend_Exception');
-			throw new Zend_Exception ('File not received.', 400);
-			return null;
+			return self::_error ('not_received');
 		}
 		
 		if (!$sizing)
@@ -254,22 +271,18 @@ class Helper_Image
    		if (!$file->save ($original))
 		{
 			self::$code = 500;
-			Loader::load ('Zend_Exception');
-			throw new Zend_Exception ('Unable to move uploaded file.', 500);
-			return null;
+			return self::_error ('unable_to_move');
 		}
    		
    	 	$info = getimagesize ($original);
 		
 		if (!$info)
 		{
-			self::$code = 400;
 			unlink ($original);
 			$image->delete ();
 			
-			Loader::load ('Zend_Exception');
-			throw new Zend_Exception ('Unable to get image size.', 400);
-			return null;
+			self::$code = 400;
+			return self::_error ('unable_get_size');
 		}
 		
 		Loader::load ('Helper_Image_Resize');
@@ -284,9 +297,7 @@ class Helper_Image
 			unlink ($original);
 			$image->delete ();
 			
-			Loader::load ('Zend_Exception');
-			throw new Zend_Exception ('Unable to change image size.', 400);
-			return null;
+			return self::_error ('unable_to_resize');
 		}
 		
 		$filenames = array ();
@@ -324,9 +335,8 @@ class Helper_Image
 						unlink ($fn);
 					}
 					$image->delete ();
-					Loader::load ('Zend_Exception');
-					throw new Zend_Exception ('Unable to change image size.', 400);
-					return null;
+					
+					return self::_error ('unable_to_resize');
 				}
 				$filenames [$prefix] = $filename;
 			}
@@ -353,7 +363,11 @@ class Helper_Image
 		foreach ($sizing ['sizes'] as $key => $size)
 		{
 			$tmp = array (
-				$key . 'Url'	=> str_replace(self::$config['upload_path'], self::$config['upload_url'], $filenames [$key]),
+				$key . 'Url'	=> str_replace (
+					self::$config ['upload_path'],
+					self::$config ['upload_url'],
+					$filenames [$key]
+				),
 				$key . 'Width'	=> $size ['width'],
 				$key . 'Height'	=> $size ['height']
 			);

@@ -20,11 +20,20 @@ abstract class Model_Child extends Model
 			$this->modelName (),
 			Query::instance ()
 				->where (
-					'`' . $this->modelName() . '`.parentId',
+					'`' . $this->modelName () . '`.parentId',
 					$this->key ()
 				)
-				->where ('`' . $this->modelName() . '`.parentId != 0')
+				->where ('`' . $this->modelName () . '`.parentId != 0')
 		);
+	}
+	
+	/**
+	 * @desc Получить коллекцию дочерних элементов - псевдоним метода childs()
+	 * @return Model_Collection
+	 **/
+	public function children ()
+	{
+		return $this->childs ();
 	}
 	
 	/**
@@ -91,7 +100,8 @@ abstract class Model_Child extends Model
 	 */
 	public function parentKey ()
 	{
-		return $this->parentId;
+		return $this->hasField('parentId') ?
+				$this->parentId : 0;
 	}
 	
 	/**

@@ -19,7 +19,7 @@ class View_Render_Smarty_Cacher_Mysql extends View_Render_Smarty_Cacher_Abstract
 			// clear them all
 			$results = mysql_query('delete from CACHE_PAGES');
 		} else {
-			$results = mysql_query("delete from CACHE_PAGES where CacheID='$CacheID'");
+			$results = mysql_query("delete from CACHE_PAGES where CacheID='$cache_id'");
 		}
 		if(!$results) {
 			$smarty_obj->_trigger_error_msg('cache_handler: query failed.');
@@ -67,7 +67,7 @@ class View_Render_Smarty_Cacher_Mysql extends View_Render_Smarty_Cacher_Abstract
 			$contents = $cache_content;
 		}
 		$results = mysql_query("replace into CACHE_PAGES values(
-						'$CacheID',
+						'$cache_id',
 						'".addslashes($contents)."')
 					");
 		if(!$results)

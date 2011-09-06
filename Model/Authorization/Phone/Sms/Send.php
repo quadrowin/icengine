@@ -1,4 +1,5 @@
 <?php
+Loader::load ('Authorization_Abstract');
 /**
  * 
  * @desc Аавторизация через отправку пользователю СМС сообщения с кодом.
@@ -13,7 +14,7 @@ class Authorization_Phone_Sms_Send extends Authorization_Abstract
 	 * @desc Config
 	 * @var array
 	 */
-	protected $_config = array (
+	protected static $_config = array (
 		// Авторегистрация
 		'autoregister'			=> false,
 		// Минимальная длина кода
@@ -46,7 +47,7 @@ class Authorization_Phone_Sms_Send extends Authorization_Abstract
 		
 		$prefix = $this->config ()->sms_prefix;
 		
-		$activation = IcEngine::$modelManager->modelBy (
+		$activation = Model_Manager::byQuery (
 			'Activation',
 			Query::instance ()
 			->where ('code', $prefix . $data ['activation_code'])
@@ -115,7 +116,7 @@ class Authorization_Phone_Sms_Send extends Authorization_Abstract
 			return false;
 		}
 		
-		$user = IcEngine::$modelManager->modelBy (
+		$user = Model_Manager::byQuery (
 			'User',
 			Query::instance ()
 			->where ('phone', $phone)
@@ -143,7 +144,7 @@ class Authorization_Phone_Sms_Send extends Authorization_Abstract
 	{
 		Loader::load ('Helper_Phone');
 		$phone = Helper_Phone::parseMobile ($data ['login']);
-		return IcEngine::$modelManager->modelBy (
+		return Model_Manager::byQuery (
 			'User',
 			Query::instance ()
 			->where ('phone', $phone)
@@ -166,7 +167,7 @@ class Authorization_Phone_Sms_Send extends Authorization_Abstract
 			return 'invalidPhone';
 		}
 		
-		$user = IcEngine::$modelManager->modelBy (
+		$user = Model_Manager::byQuery (
 			'User',
 			Query::instance ()
 				->where ('phone', $phone)
@@ -195,7 +196,7 @@ class Authorization_Phone_Sms_Send extends Authorization_Abstract
 		 * @desc Провайдер
 		 * @var Mail_Provider_Abstract
 		 */
-		$provider = IcEngine::$modelManager->modelBy (
+		$provider = Model_Manager::byQuery (
 			'Mail_Provider',
 			Query::instance ()
 			->where ('name', $config ['sms_provider'])

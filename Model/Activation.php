@@ -23,7 +23,7 @@ class Activation extends Model
 	 */
 	public static function byCode ($code, $type = '')
 	{
-		return Model_Manager::modelBy (
+		return Model_Manager::byQuery (
 			'Activation',
 			Query::instance ()
 				->where ('type', $type)

@@ -37,7 +37,15 @@ class Data_Source_Manager
 		 * @desc Массив источников
 		 * @var array
 		 */ 
-		'sources'	=> array ()
+		'sources'	=> array (
+			'default'	=> array (
+				'source'	=> 'Abstract',
+				'mapper'	=> 'Null',
+				'mapper_options'	=> array (
+					
+				)
+			)
+		)
 	);
 	
 	/**
@@ -90,47 +98,49 @@ class Data_Source_Manager
 				return self::$_sources [$name] = self::get ($source_config);
 			}
 			
-			// Случай если нет перечисления вариантов источника
-			if ($source_config ['source'])
+			if (!$source_config)
 			{
-				$source_config = array ($source_config);
+				$source_config = array (
+					'source'	=> $name
+				);
 			}
 			
-			// Перебираем варианты источника, пока не подключится.
-			foreach ($source_config as $conf)
+			$conf = $source_config;
+			
+			$source_class = 'Data_Source_' . $conf ['source'];
+			
+			Loader::load ($source_class);
+			
+			$mapper_class = 
+				isset ($conf ['mapper']) ?
+				('Data_Mapper_' . $conf ['mapper']) :
+				'';
+			
+			if ($mapper_class)
 			{
-				$source_class = 'Data_Source_' . $conf->source;
-				$mapper_class = 'Data_Mapper_' . $conf->mapper;
-				
-				Loader::load ($source_class);
 				Loader::load ($mapper_class);
+			}
+			
+			self::$_sources [$name] = new $source_class ();
+			/**
+			 * @desc Меппер.
+			 * @var Data_Mapper_Abstract $mapper
+			 */
+			$mapper = self::$_sources [$name]->getDataMapper ();
+			
+			if ($mapper_class && !($mapper instanceof $mapper_class))
+			{
+				// Мэппер источника отличается от указанного в конфигах
+				$mapper = new $mapper_class;
 				
-				self::$_sources [$name] = new $source_class ();
-				/**
-				 * @desc Меппер.
-				 * @var Data_Mapper_Abstract $mapper
-				 */
-				$mapper = self::$_sources [$name]->getDataMapper ();
-				
-				if (!($mapper instanceof $mapper_class))
-				{
-					// Мэппер источника отличается от указанного в конфигах
-					$mapper = new $mapper_class ($conf ['mapper_params']);
-					if (IcEngine::$modelScheme)
-					{
-						$mapper->setModelScheme (IcEngine::$modelScheme);
-					}
-					self::$_sources [$name]->setDataMapper ($mapper);
-				}
-				
+				self::$_sources [$name]->setDataMapper ($mapper);
+			}
+			
+			if (isset ($conf ['mapper_options']))
+			{
 				foreach ($conf ['mapper_options'] as $key => $value)
 				{
 					$mapper->setOption ($key, $value);
-				}
-				
-				if (self::$_sources [$name]->available ())
-				{
-					break;
 				}
 			}
 		}

@@ -19,7 +19,7 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 	 * @desc Конфиг
 	 * @var array
 	 */
-	protected $_config = array (
+	protected static $_config = array (
 		// С ящика
 		'from_email'		=> 'root@icengine.com',
 		// От кого
@@ -139,55 +139,75 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 			);
 		}
 		
+		$this_config = $this->config ();
+		
 		$mail->From =
 			isset ($config ['from_email']) ? 
 				$config ['from_email'] : 
-				$this->_config ['from_email'];
+				$this_config ['from_email'];
 				
 		$mail->FromName =
 			isset ($config ['from_name']) ? 
 				$config ['from_name'] : 
-				$this->_config ['from_name'];
+				$this_config ['from_name'];
 				
-		if ($this->_config ['send_charset'])
+		if (isset ($config ['reply_address']) && $config ['reply_address'])
 		{
-			$mail->CharSet = $this->_config ['send_charset'];
+			$reply_name = 
+				isset ($config ['reply_name']) 
+				? $config ['reply_name'] 
+				: '';
+			$mail->AddReplyTo ($config ['reply_address'], $reply_name);
+		}
+		elseif ($this_config ['reply_address'])
+		{
+			$reply_name =
+				isset ($this_config ['reply_name']) 
+				? $this_config ['reply_name']
+				: '';
+			
+			$mail->AddReplyTo ($this_config ['reply_address'], $reply_name);
+		}
+				
+		if ($this_config ['send_charset'])
+		{
+			$mail->CharSet = $this_config ['send_charset'];
 		}
 				
 		$mail->IsHTML (true);
 		
-		if ($this->config ()->smtp)
+		if ($this_config ['smtp'])
 		{
 			// Отправка через SMTP
 			$mail->IsSMTP ();
 			$mail->SMTPAuth = true;
 			$mail->SMTPDebug = false;
-			$mail->Host = $this->_config ['smtp_host'];
-			$mail->Port = $this->_config ['smtp_port'];
-			$mail->Username = $this->_config ['smtp_username'];
-			$mail->Password = $this->_config ['smtp_password'];
+			$mail->Host = $this_config ['smtp_host'];
+			$mail->Port = $this_config ['smtp_port'];
+			$mail->Username = $this_config ['smtp_username'];
+			$mail->Password = $this_config ['smtp_password'];
 			
-			if ($this->_config ['smtp_sender'])
+			if ($this_config ['smtp_sender'])
 			{
-				$mail->Sender = $this->_config ['smtp_sender'];
-				$mail->From = $this->_config ['smtp_sender'];
+				$mail->Sender = $this_config ['smtp_sender'];
+				$mail->From = $this_config ['smtp_sender'];
 			}
 			
-			if ($this->_config ['smtp_secure'])
+			if ($this_config ['smtp_secure'])
 			{
-				$mail->SMTPSecure = $this->_config ['smtp_secure'];
+				$mail->SMTPSecure = $this_config ['smtp_secure'];
 			}
 		}
 		
 		$base_charset = 
 			isset ($config ['base_charset']) ?
 				$config ['base_charset'] :
-				$this->_config ['base_charset'];
+				$this_config ['base_charset'];
 				
 		$send_charset = 
 			isset ($config ['send_charset']) ?
 				$config ['send_charset'] :
-				$this->_config ['send_charset'];
+				$this_config ['send_charset'];
 
 		// Необходимо перекодирвоание
 		$recoding =

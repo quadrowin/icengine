@@ -20,24 +20,14 @@ class User_Session extends Model
 	 * @param string $session_id
 	 * @return User_Session
 	 */
-		public static function byPhpSessionId ($session_id, $autocreate = true)
+	public static function byPhpSessionId ($session_id, $autocreate = true)
 	{
-		if (empty ($session_id))
-		{
-		    Loader::load ('Zend_Exception');
-			throw new Zend_Exception ('Empty php session id received.');
-		}
-		
-		$session = Model_Manager::byQuery (
-		    'User_Session',
-		    Query::instance ()
-		        ->where ('phpSessionId', $session_id)
-		);
+		$session = Model_Manager::byKey ('User_Session', $session_id);
 		
 		if (!$session && $autocreate)
 		{
     		$session = new User_Session (array (
-    			'id'		=> $session_id,
+    			'id'			=> $session_id,
     			'User__id'		=> 0,
     			'phpSessionId'	=> $session_id,
     			'startTime'	    => Helper_Date::toUnix (),
@@ -45,7 +35,7 @@ class User_Session extends Model
     			'remoteIp'		=> Request::ip (),
     			'userAgent'	    => substr (getenv ('HTTP_USER_AGENT'), 0, 100)
     		));
-    		$session->save ();
+    		$session->save (true);
 		}
 		
 		return $session;
@@ -69,8 +59,7 @@ class User_Session extends Model
 	}
 	
 	/**
-	 * @param integer $new_user_id [optional]
-	 * 		Изменить пользователя.
+	 * @param integer $new_user_id [optional] Изменить пользователя.
 	 * @return User_Session
 	 */
 	public function updateSession ($new_user_id = null)

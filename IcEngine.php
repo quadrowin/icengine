@@ -3,59 +3,43 @@
  * 
  * @desc Класс движка. Необходим для инициализации фреймворка.
  * @author Юрий
- * @package IcEngine
+ * @package IcEngine 
  *
  */
 class IcEngine
 {
 	
 	/**
-	 * @desc Фронт контроллер.
-	 * @var Controller_Front
+	 * @desc Загрузчик
+	 * @var Bootstrap_Abstract
 	 */
-	private static $_frontController;
+	protected static $_bootstrap;
 	
 	/**
 	 * @desc Путь до движка.
 	 * @var string
 	 */
-	private static $_path;
+	protected static $_path;
 	
 	/**
 	 * @desc Путь до корня сайта.
 	 * @var string
 	 */
-	private static $_root;
+	protected static $_root;
 	
-	/**
-	 * @desc Менеджер аттрибутов.
-	 * @var Attribute_Manager
+/**
+	 * @desc Задача фронт контроллера.
+	 * @var Controller_Task
 	 */
-	public static $attributeManager;
+	protected static $_task;
 	
-	/**
-	 * @desc Загрузчик
-	 * @var Bootstrap_Abstract
-	 */
-	public static $bootstrap;
+	public static $frontAction = 'index';
 	
-	/**
-	 * @desc Очередь сообщений.
-	 * @var Message_Queue
-	 */
-	public static $messageQueue;
+	public static $frontController = 'Front';
 	
-	/**
-	 * @desc Менеджер моделей
-	 * @var Model_Manager
-	 */
-	public static $modelManager;
+	public static $frontInput = 'default_input';
 	
-	/**
-	 * @desc Схема моделей.
-	 * @var Model_Scheme
-	 */
-	public static $modelScheme;
+	public static $frontRender = 'Front';
 	
 	/**
 	 * @desc Возвращает путь до корня сайта.
@@ -69,26 +53,26 @@ class IcEngine
 	}
 	
 	/**
+	 * @desc Получить текущий бутстрап
+	 * @desc Bootstrap_Abstract
+	 */
+	public static function bootstrap ()
+	{
+		return self::$_bootstrap;
+	}
+	
+	/**
 	 * @desc Вывод результата работы.
 	 */
 	public static function flush ()
 	{
-		Resource_Manager::save ();
-		View_Render_Broker::display ();
-	}
-	
-	/**
-	 * @desc Создает и возвращает фронт контроллер.
-	 * @return Controller_Front
-	 */
-	public static function frontController ()
-	{
-		if (!self::$_frontController)
-		{
-			Loader::Load ('Controller_Front');
-			self::$_frontController = new Controller_Front ();
-		}
-		return self::$_frontController;
+		Controller_Manager::call (
+			'Render', 'index',
+			array (
+				'task'		=> self::$_task,
+				'render'	=> View_Render_Manager::byName (self::$frontRender)
+			)
+		);
 	}
 	
 	/**
@@ -118,19 +102,25 @@ class IcEngine
 		{
 			self::initBootstrap ($bootstap);
 		}
+		
+		register_shutdown_function (array (__CLASS__, 'shutdownHandler'));
 	}
 	
 	/**
 	 * @desc Подключает загрузчик и запускает его.
-	 * @param string $bootstrap Путь до загрузчика.
+	 * @param string $path Путь до загрузчика.
 	 */
-	public static function initBootstrap ($bootstrap)
+	public static function initBootstrap ($path)
 	{
-		Loader::load ('Bootstrap_Abstract');
-		Loader::load ('Bootstrap_Manager');
-		require $bootstrap;
-		$name = basename ($bootstrap, '.php');
-		self::$bootstrap = Bootstrap_Manager::get ($name);
+		Loader::multiLoad (
+			'Bootstrap_Abstract',
+			'Bootstrap_Manager'
+		);
+		
+		require $path;
+		
+		$name = basename ($path, '.php');
+		self::$_bootstrap = Bootstrap_Manager::get ($name, $path);
 	}
 	
 	/**
@@ -145,7 +135,7 @@ class IcEngine
 			require dirname (__FILE__) . '/Class/Debug.php';
 		}
 		
-		Debug::init ($params);
+		call_user_func_array (array ('Debug', 'init'), func_get_args ());
 	}
 	
 	/**
@@ -153,7 +143,7 @@ class IcEngine
 	 */
 	public static function initLoader ()
 	{
-		require self::$_path . 'Class/Loader.php';
+		require dirname (__FILE__) . '/Class/Loader.php';
 		
 		Loader::addPathes (array (
 			'Class'			=> array (
@@ -166,6 +156,21 @@ class IcEngine
 			),
 			'includes'		=> self::$_path . 'includes/'
 		));
+	}
+	
+	/**
+	 * @desc Подключение класса Tracer
+	 */
+	public static function initTracer ($params = null)
+	{
+		static $loaded = false;
+		if (!$loaded)
+		{
+			$loaded = true;
+			require dirname (__FILE__) . '/Class/Tracer.php';
+		}
+		
+//		call_user_func_array (array ('Tracer', 'init'), func_get_args ());
 	}
 	
 	/**
@@ -187,23 +192,28 @@ class IcEngine
 	}
 	
 	/**
-	 * @desc Проверка адреса страницы на существования роутера, который
-	 * привязан к этой странице.
-	 * @return Route|null
-	 */
-	public static function route ()
-	{
-		Loader::load ('Route');
-		return Route::byUrl (Request::uri ());
-	}
-	
-	/**
 	 * @desc Запуск рабочего цикла и вывод результата.
 	 */
 	public static function run ()
 	{
-		self::$bootstrap->run ();
-		self::frontController ()->run ();
+		self::$_bootstrap->run ();
+		
+		Loader::load ('Data_Transport_Manager');
+		
+		self::$_task = Controller_Manager::call (
+			self::$frontController,
+			self::$frontAction,
+			Data_Transport_Manager::get (self::$frontInput)
+		);
+	}
+	
+	public static function shutdownHandler ()
+	{
+		if (!error_get_last ())
+		{
+			Resource_Manager::save ();
+		}
 	}
 
 }
+

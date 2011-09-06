@@ -1,4 +1,5 @@
 <?php
+Loader::load ('Authorization_Abstract');
 /**
  * 
  * @desc Авторизация через логинзу.
@@ -49,7 +50,7 @@ class Authorization_Loginza extends Authorization_Abstract
 		Loader::load ('Helper_Email');
 		$user = User::create (array (
 			'name'		=> $token->extractName (),
-			'login'		=> $token->identity,
+			'login'		=> (string) $token->identity,
 			'email'		=> (string) $token->email,
 			'password'	=> md5 (time ()),
 			'phone'		=> 
@@ -58,6 +59,17 @@ class Authorization_Loginza extends Authorization_Abstract
 					'',
 			'active'	=> 1
 		));
+		
+		$ul = new User_Loginza (array (
+			'User__id'	=> $user->key (),
+			'identity'	=> (string) $token->identity,
+			'email'		=> (string) $token->email,
+			'provider'	=> (string) $token->provider,
+			'data'		=> json_encode ($data),
+			'createdAt'	=> Helper_Date::toUnix ()
+		));
+		$ul->save ();
+		
 		return $user;
 	}
 	

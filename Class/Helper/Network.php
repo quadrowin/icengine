@@ -83,6 +83,42 @@ class Helper_Network
 		fclose($fp);
 	}
 	
+	public static function post (
+		$url, 
+		$postdata, 
+		$cookie_dir,
+		$uagent = 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 1.1.4322)'
+	) 
+	{
+	  $ch = curl_init( $url );
+	  curl_setopt($ch, CURLOPT_URL, $url);
+	  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+	  curl_setopt($ch, CURLOPT_HEADER, 0);
+	  curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+	  curl_setopt($ch, CURLOPT_ENCODING, "");
+	  curl_setopt($ch, CURLOPT_USERAGENT, $uagent);
+	  curl_setopt($ch, CURLOPT_TIMEOUT, 120);
+	  curl_setopt($ch, CURLOPT_FAILONERROR, 1);
+	  curl_setopt($ch, CURLOPT_AUTOREFERER, 1);
+	  curl_setopt($ch, CURLOPT_POST, 1);
+	  curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
+	  curl_setopt($ch, CURLOPT_COOKIEJAR, $cookie_dir);
+	  curl_setopt($ch, CURLOPT_COOKIEFILE, $cookie_dir);
+
+	  $content = curl_exec( $ch );
+	  $err     = curl_errno( $ch );
+	  $errmsg  = curl_error( $ch );
+	  $header  = curl_getinfo( $ch );
+
+	  curl_close( $ch );
+
+	  $header['errno']   = $err;
+	  $header['errmsg']  = $errmsg;
+	  $header['content'] = $content;
+
+	  return $header;
+	}
+	
 	/**
 	 * Загружает удаленный файл по указанному пути.
 	 * 

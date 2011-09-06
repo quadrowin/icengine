@@ -10,14 +10,20 @@ class Filter_Model_Serialize
 {
 	
 	/**
-	 * @desc Десириализация модели в строку
+	 * @desc Десириализация модели в строку.
+	 * В сериализованнам виде будет записанно название класса, 
+	 * а не название модели (прим. View_Render_Front вместо View_Render),
+	 * так как при десиаризации будет вызываться Loader.
+	 * В случае, если объект был удален, в $data будет передано null.
 	 * @param Model $data
 	 * @return string
 	 */
-	public function filter (Model $data)
+	public function filter ($data)
 	{
 		return
-			get_class ($data) . ':' . json_encode ($data->asRow ());
+			$data ?
+			get_class ($data) . ':' . json_encode ($data->asRow ()) :
+			null;
 	}
 	
 }

@@ -17,13 +17,13 @@ class Data_Provider_Abstract
 	public $locks			= array ();
 	
 	/**
-	 * Трейсер
+	 * @desc Трейсер
 	 * @var Tracer_Abstract
 	 */
 	public $tracer;
 	
 	/**
-	 * Префикс ключей.
+	 * @desc Префикс ключей.
 	 * @var string
 	 */
 	public $prefix			= '';
@@ -44,21 +44,44 @@ class Data_Provider_Abstract
 	public $prefixLock		= '_lck\\';
 	
 	/**
-	 * Префикс для тегов.
+	 * @desc Префикс для тегов.
 	 * @var string
 	 */
 	public $prefixTag		= '_tag\\';
 	
 	/**
-	 * 
-	 * @param array $config
-	 * 		Параметры провайдера
+	 * @desc Создает и возвращает провайдер данных.
+	 * @param array $config Параметры провайдера.
 	 */
-	public function __construct ($config = array ())
+	public function __construct ($config = null)
 	{
+		if (!$config)
+		{
+			return;
+		}
+		
 		foreach ($config as $opt_name => $opt_value)
 		{
 			$this->setOption ($opt_name, $opt_value);
+		}
+	}
+	
+	/**
+	 * @desc Установка параметров.
+	 * @param string $key Параметр.
+	 * @param string $value Значение.
+	 */
+	protected function _setOption ($key, $value)
+	{
+		if ($key == 'tracer')
+		{
+			$class = 'Tracer_' . $value;
+			Loader::load ($class);
+			$this->tracer = new $class ();
+		}
+		elseif ($key == 'prefix')
+		{
+			$this->prefix = $value;
 		}
 	}
 	
@@ -326,7 +349,7 @@ class Data_Provider_Abstract
 	}
 	
 	/**
-	 * Получение значений тегов.
+	 * Установка и получение значений тегов.
 	 * @param array $tags
 	 * 		Названия тегов
 	 * @return array
@@ -357,12 +380,10 @@ class Data_Provider_Abstract
 	}
 	
 	/**
-     * Увеличение значения ключа на указанную величину
-     * 
-     * @param string $key
-     * 		Ключ
-     * @param integer $value
-     * 		Величина
+     * @desc Увеличение значения ключа на указанную величину
+     * @param string $key Ключ
+     * @param integer $value Величина
+	 * @return  Новое значение
 	 */
 	public function increment ($key, $value = 1)
 	{
@@ -373,13 +394,10 @@ class Data_Provider_Abstract
 	}
 	
 	/**
-	 * Проверяет, помечен ли ключ как удаленный.
-	 * 
-	 * @param string $key
-	 * 		Ключ
-	 * @return integer|false
-	 * 		Метка времени удаления.
-	 * 		Если ключ не помечен удаленным, то false.
+	 * @desc Проверяет, помечен ли ключ как удаленный.
+	 * @param string $key Ключ
+	 * @return integer|false Метка времени удаления.
+	 * Если ключ не помечен удаленным, то false.
 	 */
 	public function isDeleted ($key)
 	{
@@ -427,17 +445,35 @@ class Data_Provider_Abstract
 	}
 	
 	/**
-     * Получение массива ключей, соответствующих маске
+	 * @desc Декодирование ключа.
+	 * @param string $key
+	 * @return string
+	 */
+	public function keyDecode ($key)
+	{
+		return substr ($key, strlen ($this->prefix));
+	}
+	
+	/**
+	 * @desc Кодирование ключа для корректного сохранения в редисе.
+	 * @param string $key
+	 * @return string
+	 */
+	public function keyEncode ($key)
+	{
+		return $this->prefix . $key;
+	}
+	
+	/**
+     * @desc Получение массива ключей, соответствующих маске
      * @param string $pattern
      * 		Маска.
      * 		Примеры: 
      * 		1) "image_*"
      * 		2) "user_*_phone"
      * 		3) "*"
-     * @param string $server=null
-     * 		Сервер
-     * @return array
-     * 		Массив ключей, подходящих под маску
+     * @param string $server=null Сервер
+     * @return array Массив ключей, подходящих под маску
 	 */
 	public function keys ($pattern, $server = NULL)
 	{
@@ -448,12 +484,19 @@ class Data_Provider_Abstract
 		return array ();
 	}
 	
+	public function mset (array $values)
+	{
+		foreach ($values as $k => $v)
+		{
+			$this->set ($k, $v);
+		}
+	}
+	
 	/**
-     * Добавляет в начало 
-     * @param string $key
-     * 		Ключ
-     * @param string $value
-     * 		Строка, которая будет добавлена к текущему значению ключа  
+     * @desc Добавляет в начало 
+     * @param string $key Ключ
+     * @param string $value Строка, которая будет добавлена к текущему 
+	 * значению ключа.
 	 */
 	public function prepend ($key, $value)
 	{
@@ -467,17 +510,12 @@ class Data_Provider_Abstract
 	}
 	
 	/**
-     * Устанавливает значение ключа.
+     * @desc Устанавливает значение ключа.
      * Дополнительных проверок не выполняется.
-     * 
-     * @param string $key
-     * 		Ключ
-     * @param string $value
-     * 		Значение
-     * @param integer $expiration
-     * 		Время жизни ключа
-     * @param array $tags
-     * 		Теги
+     * @param string $key Ключ.
+     * @param string $value Значение.
+     * @param integer $expiration Время жизни ключа.
+     * @param array $tags Теги.
 	 */
 	public function set ($key, $value, $expiration = 0, $tags = array ())
 	{
@@ -488,29 +526,21 @@ class Data_Provider_Abstract
 	}
 	
 	/**
-	 * Установка параметров
-	 * @param string $key
-	 * 		Параметр
-	 * @param string $value
-	 * 		Значение
-	 * @return boolean
-	 * 		true, если удачно, иначе - false.
+	 * @desc Установка параметров.
+	 * @param string|array $key Параметр.
+	 * @param string $value [optional] Значение.
 	 */
-	public function setOption ($key, $value)
+	public function setOption ($key)
 	{
-		if ($key == 'tracer')
+		if (func_num_args () > 1)
 		{
-			$class = 'Tracer_' . $value;
-			Loader::load ($class);
-			$this->tracer = new $class ();
-			return true;
+			$this->_setOption ($key, func_get_arg (1));
+			return ;
 		}
-		elseif ($key == 'prefix')
+		foreach ($key as $k => $v)
 		{
-			$this->prefix = $value;
-			return true;
+			$this->_setOption ($k, $v);
 		}
-		return false;
 	}
 	
 	/**

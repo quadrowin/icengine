@@ -1,112 +1,103 @@
 <?php
-
+/**
+ * 
+ * @desc Коллекция опций.
+ * @author Юрий Шведов
+ * @package IcEngine
+ *
+ */
 class Model_Collection_Option_Collection
 {
     
     /**
-     * 
-     * @var string
+     * @desc Коллекция, к которой привязаны опции.
+     * Необходима для определения названий классов опций.
+     * @var Model_Collection
      */
-	protected $_modelName;
+	protected $_collection;
 	
 	/**
-	 * 
-	 * @var array
+	 * @desc Опции
+	 * @var array <Model_Collection_Option>
 	 */
-	protected $_options;
+	protected $_items = array ();
 	
 	/**
-	 * 
-	 * @var array
+	 * @desc Метод опции, вызываемый после выполнения запроса 
+	 * на выбор коллекции.
+	 * @var string
 	 */
-	protected $_results = array ();
-	
 	const AFTER = 'after';
+	
+	/**
+	 * @desc Метод опции, вызываемый до выполнения запроса 
+	 * на выбор коллекции.
+	 * @var string
+	 */
 	const BEFORE = 'before';
 	
 	/**
-	 * 
-	 * @param string $modelName
-	 * @param array $options
+	 * @desc Создает и возвращает коллекцию опций.
+	 * @param Model_Collection $collection
 	 */
-	public function __construct ($modelName = null, $options = array ())
+	public function __construct ($collection)
 	{
-		$this->setModel ($modelName)
-			 ->setOptions ($options);
-	}
-	
-	/**
-	 * 
-	 * @param string $modelName
-	 */
-	private function _className ($modelName)
-	{
-		return $modelName.'_Collection_Option';
+		Loader::load ('Model_Collection_Option');
+		$this->_collection = $collection;
 	}
 	
 	/**
 	 * 
 	 * @param mixed $item
+	 * @return Model_Collection_Option
 	 */
 	public function add ($item)
 	{
-	    if ($item instanceof Model_Collection_Option)
+		if (is_array ($item))
 	    {
-	        $this->_options [] = $item;
+	        $item = new Model_Collection_Option (
+	        	$item ['name'],
+	        	$item
+	        ); 
 	    }
-	    elseif (is_array ($item))
+	    elseif (!$item instanceof Model_Collection_Option)
 	    {
-	        $this->_options [] = new Model_Collection_Option (
-	            $item ['name'], $item); 
+	        $item = new Model_Collection_Option (
+	        	$item,
+	        	array ()
+	        );
 	    }
-	    else
-	    {
-	        $this->_options [] = new Model_Collection_Option ($item);
-	    }
+	    
+	    return $this->_items [] = $item;
 	}
 	
 	/**
-	 * 
-	 * @param string $beforeAfter
-	 * 		Тип события: "before" или "after".
+	 * @desc 
+	 * @param string $type Тип события: "before" или "after".
 	 * @param Model_Collection $collection
 	 * @param Query $query
-	 * @throws Zend_Exception
 	 */
-	public function execute ($beforeAfter, Model_Collection $collection, Query $query)
+	public function execute ($type, Model_Collection $collection, Query $query)
 	{
-		if (is_null ($this->_modelName))
+		foreach ($this->_items as &$option)
 		{
-			include_once ('Zend/Exception.php');
-			throw new Zend_Exception ('Model name is null');
-			return false;
-		}
-		for ($i = 0, $count = sizeof ($this->_options); $i < $count; $i++)
-		{
-			if (!($this->_options [$i] instanceof Model_Collection_Option))
+			if (!$option instanceof Model_Collection_Option)
 			{
-			    if (is_array ($this->_options))
+			    if (is_array ($this->_items))
 			    {
-				    $this->_options [$i] = new Model_Collection_Option (
-				        $this->_options [$i]['name'], $this->_options [$i]);
+				    $option = new Model_Collection_Option (
+				    	$option['name'],
+				    	$option
+				    );
 			    }
 			    else
 			    {
-			        $this->_options [$i] = new Model_Collection_Option (
-			            $this->_options [$i]);
+			    	// по названию опции
+			        $option = new Model_Collection_Option ($option);
 			    }
 			}
-			$option = $this->_options [$i]->getName ();
-			$this->_results [$option][$beforeAfter] = $this->_execute (
-				$this->_modelName, 
-				$option, 
-				$beforeAfter,
-				array (
-				    $collection,
-				    $query,
-				    $this->_options [$i]->getParams ()
-				)
-			);
+			
+			$option->execute ($type, $collection, $query);
 		}
 	}
 	
@@ -132,91 +123,32 @@ class Model_Collection_Option_Collection
 	}
 	
 	/**
-	 * 
-	 * @param string $modelName
-	 * @param string $option
-	 * @param string $beforeAfter
-	 * @param array $args
-	 * @throws Zend_Exception
+	 * @return Model_Collection
 	 */
-	private function _execute ($modelName, $option, $beforeAfter, array $args)
+	public function getCollection ()
 	{
-		$className = $this->_className ($modelName);	
-		$methodName = $this->_methodName ($option, $beforeAfter);
-		Loader::load ('Executor');
-		if (Loader::load ($className))
-		{
-			return Executor::execute (
-				array (new $className ($option), $methodName),
-				$args
-			);
-		}
-		else
-		{
-			include_once ('Zend/Exception.php');
-			throw new Zend_Exception ('Models loading error');
-			return null;
-		}
-	}
-	
-	/**
-	 * @return string
-	 */
-	public function getModel ()
-	{
-		return $this->_modelName;
+		return $this->_collection;
 	}
 	
 	/**
 	 * @return array
 	 */
-	public function getOptions ()
+	public function getItems ()
 	{
-		return $this->_options;
+		return $this->_items;
 	}
 	
 	/**
-	 * @return mixed
+	 * @desc 
+	 * @param mixed $options
 	 */
-	public function getResults ()
+	public function setItems ($options)
 	{
-		return $this->_results;
-	}
-	
-	/**
-	 * 
-	 * @param string $option
-	 * @param string $beforeAfter
-	 * @retrun string
-	 */
-	private function _methodName ($option, $beforeAfter)
-	{
-	    if (is_array ($option))
-	    {
-	        return $option ['name'] . '_' . $beforeAfter;
-	    }
-		return $option.'_'.$beforeAfter;
-	}
-	
-	/**
-	 *
-	 * @param string $modelName
-	 */
-	public function setModel ($modelName)
-	{
-		$this->_modelName = $modelName;
-		return $this;
-	}
-	
-	public function setOptions ($options)
-	{
-		Loader::load ('Model_Collection_Option');
-		$this->_options = array ();
+		$this->_items = array ();
 		$options = (array) $options;
-		for ($i = 0, $count = sizeof ($options); $i < $count; $i++)
+		for ($i = 0, $count = count ($options); $i < $count; $i++)
 		{
 		    $this->add ($options [$i]);
-//			$this->_options [$i] = new Model_Collection_Option ($options [$i]);
 		}
 	}
 }

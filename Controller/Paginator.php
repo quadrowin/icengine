@@ -25,22 +25,19 @@ class Controller_Paginator extends Controller_Abstract
 			'tpl'
 		);
 		
-	    /**
-		 * @var Paginator $paginator
-		 */
-		
+	    /* @var $paginator Paginator */
 		$paginator->buildPages ();
 		
 		$this->_output->send ('paginator', $paginator);
 		
 		if ($template)
 		{
-			$this->_dispatcherIteration->setTemplate ($template);
+			$this->_task->setTemplate ($template);
 		}
 		
 		if ($tpl)
 		{
-			$this->_dispatcherIteration->setClassTpl (__METHOD__, $tpl);
+			$this->_task->setClassTpl (__METHOD__, $tpl);
 		}
 	}
 	

@@ -34,8 +34,8 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 	 */
 	public function __construct ()
 	{
-		Loader::load ('Helper_Link');
 		Loader::load ('Helper_Header');
+		Loader::load ('Helper_Link');
 		Loader::load ('Acl_Resource');
 	}
 	
@@ -53,7 +53,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 
 	protected function __makeUniqueLink ($link, $category_id)
 	{
-		$content_category = IcEngine::$modelManager->collectionBy (
+		$content_category = Model_Collection_Manager::byQuery (
 			'Content_Category',
 			Query::instance ()
 				->where ('url', $link)
@@ -71,13 +71,14 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 		else
 		{
 			$unique = (int) $content_category->count();
-			if ($linka = preg_split('/_([0-9])$/',$link, -1, PREG_SPLIT_DELIM_CAPTURE))
+			$linka = preg_split ('/_([0-9])$/', $link, -1, PREG_SPLIT_DELIM_CAPTURE);
+			if ($linka)
 			{
 				$link = $linka [0];
 				$unique = (isset ($linka [1]) ? $linka [1] : 0) + 1;
 			}
-			$link_tmp = $link.'_'.$unique;
-			$result = $this->__makeUniqueLink($link_tmp);
+			$link_tmp = $link . '_' . $unique;
+			$result = $this->__makeUniqueLink ($link_tmp);
 		}
 		
 		return $result;
@@ -126,7 +127,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 	}
 	
 	/**
-	 * @desc Фабрик метод для создания класса контролера
+	 * @desc Фабрик метод для создания css-класса контролера
 	 * @param array $params
 	 * @return string
 	 * @override
@@ -148,7 +149,9 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 	 */
 	protected function __saveReferer (array $params, Model $content_category, $url)
 	{
-		$referer = $params ['referer'];
+		$referer = isset ($params ['referer']) 
+		? $params ['referer']
+		: '';
 		return ($content_category->url != $url) ? $url : $referer; 
 	}
 	
@@ -169,6 +172,56 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 		$result = rtrim ($url, '/') . '/' . $this->__saveClass ($params);
 		$link = $this->__makeUniqueLink($result, $category_id);
 		return $link;
+	}
+	
+	/**
+	 * @desc Удаление категории. Зависимые объекты удалит Garbage Collector.
+	 * Предназначен для вызова через ajax.
+	 * @author Yury Shvedov
+	 * @param integer $content_category_id - id категории
+	 * @param string $referer - URL, по которому будет направлен 
+	 * посетитель
+	 */
+	public function remove ()
+	{
+		list (
+			$id,
+			$referer
+		) = $this->_input->receive (
+			'id',
+			'referer'
+		);
+
+		$category = Model_Manager::byKey ($this->__categoryModel (), $id);
+
+		if (!$category)
+		{
+			return $this->replaceAction ('Error', 'notFound');
+		}
+
+		$user = User::getCurrent ();
+
+		$resource_delete = Acl_Resource::byNameCheck (array (
+			$this->__categoryModel (), 
+			$id, 
+			'delete'
+		));
+		
+		if (!$resource_delete || !$resource_delete->userCan ($user))
+		{
+			return $this->replaceAction ('Error', 'accessDenied');
+		}
+		
+		$category->delete ();
+
+		$redirect = $this->_removeRedirect ($category, $referer);
+		
+		$this->_task->setTemplate (null);
+		$this->_output->send (array (
+			'data'		=> array (
+				'redirect'	=> $redirect
+			)
+		));
 	}
 	
 	/**
@@ -205,13 +258,13 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 					->where (
 						'url', 
 						rtrim ($url ? $url : Request::uri (), '/')
-					)	
+					)
 			);
 		}
 		
 		if (!$parent_category)
 		{
-			return $this->_helperReturn ('Page', 'notFound');
+			return $this->replaceAction ('Error', 'notFound');
 		}
 		
 		$category_collection = $parent_category->childs ();
@@ -281,10 +334,10 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 			$this->__categoryModel (),
 			$parent_category_id
 		);
-		
+
 		if (!$parent)
 		{
-			return $this->_helperReturn ('Page', 'notFound');
+			return $this->replaceAction ('Error', 'notFound');
 		}
 		
 		// Параметры для передачи в фабрик методы
@@ -298,23 +351,24 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 		);
 		
 		// Получаем класс
-		$class = !$class ?  $this->__saveClass ($params) : $class;
+		$class = !$class ? $this->__saveClass ($params) : $class;
 	
 		// Получаем URL
 		$url = !$url ? $this->__saveUrl ($params, $category_id) : $url;
+		
 		$user = User::getCurrent ();
 		
+		$old_url = null;
 		if ($category_id)
 		{
-			$content_category = IcEngine::$modelManager
-				->modelByKey (
-					$this->__categoryModel (), 
-					$category_id
-				);
+			$content_category = Model_Manager::byKey (
+				$this->__categoryModel (), 
+				$category_id
+			);
 			
-			if (!$content_category->key ())
+			if (!$content_category)
 			{
-				return $this->_helperReturn ('Page', 'notFound');
+				return $this->replaceAction ('Error', 'notFound');
 			}
 
 			$resource_edit = Acl_Resource::byNameCheck (
@@ -325,14 +379,10 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 			
 			if (!$resource_edit || !$resource_edit->userCan ($user))
 			{
-				return $this->_helperReturn ('Access', 'denied');
+				return $this->replaceAction ('Error', 'accessDenied');
 			}
 			
-			/*$referer = $this->__saveReferer (
-				$params, 
-				$content_category,
-				$url
-			);*/
+			$old_url = $content_category->url;
 			
 			$content_category->update (array (
 				'title'						=> $title,
@@ -355,13 +405,15 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 				'addContent'	
 			);
 
-			$personal_role = $user
-				->role (Acl_Role_Type_Personal::ID, true);
+			$personal_role = $user->role (Acl_Role_Type_Personal::ID, true);
 				
-			if (!$resource_addContent->userCan ($user) || 
-				!$personal_role)
+			if (
+				!$resource_addContent->userCan ($user) || 
+				!$personal_role ||
+				!User::id ()
+			)
 			{
-				return $this->_helperReturn ('Access', 'denied');
+				return $this->replaceAction ('Error', 'accessDenied');
 			}
 			
 			$category_class = $this->__categoryModel ();
@@ -408,8 +460,36 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 				$resource_addContent
 			));
 		}
+		
+		$redirect = 
+			$old_url == $referer ?
+			$url :
+			$referer;
+		
+		if (!Request::isJsHttpRequest ())
+		{
+			Helper_Header::redirect ($redirect);
+			die ();
+		}
 
-		Helper_Header::redirect ($referer);
+		$this->_task->setTemplate (null);
+		$this->_output->send (array (
+			'redirect'	=> $redirect,
+			'data'		=> array (
+				'redirect'	=> $redirect
+			)
+		));
+	}
+	
+	/**
+	 * @desc Ссылка редиректа при удалении.
+	 * @param Content_Category $category
+	 * @param string $referer
+	 * @return string 
+	 */
+	protected function _removeRedirect (Content_Category $category, $referer)
+	{
+		return $referer;
 	}
 	
 	/**
@@ -428,15 +508,14 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 			'referer'
 		);
 
-		$category = IcEngine::$modelManager
-			->modelByKey (
-				$this->__categoryModel (), 
-				$category_id
-			);
+		$category = Model_Manager::byKey (
+			$this->__categoryModel (), 
+			$category_id
+		);
 
 		if (!$category)
 		{
-			return $this->_helperReturn ('Page', 'notFound');
+			return $this->replaceAction ('Error', 'notFound');
 		}
 
 		$user = User::getCurrent ();
@@ -449,13 +528,28 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 		
 		if (!$resource_delete || !$resource_delete->userCan ($user))
 		{
-			return $this->_helperReturn ('Access', 'denied');
+			return $this->replaceAction ('Error', 'accessDenied');
 		}
 		
 		$category->delete ();
 
 		//$referer = $this->__deleteReferer ($category, $referer);
 		
-		Helper_Header::redirect ($referer);
+		if (Request::isPost ())
+		{
+			$this->_task->setTemplate (null);
+			$this->_output->send (array (
+				'redirect'	=> $referer,
+				'data'		=> array (
+					'redirect'	=> $referer
+				)
+			));
+		}
+		else
+		{
+			// GET запрос
+			Helper_Header::redirect ($referer);
+		}
 	}
+	
 } 

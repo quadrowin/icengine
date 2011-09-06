@@ -6,14 +6,14 @@
  * @package IcEngine
  *
  */
-class Background_Agent_Manager
+class Background_Agent_Manager extends Manager_Abstract
 {
 	
 	/**
 	 * @desc Конфиг
 	 * @var array
 	 */
-	protected $_config = array (
+	protected static $_config = array (
 	
 		// 
 		'default_agent_resume_id'	=> 0,
@@ -100,20 +100,7 @@ class Background_Agent_Manager
 		return $sessions->count ();
 	}
 	
-	/**
-	 * @desc Загружает и возвращает конфиг
-	 * @return Objective
-	 */
-	public function config ()
-	{
-		if (is_array ($this->_config))
-		{
-			$this->_config = Config_Manager::get (__CLASS__, $this->_config);
-		}
-		return $this->_config;
-	}
-	
-	public function instance ()
+	public static function instance ()
 	{
 		if (!self::$_instance)
 		{
@@ -129,7 +116,7 @@ class Background_Agent_Manager
 	 */
 	public function processAgent ($name)
 	{
-		$agent = Model_Manager::modelBy (
+		$agent = Model_Manager::byQuery (
 			'Background_Agent',
 			Query::instance ()
 				->where ('name', $name)
@@ -152,13 +139,17 @@ class Background_Agent_Manager
 		{
 			$session->process ();
 		}
+		else
+		{
+			echo "no background agent sessions\n";
+		}
 	}
 	
 	/**
 	 * @desc Перезапустить агента
 	 * @param Background_Agent_Session $session
 	 */
-	public function resumeSession (Background_Agent_Session $session)
+	public static function resumeSession (Background_Agent_Session $session)
 	{
 		if ($session->Background_Agent_Resume)
 		{
@@ -173,7 +164,7 @@ class Background_Agent_Manager
 	 */
 	public function startAgent ($name, array $params = array ())
 	{
-		$agent = Model_Manager::modelBy (
+		$agent = Model_Manager::byQuery (
 			'Background_Agent',
 			Query::instance ()
 				->where ('name', $name)

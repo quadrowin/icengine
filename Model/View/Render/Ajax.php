@@ -16,7 +16,7 @@ class View_Render_Ajax extends View_Render_Abstract
 		return $result;
 	}
 	
-	public function display ($tpl = null)
+	public function display ($tpl)
 	{
 		reset ($this->_vars);
 		echo json_encode (current ($this->_vars));

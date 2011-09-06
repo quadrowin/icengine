@@ -9,6 +9,12 @@
 class Model_Collection implements ArrayAccess, IteratorAggregate, Countable 
 {
 	/**
+	 * @desc Клонировать дату
+	 * @var integer
+	 */
+	const ASSIGN_DATA 		= 'Data';
+	
+	/**
 	 * @desc Клонировать фильтры
 	 * @var integer
 	 */
@@ -58,7 +64,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	
 	/**
 	 * @desc Опции
-	 * @var Model_Collection_Option_Item_Collection
+	 * @var Model_Collection_Option_Collection
 	 */
 	protected $_options;
 	
@@ -67,12 +73,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 * @var Paginator
 	 */
 	protected $_paginator;
-	
-	/**
-	 * @desc Выбираемые поля
-	 * @var array
-	 */
-	protected $_select = array ();
 	
 	/**
 	 * @desc Последний выполненный запрос
@@ -92,11 +92,11 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	protected $_queryResult;
 	
-	/**
-	 * @desc Условия
-	 * @var array
-	 */
-	protected $_where = array ();
+	public static $DIFF_EDIT_ADD = 'added';
+	
+	public static $DIFF_EDIT_NO = 'not_changed';
+	
+	public static $DIFF_EDIT_DEL = 'removed';
 	
 	/**
 	 * @desc Создает и возвращает коллекцию моделей.
@@ -104,9 +104,8 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function __construct ()
 	{
-		Loader::load ('Model_Collection_Option_Item_Collection');
-		$this->_options =
-			new Model_Collection_Option_Item_Collection ($this->modelName ());
+		Loader::load ('Model_Option_Collection');
+		$this->_options = new Model_Option_Collection ($this);
 		Loader::load ($this->modelName ());
 	}
 	
@@ -163,8 +162,8 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	
 	/**
 	 * @desc Добавление одного или нескольких фильтров.
-	 * @param Data_Transport $data
-	 * @param string $filter
+	 * @param Data_Transport $data Транспорт входных данных контроллера.
+	 * @param string $filter Название фильтра.
 	 * @return Model_Collection
 	 */
 	public function addFilters (Data_Transport $data, $filter)
@@ -173,10 +172,21 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		$arg_count = func_num_args ();
 		for ($i = 1; $i < $arg_count; ++$i)
 		{
+			$filter = func_get_arg ($i);
+			$p = strpos ($filter, '::');
+			$filter =
+				$p
+				? 
+					substr ($filter, 0, $p) . 
+					'_Collection_Filter_' .
+					substr ($filter, $p + 2)
+				: 
+					$this->modelName () .
+					'_Collection_Filter_' .
+					$filter;
+			
 			Model_Collection_Filter_Manager::get (
-				$this->modelName () . 
-				'_Collection_Filter_' . 
-				func_get_arg ($i)
+				$filter
 			)->filter ($this, $data);
 		}
 		return $this;
@@ -186,7 +196,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 * @desc Добавление нескольких опций к коллекции аналогично.
 	 * @param array|string $options
 	 * @param $_
-	 * @return Model_Collection
+	 * @return Model_Collection Эта коллекция
 	 */
 	public function addOptions ($options)
 	{
@@ -217,6 +227,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		if (!$flags)
 		{
 			$flags = array (
+				self::ASSIGN_DATA,
 				self::ASSIGN_FILTERS,
 				self::ASSIGN_MODELS,
 				self::ASSIGN_OPTIONS,
@@ -236,6 +247,15 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		}
 		
 		return $this;
+	}
+	
+	/**
+	 * @desc Клонировать дату коллекции
+	 * @param Model_Collection $source
+	 */
+	public function assignData (Model_Collection $source)
+	{
+		$this->data ($source->data ());
 	}
 	
 	/**
@@ -264,10 +284,10 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	{
 		$this
 			->getOptions ()
-			->setOptions (
+			->setItems (
 				$source
 					->getOptions ()
-					->getOptions ()
+					->getItems ()
 			);
 	}
 	
@@ -385,13 +405,11 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function diff (Model_Collection $collection)
 	{
-		$ms = DDS::modelScheme ();
-		
 		$model_name = $this->modelName ();
 		
-		$kf_this = $ms->keyField ($model_name);
+		$kf_this = Model_Scheme::keyField ($model_name);
 		
-		$kf_collection = $ms->keyField ($collection->modelName ());
+		$kf_collection = Model_Scheme::keyField ($collection->modelName ());
 		
 		$array_this = $this->column ($kf_this);
 		
@@ -412,6 +430,64 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		
 		return $result;
 	}
+
+	
+	/**
+	 * @desc Получить массив, содержащий добавленные и удаленные модели
+	 * @param Model_Collection $collection
+	 * @return array
+	 */
+    public function diffEdit($collection, $fields = array())
+    {
+		$collection_add = Model_Collection_Manager::create(
+			$collection->modelName()
+		);
+		
+		$collection_add->reset();
+
+	$collection_no = Model_Collection_Manager::create($collection->modelName());
+	$collection_no->reset();
+	
+		$collection_del = Model_Collection_Manager::create(
+			$collection->modelName()
+		);
+		$collection_del->reset();
+
+		$collection_count = $this->count();
+
+		foreach ($collection as $model)
+		{
+	    $diff_model = $this->hasByFields($model, $fields);
+
+	    if ($diff_model)
+			{
+		$collection_no->add($diff_model);
+				$collection_count--;
+			}
+			else
+			{
+				$collection_add->add($model);
+			}
+		}
+
+		// если $collection_count не 0, делаем вывод, что есть удаленные модели
+		if ($collection_count)
+		{
+			foreach ($this as $model)
+			{
+				if (!$collection->hasByFields ($model, $fields))
+				{
+					$collection_del->add($model);
+				}
+			}
+		}
+
+		return array(
+			self::$DIFF_EDIT_ADD => $collection_add,
+	    self::$DIFF_EDIT_NO => $collection_no,
+			self::$DIFF_EDIT_DEL => $collection_del
+		);
+    }
 	
 	/**
 	 * @desc Исключает из коллекции элемент с указанным индексом.
@@ -430,7 +506,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	/**
 	 * 
 	 * @desc Фильтрация. Возвращает экземпляр новой коллекции
-	 * @param array<string> $fields
+	 * @param array $fields
 	 * @return Model_Collection
 	 */
 	public function filter ($fields)
@@ -438,10 +514,127 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		$collection = new $this;
 		$collection->reset ();
 		
+		$first_fields = array ();
+		
+		foreach ($fields as $field => $value)
+		{
+			$s = substr ($field, -2, 2);
+			
+			if ($s [0] == '=' || ctype_alnum ($s))
+			{
+				unset ($fields [$field]);
+				
+				$field = rtrim ($field, '=');
+				$field = str_replace (' ', '', $field);
+				
+				$first_fields [$field] = $value;
+			}
+		}
+		
 		foreach ($this as $item)
 		{
 			$valid = true;
+			if (!$first_fields || $item->validate ($first_fields))
+		 	{
+				if ($fields)
+				{
+					foreach ($fields as $field => $value)
+					{
+						$field = str_replace (' ', '', $field);
+						
+						$s = substr ($field, -2, 2);
+						
+						if (ctype_alnum ($s [0]))
+						{
+							$s = $s [1];
+						}
+	
+						$field = substr ($field, 0, -1 * strlen ($s));
+						
+						switch ($s)
+						{
+							case '>': 
+								$valid = $item->$field > $value; 
+								break;
+							case '>=': 
+								$valid = $item->$field >= $value; 
+								break;
+							case '<': $valid = $item->$field < $value; 
+								break;
+							case '<=': $valid = $item->$field <= $value; 
+								break;
+							case '!=': $valid = $item->$field != $value; 
+								break;
+						}
+						
+						if (!$valid)
+						{
+							break;
+						}
+					}
+				}
+				
+				if ($valid)
+				{
+					$collection->add ($item);
+				}
+			}
+		}
+		
+		return $collection;
+	}
+	
+	/**
+	 * @desc Подсчет количества моделей в коллекции, соответсвующих условию.
+	 * @param type $fields 
+	 * @return integer Количество моделей, соответвующих фильтру.
+	 */
+	public function filterGetCount ($fields)
+	{
+		$count = 0;
+		foreach ($this as $item)
+		{
 			if ($item->validate ($fields))
+		 	{
+				++$count;
+			}
+		}
+		return $count;
+	}
+	
+	/**
+	 * @desc Возвращает первую модель, соответсвующую фильтру.
+	 * @param array $fields 
+	 * @return Model|null
+	 */
+	public function filterGetFirst ($fields)
+	{
+		foreach ($this as $item)
+		{
+			if ($item->validate ($fields))
+			{
+				return $item;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * @desc Фильтрация. Возвращает экземпляр новой коллекции.
+	 * Проверяет существование в моделях фильтруемых полей, в случае 
+	 * отсутствия ошибки не возникает.
+	 * @param string $field
+	 * @param string $value
+	 * @return Model_Collection
+	 */
+	public function filterExt ($field, $value)
+	{
+		$collection = new $this;
+		$collection->reset ();
+		
+		foreach ($this as $item)
+		{
+			if ($item->hasField ($field) && $item->field ($field) == $value)
 		 	{
 				$collection->add ($item);
 			}
@@ -480,12 +673,12 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		{
 			$this->_items = array ();
 		}
-		$model_manager = IcEngine::$modelManager;
+		
 		$kf = $this->keyField ();
 		foreach ($rows as $row)
 		{
 			$key = isset ($row ['id']) ? $row ['id'] : $row [$kf];
-			$this->_items [] = $model_manager->get ($model, $key, $row);
+			$this->_items [] = Model_Manager::get ($model, $key, $row);
 		}
 		return $this;
 	}
@@ -493,8 +686,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	/**
 	 * @desc Создать коллекцию из запроса
 	 * @param Query $query
-	 * @param boolean $clear
-	 * 		Очистить коллекцию, перед добавлением
+	 * @param boolean $clear Очистить коллекцию, перед добавлением
 	 * @return Model_Collection
 	 */
 	public function fromQuery (Query $query, $clear = true)
@@ -515,7 +707,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	/**
 	 * 
 	 * @desc Получить коллекцию опшинов
-	 * @return Model_Collection_Option_Item_Collection
+	 * @return Model_Collection_Option_Collection
 	 */
 	public function getOptions ()
 	{
@@ -566,6 +758,45 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 			}
 		}
 	}
+	
+    /**
+     * 
+     * @desc Ищет в коллекции эквивалентную по полям (если $fields пустой массив - по совпадению
+     *  первичных ключей) заданой модель, и, если находит, то возвращает ее (из коллекции в которой ищется)
+     * @param Model $item
+     * @param array $fields
+     * @return null|Model
+     */
+    public function hasByFields(Model $item, $fields = array())
+    {
+	$model = null;
+	foreach ($this as $i)
+	{
+	    if (empty($fields))
+	    {
+		if (/* $i instanceof $item->modelName() && */$i->key() == $item->key()) // хочу так - не рабтает( //dp
+		{
+		    $model = $i;
+		}
+	    }
+	    else
+	    {
+		$model = $i;
+		foreach ($fields as $field)
+		{
+		    if ($i->field($field) != $item->field($field))
+		    {
+			$model = null;
+			break;
+		    }
+		}
+	    }
+	    if ($model) {
+		break;
+	    }
+	}
+	return $model;
+    }
 	
 	/**
 	 * @desc Возвращает модель из коллекции
@@ -673,8 +904,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function keyField ()
 	{
-		return IcEngine::$modelManager->modelScheme ()->keyField (
-			$this->modelName ());
+		return Model_Scheme::keyField ($this->modelName ());
 	}
 	
 	/**
@@ -720,14 +950,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		
 		if (!$colums)
 		{
-			if ($this->_select)
-			{
-				$query->select ($this->_select);
-			}
-			else
-			{
-				$query->select ($this->table () . '.*');
-			}
+			$query->select ($this->table () . '.*');
 		}
 		else
 		{
@@ -738,18 +961,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		
 		$query->from ($this->modelName ());
 		
-		foreach ($this->_where as $where)
-		{
-			if (count ($where) > 1)
-			{
-				$query->where ($where [0], $where [1]);
-			}
-			else
-			{
-				$query->where ($where [0]);
-			}
-		}
-		
 		if ($this->_paginator)
 		{
 			$query->calcFoundRows ();
@@ -758,14 +969,13 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 				$this->_paginator->offset ());
 		}
 		
-		$this->_options->executeBefore ($this, $query);
+		$this->_options->executeBefore ($query);
 		
 		$this->_lastQuery = $query;
 		
-		Loader::load ('Model_Collection_Manager');
-		Model_Collection_Manager::load ($this, $query, !$this->_autojoin);
+		Model_Collection_Manager::load ($this, $query);
 		
-		$this->_options->executeAfter ($this, $query);
+		$this->_options->executeAfter ($query);
 		
 		if ($this->_paginator)
 		{
@@ -907,7 +1117,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * 
 	 * @desc Сохраняет модели коллекции
 	 * @return Model_Collection
 	 */
@@ -916,6 +1125,43 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		foreach ($this as $item)
 		{
 			$item->save ();
+		}
+		return $this;
+	}
+	
+	/**
+	 * @desc Установить select-часть запроса коллекции
+	 * @param string|array $columns
+	 * @return Model_Collection
+	 */
+	public function select ($columns)
+	{
+		call_user_func_array (
+			array ($this->query (), 'select'),
+			func_get_args ()
+		);	
+		
+		return $this;
+	}
+	
+	/**
+	 * @desc Меняет поля модели
+	 * @param mixed (string,sting|array<string>) $fields
+	 * @return Model_Collection
+	 */
+	public function set ($fields)
+	{
+		$args = func_get_args ();
+		if (count ($args) == 2)
+		{
+			$args = array ($args [0] => $args [1]);
+		}
+		foreach ($this as $item)
+		{
+			foreach ((array) $args as $field => $value)
+			{
+				$item->field ($field, $value);
+			}
 		}
 		return $this;
 	}
@@ -950,7 +1196,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function setOption ($option)
 	{
-		$this->_options->setOption ($option);
+		//$this->_options->setOption ($option);
 	}
 	
 	/**
@@ -977,7 +1223,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * @desc Вернуть первый элемент коллекции, удалив его из коллекции
+	 * @desc Вернуть первый элемент коллекции, удалив его из коллекции.
 	 * @return Model|null
 	 */
 	public function shift ()
@@ -986,53 +1232,13 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 	
 	/**
-	 * 
-	 * @desc Установить select-часть запроса коллекции
-	 * @param string|array $columns
-	 * @return Model_Collection
-	 */
-	public function select ($columns)
-	{
-		if (!is_array ($columns))
-		{
-			$columns = func_get_args ();
-		}
-		
-		$this->_select = array_merge ($this->_select, $columns);
-		return $this;
-	}
-	
-	/**
-	 * @desc Перемешивает элементы коллекции
+	 * @desc Перемешивает элементы коллекции в случайном порядке.
 	 * @return Model_Collection
 	 */
 	public function shuffle ()
 	{
 		$this->items ();
 		shuffle ($this->_items);
-		return $this;
-	}
-	
-	/**
-	 * 
-	 * @desc Меняет поля модели
-	 * @param mixed (string,sting|array<string>) $fields
-	 * @return Model_Collection
-	 */
-	public function set ($fields)
-	{
-		$args = func_get_args ();
-		if (count ($args) == 2)
-		{
-			$args = array ($args [0] => $args [1]);
-		}
-		foreach ($this as $item)
-		{
-			foreach ((array) $args as $field=>$value)
-			{
-				$item->field ($field, $value);
-			}
-		}
 		return $this;
 	}
 	
@@ -1059,11 +1265,10 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	{
 		$items = &$this->items ();
 		Loader::load ('Helper_Array');
-		$fields = (array) $fields;
-		for ($i = 0, $icount = sizeof ($fields); $i < $icount; $i++)
-		{
-			Helper_Array::mosort ($items, $fields [$i]);
-		}
+		Helper_Array::mosort (
+			$items, 
+			implode (',', func_get_args ())
+		);
 		return $this;
 	}
 	
@@ -1170,7 +1375,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	public function unique ()
 	{
 		$model_name = $this->modelName ();
-		$kf = DDS::modelScheme ()->keyField ($model_name);
+		$kf = Model_Scheme::keyField ($model_name);
 		$keys = array_unique ($this->column ($kf));
 		
 		$collection = new self;
@@ -1212,7 +1417,11 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function where ($condition)
 	{
-		$this->_where [] = func_get_args ();
+		call_user_func_array (
+			array ($this->query (), 'where'),
+			func_get_args ()
+		);
+		
 		return $this;
 	}
 }

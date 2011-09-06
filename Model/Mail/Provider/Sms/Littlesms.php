@@ -20,7 +20,7 @@ class Mail_Provider_Sms_Littlesms extends Mail_Provider_Abstract
 	 * @desc Конфиг
 	 * @var array
 	 */
-	protected $_config = array (
+	protected static $_config = array (
 		'original_path'		=> 'LittlesmsOriginal.class.php',
 		'service_login'		=> '',
 		'service_password'	=> '',
@@ -37,11 +37,12 @@ class Mail_Provider_Sms_Littlesms extends Mail_Provider_Abstract
 	 */
 	protected function _afterConstruct ()
 	{
-		Loader::requireOnce ($this->config ()->original_path, 'includes');
+		$config = $this->config ();
+		Loader::requireOnce ($config ['original_path'], 'includes');
 		
 		$this->_client = new LittleSMSoriginal (
-			$this->_config ['service_login'],
-			$this->_config ['service_password'], 
+			$config ['service_login'],
+			$config ['service_password'], 
 			false
 		);
 	}
@@ -114,9 +115,12 @@ class Mail_Provider_Sms_Littlesms extends Mail_Provider_Abstract
 	
 	public function getStatus ($smsId)
 	{
-		$status = $this->_client->checkStatus($smsId);
+		$status = $this->_client->checkStatus ($smsId);
 		//print_r($status);
-		return (is_array($status) && !empty($status[$smsId])) ? array( 'sms_status' => $status[$smsId] ) : null;
+		return 
+			(is_array ($status) && !empty ($status [$smsId])) ? 
+			array ('sms_status' => $status [$smsId]) : 
+			null;
 	}
 	
 }

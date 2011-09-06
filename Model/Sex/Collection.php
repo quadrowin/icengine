@@ -6,7 +6,7 @@
  * @package IcEngine
  *
  */
-class Sex_Collection extends Model
+class Sex_Collection extends Model_Collection
 {
 	
 }

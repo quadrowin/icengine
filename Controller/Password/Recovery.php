@@ -22,22 +22,12 @@ class Controller_Password_Recovery extends Controller_Abstract
 			{
 				$recovery->startSession ();
 				
-				IcEngine::frontController ()
-					->getDispatcher ()
-					->currentIteration ()
-					->setTemplate (
-						Helper_Action::path (__METHOD__, '/code_ok')
-					);
+				$this->_task->setClassTpl (__METHOD__, 'code_ok');
 				return ;
 			}
 			else
 			{
-				IcEngine::frontController ()
-					->getDispatcher ()
-					->currentIteration ()
-					->setTemplate (
-						Helper_Action::path (__METHOD__, '/code_fail')
-					);
+				$this->_task->setClassTpl (__METHOD__, 'code_fail');
 				return ;
 			}
 		}
@@ -54,10 +44,8 @@ class Controller_Password_Recovery extends Controller_Abstract
 				'error'	=> true
 			));
 			
-			$this->_dispatcherIteration->setTemplate ( 
-				Helper_Action::path (__METHOD__, '/error_short_password')
-			);
-				
+			$this->_task->setClassTpl (__METHOD__, 'error_short_password');
+			
 			return ;
 		}
 		
@@ -70,9 +58,7 @@ class Controller_Password_Recovery extends Controller_Abstract
 				'error'	=> true
 			));
 			
-			$this->_dispatcherIteration->setTemplate ( 
-				Helper_Action::path (__METHOD__, '/error_recovery_not_found')
-			);
+			$this->_task->setClassTpl (__METHOD__, 'error_recovery_not_found');
 				
 			return ;
 		}
@@ -103,15 +89,7 @@ class Controller_Password_Recovery extends Controller_Abstract
 		// лимит запросов на e-mail
 		if ($query_count >= Password_Recovery::MAX_QUERY_PER_EMAIL)
 		{
-			$this->_output->send ('data', array (
-				'error'	=> true
-			));
-			
-			$this->_dispatcherIteration->setTemplate (
-				Helper_Action::path (__METHOD__, '/error_email_limit')
-			);
-				
-			return ;
+			return $this->_sendError ('error_email_limit');
 		}
 		
 		$user = Model_Manager::byQuery (
@@ -122,15 +100,7 @@ class Controller_Password_Recovery extends Controller_Abstract
 		
 		if (!$user)
 		{
-			$this->_output->send ('data', array (
-				'error'	=> true
-			));
-			
-			$this->_dispatcherIteration->setTemplate ( 
-				Helper_Action::path (__METHOD__, '/error_email_not_found')
-			);
-			
-			return ;
+			return $this->_sendError ('error_email_not_found');
 		}
 		
 		$this->_output->send ('data', array (
@@ -140,11 +110,7 @@ class Controller_Password_Recovery extends Controller_Abstract
 		// Всё правильно, создаем письмо с кодом
 		if (!Password_Recovery::sendRecoveryEmail ($user->id, $email))
 		{
-			$this->_dispatcherIteration->setTemplate (
-				Helper_Action::path (__METHOD__, '/error_sendmail')
-			);
-				
-			return ;
+			return $this->_sendError ('error_sendmail');
 		}
 	}
 	

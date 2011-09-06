@@ -47,7 +47,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 	 */
 	protected function _authorization ()
 	{
-		return Model_Manager::modelBy (
+		return Model_Manager::byQuery (
 			'Authorization',
 			Query::instance ()
 				->where ('name', 'Login_Password_Sms')
@@ -169,7 +169,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 			'send'
 		);
 		
-		$user = Model_Manager::modelBy (
+		$user = Model_Manager::byQuery (
 			'User',
 			Query::instance ()
 				->where ('login', $login)
@@ -179,7 +179,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 		
 		if (!$user)
 		{
-			$user = Model_Manager::modelBy (
+			$user = Model_Manager::byQuery (
 				'User',
 				Query::instance ()
 					->where ('login', $login)
@@ -189,30 +189,23 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 		
 		if (!$user)
 		{
-			$this->_sendError (
+			return $this->_sendError (
 				'password incorrect',
 				'Data_Validator_Authorization_Password/invalid'
 			);
-			return ;
 		}
 		
 		if (!$user->active)
 		{
-			$this->_sendError (
+			return $this->_sendError (
 				'user unactive',
 				'Data_Validator_Authorization_User/unactive'
 			);
-			return ;
 		}
 		
 		if (!$user->phone)
 		{
-			$this->_sendError (
-				'no phone',
-				__METHOD__,
-				'/noPhone'
-			);
-			return ;
+			return $this->_sendError ('noPhone');
 		}
 		
 		$count = $user->attr (self::SMS_SEND_COUNTER_ATTR);
@@ -231,12 +224,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 			)
 		)
 		{
-			$this->_sendError (
-				'sms limit',
-				__METHOD__,
-				'/smsLimit'
-			);
-			return ;
+			return $this->_sendError ('smsLimit');
 		}
 		
 		$activation = $this->_authorization ()->sendActivationSms (array (

@@ -3,6 +3,7 @@
  * 
  * @desc Базовая модель категории контента
  * @author Юрий Шведов
+ * @package IcEngine
  *
  */
 Loader::load ('Model_Child');
@@ -49,6 +50,11 @@ class Content_Category extends Model_Child
 			$this->url = $articles->first ()->url;
 		}
 		return $this;
+	}
+	
+	public function title ()
+	{
+		return $this->title . ' ' . $this->url;
 	}
 	
 }

@@ -10,12 +10,18 @@ Loader::load ('Object_Interface');
  */
 abstract class Model implements ArrayAccess
 {
+
+	/**
+	 * @desc Базовая модель (без дополнительных полей).
+	 * @var Model
+	 */
+	protected  $_generic = null;
 	
 	/**
-	 * @desc Автосоздание связанных объектов.
-	 * @var boolean
+	 * @desc Поля реализации.
+	 * @var array
 	 */
-	protected	$_autojoin;
+	protected  $_addicts = array ();
 	
 	/**
 	 * @desc Компоненты для модели.
@@ -28,7 +34,7 @@ abstract class Model implements ArrayAccess
 	 * @desc Конфиг
 	 * @var array|Objective
 	 */
-	protected $_config = array ();
+	protected static $_config = array ();
 	
 	/**
 	 * @desc Связанные данные
@@ -47,7 +53,7 @@ abstract class Model implements ArrayAccess
 	 * @desc Подгруженные объекты
 	 * @var array
 	 */
-	protected	$_joints;  
+	protected	$_joints = array ();
 	
 	/**
 	 * @desc Данные модели
@@ -60,6 +66,28 @@ abstract class Model implements ArrayAccess
 	 * @var boolean
 	 */
 	protected	$_loaded;
+
+	/**
+	 * @desc Плагины
+	 * @var array
+	 */
+	protected	$_plugins;
+	
+	/**
+	 * @desc Схема модели
+	 * @var array
+	 */
+	protected static $_scheme = array (
+		'fields'	=> array (),
+		'keys'		=> array ()
+	);
+	
+	
+	/**
+	 * @desc Обновленные поля.
+	 * @var array <boolean>
+	 */
+	protected	$_updatedFields = array ();
 	
 	/**
 	 * @param string $method
@@ -76,6 +104,15 @@ abstract class Model implements ArrayAccess
 				substr ($method, 4)
 			);
 		}
+		
+		if (isset ($this->_plugins [$method]))
+		{
+			return call_user_func_array (
+				$this->_plugins [$method], 
+				array ($this) + $params
+			);
+		}
+		
 		Loader::load ('Model_Exception');
 		throw new Model_Exception ("Method $method not found");
 	}
@@ -83,24 +120,50 @@ abstract class Model implements ArrayAccess
 	/**
 	 * @desc Создает и возвращает модель.
 	 * @param array $fields Данные модели.
-	 * @param boolean $autojoin=true
-	 * 		Автосоздание связанны объектов.
-	 * 		Если false, поля вида Model__id не будут преобразованы в объекты
+	 * @param Model $model [optional]
 	 */
-	public function __construct (array $fields = array (), $autojoin = true)
+	public function __construct (array $fields = array (), $model = null)
 	{
-		self::$_objectIndex++;
-		
 		$this->_loaded = false;
-		$this->_fields = $fields;
-		$this->_autojoin = $autojoin;
 		
-		if ($fields)
+		if ($model)
 		{
-			$this->set ($fields);
+			$this->_fields = array ();
+			$this->_addicts = $fields;
+			$this->_generic = $model;
+			
+			// Поля, которые должны различаться у реализаций и генерика
+			static $realized = array (
+				'_generic'	=> null,
+				'_addicts'	=> null,
+				'_joints'	=> null
+			);
+			
+			$vars = get_class_vars (get_class ($this));
+			$vars = array_diff_key ($vars, $realized);
+			
+			foreach ($vars as $var => $v)
+			{
+				$r = new ReflectionProperty ($this, $var);
+				if (!$r->isStatic ())
+				{
+					$this->$var = &$model->__getField ($var);
+				}
+			}
 		}
-		
-		$this->_afterConstruct ();
+		else 
+		{
+			self::$_objectIndex++;
+
+			$this->_fields = $fields;
+
+			if ($fields)
+			{
+				$this->set ($fields);
+			}
+
+			$this->_afterConstruct ();
+		}
 	}
 	
 	/**
@@ -110,6 +173,15 @@ abstract class Model implements ArrayAccess
 	 */
 	public function __get ($field)
 	{
+		if ($this->_generic)
+		{
+			if (array_key_exists ($field, $this->_addicts))
+			{
+				return $this->_addicts [$field];
+			}
+			return $this->_generic->$field;
+		}
+		
 		if (array_key_exists ($field, $this->_fields))
 		{
 			return $this->_fields [$field];
@@ -120,9 +192,11 @@ abstract class Model implements ArrayAccess
 			return $this->_joints [$field];
 		}
 		
-		if (array_key_exists ($field . '__id', $this->_fields))
+		$join_field = $field . '__id';
+		
+		if (array_key_exists ($join_field, $this->_fields))
 		{
-			return $this->joint ($field);
+			return $this->_joint ($field, $this->_fields [$join_field]);
 		}
 		
 		if (!$this->_loaded)
@@ -130,14 +204,24 @@ abstract class Model implements ArrayAccess
 			$this->load ();
 			if (
 				!array_key_exists ($field, $this->_fields) &&
-				array_key_exists ($field . '__id', $this->_fields)
+				array_key_exists ($join_field, $this->_fields)
 			)
 			{
-				return $this->joint ($field);
+				return $this->_joint ($field, $this->_fields [$join_field]);
 			}
 		}
 		
 		return $this->_fields [$field];
+	}
+	
+	/**
+	 * @desc Позволяет обращаться к протектед и private полям.
+	 * @param string $field
+	 * @return mixed
+	 */
+	public function &__getField ($field)
+	{
+		return $this->$field;
 	}
 	
 	/**
@@ -146,6 +230,12 @@ abstract class Model implements ArrayAccess
 	 */
 	public function __isset ($key)
 	{
+		if ($this->_generic)
+		{
+			return 
+				isset ($this->_addicts [$key]) ||
+				isset ($this->_generic->$key);
+		}
 		return isset ($this->_fields [$key]);
 	}
 	
@@ -156,6 +246,19 @@ abstract class Model implements ArrayAccess
 	 */
 	public function __set ($field, $value)
 	{
+		if ($this->_generic)
+		{
+			if (array_key_exists ($field, $this->_addicts))
+			{
+				$this->_addicts [$field] = $value;
+				return ;
+			}
+			
+			$this->_generic->$field = $value;
+			
+			return ;
+		}
+		
 		if (!array_key_exists ($field, $this->_fields) && !$this->_loaded)
 		{
 			$this->load ();
@@ -181,12 +284,49 @@ abstract class Model implements ArrayAccess
 	}
 	
 	/**
+	 * @desc Присоединить сущность.
+	 * @param string $model_name
+	 * @param array $data
+	 * @return Model Присоединенная модель.
+	 */
+	protected function _joint ($model_name, $key = null)
+	{
+		$model = is_null ($this->_generic) ? $this : $this->_generic;
+
+		if ($key !== null)
+		{
+			$model->setJoint (
+				$model_name,
+				Model_Manager::byKey ($model_name, $key)
+			);
+		}
+		
+		return $model->getJoint ($model_name);
+	}
+	
+	/**
+	 * @desc Возвращает дополнительные поля модели.
+	 * @return array
+	 */
+	public function addicts ()
+	{
+		return $this->_addicts;
+	}
+	
+	/**
 	 * @desc Возвращает массив, создержащий все поля модели.
 	 * @return array
 	 */
 	public function asRow ()
 	{
-		return $this->_fields;
+		if (is_null ($this->_generic))
+		{
+			return $this->_fields;
+		}
+		return array_merge (
+			$this->_addicts,
+			$this->_generic->asRow ()
+		);
 	}
 	
 	/**
@@ -199,6 +339,13 @@ abstract class Model implements ArrayAccess
 	 */
 	public function attr ($key)
 	{
+		if (!is_null ($this->_generic))
+		{
+			return call_user_func_array (
+				array ($this->_generic, __METHOD__),
+				func_get_args ()
+			);
+		}
 		if (func_num_args () == 1)
 		{
 			if (!is_array ($key))
@@ -235,6 +382,14 @@ abstract class Model implements ArrayAccess
 	 */
 	public function component ($type)
 	{
+		if (!is_null ($this->_generic))
+		{
+			return call_user_func_array (
+				array ($this->_generic, __METHOD__),
+				func_get_args ()
+			);
+		}
+		
 		$index = null;
 		
 		if (func_num_args () > 1)
@@ -267,16 +422,16 @@ abstract class Model implements ArrayAccess
 	 * @param string $class Класс модели, если отличен от get_class ($this)
 	 * @return Objective
 	 */
-	public function config ($class = null)
+	public static function config ($class = null)
 	{
-		if (is_array ($this->_config))
+		if (is_array (static::$_config))
 		{
-			$this->_config = Config_Manager::get (
-				$class ? $class : get_class ($this),
-				$this->_config
+			static::$_config = Config_Manager::get (
+				$class ? $class : get_called_class (),
+				static::$_config
 			);
 		}
-		return $this->_config;
+		return static::$_config;
 	}
 	
 	/**
@@ -287,12 +442,27 @@ abstract class Model implements ArrayAccess
 	 */
 	public function data ($key)
 	{
-		if (func_num_args () == 1)
+		if (!is_null ($this->_generic))
 		{
-			return isset ($this->_data [$key]) ? $this->_data [$key] : null;
+			return call_user_func_array (
+				array ($this->_generic, __METHOD__),
+				func_get_args ()
+			);
 		}
 		
-		$this->_data [$key] = func_get_arg (1);
+		if (func_num_args () == 1)
+		{
+			if (is_scalar ($key))
+			{
+				return isset ($this->_data [$key]) ? $this->_data [$key] : null;
+			}
+			
+			$this->_data = array_merge ($this->_data, $key);
+		}
+		else
+		{
+			$this->_data [$key] = func_get_arg (1);
+		}
 	}
 	
 	/**
@@ -300,10 +470,13 @@ abstract class Model implements ArrayAccess
 	 */
 	public function delete ()
 	{
-		$key = $this->key ();
+		$model = is_null ($this->_generic) ? $this : $this->_generic;
+		
+		$key = $model->key ();
+		
 		if ($key)
 		{
-			Model_Manager::remove ($this);
+			Model_Manager::remove ($model);
 		}
 	}
 	
@@ -315,13 +488,15 @@ abstract class Model implements ArrayAccess
 	 * @param string $model_name
 	 * @return Model_Collection
 	 */
-	public function external ($model)
+	public function external ($model_name)
 	{
-		$field = '`' . $model . '`.`' . $this->modelName () . '__id`';
+		$model = is_null ($this->_generic) ? $this : $this->_generic;
+		
+		$field = '`' . $model_name . '`.`' . $model->modelName () . '__id`';
 		return Model_Collection_Manager::byQuery (
-			$model,
+			$model_name,
 			Query::instance ()
-				->where ($field, $this->key ())
+				->where ($field, $model->key ())
 		);
 	}
 	
@@ -352,6 +527,11 @@ abstract class Model implements ArrayAccess
 		Object_Pool::push ($this);
 	}
 	
+	public function generic ()
+	{
+		return $this->_generic;
+	}
+	
 	/**
 	 * @desc Получение значения атрибута
 	 * @param string $key Название атрибута.
@@ -360,16 +540,7 @@ abstract class Model implements ArrayAccess
 	 */
 	public function getAttribute ($key)
 	{
-		return IcEngine::$attributeManager->get ($this, $key);
-	}
-	
-	/**
-	 * @desc Установлен ли автоджоин
-	 * @return boolean
-	 */
-	public function getAutojoin ()
-	{
-		return $this->_autojoin;
+		return Attribute_Manager::get ($this, $key);
 	}
 	
 	/**
@@ -378,7 +549,7 @@ abstract class Model implements ArrayAccess
 	 */
 	public function getFields ()
 	{
-		return $this->_fields;
+		return $this->asRow ();
 	}
 	
 	/**
@@ -387,6 +558,12 @@ abstract class Model implements ArrayAccess
 	 */
 	public function hasField ($field)
 	{
+		if ($this->_generic)
+		{
+			return array_key_exists ($field, $this->_addicts) ||
+				$this->_generic->hasField ($field);
+		}
+		
 		if (!isset ($this->_fields))
 		{
 			if ($this->_loaded)
@@ -397,54 +574,24 @@ abstract class Model implements ArrayAccess
 			$this->load ();
 		}
 		
-		return isset ($this->_fields [$field]);
+		return array_key_exists ($field, $this->_fields);
+	}
+	
+	public function getJoint ($model)
+	{
+		return $this->_joints [$model];
 	}
 	
 	/**
-	 * @desc Присоединить сущность.
-	 * @param string $model
-	 * @param array $data
-	 * @return Model Присоединенная модель.
-	 * @throws Zend_Exception
+	 * @desc Определяет загружена ли модель
+	 * @return boolean
 	 */
-	public function joint ($model, array $data = array ())
+	public function isLoaded ()
 	{
-		if ($data)
-		{
-			Loader::load ($model);
-						
-			if (!class_exists ($model))
-			{
-				Loader::load ('Zend_Exception');
-				throw new Zend_Exception ("Model $model not found.");
-				return null;
-			}
-			
-			$key_field = Model_Manager::modelScheme ()->keyField ($model);
-			
-			if (!$data || !array_key_exists ($key_field, $data))
-			{
-				var_dump ($data, $this->_joints);
-				Loader::load ('Zend_Exception');
-				throw new Zend_Exception (
-					'In the model ' . get_class ($this) .
-					" no key field for model $model received."
-				);
-				return null;
-			}
-			
-			$this->_joints [$model] = Model_Manager::byKey (
-				$model,
-				$data [$key_field]
-			);
-//			$this->_joints [$model] = $this->modelManager ()->get (
-//				$model,
-//				$data [$key_field],
-//				$data
-//			);
-		}
-		
-		return $this->_joints [$model];
+		return 
+			$this->_generic
+			? $this->_generic->isLoaded ()
+			: $this->_loaded;
 	}
 	
 	/**
@@ -452,15 +599,15 @@ abstract class Model implements ArrayAccess
 	 * @return string|null
 	 */
 	public function key ()
-	{
+	{		
 		$kf = $this->keyField ();
 		
-		if (!is_array ($this->_fields) || !isset ($this->_fields [$kf]))
+		if (!$this->hasField ($kf))
 		{
 			return null;
 		}
 		
-		return $this->_fields [$kf];
+		return $this->field ($kf);
 	}
 	
 	/**
@@ -469,7 +616,7 @@ abstract class Model implements ArrayAccess
 	 */
 	public function keyField ()
 	{
-		return Model_Manager::modelScheme ()->keyField ($this->modelName ());
+		return Model_Scheme::keyField ($this->modelName ());
 	}
 	
 	/**
@@ -488,6 +635,11 @@ abstract class Model implements ArrayAccess
 	 */
 	public function offsetExists ($offset)
 	{
+		if ($this->_generic)
+		{
+			return $this->_generic->hasField ($offset);
+		}
+		
 		return isset ($this->_fields [$offset]);
 	}
 
@@ -513,7 +665,22 @@ abstract class Model implements ArrayAccess
 	 */
 	public function offsetUnset ($offset)
 	{
+		if ($this->_generic)
+		{
+			return $this->_generic->unsetField ($offset);
+		}
+		
 		unset ($this->_fields [$offset]);
+	}
+	
+	/**
+	 * @desc Регистрирует плагин для модели
+	 * @param string $name
+	 * @param array $method 
+	 */
+	public function registerPlugin ($name, $method)
+	{
+		$this->_plugins [$name] = $method;
 	}
 	
 	/**
@@ -521,6 +688,13 @@ abstract class Model implements ArrayAccess
 	 */
 	public function reset ()
 	{
+		if ($this->_generic)
+		{
+			$this->_addicts = array ();
+			$this->_generic->reset ();
+			
+			return;
+		}
 		$this->_attributes = array ();
 		$this->_data = array ();
 		$this->_fields = array ();
@@ -545,15 +719,28 @@ abstract class Model implements ArrayAccess
 	 */
 	public function save ($hard_insert = false)
 	{
-		Model_Manager::set ($this, $hard_insert);
+		Model_Manager::set (
+			$this->_generic ? $this->_generic : $this,
+			$hard_insert
+		);
+		
 		return $this;
+	}
+	
+	/**
+	 * @desc Получить схему модели
+	 * @return array
+	 */
+	public static function scheme ()
+	{
+		return static::$_scheme;
 	}
 	
 	/**
 	 * @desc Установка значений полей без обновления источника.
 	 * При использовании этого метод не проверяется сущестовование полей
 	 * у модели. Это позволяет установить поля для создаваемой модели,
-	 * однако может привести к ошибкам в дальнейшем при сохранее, если 
+	 * однако может привести к ошибкам в дальнейшем при сохранении, если 
 	 * были заданы несуществующие поля.
 	 * @param string|array $field Имя поля или массив пар "поле - значение".
 	 * @param string $value Значение поля для случае, если первым параметром 
@@ -563,35 +750,26 @@ abstract class Model implements ArrayAccess
 	{
 		$fields = is_array ($field) ? $field : array ($field => $value);
 		
-		$this_model = $this->modelName ();
-		
-		foreach ($fields as $key => $value)
+		if ($this->_generic)
 		{
-			$p = strpos ($key, '__');
-			if ($p === false)
+			foreach ($fields as $field => $value)
 			{
-				$this->_fields [$key] = $value;
-			}
-			else
-			{
-				$model = substr ($key, 0, $p);
-				$field = substr ($key, $p + 2);
-			
-				if ($model == $this_model)
+				if ($this->_generic->hasField ($field)) 
 				{
-					$this->_fields [$field] = $value;
+					$this->_generic->set ($field, $value);
 				}
 				else
 				{
-					$this->_fields [$key] = $value;
-					if ($this->_autojoin)
-					{
-						$field = Model_Manager::modelScheme ()->keyField ($model);
-						$this->joint ($model, array ($field => $value));
-					}
+					$this->_addicts [$field] = $value;
 				}
 			}
+			return ;
 		}
+		
+		$this->_fields = array_merge (
+			$this->_fields,
+			$fields
+		);
 	}
 	
 	/**
@@ -602,18 +780,12 @@ abstract class Model implements ArrayAccess
 	 */
 	public function setAttribute ($key, $value = null)
 	{
-		IcEngine::$attributeManager->set ($this, $key, $value);
+		Attribute_Manager::set ($this, $key, $value);
 	}
 	
-	/**
-	 * @desc Установить автоджоин
-	 * @param boolean $value
-	 * @return Model
-	 */
-	public function setAutojoin ($value)
+	public function setJoint ($model, $value)
 	{
-		$this->_autojoin = $value;
-		return $this;
+		$this->_joints [$model] = $value;
 	}
 	
 	/**
@@ -624,6 +796,16 @@ abstract class Model implements ArrayAccess
 	 */
 	public function sfield ($key)
 	{
+		if ($this->_generic)
+		{
+			if (array_key_exists ($key, $this->_addicts))
+			{
+				return $this->_addicts [$key];
+			}
+
+			return $this->_generic->sfield ($key);
+		}
+		
 		if (func_num_args () > 1)
 		{
 			$this->set ($key, func_get_arg (1));
@@ -643,21 +825,36 @@ abstract class Model implements ArrayAccess
 	{
 		return $this->modelName ();
 	}
+
+	/**
+	 * @desc Возвращает имя сущности
+	 * @return string
+	 */
+	public function title ()
+	{
+		$model = is_null ($this->_generic) ? $this : $this->_generic;
+		
+		return $model->name;
+	}
 	
 	/**
 	 * @desc Загрузка данных модели.
 	 * @param mixed $key Первичный ключ.
 	 * @return Model Эта модель.
 	 */
-	public function load ($key = null)
+	public function load ()
 	{
-		if (is_null ($key))
+		if ($this->_generic)
 		{
-			Model_Manager::get ($this->modelName (), $this->key (), $this);
+			$this->_generic->load ();
 		}
 		else
 		{
-			Model_Manager::get ($this->modelName (), $key, $this);
+			Model_Manager::get (
+				$this->modelName (),
+				$this->key (),
+				$this
+			);
 		}
 		
 		return $this;
@@ -671,6 +868,7 @@ abstract class Model implements ArrayAccess
 	public function validate ($fields)
 	{
 		$args = func_get_args ();
+		
 		if (sizeof ($args) == 2)
 		{
 			$args = array ($args [0] => $args [1]);
@@ -682,16 +880,25 @@ abstract class Model implements ArrayAccess
 			{
 				$tmp = array ();
 				$args = $args->getPart (Query::WHERE);
-				for ($i = 0, $icount = sizeof ($args); $i < $icount; $i++)
+				
+				foreach ($args as $arg)
 				{
-					$tmp [$args [$i][Query::WHERE]] = $args [$i][Query::VALUE];
+					$tmp [$arg [Query::WHERE]] = $arg [Query::VALUE];
 				}
 			}
 		}
+		/**
+		 * @var Model $valid
+		 */
 		$valid = true;
-		foreach ((array) $args as $field=>$value)
+
+		foreach ((array) $args as $field => $value)
 		{
-			if ($this->_fields [$field] != $value)
+			$value = (array) $value;
+			
+			$value = array_map ('trim', $value);
+			
+			if (!in_array ($this->$field, $value))
 			{
 				$valid = false;
 				break;
@@ -709,6 +916,20 @@ abstract class Model implements ArrayAccess
 	 */
 	public function unsetField ($name)
 	{
+		if (!is_null ($this->_generic))
+		{
+			if (array_key_exists ($name, $this->_addicts))
+			{
+				unset ($this->_addicts [$name]);
+				return;
+			}
+			else
+			{
+				$this->_generic->unsetField ($name);
+				return;
+			}
+		}
+		
 		if (array_key_exists ($name, $this->_fields))
 		{
 			unset ($this->_fields [$name]);
@@ -723,6 +944,34 @@ abstract class Model implements ArrayAccess
 	 */
 	public function update (array $data)
 	{
+		if (!is_null ($this->_generic))
+		{
+			if (!$this->_generic->isLoaded ())
+			{
+				$this->_generic->load ();
+			}
+
+			foreach ($data as $field=>$value)
+			{
+				if (!$this->_generic->hasField ($field))
+				{
+					$this->_addicts [$field] = $value;
+					unset ($data [$field]);
+				}
+			}
+
+			if ($data)
+			{
+				$this->_generic->update ($data);
+			}
+			
+			return $this;
+		}
+		
+		foreach ($data as $key => $value)
+		{
+			$this->_updatedFields [$key] = true;
+		}
 		$this->set ($data);
 		return $this->save ();
 	}
@@ -737,14 +986,41 @@ abstract class Model implements ArrayAccess
 	 */
 	public function updateCarefully (array $data)
 	{
+		if (!is_null ($this->_generic))
+		{
+			if (!$this->_generic->isLoaded ())
+			{
+				$this->_generic->load ();
+			}
+
+			foreach ($data as $field=>$value)
+			{
+				if (!$this->_generic->hasField ($field))
+				{
+					$this->_addicts [$field] = $value;
+					unset ($data [$field]);
+				}
+			}
+
+			if ($data)
+			{
+				$this->_generic->update ($data);
+			}
+			
+			return $this;
+		}
+		
+		foreach ($data as $key => $value)
+		{
+			$this->_updatedFields [$key] = true;
+		}
+		
 		$this->set ($data);
 		
 		$pseudos = array ();
 		
 		// Список существующий в модели полей
-		$scheme = Model_Manager::modelScheme ()->fieldsNames (
-			$this->modelName ()
-		);
+		$scheme = Model_Scheme::fieldsNames ($this->modelName ());
 		
 		foreach ($this->_fields as $name => $value)
 		{

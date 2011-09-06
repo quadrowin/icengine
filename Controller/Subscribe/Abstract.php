@@ -8,6 +8,6 @@ class Controller_Subscribe_Abstract extends Controller_Abstract
 	 */
 	protected function _subscribeName ()
 	{
-		return subst (get_class ($this), strlen ('Controller_Subscribe') + 1);
+		return substr (get_class ($this), strlen ('Controller_Subscribe') + 1);
 	}
 }

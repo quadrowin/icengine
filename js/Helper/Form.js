@@ -66,11 +66,18 @@ var Helper_Form = {
 				{
 					data [this.name] = this;
 				}
-				else if (this.type == "checkbox")
+				else if (this.type == 'checkbox')
 				{
 					if (this.checked)
 					{
 						data [this.name] = this.value ? this.value : 'on';
+					}
+				}
+				else if (this.type == 'radio')
+				{
+					if (this.checked)
+					{
+						data [this.name] = this.value;
 					}
 				}
 				else
@@ -109,7 +116,7 @@ var Helper_Form = {
 			return;
 		}
 		
-		if (result.data && result.alert)
+		if (result.data && result.data.alert)
 		{
 			alert (result.data.alert);
 		}
@@ -130,7 +137,11 @@ var Helper_Form = {
 				// последнее вхождение ".result-msg", позволяет
 				// подменять нижнюю часть формы, которая будет содержать
 				// новый .result-msg
-				var $div = $form.parent ().find ('.result-msg');
+				var $div = $form.find ('.result-msg');
+				if (!$div.length)
+				{
+					$div = $form.parent ().find ('.result-msg');
+				}
 				var $subdiv = $div.find ('.result-msg');
 				while ($subdiv.length)
 				{

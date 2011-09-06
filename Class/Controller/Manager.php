@@ -6,7 +6,7 @@
  * @package IcEngine
  *
  */
-class Controller_Manager
+class Controller_Manager extends Manager_Abstract
 {
 	
 	/**
@@ -28,6 +28,12 @@ class Controller_Manager
 	protected static $_controllersOutputs = array ();
 	
 	/**
+	 * @desc Текущее задание
+	 * @var Controller_Task
+	 */
+	protected static $_currentTask;
+	
+	/**
 	 * @desc Транспорт входных данных.
 	 * @var Data_Transport
 	 */
@@ -40,10 +46,34 @@ class Controller_Manager
 	protected static $_output;
 	
 	/**
-	 * 
+	 * @desc Отложенные очереди заданийs
+	 * @var array <array>
+	 */
+	protected static $_tasksBuffer = array ();
+	
+	/**
+	 * @desc Очередь заданий.
+	 * @var array <Router_Action>
+	 */
+	protected static $_tasksQueue = array ();
+	
+	/**
+	 * @desc Результаты выполнения очереди
+	 * @var array <Controller_Task>
+	 */
+	protected static $_tasksResults = array ();
+	
+	/**
+	 * @desc Буффер результатов
+	 * @var array <array <Controller_Task>>
+	 */
+	protected static $_tasksResultsBuffer = array ();
+	
+	/**
+	 * @desc Config
 	 * @var array
 	 */
-	public static $config = array (
+	protected static $_config = array (
 		/**
 		 * @desc Фильтры для выходных данных
 		 * @var array
@@ -66,25 +96,27 @@ class Controller_Manager
 	protected static function _cacheConfig ($controller, $action)
 	{
 		$config = self::config ();
-		$cfg = $config ['actions'][$controller . '::' . $action];
-		return $cfg ? $cfg : $config ['actions'] [$controller];
-	}
-	
-	/**
-	 * @desc Сохранение результата работы контроллера
-	 * @param Controller_Abstract $controller
-	 * @param Controller_Dispatcher_Iteration $iteration
-	 */
-	public static function afterAction (Controller_Abstract $controller, 
-		Controller_Dispatcher_Iteration $iteration)
-	{
-		$transaction = $controller->getOutput ()->endTransaction ();
-				
-		$iteration->setTransaction ($transaction);
 		
-		$controller
-			->setInput (array_pop (self::$_controllersInputs))
-			->setOutput (array_pop (self::$_controllersOutputs));
+		$cfg = $config ['actions'][$controller . '::' . $action];
+		
+		$cfg = $cfg ? $cfg : $config ['actions'] [$controller];
+		
+		if (isset ($cfg ['tags'], $cfg ['tag_provider']))
+		{
+			$provider = Data_Provider_Manager::get ($cfg ['tag_provider']);
+			
+			if ($provider)
+			{
+				$tags = $provider->getTags ($cfg ['tags']->__toArray ());
+
+				if ($tags)
+				{
+					$cfg ['current_tags'] = $tags;
+				}
+			}
+		}
+		
+		return $cfg;
 	}
 
 	/**
@@ -108,14 +140,13 @@ class Controller_Manager
 	 * @param string $name Название контроллера.
 	 * @param string $method Метод.
 	 * @param array|Data_Transport $input Входные данные.
-	 * @param Controller_Dispatcher_Iteration $iteration [optional] Итерация
-	 * диспетчера.
-	 * @return Controller_Dispatcher_Iteration Итерация с результатами.
+	 * @param Controller_Task $task [optional] Задание
+	 * @return Controller_Task
 	 */
 	public static function call ($name, $method = 'index', $input, 
-		$iteration = null)
+		$task = null)
 	{
-		return self::callUncached ($name, $method, $input, $iteration);
+		return self::callUncached ($name, $method, $input, $task);
 	}
 	
 	/**
@@ -123,20 +154,31 @@ class Controller_Manager
 	 * @param string $name Название контроллера.
 	 * @param string $method Метод.
 	 * @param array|Data_Transport $input Входные данные.
-	 * @param Controller_Dispatcher_Iteration $iteration [optional] Итерация
+	 * @param Controller_Task $task [optional] Итерация
 	 * диспетчера.
-	 * @return Controller_Dispatcher_Iteration Итерация с результатами.
+	 * @return Controller_Task Итерация с результатами.
 	 */
 	public static function callUncached ($name, $method = 'index', $input, 
-		$iteration = null)
+		$task = null)
 	{
 		Loader::load ('Controller_Action');
-		Loader::load ('Controller_Dispatcher_Iteration');
+		Loader::load ('Controller_Task');
 		Loader::load ('Route_Action');
 		
-		if (!$iteration)
+		if (class_exists ('Tracer'))
 		{
-			$iteration = new Controller_Dispatcher_Iteration (
+			Tracer::begin (
+				__CLASS__,
+				__METHOD__,
+				__LINE__,
+				$name,
+				$method
+			);
+		}
+		
+		if (!$task)
+		{
+			$task = new Controller_Task (
 				new Controller_Action (array (
 					'id'			=> null,
 					'controller'	=> $name,
@@ -149,7 +191,7 @@ class Controller_Manager
 		
 		$temp_input = $controller->getInput ();
 		$temp_output = $controller->getOutput ();
-		$temp_iteration = $controller->getDispatcherIteration ();
+		$temp_task = $controller->getTask ();
 		
 		if ($input === null)
 		{
@@ -169,7 +211,7 @@ class Controller_Manager
 		
 		$controller
 			->setOutput (self::getOutput ())
-			->setDispatcherIteration ($iteration);
+			->setTask ($task);
 		
 		$controller->getOutput ()->beginTransaction ();
 		
@@ -179,29 +221,51 @@ class Controller_Manager
 		
 		$controller->_afterAction ($method);
 		
-		$iteration->setTransaction (
-			$controller->getOutput ()->endTransaction ()
-		);
+		$task->setTransaction ($controller->getOutput ()->endTransaction ());
 		
 		$controller
 			->setInput ($temp_input)
 			->setOutput ($temp_output)
-			->setDispatcherIteration ($temp_iteration);
-			
-		return $iteration;
+			->setTask ($temp_task);
+		
+		if (class_exists ('Tracer'))
+		{
+			Tracer::end (null);
+		}
+		
+		return $task;
 	}
 	
 	/**
-	 * @desc Загрузка конфига
-	 * @return Objective
+	 * @desc Создаем задания из экшинов
+	 * @param Route_Action_Collection $actions
+	 * @param Data_Transport $input
+	 * @return array <Controller_Task>
 	 */
-	public static function config ()
+	public static function createTasks (Route_Action_Collection $actions,
+		Data_Transport $input)
 	{
-		if (is_array (self::$config))
+		$tasks = array ();
+		
+		Loader::load ('Controller_Task');
+		
+		foreach ($actions as $action)
 		{
-			self::$config = Config_Manager::get (__CLASS__, self::$config);
+			$task = new Controller_Task ($action);
+			$task->setInput ($input);
+			
+			$tasks [] = $task;
 		}
-		return self::$config;
+		
+		return $tasks;
+	}
+	
+	/**
+	 * @desc Очистка результатов работы контроллеров.
+	 */
+	public static function flushResults ()
+	{
+		self::$_tasksResults = array ();
 	}
 	
 	/**
@@ -246,23 +310,7 @@ class Controller_Manager
 		if (!self::$_input)
 		{
 			Loader::load ('Data_Transport');
-			
 			self::$_input  = new Data_Transport ();
-			
-			Loader::load ('Data_Provider_Router');
-			self::$_input->appendProvider (new Data_Provider_Router ());
-			
-			if (Request::isPost ())
-			{
-				Loader::load ('Data_Provider_Post');
-				self::$_input->appendProvider (new Data_Provider_Post ());
-			}
-			
-			if (Request::isGet ())
-			{
-				Loader::load ('Data_Provider_Get');
-				self::$_input->appendProvider (new Data_Provider_Get ());
-			}
 		}
 		return self::$_input;
 	}
@@ -287,9 +335,6 @@ class Controller_Manager
 				$filter = new $filter_class ();
 				self::$_output->outputFilters ()->append ($filter);
 			}
-			Loader::load ('Data_Provider_View');
-			
-			self::$_output->appendProvider (new Data_Provider_View ()); 
 		}
 		return self::$_output;
 	}
@@ -299,12 +344,15 @@ class Controller_Manager
 	 * @param string $action Название контроллера или контроллер и экшен
 	 * в формате "Controller/action".
 	 * @param array $args Параметры.
+	 * @param boolean $html_only=true Только результат рендера.
 	 * @return string Результат компиляции шабона.
+	 * @todo Это будет в Controller_Render
 	 * @tutorial
 	 * 		html ('Controller', array ('param'	=> 'val'));
 	 * 		html ('Controller/action')
 	 */
-	public static function html ($action, array $args = array ())
+	public static function html ($action, array $args = array (), 
+		$html_only = true)
 	{
 		$a = explode ('/', $action);
 		if (count ($a) == 1)
@@ -314,11 +362,34 @@ class Controller_Manager
 		
 		$cache_config = self::_cacheConfig ($a [0], $a [1]);
 		
-		return Executor::execute (
+//		Debug::microtime ($a [0] . '/' . $a [1] . '/ ' . var_export ($cache_config, true));
+		$start_time = microtime (true);
+		
+		$html = Executor::execute (
 			array (__CLASS__, 'htmlUncached'),
-			array ($a, $args),
+			array ($a, $args, $html_only),
 			$cache_config
 		);
+		
+		$dt = microtime (true) - $start_time;
+		
+//		Debug::microtime ($a [0] . '/' . $a [1] . '/ ' . round ($dt, 5));
+		
+		if ($dt > 1)
+		{
+			$f = fopen (IcEngine::root () . 'log/contrlog.txt', 'a');
+			fwrite (
+				$f,
+				date ('m-d H:i:s') . ' ' . 
+				$a [0] . '/' . $a [1] . '/' . 
+				$dt . '/' . 
+				var_export ($cache_config, true) . 
+				"\r\n"
+			);
+			fclose ($f);
+		}
+		
+		return $html;
 	}
 	
 	/**
@@ -329,6 +400,7 @@ class Controller_Manager
 	 * @param array $args Параметры.
 	 * @param boolean $html_only Только вывод.
 	 * @return string Результат компиляции шабона.
+	 * @todo Это будет в Controller_Render
 	 * @tutorial
 	 * 		html ('Controller', array ('param'	=> 'val'));
 	 * 		html ('Controller/action')
@@ -343,11 +415,23 @@ class Controller_Manager
 			$a [1] = 'index';
 		}
 		
+		if (class_exists ('Tracer'))
+		{
+			Tracer::begin (
+				__CLASS__,
+				__METHOD__,
+				__LINE__,
+				$a [0],
+				$a [1]
+			);
+		}
+		
 		$iteration = self::call ($a [0], $a [1], $args);
 		
 		$buffer = $iteration->getTransaction ()->buffer ();
 		$result = array (
-			'data'		=> isset ($buffer ['data']) ? 
+			'data'		=> 
+				isset ($buffer ['data']) ? 
 				$buffer ['data'] : 
 				array (),
 			'html'		=> null
@@ -357,7 +441,7 @@ class Controller_Manager
 		
 		if ($tpl)
 		{
-			$view = View_Render_Broker::pushViewByName ('Smarty');
+			$view = View_Render_Manager::pushViewByName ('Smarty');
 			
 			try
 			{
@@ -377,30 +461,122 @@ class Controller_Manager
 					$e->getTraceAsString () . PHP_EOL, 
 					E_USER_ERROR, 3
 				);
+				
+				Debug::log ($msg);
 			
 				$result ['error'] = 'Controller_Manager: Error in template.';
 			}
 			
-			View_Render_Broker::popView ();
+			View_Render_Manager::popView ();
+		}
+		
+		if (class_exists ('Tracer'))
+		{
+			Tracer::end ();
 		}
 		
 		return $html_only ? $result ['html'] : $result;
 	}
 	
 	/**
-	 * 
-	 * @param Route_Action|Controller_Action $action
-	 * @return Controller_Dispatcher_Iteration
+	 * @desc Добавление задания в текущую очередь выполнения.
+	 * @param mixed $action
 	 */
-	public static function run ($action)
+	public static function pushTasks ($action)
 	{
-		$iteration = new Controller_Dispatcher_Iteration ($action);
+		if (
+			$action instanceof Route_Action_Collection ||
+			$action instanceof Controller_Action_Collection
+		)
+		{
+			foreach ($action as $resource)
+			{
+				self::$_tasksQueue [] =
+					new Controller_Task ($resource);
+			}
+		}
+		elseif (
+			$action instanceof Controller_Action ||
+			$action instanceof Route_Action
+		)
+		{
+			self::$_tasksQueue [] = new Controller_Task ($action);
+		}
+		elseif (is_array ($action))
+		{
+			if (isset ($action ['controller']))
+			{
+				$action = func_get_args ();
+			}
+
+			foreach ($action as $info)
+			{
+				self::pushTasks (new Controller_Action (array (
+					'controller'	=> $info ['controller'],
+					'action'		=> $info ['action']
+				)));
+			}
+		}
+		else
+		{
+			Loader::load ('Zend_Exception');
+			throw new Zend_Exception ('Illegal type.');
+		}
+	}
+	
+	/**
+	 * 
+	 * @param Controller_Task|Route_Action|Controller_Action $action
+	 * @return Controller_Task
+	 */
+	public static function run ($task)
+	{
+		$parent_task = self::$_currentTask;
+
+		self::$_currentTask = $task;
+
+		$action = $task->controllerAction ();
 		
-		IcEngine::frontController ()
-			->getDispatcher ()
-			->dispatch ($iteration);
+		$task = self::call (
+			$action->controller,
+			$action->action,
+			$task->getInput (),
+			$task
+		);
+
+		self::$_currentTask = $parent_task;
 		
-		return $iteration;
+		return $task;
+	}
+	
+	/**
+	 * @desc Выполнение очереди заданий
+	 * @param array $actions
+	 * @return array
+	 */
+	public static function runTasks ($tasks)
+	{
+		self::$_tasksBuffer [] = self::$_tasksQueue;
+		self::$_tasksResultsBuffer [] = self::$_tasksResults;
+		
+		self::$_tasksQueue = $tasks;
+			
+		self::$_tasksResults = array ();
+		
+		for ($i = 0; $i < count (self::$_tasksQueue); ++$i)
+		{
+			$task = self::run (self::$_tasksQueue [$i]);
+			if (!$task->getIgnore ())
+			{
+				self::$_tasksResults [] = $task;
+			}
+		}
+		
+		$result = self::$_tasksResults;
+		self::$_tasksQueue = array_pop (self::$_tasksBuffer);
+		self::$_tasksResults = array_pop (self::$_tasksResultsBuffer);
+		
+		return $result;
 	}
 	
 }

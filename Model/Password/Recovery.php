@@ -59,7 +59,7 @@ class Password_Recovery extends Model
 	 */
 	public static function byCode ($code)
 	{
-	    return IcEngine::$modelManager->modelBy (
+	    return Model_Manager::byQuery (
 	        __CLASS__,
 	        Query::instance ()
 	        ->where ('code', $code)
@@ -100,7 +100,7 @@ class Password_Recovery extends Model
 	public function href ()
 	{
 		return 
-			"http://" . Request::server () . 
+			"http://" . Request::host () . 
 			"/recovery?code=" . $this->code; 
 	}
 	
@@ -111,10 +111,9 @@ class Password_Recovery extends Model
 	 */
 	public static function queryCountOnEmail ($email)
 	{
-	    Loader::load ('Common_Date');
 		$day = Helper_Date::eraDayNum ();
 		
-		return IcEngine::$modelManager->collectionBy (
+		return Model_Collection_Manager::byQuery (
 		    __CLASS__,
 		    Query::instance ()
 		    ->where ('day', $day)
@@ -129,10 +128,9 @@ class Password_Recovery extends Model
 	 */
 	public static function queryCountOnIp ($ip)
 	{
-	    Loader::load ('Common_Date');
 		$day = Helper_Date::eraDayNum ();
 		
-		return IcEngine::$modelManager->collectionBy (
+		return Model_Collection_Manager::byQuery (
 		    __CLASS__,
 		    Query::instance ()
 		    ->where ('day', $day)
@@ -172,7 +170,7 @@ class Password_Recovery extends Model
 					return self::STATE_EMAIL_QUERY_LIMIT;
 				}
 				
-				$user = IcEngine::$modelManager->modelBy (
+				$user = Model_Manager::byQuery (
 				    'User',
 				    Query::instance ()
 				    ->where ('email', $email)
@@ -258,8 +256,6 @@ class Password_Recovery extends Model
 	 */
 	public static function processOld ()
 	{
-	    Loader::load ('Common_Date');
-		
 		$from = 1;
 		$to = 7;
 		$sec_in_day = 24 * 60 * 60;
@@ -287,7 +283,6 @@ class Password_Recovery extends Model
 	 */
 	public static function sendRecoveryEmail ($user_id, $email)
 	{
-	    Loader::load ('Common_Date');
 		$code = self::generateUniqueCode (time ());
 		
 		$recovery = new Password_Recovery (array (

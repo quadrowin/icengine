@@ -17,7 +17,7 @@ class Controller_Breadcrumbs extends Controller_Abstract
     {
         Loader::load ('Route_Collection');
         $path = new Route_Collection ();
-        $route = IcEngine::route ();
+        $route = Router::getRoute ();
         while ($route)
         {
             $path->add ($route);

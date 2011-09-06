@@ -28,9 +28,7 @@ class Controller_Form extends Controller_Abstract
 	
 	protected function _accessDenied ()
 	{
-		Loader::load ('Helper_Action_Access');
-		Helper_Action_Access::denied ();
-		return null;
+		return $this->replaceAction ('Error', 'accessDenied');
 	}
 	
 	protected function _afterCreate ($model, $params)
@@ -83,7 +81,7 @@ class Controller_Form extends Controller_Abstract
 				'linked'	=> true,
 				'value' 	=> User::getCurrent ()->id (),
 				'triggers'	=> array (
-					self::BEFORE_CREATE	=> array (new Controller_User, 'create'),
+					self::BEFORE_CREATE	=> array (),//new Controller_User, 'create'),
 					self::AFTER_CREATE	=> array ($this, 'create'),
 					self::BEFORE_EDIT	=> array (),
 					self::AFTER_EDIT	=> array (),
@@ -155,7 +153,7 @@ class Controller_Form extends Controller_Abstract
 			if (isset ($stat ['model']))
 			{
 				$current->save ();
-				$current = $model->joint ($stat ['model']);
+				$current = $model->field ($stat ['model']);
 				
 			}
 			if (!empty ($stat ['attribute']))
@@ -218,16 +216,14 @@ class Controller_Form extends Controller_Abstract
 			return $this->_accessDenied ();
 		}
 		
-		$model = IcEngine::$modelManager->get (
-			$model_name,
-			$id
-		);
+		$model = Model_Manager::get ($model_name, $id);
 		
 		$this->_output->send ('model', $model);
 	}
 	
 	public function create ()
 	{
+		$id = 0;
 		$model_name = $this->name ();
 		
 		if (!$this->_userCan ($model_name, $id, self::READ))
@@ -238,7 +234,7 @@ class Controller_Form extends Controller_Abstract
 		// TODO: filters
 		$params = $this->_input->receive (self::PARAM);
 		
-		$key_field = IcEngine::$modelManager->modelScheme ()->keyField ($model_name);
+		$key_field = Model_Scheme::keyField ($model_name);
 		
 		if (isset ($params [$key_field]))
 		{
@@ -269,20 +265,18 @@ class Controller_Form extends Controller_Abstract
 		// TODO: filters
 		$params = $this->_input->receive (self::PARAM);
 		
-		$key_field = IcEngine::$modelManager->modelScheme ()->keyField ($model_name);
+		$key_field = Model_Scheme::keyField ($model_name);
 		
 		if (isset ($params [$key_field]))
 		{
 			unset ($params [$key_field]);
 		}
 		
-		$model = IcEngine::$modelManager->modelByKey ($model_name, $id);
+		$model = Model_Manager::byKey ($model_name, $id);
 		
 		if (!$model)
 		{
-			Loader::load ('Helper_Action_Page');
-			Helper_Action_Page::notFound ();
-			return; 
+			return $this->replaceAction ('Error', 'notFound');
 		}
 		
 		$this->_updateModel ($model, (array) $params);
@@ -305,9 +299,9 @@ class Controller_Form extends Controller_Abstract
 			}
 		}
 		
-		$key_field = IcEngine::$modelManager->modelScheme ()->keyField ($model_name);
+		$key_field = Model_Scheme::keyField ($model_name);
 		
-		$collection = IcEngine::$modelManager->forced ()->collectionBy (
+		$collection = Model_Collection_Manager::byQuery (
 			$model_name,
 			Query::instance ()
 			->where ("$key_field IN (?)", $ids)

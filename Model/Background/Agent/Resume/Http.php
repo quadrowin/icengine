@@ -13,7 +13,7 @@ class Background_Agent_Resume_Http extends Background_Agent_Resume_Abstract
 	 * @desc Конфиг
 	 * @var array|Objective
 	 */
-	protected $_config = array (
+	protected static $_config = array (
 		/**
 		 * @desc Адрес для перезапуска процесса
 		 * @var string
