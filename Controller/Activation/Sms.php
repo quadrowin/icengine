@@ -126,7 +126,7 @@ class Controller_Activation_Sms extends Controller_Abstract
 		 * @desc Провайдер
 		 * @var Mail_Provider_Abstract
 		 */
-		$provider = IcEngine::$modelManager->modelBy (
+		$provider = Model_Manager::byQuery (
 			'Mail_Provider',
 			Query::instance ()
 			->where ('name', $provider_name)
@@ -136,8 +136,7 @@ class Controller_Activation_Sms extends Controller_Abstract
 		{
 			$this->_sendError (
 				'provider not found: ' . $provider_name,
-				__METHOD__,
-				'/fail'
+				'fail'
 			);
 			return;
 		}

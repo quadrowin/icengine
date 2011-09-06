@@ -1,12 +1,23 @@
 <?php
-
+/**
+ * 
+ * @desc Роли доступа
+ * @author Илья Колесников, Юрий Шведов
+ * @package IcEngine
+ * 
+ * 
+ */
 class Acl_Role extends Model
 {
 	
+	/**
+	 * @desc Название роли гостя.
+	 * @var string
+	 */
 	const GUEST_ROLE_NAME	= 'guest';
 	
 	/**
-	 * Предоставление роли права на ресурс или ресурсы.
+	 * @desc Предоставление роли права на ресурс или ресурсы.
 	 * @param Acl_Resource $resource
 	 * @return Acl_Role
 	 */
@@ -21,7 +32,7 @@ class Acl_Role extends Model
 	}
 	
 	/**
-	 * Добавление роли пользователю.
+	 * @desc Добавление роли пользователю.
 	 * @param User $user
 	 * @return Acl_Role
 	 */
@@ -38,10 +49,10 @@ class Acl_Role extends Model
 	 */
 	public static function byName ($name)
 	{
-	    return IcEngine::$modelManager->modelBy (
+	    return Model_Manager::byQuery (
 		    'Acl_Role',
 		    Query::instance ()
-		    ->where ('name', $name)
+		   		->where ('name', $name)
 		);
 	}
 	
@@ -53,16 +64,16 @@ class Acl_Role extends Model
 	 */
 	public static function byTypeNName ($type_id, $name)
 	{
-		return IcEngine::$modelManager->modelBy (
+		return Model_Manager::byQuery (
 		    'Acl_Role',
 		    Query::instance ()
-		    ->where ('Acl_Role_Type__id', $type_id)
-		    ->where ('name', $name)
+			    ->where ('Acl_Role_Type__id', $type_id)
+			    ->where ('name', $name)
 		);
 	}
 	
 	/**
-	 * Делает ресурс недоступным для роли
+	 * @desc Делает ресурс недоступным для роли
 	 * @param Acl_Resource $resource
 	 * @return Acl_Role
 	 */
@@ -72,7 +83,7 @@ class Acl_Role extends Model
 	}
 	
 	/**
-	 * Забирает роль у пользователя
+	 * @desc Забирает роль у пользователя
 	 * @param User $user
 	 * @return Acl_Role
 	 */
@@ -82,7 +93,7 @@ class Acl_Role extends Model
 	}
 	
 	/**
-	 * Дает роли доступ к ресурсу.
+	 * @desc Дает роли доступ к ресурсу.
 	 * @param array $_ Ресурс
 	 */
 	public function grant ($_)
@@ -98,7 +109,7 @@ class Acl_Role extends Model
 	}
 	
 	/**
-	 * Имеет ли роль доступ к ресурсу
+	 * @desc Имеет ли роль доступ к ресурсу
 	 * @param array $_ Ресурс
 	 */
 	public function hasAccess ($_)
@@ -114,7 +125,7 @@ class Acl_Role extends Model
 	}
 	
 	/**
-	 * Имеет ли роль доступ к ресурсу.
+	 * @desc Имеет ли роль доступ к ресурсу.
 	 * @param Acl_Resource $resource_id 
 	 * @return boolean
 	 */
@@ -125,7 +136,7 @@ class Acl_Role extends Model
 	}
 	
 	/**
-	 * Отнимает право на ресурс.
+	 * @desc Отнимает право на ресурс.
 	 * @param array|string $_ Ресурс
 	 */
 	public function revoke ($_)
@@ -146,7 +157,7 @@ class Acl_Role extends Model
 	}
 	
 	/**
-	 * Проверяет, имеет ли пользователь эту роль.
+	 * @desc Проверяет, имеет ли пользователь эту роль.
 	 * @param User $user
 	 * @return boolean
 	 */

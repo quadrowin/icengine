@@ -15,7 +15,7 @@ class Helper_Array
 	 * @param string $column Название колонки.
 	 * @return array Колонка $column исходного массива
 	 */
-	public static function column (array $input, $column)
+	public static function column ($input, $column)
 	{
 		$result = array ();
 		foreach ($input as $row)
@@ -26,10 +26,8 @@ class Helper_Array
 	}
 	
 	/**
-	 * Помечает массив для разбиения по коллонкам.
-	 * 
-	 * @param array $content
-	 * 		Данные
+	 * @desc Помечает массив для разбиения по коллонкам. 
+	 * @param array $content Данные
 	 * @param integer $cols_count
 	 * 		На сколько колонок разбить
 	 * @param string $start_mark
@@ -57,8 +55,8 @@ class Helper_Array
 		}
 		if ($rows_count == 1) 
 		{
-			$content[$start_mark] = true;
-			$content[$finish_mark] = true;
+			$content [$start_mark] = true;
+			$content [$finish_mark] = true;
 		}
 		
 		$in_column = ceil ($rows_count / $cols_count);
@@ -69,45 +67,44 @@ class Helper_Array
 		{
 			// без блоков
 			$index = $in_column;
-			$content[0][$start_mark] = true;
+			$content [0][$start_mark] = true;
 			while ($index < $rows_count)
 			{
-				$content[$index][$start_mark] = true;
-				$content[$index - 1][$finish_mark] = true;
+				$content [$index][$start_mark] = true;
+				$content [$index - 1][$finish_mark] = true;
 				$index += $in_column;
 			}
-			$content[$rows_count - 1][$finish_mark] = true;
+			$content [$rows_count - 1][$finish_mark] = true;
 			return;
 		}
 		
 		// по блокам
 		$next_column_finish = $in_column;
 		$index = 1;
-		$content[0][$start_mark] = true;
+		$content [0][$start_mark] = true;
 		$index++;
 		while ($index < $rows_count)
 		{
-			if ($index >= ($next_column_finish) && 
-			isset ($content[$index][$block_mark]))
+			if (
+				$index >= ($next_column_finish) && 
+				isset ($content [$index][$block_mark])
+			)
 			{
-				$content[$index - 1][$finish_mark] = true;
-				$content[$index][$start_mark] = true;
+				$content [$index - 1][$finish_mark] = true;
+				$content [$index][$start_mark] = true;
 				//fb($index);
 				$next_column_finish += $in_column;
 			}
 			$index++;
 		}
-		$content[$rows_count - 1][$finish_mark] = true;
-		
+		$content [$rows_count - 1][$finish_mark] = true;
 	}
 	
 	/**
-	 * Сортирует многомерный массив по заданным полям
-	 * 
-	 * @param array $data
-	 * 		Массив
-	 * @param string $sortby
-	 * 		Поля сортировки через запятую
+	 * @desc Сортирует многомерный массив по заданным полям
+	 * @param array $data Массив
+	 * @param string $sortby Поля сортировки через запятую
+	 * @return boolean true если успешно, иначе false.
 	 */
 	public static function masort (&$data, $sortby)
 	{
@@ -206,7 +203,7 @@ class Helper_Array
 	}
 	
 	/**
-	 * Сортирует массив объектов по заданным полям
+	 * @desc Сортирует массив объектов по заданным полям
 	 * @param array $data
 	 * 		Массив объектов
 	 * @param string $sortby

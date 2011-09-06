@@ -44,11 +44,17 @@ class Controller_Authorization extends Controller_Abstract
 	}
 	
 	/**
-	 * Досутп закрыт для текущего пользователя
+	 * @desc Досутп закрыт для текущего пользователя
 	 */
 	function accessDenied ()
 	{
-		$this->_output->send ('user', User::getCurrent ());
+		$this->_output->send (array (
+			'error' => 'access denied',
+			'user'	=> User::getCurrent (),
+			'data'	=> array (
+				'error'	=> 'access denied'
+			)
+		));
 	}
 	
 	/**
@@ -71,7 +77,7 @@ class Controller_Authorization extends Controller_Abstract
 			'exists'	=> (bool) $exists
 		));
 		
-		$this->_dispatcherIteration->setTemplate (null);
+		$this->_task->setTemplate (null);
 	}
 	
 	/**

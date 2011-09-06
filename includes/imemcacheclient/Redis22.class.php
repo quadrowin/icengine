@@ -8,7 +8,7 @@
     @description Connector for Redis (http://code.google.com/p/redis/)
     @license LGPL, BSD-compabible. Adding to the Redis repository permitted.
 */
-class Redis
+class Redis_Wrapper
 {
 
 	/**
@@ -144,83 +144,7 @@ class Redis
 		{
 			return;
 		}
-		foreach ($keys as $key)
-		{
-			if ($key)
-			{
-				$this->delete ($key);
-			}
-		}
-//		$len = 1024;
-//		
-//		$sock = reset ($this->pool);
-//		fwrite ($sock, 'KEYS ' . $pattern . '*' . "\r\n");
-//		$data = fread ($sock, $len);
-//		$p = strpos ($data, "\r");
-//		if (! $p)
-//		{
-//			echo "empty answer";
-//			return;
-//		}
-//		// Длина ответа с ключами
-//		$keys_length = substr ($data, 1, $p - 1);
-//		if (! $keys_length)
-//		{
-//			return;
-//		}
-//		$data = ltrim (substr ($data, $p + 1), " \r\n");
-//		$rest = '';
-//		$start_time = time ();
-//		for (;;)
-//		{
-//			$p = strpos ($data, "\r");
-//			if ($p !== false)
-//			{
-//				$data = substr ($data, 0, $p);
-//				$readed = $keys_length;
-//			}
-//			$parts = explode (" ", $rest . $data);
-//			if ($parts)
-//			{
-//				$rest = array_pop ($parts);
-//			}
-//			else
-//			{
-//				$rest = '';
-//			}
-//			foreach ($parts as $part)
-//			{
-//				$part = trim ($part, " \r\n");
-//				fwrite ($sock, 'DEL ' . $part . "\r\n");
-//			}
-//			if ($keys_length <= $readed)
-//			{
-//				break;
-//			}
-//			
-//			if (min ($len, $keys_length - $readed) < 1)
-//			{
-//				trigger_error (
-//					var_export (
-//						$len . ':' . $keys_length . ':' . $readed . ':' .
-//						min ($len, $keys_length - $readed),
-//						true
-//					),
-//					E_USER_WARNING
-//				);
-//			}
-//			
-//			$data = fread ($sock, min ($len, $keys_length - $readed));
-//				
-//			$l = strlen ($data);
-//			$readed += $l;
-//		}
-//		
-//		$rest = trim ($rest, " \r\n");
-//		if ($rest)
-//		{
-//			fwrite ($sock, 'DEL ' . $rest . "\r\n");
-//		}
+		$this->delete ($keys);
 	}
 
 	private function disconnect ($k)
@@ -293,7 +217,7 @@ class Redis
 		if ($end != "\r\n")
 		{
 			trigger_error ('Unknown response end: \'' . $end . '\'', 
-			E_USER_WARNING);
+			E_USER_WARNING); 
 			return FALSE;
 		}
 		return $data;
@@ -307,36 +231,44 @@ class Redis
 	public function get ($key, $plain = FALSE)
 	{
 		$r = $this->requestByKey ($key, 'GET ' . $key);
-		if ($r === NULL)
+		
+		if (!$r)
 		{
 			return null;
 		}
-		return json_decode (urldecode ($r), true);
+
+		return json_decode ($r, true);
 	}
 
 	public function set ($key, $value, $TTL = NULL)
 	{
-		if (!is_scalar ($value))
-		{
-			$value = json_encode ($value);
-		}
+		$value = json_encode ($value);
 		
-		$value = urlencode ($value);
+		$k = $this->getConnectionByKey ($key);
+		
+		$rn = "\r\n";
 		
 		if (!$TTL)
 		{
-			$r = $this->requestByKey ($key, 
-			'SET ' . $key . ' "' . $value . '"');
+			$m = 
+				'*3' . $rn .
+				'$3' . $rn . 'SET' . $rn .
+				'$' . strlen ($key) . $rn . $key . $rn .
+				'$' . strlen ($value) . $rn . $value . $rn;
+			$r = $this->write ($k, $m);
 		}
 		else
 		{
-			$r = $this->requestByKey ($key,
-			'SETEX ' . $key . ' ' . (int) $TTL . ' "' . $value . '"');
+			$m = 
+				'*4' . $rn .
+				'$5' . $rn . 'SETEX' . $rn .
+				'$' . strlen ($key) . $rn . $key . $rn .
+				'$' . strlen ($TTL) . $rn . $TTL . $rn .
+				'$' . strlen ($value) . $rn . $value . $rn;
+			$r = $this->write ($k, $m);
 		}
-		if ($r === NULL)
-		{
-			return FALSE;
-		}
+		$r = $this->getResponse ($k);
+		
 		return $r;
 	}
 
@@ -461,15 +393,42 @@ class Redis
 		}
 		return $this->requestByKey ($key, 'DECRBY ' . $key . ' ' . $number);
 	}
+	
+	/**
+	 * @desc Удаление одного или нескольких ключей.
+	 * @param string|array $keys
+	 * @return mixed Ответ редиса
+	 */
+	public function delete ($keys)
+	{
+		$keys = (array) $keys;
+		
+		$k = $this->getConnectionByKey (reset ($keys));
+		
+		$rn = "\r\n";
+		$words_count = count ($keys) + 1;
+		
+		$m = 
+			'*' . $words_count . $rn .
+			'$3' . $rn .
+			'DEL' . $rn;
+		
+		foreach ($keys as $key)
+		{
+			$m .= '$' . strlen ($key) . $rn . $key . $rn;
+		}
+		
+		$this->write ($k, $m);
+		
+		$r = $this->getResponse ($k);
+		
+		return $r;
+		
+	}
 
 	public function exists ($key)
 	{
 		return $this->requestByKey ($key, 'EXISTS ' . $key);
-	}
-
-	public function delete ($key)
-	{
-		return $this->requestByKey ($key, 'DEL ' . $key);
 	}
 
 	public function type ($key)

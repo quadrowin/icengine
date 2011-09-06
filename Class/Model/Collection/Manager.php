@@ -1,31 +1,39 @@
 <?php
 /**
+ * 
  * @desc Менеджер коллекций
- * @author Илья
+ * @author Илья Колесников, Юрий Шведов
  * @package IcEngine
+ * 
  */
-abstract class Model_Collection_Manager
+abstract class Model_Collection_Manager extends Manager_Abstract
 {
 	
 	/**
+	 * @desc Конфиг
+	 * @var array
+	 */
+	protected static $_config = array (
+		'cache_provider'	=> 'mysqli_cache',
+		'delegee'			=> array (
+			'Model'				=> 'Simple',
+			'Model_Config'		=> 'Simple',
+			'Model_Defined'		=> 'Defined',
+			'Model_Factory'		=> 'Simple'
+		)
+	);
+	
+	/**
 	 * @desc Возвращает коллекцию по запросу.
-	 * @author Goorus
+	 * @author Юрий Шведов
 	 * @param string $model Модель коллекции.
 	 * @param Query $query Запрос.
-	 * @param boolean $forced [optional]
-	 * 		Отключение автоджайна для моделей коллекции.
 	 * @return Model_Collection
 	 */
-	public static function byQuery ($model, Query $query, $forced = false)
+	public static function byQuery ($model, Query $query)
 	{
-		Loader::load ($model);
+		$collection = self::create ($model); 
 		
-		$class_collection = $model . '_Collection';
-		
-		Loader::load ($class_collection);
-		
-		$collection = new $class_collection ();
-		$collection->setAutojoin (!$forced);
 		$collection->setQuery ($query);
 		
 		return $collection;
@@ -33,45 +41,63 @@ abstract class Model_Collection_Manager
 	
 	/**
 	 * @desc Создает коллекцию по имени.
-	 * @param string $class_name Название класса модели или коллекции.
-	 * @param boolean $forced Включать ли автожоин.
+	 * @param string $model Модель колекции.
 	 * @return Model_Collection Коллекция.
 	 */
-	public static function create ($class_name, $forced = false)
+	public static function create ($model)
 	{
-		if (substr ($class_name, -11) != '_Collection')
-		{
-			$class_name .= '_Collection';
-		}
+		$class_collection = $model . '_Collection';
 		
-		Loader::load ($class_name);
-		$collection = new $class_name;
-		if ($forced)
-		{
-			$collection->setAutojoin (false);
-		}
-		return $collection;
+		Loader::multiLoad ($model, $class_collection);
+		
+		return new $class_collection ();
 	}
 	
 	/**
 	 * @desc получить коллекцию из хранилища по запросу и опшинам
 	 * @param Model_Collection
 	 * @param Query $query
-	 * @param boolean $forced
 	 */
-	public static function load (Model_Collection $collection, 
-		Query $query, $forced = false)
+	public static function load (Model_Collection $collection, Query $query)
 	{
+		// Название модели
 		$model = $collection->modelName ();
 		
+		$from = $query->getPart (Query::FROM);
+		
+		$collection_tags = array ();
+		
+		$tags = array ();
+		
+		$tag_valid = true;
+		
+		if ($from)
+		{
+			$tables = array ();
+		
+			$provider = Data_Provider_Manager::get (
+				self::config ()->cache_provider
+			);
+			
+			foreach ($from as $f)
+			{
+				$tables [] = Model_Scheme::table ($f [Query::TABLE]);
+			}
+			
+			$tags = $provider->getTags ($tables);
+		}
+		// Генерируем ключ коллекции
 		$key = md5 (
 			$model .
-			$query->translate ('Mysql', IcEngine::$modelScheme) .
+			$query->translate ('Mysql') .
 			serialize ($collection->getOptions ()->getItems ())
 		);
 		
-		$pack = null;//Resource_Manager::get ('Model_Collection', $key);
+		// Получаем коллецию из менеджера ресурсов
+		$pack = Resource_Manager::get ('Model_Collection', $key);
 		
+		// Если коллекцию уже использовалась в текущем сценарии,
+		// то в менеджере ресурсов она будет уже инициализированная
 		if ($pack instanceof Model_Collection)
 		{
 			$collection->setItems ($pack->items ());
@@ -79,43 +105,113 @@ abstract class Model_Collection_Manager
 			return ;
 		}
 		
+		$addicts = array ();
+		
+		// Из менеджера ресурсов получили свернутую коллекцию
 		if (is_array ($pack))
 		{
 			$collection->data ($pack ['data']);
-		}
-		else
-		{
-			$query_result = 
-				IcEngine::$modelScheme
-					->dataSource ($model)
-						->execute ($query)->getResult ();
-						
-			$collection->queryResult ($query_result);
 			
-			if ($query->getPart (Query::CALC_FOUND_ROWS))
+			$items = array ();
+			
+			foreach ($pack ['items'] as $i => $item)
 			{
-				$collection->data ('foundRows', $query_result->foundRows ());
+				$items [] 	= $item ['id'];
+				$addicts [] = $item ['addicts'];
 			}
 			
-			Resource_Manager::set ('Model_Collection', $key, $collection);
+			$collection_tags = $pack ['t'];
 			
-			$pack = array (
-				'items'	=> $query_result->asTable (),
-			);
+			if ($collection_tags && array_diff ($tags, $collection_tags))
+			{
+				$tag_valid = false;
+			}
+			
+			$pack ['items']	= $items;
+			
+			$collection->data ('addicts', $addicts);
 		}
 		
-		$model_manager = IcEngine::$modelManager;
-		$key_field = $collection->keyField ();
-
-		foreach ($pack ['items'] as &$item)
+		if (!is_array ($pack) || !$tag_valid)
 		{
-			$key = $item [$key_field];
-			$item = !$forced ? 
-				$model_manager->get ($model, $key, $item) :
-				$model_manager->forced ()->get ($model, $key, $item);
+			// Делегируемый класс определяем по первому или нулевому
+			// предку.
+			$parents = class_parents ($model);
+			
+			$first = end ($parents);
+			$second = prev ($parents);
+
+			$parent = 
+				$second && isset (self::$_config ['delegee'][$second]) ?
+				$second :
+				$first;
+ 
+			$delegee = 
+				'Model_Collection_Manager_Delegee_' .
+				self::$_config ['delegee'][$parent];
+
+			Loader::load ($delegee);
+
+			$pack = call_user_func (
+				array ($delegee, 'load'),
+				$collection, $query
+			);
+	
+			$collection->data ('t', $tags);
+			
+			$addicts = $collection->data ('addicts');
+		}
+		
+		static $key_fields = array ();
+		
+		// Инициализируем модели коллекции
+		foreach ($pack ['items'] as $i => $item)
+		{
+			if (!is_array ($item))
+			{
+				$pack ['items'][$i] = Model_Manager::get ($model, $item);
+			}
+			else 
+			{
+				if (isset ($key_fields [$model]))
+				{
+					$kf = $key_fields [$model];
+				}
+				else 
+				{
+					$kf = Model_Scheme::keyField ($model);
+					$key_fields [$model] = $kf;
+				}
+				
+				if (isset ($item [$kf]))
+				{
+					$pack ['items'][$i] = Model_Manager::get (
+						$model,
+						$item [$kf],
+						$item
+					);
+				}
+				else 
+				{
+					unset ($pack ['items'][$i]);
+					continue;
+				}
+			}
+			
+			if (!empty ($addicts [$i]))
+			{
+				$pack ['items'][$i]->set ($addicts [$i]);
+			}
 		}
 		
 		$collection->setItems ($pack ['items']);
+		
+		// В менеджере ресурсов сохраняем клона коллеции
+		Resource_Manager::set (
+			'Model_Collection', 
+			$key, 
+			self::create ($collection->modelName ())
+				->assign ($collection)
+		);
 	}
-	
 }

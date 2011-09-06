@@ -19,7 +19,7 @@ class Registration extends Model
 	 * @desc Конфиг
 	 * @var array
 	 */	
-	protected $_config = array (
+	protected static $_config = array (
 		/**
 		 * Событие после подтверждения емейла
 		 * @var function (Registration)
@@ -169,7 +169,7 @@ class Registration extends Model
 	 * @param string $data ['email'] Email
 	 * @return Registration Сохраненная регистрация.
 	 */
-	public function create (array $data)
+	public static function create (array $data)
 	{
 		$registration = new Registration (array (
 			'id'			=> $data ['User__id'],
@@ -230,6 +230,8 @@ class Registration extends Model
 	 */
 	public function register ($data)
 	{
+		$config = $this->config ();
+		
 		$this->update (array (
 			'User__id'		=> 0,
 			'email'			=> $data ['email'],
@@ -241,7 +243,7 @@ class Registration extends Model
 			'code'			=> ''
 		));
 		
-		if ($this->config ()->auto_user)
+		if ($config ['auto_user'])
 		{
 			$user = $this->_autoUserCreate ($data);
 			
@@ -259,12 +261,12 @@ class Registration extends Model
 			Message_After_Registration_Start::push ($this);
 		}
 		
-		if ($this->config ()->after_create)
+		if ($config ['after_create'])
 		{
-			Loader::load ($this->config ()->after_create [0]);
+			Loader::load ($config ['after_create'][0]);
 			if (
 				!call_user_func (
-					$this->_config ()->after_create->__toArray (), 
+					$config ['after_create']->__toArray (), 
 					$this, $data
 				)
 			)
@@ -279,7 +281,7 @@ class Registration extends Model
 		{
 			Loader::load ('Mail_Message');
 			$message = Mail_Message::create (
-				$this->_config ['mail_template'], 
+				$config ['mail_template'], 
 				$data ['email'],
 				$data ['email'],
 				array (
@@ -304,9 +306,10 @@ class Registration extends Model
 	 */
 	public function sendMail (array $data = array ())
 	{
+		$config = $this->config ();
 		Loader::load ('Mail_Message');
 		$message = Mail_Message::create (
-			$this->_config ['mail_template'], 
+			$config ['mail_template'], 
 			$this->email,
 			$this->email,
 			array_merge (
@@ -319,7 +322,7 @@ class Registration extends Model
 				$data
 			),
 			$this->User__id,
-			$this->_config ['mail_provider']
+			$config ['mail_provider']
 		);
 		return $message->send ();
 	}
@@ -348,8 +351,9 @@ class Registration extends Model
 		$reg = $reg->register ($data);
 		
 		return 
-			$reg ? 
-			$reg : array ('unknown' => 'Data_Validator_Registration/unknown');
+			$reg 
+			? $reg 
+			: array ('unknown' => 'Data_Validator_Registration/unknown');
 	}
 	
 }

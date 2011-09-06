@@ -23,10 +23,9 @@ class Temp_Content extends Model
 	 */
 	public static function byUtcode ($utcode)
 	{
-		return Model_Manager::byQuery (
+		return Model_Manager::byKey (
 			__CLASS__,
-			Query::instance ()
-				->where ('utcode', (string) $utcode)
+			(string) $utcode
 		);
 	}
 	
@@ -96,7 +95,12 @@ class Temp_Content extends Model
 		// ucac7fe407f8e5e1c683005867edd74439452c4.39068717
 		$u = uniqid ('', true);
 		// Вырезаем точку
-		return 'uc' . md5 (time ()) . substr ($u, 9, 5) . substr ($u, 15);
+		return md5 (time ()) . substr ($u, 9, 5) . substr ($u, 15);
+	}
+	
+	public static function idForNew (Temp_Content $tc)
+	{
+		return $tc->utcode;
 	}
 	
 	/**

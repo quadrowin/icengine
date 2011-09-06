@@ -42,7 +42,7 @@ class Helper_Image_Resize
 		$proportional = false, $crop = true, $fit = false
 	)
 	{
-		if ($height <= 0 && $width <= 0)
+		if ($height <= 0 && $width <= 0 && !is_array($crop))
 		{
 			return false;
 		}
@@ -89,6 +89,20 @@ class Helper_Image_Resize
 		{
 			$final_width = ($width <= 0) ? $width_old : $width;
 			$final_height = ($height <= 0) ? $height_old : $height;
+		}
+		
+		if (is_array($crop)) {
+			
+			$scale = $info[0]/$crop['width'];
+			if ($scale<1) {
+				$scale = 1;
+			}
+			$crop['x1'] *= $scale;
+			$crop['x2'] *= $scale;
+			$crop['y1'] *= $scale;
+			$crop['y2'] *= $scale;
+			$final_width = $crop['x2']-$crop['x1'];
+			$final_height = $crop['y2']-$crop['y1'];
 		}
 		
 		switch ($info[2])
@@ -146,6 +160,14 @@ class Helper_Image_Resize
 			// растягиваем фото по оси Х
 			$scalex = //($width_old > $height_old);
 				($height_old / $final_height) < ($width_old / $final_width);
+			
+			if (is_array($crop)) {		
+				imagecopyresampled (
+					$image_resized, $image, 
+					0, 0, $crop['x1'], $crop['y1'], 
+					$crop['x2']-$crop['x1'], $crop['y2']-$crop['y1'],$crop['x2']-$crop['x1'], $crop['y2']-$crop['y1']
+				);
+			} else
 			if ($crop == 'up')
 			{
 				if ($scalex)//($width_old > $height_old)

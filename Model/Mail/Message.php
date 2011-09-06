@@ -51,7 +51,7 @@ class Mail_Message extends Model
 	 * @return Mail_Message Созданное сообщение.
 	 */
 	public static function create ($template_name, $address, $to_name, 
-		array $data = array (), $to_user_id = 0, $mail_provider = 0,
+		array $data = array (), $to_user_id = 0, $mail_provider = 1,
 		$mail_provider_params = array ())
 	{
 		Loader::load ('Mail_Template');

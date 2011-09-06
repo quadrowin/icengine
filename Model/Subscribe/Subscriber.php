@@ -11,20 +11,23 @@ class Subscribe_Subscriber extends Model
      */
     public static function byContact ($email, $autocreate = true)
     {
-        $subscriber = IcEngine::$modelManager->modelBy (
+        $subscriber = Model_Manager::byQuery (
             'Subscribe_Subscriber',
             Query::instance ()
             ->where ('contact', $email)
         );
         
-        if (!$subscriber && $autocreate)
+        if (!$subscriber)
         {
-            $subscriber = new Subscribe_Subscriber (array (
-                'active'		=> 1,
-                'date'			=> Helper_Date::toUnix (),
-            	'contact'		=> $email
-            ));
-            $subscriber->save ();
+			if ($autocreate)
+			{
+				$subscriber = new Subscribe_Subscriber (array (
+					'active'		=> 1,
+					'date'			=> Helper_Date::toUnix (),
+					'contact'		=> $email
+				));
+				$subscriber->save ();
+			}
         }
         else
         {
@@ -44,8 +47,7 @@ class Subscribe_Subscriber extends Model
         Loader::load ('Subscribe_Abstract');
         if (!($subscribe instanceof Subscribe_Abstract))
         {
-            $subscribe = IcEngine::$modelManager->get ('Subscribe', 
-                (int) $subscribe);
+            $subscribe = Model_Manager::get ('Subscribe', (int) $subscribe);
         }
         $join = $subscribe->subscriberJoin ($this);
         

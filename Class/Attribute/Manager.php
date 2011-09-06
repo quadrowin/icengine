@@ -7,8 +7,14 @@
  * @package IcEngine
  * 
  */
-class Attribute_Manager
+class Attribute_Manager extends Manager_Abstract
 {
+	
+	/**
+	 * @desc разделитель для формирования ключа.
+	 * @var string
+	 */
+	const DELIM = '/';
 	
 	/**
 	 * @desc Таблица аттрибутов
@@ -17,33 +23,73 @@ class Attribute_Manager
     const TABLE = 'Attribute';
     
 	/**
-	 * 
-	 * @var Data_Source_Abstract
+	 * @desc Config
+	 * @var array
 	 */
-	protected $_source;
+	protected static $_config = array (
+		// Источник
+		'source'		=> null,
+		// Провайдер, используемый для кэширования
+		'provider'		=> null
+	);
 	
 	/**
-	 * 
-	 * @param Data_Source_Abstract $source
+	 * @desc Место хранения аттрибутов
+	 * @var Data_Source_Abstract
 	 */
-	public function __construct (Data_Source_Abstract $source)
+	protected static $_source;
+	
+	/**
+	 * @desc Провайдер для кэширования
+	 * @var Data_Provider_Abstract
+	 */
+	protected static $_provider;
+	
+	/**
+	 * @desc Инициализация
+	 */
+	public static function init ()
 	{
-		$this->_source = $source;
+		$config = static::config ();
+		
+		if ($config ['source'])
+		{
+			self::$_source = Data_Source_Manager::get ($config ['source']);
+		}
+		else
+		{
+			self::$_source = DDS::getDataSource ();
+		}
+		
+		if ($config ['provider'])
+		{
+			self::$_provider = Data_Provider_Manager::get (
+				$config ['provider']
+			);
+		}
 	}
 	
 	/**
 	 * @desc Удаляет все атрибуты модели.
 	 * @param Model $model
 	 */
-	public function deleteFor (Model $model)
+	public static function deleteFor (Model $model)
 	{
-	    $this->_source->execute (
+	    self::$_source->execute (
 	        Query::instance ()
-	        ->delete ()
-	        ->from (self::TABLE)
-	        ->where ('table', $model->table ())
-	        ->where ('rowId', $model->key ())
+				->delete ()
+				->from (self::TABLE)
+				->where ('table', $model->table ())
+				->where ('rowId', $model->key ())
 	    );
+		
+		if (self::$_provider)
+		{
+			self::$_provider->deleteByPattern (
+				$model->table () . '/' .
+				$model->key () . '/'
+			);
+		}
 	}
 	
 	/**
@@ -52,16 +98,49 @@ class Attribute_Manager
 	 * @param string $key Название атрибута.
 	 * @return mixed Значение атрибута.
 	 */
-	public function get (Model $model, $key)
+	public static function get (Model $model, $key)
 	{
-		$value = $this->_source->execute (
+		$table = $model->table ();
+		$row = $model->key ();
+		
+		if (self::$_provider)
+		{
+			$prov_key = $table . self::DELIM . $row . self::DELIM . $key;
+			
+			$v = self::$_provider->get ($prov_key);
+			
+			if ($v)
+			{
+				return $v ['v'];
+			}
+			
+		}
+		
+		$value = self::$_source->execute (
 			Query::instance ()
 			->select ('value')
 			->from (self::TABLE)
-			->where ('`table`=?', $model->table ())
-			->where ('`rowId`=?', $model->key ())
-			->where ('`key`=?', $key)
+			->where ('`table`', $table)
+			->where ('`rowId`', $row)
+			->where ('`key`', $key)
 		)->getResult ()->asValue ();
+		
+		if (self::$_provider)
+		{
+			$value = json_decode ($value, true);
+			
+			self::$_provider->set (
+				$prov_key,
+				array (
+					't'	=> $table,
+					'r'	=> $row,
+					'k'	=> $key,
+					'v'	=> $value
+				)
+			);
+			
+			return $value;
+		}
 		
 		return json_decode ($value, true);
 	}
@@ -72,16 +151,16 @@ class Attribute_Manager
 	 * @param string|array $key Название атрибута.
 	 * @param mixed $value Значение атрибута.
 	 */
-	public function set (Model $model, $key, $value)
+	public static function set (Model $model, $key, $value)
 	{
 	    $table = $model->table ();
-	    $row_id = $model->key ();
+	    $row = $model->key ();
 	    
 	    $query = Query::instance ()
 			->delete ()
 			->from (self::TABLE)
-			->where ('`table`=?', $table)
-			->where ('`rowId`=?', $row_id);
+			->where ('`table`', $table)
+			->where ('`rowId`', $row);
 			
 	    if (!is_array ($key))
 	    {
@@ -92,23 +171,38 @@ class Attribute_Manager
 	    }
 	    else
 	    {
-            $query->where ('`key` IN (?)', array_keys ($key));
+            $query->where ('key', array_keys ($key));
 	    }
 	    
-	    $this->_source->execute ($query);
-
-		foreach ($key as $k => $value)
+	    self::$_source->execute ($query);
+		
+		$pref = $table . self::DELIM . $row . self::DELIM;
+		
+		foreach ($key as $k => $v)
 		{
-			$this->_source->execute (
-				Query::instance ()->
-				insert (self::TABLE)->
-				values (array(
-					'table'	=> $table,
-					'rowId'	=> $row_id,
-					'key'	=> $k,
-				    'value'	=> json_encode ($value)
-				))
-			); 
+			self::$_source->execute (
+				Query::instance ()
+					->insert (self::TABLE)
+					->values (array(
+						'table'	=> $table,
+						'rowId'	=> $row,
+						'key'	=> $k,
+						'value'	=> json_encode ($v)
+					))
+			);
+			
+			if (self::$_provider)
+			{
+				self::$_provider->set (
+					$pref . $k, 
+					array (
+						't'	=> $table,
+						'r'	=> $row,
+						'k'	=> $k,
+						'v'	=> $v
+					)
+				);
+			}
 	    }
 	    
 	}

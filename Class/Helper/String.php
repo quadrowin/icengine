@@ -317,16 +317,12 @@ class Helper_String
 	
 	
 	/**
-	 * Перевод строки в число
-	 *
-	 * @param string $string
-	 * 		Исходная строка
-	 * @param boolean $concat
-	 * 		Склеивать фрагменты числа, если их несколько в строке.
-	 * @param integer $def
-	 * 		Значение по умолчанию
-	 * @return integer
-	 * 		Полученное число
+	 * @desc Перевод строки в число.
+	 * @param string $string Исходная строка.
+	 * @param boolean $concat Склеивать фрагменты числа, если их несколько
+	 * в строке (число разеделено пробелами и т.п.).
+	 * @param integer $def Значение по умолчанию.
+	 * @return integer Полученное число
 	 */
 	public static function str2int ($str, $concat = true, $def = 0)
 	{
@@ -341,11 +337,11 @@ class Helper_String
 		
 		$int = '';
 		$concat_flag = true;
-		for ($i = 0, $length = strlen ($str); $i < $length; $i++)
+		for ($i = 0, $length = strlen ($str); $i < $length; ++$i)
 		{
-			if (is_numeric ($str[$i]) && $concat_flag) 
+			if (is_numeric ($str [$i]) && $concat_flag) 
 			{
-				$int .= $str[$i];
+				$int .= $str [$i];
 			}
 			elseif (!$concat && strlen ($int) > 0)
 			{
@@ -362,7 +358,7 @@ class Helper_String
 	
 		if (is_numeric ($int))
 		{
-			if ($str[0] == '-')
+			if ($str [0] == '-')
 			{
 				return -(int) $int;
 			}
@@ -562,19 +558,3 @@ if (!function_exists ('lcfirst'))
 		return strtolower (substr ($str, 0, 1)) . substr ($str, 1);
 	}
 }
-
-/*
-// * prefixedInts Test
- * 
-$tests = array ('a1bb22c333', '444a4b4c4d4', '1234', 'abcd', '1a1', 'y2010m12d2', 'sgn+2ch');
-
-echo '<pre>';
-foreach ($tests as $test)
-{
-    echo $test . ' =&gt; ';
-    $result = Common_String::prefixedInts ($test);
-    print_r ($result);
-    echo "\r\n\r\n";
-}
-echo '<pre>';
-*/

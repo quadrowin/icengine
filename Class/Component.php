@@ -17,7 +17,7 @@ class Component
 	 */
 	public static function getFor (Model $model, $type)
 	{
-		$collection_class = 'Component_' . $type . '_Collection';
+		$collection_class = 'Component_' . $type;
 		
 		Loader::load ('Component_Collection');
 		

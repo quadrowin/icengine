@@ -23,16 +23,17 @@ class Bootstrap_Manager
 	
 	/**
 	 * @desc Создает и возвращает загрузчик.
-	 * @param string $name
-	 * @return Bootstrap_Abstract
+	 * @param string $name Название загрузчика.
+	 * @param string $path [optional] Путь до загрузчика.
+	 * @return Bootstrap_Abstract Экземпляр загрузчика.
 	 */
-	public static function get ($name)
+	public static function get ($name, $path = null)
 	{
 		if (!isset (self::$_items [$name]))
 		{
 			$class = 'Bootstrap_' . $name;
 			Loader::load ($class);
-			self::$_items [$name] = new $class ();
+			self::$_items [$name] = new $class ($path);
 		}
 		
 		if (!self::$_current)

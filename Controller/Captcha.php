@@ -1,8 +1,17 @@
 <?php
-
+/**
+ * 
+ * @desc Контроллер каптчи
+ * @package IcEngine
+ * 
+ */
 class Controller_Captcha extends Controller_Abstract
 {
 	
+	/**
+	 * @desc Для отдачи в аджакс кода, который позже должен быть 
+	 * передан постом.
+	 */
 	public function getCode ()
 	{
 		Loader::load ('Helper_Captcha');
@@ -15,7 +24,34 @@ class Controller_Captcha extends Controller_Abstract
 			'code'	=> $code
 		));
 		
-		$this->_dispatcherIteration->setTemplate (null);
+		$this->_task->setTemplate (null);
 	}
+	
+	/**
+	 * @desc Создаем и выводим каптчу в форму
+	 */
+	public function captchaInput ()
+	{
+		Loader::load ('Helper_Captcha');
+	
+		$captcha = Captcha::accept ();
+	
+		$_SESSION ['captcha'] = $captcha->hash;
+		
+		$this->_output->send (array (
+			'captcha'	=> $captcha
+		));
+	}
+	
+	/**
+	 * @desc Скрытый инпут автокаптчи
+	 */
+	public function acaptchaInput ()
+	{
+		Loader::load ('Helper_Captcha');
+		
+	}
+	
+	
 	
 }

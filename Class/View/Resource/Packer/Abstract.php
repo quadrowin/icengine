@@ -15,6 +15,12 @@ abstract class View_Resource_Packer_Abstract
 	protected $_currentResource;
 	
 	/**
+	 * @desc Время создания упакованного файла.
+	 * @var string
+	 */
+	protected $_cacheTimestamp = 0;
+	
+	/**
 	 * @desc Настройки
 	 * @var array
 	 */
@@ -43,7 +49,7 @@ abstract class View_Resource_Packer_Abstract
 		 * даже если не зафиксировано изменение исходных файлов.
 		 * @var integer
 		 */
-		'refresh_time'	=> 300,
+		'refresh_time'	=> 999999999,
 	
 		/**
 		 * @desc Файл для хранения состояния
@@ -61,8 +67,14 @@ abstract class View_Resource_Packer_Abstract
 		 * @desc Кодировка
 		 * @var string
 		 */
-		'charset_output'	=> 'utf-8'
+		'charset_output'	=> 'utf-8//IGNORE'
 	);
+	
+	/**
+	 * @desc Пул конфигов.
+	 * @var array <Config_Array>
+	 */
+	protected $_configPool = array ();
 	
 	/**
 	 * @desc Собирает префикс для файла.
@@ -78,6 +90,15 @@ abstract class View_Resource_Packer_Abstract
 	}
 	
 	/**
+	 * @desc Таймстамп создания кэша.
+	 * @return integer
+	 */
+	public function cacheTimestamp ()
+	{
+		return $this->_cacheTimestamp;
+	}
+	
+	/**
 	 * @desc Проверяет существование валидного кэша для ресурсов.
 	 * @param array $resources
 	 * @param string $result_file
@@ -90,7 +111,7 @@ abstract class View_Resource_Packer_Abstract
 		if (
 			!$result_file || 
 			!file_exists ($result_file) || 
-			!$this->config ()->state_file ||
+			!$config->state_file ||
 			!file_exists ($config ['state_file'])
 		)
 		{
@@ -134,6 +155,7 @@ abstract class View_Resource_Packer_Abstract
 		foreach ($state ['resources'] as $i => $res)
 		{
 			if (
+				!isset ($resouces [$i]) ||
 				$res ['filemtime'] != $resources [$i]->filemtime () ||
 				$res ['file_path'] != $resources [$i]->filePath 
 			)
@@ -141,6 +163,8 @@ abstract class View_Resource_Packer_Abstract
 				return false;
 			}
 		}
+		
+		$this->_cacheTimestamp = $state ['result_time'];
 		
 		return true;
 	}
@@ -182,6 +206,8 @@ abstract class View_Resource_Packer_Abstract
 	 */
 	public function pack (array $resources, $result_file = '')
 	{
+		$config = $this->config ();
+		
 		$packages = array ();
 		
 		if ($this->cacheValid ($resources, $result_file))
@@ -191,23 +217,15 @@ abstract class View_Resource_Packer_Abstract
 		
 		foreach ($resources as $resource)
 		{
-//			if (!$resource->filePath)
-//			{
-//				$resource->filePath = 
-//					rtrim (IcEngine::root (), '/') . $resource->href;
-//				$resource->filemtime =
-//					file_exists ($resource->filePath) ? 
-//					filemtime ($resource->filePath) : 0;
-//			}
-//			
-			$this->_currentResource = $resource;
-			
-			$packages [] = $this->packOne ($resource);
+			if (!$resource->exclude)
+			{
+				$this->_currentResource = $resource;
+				$packages [] = $this->packOne ($resource);
+			}
 		}
 		
 		$packages = $this->compile ($packages);
 		
-		$config = $this->config ();
 		if ($config ['charset_base'] != $config ['charset_output'])
 		{
 			$packages = iconv (
@@ -234,15 +252,37 @@ abstract class View_Resource_Packer_Abstract
 	abstract public function packOne (View_Resource $resource);
 	
 	/**
+	 * @desc Возвращание конфигов к исходному состоянию.
+	 */
+	public function popConfig ()
+	{
+		$this->config = array_pop ($this->_configPool);
+	}
+	
+	/**
+	 * @desc Наложение конфигов.
+	 */
+	public function pushConfig (Objective $config)
+	{
+		$this->_configPool [] = $this->config ();
+		$this->_config = new Objective (array_merge (
+			$this->_config->asArray (),
+			$config->asArray ()
+		));
+	}
+	
+	/**
 	 * @desc Сохраняет информацию о текущем состоянии файлов.
 	 * @param array $resources
 	 * @param string $result_file
 	 */
 	public function saveValidState (array $resources, $result_file)
 	{
+		$config = $this->config ();
+		
 		if (
 			!$result_file ||  
-			!$this->config ()->state_file
+			!$config->state_file
 		)
 		{
 			return false;
@@ -254,16 +294,18 @@ abstract class View_Resource_Packer_Abstract
 			'resources'		=> array ()
 		);
 		
-		foreach ($resources as $resource)
+		foreach ($resources as $i => $resource)
 		{
-			$state ['resources'][] = array (
+			$state ['resources'][$i] = array (
 				'file_path'	=> $resource->filePath,
 				'filemtime'	=> $resource->filemtime ()
 			);
 		}
 		
+		$this->_cacheTimestamp = $state ['result_time'];
+		
 		$state = json_encode ($state);
-		file_put_contents ($this->config ()->state_file, $state);
+		file_put_contents ($config->state_file, $state);
 	}
 	
 }

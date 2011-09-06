@@ -11,7 +11,7 @@ abstract class Component_Single_Collection extends Component_Collection
 	
 	/**
 	 * @desc Создаение компонента, если его не существует
-	 * @return Component
+	 * @return Model_Component
 	 */
 	protected function _createSingle ()
 	{

@@ -1,4 +1,5 @@
 <?php
+Loader::load ('Authorization_Abstract');
 /**
  * 
  * @desc Авторизация по логину и паролю.
@@ -13,7 +14,7 @@ class Authorization_Login_Password extends Authorization_Abstract
 	 * @desc Configuration
 	 * @var array
 	 */
-	protected $_config = array (
+	protected static $_config = array (
 		// Авторегистрация
 		'autoregister'			=> false,
 		
@@ -33,7 +34,7 @@ class Authorization_Login_Password extends Authorization_Abstract
 		$password = $data ['password'];
 		$pass_md5 = md5 ($password);
 		
-		$user = Model_Manager::modelBy (
+		$user = Model_Manager::byQuery (
 			'User',
 			Query::instance ()
 			->where ('login', $login)
@@ -124,7 +125,7 @@ class Authorization_Login_Password extends Authorization_Abstract
 			return false;
 		}
 		
-		$user = Model_Manager::modelBy (
+		$user = Model_Manager::byQuery (
 			'User',
 			Query::instance ()
 				->where ('login', $login)
@@ -152,7 +153,7 @@ class Authorization_Login_Password extends Authorization_Abstract
 	 */
 	public function findUser ($data)
 	{
-		return IcEngine::$modelManager->modelBy (
+		return Model_Manager::byQuery (
 			'User',
 			Query::instance ()
 				->where ('login', $data ['login'])

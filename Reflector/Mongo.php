@@ -70,6 +70,7 @@ public function selectCollection($db,$collection) {}
 public function dropDB($db) {}
 /**
 * Check if there was an error on the most recent db operation performed [deprecated]
+* @deprecated
 * @return array
 */
 public function lastError() {}

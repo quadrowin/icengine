@@ -137,6 +137,41 @@ class Helper_Date
     	}
     	return 31 - (($month - 1) % 7 % 2) - (($month == 2) << !!($year % 4));
     }
+	
+	public static function datetime ($string, $showYear = false)
+	{
+		$year = strtok($string, "-");
+		$month = strtok("-");
+		$day = strtok("-");
+		switch ($month)
+		{
+			case "1": $month = "января";
+				break;
+			case "2": $month = "февраля";
+				break;
+			case "3": $month = "марта";
+				break;
+			case "4": $month = "апреля";
+				break;
+			case "5": $month = "мая";
+				break;
+			case "6": $month = "июня";
+				break;
+			case "7": $month = "июля";
+				break;
+			case "8": $month = "августа";
+				break;
+			case "9": $month = "сентября";
+				break;
+			case "10": $month = "октября";
+				break;
+			case "11": $month = "ноября";
+				break;
+			case "12": $month = "декабря";
+				break;
+		}
+		return intval($day) . "&nbsp;" . $month . (($year != date("Y") || $showYear) ? ("&nbsp;" . $year . "&nbsp;г.") : "");
+	}
     
 	/**
 	 * @desc Возвращает номер дня от начала эры.
@@ -186,6 +221,68 @@ class Helper_Date
 		list ($usec, $sec) = explode (" ", microtime ());
 		$usec = substr ($usec, 0, 6);
 		return (float) ((float) $usec + $sec);
+	}
+	
+	/**
+	 * @desc Возвращает максимальную из дат
+	 * @param DateTime $a
+	 * @param DateTime $b 
+	 * @return DateTime
+	 */
+	public static function max ($a, $b)
+	{
+		if (!($a instanceof DateTime))
+		{
+			if ($a == null)
+			{
+				return $b;
+			}
+			$a = self::parseDateTime ($a);
+		}
+		
+		if (!($b instanceof DateTime))
+		{
+			if ($b == null)
+			{
+				return $a;
+			}
+			$b = self::parseDateTime ($b);
+		}
+		
+		$diff = $a->diff ($b);
+		
+		return $diff->invert ? $a : $b;
+	}
+	
+	/**
+	 * @desc Возвращает минимальную из дат
+	 * @param DateTime $a
+	 * @param DateTime $b 
+	 * @return DateTime
+	 */
+	public static function min ($a, $b)
+	{
+		if (!($a instanceof DateTime))
+		{
+			if ($a == null)
+			{
+				return $b;
+			}
+			$a = self::parseDateTime ($a);
+		}
+		
+		if (!($b instanceof DateTime))
+		{
+			if ($b == null)
+			{
+				return $a;
+			}
+			$b = self::parseDateTime ($b);
+		}
+		
+		$diff = $a->diff ($b);
+		
+		return $diff->invert ? $b : $a;
 	}
 	
 	/**

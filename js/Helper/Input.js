@@ -49,7 +49,7 @@ var Helper_Input = {
 		
 		if ($input.hasClass ('input_phone'))
 		{
-			result = result && Helper_Input.checkPhone (value); 
+			result = result && Helper_Phone.parseMobile (value); 
 		}
 		
 		if (!error_class)

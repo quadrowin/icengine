@@ -1,5 +1,5 @@
 {if isset ($css) && $css}
-	<link href="{$css}" rel="stylesheet" type="text/css" />
+	<link href="{$css}?{$ts}" rel="stylesheet" type="text/css" />
 {/if}
 {if isset ($csses) && $csses}
 	{foreach from=$csses item="css"}

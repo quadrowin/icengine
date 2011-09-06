@@ -81,12 +81,12 @@ class Paginator
 		{
 			return ;
 		}
-		
+
 		$half_page = round ($pages_count / 2);
 		$spaced = false;
-		
-		$href = $this->href ? $this->href : $_SERVER ['REQUEST_URI'];
-		
+
+		$href = $this->href ? $this->href : Request::uri (false);
+
 		// Удаление из запроса GET параметра page
 		$p = 'page';
 		$href = preg_replace (
@@ -103,7 +103,7 @@ class Paginator
 		{
 			$href .= '&page=';
 		}
-		
+
 		for ($i = 1; $i <= $pages_count; $i++)
 		{
 			if (
@@ -119,7 +119,7 @@ class Paginator
 					'title'	    => $i,
 					'next'		=> ($this->page == $i - 1),
 					'prev'		=> ($this->page == $i + 1),
-				    'selected'	=> ($this->page == $i)
+					'selected'	=> ($this->page == $i)
 				);
 				$this->pages [] = $page;
 				
@@ -131,18 +131,19 @@ class Paginator
 				{
 					$this->next = $page;
 				}
-				
+
 				$spaced = false;
 				continue ;
 			}
-			
+
 			if (!$spaced)
 			{
 				$this->pages [] = array (
-					'title'	    => '...',
+					'href'		=> '',
+					'title'		=> '...',
 					'prev'		=> false,
 					'next'		=> false,
-				    'selected'	=> false
+					'selected'	=> false
 				);
 				$spaced = true;
 			}

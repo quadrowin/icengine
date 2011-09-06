@@ -35,6 +35,42 @@ class Component_Rating extends Model_Component
 	 */
 	public function increment ($change)
 	{
+		// если гость, проверяем по сессии
+		if (User::id () == 0) {
+			$log = Model_Manager::byQuery (
+					'Component_Rating_Log', 
+					Query::instance ()
+						->where ('session', User_Session::getCurrent ()->phpSessionId)
+						->where ('table', $this->table)
+						->where ('rowId', $this->rowId)
+						->order (array ('time' => Query::DESC))
+			);
+		} else {
+			$log = Model_Manager::byQuery (
+					'Component_Rating_Log', 
+					Query::instance ()
+						->where ('User__id', User::id ())
+						->where ('table', $this->table)
+						->where ('rowId', $this->rowId)
+						->order (array ('time' => Query::DESC))
+			);
+		}
+		// если пользователь голосовал
+		if ($log) {
+			$this->update (array (
+				'value'			=> $this->value + $change - $log->change,
+				'votes'			=> $this->votes,
+				'changeTime'	=> Helper_Date::toUnix ()
+			));
+		}	
+		else {
+			$this->update (array (
+				'value'			=> $this->value + $change,
+				'votes'			=> $this->votes + 1,
+				'changeTime'	=> Helper_Date::toUnix ()
+			));
+		}
+		
 		Loader::load ('Component_Rating_Log');
 		$log = new Component_Rating_Log (array (
 			'table'		=> $this->table,
@@ -42,16 +78,30 @@ class Component_Rating extends Model_Component
 			'change'	=> $change,
 			'ip'		=> Request::ip (),
 			'User__id'	=> User::id (),
-			'time'		=> Helper_Date::toUnix ()
+			'time'		=> Helper_Date::toUnix (),
+			'session'	=> User_Session::getCurrent ()->phpSessionId
 		));
-		
-		$this->update (array (
-			'value'			=> $this->value + $change,
-			'votes'			=> $this->votes + 1,
-			'changeTime'	=> Helper_Date::toUnix ()
-		));
+		$log->save();
 		
 		return $this;
+	}
+	
+	/**
+	 * @desc 
+	 * @param string $table
+	 * @param string $row_id
+	 * @param mixed $value
+	 * @return integer 
+	 */
+	public static function voteFor ($table, $row_id, $value)
+	{
+		$scheme = Model_Manager::byQuery (
+			'Component_Rating_Scheme',
+			Query::instance ()
+				->where ('table', $table)
+		);
+		
+		return $scheme->vote ($table, $row_id, $value);
 	}
 	
 }

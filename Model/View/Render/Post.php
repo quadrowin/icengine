@@ -10,7 +10,7 @@ class View_Render_Post extends View_Render_Abstract
 		return $result;
 	}
 	
-	public function display ($tpl = null)
+	public function display ($tpl)
 	{
         $redirect = '/';
         if ($this->_vars)

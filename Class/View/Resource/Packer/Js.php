@@ -28,10 +28,12 @@ class View_Resource_Packer_Js extends View_Resource_Packer_Abstract
 			isset ($resource->filePath)
 		)
 		{
-			$result = str_replace (
-				'{$source}',
-				$resource->filePath,
-				$this->config ()->item_prefix
+			$result = strtr (
+				$this->config ()->item_prefix,
+				array (
+					'{$source}' => $resource->filePath,
+					'{$src}'	=> $resource->localPath
+				)
 			);
 		}
 		else
@@ -39,19 +41,22 @@ class View_Resource_Packer_Js extends View_Resource_Packer_Abstract
 			$result = '';
 		}
 		
-		if (
-			isset ($this->_currentResource->nopack) &&
-			$this->_currentResource->nopack
-		)
+		if ($this->_currentResource->nopack)
 		{
-			$result .= $resource->content () . "\n";
+			$result .= $resource->content ();
 		}
-	    else
-	    {
-			$packer = new JavaScriptPacker ($resource->content (), 0);
-			$result .= $packer->pack ();
-	    }
-	    
+		else
+		{
+			$result .= 
+				preg_replace (
+					'#\n\s*/\*.*\*/#Us', 
+					"\n",
+					$resource->content ()
+				);
+//			$packer = new JavaScriptPacker ($resource->content (), 0);
+//			$result .= $packer->pack ();
+		}
+		
 		return $result . $this->config ()->item_postfix;
 	}
 	

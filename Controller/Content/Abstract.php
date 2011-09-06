@@ -49,6 +49,64 @@ class Controller_Content_Abstract extends Controller_Abstract
 	}
 	
 	/**
+	 * @desc 
+	 * @return Content_Category
+	 */
+	protected function _getInputCategory ()
+	{
+		list (
+			$category_id,
+			$url
+		) = $this->_input->receive (
+			'category_id',
+			'url'
+		);
+		
+		if ($category_id)
+		{
+			return Model_Manager::byKey (
+				$this->__categoryModel (),
+				$category_id
+			);	
+		}
+		
+		return Model_Manager::byQuery (
+			$this->__categoryModel (),
+			Query::instance ()
+				->where ('url', $url ? $url : Request::uri ())
+		);		
+	}
+	
+	/**
+	 * @desc
+	 * @return Content
+	 */
+	protected function _getInputContent ()
+	{
+		list (
+			$content_id,
+			$url
+		) = $this->_input->receive (
+			'content_id',
+			'url'
+		);
+		
+		if ($content_id)
+		{
+			return Model_Manager::byKey (
+				$this->__contentModel (), 
+				$content_id
+			);
+		}
+		
+		return Model_Manager::byQuery (
+			$this->__contentModel (), 
+			Query::instance ()
+				->where ('url', $url ? $url : Request::uri ())
+		);
+	}
+	
+	/**
 	 * @desc Фабрик метод для полечение реферер при сохранении
 	 * @param string $url
 	 * @param string $referer
@@ -167,7 +225,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 	protected function __saveUrl ($url, $referer, $title)
 	{
 		Loader::load ('Helper_Translit');
-		return $url = rtrim ($url, '/') . '/' . 
+		return rtrim ($url, '/') . '/' . 
 			Helper_Translit::makeUrlLink ($title) . '.html';
 	}
 	
@@ -184,43 +242,21 @@ class Controller_Content_Abstract extends Controller_Abstract
 	 */
 	public function roll ()
 	{
-		list (
-			$category_id,
-			$url
-		) = $this->_input->receive (
-			'category_id',
-			'url'
-		);
-		
-		if ($category_id)
-		{
-			$category = Model_Manager::modelByKey (
-				$this->__categoryModel (),
-				$category_id
-			);	
-		}
-		else
-		{
-			$category = Model_Manager::modelBy (
-				$this->__categoryModel (),
-				Query::instance ()
-					->where ('url', $url ? $url : Request::uri ())
-			);
-		}
+		$category = $this->_getInputCategory ();
 		
 		if (!$category)
 		{
-			return $this->_helperReturn ('Page', 'notFound');
+			return $this->replaceAction ('Error', 'notFound');
 		}
 
-		$parent = Model_Manager::modelByKey (
+		$parent = Model_Manager::byKey (
 			$this->__categoryModel (),
 			$category->parentKey ()
 		);
 		
 		if (!$parent)
 		{
-			return $this->_helperReturn ('Page', 'notFound');
+			return $this->replaceAction ('Error', 'notFound');
 		}
 		
 		$content_collection = Helper_Link::linkedItems (
@@ -230,13 +266,26 @@ class Controller_Content_Abstract extends Controller_Abstract
 
 		$parent_url = rtrim ($parent->url, '/') . '.html';
 
+		$agency_link = $this->_input->receive('agency_link');
+		$agency = null;
+		if ($agency_link)
+		{
+			$agency = Model_Manager::byQuery(
+				'Agency',
+				Query::instance()
+					->where('linka', $agency_link.'.html')
+					->where('city', City::id ())
+			);
+		}
+
 		$this->_output->send (array (
 			'contents'		=> $content_collection,
 			'category'		=> $category,
 			'canEdit'		=> $this->__checkAcl ($category),
 			'parent'		=> $parent,
 			'parent_url'	=> $parent_url,
-			'referer'		=> $this->__rollReferer ($category)
+			'referer'		=> $this->__rollReferer ($category),
+			'agency'		=> $agency
 		));
 	}
 	
@@ -250,51 +299,42 @@ class Controller_Content_Abstract extends Controller_Abstract
 	 */
 	public function view ()
 	{
-		list (
-			$content_id,
-			$url
-		) = $this->_input->receive (
-			'content_id',
-			'url'
-		);
-		
-		if ($content_id)
-		{
-			$content = Model_Manager::modelByKey (
-				$this->__contentModel (), 
-				$content_id
-			);
-		}
-		else
-		{
-			$content = Model_Manager::modelBy (
-				$this->__contentModel (), 
-				Query::instance ()
-					->where ('url', $url ? $url : Request::uri ())
-			);
-		}
+		$content = $this->_getInputContent ();
 			
 		if (!$content)
 		{
-			return $this->_helperReturn ('Page', 'notFound');
+			return $this->replaceAction ('Error', 'notFound');
 		}
 		
-		$content_category = Model_Manager::modelByKey (
+		$content_category = Model_Manager::byKey (
 			$this->__categoryModel (),
 			$content->Content_Category__id
 		);
 		
 		if (!$content_category)
 		{
-			return $this->_helperReturn ('Page', 'notFound');
+			return $this->replaceAction ('Error', 'notFound');
+		}
+
+		$agency_link = $this->_input->receive('agency_link');
+		$agency = null;
+		if ($agency_link)
+		{
+			$agency = Model_Manager::byQuery(
+				'Agency',
+				Query::instance()
+					->where('linka', $agency_link.'.html')
+					->where('city', City::id ())
+			);
 		}
 
 		$this->_output->send (array (
 			'content'	=> $content,
 			'category'	=> $content_category,
 			'url'		=> $content_category->url,
-			'referer'		=> $this->__rollReferer ($content_category),
-			'canEdit'	=> $this->__checkAcl ($content_category)
+			'referer'	=> $this->__rollReferer ($content_category),
+			'canEdit'	=> $this->__checkAcl ($content_category),
+			'agency'	=> $agency
 		));
 	}
 	
@@ -332,7 +372,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		{
 			if (!$content_id)
 			{
-				return $this->_helperReturn ('Page', 'notFound');
+				return $this->replaceAction ('Error', 'notFound');
 			}
 			else
 			{
@@ -345,14 +385,14 @@ class Controller_Content_Abstract extends Controller_Abstract
 			}
 		}
 		
-		$category = Model_Manager::modelByKey (
+		$category = Model_Manager::byKey (
 			$this->__categoryModel (),
 			$category_id
 		);
 			
 		if (!$category)
 		{
-			return $this->_helperReturn ('Page', 'notFound');
+			return $this->replaceAction ('Error', 'notFound');
 		}
 		
 		if ($category->controller && $category->controller != $this->name ())
@@ -367,7 +407,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 
 		if (!User::authorized())
 		{
-			return $this->_helperReturn('Access', 'denied');
+			return $this->replaceAction ('Error', 'accessDenied');
 		}
 		
 		Loader::load ('Acl_Resource');
@@ -386,7 +426,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			)
 		)
 		{
-			return $this->_helperReturn ('Access', 'denied');
+			return $this->replaceAction ('Error', 'accessDenied');
 		}
 		
 		if (!isset ($content) || !$content)
@@ -444,9 +484,12 @@ class Controller_Content_Abstract extends Controller_Abstract
 			'url'
 		);
 		
+		// Убираем слешы
+		$text = stripslashes ($text);
+
 		if (!$utcode)
 		{
-			return $this->_helperReturn ('Page', 'obsolete');
+			return $this->replaceAction ('Error', 'obsolete');
 		}
 		
 		$tc = Temp_Content::byUtcode ($utcode);
@@ -460,6 +503,10 @@ class Controller_Content_Abstract extends Controller_Abstract
 		}
 		
 		$category_id = $tc->attr ('category_id');
+		$content_category = Model_Manager::byKey (
+			$this->__categoryModel (),
+			$category_id
+		);
 		
 		$user = User::getCurrent ();
 		
@@ -477,17 +524,20 @@ class Controller_Content_Abstract extends Controller_Abstract
 			)
 		)
 		{
-			return $this->_helperReturn ('Access', 'denied');
+			return $this->replaceAction ('Error', 'accessDenied');
 		}
 		
 		$back = $tc->attr ('back');
 		$referer = $tc->attr ('referer');
 		$content_id = $tc->attr ('content_id');
-		$url = $this->__saveUrl ($url, $referer, $title);
+		$url = $this->__saveUrl (
+			$content_category->url,
+			$referer, $title
+		);
 		
 		if ($content_id)
 		{			
-			$content = Model_Manager::modelByKey (
+			$content = Model_Manager::byKey (
 				$this->__contentModel (),
 				$content_id
 			);
@@ -520,14 +570,9 @@ class Controller_Content_Abstract extends Controller_Abstract
 			
 			Loader::load ('Helper_Link');
 			
-			$content_category = Model_Manager::modelByKey (
-				$this->__categoryModel (),
-				$category_id
-			);
-			
 			if (!$content_category)
 			{
-				return $this->_helperReturn ('Page', 'notFound');
+				return $this->replaceAction ('Error', 'notFound');
 			}
 			
 			Helper_Link::link (
@@ -548,7 +593,19 @@ class Controller_Content_Abstract extends Controller_Abstract
 		$content->data ('tc', $tc);
 		$this->_afterSave ($content, $is_new);
 		
-		return Helper_Header::redirect ($referer);
+		if (!Request::isJsHttpRequest ())
+		{
+			Helper_Header::redirect ($referer);
+			die ();
+		}
+		
+		$this->_task->setTemplate (null);
+		$this->_output->send (array (
+			'redirect'	=> $referer,
+			'data'		=> array (
+				'redirect'	=> $referer
+			)
+		));
 	}
 	
 	/**
@@ -566,14 +623,14 @@ class Controller_Content_Abstract extends Controller_Abstract
 			'url'
 		);
 		
-		$content = Model_Manager::modelByKey (
+		$content = Model_Manager::byKey (
 			$this->__contentModel (), 
 			$content_id
 		);
 		
 		if (!$content)
 		{
-			return $this->_helperReturn ('Page', 'notFound');
+			return $this->replaceAction ('Error', 'notFound');
 		}
 		
 		Loader::load ('Helper_Link');
@@ -585,7 +642,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		
 		if (!$category_collection->count ())
 		{
-			return $this->_helperReturn ('Access', 'denied');
+			return $this->replaceAction ('Error', 'accessDenied');
 		}
 		
 		$category = $category_collection->first ();
@@ -606,21 +663,35 @@ class Controller_Content_Abstract extends Controller_Abstract
 			)
 		)
 		{
-			return $this->_helperReturn ('Access', 'denied');
+			return $this->replaceAction ('Error', 'accessDenied');
 		}
 
 		$content->delete ();
 
 		$url = $this->__deleteUrl ($content, $url);
 		
-		return Helper_Header::redirect ($url);
+		$this->_task->setTemplate (null);
+		
+		if (Request::isPost ())
+		{
+			$this->_output->send (array (
+				'redirect'	=> $url,
+				'data'		=> array (
+					'redirect'	=> $url
+				)
+			));
+		}
+		else
+		{
+			Helper_Header::redirect ($url);
+		}
 	}
 
 	public function uploadImage ()
 	{
 	    if (!User::authorized ())
 		{
-			return $this->_helperReturn ('Access', 'denied');
+			return $this->replaceAction ('Error', 'accessDenied');
 		}
 
 		Loader::load ('Temp_Content');
@@ -636,11 +707,51 @@ class Controller_Content_Abstract extends Controller_Abstract
 
 		$this->_output->send ('image', $image);
 	}
+	
+	public function remove ()
+	{
+		$id = $this->_input->receive ('id');
+		
+		$content = Model_Manager::byKey ($this->__contentModel (), $id);
+		
+		if (!$content)
+		{
+			return $this->replaceAction ('Error', 'notFound');
+		}
+		
+		$category = $content->Content_Category;
+		
+		if (!$category)
+		{
+			return $this->replaceAction ('Error', 'accessDenied');
+		}
+		
+		$user = User::getCurrent ();
 
+		$resource_addContent = Acl_Resource::byNameCheck (
+			$this->__categoryModel (),
+			$category->key (),
+			'addContent'
+		);
+		  
+		if (
+			!User::getCurrent ()->isAdmin () &&
+			(
+				!$resource_addContent || 
+				!$resource_addContent->userCan ($user)
+			)
+		)
+		{
+			return $this->replaceAction ('Error', 'accessDenied');
+		}
+
+		$content->delete ();
+	}
+	
 	public function removeImage ()
 	{
 		$image_id = (int) $this->_input->receive ('image_id');
-		$image = Model_Manager::modelBy (
+		$image = Model_Manager::byQuery (
 			'Component_Image',
 			Query::instance ()
 				->where ('id', $image_id)
@@ -674,7 +785,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			'content_category_id'
 		);
 
-		$content = Model_Manager::modelBy (
+		$content = Model_Manager::byQuery (
 			'Content',
 			Query::instance ()
 				->where ('Content_Category__id', $content_category_id)

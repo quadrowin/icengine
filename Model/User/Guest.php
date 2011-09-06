@@ -10,7 +10,26 @@ class User_Guest extends User
 {
 	
 	/**
-	 * @desc Экзмепляр помели гостя
+	 * @desc Конфиг
+	 * @var array
+	 */
+	protected static $_config = array (
+		/**
+		 * @desc Конфиг пользователя
+		 * @var array
+		 */
+		'data'	=> array (
+			'id'		=> 0,
+			'active'	=> 1,
+			'login'		=> '',
+			'name'		=> '',
+			'email'		=> '',
+			'password'	=> ''
+		)
+	);
+	
+	/**
+	 * @desc Экзмепляр модели гостя
 	 * @var Model
 	 */
 	protected static $_instance;
@@ -32,13 +51,7 @@ class User_Guest extends User
 	{
 		if (!self::$_instance)
 		{
-			self::$_instance = new self (array (
-				'id'		=> 0,
-				'active'	=> 1,
-				'name'		=> '',
-				'email'		=> '',
-				'password'	=> ''
-			));
+			self::$_instance = new self (static::config ()->data->__toArray ());
 		}
 		return self::$_instance;
 	}

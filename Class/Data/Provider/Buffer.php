@@ -2,7 +2,7 @@
 
 if (!class_exists ('Data_Provider_Abstract'))
 {
-	include dirname (__FILE__) . '/Abstract.php';
+	include __DIR__ . '/Abstract.php';
 }
 /**
  * 
@@ -16,10 +16,10 @@ class Data_Provider_Buffer extends Data_Provider_Abstract
 {
 	
 	/**
-	 * Содержимое буфера.
+	 * @desc Содержимое буфера.
 	 * @var array
 	 */
-	private $_buffer;
+	protected $_buffer;
 	
 	/**
 	 * Возвращает объект буфера данных.

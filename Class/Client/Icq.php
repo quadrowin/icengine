@@ -10,7 +10,6 @@ Loader::load ('Client_Abstract');
  */
 class Client_Icq extends Client_Abstract
 {
-	private $_config;
 	
 	/**
 	 * 
@@ -87,7 +86,7 @@ class Client_Icq extends Client_Abstract
 		if (!$this->connected ())
 		{
 			$this->connect ($this->_config);
-		}
+		} 
 		
 		return $this->_provider
 			->sendMessage (

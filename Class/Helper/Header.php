@@ -8,6 +8,12 @@
  */
 class Helper_Header
 {
+	/**
+	 * 
+	 * @desc Код ошибки "ресурс перемещен постоянно"
+	 * @var integer
+	 */
+	const E301 = 301;
 	
 	/**
 	 * @desc Код ошибки "доступ закрыт"
@@ -39,6 +45,10 @@ class Helper_Header
 		self::E404 => array(
 			"HTTP/1.0 404 Not Found",
 			"Status: 404 Not Found"
+		),
+		self::E301 => array(
+			"HTTP/1.1 301 Moved Remanently",
+			"Status: 301 Moved Remanently"
 		)
 	);
 	
@@ -46,19 +56,19 @@ class Helper_Header
 	 * @desc Отправить статус в заголовке ответа
 	 * @param integer $status Статус.
 	 */
-	public static function setStatus ($status)
+	public static function setStatus ($status, $set_code = true)
 	{
-//		if (headers_sent ())
-//		{
-//			return;
-//		}
-//		if (isset (self::$statuses [$status]))
-//		{
-			foreach (self::$statuses [$status] as $text)
+		foreach (self::$statuses [$status] as $text)
+		{
+			if ($set_code)
+			{
+				header ($text, true, $status);
+			}
+			else
 			{
 				header ($text);
 			}
-//		}
+		}
 	}
 	
 	/**
@@ -66,22 +76,43 @@ class Helper_Header
 	 * К переданному $uri при необходимости будет добавлено имя сервера
 	 * и "http://".
 	 * @param string $uri
+	 * @param integer $code [optional] Код редиректа.
+	 * Например Helper_Header::E301
 	 */
-	public static function redirect ($uri)
+	public static function redirect ($uri, $code = null)
 	{
-		if (substr ($uri, 0, 7) != 'http://')
-		{
-			$uri = 'http://' . $_SERVER ['HTTP_HOST'] . $uri;
-		}
+		$full_uri = 
+			substr ($uri, 0, 7) == 'http://' ?
+			$uri :
+			('http://' . Request::host () . $uri);
 		
 		if (!headers_sent ())
 		{
-			header ("Location: $uri");
+			if ($code)
+			{
+				header ("Location: $full_uri", true, $code);
+			}
+			else
+			{
+				header ("Location: $full_uri");
+			}
 		}
 		else
 		{
-			echo '<script>window.location.href="' . $uri . '"</script>';
+			self::jsRedirect ($uri);
 		}
+	}
+	
+	/**
+	 * @desc Редирект через javascript.
+	 * @param string $uri Адрес для редиректа
+	 */
+	public static function jsRedirect ($uri)
+	{
+		echo 
+			'<script type="text/javascript">window.location.href="' . 
+			$uri .
+			'"</script>';
 	}
 	
 }

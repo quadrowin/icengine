@@ -126,8 +126,24 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 			$this->_foundRows = $cache ['f'];
 			return $cache ['v'];
 		}
+	
+		$start = 0;
+		
+		if (class_exists ('Tracer'))
+		{
+			Tracer::begin (
+				__CLASS__,  
+				__METHOD__,
+				__LINE__
+			);
+		}
 		
 		$result = mysql_query ($this->_sql);
+
+		if (class_exists ('Tracer'))
+		{
+			Tracer::end ($this->_sql);
+		}
 		
 		if (!is_resource ($result))
 		{
@@ -190,19 +206,19 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 		$from = $query->getPart (Query::FROM);
 		foreach ($from as $info)
 		{
-			$tags [] = $this->_modelScheme->table ($info [Query::TABLE]);
+			$tags [] = Model_Scheme::table ($info [Query::TABLE]);
 		}
 		
 		$insert = $query->getPart (QUERY::INSERT);
 		if ($insert)
 		{
-	   		$tags [] = $this->_modelScheme->table ($insert);
+	   		$tags [] = Model_Scheme::table ($insert);
 		}
 	   	
 		$update = $query->getPart (QUERY::UPDATE);
 		if ($update)
 		{
-			$tags [] = $this->_modelScheme->table ($update);
+			$tags [] = Model_Scheme::table ($update);
 		}
 		
 		

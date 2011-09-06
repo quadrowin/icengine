@@ -29,6 +29,18 @@ class Helper_Link
 		);
 	}
 	
+	protected static function _schemeLink ($scheme, $key1, $key2)
+	{
+		$link_class = $scheme ['link'];
+		$link = Model_Manager::byQuery (
+			$link_class,
+			Query::instance ()
+				->where ($scheme ['fromKey'], $key1)
+				->where ($scheme ['toKey'], $key2)
+		);
+		return $link;
+	}
+	
 	/**
 	 * @desc Проверяет, связаны ли модели.
 	 * @param Model $model1
@@ -37,18 +49,33 @@ class Helper_Link
 	 */
 	public static function wereLinked (Model $model1, Model $model2)
 	{
-		if (strcmp ($model1->table (), $model2->table ()) > 0)
+		if (strcmp ($model1->modelName (), $model2->modelName ()) > 0)
 	    {
 	        $tmp = $model1;
 	        $model1 = $model2;
 	        $model2 = $tmp;
 	    }
 	    
-	    $link = self::_link (
-	        $model1->table (), $model1->key (),
-	        $model2->table (), $model2->key ()
-	    );
-	    
+		$scheme = Model_Scheme::linkScheme (
+			$model1->modelName (), 
+			$model2->modelName ()
+		);
+		
+		if (!$scheme)
+		{
+			$link = self::_link (
+				$model1->modelName (), $model1->key (),
+				$model2->modelName (), $model2->key ()
+			);
+		}
+		else
+		{
+			$link = self::_schemeLink (
+				$scheme,
+				$model1->key (),
+				$model2->key ()
+			);
+		}
 	    return (bool) $link;
 	}
 	
@@ -60,28 +87,65 @@ class Helper_Link
 	 */
 	public static function link (Model $model1, Model $model2)
 	{
-		if (strcmp ($model1->table (), $model2->table ()) > 0)
+	    if (strcmp ($model1->modelName (), $model2->modelName ()) > 0)
 	    {
 	        $tmp = $model1;
 	        $model1 = $model2;
 	        $model2 = $tmp;
+
 	    }
 	    
-	    $link = self::_link (
-	        $model1->table (), $model1->key (),
-	        $model2->table (), $model2->key ()
-	    );
-	    
+	    $scheme = Model_Scheme::linkScheme (
+			$model1->modelName (), 
+			$model2->modelName ()
+		);
+		    
+	    if (!$scheme)
+	    {
+		//	echo '   <b>Нет схемы</b> <br />';
+			
+			$link = self::_link (
+				$model1->modelName (), $model1->key (),
+				$model2->modelName (), $model2->key ()
+			);
+			
+	    }
+	    else
+	    {
+			
+			$link = self::_schemeLink (
+				$scheme,
+				$model1->key (),
+				$model2->key ()
+			);
+	    }
 	    if (!$link)
 	    {
-	    	Loader::load ('Link');
-	        $link = new Link (array (
-	            'fromTable'	=> $model1->table (),
-	            'fromRowId'	=> $model1->key (),
-	            'toTable'	=> $model2->table (),
-	            'toRowId'	=> $model2->key ()
-	        ));
-	        $link->save ();
+			if (!$scheme)
+			{
+				Loader::load ('Link');
+				$link = new Link (array (
+					'fromTable'	=> $model1->table (),
+					'fromRowId'	=> $model1->key (),
+					'toTable'	=> $model2->table (),
+					'toRowId'	=> $model2->key ()
+				));
+				$link->save ();
+			
+			//	print_r($link) . '<br />';
+			}
+			else
+			{
+				$link_class = $scheme ['link'];
+				Loader::load ($link_class);
+
+				$link = new $link_class (array (
+					$scheme ['fromKey']	=> $model1->key (),
+					$scheme ['toKey']	=> $model2->key ()
+				));
+
+				$link->save ();
+			}
 	    }
 	    
 	    return $link;
@@ -98,31 +162,86 @@ class Helper_Link
 	{
 	    $collection_class = $linked_model_name . '_Collection';
 	    
-	    Loader::load ($collection_class);
-	    $result = new $collection_class ();
-	    $key_field_2 = IcEngine::$modelManager->modelScheme ()
-	        ->keyField ($linked_model_name);
-	    
-		if (strcmp ($model->table (), $linked_model_name) > 0)
-	    {
-	        $result
-	        	->query ()
-		            ->from ('Link')
-		            ->where ('Link.fromTable', $linked_model_name)
-		            ->where ("Link.fromRowId=`$linked_model_name`.`$key_field_2`")
-		            ->where ('Link.toTable', $model->table ())
-		            ->where ('Link.toRowId', $model->key ()); 
-	    }
-	    else
-	    {
-	        $result
-	        	->query ()
-		            ->from ('Link')
-		            ->where ('Link.fromTable', $model->table ())
-		            ->where ('Link.fromRowId', $model->key ())
-		            ->where ('Link.toTable', $linked_model_name)
-		            ->where ("Link.toRowId=`$linked_model_name`.`$key_field_2`");
-	    }
+		$table1 = $model->modelName ();
+		$table2 = $linked_model_name;
+		
+		if (strcmp ($table1, $table2) > 0)
+		{
+			$tmp = $table1;
+			$table1 = $table2;
+			$table2 = $tmp;
+		}
+		
+		$scheme = Model_Scheme::linkScheme (
+			$table1, 
+			$table2
+		);
+		
+		if (!$scheme)
+		{
+			Loader::load ($collection_class);
+			
+			$result = new $collection_class ();
+			
+			$key_field_2 = Model_Scheme::keyField ($linked_model_name);
+
+			if (strcmp ($model->modelName (), $linked_model_name) > 0)
+			{
+				$result
+					->query ()
+						->from ('Link')
+						->where ('Link.fromTable', $linked_model_name)
+						->where ("Link.fromRowId=`$linked_model_name`.`$key_field_2`")
+						->where ('Link.toTable', $model->modelName ())
+						->where ('Link.toRowId', $model->key ()); 
+			}
+			else
+			{
+				$result
+					->query ()
+						->from ('Link')
+						->where ('Link.fromTable', $model->modelName ())
+						->where ('Link.fromRowId', $model->key ())
+						->where ('Link.toTable', $linked_model_name)
+						->where ("Link.toRowId=`$linked_model_name`.`$key_field_2`");
+			}
+		}
+		else
+		{
+			$link_class = $scheme ['link'];
+			
+			$query = Query::instance ();
+			
+			$column = null;
+			
+			if (strcmp ($model->modelName (), $linked_model_name) > 0)
+			{
+				$column = $scheme ['fromKey'];
+				
+				$query
+					->from ($link_class)
+					->where ($scheme ['toKey'], $model->key ());
+			}
+			else
+			{
+				$column = $scheme ['toKey'];
+				
+				$query
+					->from ($link_class)
+					->where ($scheme ['fromKey'], $model->key ());
+			}
+			
+			$query
+				->select ($column);
+			
+			$ids = DDS::execute ($query)->getResult ()->asColumn ($column);
+			
+			$result = Model_Collection_Manager::byQuery (
+				$linked_model_name,
+				Query::instance ()
+					->where (Model_Scheme::keyField ($linked_model_name), $ids)
+			);
+		}
 	    
 	    return $result;
 	}
@@ -131,35 +250,16 @@ class Helper_Link
 	 * @desc Возвращает первичные ключи связанных моделей.
 	 * @param Model $model1
 	 * 		Модель.
-	 * @param string $model2
+	 * @param string $linked_model_name
 	 * 		Имя связанной модели.
 	 * @return array
 	 * 		Массив первичных ключей второй модели.
 	 */
-	public static function linkedKeys (Model $model1, $model2)
+	public static function linkedKeys (Model $model1, $linked_model_name)
 	{
-		$query = Query::instance ();
+		$collection = self::linkedItems ($model, $linked_model_name);
 		
-		if (strcmp ($model1->table (), $model2) > 0)
-	    {
-	        $query
-	        	->select (array ('Link'	=> 'fromRowId'))
-	            ->from ('Link')
-	            ->where ('Link.fromTable', $model2)
-	            ->where ('Link.toTable', $model1->table ())
-	            ->where ('Link.toRowId', $model1->key ()); 
-	    }
-	    else
-	    {
-	        $query
-	        	->select (array ('Link'	=> 'toRowId'))
-	            ->from ('Link')
-	            ->where ('Link.fromTable', $model1->table ())
-	            ->where ('Link.fromRowId', $model1->key ())
-	            ->where ('Link.toTable', $model2);
-	    }
-	    
-	    return DDS::execute ($query)->getResult ()->asColumn ();
+		return $collection->column (Model_Scheme::keyField ($linked_model_name));
 	}
 	
 	/**
@@ -169,17 +269,34 @@ class Helper_Link
 	 */
 	public static function unlink (Model $model1, Model $model2)
 	{
-	    if (strcmp ($model1->table (), $model2->table ()) > 0)
+	    if (strcmp ($model1->modelName (), $model2->modelName ()) > 0)
 	    {
-	        $model1 = $tmp = $model2;
-	        $model2 = $tmp;
+			$tmp = $model1;
+			$model1 = $model2;
+			$model2 = $tmp;
 	    }
 	    
-	    $link = self::_link (
-	        $model1->table (), $model1->key (),
-	        $model2->table (), $model2->key ()
-	    );
+		 $scheme = Model_Scheme::linkScheme (
+			$model1->modelName (), 
+			$model2->modelName ()
+		);
 	    
+	    if (!$scheme)
+	    {
+			$link = self::_link (
+				$model1->modelName (), $model1->key (),
+				$model2->modelName (), $model2->key ()
+			);
+		}
+		else
+		{
+			$link = self::_schemeLink (
+				$scheme,
+				$model1->key (),
+				$model2->key ()
+			);
+		}
+		
 	    if ($link)
 	    {
 	        return $link->delete ();
@@ -193,27 +310,69 @@ class Helper_Link
 	 */
 	public static function unlinkWith (Model $model, $linked_model_name)
 	{
-		$query = 
-			Query::instance ()
+		$collection = self::linkedItems ($model, $linked_model_name);
+		
+		$table1 = $model->modelName ();
+		$table2 = $linked_model_name;
+		
+		if (strcmp ($table1, $table2) > 0)
+		{
+			$tmp = $table1;
+			$table1 = $table2;
+			$table2 = $tmp;
+		}
+		
+		$scheme = Model_Scheme::linkScheme (
+			$table1, 
+			$table2
+		);
+		
+		if (!$scheme)
+		{
+			$query = 
+				Query::instance ()
+					->delete ()
+					->from ('Link');
+
+			if (strcmp ($model->modelName (), $linked_model_name) > 0)
+			{
+				$query
+					->where ('fromTable', $linked_model_name)
+					->where ('toTable', $model->modelName ())
+					->where ('toRowId', $model->key ()); 
+			}
+			else
+			{
+				$query
+					->where ('fromTable', $model->modelName ())
+					->where ('fromRowId', $model->key ())
+					->where ('toTable', $linked_model_name);
+			}
+
+			DDS::execute ($query);
+		}
+		else
+		{
+			$link_class = $scheme ['link'];
+			
+			$query = Query::instance ()
 				->delete ()
-				->from ('Link');
+				->from ($link_class);
 			
-		if (strcmp ($model->table (), $linked_model_name) > 0)
-	    {
-	        $query
-	            ->where ('fromTable', $linked_model_name)
-	            ->where ('toTable', $model->table ())
-	            ->where ('toRowId', $model->key ()); 
-	    }
-	    else
-	    {
-	        $query
-	            ->where ('fromTable', $model->table ())
-	            ->where ('fromRowId', $model->key ())
-	            ->where ('toTable', $linked_model_name);
-	    }
+			if (strcmp ($model->modelName (), $linked_model_name) > 0)
+			{
+				$query
+					->where ($scheme ['toKey'], $model->key ());
+			}
+			else
+			{
+				$query
+					->where ($scheme ['fromKey'], $model->key ());
+			}
 			
-		DDS::execute ($query);
+			//echo $query->translate ();
+			
+			DDS::execute ($query);
+		}
 	}
-	
 }

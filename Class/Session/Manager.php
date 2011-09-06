@@ -74,13 +74,16 @@ class Session_Manager
 	{
 	}
 	
+	/**
+	 * @desc Инициализация менеджера сессий
+	 */
 	public static function init ()
 	{
 		$config = self::config ();
 		if ($config ['provider'])
 		{
 			self::initProvider (
-				Data_Provider_Manager::get($config ['provider'])
+				Data_Provider_Manager::get ($config ['provider'])
 			);
 		}
 	}

@@ -13,14 +13,14 @@ class Router
 	 * @var Route
 	 */
 	private static $_route;
-	
+
 	/**
 	 * @desc Разбирает запрос и извлекат параметры согласно
 	 * @return Route
 	 */
 	public static function getRoute () 
 	{
-		if (is_null (self::$_route))
+		if (is_null (self::$_route)) 
 		{
 			$url = Request::uri ();
 	
@@ -34,14 +34,14 @@ class Router
 				{
 					if (strpos ($get, '=') === false)
 					{
-						$_GET ['get'] = 1;
+						$_REQUEST ['get'] = $_GET ['get'] = 1;
 					}
 					else
 					{
 						$tmp = explode ('=', $get);
-						$_GET [$tmp [0]] = $tmp [1];
+						$_REQUEST [$tmp [0]] = $_GET [$tmp [0]] = $tmp [1];
 					}
-				}
+				} 
 			}
 			
 			$url = $url ? $url : '/';
@@ -63,12 +63,21 @@ class Router
 			for ($i = 0; $i < $len; $i++)
 			{
 				$st = strpos ($parts [$i], ':');
+
 				if ($st !== false)
 				{
 					Request::param (
 						substr ($parts [$i], $st + 1), 
 						isset ($route [$i]) ? substr ($route [$i], $st) : 0
 					);
+				}
+			}
+			
+			if (isset (self::$_route->params))
+			{
+				foreach (self::$_route->params as $param => $value)
+				{
+					Request::param ($param, $value);
 				}
 			}
 		}

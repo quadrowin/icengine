@@ -13,7 +13,7 @@ class Authorization_Email_Password_Sms extends Authorization_Abstract
 	 * @desc Config
 	 * @var array
 	 */
-	protected $_config = array (
+	protected static $_config = array (
 		// Авторизовать только пользователей, имеющих одну из ролей.
 		// Роли перечисляются через запятую.
 		'auth_roles_names'			=> 'admin',
@@ -137,7 +137,7 @@ class Authorization_Email_Password_Sms extends Authorization_Abstract
 	 */
 	public function authorize ($data)
 	{
-		$user = Model_Manager::modelBy (
+		$user = Model_Manager::byQuery (
 			'User',
 			Query::instance ()
 				->where ('email', $data ['email'])
@@ -157,7 +157,7 @@ class Authorization_Email_Password_Sms extends Authorization_Abstract
 		
 		$prefix = $this->config ()->sms_prefix;
 		
-		$activation = IcEngine::$modelManager->modelBy (
+		$activation = Model_Manager::byQuery (
 			'Activation',
 			Query::instance ()
 				->where ('code', $prefix . $data ['activation_code'])
@@ -184,7 +184,7 @@ class Authorization_Email_Password_Sms extends Authorization_Abstract
 	 */
 	public function isRegistered ($login)
 	{
-		$user = Model_Manager::modelBy (
+		$user = Model_Manager::byQuery (
 			'User',
 			Query::instance ()
 				->where ('email', $login)
@@ -209,7 +209,7 @@ class Authorization_Email_Password_Sms extends Authorization_Abstract
 	 */
 	public function findUser ($data)
 	{
-		return Model_Manager::modelBy (
+		return Model_Manager::byQuery (
 			'User',
 			Query::instance ()
 				->where ('email', $data ['email'])
@@ -271,7 +271,7 @@ class Authorization_Email_Password_Sms extends Authorization_Abstract
 		 * @desc Провайдер
 		 * @var Mail_Provider_Abstract
 		 */
-		$provider = IcEngine::$modelManager->modelBy (
+		$provider = Model_Manager::byQuery (
 			'Mail_Provider',
 			Query::instance ()
 			->where ('name', $config ['sms_provider'])

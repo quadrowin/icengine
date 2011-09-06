@@ -10,12 +10,6 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 {
 	
 	/**
-	 * @desc Менеджер ресурсов.
-	 * @var View_Resrouce_Manager
-	 */
-	protected $_resources;
-	
-	/**
 	 * @desc Пути к директориям шаблонов.
 	 * @var array <string>
 	 */
@@ -90,7 +84,7 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	 * @desc Выводит результат работы шаблонизатор в браузер.
 	 * @param string $tpl
 	 */
-	abstract public function display ($tpl = null);
+	abstract public function display ($tpl);
 	
 	/**
 	 * @desc Обрабатывает шаблон и возвращает результат.
@@ -98,14 +92,6 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	 * @return mixed Результат работы шаблонизатора. 
 	 */
 	abstract public function fetch ($tpl);
-	
-	/**
-	 * @return string
-	 */
-	public function getLayout ()
-	{
-		return $this->config ['layout'];
-	}
 	
 	/**
 	 * @desc Возвращает массив путей до шаблонов.
@@ -144,28 +130,36 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	}
 	
 	/**
-	 * 
-	 * @return View_Resource_Manager
+	 * @desc Обработка шаблонов из стека.
+	 * @param array $outputs
+	 * @return mixed
 	 */
-	public function resources ()
+	public function render (Controller_Task $task)
 	{
-		if (!$this->_resources)
-		{
-			Loader::load ('View_Resource_Manager');
-			$this->_resources = new View_Resource_Manager ();
-		}
-		return $this->_resources;
-	}
-	
-	/**
-	 * 
-	 * @param string $value
-	 * @return View_Render_Abstract
-	 */
-	public function setLayout ($value)
-	{
-		$this->_config ['layout'] = $value;
-		return $this;
+		Loader::load ('Message_Before_Render');
+		Message_Before_Render::push ($this);
+		
+		/**
+		 * 
+		 * @var $transaction Data_Transport_Transaction
+		 */
+		$transaction = $task->getTransaction ();
+		
+		$this->assign ($transaction->buffer ());
+		
+		$template = $task->getTemplate ();
+		
+		$result = $template ? $this->fetch ($template) : null;
+		
+//		$this->assign (
+//			$task->getAssignVar (),
+//			$result
+//		);
+		
+		Loader::load ('Message_After_Render');
+		Message_After_Render::push ($this);
+		
+		return $result;
 	}
 	
 	/**

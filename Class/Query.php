@@ -22,6 +22,7 @@ class Query {
 	const JOIN				= 'JOIN';
 	const LEFT_JOIN			= 'LEFT JOIN';
 	const ORDER				= 'ORDER';
+	const REPLACE			= 'REPLACE';
 	const SELECT			= 'SELECT';
 	const SET				= 'SET';
 	const SHOW				= 'SHOW';
@@ -37,7 +38,10 @@ class Query {
 	const SQL_AND			= 'AND';
 	const SQL_OR			= 'OR';
 	
-	// Части выборки по умолчанию
+	/**
+	 * @desc Части запроса по умолчанию.
+	 * @var array
+	 */
 	public static $_defaults = array (
 		self::CALC_FOUND_ROWS	=> false,
 		self::DISTINCT			=> false,
@@ -83,8 +87,11 @@ class Query {
 	}
 	
 	/**
-	 * 
-	 * @param string|array $table
+	 * @desc Добавление джойна таблицы к запросу
+	 * @param string|array $table Название таблицы или
+	 * пара (table => alias) или, в случае нескольких алиасов 
+	 * (table => array (alias1, alias2,...)).
+	 * Джойн нескольких таблиц не поддерживается.
 	 * @param string $type
 	 * @param string $condition optional
 	 */
@@ -115,10 +122,12 @@ class Query {
 	 * @desc В запрос будет добавлен аргумент для получения полного
 	 * количества строк (SQL_CALC_FOUND_ROWS).
 	 * Работает только для Mysql.
+	 * @return Query Этот объект.
 	 */
 	public function calcFoundRows ()
 	{
-	   $this->_parts [self::CALC_FOUND_ROWS] = true; 
+	   $this->_parts [self::CALC_FOUND_ROWS] = true;
+	   return $this; 
 	}
 	
 	/**
@@ -128,6 +137,7 @@ class Query {
 	public function delete ()
 	{
 		$this->_type = self::DELETE;
+		$this->_parts [self::DELETE] = func_get_args ();
 		return $this;
 	}
 		
@@ -138,7 +148,7 @@ class Query {
 	 */
 	public function distinct ($value)
 	{
-		$this->_parts [self::DINSTINCT] = (bool) $value;
+		$this->_parts [self::DISTINCT] = (bool) $value;
 		return $this;
 	}
 	
@@ -154,7 +164,6 @@ class Query {
 			$alias ? array ($table => $alias) : $table, 
 			self::FROM
 		);
-		
 		return $this;
 	}
 	
@@ -267,6 +276,7 @@ class Query {
 	 * @param string $condition
 	 * @param mixed $value
 	 * @return Query
+	 * @deprecated
 	 */
 	public function orWhere ($condition)
 	{
@@ -303,6 +313,18 @@ class Query {
 	public function parts ()
 	{
 		return $this->_parts;
+	}
+	
+	/**
+	 * @desc Запрос преобразуется в запрос на replace.
+	 * @param string $table таблица.
+	 * @return Query Этот запрос.
+	 */
+	public function replace ($table)
+	{
+		$this->_parts [self::REPLACE] = $table;
+		$this->_type = self::REPLACE;
+		return $this;
 	}
 	
 	/**
@@ -536,13 +558,11 @@ class Query {
 	/**
 	 * @desc Транслирует запрос указанным транслятором
 	 * @param string $translator Транслятор.
-	 * @param Model_Scheme $model_scheme Схема моделей (необходим для 
-	 * определения алиасов таблиц). 
 	 * @return mixed Транслированный запрос.
 	 */
-	public function translate ($translator = 'Mysql', Model_Scheme $model_scheme)
+	public function translate ($translator = 'Mysql')
 	{
-		return Query_Translator::factory ($translator)->translate ($this, $model_scheme);
+		return Query_Translator::factory ($translator)->translate ($this);
 	}
 	
 	/**

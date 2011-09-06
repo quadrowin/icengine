@@ -19,16 +19,8 @@ class Mail_Provider_Icq extends Mail_Provider_Abstract
 	 * @desc Конфиг
 	 * @var array
 	 */
-	protected $_config = array (
-		// С УИНа
-		'from_uin'			=> '5407518',
-		'from_password'		=> '20022010',
-		// От кого
-		'from_name'			=> 'IcEngine',
-		// Исходная кодировка
-		'base_charset'		=> 'utf-8',
-		// Кодировка отправки
-		'send_charset'		=> 'Windows-1251',
+	protected static $_config = array (
+		
 	);
 	
 	/**
@@ -57,7 +49,7 @@ class Mail_Provider_Icq extends Mail_Provider_Abstract
 				'password'	=> $this->config ()->from_password
 			));
 		}
-		return $this->_mailer;
+		return $this->_icq;
 	}
 	
 	/**
@@ -111,15 +103,17 @@ class Mail_Provider_Icq extends Mail_Provider_Abstract
 	{
 		$icq = $this->_icq ();
 		
+		$this_config = $this->config ();
+		
 		$base_charset = 
 			isset ($config ['base_charset']) ?
 				$config ['base_charset'] :
-				$this->_config ['base_charset'];
+				$this_config ['base_charset'];
 				
 		$send_charset = 
 			isset ($config ['send_charset']) ?
 				$config ['send_charset'] :
-				$this->_config ['send_charset'];
+				$this_config ['send_charset'];
 
 		// Необходимо перекодирвоание
 		$recoding =
@@ -133,24 +127,23 @@ class Mail_Provider_Icq extends Mail_Provider_Abstract
 				iconv ($base_charset, $send_charset, $body) :
 				$body;
 		
+		$result = false;
+				
 		try
 		{
-			if ($this->_icq->connected ())
-			{
-				Loader::load ('Client_Icq_Reciever');
-				$result = $this->_icq->send (
-					new Client_Icq_Reciever (
-						'Client_Icq_Reciever',
-						array (
-							'name'	=> '',
-							'icq'	=> is_array ($addresses)
-								? $addresses [0]
-								: $addresses
-						)
-					),
-					$body
-				);
-			} 
+			Loader::load ('Client_Icq_Reciever');
+			$result = $this->_icq->send (
+				new Client_Icq_Reciever (
+					'Client_Icq_Reciever',
+					array (
+						'name'	=> '',
+						'icq'	=> is_array ($addresses)
+							? $addresses [0]
+							: $addresses
+					)
+				),
+				$body
+			);
 		}
 		catch (Exception $e)
 		{
