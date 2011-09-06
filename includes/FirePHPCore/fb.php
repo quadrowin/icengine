@@ -56,7 +56,7 @@ require_once dirname(__FILE__).'/FirePHP.class.php';
  */
 function fb()
 {
-  if (!ini_set('display_errors')) {
+  if (!ini_get('display_errors')) {
 	  return;
   }
   $instance = FirePHP::getInstance(true);
