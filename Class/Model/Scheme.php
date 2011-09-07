@@ -27,7 +27,10 @@ abstract class Model_Scheme
 	 * @desc Префикс по умолчанию для всех таблиц
 	 * @var string
 	 */
-	public static $defaultPrefix = 'ice_';
+	public static $default = array (
+		'keyGen'	=> null,
+		'prefix'	=> 'ice_'
+	);
     
 	/**
 	 * @desc Модели
@@ -178,9 +181,9 @@ abstract class Model_Scheme
 	 */
 	public static function init (Config_Array $config)
 	{
-		if ($config->default_prefix)
+		if ($config->default)
 		{
-			self::$defaultPrefix = $config->default_prefix;
+			self::$default = $config->default;
 		}
 		
 		if ($config->models)
@@ -200,15 +203,18 @@ abstract class Model_Scheme
 	{
 		$name = strtolower ($model->modelName ());
 		
-		if (!isset (
-			self::$models, self::$models [$name], 
-			self::$models [$name]['keyGen']
-		))
+		if (!isset (self::$models [$name], self::$models [$name]['keyGen']))
 		{
-			return null;
+			if (!isset (self::$default ['keyGen']))
+			{
+				return null;
+			}
+			$keygen = explode ('::', self::$default ['keyGen'], 2);
 		}
-		
-		$keygen = explode ('::', self::$models [$name]['keyGen'], 2);
+		else
+		{
+			$keygen = explode ('::', self::$models [$name]['keyGen'], 2);
+		}
 		
 		if (count ($keygen) != 2)
 		{
@@ -264,7 +270,7 @@ abstract class Model_Scheme
 			return $model;
 		}
 		
-		return self::$defaultPrefix . $model;
+		return self::$default ['prefix'] . $model;
 		
 //		$prefix = isset ($this->prefixes [$model]) ?
 //			$this->prefixes [$model] :
@@ -282,7 +288,7 @@ abstract class Model_Scheme
 	 */
 	public static function tableToModel ($table)
 	{
-		$prefix = self::$defaultPrefix;
+		$prefix = self::$default ['prefix'];
 		
 		foreach (self::$models as $name => $model)
 		{
@@ -295,15 +301,15 @@ abstract class Model_Scheme
 			}
 		}
 
-		$table = explode('_', $table);
+		$table = explode ('_', $table);
 
 		if ($table [0] . '_' == $prefix)
 		{
 			array_shift ($table);
 		}
 		
-		$table = array_map('ucfirst', $table);
-		return implode('_', $table);
+		$table = array_map ('ucfirst', $table);
+		return implode ('_', $table);
 	}
 	
 	/**
