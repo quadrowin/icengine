@@ -383,6 +383,7 @@ class Data_Provider_Abstract
      * @desc Увеличение значения ключа на указанную величину
      * @param string $key Ключ
      * @param integer $value Величина
+	 * @return  Новое значение
 	 */
 	public function increment ($key, $value = 1)
 	{
