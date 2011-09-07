@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Класс хранящий и предоставляющий информацию о схеме моделей.
  * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
@@ -8,30 +8,30 @@
  */
 abstract class Model_Scheme
 {
-    
+
 	/**
 	 * @desc Имя ключего поля модели по умолчанию.
 	 * @var string
 	 */
     const DEFAULT_KEY_FIELD = 'id';
-	
+
 	/**
 	 * @desc Схема линка по умолчанию
 	 * @var array
 	 */
 	public static $defaultLinkScheme = array (
-		
+
 	);
-	
+
 	/**
 	 * @desc Префикс по умолчанию для всех таблиц
 	 * @var string
 	 */
-	public static $default = array (
+	public static $defaultPrefix = array (
 		'keyGen'	=> null,
 		'prefix'	=> 'ice_'
 	);
-    
+
 	/**
 	 * @desc Модели
 	 * @var array
@@ -67,7 +67,7 @@ abstract class Model_Scheme
 			)
 		),
 		/**
-		 * @desc Название таблицы, которое не должно изменяться 
+		 * @desc Название таблицы, которое не должно изменяться
 		 * при построении запроса.
 		 * @var string
 		 */
@@ -78,16 +78,16 @@ abstract class Model_Scheme
 		 */
 		'alt_name'	=> 'abstract'
 	);
-	
+
 	/**
 	 * @desc Схемы моделей
 	 * @var array
 	 */
 	private static $_modelSchemes = array ();
-	
+
 	/**
 	 * @desc Схема по умолчанию
-	 * @var array 
+	 * @var array
 	 */
 	private static $_defaultScheme = array (
 		'int'		=> array (
@@ -101,28 +101,28 @@ abstract class Model_Scheme
 			'default'	=> ''
 		)
 	);
-	
+
 	/**
-	 * @desc Создает схему модели на основании полей, 
+	 * @desc Создает схему модели на основании полей,
 	 * полученных от mysql
 	 * @param array $fields
-	 * @return array 
+	 * @return array
 	 */
 	private static function _makeScheme ($fields)
 	{
 		$scheme = array ();
-		
+
 		foreach ($fields as $field)
 		{
 			$size = null;
-			
+
 			$auto_inc = false;
-			
+
 			if ($field ['Extra'] == 'auto_increment')
 			{
 				$auto_inc = true;
 			}
-			
+
 			$type = $field ['Type'];
 			$br_pos = strpos ($type, '(');
 			if ($br_pos !== false)
@@ -131,28 +131,28 @@ abstract class Model_Scheme
 				$type = substr ($type, 0, $br_pos);
 				$size = (int) trim ($size, '()');
 			}
-			
+
 			$collation = null;
-			
+
 			if ($field ['Collation'])
 			{
 				$collation = $field ['Collation'];
 			}
-			
+
 			$comment = $field ['Comment'];
-			
+
 			$default = $field ['Default'];
-			
+
 			$s = array (
 				'type'		=> $type,
 				'comment'	=> $comment
 			);
-			
+
 			if ($auto_inc)
 			{
 				$s ['auto_inc'] = true;
 			}
-			
+
 			if (
 				$type == 'varchar' ||
 				strpos ($type, 'text') !== false
@@ -160,21 +160,21 @@ abstract class Model_Scheme
 			{
 				$s ['collation'] = $collation;
 			}
-			
+
 			if (strpos ($type, 'text') === false)
 			{
 				$s ['size'] = $size;
 				$s ['default'] = $default;
 			}
-			
+
 			$field = $field ['Field'];
-			
+
 			$scheme [$field] = $s;
 		}
-		
+
 		return $scheme;
 	}
-	
+
 	/**
 	 * @desc Инициализация схемы моделей
 	 * @param Config_Array $config
@@ -183,15 +183,15 @@ abstract class Model_Scheme
 	{
 		if ($config->default)
 		{
-			self::$default = $config->default;
+			self::$defaultPrefix = $config->default;
 		}
-		
+
 		if ($config->models)
 		{
 			self::$models = $config->models->__toArray ();
 		}
 	}
-	
+
 	/**
 	 * @desc Генерирует новый ID для модели, если для этого в схеме заданы
 	 * правила.
@@ -202,37 +202,37 @@ abstract class Model_Scheme
 	public static function generateKey (Model $model)
 	{
 		$name = strtolower ($model->modelName ());
-		
+
 		if (!isset (self::$models [$name], self::$models [$name]['keyGen']))
 		{
-			if (!isset (self::$default ['keyGen']))
+			if (!isset (self::$defaultPrefix ['keyGen']))
 			{
 				return null;
 			}
-			$keygen = explode ('::', self::$default ['keyGen'], 2);
+			$keygen = explode ('::', self::$defaultPrefix ['keyGen'], 2);
 		}
 		else
 		{
 			$keygen = explode ('::', self::$models [$name]['keyGen'], 2);
 		}
-		
+
 		if (count ($keygen) != 2)
 		{
 			return null;
 		}
-		
+
 		Loader::load ($keygen [0]);
-		
+
 		return call_user_func ($keygen, $model);
 	}
-	
+
 	/**
 	 * @desc Получение реального имени таблицы в БД.
 	 * @param string|Model $model Имя модели или экземпляр класса модели.
 	 * @return string Действительное имя таблицы.
 	 */
 	public static function table ($model)
-	{	
+	{
 		if (is_array ($model))
 		{
 			var_dump ($model);
@@ -240,7 +240,7 @@ abstract class Model_Scheme
 			debug_print_backtrace ();
 			echo '</pre>';
 		}
-		
+
 	    $model = strtolower (
 	    	is_object ($model) ? $model->modelName () : $model
 	    );
@@ -252,10 +252,10 @@ abstract class Model_Scheme
 				if (empty (self::$models [$model]))
 				{
 					return $model;
-				} 
+				}
 				$model = self::$models [$model];
 			}
-			
+
 			if (isset (self::$models [$model]['table']))
 			{
 				return self::$models [$model]['table'];
@@ -269,18 +269,18 @@ abstract class Model_Scheme
 		{
 			return $model;
 		}
-		
-		return self::$default ['prefix'] . $model;
-		
+
+		return self::$defaultPrefix ['prefix'] . $model;
+
 //		$prefix = isset ($this->prefixes [$model]) ?
 //			$this->prefixes [$model] :
 //			$this->defaultPrefix;
 //
 //		$table = defined ($model) ? constant ($model) : $model;
-//			
+//
 //		return $prefix . $table;
 	}
-	
+
 	/**
 	 * @desc Определеяет название модели по названию таблицы.
 	 * @param string $table
@@ -288,14 +288,14 @@ abstract class Model_Scheme
 	 */
 	public static function tableToModel ($table)
 	{
-		$prefix = self::$default ['prefix'];
-		
+		$prefix = self::$defaultPrefix ['prefix'];
+
 		foreach (self::$models as $name => $model)
 		{
 			if (isset ($model ['table']) && $model ['table'] == $table)
 			{
 				$name = explode ('_', $name);
-	
+
 				$name = array_map ('ucfirst', $name);
 				return implode ('_', $name);
 			}
@@ -307,11 +307,11 @@ abstract class Model_Scheme
 		{
 			array_shift ($table);
 		}
-		
+
 		$table = array_map ('ucfirst', $table);
 		return implode ('_', $table);
 	}
-	
+
 	/**
 	 * @desc Источник данных для модели.
 	 * @param string $model название модели.
@@ -320,17 +320,17 @@ abstract class Model_Scheme
 	public static function dataSource ($model)
 	{
 		$model = strtolower ($model);
-		
+
 		if (!isset (self::$models [$model], self::$models [$model]['source']))
 		{
 			return DDS::getDataSource ();
 		}
-		
+
 		$name = self::$models [$model]['source'];
-		
+
 		return Data_Source_Manager::get ($name);
 	}
-	
+
 	/**
 	 * @desc Возвращает названия полей модели.
 	 * @param string $model Название модели.
@@ -341,7 +341,7 @@ abstract class Model_Scheme
 		Loader::load ('Helper_Data_Source');
 		return Helper_Data_Source::fields ($model)->column ('Field');
 	}
-	
+
 	/**
 	 * @desc Получить схему модели
 	 * @param string $model_name
@@ -361,30 +361,30 @@ abstract class Model_Scheme
 				Loader::load ($model_name);
 				$scheme = $model_name::scheme ();
 			}
-			
+
 			if (empty ($scheme ['fields']))
-			{				
+			{
 				Loader::load ('Helper_Data_Source');
-				
+
 				$table = self::table ($model_name);
-				
+
 				$fields = Helper_Data_Source::fields ('`' . $table . '`');
 
 				$fields = self::_makeScheme ($fields);
-				
+
 				$scheme = array (
 					'fields'	=> $fields,
 					'keys'		=> array ()
 				);
 
 			}
-			
+
 			self::setScheme ($model_name, $scheme);
 		}
-		
+
 		return self::$_modelSchemes [$model_name];
 	}
-	
+
 	/**
 	 * @desc Индексы модели.
 	 * @param string $model Название модели.
@@ -393,15 +393,15 @@ abstract class Model_Scheme
 	public static function indexes ($model)
 	{
 		$model = strtolower ($model);
-		
+
 		if (!isset (self::$models [$model], self::$models [$model]['indexes']))
 		{
 			return array ();
 		}
-		
+
 		return self::$models [$model]['indexes'];
 	}
-	
+
 	/**
 	 * @desc Ключевое поле для модели.
 	 * @param string $model Название модели.
@@ -410,15 +410,15 @@ abstract class Model_Scheme
 	public static function keyField ($model)
 	{
 		$model = strtolower ($model);
-		
+
 		if (!isset (self::$models [$model], self::$models [$model]['key']))
 		{
 			return self::DEFAULT_KEY_FIELD;
 		}
-		
+
 		return self::$models [$model]['key'];
 	}
-	
+
 	/**
 	 * @desc Возвращает схему связи.
 	 * @param string $model1
@@ -428,26 +428,26 @@ abstract class Model_Scheme
 	public static function linkScheme ($model1, $model2)
 	{
 		$model1 = strtolower ($model1);
-		
+
 	    return empty (self::$models [$model1]['links'][$model2])
 			? self::$defaultLinkScheme
 			: self::$models [$model1]['links'][$model2];
 	}
-	
+
 	/**
 	 * @desc Изменить схему модели
-	 * @param Model $model 
+	 * @param Model $model
 	 */
 	public static function setScheme ($model, $scheme = null)
 	{
 		$model_name = $model;
-	
+
 		if ($model instanceof Model)
 		{
 			$model_name = $model->modelName ();
 			$scheme = $model->scheme ();
 		}
-		
+
 		if (isset ($scheme ['fields']))
 		{
 			foreach ($scheme ['fields'] as &$field)
@@ -455,20 +455,20 @@ abstract class Model_Scheme
 				if (isset (self::$_defaultScheme [$field ['type']]))
 				{
 					$field = array_merge (
-						$field, 
+						$field,
 						self::$_defaultScheme [$field ['type']]
 					);
 				}
 			}
 		}
-		
+
 		self::$_modelSchemes [$model_name] = $scheme;
-		
+
 		Resource_Manager::set (
-			__CLASS__, 
-			$model_name, 
+			__CLASS__,
+			$model_name,
 			$scheme
 		);
 	}
-    
+
 }
