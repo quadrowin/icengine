@@ -42,7 +42,7 @@ class View_Render_JsHttpRequest extends View_Render_Abstract
 	 */
 	public function display ($tpl)
 	{
-		$GLOBALS ['_RESULT'] = reset ($this->_vars);
+		$GLOBALS ['_RESULT'] = $this->_vars;
 //		if (
 //			count ($GLOBALS ['_RESULT']) == 1 &&
 //			isset ($GLOBALS ['_RESULT']['content']) &&
@@ -52,6 +52,13 @@ class View_Render_JsHttpRequest extends View_Render_Abstract
 //			$GLOBALS ['_RESULT'] = $GLOBALS ['_RESULT']['content'];
 //		}
 		die ();
+	}
+	
+	public function render (Controller_Task $task)
+	{
+		$buffer = $task->getTransaction ()->buffer ();
+		$this->_vars = $buffer;
+		$this->display ($task->getTemplate ());
 	}
 	
 	/**
