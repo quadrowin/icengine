@@ -92,11 +92,16 @@ class Key_Generator
 	 * @desc Возвращает название файла с бэкапом ключей.
 	 * @return string
 	 */
-	public static function lastFile ()
+	public static function lastFile ($type)
 	{
-		return IcEngine::root () . 'Ice/Var/Key/Generator/' .
-			urlencode (Helper_Site_Location::getLocation ()) . 
-			'.txt';
+		$dir = IcEngine::root () . 'Ice/Var/Key/Generator/' .
+			urlencode (Helper_Site_Location::getLocation ());
+		if (!is_dir ($dir))
+		{
+			mkdir ($dir, 0666);
+			chmod ($dir, 0666);
+		}
+		return $dir . '/' . urlencode ($type) . '.txt';
 	}
 	
 	/**
@@ -106,7 +111,7 @@ class Key_Generator
 	 */
 	public static function load ($type, $min)
 	{
-		$file = self::lastFile ();
+		$file = self::lastFile ($type);
 		
 		$vals = file_exists ($file)
 			? json_decode (file_get_contents ($file), true)
@@ -138,15 +143,15 @@ class Key_Generator
 	 */
 	public static function save ($type, $value)
 	{
-		$file = self::lastFile ();
+		$file = self::lastFile ($type);
 		
 		$vals = file_exists ($file)
-			? json_decode (file_get_contents ($file), true)
+			? (int) file_get_contents ($file)
 			: array ();
 		
 		$vals [$type] = $value;
 		
-		file_put_contents ($file, json_encode ($vals));
+		file_put_contents ($file, $value);
 	}
 	
 }
