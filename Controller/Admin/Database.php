@@ -663,6 +663,8 @@ class Controller_Admin_Database extends Controller_Abstract
 			}
 		}
 		
+		//print_r ($collection->items ());
+
 		// Сортируем коллекцию, если есть конфиг для сортировки
 		$sort = $this->config ()->sort->$class_name;
 		
