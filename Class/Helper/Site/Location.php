@@ -37,14 +37,14 @@ class Helper_Site_Location
 		{
 			self::load ();
 		}
-
+		
 		$location = self::$_location;
 		while (is_string (self::$_config [$location]))
 		{
 			$location = self::$_config [$location];
 		}
-
-		return self::$_config [self::$_location][$param];
+		
+		return self::$_config [$location][$param];
 	}
 
 	/**

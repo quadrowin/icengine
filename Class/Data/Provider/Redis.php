@@ -50,7 +50,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 			isset ($config ['connection_class_file']) ?
 				$config ['connection_class_file'] :
 				self::DEFAULT_CONNECTION_CLASS_FILE;
-				
+		
 		Loader::requireOnce ($file, 'includes');
 		$this->conn = Redis_Wrapper::instance ();
 		parent::__construct ($config);
