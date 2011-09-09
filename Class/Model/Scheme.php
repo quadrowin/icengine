@@ -27,7 +27,7 @@ abstract class Model_Scheme
 	 * @desc Префикс по умолчанию для всех таблиц
 	 * @var string
 	 */
-	public static $defaultPrefix = array (
+	public static $default = array (
 		'keyGen'	=> null,
 		'prefix'	=> 'ice_'
 	);
@@ -183,7 +183,7 @@ abstract class Model_Scheme
 	{
 		if ($config->default)
 		{
-			self::$defaultPrefix = $config->default;
+			self::$default = $config->default;
 		}
 
 		if ($config->models)
@@ -205,11 +205,11 @@ abstract class Model_Scheme
 
 		if (!isset (self::$models [$name], self::$models [$name]['keyGen']))
 		{
-			if (!isset (self::$defaultPrefix ['keyGen']))
+			if (!isset (self::$default ['keyGen']))
 			{
 				return null;
 			}
-			$keygen = explode ('::', self::$defaultPrefix ['keyGen'], 2);
+			$keygen = explode ('::', self::$default ['keyGen'], 2);
 		}
 		else
 		{
@@ -270,7 +270,7 @@ abstract class Model_Scheme
 			return $model;
 		}
 
-		return self::$defaultPrefix ['prefix'] . $model;
+		return self::$default ['prefix'] . $model;
 
 //		$prefix = isset ($this->prefixes [$model]) ?
 //			$this->prefixes [$model] :
@@ -288,7 +288,7 @@ abstract class Model_Scheme
 	 */
 	public static function tableToModel ($table)
 	{
-		$prefix = self::$defaultPrefix ['prefix'];
+		$prefix = self::$default ['prefix'];
 
 		foreach (self::$models as $name => $model)
 		{
@@ -320,7 +320,7 @@ abstract class Model_Scheme
 	public static function dataSource ($model)
 	{
 		$model = strtolower ($model);
-
+		
 		if (!isset (self::$models [$model], self::$models [$model]['source']))
 		{
 			return DDS::getDataSource ();
