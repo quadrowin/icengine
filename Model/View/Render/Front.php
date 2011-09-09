@@ -50,6 +50,8 @@ class View_Render_Front extends View_Render_Abstract
 		$render = $tasks [0]->getViewRender ();
 
 		$render->assign ($this->_vars);
+		//$render->display ($task->getTemplate ());
+		
 		$render->display ($task->getTemplate ());
 	}
 	

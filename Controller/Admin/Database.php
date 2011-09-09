@@ -240,7 +240,10 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		if (!$acl_fields || !User::id ())
 		{
-			return $this->replaceAction ('Error', 'accessDenied');
+			return $this->replaceAction (
+				'Authorization_Login_Password_Sms', 
+				'index'
+			);
 		}
 		
 		/*
@@ -281,7 +284,10 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		if (!$tmp_tables || !User::id ())
 		{
-			return $this->replaceAction ('Error', 'accessDenied');
+			return $this->replaceAction (
+				'Authorization_Login_Password_Sms', 
+				'index'
+			);
 		}
 		
 		$result = array ();
@@ -347,10 +353,13 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		if (!$acl_fields || !User::id ())
 		{
-			return $this->replaceAction ('Error', 'accessDenied');
+			return $this->replaceAction (
+				'Authorization_Login_Password_Sms', 
+				'index'
+			);
 		}
 		
-		$prefix = Model_Scheme::$defaultPrefix;
+		$prefix = Model_Scheme::$default ['prefix'];
 		
 		$class_name = $this->__className ($table, $prefix);
 		
@@ -619,17 +628,24 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		$acl_fields = $this->__fields ($table);
 
-		if (!in_array ($table, $tmp_tables) || !$acl_fields || !User::id ())
+		if (
+			!in_array ($table, $tmp_tables) || 
+			!$acl_fields || 
+			!User::id ()
+		)
 		{
-			return $this->replaceAction ('Error', 'accessDenied');
+			return $this->replaceAction (
+				'Authorization_Login_Password_Sms', 
+				'index'
+			);
 		}
 
-		$prefix = Model_Scheme::$defaultPrefix;
+		$prefix = Model_Scheme::$default ['prefix'];
 		
 		$class_name = $this->__className ($table, $prefix);
 
 		$collection = Model_Collection_Manager::create ($class_name);
-		
+
 		// Получаем фильтры
 		$filters = $this->config ()->filters->$class_name;
 		
@@ -826,7 +842,10 @@ class Controller_Admin_Database extends Controller_Abstract
 		 
 		if (!$acl_fields || !User::id ())
 		{
-			return $this->replaceAction ('Error', 'accessDenied');
+			return $this->replaceAction (
+				'Authorization_Login_Password_Sms', 
+				'index'
+			);
 		}
 		
 		/* @var $row Model */

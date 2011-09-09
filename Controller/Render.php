@@ -23,6 +23,8 @@ class Controller_Render extends Controller_Abstract
 //		$render->assign (array (
 //			'task'	=> $task
 //		));
+		
+		
 		$render->render ($task);
 	}
 }
