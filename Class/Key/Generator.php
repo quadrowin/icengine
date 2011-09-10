@@ -17,14 +17,10 @@ class Key_Generator
 		// Провайдер
 		'provider'		=> null,
 		// Минимальное значение
-		'min_value'		=> 1
+		'min_value'		=> 1,
+		// Максимальное значение
+		'max_value'		=> 100000000
 	);
-	
-	/**
-	 * @desc Количество сгенерированных с начала выполнения скрипта
-	 * @var integer
-	 */
-	protected static $_generatedCount = 0;
 	
 	/**
 	 * @desc Провайдер для хранения текущего значения
@@ -47,43 +43,35 @@ class Key_Generator
 	
 	/**
 	 * @desc Генерирует новый ключ
-	 * @param string|Model $type 
+	 * @param string|Model $model 
 	 * @return integer
 	 */
-	public static function get ($type = 'def')
+	public static function get ($model = 'def')
 	{
-		if (is_object ($type))
+		if (is_object ($model))
 		{
-			$type = $type->modelName ();
+			$model = $model->modelName ();
 		}
 		
-		self::$_generatedCount++;
 		$provider = self::provider ();
-		$val = $provider->increment ($type);
+		$val = $provider->increment ($model);
 		if ($val < self::config ()->min_value)
 		{
-			$val = self::load ($type, self::config ()->min_value);
-			
-			if (!$provider->lock ($type, 1, 5, 100))
+			if (!$provider->lock ($model, 1, 5, 100))
 			{
 				throw new Exception ('Failed to lock key value');
 			}
 			
-			$provider->set ($type, $val);
+			$val = self::load ($model, self::config ()->min_value);
 			
-			$provider->unlock ($type);
+			$provider->set ($model, $val);
 			
-			$val = $provider->increment ($type);
+			$provider->unlock ($model);
+			
+			$val = $provider->increment ($model);
 		}
 		
-		static $saved = 0;
-		$ten = self::$_generatedCount / 10;
-		$unit = $val % 10;
-		if ($ten > $saved || $unit = 10)
-		{
-			$saved = $ten;
-			self::save ($type, $val);
-		}
+		self::save ($model, $val);
 		
 		return $val;
 	}
@@ -92,34 +80,48 @@ class Key_Generator
 	 * @desc Возвращает название файла с бэкапом ключей.
 	 * @return string
 	 */
-	public static function lastFile ($type)
+	public static function lastFile ($model)
 	{
 		$dir = IcEngine::root () . 'Ice/Var/Key/Generator/' .
 			urlencode (Helper_Site_Location::getLocation ());
+		
 		if (!is_dir ($dir))
 		{
 			mkdir ($dir, 0666);
 			chmod ($dir, 0666);
 		}
-		return $dir . '/' . urlencode ($type) . '.txt';
+		
+		return $dir . '/' . urlencode ($model) . '.txt';
 	}
 	
 	/**
-	 *
-	 * @param type $type
-	 * @param type $min 
+	 * @desc Загрузка значения из надежного хранилища
+	 * @param string $model 
+	 * @param integer $min 
 	 */
-	public static function load ($type, $min)
+	public static function load ($model, $min)
 	{
-		$file = self::lastFile ($type);
+		$file = self::lastFile ($model);
 		
-		$vals = file_exists ($file)
-			? json_decode (file_get_contents ($file), true)
-			: array ();
+		if (file_exists ($file))
+		{
+			$val = file_get_contents ($file);
+		}
+		else
+		{
+			$ds = Model_Scheme::dataSource ($model);
+			$kf = Model_Scheme::keyField ($model);
+			$val = $ds->execute (
+				Query::instance ()
+					->select ($kf)
+					->from ($model)
+					->where ("`$kf` < ?", self::config ()->max_value)
+					->order (array ($kf => Query::DESC))
+					->limit (1)
+			)->getResult ()->asValue ();
+		}
 		
-		return isset ($vals [$type]) 
-			? max ($vals [$type] + 11, $min)
-			: $min;
+		return max ($val, $min) + 7; // magic 7
 	}
 	
 	/**
@@ -140,17 +142,12 @@ class Key_Generator
 	
 	/**
 	 * @desc Дублирование значения в файл
+	 * @param string $model
+	 * @param integer $value
 	 */
-	public static function save ($type, $value)
+	public static function save ($model, $value)
 	{
-		$file = self::lastFile ($type);
-		
-		$vals = file_exists ($file)
-			? (int) file_get_contents ($file)
-			: array ();
-		
-		$vals [$type] = $value;
-		
+		$file = self::lastFile ($model);
 		file_put_contents ($file, $value);
 	}
 	
