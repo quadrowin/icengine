@@ -43,9 +43,9 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 		
 		if ($this->_affectedRows > 0)
 		{
-			$tags = $this->_getTags ($query);
+			$tags = $query->getTags ();
 			
-			for ($i = 0, $count = sizeof ($tags); $i < $count; $i++)
+			for ($i = 0, $count = sizeof ($tags); $i < $count; ++$i)
 			{
 				$this->_cacher->tagDelete ($tags [$i]);
 			}
@@ -74,7 +74,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 		
 		if ($this->_affectedRows > 0)
 		{
-			$tags = $this->_getTags ($query);
+			$tags = $query->getTags ();
 			
 			for ($i = 0, $count = sizeof ($tags); $i < $count; $i++)
 			{
@@ -94,10 +94,8 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	protected function _executeSelect (Query $query, Query_Options $options)
 	{
 		$key = $this->_sqlHash ();
-		$key_hits = $key . '_h';
 		
 		$expiration = $options->getExpiration ();
-		$hits = $options->getHits ();
 		
 		$cache = $this->_cacher->get ($key);
 		
@@ -107,8 +105,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 		{
 			if (
 	   			($cache ['a'] + $expiration > time () || $expiration == 0) && 
-				$this->_cacher->checkTags ($cache ['t']) &&
-				(!$hits || $this->_cacher->get ($key_hits) < $hits)
+				$this->_cacher->checkTags ($cache ['t'])
 			)
 			{
 	  			$use_cache = true;
@@ -169,7 +166,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 			mysql_free_result ($result);
 		}
 		
-		$tags = $this->_getTags ($query);
+		$tags = $query->getTags ();
 		
 		$this->_cacher->set (
 			$key, 
@@ -186,46 +183,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 			$this->_cacher->unlock ($key);
 		}
 		
-		if ($hits)
-		{
-			$this->_cacher->set ($key_hits, 0);
-		}
-		
 		return $rows;
-	}
-	
-	/**
-	 * @desc Получение тегов запроса.
-	 * @param Query $query
-	 * @return array
-	 */
-	public function _getTags (Query $query)
-	{
-		$tags = array ();
-		
-		$from = $query->getPart (Query::FROM);
-		foreach ($from as $info)
-		{
-			$tags [] = Model_Scheme::table ($info [Query::TABLE]);
-		}
-		
-		$insert = $query->getPart (QUERY::INSERT);
-		if ($insert)
-		{
-	   		$tags [] = Model_Scheme::table ($insert);
-		}
-	   	
-		$update = $query->getPart (QUERY::UPDATE);
-		if ($update)
-		{
-			$tags [] = Model_Scheme::table ($update);
-		}
-		
-		
-//		echo DDS::getDataSource ()->getQuery ()->translate ('Mysql', DDS::modelScheme ()) . ' => ';
-//		var_dump ($tags);
-		
-		return array_unique ($tags);
 	}
 	
 	/**
@@ -253,11 +211,11 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	{
 		switch ($key)
 		{
-			case "cache_provider":
+			case 'cache_provider':
 				Loader::load ('Data_Provider_Manager');
 				$this->setCacher (Data_Provider_Manager::get ($value));
 				return;
-			case "expiration":
+			case 'expiration':
 				$this->getDefaultOptions ()->setExpiration ($value);
 				return;
 		}

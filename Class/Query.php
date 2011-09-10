@@ -178,6 +178,35 @@ class Query {
 	}
 	
 	/**
+	 * @desc Возвращает теги запроса
+	 * @return array<string>
+	 */
+	public function getTags ()
+	{
+		$tags = array ();
+		
+		$from = $this->getPart (Query::FROM);
+		foreach ($from as $info)
+		{
+			$tags [] = Model_Scheme::table ($info [Query::TABLE]);
+		}
+		
+		$insert = $this->getPart (QUERY::INSERT);
+		if ($insert)
+		{
+	   		$tags [] = Model_Scheme::table ($insert);
+		}
+	   	
+		$update = $this->getPart (QUERY::UPDATE);
+		if ($update)
+		{
+			$tags [] = Model_Scheme::table ($update);
+		}
+		
+		return array_unique ($tags);
+	}
+	
+	/**
 	 * @desc Устанавливает правило группировки
 	 * @param array|string $fields
 	 * @param string $_ Поля для группировки.
