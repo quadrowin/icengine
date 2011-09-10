@@ -64,7 +64,7 @@ class User_Guest extends User
 	 */
 	public static function init ($session_id = null)
 	{
-		$instance = User_Guest::getInstance ();
+		$instance = self::getInstance ();
 		Resource_Manager::set ('Model', $instance->resourceKey (), $instance);
 	}
 	
