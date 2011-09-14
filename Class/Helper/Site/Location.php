@@ -77,7 +77,7 @@ class Helper_Site_Location
 			}
 			else
 			{
-				self::$_location = $_SERVER ['SERVER_ADDR'];
+				self::$_location = $_SERVER ['HTTP_HOST'];
 			}
 		}
 
