@@ -87,7 +87,7 @@ abstract class Bootstrap_Abstract
 		$this->initDds ();
 			
 		$this->initAttributeManager ();
-		
+
 		$this->initModelScheme ($this->name ());
 			
 		$this->initModelManager ();

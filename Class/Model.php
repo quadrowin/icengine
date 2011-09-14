@@ -97,6 +97,8 @@ abstract class Model implements ArrayAccess
 	 */
 	public function __call ($method, $params)
 	{
+		// Получаем значение атрибутов
+		// Это можно сделать так: get{Attrname}
 		if (strlen ($method) > 3 && strncmp ($method, 'get', 3) == 0)
 		{
 			return $this->attr (
@@ -105,6 +107,7 @@ abstract class Model implements ArrayAccess
 			);
 		}
 		
+		// Вызываем плагины
 		if (isset ($this->_plugins [$method]))
 		{
 			return call_user_func_array (
@@ -128,9 +131,9 @@ abstract class Model implements ArrayAccess
 		
 		if ($model)
 		{
-			$this->_fields = array ();
-			$this->_addicts = $fields;
-			$this->_generic = $model;
+			$this->_fields = $fields;
+			$this->_addicts = array ();
+			$this->_generic = clone $model;
 			
 			// Поля, которые должны различаться у реализаций и генерика
 			static $realized = array (
@@ -173,13 +176,24 @@ abstract class Model implements ArrayAccess
 	 */
 	public function __get ($field)
 	{
+		$join_field = $field . '__id';
+		
 		if ($this->_generic)
 		{
 			if (array_key_exists ($field, $this->_addicts))
 			{
 				return $this->_addicts [$field];
 			}
-			return $this->_generic->$field;
+			
+			if (
+				!array_key_exists ($field, $this->_fields) &&
+				array_key_exists ($join_field, $this->_fields)
+			)
+			{
+				return $this->_joint ($field, $this->_fields [$join_field]);
+			}
+			
+			return $this->_fields [$field];
 		}
 		
 		if (array_key_exists ($field, $this->_fields))
@@ -191,8 +205,6 @@ abstract class Model implements ArrayAccess
 		{
 			return $this->_joints [$field];
 		}
-		
-		$join_field = $field . '__id';
 		
 		if (array_key_exists ($join_field, $this->_fields))
 		{
@@ -234,7 +246,7 @@ abstract class Model implements ArrayAccess
 		{
 			return 
 				isset ($this->_addicts [$key]) ||
-				isset ($this->_generic->$key);
+				isset ($this->_fields [$key]);
 		}
 		return isset ($this->_fields [$key]);
 	}
@@ -245,21 +257,26 @@ abstract class Model implements ArrayAccess
 	 * @param mixed $value Значение.
 	 */
 	public function __set ($field, $value)
-	{
+	{	
 		if ($this->_generic)
 		{
 			if (array_key_exists ($field, $this->_addicts))
 			{
 				$this->_addicts [$field] = $value;
-				return ;
 			}
-			
-			$this->_generic->$field = $value;
-			
-			return ;
+			else 
+			{
+				//$this->_generic->$field = $value;
+				$this->_fields [$field] = $value;
+			}
+
+			return;
 		}
-		
-		if (!array_key_exists ($field, $this->_fields) && !$this->_loaded)
+	
+		if (
+			!array_key_exists ($field, $this->_fields) && 
+			!$this->_loaded
+		)
 		{
 			$this->load ();
 		}
@@ -325,7 +342,7 @@ abstract class Model implements ArrayAccess
 		}
 		return array_merge (
 			$this->_addicts,
-			$this->_generic->asRow ()
+			$this->_generic->getFields ()
 		);
 	}
 	
@@ -549,7 +566,7 @@ abstract class Model implements ArrayAccess
 	 */
 	public function getFields ()
 	{
-		return $this->asRow ();
+		return $this->_fields;
 	}
 	
 	/**
@@ -602,12 +619,12 @@ abstract class Model implements ArrayAccess
 	{		
 		$kf = $this->keyField ();
 		
-		if (!$this->hasField ($kf))
+		if (!isset ($this->_fields [$kf]))
 		{
 			return null;
 		}
 		
-		return $this->field ($kf);
+		return $this->_fields [$kf];
 	}
 	
 	/**
@@ -754,16 +771,16 @@ abstract class Model implements ArrayAccess
 		{
 			foreach ($fields as $field => $value)
 			{
-				if ($this->_generic->hasField ($field)) 
+				if (array_key_exists ($field, $this->_fields))
 				{
-					$this->_generic->set ($field, $value);
+					$this->_fields [$field] = $value;
 				}
 				else
 				{
 					$this->_addicts [$field] = $value;
 				}
 			}
-			return ;
+			return;
 		}
 		
 		$this->_fields = array_merge (
@@ -783,6 +800,11 @@ abstract class Model implements ArrayAccess
 		Attribute_Manager::set ($this, $key, $value);
 	}
 	
+	/**
+	 * @desc Меняет джоинт для модели
+	 * @param string $model
+	 * @param mixed $value 
+	 */
 	public function setJoint ($model, $value)
 	{
 		$this->_joints [$model] = $value;
@@ -887,9 +909,7 @@ abstract class Model implements ArrayAccess
 				}
 			}
 		}
-		/**
-		 * @var Model $valid
-		 */
+
 		$valid = true;
 
 		foreach ((array) $args as $field => $value)
@@ -958,6 +978,10 @@ abstract class Model implements ArrayAccess
 					$this->_addicts [$field] = $value;
 					unset ($data [$field]);
 				}
+				else
+				{
+					$this->_fields [$field] = $value;
+				}
 			}
 
 			if ($data)
@@ -972,7 +996,9 @@ abstract class Model implements ArrayAccess
 		{
 			$this->_updatedFields [$key] = true;
 		}
+		
 		$this->set ($data);
+		
 		return $this->save ();
 	}
 	

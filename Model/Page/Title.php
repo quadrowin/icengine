@@ -64,17 +64,16 @@ class Page_Title extends Model_Child
 	 */
 	public static function byAddress ($host, $page)
 	{
-		return Model_Manager::byQuery (
-			'Page_Title',
-			Query::instance ()
-				->where ('(? RLIKE `host` OR `host`="")', $host)
-				->where ('? RLIKE `pattern`', $page)
-				->order (array (
-					'rate'		=> Query::DESC,
-					'`host`=""'	=> Query::ASC
-				))
-				->limit (1)
-		);
+		$query = Query::instance ()
+			->where ('(? RLIKE `host` OR `host`="")', $host)
+			->where ('? RLIKE `pattern`', $page)
+			->order (array (
+				'rate'		=> Query::DESC,
+				'`host`=""'	=> Query::ASC
+			))
+			->limit (1);
+		
+		return Model_Manager::byQuery ('Page_Title', $query);
 	}
 	
 	/**

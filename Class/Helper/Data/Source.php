@@ -1,7 +1,30 @@
 <?php
 
-class Helper_Data_Source 
+class Helper_Data_Source
 {
+
+	/**
+	 * @desc Получить информацию о колонке таблицы
+	 * @param string $table
+	 * @param string $field
+	 * @return Objective
+	 */
+	public static function field ($table, $field)
+	{
+		$query = Query::instance ()
+			->show ('FULL COLUMNS')
+			->from ($table)
+			->where ('Field', $field);
+
+		$status = DDS::execute (
+			$query
+		)
+			->getResult ()
+				->asRow ();
+
+		return new Objective ($status);
+	}
+
 	/**
 	 * @desc Получить список колонок таблицы
 	 * @param string $table
@@ -12,16 +35,16 @@ class Helper_Data_Source
 		$query = Query::instance ()
 			->show ('FULL COLUMNS')
 			->from ($table);
-			
+
 		$status = DDS::execute (
-			$query 
+			$query
 		)
 			->getResult ()
 				->asTable ();
-				
+
 		return new Objective ($status);
 	}
-	
+
 	/**
  	 * @desc Получить информацию по таблице
  	 * @return Objective
@@ -32,16 +55,16 @@ class Helper_Data_Source
  			->show ('TABLE STATUS')
 			->where ('Name', $table)
 			->resetPart (Query::FROM);
- 			
+
  		$status = DDS::execute (
- 			$query 
+ 			$query
  		)
 			->getResult ()
 				->asRow ();
-		
+
  		return new Objective ($status);
  	}
-	
+
 	/**
 	 * @desc Получить список таблиц текущей базы данных
 	 * @return Objective
@@ -51,13 +74,13 @@ class Helper_Data_Source
 		$query = Query::instance ()
 			->show ('TABLE STATUS')
 			->resetPart (Query::FROM);
-			
+
 		$status = DDS::execute (
-			$query 
+			$query
 		)
 			->getResult ()
 				->asTable ();
-				
+
 		return new Objective ($status);
 	}
 }
