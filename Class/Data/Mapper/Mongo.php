@@ -14,6 +14,12 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 	 * @var Mongo
 	 */
 	protected $_connection;
+	
+	/**
+	 * @desc Текущая коллекция
+	 * @var MongoCollection
+	 */
+	protected $_collection;
 
 	/**
 	 * @desc Параметры соединения
@@ -26,35 +32,170 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 		'database'	=> 'unknown',
 		'charset'	=> 'utf8'
 	);
-
+	
 	/**
-	 *
-	 * @param Query $query
-	 * @return array
+	 * @desc Последний оттранслированный запрос.
+	 * @var array
 	 */
-	public function _getTags (Query $query)
+	protected $_query = '';
+	
+	protected $_result = null;
+	protected $_touchedRows = 0;
+	protected $_foundRows = 0;
+	protected $_insertId = null;
+	
+	/**
+	 * Обработчики по видам запросов.
+	 * @var array
+	 */
+	protected $_queryMethods = array (
+		Query::SELECT	=> '_executeSelect',
+		Query::SHOW		=> '_executeShow',
+		Query::DELETE	=> '_executeDelete',
+		Query::UPDATE	=> '_executeUpdate',
+		Query::INSERT	=> '_executeInsert'
+	);
+	
+	/**
+	 * @desc Запрос на удаление
+	 */
+	public function _executeDelete ()
 	{
-		$tags = array ();
-
-		$from = $query->getPart (Query::FROM);
-		foreach ($from as $info)
+		$this->_collection->remove (
+			$this->_query ['criteria'],
+			$this->_query ['options']
+		);
+		$this->_touchedRows = 1;
+	}
+	
+	/**
+	 * @desc Запрос на вставку
+	 */
+	public function _executeInsert ()
+	{
+		if (isset ($this->_query ['a']['_id']))
 		{
-			$tags [] = Model_Scheme::table ($info [Query::TABLE]);
+			$this->_insertId = $this->_query ['a']['_id'];
+			$this->_collection->update (
+				array (
+					'_id'		=> $this->_insertId
+				),
+				$this->_query ['a'],
+				array (
+					'upsert'	=> true
+				)
+			);
+		}
+		else
+		{
+			$this->_collection->insert ($this->_query ['a']);
+			$this->_insertId = $this->_query ['a']['_id'];
 		}
 
-		$insert = $query->getPart (QUERY::INSERT);
-		if ($insert)
+		$this->_touchedRows = 1;
+	}
+	
+	/**
+	 * @desc Запрос на выбор
+	 */
+	public function _executeSelect ()
+	{
+		if ($this->_query ['find_one'])
 		{
-	   		$tags [] = Model_Scheme::table ($insert);
+			$this->_result = array (
+				$this->_collection->findOne ($this->_query ['query'])
+			);
 		}
-
-		$update = $query->getPart (QUERY::UPDATE);
-		if ($update)
+		else
 		{
-			$tags [] = Model_Scheme::table ($update);
-		}
+//			fb (json_encode ($q ['query']));
 
-		return array_unique ($tags);
+			$r = $this->_collection->find ($this->_query ['query']);
+
+			if ($this->_query [Query::CALC_FOUND_ROWS])
+			{
+				$this->_foundRows = $r->count ();
+			}
+
+			if ($this->_query ['sort'])
+			{
+				$r->sort ($this->_query ['sort']);
+			}
+			if ($this->_query ['skip'])
+			{
+				$r->skip ($this->_query ['skip']);
+			}
+			if ($this->_query ['limit'])
+			{
+				$r->limit ($this->_query ['limit']);
+			}
+			//$result = Mysql::select ($tags, $sql);
+			$this->_touchedRows = $r->count (true);
+
+			$this->_result = array ();
+			foreach ($r as $tr)
+			{
+				$this->_result [] = $tr;
+			}
+			// Так не работает, записи начинают повторяться
+			// $this->_result = $r;
+		}
+	}
+	
+	/**
+	 * @desc
+	 * @param Query $query
+	 * @param Query_Options $options 
+	 */
+	public function _executeShow ()
+	{
+		$show = strtoupper ($this->_query ['show']);
+		if ($show == 'DELETE_INDEXES')
+		{
+			$this->_result = array ($this->_collection->deleteIndexes ());
+		}
+		elseif ($show == 'ENSURE_INDEXES')
+		{
+			// Создание индексов
+			$result = Model_Scheme::getScheme ($this->_query ['model']);
+			$this->_result = $result ['keys'];
+			foreach ($this->_result as $key)
+			{
+				$temp = array ();
+				$options = array ();
+				if (isset ($key ['primary']))
+				{
+					$temp = (array) $key ['primary'];
+					$options ['unique'] = true;
+				}
+				elseif (isset ($key ['index']))
+				{
+					$temp = (array) $key ['index'];
+				}
+
+				$keys = array ();
+				foreach ($temp as $index)
+				{
+					$keys [$index] = 1;
+				}
+
+				$this->_collection->ensureIndex ($keys, $options);
+			}
+		}
+	}
+	
+	/**
+	 * @desc Обновление
+	 */
+	public function _executeUpdate ()
+	{
+		$this->_collection->update (
+			$this->_query ['criteria'],
+			$this->_query ['newobj'],
+			$this->_query ['options']
+		);
+		//Mysql::update ($tags, $sql);
+		$this->_touchedRows = 1; // unknown count
 	}
 
 	/**
@@ -123,147 +264,25 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 		$this->_filters->apply ($where, Query::VALUE);
 		$clone->setPart (Query::WHERE, $where);
 
-		$q = $clone->translate ('Mongo');
+		$this->_query = $clone->translate ('Mongo');
 
-		$collection = $this->connect ()->selectCollection (
+		$this->_collection = $this->connect ()->selectCollection (
 			$this->_connectionOptions ['database'],
-			$q ['collection']
+			$this->_query ['collection']
 		);
-
-		$found_rows = 0;
-		$result = null;
-		$insert_id = null;
-		$tags = implode ('.', $this->_getTags ($clone));
-
-		switch ($query->type ())
+		
+		$this->_result = array ();
+		$this->_touchedRows = 0;
+		$this->_foundRows = 0;
+		$this->_insertId = null;
+		
+		if (!$options)
 		{
-			case Query::DELETE:
-				$r = $collection->remove ($q ['criteria'], $q ['options']);
-				//Mysql::delete ($tags, $sql);
-				$touched_rows = 1;
-				break;
-			case Query::INSERT:
-				if (isset ($q ['a']['_id']))
-				{
-					$insert_id = $q ['a']['_id'];
-					$collection->update (
-						array (
-							'_id'		=> $insert_id
-						),
-						$q ['a'],
-						array (
-							'upsert'	=> true
-						)
-					);
-				}
-				else
-				{
-					$r = $collection->insert ($q ['a']);
-					$insert_id = $q ['a'] ['_id'];
-				}
-
-				$touched_rows = 1;
-				break;
-			case Query::SELECT:
-				if ($q ['find_one'])
-				{
-					$result = array (
-						$collection->findOne ($q ['query'])
-					);
-				}
-				else
-				{
-//					fb (json_encode ($q ['query']));
-
-					$r = $collection->find ($q ['query']);
-
-					if ($query->part (Query::CALC_FOUND_ROWS))
-					{
-						$found_rows = $r->count ();
-					}
-
-					if ($q ['sort'])
-					{
-						$r->sort ($q ['sort']);
-					}
-					if ($q ['skip'])
-					{
-						$r->skip ($q ['skip']);
-					}
-					if ($q ['limit'])
-					{
-						$r->limit ($q ['limit']);
-					}
-					//$result = Mysql::select ($tags, $sql);
-					$touched_rows = $r->count (true);
-
-					$result = array ();
-					foreach ($r as $tr)
-					{
-//						fb ($tr);
-						$result [] = $tr;
-					}
-					// Так не работает, записи начинают повторяться
-//					$result = $r;
-				}
-				break;
-			case Query::SHOW:
-				$touched_rows = 0;
-				$show = strtoupper ($q ['show']);
-				if ($show == 'DELETE_INDEXES')
-				{
-					$result = array ($collection->deleteIndexes ());
-				}
-				elseif ($show == 'ENSURE_INDEXES')
-				{
-					// Создание индексов
-					$result = Model_Scheme::getScheme ($q ['model']);
-					$result = $result ['keys'];
-					foreach ($result as $key)
-					{
-						$temp = array ();
-						$options = array ();
-						if (isset ($key ['primary']))
-						{
-							$temp = (array) $key ['primary'];
-							$options ['unique'] = true;
-						}
-						elseif (isset ($key ['index']))
-						{
-							$temp = (array) $key ['index'];
-						}
-
-						$keys = array ();
-						foreach ($temp as $index)
-						{
-							$keys [$index] = 1;
-						}
-
-						$collection->ensureIndex ($keys, $options);
-					}
-				}
-				else
-				{
-					$result = null;
-				}
-				break;
-			case Query::UPDATE:
-				$collection->update (
-					$q ['criteria'],
-					$q ['newobj'],
-					$q ['options']
-				);
-				//Mysql::update ($tags, $sql);
-				$touched_rows = 1; // unknown count
-				break;
+			$options = $this->getDefaultOptions ();
 		}
-
-		//$error = $this->_connection->lastError ();
-
-		if ($result == null)
-		{
-			$result = array ();
-		}
+		
+		$m = $this->_queryMethods [$query->type ()];
+		$this->{$m} ($query, $options);
 
 		$finish = microtime (true);
 
@@ -273,11 +292,11 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 			'query'			=> $clone,
 			'startAt'		=> $start,
 			'finishedAt'	=> $finish,
-			'foundRows'		=> $found_rows,
-			'result'		=> $result,
-			'touchedRows'	=> $touched_rows,
-			'insertKey'		=> $insert_id,
-			'currency'		=> $this->_isCurrency ($result, $options),
+			'foundRows'		=> $this->_foundRows,
+			'result'		=> $this->_result,
+			'touchedRows'	=> $this->_touchedRows,
+			'insertKey'		=> $this->_insertId,
+			'currency'		=> $this->_isCurrency ($this->_result, $options),
 			'source'		=> $source
 		));
 	}

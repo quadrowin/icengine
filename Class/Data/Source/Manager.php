@@ -77,11 +77,11 @@ class Data_Source_Manager
 					$_SERVER ['HTTP_HOST'] :
 					$config ['empty_domain_source'];
 		}
-		
+
 		if (!isset (self::$_sources [$name]))
 		{
 			$source_config = $config ['sources'][$name];
-			
+
 			if (!$source_config)
 			{
 				foreach ($config ['sources'] as $key => $value)
@@ -92,7 +92,7 @@ class Data_Source_Manager
 					}
 				}
 			}
-			
+
 			if (is_string ($source_config))
 			{
 				return self::$_sources [$name] = self::get ($source_config);

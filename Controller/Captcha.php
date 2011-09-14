@@ -33,13 +33,13 @@ class Controller_Captcha extends Controller_Abstract
 	public function captchaInput ()
 	{
 		Loader::load ('Helper_Captcha');
-	
-		$captcha = Captcha::accept ();
-	
-		$_SESSION ['captcha'] = $captcha->hash;
+		
+		$code = Helper_Captcha::generateAutocode ();
+		
+		$_SESSION [Helper_Captcha::SF_AUTO_CODE] = $code;
 		
 		$this->_output->send (array (
-			'captcha'	=> $captcha
+			'code'	=> $code
 		));
 	}
 	
