@@ -108,6 +108,23 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		$this->_options = new Model_Option_Collection ($this);
 		Loader::load ($this->modelName ());
 	}
+	
+	/**
+	 * @desc Преобразование коллекции к массиву
+	 * @return array
+	 */
+	public function __toArray ()
+	{
+		$result = array (
+			'items'	=> array (),
+			'data'	=> $this->_data
+		);
+		foreach ($this as $item)
+		{
+			$result ['items'] = $item->__toArray ();
+		}
+		return $result;
+	}
 
 	/**
 	 *
