@@ -11,8 +11,8 @@ function smarty_function_jsinclude (array $params, Smarty $smarty)
 	return 
 		'<script type="text/javascript">' .
 			"(function (){\n" .
-			'var Input = ' . json_encode ($params) . ";\n" .
-			file_get_contents ($file) . 
+				'var Input = ' . json_encode ($params) . ";\n" .
+				file_get_contents ($file) . 
 			'}())' .
 		'</script>';
 }
