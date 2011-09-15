@@ -217,22 +217,13 @@ class Controller_Manager extends Manager_Abstract
 		
 		$controller->_beforeAction ($method);
 		
-		//$controller->{$method} ();
-
-		$params = array ();
+		$reflection = new ReflectionMethod ($controller, $method);
 		
-		$reflector = New ReflectionClass (get_class ($controller));
-		
-		$method_params = $reflector->getMethod ($method)->getParameters ();
-		
-		if ($method_params)
+		$params = $reflection->getParameters ();
+		$c_input = $controller->getInput ();
+		foreach ($params as &$param)
 		{
-			$_input = $controller->getInput ();
-			
-			foreach ($method_params as $param)
-			{
-				$params [] = $_input->receive ($param->name);
-			}
+			$param = $c_input->receive ($param->name);
 		}
 		
 		call_user_func_array (

@@ -6,14 +6,8 @@
  * @package IcEngine
  *
  */
-class View_Render_Smarty extends View_Render_Abstract
+class View_Render_Xslt extends View_Render_Abstract
 {
-	
-	/**
-	 * @desc Объект шаблонизатора
-	 * @var Smarty
-	 */
-	protected $_smarty;
 	
 	/**
 	 * @desc Конфиг
@@ -25,11 +19,6 @@ class View_Render_Smarty extends View_Render_Abstract
 		 * @var string
 		 */
 		'compile_path'		=> 'cache/templates',
-		/**
-		 * @desc Путь для лоадера до смарти
-		 * @var string
-		 */
-		'smarty_path'		=> 'smarty/Smarty.class.php',
 		/**
 		 * @desc Пути до шаблонов
 		 * @var array
@@ -49,21 +38,21 @@ class View_Render_Smarty extends View_Render_Abstract
 		)
 	);
 	
+	/**
+	 * @desc Объект шаблонизатора
+	 * @var Smarty
+	 */
+	protected $_processor;
+	
 	protected function _afterConstruct ()
 	{
 		$config = $this->config ();
-		if (!class_exists ('Smarty'))
-		{
-			Loader::requireOnce ($config ['smarty_path'], 'includes');
-		}
 		
-		$this->_smarty = new Smarty ();
+		$this->_processor = new XSLTProcessor ();
 		
-		$this->_smarty->compile_dir = $config ['compile_path'];
-		$this->_smarty->template_dir = array_reverse (
+		$this->_templatesPathes = array_reverse (
 			$config ['templates_path']->__toArray ()
 		);
-		$this->_smarty->plugins_dir = $config ['plugins_path']->__toArray ();
 		
 		// Фильтры
 		foreach ($config ['filters'] as $filter)
@@ -139,7 +128,10 @@ class View_Render_Smarty extends View_Render_Abstract
 	 */
 	public function display ($tpl)
 	{
-		return $this->_smarty->display ($tpl, null, $this->_compileId ($tpl));
+		ob_start ();
+		$this->_processor->importStylesheet ($tpl);
+		$this->_processor->transformToURI ($this->xml (), 'php://output');
+		echo ob_get_flush ();
 	}
 	
 	/**
@@ -148,53 +140,59 @@ class View_Render_Smarty extends View_Render_Abstract
 	 */
 	public function fetch ($tpl)
 	{
-		return $this->_smarty->fetch ($tpl);
-	}
-	
-	/**
-	 * @desc Возвращает массив путей до шаблонов.
-	 * @return array
-	 */
-	public function getTemplatesPathes ()
-	{
-		return $this->_smarty->template_dir;
-	}
-	
-	/**
-	 * (non-PHPdoc)
-	 * @see View_Render_Abstract::getVar()
-	 */
-	public function getVar ($key)
-	{
-		return $this->_smarty->_tpl_vars [$key];
-	}
-	
-	/**
-	 * (non-PHPdoc)
-	 * @see View_Render_Abstract::popVars()
-	 */
-	public function popVars ()
-	{
-		$this->_smarty->_tpl_vars = array_pop ($this->_varsStack);
-	}
-	
-	/**
-	 * (non-PHPdoc)
-	 * @see View_Render_Abstract::pushVars()
-	 */
-	public function pushVars ()
-	{
-		$this->_varsStack [] = $this->_smarty->_tpl_vars;
-		$this->_smarty->_tpl_vars = null;
+		ob_start ();
+		$this->_processor->importStylesheet ($tpl);
+		$this->_processor->transformToURI ($this->xml (), 'php://output');
+		return ob_get_flush ();
 	}
 	
 	/**
 	 * @desc Возвращает используемый экземпляр шаблонизатора.
 	 * @return Smarty
 	 */
-	public function smarty ()
+	public function processor ()
 	{
-		return $this->_smarty;
+		return $this->_processor;
+	}
+	
+	/**
+	 * @desc
+	 * @param XMLWriter $writer
+	 * @param mixed $data
+	 */
+	protected function _arrayToXml (XMLWriter $writer, $data)
+	{
+		foreach ($data as $key => $val)
+		{
+			if (is_numeric ($key))
+			{
+				$key = 'key' . $key;
+			}
+			if (is_array ($val))
+			{
+				$writer->startElement ($key);
+				$this->_arrayToXml ($writer, $data);
+				$writer->endElement ();
+			}
+			else
+			{
+				$writer->writeElement ($key, $val);
+			}
+		}
+	}
+	
+	/**
+	 * @return DOMDocument
+	 */
+	public function xml ()
+	{
+		$writer = new XMLWriter ();
+		$writer->openMemory ();
+        $writer->startDocument ('1.0', 'UTF-8');
+        $writer->startElement ('Input');
+			$this->_arrayToXml ($writer, $data);
+        $this->writer->endElement ();
+        return $this->writer->outputMemory ();
 	}
 	
 }
