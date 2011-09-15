@@ -1354,7 +1354,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 				if ($list [$i]->parentKey () == $child_of)
 				{
 					//
-					if (!isset ($index[count ($parents)]))
+					if (!isset ($index [count ($parents)]))
 					{
 						$index [count ($parents)] = 1;
 					}
@@ -1364,9 +1364,9 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 					}
 
 					$n = count ($result);
-					$result[$n] = $list [$i];
-					$result[$n]->data ('level', count ($parents));
-					$result[$n]->data ('index', $index [count ($parents)]);
+					$result [$n] = $list [$i];
+					$result [$n]->data ('level', count ($parents));
+					$result [$n]->data ('index', $index [count ($parents)]);
 					$parents_count = count ($parents);
 					if ($parents_count > 0)
 					{
@@ -1376,13 +1376,13 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 					{
 						$full_index = (string) $index [count ($parents)];
 					}
-					$result[$n]->data ('full_index', $full_index);
-					$result[$n]->data ('broken_parent', false);
+					$result [$n]->data ('full_index', $full_index);
+					$result [$n]->data ('broken_parent', false);
 
 					$full_index [$parents_count] = $full_index . '.';
 
 					array_push ($parents, $child_of);
-					$child_of = $list[$i]->key ();
+					$child_of = $list [$i]->key ();
 
 					for ($j = $i; $j < count ($list) - 1; $j++)
 					{

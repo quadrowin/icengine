@@ -71,6 +71,7 @@ class Controller_View_Resource extends Controller_Abstract
 				foreach ($src_files as $src_file)
 				{
 					$src_file = strtr ($src_file, $vars);
+					
 					$res = array_merge (
 						$res,
 						View_Resource_Manager::patternLoad (
