@@ -77,5 +77,10 @@ class Controller_Subscribe extends Controller_Abstract
         }
         $join->delete ();
     }
+	
+	public function index ()
+	{
+		
+	}
     
 }

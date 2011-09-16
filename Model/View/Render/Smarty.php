@@ -139,6 +139,7 @@ class View_Render_Smarty extends View_Render_Abstract
 	 */
 	public function display ($tpl)
 	{
+		$tpl .= '.tpl';
 		return $this->_smarty->display ($tpl, null, $this->_compileId ($tpl));
 	}
 	
@@ -148,6 +149,7 @@ class View_Render_Smarty extends View_Render_Abstract
 	 */
 	public function fetch ($tpl)
 	{
+		$tpl .= '.tpl';
 		return $this->_smarty->fetch ($tpl);
 	}
 	

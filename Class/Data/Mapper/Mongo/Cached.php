@@ -27,7 +27,7 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 	/**
 	 * @desc Запрос на удаление
 	 */
-	public function _executeDelete ()
+	public function _executeDelete (Query $query, Query_Options $options)
 	{
 		$this->_collection->remove (
 			$this->_query ['criteria'],
@@ -46,7 +46,7 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 	/**
 	 * @desc Запрос на вставку
 	 */
-	public function _executeInsert ()
+	public function _executeInsert (Query $query, Query_Options $options)
 	{
 		if (isset ($this->_query ['a']['_id']))
 		{
@@ -232,7 +232,7 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 	/**
 	 * @desc Обновление
 	 */
-	public function _executeUpdate ()
+	public function _executeUpdate (Query $query, Query_Options $options)
 	{
 		$this->_collection->update (
 			$this->_query ['criteria'],
