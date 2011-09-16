@@ -158,8 +158,8 @@ class Controller_Manager extends Manager_Abstract
 	 * диспетчера.
 	 * @return Controller_Task Итерация с результатами.
 	 */
-	public static function callUncached ($name, $method = 'index', $input, 
-		$task = null)
+	public static function callUncached ($name, $method = 'index', 
+		$input = null, $task = null)
 	{
 		Loader::load ('Controller_Action');
 		Loader::load ('Controller_Task');
@@ -221,6 +221,7 @@ class Controller_Manager extends Manager_Abstract
 		
 		$params = $reflection->getParameters ();
 		$c_input = $controller->getInput ();
+		
 		foreach ($params as &$param)
 		{
 			$param = $c_input->receive ($param->name);
