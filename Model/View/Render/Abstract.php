@@ -45,7 +45,10 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	 * @param mixed $helper
 	 * @param string $method
 	 */
-	abstract public function addHelper ($helper, $method);
+	public function addHelper ($helper, $method)
+	{
+		
+	}
 	
 	/**
 	 * @desc Добавление пути до директории с шаблонами
@@ -139,10 +142,6 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 		Loader::load ('Message_Before_Render');
 		Message_Before_Render::push ($this);
 		
-		/**
-		 * 
-		 * @var $transaction Data_Transport_Transaction
-		 */
 		$transaction = $task->getTransaction ();
 		
 		$this->assign ($transaction->buffer ());
@@ -150,11 +149,6 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 		$template = $task->getTemplate ();
 		
 		$result = $template ? $this->fetch ($template) : null;
-		
-//		$this->assign (
-//			$task->getAssignVar (),
-//			$result
-//		);
 		
 		Loader::load ('Message_After_Render');
 		Message_After_Render::push ($this);

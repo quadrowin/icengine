@@ -111,11 +111,8 @@ abstract class View_Render_Manager extends Manager_Abstract
 	 */
 	public static function popView ()
 	{
-//		echo 'pop' . count (self::$_views) . ' ' . end (self::$_views)->name;
 		$view = array_pop (self::$_viewStack);
-		
 		$view->popVars ();
-
 		return $view;
 	}
 	
@@ -127,6 +124,7 @@ abstract class View_Render_Manager extends Manager_Abstract
 	public static function pushView (View_Render_Abstract $view)
 	{
 		self::$_viewStack [] = $view;
+		$view->pushVars ();
 		return $view;
 	} 
 	
@@ -150,7 +148,6 @@ abstract class View_Render_Manager extends Manager_Abstract
 	public static function pushViewByName ($name)
 	{
 		$view = self::byName ($name);
-		$view->pushVars ();	
 		return self::pushView ($view);
 	}
 	

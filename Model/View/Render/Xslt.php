@@ -28,15 +28,20 @@ class View_Render_Xslt extends View_Render_Abstract
 	 */
 	protected function _afterConstruct ()
 	{
+		$config = $this->config ();
+		$this->_templatesPathes = array_reverse (
+			$config ['templates_path']->__toArray ()
+		);
 		$this->_processor = new XSLTProcessor ();
 	}
 	
 	/**
 	 * @desc
-	 * @param XMLWriter $writer
+	 * @param DOMDocument $xml
+	 * @param DOMElement $parent
 	 * @param mixed $data
 	 */
-	protected function _arrayToXml (XMLWriter $writer, $data)
+	protected function _arrayToXml (DOMDocument $xml, DOMElement $parent, $data)
 	{
 		foreach ($data as $key => $val)
 		{
@@ -44,15 +49,33 @@ class View_Render_Xslt extends View_Render_Abstract
 			{
 				$key = 'key' . $key;
 			}
+			
+			if (is_object ($val))
+			{
+				if (method_exists ($val, '__toArray'))
+				{
+					$val = $val->__toArray ();
+				}
+				elseif (method_exists ($val, '__toString'))
+				{
+					$val = $val->__toString ();
+				}
+				else
+				{
+					$val = null;
+				}
+			}
+			
 			if (is_array ($val))
 			{
-				$writer->startElement ($key);
-				$this->_arrayToXml ($writer, $data);
-				$writer->endElement ();
+				$element = $xml->createElement ($key);
+				$parent->appendChild ($element);
+				$this->_arrayToXml ($xml, $element, $val);
 			}
 			else
 			{
-				$writer->writeElement ($key, $val);
+				$element = $xml->createElement ($key, $val);
+				$parent->appendChild ($element);
 			}
 		}
 	}
@@ -63,10 +86,7 @@ class View_Render_Xslt extends View_Render_Abstract
 	 */
 	public function display ($tpl)
 	{
-		ob_start ();
-		$this->_processor->importStylesheet ($tpl);
-		$this->_processor->transformToURI ($this->xml (), 'php://output');
-		echo ob_get_flush ();
+		echo $this->fetch ($tpl);
 	}
 	
 	/**
@@ -76,9 +96,39 @@ class View_Render_Xslt extends View_Render_Abstract
 	public function fetch ($tpl)
 	{
 		ob_start ();
-		$this->_processor->importStylesheet ($tpl);
+		$xsl = new DOMDocument ();
+		
+		$file = $this->findTemplate ($tpl);
+		
+		if (!$file)
+		{
+			trigger_error ("xslt template not found: $tpl", E_USER_WARNING);
+		}
+		
+		$xsl->load ($file);
+		$this->_processor->importStylesheet ($xsl);
 		$this->_processor->transformToURI ($this->xml (), 'php://output');
-		return ob_get_flush ();
+		return ob_get_clean ();
+	}
+	
+	/**
+	 * @desc Возвращает путь до шаблона.
+	 * @param type $tpl
+	 * @return string 
+	 */
+	public function findTemplate ($tpl)
+	{
+		$tpl = $tpl . '.xsl';
+		foreach ($this->_templatesPathes as $path)
+		{
+			$fn = $path . $tpl;
+			if (file_exists ($fn))
+			{
+				return $fn;
+			}
+		}
+		
+		return null;
 	}
 	
 	/**
@@ -96,13 +146,12 @@ class View_Render_Xslt extends View_Render_Abstract
 	 */
 	public function xml ()
 	{
-		$writer = new XMLWriter ();
-		$writer->openMemory ();
-        $writer->startDocument ('1.0', 'UTF-8');
-        $writer->startElement ('Input');
-			$this->_arrayToXml ($writer, $data);
-        $this->writer->endElement ();
-        return $this->writer->outputMemory ();
+		$xml = new DOMDocument ('1.0', 'UTF-8');
+        $root = $xml->createElement ('Input');
+		$xml->appendChild ($root);
+		$this->_arrayToXml ($xml, $root, $this->_vars);
+		$xml->save ('D:/temp/1.xml');
+        return $xml;
 	}
 	
 }
