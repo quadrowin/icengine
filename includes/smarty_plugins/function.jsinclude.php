@@ -2,10 +2,9 @@
 /**
  * @desc Плагин смарти для вызова js скриптов.
  * @param array $params
- * @param Smarty $smarty
  * @return string
  */
-function smarty_function_jsinclude (array $params, Smarty $smarty)
+function smarty_function_jsinclude (array $params)
 {
 	$file = str_replace ('_', '/', $params ['call']);
 	return 

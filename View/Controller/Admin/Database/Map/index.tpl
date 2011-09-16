@@ -21,7 +21,7 @@
 		}
 	}
 	
-	{{assign var="cdir" value=$smarty.template|dirname}}
+	{{assign var="cdir" value=$smarty.current_dir}}
 	
 	var this_record_layer = {
 		objects: [	

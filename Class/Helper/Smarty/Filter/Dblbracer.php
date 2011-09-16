@@ -59,17 +59,15 @@ class Helper_Smarty_Filter_Dblbracer
 	 */
 	public static function register (Smarty $smarty)
 	{
-		$smarty->register_prefilter (
-			array (__CLASS__, 'filterDblbracer'));
+		$smarty->registerFilter ('pre', array (__CLASS__, 'filterDblbracer'));
 	}
 	
 	/**
 	 * @desc Реализует работу двойных скобок.
 	 * @param string $tpl_source Исходный код шаблона
-	 * @param Smarty $smarty Экземпляр смарти.
 	 * @return string Результат с замененными скобками.
 	 */
-	public static function filterDblbracer ($tpl_source, Smarty $smarty)
+	public static function filterDblbracer ($tpl_source)
 	{
 		if (!$tpl_source)
 		{

@@ -16,9 +16,9 @@
 		</ul>
 		
 		{foreach from=$tabs item="tab"}
-		{assign var="tab" value=$tab.action}
-		{assign var="cdir" value=$smarty.template|dirname}
-		{include file="$cdir/includes/$tab.tpl"}
+			{assign var="tab" value=$tab.action}
+			{assign var="cdir" value=$smarty.current_dir}
+			{include file="$cdir/includes/$tab.tpl"}
 		{/foreach}
 		
 	</div>

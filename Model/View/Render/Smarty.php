@@ -29,7 +29,7 @@ class View_Render_Smarty extends View_Render_Abstract
 		 * @desc Путь для лоадера до смарти
 		 * @var string
 		 */
-		'smarty_path'		=> 'smarty/Smarty.class.php',
+		'smarty_path'		=> 'smarty3/Smarty.class.php',
 		/**
 		 * @desc Пути до шаблонов
 		 * @var array
@@ -168,7 +168,7 @@ class View_Render_Smarty extends View_Render_Abstract
 	 */
 	public function getVar ($key)
 	{
-		return $this->_smarty->_tpl_vars [$key];
+		return $this->_smarty->getTemplateVars ($key);
 	}
 	
 	/**
@@ -177,7 +177,8 @@ class View_Render_Smarty extends View_Render_Abstract
 	 */
 	public function popVars ()
 	{
-		$this->_smarty->_tpl_vars = array_pop ($this->_varsStack);
+		$this->_smarty->clearAllAssign ();
+		$this->_smarty->assign (array_pop ($this->_varsStack));
 	}
 	
 	/**
@@ -186,8 +187,8 @@ class View_Render_Smarty extends View_Render_Abstract
 	 */
 	public function pushVars ()
 	{
-		$this->_varsStack [] = $this->_smarty->_tpl_vars;
-		$this->_smarty->_tpl_vars = null;
+		$this->_varsStack [] = $this->_smarty->getTemplateVars ();
+		$this->_smarty->clearAllAssign ();
 	}
 	
 	/**
