@@ -221,6 +221,7 @@ class Controller_Manager extends Manager_Abstract
 		
 		$params = $reflection->getParameters ();
 		$c_input = $controller->getInput ();
+		
 		foreach ($params as &$param)
 		{
 			$param = $c_input->receive ($param->name);
@@ -373,12 +374,33 @@ class Controller_Manager extends Manager_Abstract
 		}
 		
 		$cache_config = self::_cacheConfig ($a [0], $a [1]);
-			
+		
+//		Debug::microtime ($a [0] . '/' . $a [1] . '/ ' . var_export ($cache_config, true));
+		$start_time = microtime (true);
+		
 		$html = Executor::execute (
 			array (__CLASS__, 'htmlUncached'),
 			array ($a, $args, $html_only),
 			$cache_config
 		);
+		
+		$dt = microtime (true) - $start_time;
+		
+//		Debug::microtime ($a [0] . '/' . $a [1] . '/ ' . round ($dt, 5));
+		
+		if ($dt > 1)
+		{
+			$f = fopen (IcEngine::root () . 'log/contrlog.txt', 'a');
+			fwrite (
+				$f,
+				date ('m-d H:i:s') . ' ' . 
+				$a [0] . '/' . $a [1] . '/' . 
+				$dt . '/' . 
+				var_export ($cache_config, true) . 
+				"\r\n"
+			);
+			fclose ($f);
+		}
 		
 		return $html;
 	}
@@ -432,9 +454,7 @@ class Controller_Manager extends Manager_Abstract
 		
 		if ($tpl)
 		{
-			$view = $iteration->getViewRender ();
-
-			View_Render_Manager::pushView ($view);
+			$view = View_Render_Manager::pushViewByName ('Smarty');
 			
 			try
 			{
