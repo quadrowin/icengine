@@ -1,1 +1,1 @@
-<input type="hidden" value="{$captcha->hash}" id="captcha_hash" name="captcha_hash" />
+<input type="hidden" value="{$code}" id="acaptcha" name="acaptcha" />

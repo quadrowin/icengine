@@ -50,11 +50,11 @@ class Router
 			
 			Loader::load ('Route');
 			self::$_route = Route::byUrl ($url);
-			
+
 			if (!self::$_route)
 			{
 				return;
-			}
+			} 
 			
 			$parts = (array) explode ('/', trim (self::$_route->route, '/'));
 			

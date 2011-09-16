@@ -120,7 +120,7 @@ class Model_Manager extends Manager_Abstract
 			$ds->execute (
 				Query::instance ()
 					->update ($object->modelName ())
-					->values ($object->asRow ())
+					->values ($object->getFields ())
 					->where ($kf, $id)
 			);
 		}
@@ -132,7 +132,7 @@ class Model_Manager extends Manager_Abstract
 				$ds->execute (
 					Query::instance ()
 						->insert ($object->modelName ())
-						->values ($object->asRow ())
+						->values ($object->getFields ())
 				);
 			}
 			else
@@ -146,7 +146,7 @@ class Model_Manager extends Manager_Abstract
 					$ds->execute (
 						Query::instance ()
 							->insert ($object->modelName ())
-							->values ($object->asRow ())
+							->values ($object->getFields ())
 					);
 				}
 				else
@@ -157,7 +157,7 @@ class Model_Manager extends Manager_Abstract
 						$id = $ds->execute (
 							Query::instance ()
 								->insert ($object->modelName ())
-								->values ($object->asRow ())
+								->values ($object->getFields ())
 						)->getResult ()->insertId ();
 
 						$object->set ($kf, $id);
@@ -167,7 +167,7 @@ class Model_Manager extends Manager_Abstract
 						$ds->execute (
 							Query::instance ()
 								->insert ($object->modelName ())
-								->values ($object->asRow ())
+								->values ($object->getFields ())
 						);
 					}
 				}
@@ -211,10 +211,12 @@ class Model_Manager extends Manager_Abstract
 				'name'		=> '::Limit',
 				'count'		=> 1
 			));
+		
 		for ($i = 1; $i < func_num_args (); ++$i)
 		{
 			$c->addOptions (func_get_arg ($i));
 		}
+		
 		return $c->first ();
 	}
 	
@@ -267,13 +269,13 @@ class Model_Manager extends Manager_Abstract
 	 * @return Model В случае успеха объект, иначе null.
 	 */
 	public static function get ($model, $key, $object = null)
-	{
+	{	
 		$cached = $object != null;
 		$result = null;
 		
 		if ($object instanceof Model)
 		{
-			$cached = true;
+			$cached = true;	
 			$result = $object;
 		}
 		else
@@ -315,7 +317,12 @@ class Model_Manager extends Manager_Abstract
 				);
 				
 				$result->set ($result->keyField (), $key);
-				Resource_Manager::set ('Model', $model . '__' . $key, $result);
+				
+				Resource_Manager::set (
+					'Model', 
+					$model . '__' . $key, 
+					$result
+				);
 			}
 		}
 		
@@ -329,7 +336,7 @@ class Model_Manager extends Manager_Abstract
 		{
 			return new $model (
 				$key
-				? array ( $result->keyField () => $key )
+				? array ($result->keyField () => $key)
 				: array ()
 			);
 		}
@@ -339,8 +346,8 @@ class Model_Manager extends Manager_Abstract
 		$result = $generic ? $generic : $result;
 		
 		$result = new $model (
-			array (),
-			$result
+			$result->getFields (),
+			clone $result
 		);
 		
 //		Model_Scheme::setScheme ($result);
