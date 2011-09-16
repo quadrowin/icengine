@@ -59,7 +59,7 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 	/**
 	 * @desc Запрос на удаление
 	 */
-	public function _executeDelete ()
+	public function _executeDelete (Query $query, Query_Options $options)
 	{
 		$this->_collection->remove (
 			$this->_query ['criteria'],
@@ -71,7 +71,7 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 	/**
 	 * @desc Запрос на вставку
 	 */
-	public function _executeInsert ()
+	public function _executeInsert (Query $query, Query_Options $options)
 	{
 		if (isset ($this->_query ['a']['_id']))
 		{
@@ -98,7 +98,7 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 	/**
 	 * @desc Запрос на выбор
 	 */
-	public function _executeSelect ()
+	public function _executeSelect (Query $query, Query_Options $options)
 	{
 		if ($this->_query ['find_one'])
 		{
@@ -187,7 +187,7 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 	/**
 	 * @desc Обновление
 	 */
-	public function _executeUpdate ()
+	public function _executeUpdate (Query $query, Query_Options $options)
 	{
 		$this->_collection->update (
 			$this->_query ['criteria'],

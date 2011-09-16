@@ -69,8 +69,7 @@ class IcEngine
 		Controller_Manager::call (
 			'Render', 'index',
 			array (
-				'task'		=> self::$_task,
-				'render'	=> View_Render_Manager::byName (self::$frontRender)
+				'task'		=> self::$_task
 			)
 		);
 	}
@@ -198,12 +197,28 @@ class IcEngine
 	{
 		self::$_bootstrap->run ();
 		
-		Loader::load ('Data_Transport_Manager');
+		Loader::multiLoad (
+			'Data_Transport_Manager',
+			'Controller_Task',
+			'Controller_Action'
+		);
 		
-		self::$_task = Controller_Manager::call (
+		self::$_task = new Controller_Task (
+			new Controller_Action (array (
+				'id'			=> null,
+				'controller'	=> self::$frontController,
+				'action'		=> self::$frontAction
+			))
+		);
+		self::$_task->setViewRender (
+			View_Render_Manager::byName (self::$frontRender)
+		);
+		
+		Controller_Manager::call (
 			self::$frontController,
 			self::$frontAction,
-			Data_Transport_Manager::get (self::$frontInput)
+			Data_Transport_Manager::get (self::$frontInput),
+			self::$_task
 		);
 	}
 	

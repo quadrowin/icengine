@@ -315,14 +315,6 @@ class Controller_Abstract
 	}
 	
 	/**
-	 * @desc Экшн по умолчанию
-	 */
-	public function index ()
-	{
-		
-	}
-	
-	/**
 	 * @desc Имя контроллера (без приставки Controller_)
 	 * @return string
 	 */

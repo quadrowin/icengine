@@ -40,19 +40,42 @@ class Controller_Admin_Content_Category extends Controller_Abstract
 	}
 	
 	/**
-	 * @desc Получение списка контента для раздела
+	 * @desc Получение списка дочерних разделов
+	 * @param integer $category_id
+	 * @param integer $page
 	 */
-	public function getContentList ()
+	public function getSubcategories ($category_id, $page)
 	{
-		list (
-			$category_id,
-			$page
-		) = $this->_input->receive (
-			'category_id',
-			'page'
-		);
+		$this->_task->setViewRender (View_Render_Manager::byName ('Xslt'));
 		
-		$contents = Model_Content_Collection::create ('Content')
+		$categories = Model_Collection_Manager::create ('Content_Category')
+			->addOptions (array (
+				'name'	=> 'Parent',
+				'id'	=> (int) $category_id
+			));
+		
+		Loader::load ('Paginator');
+		$paginator = new Paginator ($page);
+		$categories->setPaginator ($paginator);
+		
+		$this->_output->send (array (
+			'categories' => $categories,
+			'data' => array (
+				'full_count' => $paginator->fullCount
+			)
+		));
+	}
+	
+	/**
+	 * @desc Получение списка контента для раздела
+	 * @param integer $category_id
+	 * @param integer $page
+	 */
+	public function getSubcontents ($category_id, $page)
+	{
+		$this->_task->setViewRender (View_Render_Manager::byName ('Xslt'));
+		
+		$contents = Model_Collection_Manager::create ('Content')
 			->addOptions (array (
 				'name'	=> 'Category',
 				'id'	=> (int) $category_id
@@ -77,17 +100,19 @@ class Controller_Admin_Content_Category extends Controller_Abstract
 	{
 		if (!$this->_checkAccess ())
 		{
-			return $this->replaceAction ('Error', 'accessDenied');
+//			return $this->replaceAction ('Error', 'accessDenied');
 		}
+		$this->_task->setViewRender (View_Render_Manager::byName ('Xslt'));
 		
-		$expand_level = (int) $this->_input->receive ('expand_level');
-		
-		$categories = Model_Collection_Manager::create ('Content_Category');
-		$categories->sortByParent ();
+		$categories = Model_Collection_Manager::create ('Content_Category')
+			->addOptions ('Root');
+
+		Loader::load ('Paginator');
+		$categories->setPaginator (Paginator::fromInput ($this->_input));
 		
 		$this->_output->send (array (
 			'categories'	=> $categories,
-			'expand_level'	=> $expand_level
+			'expand_level'	=> 0
 		));
 	}
 	
