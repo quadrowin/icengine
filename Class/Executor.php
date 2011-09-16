@@ -102,10 +102,8 @@ class Executor
 		Objective $options)
 	{
 		$key = self::_getCacheKey ($function, $args);
-		$key_hits = $key . '_h';
 		
 		$expiration = (int) $options->expiration;
-		$hits = (int) $options->hits;
 		
 		$cache = self::getCacher ()->get ($key);
 		
@@ -132,15 +130,7 @@ class Executor
 				$tag_valid
 			)
 			{
-				if (!$hits)
-				{
-					return $cache ['v'];
-				}
-				elseif (self::$_cacher->get ($key_hits) < $hits)
-				{
-					self::$_cacher->increment ($key_hits);
-					return $cache ['v'];
-				}
+				return $cache ['v'];
 			}
 			
 			if (!self::$_cacher->lock ($key, 5, 1, 1))
@@ -176,11 +166,6 @@ class Executor
 			$key, 
 			$cache_value
 		);
-		
-		if ($hits)
-		{
-			self::$_cacher->set ($key_hits, 0);
-		}
 		
 		if ($cache)
 		{

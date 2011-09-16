@@ -30,7 +30,7 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 	);
 	
 	/**
-	 * Последний оттранслированный запрос.
+	 * @desc Последний оттранслированный запрос.
 	 * @var string
 	 */
 	protected $_sql = '';
@@ -44,7 +44,7 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 	protected $_insertId = null;
 	
 	/**
-	 * Обработчики по видам запросов.
+	 * @desc Обработчики по видам запросов.
 	 * @var array
 	 */
 	protected $_queryMethods = array (

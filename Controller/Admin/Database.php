@@ -241,7 +241,10 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		if (!$acl_fields || !User::id ())
 		{
-			return $this->replaceAction ('Error', 'accessDenied');
+			return $this->replaceAction (
+				'Authorization_Login_Password_Sms', 
+				'index'
+			);
 		}
 		
 		/*
@@ -282,7 +285,10 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		if (!$tmp_tables || !User::id ())
 		{
-			return $this->replaceAction ('Error', 'accessDenied');
+			return $this->replaceAction (
+				'Authorization_Login_Password_Sms', 
+				'index'
+			);
 		}
 		
 		$result = array ();
@@ -348,7 +354,10 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		if (!$acl_fields || !User::id ())
 		{
-			return $this->replaceAction ('Error', 'accessDenied');
+			return $this->replaceAction (
+				'Authorization_Login_Password_Sms', 
+				'index'
+			);
 		}
 		
 		$prefix = Model_Scheme::$default ['prefix'];
@@ -630,9 +639,16 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		$acl_fields = $this->__fields ($table);
 
-		if (!in_array ($table, $tmp_tables) || !$acl_fields || !User::id ())
+		if (
+			!in_array ($table, $tmp_tables) || 
+			!$acl_fields || 
+			!User::id ()
+		)
 		{
-			return $this->replaceAction ('Error', 'accessDenied');
+			return $this->replaceAction (
+				'Authorization_Login_Password_Sms', 
+				'index'
+			);
 		}
 
 		$prefix = Model_Scheme::$default ['prefix'];
@@ -640,7 +656,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		$class_name = $this->__className ($table, $prefix);
 
 		$collection = Model_Collection_Manager::create ($class_name);
-		
+
 		// Получаем фильтры
 		
 		$filters = null;
@@ -664,6 +680,8 @@ class Controller_Admin_Database extends Controller_Abstract
 			}
 		}
 		
+		//print_r ($collection->items ());
+
 		// Сортируем коллекцию, если есть конфиг для сортировки
 		
 		$sort = null;
@@ -894,7 +912,10 @@ class Controller_Admin_Database extends Controller_Abstract
 		 
 		if (!$acl_fields || !User::id ())
 		{
-			return $this->replaceAction ('Error', 'accessDenied');
+			return $this->replaceAction (
+				'Authorization_Login_Password_Sms', 
+				'index'
+			);
 		}
 		
 		/* @var $row Model */

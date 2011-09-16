@@ -19,10 +19,12 @@ class Filter_Model_Serialize
 	 * @return string
 	 */
 	public function filter ($data)
-	{
+	{	
+		$data = $data->generic () ? $data->generic () : $data;
+
 		return
-			$data ?
-			get_class ($data) . ':' . json_encode ($data->asRow ()) :
+			is_object ($data) ?
+			get_class ($data) . ':' . json_encode ($data->getFields ()) :
 			null;
 	}
 	

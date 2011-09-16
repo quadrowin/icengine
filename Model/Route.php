@@ -51,7 +51,7 @@ class Route extends Model_Child
 				'title'				=> 'Главная',
 				'visible'			=> 1,
 				'parentId'			=> 0,
-				'actions'			=> 'Index'
+				'actions'			=> 'Index/index'
 			),
 			2			=> array (
 				'route'				=> '/admin/',
@@ -166,7 +166,7 @@ class Route extends Model_Child
 //					'weight'	=> $route ['weight'],
 //					'preg'		=> preg_match ('#' . $route ['pattern'] . '#', $pattern)
 //				));
-				
+								
 				if (
 					preg_match ('#' . $route ['pattern'] . '#', $pattern) &&
 					(
