@@ -10,6 +10,15 @@ class View_Render_Front extends View_Render_Abstract
 {
 	
 	/**
+	 * @desc Конфиг
+	 * @var array
+	 */
+	protected static $_config = array (
+		// Render for layout
+		'layout_render'	=> 'Smarty'
+	);
+	
+	/**
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::addHelper()
 	 */
@@ -48,10 +57,10 @@ class View_Render_Front extends View_Render_Abstract
 			$this->assign ($t->getAssignVar (), $result);
 		}
 		
-		$render = $tasks [0]->getViewRender ();
-
+		$config = $this->config ();
+		$render = View_Render_Manager::byName ($config ['layout_render']);
+		
 		$render->assign ($this->_vars);
-		//$render->display ($task->getTemplate ());
 		
 		$render->display ($task->getTemplate ());
 	}

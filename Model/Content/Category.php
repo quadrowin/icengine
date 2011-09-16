@@ -32,6 +32,16 @@ class Content_Category extends Model_Child
 		);
 	}
 	
+	public function contentCount ()
+	{
+		return DDS::executeAuto (
+			Query::instance ()
+				->select ('COUNT(*)')
+				->from ('Content')
+				->where ('Content.Content_Category__id', $this->key ())
+		)->getResult ()->asValue ();
+	}
+	
 	/**
 	 * @desc Поменять URL категории если в нем один контент
 	 * @return Model

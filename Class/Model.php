@@ -299,6 +299,8 @@ abstract class Model implements ArrayAccess
 	public function __toArray ()
 	{
 		return array (
+			'class'	=> get_class ($this),
+			'model'	=> $this->modelName (),
 			'fields' => $this->asRow (),
 			'data' => $this->_data
 		);

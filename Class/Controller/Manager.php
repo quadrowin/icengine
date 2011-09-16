@@ -143,7 +143,7 @@ class Controller_Manager extends Manager_Abstract
 	 * @param Controller_Task $task [optional] Задание
 	 * @return Controller_Task
 	 */
-	public static function call ($name, $method = 'index', $input, 
+	public static function call ($name, $method, $input, 
 		$task = null)
 	{
 		return self::callUncached ($name, $method, $input, $task);
@@ -158,7 +158,7 @@ class Controller_Manager extends Manager_Abstract
 	 * диспетчера.
 	 * @return Controller_Task Итерация с результатами.
 	 */
-	public static function callUncached ($name, $method = 'index', $input, 
+	public static function callUncached ($name, $method, $input, 
 		$task = null)
 	{
 		Loader::load ('Controller_Action');
@@ -373,33 +373,12 @@ class Controller_Manager extends Manager_Abstract
 		}
 		
 		$cache_config = self::_cacheConfig ($a [0], $a [1]);
-		
-//		Debug::microtime ($a [0] . '/' . $a [1] . '/ ' . var_export ($cache_config, true));
-		$start_time = microtime (true);
-		
+			
 		$html = Executor::execute (
 			array (__CLASS__, 'htmlUncached'),
 			array ($a, $args, $html_only),
 			$cache_config
 		);
-		
-		$dt = microtime (true) - $start_time;
-		
-//		Debug::microtime ($a [0] . '/' . $a [1] . '/ ' . round ($dt, 5));
-		
-		if ($dt > 1)
-		{
-			$f = fopen (IcEngine::root () . 'log/contrlog.txt', 'a');
-			fwrite (
-				$f,
-				date ('m-d H:i:s') . ' ' . 
-				$a [0] . '/' . $a [1] . '/' . 
-				$dt . '/' . 
-				var_export ($cache_config, true) . 
-				"\r\n"
-			);
-			fclose ($f);
-		}
 		
 		return $html;
 	}
@@ -453,7 +432,9 @@ class Controller_Manager extends Manager_Abstract
 		
 		if ($tpl)
 		{
-			$view = View_Render_Manager::pushViewByName ('Smarty');
+			$view = $iteration->getViewRender ();
+
+			View_Render_Manager::pushView ($view);
 			
 			try
 			{

@@ -73,6 +73,10 @@ class Controller_Task
 			
 			$action = $action->Controller_Action;
 		}
+		else
+		{
+			$this->_viewRender = View_Render_Manager::getView ();
+		}
 		
 		$this->_controllerAction = $action;
 		
@@ -81,7 +85,7 @@ class Controller_Task
 			$this->_template =
 				'Controller/' .
 				str_replace ('_', '/', $action->controller) . '/' .
-				$action->action . '.tpl';
+				$action->action;
 		}
 	}
 	
@@ -163,14 +167,13 @@ class Controller_Task
 	 * @desc Задать шаблон на основе названия класса
 	 * @param string $class Класс или метод (контроллера).
 	 * @param string $template Шаблон.
-	 * @param string $ext Расшираение.
 	 */
-	public function setClassTpl ($class, $template = '', $ext = '.tpl')
+	public function setClassTpl ($class, $template = '')
 	{
 		$template = $template ? ('/' . ltrim ($template, '/')) : '';
 		
 		$this->setTemplate (
-			str_replace (array ('_', '::'), '/', $class) . $template . '.tpl'
+			str_replace (array ('_', '::'), '/', $class) . $template
 		);
 	}
 	
@@ -206,7 +209,7 @@ class Controller_Task
 	 * @desc Установка шаблона для рендера.
 	 * @param string $value
 	 */
-	public function setTemplate ($value, $ext = '')
+	public function setTemplate ($value)
 	{
 		$this->_template = $value;
 	}
