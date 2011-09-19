@@ -90,6 +90,8 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 		
 		$cache = $this->_cacher->get ($key);
 		
+		$use_cache = false;
+		
 		if ($cache)
 		{
 			if (
