@@ -108,6 +108,24 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		$this->_options = new Model_Option_Collection ($this);
 		Loader::load ($this->modelName ());
 	}
+	
+	/**
+	 * @desc Преобразование коллекции к массиву
+	 * @return array
+	 */
+	public function __toArray ()
+	{
+		$result = array (
+			'class'	=> get_class ($this),
+			'items'	=> array (),
+			'data'	=> $this->_data
+		);
+		foreach ($this as $item)
+		{
+			$result ['items'][] = $item->__toArray ();
+		}
+		return $result;
+	}
 
 	/**
 	 *
@@ -1337,24 +1355,109 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 			// Список пуст
 			return $this;
 		}
-
+		
+		/*
+		// Формируем хэшмэп для быстрого нахождения элемента по ПК.
+		$by_ids = array ();
+		foreach ($list as $item)
+		{
+			$by_ids [$item->key ()] = $item;
+		}
+		
+		// Элементы, у которых не существует предков
+		$first_root = null;
+		$last_root = null;
+		foreach ($list as $item)
+		{
+			if (isset ($by_ids [$item->parentKey ()]))
+			{
+				$parent = $by_ids [$item->parentKey ()];
+				$item->data ('parent', $parent);
+				if ($parent->data ('lastChild'))
+				{
+					$other_child = $parent->data ('lastChild');
+					$parent->data ('lastChild', $item);
+					$other_child->data ('nextSibling', $item);
+					$item->data ('prevSibling', $other_child);
+					// Количество дочерних элементов
+					$count = $parent->data ('childsCount');
+					$parent->data ('childsCount', $count + 1);
+				}
+				else
+				{
+					$parent->data (array (
+						'firstChild' => $item,
+						'lastChild' => $item,
+						'childsCount' => 1
+					));
+				}
+			}
+			else
+			{
+				if ($first_root)
+				{
+					$last_root->data ('nextSibling', $item);
+					$item->data ('prevSibling', $last_root);
+				}
+				else
+				{
+					$first_root = $item;
+				}
+				$item->data ('childsCount', 0);
+				$last_root = $item;
+			}
+		}
+		
+		die ('2222');
+		
+		// Теперь обходим дерево, формируя список
+		$results = array ();
+		$item = $first_root;
+		$level = 0;
+		while ($item)
+		{
+			$item->data ('level', $level);
+			$results [] = $item;
+			
+			$child = $item->data ('firstChild');
+			if ($item->data ('firstChild'))
+			{
+				$item = $item->data ('firstChild');
+				++$level;
+			}
+			elseif ($item->data ('nextSibling'))
+			{
+				$item = $item->data ('nextSibling');
+			}
+			else
+			{
+				while ($item && !$item->data ('nextSibling'))
+				{
+					$item = $item->data ('parent');
+					--$level;
+				}
+				$item = $item->data ('nextSibling');
+			}
+		}
+		
+		*/
+		
 		$parents = array ();
 		$child_of = $list [0]->parentRootKey ();
 		$result = array ();
 		$i = 0;
 		$index = array (0 => 0);
 		$full_index = array (-1 => '');
-
+		
 		do {
-
 			$finish = true;
-
-			for ($i = 0; $i < count ($list); $i++)
+			
+			for ($i = 0; $i < count ($list); ++$i)
 			{
 				if ($list [$i]->parentKey () == $child_of)
 				{
 					//
-					if (!isset ($index[count ($parents)]))
+					if (!isset ($index [count ($parents)]))
 					{
 						$index [count ($parents)] = 1;
 					}
@@ -1364,9 +1467,9 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 					}
 
 					$n = count ($result);
-					$result[$n] = $list [$i];
-					$result[$n]->data ('level', count ($parents));
-					$result[$n]->data ('index', $index [count ($parents)]);
+					$result [$n] = $list [$i];
+					$result [$n]->data ('level', count ($parents));
+					$result [$n]->data ('index', $index [count ($parents)]);
 					$parents_count = count ($parents);
 					if ($parents_count > 0)
 					{
@@ -1376,13 +1479,13 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 					{
 						$full_index = (string) $index [count ($parents)];
 					}
-					$result[$n]->data ('full_index', $full_index);
-					$result[$n]->data ('broken_parent', false);
+					$result [$n]->data ('full_index', $full_index);
+					$result [$n]->data ('broken_parent', false);
 
 					$full_index [$parents_count] = $full_index . '.';
 
 					array_push ($parents, $child_of);
-					$child_of = $list[$i]->key ();
+					$child_of = $list [$i]->key ();
 
 					for ($j = $i; $j < count ($list) - 1; $j++)
 					{
@@ -1401,9 +1504,8 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 				$child_of = array_pop ($parents);
 				$finish = false;
 			}
-
 		} while (!$finish);
-
+		
 		$this->_items = $result;
 
 		return $this;

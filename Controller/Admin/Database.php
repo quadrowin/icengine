@@ -241,10 +241,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		if (!$acl_fields || !User::id ())
 		{
-			return $this->replaceAction (
-				'Authorization_Login_Password_Sms', 
-				'index'
-			);
+			return $this->replaceAction ('Error', 'accessDenied');
 		}
 		
 		/*
@@ -285,10 +282,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		if (!$tmp_tables || !User::id ())
 		{
-			return $this->replaceAction (
-				'Authorization_Login_Password_Sms', 
-				'index'
-			);
+			return $this->replaceAction ('Error', 'accessDenied');
 		}
 		
 		$result = array ();
@@ -354,10 +348,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		if (!$acl_fields || !User::id ())
 		{
-			return $this->replaceAction (
-				'Authorization_Login_Password_Sms', 
-				'index'
-			);
+			return $this->replaceAction ('Error', 'accessDenied');
 		}
 		
 		$prefix = Model_Scheme::$default ['prefix'];
@@ -500,9 +491,11 @@ class Controller_Admin_Database extends Controller_Abstract
 				}
 				$kf = Model_Scheme::keyField ($model_class_name);
 
+				Loader::load ('Dummy');
+				
 				foreach ($result as $item)
 				{
-					$collection->add (new $model_class_name (array (
+					$collection->add (new Dummy (array (
 						$kf	=> $item [$text_value->tv_text_link_field],
 						'name'	=> $item [$text_value->tv_text_field]
 					)));
@@ -639,16 +632,9 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		$acl_fields = $this->__fields ($table);
 
-		if (
-			!in_array ($table, $tmp_tables) || 
-			!$acl_fields || 
-			!User::id ()
-		)
+		if (!in_array ($table, $tmp_tables) || !$acl_fields || !User::id ())
 		{
-			return $this->replaceAction (
-				'Authorization_Login_Password_Sms', 
-				'index'
-			);
+			return $this->replaceAction ('Error', 'accessDenied');
 		}
 
 		$prefix = Model_Scheme::$default ['prefix'];
@@ -656,7 +642,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		$class_name = $this->__className ($table, $prefix);
 
 		$collection = Model_Collection_Manager::create ($class_name);
-
+		
 		// Получаем фильтры
 		
 		$filters = null;
@@ -680,8 +666,6 @@ class Controller_Admin_Database extends Controller_Abstract
 			}
 		}
 		
-		//print_r ($collection->items ());
-
 		// Сортируем коллекцию, если есть конфиг для сортировки
 		
 		$sort = null;
@@ -912,10 +896,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		 
 		if (!$acl_fields || !User::id ())
 		{
-			return $this->replaceAction (
-				'Authorization_Login_Password_Sms', 
-				'index'
-			);
+			return $this->replaceAction ('Error', 'accessDenied');
 		}
 		
 		/* @var $row Model */

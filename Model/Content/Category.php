@@ -1,4 +1,7 @@
 <?php
+
+Loader::load ('Model_Child');
+
 /**
  * 
  * @desc Базовая модель категории контента
@@ -6,7 +9,6 @@
  * @package IcEngine
  *
  */
-Loader::load ('Model_Child');
 class Content_Category extends Model_Child
 {
 	
@@ -30,6 +32,16 @@ class Content_Category extends Model_Child
 			Query::instance ()
 				->where ('Content_Category__id', $this->id)
 		);
+	}
+	
+	public function contentCount ()
+	{
+		return DDS::executeAuto (
+			Query::instance ()
+				->select ('COUNT(*)')
+				->from ('Content')
+				->where ('Content.Content_Category__id', $this->key ())
+		)->getResult ()->asValue ();
 	}
 	
 	/**
