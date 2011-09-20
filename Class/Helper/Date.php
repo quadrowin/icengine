@@ -180,6 +180,16 @@ class Helper_Date
 	 */
 	public static function eraDayNum ($date = null)
 	{
+		return (int) (self::eraHourNum ($date) / 24);
+	}
+	
+	/**
+	 * @desc Возвращает номер часа от начала эры
+	 * @param integer $date
+	 * @return integer 
+	 */
+	public static function eraHourNum ($date = null)
+	{
 		if ($date === null)
 		{
 			$date = time ();
@@ -188,6 +198,7 @@ class Helper_Date
 		$d = date ('d', $date);
 		$m = date ('m', $date);
 		$y = date ('Y', $date);
+		$h = date ('H', $date);
 		
 		if ($m > 2)
 		{
@@ -198,7 +209,7 @@ class Helper_Date
 		    $m += 13;
 		    $y--;
 		}
-		return (int) (365.25 * $y + 30.6 * $m + $d);
+		return (int) ((365.25 * $y + 30.6 * $m + $d) * 24 + $h);
 	}
 	
 	/**

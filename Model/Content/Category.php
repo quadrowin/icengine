@@ -62,6 +62,14 @@ class Content_Category extends Model_Child
 		return $this;
 	}
 	
+	public function parentCategory ()
+	{
+		return Model_Manager::byKey (
+			'Content_Category',
+			$this->parentId
+		);
+	}
+	
 	public function title ()
 	{
 		return $this->title . ' ' . $this->url;
