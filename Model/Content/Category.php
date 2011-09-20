@@ -1,4 +1,7 @@
 <?php
+
+Loader::load ('Model_Child');
+
 /**
  * 
  * @desc Базовая модель категории контента
@@ -6,7 +9,6 @@
  * @package IcEngine
  *
  */
-Loader::load ('Model_Child');
 class Content_Category extends Model_Child
 {
 	
