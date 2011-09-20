@@ -293,6 +293,20 @@ abstract class Model implements ArrayAccess
 	}
 	
 	/**
+	 * @desc Преобразование к массиву
+	 * @return array
+	 */
+	public function __toArray ()
+	{
+		return array (
+			'class'	=> get_class ($this),
+			'model'	=> $this->modelName (),
+			'fields' => $this->asRow (),
+			'data' => $this->_data
+		);
+	}
+	
+	/**
 	 * @desc Метод вызывается из конструктора после завершения инициализации.
 	 */
 	protected function _afterConstruct ()

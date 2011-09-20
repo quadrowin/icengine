@@ -1,12 +1,10 @@
 <?php
-
 /**
  * 
  * @param array $params
- * @param Smarty $smarty
  * @return string
  */
-function smarty_function_Helper (array $params, Smarty $smarty)
+function smarty_function_Helper (array $params)
 {
     $helper = $params ['call'];
     Loader::load ('View_Helper_Manager');
