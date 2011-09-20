@@ -750,10 +750,7 @@ abstract class Model implements ArrayAccess
 	 */
 	public function save ($hard_insert = false)
 	{
-		Model_Manager::set (
-			$this->_generic ? $this->_generic : $this,
-			$hard_insert
-		);
+		Model_Manager::set ($this, $hard_insert);
 		
 		return $this;
 	}
