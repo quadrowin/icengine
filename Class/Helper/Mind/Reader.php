@@ -10,13 +10,15 @@ class Helper_Mind_Reader
 {
 	
 	/**
-	 * @return string
+	 * @desc Чтение мыслей текущего пользователя
+	 * @return mixed Мысль
 	 */
 	public static function read ()
 	{
 		return
-			isset (User::getCurrent ()->mind) ?
-			User::getCurrent ()->mind : null;
+			isset (User::getCurrent ()->mind) 
+			? User::getCurrent ()->mind 
+			: null;
 	}
 	
 }
