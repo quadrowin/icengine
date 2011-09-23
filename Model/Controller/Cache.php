@@ -31,9 +31,9 @@ class Controller_Cache extends Model
 		)
 	);
 	
-	public function html ($action, $args)
+	public static function html ($action, $args)
 	{
-		Controller_Manager::html ($action, $args);
+		return Controller_Manager::html ($action, $args);
 	}
 	
 }
