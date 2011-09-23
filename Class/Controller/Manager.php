@@ -378,9 +378,13 @@ class Controller_Manager extends Manager_Abstract
 //		Debug::microtime ($a [0] . '/' . $a [1] . '/ ' . var_export ($cache_config, true));
 		$start_time = microtime (true);
 		
-		if ($options == true)
+		if ($options === true)
 		{
-			$options = array ('html_only' => true);
+			$options = array ('full_result' => false);
+		}
+		elseif ($options === false)
+		{
+			$options = array ('full_result' => true);
 		}
 		
 		$html = Executor::execute (
@@ -493,7 +497,16 @@ class Controller_Manager extends Manager_Abstract
 			Tracer::end ();
 		}
 		
-		return isset ($options ['full_result'])
+		if ($options === true)
+		{
+			$options = array ('full_result' => false);
+		}
+		elseif ($options === false)
+		{
+			$options = array ('full_result' => true);
+		}
+		
+		return isset ($options ['full_result']) && $options ['full_result']
 			? $result
 			: $result ['html'];
 	}
