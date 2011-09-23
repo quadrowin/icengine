@@ -24,6 +24,8 @@ class Model_Option_Paginator extends Model_Option
 			);
 		}
 		$this->collection->setPaginator ($pg);
+		$this->query->calcFoundRows ();
+		$this->query->limit ($pg->pageLimit, $pg->offset ());
 	}
 	
 }
