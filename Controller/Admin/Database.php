@@ -126,7 +126,7 @@ class Controller_Admin_Database extends Controller_Abstract
 				'User__id'		=> User::id (),
 				'action'		=> $action,
 				'table'			=> $table,
-				'rowID'			=> $row_id,
+				'rowId'			=> $row_id,
 				'field'			=> $field,
 				'value'			=> $value,
 				'createdAt'		=> Helper_Date::toUnix ()
