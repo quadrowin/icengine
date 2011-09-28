@@ -1,1 +1,1 @@
-<a class="status__{$model->modelName()}_{$model->key()}" href="javascript:void(0);" onclick="Controller_Admin_Process.choose('{$model->modelName()}','{$model->key()}','{$field}');">{$title}</a>
+<a class="status__{$model->modelName()}_{$model->key()}" href="javascript:void(0);" onclick="Controller_Admin_Process.choose(this, '{$model->modelName()}','{$model->key()}','{$field}');">{$title}</a>

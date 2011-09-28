@@ -25,11 +25,25 @@ class Controller_Admin_Process extends Controller_Abstract
 	);
 	
 	/**
+	 * @desc Проверяет доступность ресурса для текущего пользователя
+	 * @param string $model
+	 * @param string $field
+	 * @return boolean
+	 */
+	protected function _hasAccess ($model, $field)
+	{
+		$resource = 'Table/' . Model_Scheme::table ($model) . '/' . $field;
+		$resource = Acl_Resource::byNameCheck ($resource);
+		
+		return $resource && $resource->userCan (User::getCurrent ());
+	}
+	
+	/**
 	 * @desc Вовзращает строковое представление статуса
 	 * @param integer $status
 	 * @return string
 	 */
-	public function _titleOf ($status)
+	protected function _titleOf ($status)
 	{
 		return $this->config ()->titles [$status];
 	}
@@ -54,6 +68,11 @@ class Controller_Admin_Process extends Controller_Abstract
 			'status'	=> $model->$field,
 			'title'		=> $title
 		));
+		
+		if (!$this->_hasAccess ($model->modelName (), $field))
+		{
+			$this->_task->setClassTpl (__METHOD__, 'disabled');
+		}
 	}
 	
 	/**
@@ -65,10 +84,7 @@ class Controller_Admin_Process extends Controller_Abstract
 	 */
 	public function change ($model, $key, $field, $status)
 	{
-		$resource = 'Table/' . Model_Scheme::table ($model) . '/' . $field;
-		$resource = Acl_Resource::byNameCheck ($resource);
-		
-		if (!$resource || !$resource->userCan (User::getCurrent ()))
+		if (!$this->_hasAccess ($model, $field))
 		{
 			$this->replaceAction ('Error', 'accessDenied');
 			return;
