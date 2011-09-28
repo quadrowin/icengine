@@ -15,16 +15,16 @@ var Controller_Admin_Process = {
 	 * @param status integer
 	 * @param where DOMElement
 	 */
-	change: function (model, key, field, status, where)
+	change: function (where, model, key, field, status)
 	{
 		if (where)
 		{
-			$(dlg).closest ('div').remove ();
+			$(where).closest ('div').remove ();
 		}
 		
 		function callback (result)
 		{
-			if (result.data && result.title)
+			if (result.data && result.data.title)
 			{
 				$('.status__' + model + '_' + key).html (result.data.title);
 			}
@@ -52,12 +52,9 @@ var Controller_Admin_Process = {
 	choose: function (where, model, key, field)
 	{
 		var $where = $(where);
-		var left = $where.offsetLeft;
-		var top = $where.offsetTop;
+		var offset = $where.offset ();
 		
-		console.log (left, top);
-		
-		var html = '<div style="position:absolute; left:' + left + 'px; top: ' + top + 'px;">';
+		var html = '<div style="position:absolute; padding: 4px; border: 1px solid black; background: #EAE7E2; left:' + offset.left + 'px; top: ' + offset.top + 'px;">';
 		
 		var items = [
 			{id: 0, title: 'none'},
@@ -71,7 +68,7 @@ var Controller_Admin_Process = {
 		for (var i in items)
 		{
 			html += '<a href="javascript:void(0);" ' +
-				'onclick="Controller_Admin_Process.change (\'' + model + '\', \'' + key +'\', \'' + field + '\', ' + items [i].id + ', this);">' +
+				'onclick="Controller_Admin_Process.change (this, \'' + model + '\', \'' + key +'\', \'' + field + '\', ' + items [i].id + ');">' +
 				items [i].title +
 				'</a><br />'
 		}
