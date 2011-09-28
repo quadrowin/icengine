@@ -128,4 +128,29 @@ class Content_Abstract extends Model_Factory_Delegate
 		return true;
 	}
 	
+	/**
+	 * @desc Расширение модели
+	 * @return Content_Extending
+	 */
+	public function extending ()
+	{
+		if (!$this->extending)
+		{
+			return null;
+		}
+		
+		$extending = Model_Manager::byKey ($this->extending, $this->id);
+				
+		if (!$extending && $this->extending && $this->id)
+		{
+			// Расширение не создано
+			$extending = Model_Manager::get (
+				$this->extending,
+				$this->id
+			)->firstSave ();
+		}
+		
+		return $extending;
+	}
+	
 }
