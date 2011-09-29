@@ -60,7 +60,7 @@
 				{elseif strpos($i->Type,'text')!==false}
 				<p><span class="pseudo-link" onclick="toggleEditor('textarea-{$i->Field}')">WYSIWYG</span></p>
 				<div style="width: 90%;">
-				<textarea rows="8" cols="50" style="width: 250px;" id="textarea-{$i->Field}" name="column[{$i->Field}]"
+				<textarea rows="8" cols="50" style="width: 800px;" id="textarea-{$i->Field}" name="column[{$i->Field}]"
 					{if isset($events[$field])}
 					{foreach from=$events[$field] item="method" key="event"}
 					 on{$event}="{$method}"	
@@ -72,7 +72,7 @@
 				{if $i->Field==$keyField && $row->sfield($column)}
 					<b>{$row->sfield($column)}</b>
 				{else}
-				<input id="column-{$i->Field}"{if strpos($i->Type,'time')!==false || strpos($i->Type,'date')!==false} class="icadmin_datepicker"{/if} size="44" type="text" name="column[{$i->Field}]" value="{if isset($row->$column)}{$row->$column|htmlspecialchars}{/if}"
+				<input id="column-{$i->Field}"{if strpos($i->Type,'time')!==false || strpos($i->Type,'date')!==false} class="icadmin_datepicker"{/if} size="105" type="text" name="column[{$i->Field}]" value="{if isset($row->$column)}{$row->$column|htmlspecialchars}{/if}"
 					{if isset($events[$field])}
 					{foreach from=$events[$field] item="method" key="event"}
 					 on{$event}="javascript:{$method};"	
