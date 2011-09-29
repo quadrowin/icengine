@@ -44,7 +44,6 @@ class Registration extends Model
 		 */
 		'auto_user'		=> true,
 	
-	
 		// Шаблон сообщения
 		'mail_template'		=> 'user_register',
 	
@@ -133,6 +132,9 @@ class Registration extends Model
 			array (
 				'email'			=> $data ['email'],
 				'password'		=> $data ['password'], 
+				'name'		=>  $data['name'],
+				'surname'		=>  $data['surname'],
+				'Sex__id'		=>  $data['Sex__id'],
 				'active'		=> $this->config ()->autoactive
 			),
 			$data
@@ -171,6 +173,7 @@ class Registration extends Model
 	 */
 	public static function create (array $data)
 	{
+		
 		$registration = new Registration (array (
 			'id'			=> $data ['User__id'],
 			'User__id'		=> $data ['User__id'],
@@ -205,8 +208,8 @@ class Registration extends Model
 			$this->_autoUserActivate ();
 		}
 		
-		Loader::load ('Message_After_Registration_Finish');
-		Message_After_Registration_Finish::push ($this);
+		//Loader::load ('Message_After_Registration_Finish');
+		//Message_After_Registration_Finish::push ($this);
 		
 		return $this;
 	}
@@ -243,12 +246,25 @@ class Registration extends Model
 			'code'			=> ''
 		));
 		
+		if ($config ['user'])
+		{
+			$this->update (array (
+				'User__id'	=> $user->id,
+				'code'	=> self::generateUniqueCode ($user->id)
+			));
+		}
+		
 		if ($config ['auto_user'])
 		{
-			$user = $this->_autoUserCreate ($data);
-			
-			Loader::load ('Message_After_Registration_Start');
-			Message_After_Registration_Start::push ($this);
+			if ($data ['user']) {
+				$user = $data ['user'];
+			}
+			else 
+			{
+				$user = $this->_autoUserCreate ($data);
+			}
+			//Loader::load ('Message_After_Registration_Start');
+			//Message_After_Registration_Start::push ($this);
 			
 			$this->update (array (
 				'User__id'	=> $user->id,
@@ -257,8 +273,8 @@ class Registration extends Model
 		}
 		else
 		{
-			Loader::load ('Message_After_Registration_Start');
-			Message_After_Registration_Start::push ($this);
+			//Loader::load ('Message_After_Registration_Start');
+			//Message_After_Registration_Start::push ($this);
 		}
 		
 		if ($config ['after_create'])

@@ -19,8 +19,8 @@ class Controller_Registration extends Controller_Abstract
 		if (User::authorized ())
 		{
 			// Пользователь уже зарегистрирован
-			Loader::load ('Header');
-			Header::redirect ('/');
+			Loader::load ('Helper_Header');
+			Helper_Header::redirect ('/');
 			die ();
 		}
 	}
@@ -33,8 +33,8 @@ class Controller_Registration extends Controller_Abstract
 	{
 		if (User::authorized ())
 		{
-			Loader::load ('Header');
-			Header::redirect ('/');
+			Loader::load ('Helper_Header');
+			Helper_Header::redirect ('/');
 			return;
 		}
 		
@@ -58,6 +58,38 @@ class Controller_Registration extends Controller_Abstract
 		return true;
 	}
 	
+	/**
+	 * @desc Подтверждение email и авторизация
+	 */
+	public function emailConfirmAndAuthorization ()
+	{
+		$this->_task->setTemplate (null);
+		
+		if (User::authorized ())
+		{
+			Loader::load ('Helper_Header');
+			Helper_Header::redirect ('/');
+			return;
+		}
+		
+		$registration = Registration::byCode (
+			$this->_input->receive ('code')
+		);
+		
+		$registration->finish ();
+		
+	        $user = $registration->User;
+			
+		$user->authorize ();
+			
+		$this->_output->send (array (
+			'data'		=> array (
+				'userId'	=> $user->key (),
+				'cityId'	=> City::id ()
+			)
+		));
+	}
+	
 	public function postForm ()
 	{
 		Loader::load ('Helper_Form');
@@ -78,8 +110,8 @@ class Controller_Registration extends Controller_Abstract
 			$this->_output->send (array (
 				'registration'	=> $registration,
 				'data'			=> array (
-					'field'			=> key ($registration),
-					'error'			=> current ($registration)
+				'field'			=> key ($registration),
+				'error'		=> current ($registration)
 				)
 			));
 			
