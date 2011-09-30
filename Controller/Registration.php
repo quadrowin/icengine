@@ -76,6 +76,15 @@ class Controller_Registration extends Controller_Abstract
 			$this->_input->receive ('code')
 		);
 		
+		if (!$registration) {
+			$this->_output->send (array (
+				'data'		=> array (
+					'error'	=> 'codeInvalid'
+				)
+			));
+			return;
+		}
+		
 		$registration->finish ();
 		
 	        $user = $registration->User;
