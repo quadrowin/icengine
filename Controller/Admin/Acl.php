@@ -171,6 +171,8 @@ class Controller_Admin_Acl extends Controller_Abstract
 	 */
 	public function save ()
 	{
+		set_time_limit (0);
+		
 		if (!$this->_checkAccess ())
 		{
 			return $this->replaceAction ('Error', 'accessDenied');

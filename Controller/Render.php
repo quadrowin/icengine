@@ -1,28 +1,21 @@
 <?php
-
 /**
+ * 
  * @desc Контролер для рендеринга заданий
  * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
+ * 
  */
 class Controller_Render extends Controller_Abstract
 {
+	
 	/**
 	 * @desc Рендерим
+	 * @param Controller_Task $task 
 	 */
-	public function index ()
+	public function index (Controller_Task $task)
 	{
-		list (
-			$task,
-			$render
-		) = $this->_input->receive (
-			'task',
-			'render'
-		);
-		
-//		$render->assign (array (
-//			'task'	=> $task
-//		));
-		$render->render ($task);
+		$task->getViewRender ()->render ($task);
 	}
+	
 }

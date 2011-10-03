@@ -357,7 +357,8 @@ class Query_Translator_Mongo extends Query_Translator
 				$query->part (Query::LIMIT_COUNT) == 1 &&
 				$query->part (Query::LIMIT_OFFSET) == 0 &&
 				!$query->part (Query::ORDER) &&
-				!$query->part (Query::CALC_FOUND_ROWS)
+				!$query->part (Query::CALC_FOUND_ROWS),
+			Query::CALC_FOUND_ROWS => $query->part (Query::CALC_FOUND_ROWS)
 		);
 	}
 

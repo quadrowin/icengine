@@ -14,7 +14,8 @@ class Controller_Admin_Database extends Controller_Abstract
 	 */
 	protected $_config = array (
 		// Роли, имеющие доступ к админке
-		'access_roles'	=> array ('admin')
+		'access_roles'		=> array ('admin'),
+		'default_limit'		=> 30
 	);
 	
 	/**
@@ -125,7 +126,7 @@ class Controller_Admin_Database extends Controller_Abstract
 				'User__id'		=> User::id (),
 				'action'		=> $action,
 				'table'			=> $table,
-				'rowID'			=> $row_id,
+				'rowId'			=> $row_id,
 				'field'			=> $field,
 				'value'			=> $value,
 				'createdAt'		=> Helper_Date::toUnix ()
@@ -230,7 +231,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			'row_id'
 		);
 		
-		$prefix = Model_Scheme::$defaultPrefix;
+		$prefix = Model_Scheme::$default ['prefix'];
 		
 		$class_name = $this->__className ($table, $prefix);
 		
@@ -350,7 +351,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
 		
-		$prefix = Model_Scheme::$defaultPrefix;
+		$prefix = Model_Scheme::$default ['prefix'];
 		
 		$class_name = $this->__className ($table, $prefix);
 		
@@ -361,11 +362,14 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		$auto_select = array ();
 		
-		$tmp = $this->config ()->auto_select->$class_name;
-		
-		if ($tmp)
+		if (!empty ($this->config ()->auto_select))
 		{
-			$auto_select = $tmp->__toArray ();
+			$auto_select = $this->config ()->auto_select->$class_name;
+		}
+		
+		if ($auto_select)
+		{
+			$auto_select = $auto_select->__toArray ();
 		}
 		
 		foreach ($fields as $i => $field)
@@ -424,11 +428,14 @@ class Controller_Admin_Database extends Controller_Abstract
 			{
 				$field_filters = array ();
 				
-				$tmp = $this->config ()->field_filters->$class_name;
-				
-				if ($tmp)
+				if (!empty ($this->config ()->field_filters))
 				{
-					$field_filters = $tmp->__toArray ();
+					$field_filters = $this->config ()->field_filters->$class_name;
+				}
+				
+				if ($field_filters)
+				{
+					$field_filters = $field_filters->__toArray ();
 				}
 				
 				$query = Query::instance ()
@@ -484,9 +491,11 @@ class Controller_Admin_Database extends Controller_Abstract
 				}
 				$kf = Model_Scheme::keyField ($model_class_name);
 
+				Loader::load ('Dummy');
+				
 				foreach ($result as $item)
 				{
-					$collection->add (new $model_class_name (array (
+					$collection->add (new Dummy (array (
 						$kf	=> $item [$text_value->tv_text_link_field],
 						'name'	=> $item [$text_value->tv_text_field]
 					)));
@@ -558,31 +567,35 @@ class Controller_Admin_Database extends Controller_Abstract
 		// Получаем эвенты
 		$events  = array ();
 		
-		$tmp = $this->config ()->events->$class_name;
-		
-		if ($tmp)
+		if (!empty ($this->config ()->events))
 		{
-			$events = $tmp->__toArray ();
+			$events = $this->config ()->events->$class_name;
+		}
+		
+		if ($events)
+		{
+			$events = $events->__toArray ();
 		}
 		
 		// Получаем плагины
 		$plugins = array ();
 		
-		$tmp = $this->config ()->plugins->$class_name;
-		
-		if ($tmp)
+		if (!empty ($this->config ()->plugins))
 		{
-			$plugins = $tmp->__toArray ();	
+			$plugins = $this->config ()->plugins->$class_name;
+		}
+		
+		if ($plugins)
+		{
+			$plugins = $plugins->__toArray ();	
 		}
 		
 		// Получаем список вкладок
 		$tabs = array ();
 		
-		$tmp = $this->config ()->tabs;
-		
-		if ($tmp)
+		if (!empty ($this->config ()->tabs))
 		{
-			$tabs = $tmp->__toArray ();
+			$tabs = $this->config ()->tabs->__toArray ();
 		}
 		
 		$this->_output->send (array (
@@ -624,14 +637,20 @@ class Controller_Admin_Database extends Controller_Abstract
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
 
-		$prefix = Model_Scheme::$defaultPrefix;
+		$prefix = Model_Scheme::$default ['prefix'];
 		
 		$class_name = $this->__className ($table, $prefix);
 
 		$collection = Model_Collection_Manager::create ($class_name);
 		
 		// Получаем фильтры
-		$filters = $this->config ()->filters->$class_name;
+		
+		$filters = null;
+		
+		if (!empty ($this->config ()->filters))
+		{
+			$filters = $this->config ()->filters->$class_name;
+		}
 		
 		if ($filters)
 		{
@@ -648,7 +667,13 @@ class Controller_Admin_Database extends Controller_Abstract
 		}
 		
 		// Сортируем коллекцию, если есть конфиг для сортировки
-		$sort = $this->config ()->sort->$class_name;
+		
+		$sort = null;
+		
+		if (!empty ($this->config ()->sort))
+		{
+			$sort = $this->config ()->sort->$class_name;
+		}
 		
 		if ($sort)
 		{
@@ -663,8 +688,14 @@ class Controller_Admin_Database extends Controller_Abstract
 		if (!$limitator)
 		{
 			// Накладываем лимиты
-			$limit = $this->config ()->limits->$class_name;
-
+			
+			$limit = $this->config ()->default_limit;
+			
+			if (!empty ($this->config ()->limit))
+			{
+				$limit = $this->config ()->limits->$class_name;
+			}
+			
 			if ($limit)
 			{
 				$_GET ['limit'] = $limit;
@@ -699,8 +730,13 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 		$acl_fields = array ();
 		
-		$class_fields = $this->config ()->fields->$class_name;
-
+		$class_fields = array ();
+		
+		if (!empty ($this->config ()->fields))
+		{
+			$class_fields = $this->config ()->fields->$class_name;
+		}
+		
 		$fields = null;
 		
 		$sfields = array ();
@@ -729,18 +765,38 @@ class Controller_Admin_Database extends Controller_Abstract
 			}
 		}
 		
-		$title = $this->config ()->titles->$class_name;
+		$title = null;
 		
-		$links = $this->config ()->links->$class_name;
-
+		if (!empty ($this->config ()->titles))
+		{
+			$title = $this->config ()->titles->$class_name;
+		}
+		
+		$links = array ();
+		
+		if (!empty ($this->config ()->links))
+		{
+			$links = $this->config ()->links->$class_name;
+		}
+		
 		if ($links)
 		{
 			$links = $links->__toArray ();
 		}
 		
-		$includes = $this->config ()->includes->$class_name;
+		$includes = array ();
 		
-		$limitators = $this->config ()->limitators->$class_name;
+		if (!empty ($this->config ()->includes))
+		{
+			$includes = $this->config ()->includes->$class_name;
+		}
+		
+		$limitators = array ();
+		
+		if (!empty ($this->config ()->limitators))
+		{
+			$limitators = $this->config ()->limitators->$class_name;
+		}
 		
 		if ($limitators)
 		{
@@ -782,6 +838,20 @@ class Controller_Admin_Database extends Controller_Abstract
 			}
 		}
 		
+		$styles = array ();
+		
+		if (!empty ($this->config ()->styles->$class_name))
+		{
+			$styles = $this->config ()->styles->$class_name;
+		}
+		
+		$link_styles = array ();
+		
+		if (!empty ($this->config ()->link_styles->$class_name))
+		{
+			$link_styles = $this->config ()->link_styles->$class_name;
+		}
+		
 		$this->_output->send (array (
 			'collection'		=> $collection,
 			'fields'			=> $fields,
@@ -794,8 +864,8 @@ class Controller_Admin_Database extends Controller_Abstract
 				? $title : $this->config ()->default_title, 
 			'links'				=> $links,
 			'keyField'			=> Model_Scheme::keyField ($class_name),
-			'styles'			=> $this->config ()->styles->$class_name,
-			'link_styles'		=> $this->config ()->link_styles->$class_name
+			'styles'			=> $styles,
+			'link_styles'		=> $link_styles
 		));
 	}
 	
@@ -816,7 +886,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		
 //		print_r ($_POST);
 
-		$prefix = Model_Scheme::$defaultPrefix;
+		$prefix = Model_Scheme::$default ['prefix'];
 		
 		$class_name = $this->__className ($table, $prefix);
 		

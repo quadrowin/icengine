@@ -21,13 +21,12 @@
 		}
 	}
 	
-	{{assign var="cdir" value=$smarty.template|dirname}}
+	{{assign var="cdir" value=$smarty.current_dir}}
 	
 	var this_record_layer = {
 		objects: [	
 			{{if $geo_points->count()}}
-				{{
-					include file="$cdir/includes/points.tpl"
+				{{include file="$cdir/includes/points.tpl"
 					type="Placemark"
 					source=$geo_points
 				}}
@@ -37,8 +36,7 @@
 			{{/if}}			
 			
 			{{if $geo_polylines->count()}}
-				{{
-					include file="$cdir/includes/points.tpl"
+				{{include file="$cdir/includes/points.tpl"
 					type="Polyline"
 					source=$geo_polylines
 				}}
@@ -48,8 +46,7 @@
 			{{/if}}
 				
 			{{if $geo_polygons->count()}}
-				{{
-					include file="$cdir/includes/points.tpl"
+				{{include file="$cdir/includes/points.tpl"
 					type="Polygon"
 					source=$geo_polygons
 				}}
@@ -57,8 +54,7 @@
 		],
 		
 		styles: [
-			{{
-				include file="$cdir/includes/styles.tpl"
+			{{include file="$cdir/includes/styles.tpl"
 				source=$styles	
 			}}
 		]
@@ -75,9 +71,7 @@
 			{{if !$smarty.foreach.style.iteration}},{{/if}}
 			{{/foreach}}
 		],
-		{{
-			include file="$cdir/includes/js.tpl"
-		}}
+		{{include file="$cdir/includes/js.tpl"}}
 	}
 	
 	$(function ()

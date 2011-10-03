@@ -16,6 +16,12 @@ class User_Session extends Model
     protected static $_current = null;
 	
 	/**
+	 * @desc id пользователя по умолчаиню
+	 * @var integer
+	 */
+	protected static $_defaultUserId = 0;
+	
+	/**
 	 * 
 	 * @param string $session_id
 	 * @return User_Session
@@ -28,7 +34,7 @@ class User_Session extends Model
 		{
     		$session = new User_Session (array (
     			'id'			=> $session_id,
-    			'User__id'		=> 0,
+    			'User__id'		=> self::$_defaultUserId,
     			'phpSessionId'	=> $session_id,
     			'startTime'	    => Helper_Date::toUnix (),
     			'lastActive'	=> Helper_Date::toUnix (),
@@ -50,12 +56,30 @@ class User_Session extends Model
 	}
 	
 	/**
+	 * @desc Возвращает ПК пользователя по умолчанию.
+	 * @return integer
+	 */
+	public static function getDefaultUserId ()
+	{
+		return self::$_defaultUserId;
+	}
+	
+	/**
 	 * 
 	 * @param User_Session $session
 	 */
 	public static function setCurrent (User_Session $session)
 	{
 	    self::$_current = $session;
+	}
+	
+	/**
+	 * @desc Устанавливает ПК пользователя по умолчанию
+	 * @param integer $value ПК пользователя
+	 */
+	public static function setDefaultUserId ($value)
+	{
+		self::$_defaultUserId = $value;
 	}
 	
 	/**

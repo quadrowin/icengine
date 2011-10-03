@@ -185,8 +185,7 @@ class Controller_Abstract
 		if (is_array ($valid))
 		{
 			$this->_task->setTemplate (
-				str_replace (array ('::', '_'), '/', reset ($valid)) . 
-				'.tpl'
+				str_replace (array ('::', '_'), '/', reset ($valid))
 			);
 			$field = key ($valid);
 			$this->_output->send (array (
@@ -315,14 +314,6 @@ class Controller_Abstract
 	}
 	
 	/**
-	 * @desc Экшн по умолчанию
-	 */
-	public function index ()
-	{
-		
-	}
-	
-	/**
 	 * @desc Имя контроллера (без приставки Controller_)
 	 * @return string
 	 */
@@ -349,7 +340,7 @@ class Controller_Abstract
 		$this->_task->setTemplate (
 			'Controller/' .
 			str_replace ('_', '/', $controller) .
-			'/' . $action . '.tpl'
+			'/' . $action
 		);
 		
 		if ($controller == get_class ($this))

@@ -64,9 +64,10 @@ abstract class Model_Child extends Model
 		}
 		
 		$current = $this->getParent ();
+		
 		while ($current)
 		{
-			if ($current->key () == $parent)
+			if ($current->key () == $parent && $parent != 0)
 			{
 				return true;
 			}

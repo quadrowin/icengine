@@ -47,16 +47,33 @@ class View_Render_Cli extends View_Render_Abstract
 				$render 
 				? $render->render ($t)
 				: null;
+			
+			if (
+				isset ($_SERVER ['OS']) && 
+				strpos (strtoupper ($_SERVER ['OS']), 'WIN') !== false
+			)
+			{
+				echo iconv (
+					'UTF-8',
+					'CP866',
+					var_export ($t->getTransaction ()->buffer (), true)
+				);
+			}
+			else
+			{
+				var_dump ($t->getTransaction ()->buffer ());
+			}
+			
 			$this->assign ($t->getAssignVar (), $result);
 		}
 		
 		$render = $tasks [0]->getViewRender ();
 		
-		if ($render)
-		{
-			$render->assign ($this->_vars);
-			$render->display ($task->getTemplate ());
-		}
+//		if ($render)
+//		{
+//			$render->assign ($this->_vars);
+//			$render->display ($task->getTemplate ());
+//		}
 	}
 	
 }

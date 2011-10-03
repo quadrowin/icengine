@@ -10,6 +10,15 @@ class View_Render_Front extends View_Render_Abstract
 {
 	
 	/**
+	 * @desc Конфиг
+	 * @var array
+	 */
+	protected static $_config = array (
+		// Render for layout
+		'layout_render'	=> 'Smarty'
+	);
+	
+	/**
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::addHelper()
 	 */
@@ -38,18 +47,21 @@ class View_Render_Front extends View_Render_Abstract
 	public function render (Controller_Task $task)
 	{
 		$transaction = $task->getTransaction ();
+		$this->assign ($transaction->buffer ());
 		$tasks = $transaction->receive ('tasks');
-		
-		foreach ($tasks as $t)
-		{
-			$render = $t->getViewRender ();
-			$result = $render->render ($t);
-			$this->assign ($t->getAssignVar (), $result);
+		if ($tasks) {
+			foreach ($tasks as $t)
+			{
+				$render = $t->getViewRender ();
+				$result = $render->render ($t);
+				$this->assign ($t->getAssignVar (), $result);
+			}
 		}
+		$config = $this->config ();
+		$render = View_Render_Manager::byName ($config ['layout_render']);
 		
-		$render = $tasks [0]->getViewRender ();
-
 		$render->assign ($this->_vars);
+		
 		$render->display ($task->getTemplate ());
 	}
 	

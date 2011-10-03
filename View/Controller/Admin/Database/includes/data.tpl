@@ -1,5 +1,5 @@
 {assign var="is_new" value=true}
-{if $row && $row->sfield ($row->keyField ())}
+{if $row && $row->sfield($row->keyField())}
 	{assign var="is_new" value=false}
 {/if}
 
@@ -38,19 +38,19 @@
 					<option value="0">Не указано</option>
 					{assign var="selected" value=0}
 					{foreach from=$i->Values item="j"}
-						<option value="{$j->key()}"{if isset ($row->$column) && $row->$column==$j->key()} selected="selected"
+						<option value="{$j->key()}"{if isset($row->$column) && $row->$column==$j->key()} selected="selected"
 						{assign var="selected" value=1}{/if}>
 						{assign var="temp" value=$j->title()}
 						{$temp|truncate:"100"}
 						</option>
 					{/foreach} 
-					{if $row && isset ($row->$column) && $row->$column && !$selected}
+					{if $row && isset($row->$column) && $row->$column && !$selected}
 					<option value="{$row->$column}">Указано значение {$row->$column}</option>	
 					{/if}
 				</select>
 				{elseif $i->Type=='tinyint(1)'}
 				<input name="column[{$i->Field}]" type="hidden" value="0" />
-				<input id="column-{$i->Field}" type="checkbox" value="1" name="column[{$i->Field}]"{if isset ($row->$column) && $row->$column} checked="checked"{/if}
+				<input id="column-{$i->Field}" type="checkbox" value="1" name="column[{$i->Field}]"{if isset($row->$column) && $row->$column} checked="checked"{/if}
 					{if isset($events[$field])}
 					{foreach from=$events[$field] item="method" key="event"}
 					 on{$event}="{$method}"	
@@ -60,7 +60,7 @@
 				{elseif strpos($i->Type,'text')!==false}
 				<p><span class="pseudo-link" onclick="toggleEditor('textarea-{$i->Field}')">WYSIWYG</span></p>
 				<div style="width: 90%;">
-				<textarea rows="8" cols="50" style="width: 250px;" id="textarea-{$i->Field}" name="column[{$i->Field}]"
+				<textarea rows="8" cols="50" style="width: 800px;" id="textarea-{$i->Field}" name="column[{$i->Field}]"
 					{if isset($events[$field])}
 					{foreach from=$events[$field] item="method" key="event"}
 					 on{$event}="{$method}"	
@@ -72,7 +72,7 @@
 				{if $i->Field==$keyField && $row->sfield($column)}
 					<b>{$row->sfield($column)}</b>
 				{else}
-				<input id="column-{$i->Field}"{if strpos($i->Type,'time')!==false || strpos($i->Type,'date')!==false} class="icadmin_datepicker"{/if} size="44" type="text" name="column[{$i->Field}]" value="{if isset($row->$column)}{$row->$column|htmlspecialchars}{/if}"
+				<input id="column-{$i->Field}"{if strpos($i->Type,'time')!==false || strpos($i->Type,'date')!==false} class="icadmin_datepicker"{/if} size="105" type="text" name="column[{$i->Field}]" value="{if isset($row->$column)}{$row->$column|htmlspecialchars}{/if}"
 					{if isset($events[$field])}
 					{foreach from=$events[$field] item="method" key="event"}
 					 on{$event}="javascript:{$method};"	

@@ -40,17 +40,15 @@ class Helper_Smarty_Filter_Encoding
 	 */
 	public static function register (Smarty $smarty)
 	{
-		$smarty->register_prefilter (
-			array (__CLASS__, 'filterEncoding'));
+		$smarty->registerFilter ('pre', array (__CLASS__, 'filterEncoding'));
 	}
 	
 	/**
 	 * @desc Перекодирование 
 	 * @param string $tpl_source Исходный код шаблона
-	 * @param Smarty $smarty Экземпляр смарти.
 	 * @return string Результат.
 	 */
-	public static function filterEncoding ($tpl_source, Smarty $smarty)
+	public static function filterEncoding ($tpl_source)
 	{
 		if (!$tpl_source)
 		{
