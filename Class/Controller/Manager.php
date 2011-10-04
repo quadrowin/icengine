@@ -356,8 +356,8 @@ class Controller_Manager extends Manager_Abstract
 	 * @desc Выполняет указанный контроллер, экшен с заданными параметрами.
 	 * @param string $action Название контроллера или контроллер и экшен
 	 * в формате "Controller/action".
-	 * @param array $args Параметры.
-	 * @param boolean $html_only=true Только результат рендера.
+	 * @param array $args Параметры контроллера.
+	 * @param mixed $options=true Параметры вызова.
 	 * @return string Результат компиляции шабона.
 	 * @todo Это будет в Controller_Render
 	 * @tutorial
@@ -365,7 +365,7 @@ class Controller_Manager extends Manager_Abstract
 	 * 		html ('Controller/action')
 	 */
 	public static function html ($action, array $args = array (), 
-		$html_only = true)
+		$options = true)
 	{
 		$a = explode ('/', $action);
 		if (count ($a) == 1)
@@ -378,9 +378,18 @@ class Controller_Manager extends Manager_Abstract
 //		Debug::microtime ($a [0] . '/' . $a [1] . '/ ' . var_export ($cache_config, true));
 		$start_time = microtime (true);
 		
+		if ($options === true)
+		{
+			$options = array ('full_result' => false);
+		}
+		elseif ($options === false)
+		{
+			$options = array ('full_result' => true);
+		}
+		
 		$html = Executor::execute (
 			array (__CLASS__, 'htmlUncached'),
-			array ($a, $args, $html_only),
+			array ($a, $args, $options),
 			$cache_config
 		);
 		
@@ -410,8 +419,8 @@ class Controller_Manager extends Manager_Abstract
 	 * не используется кэширование.
 	 * @param string $action Название контроллера или контроллер и экшен
 	 * в формате "Controller/action".
-	 * @param array $args Параметры.
-	 * @param boolean $html_only Только вывод.
+	 * @param array $args Параметры контроллера.
+	 * @param mixed $options=true Параметры вызова.
 	 * @return string Результат компиляции шабона.
 	 * @todo Это будет в Controller_Render
 	 * @tutorial
@@ -419,7 +428,7 @@ class Controller_Manager extends Manager_Abstract
 	 * 		html ('Controller/action')
 	 */
 	public static function htmlUncached ($action, array $args = array (), 
-		$html_only = true)
+		$options = true)
 	{
 		$a = is_array ($action) ? $action : explode ('/', $action);
 		
@@ -488,7 +497,18 @@ class Controller_Manager extends Manager_Abstract
 			Tracer::end ();
 		}
 		
-		return $html_only ? $result ['html'] : $result;
+		if ($options === true)
+		{
+			$options = array ('full_result' => false);
+		}
+		elseif ($options === false)
+		{
+			$options = array ('full_result' => true);
+		}
+		
+		return isset ($options ['full_result']) && $options ['full_result']
+			? $result
+			: $result ['html'];
 	}
 	
 	/**
