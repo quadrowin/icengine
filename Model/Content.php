@@ -19,7 +19,7 @@ class Content extends Model_Factory
 	 */
 	public static function byName ($model_name, $key)
 	{
-		$model_name = 'Content_' . ucfirst ($name);
+		$model_name = 'Content_' . ucfirst ($model_name);
 
 		$content = Model_Manager::get (
 			$model_name,
