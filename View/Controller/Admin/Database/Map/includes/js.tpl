@@ -12,7 +12,10 @@
 
         // ya map:
 		var mapEditor = this;
-
+				$('#tabs a').each(function() {
+					if ($(this).attr('href') == '#tab-geo') {
+						$(this).bind('click', function() {
+							setTimeout(function () {
 		YMaps.load (function ()
 		{
 			mapEditor.map = new YMaps.Map (YMaps.jQuery (mapDivId) [0]);
@@ -73,6 +76,11 @@
 			mapEditor.showPlacemarkControl();
 
             mapEditor.importLayer(this_record_layer);
+		});
+		} , 500);
+			
+				});
+			}
 		});
     },
 
