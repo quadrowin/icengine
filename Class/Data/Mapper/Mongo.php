@@ -30,7 +30,8 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 		'username'	=> '',
 		'password'	=> '',
 		'database'	=> 'unknown',
-		'charset'	=> 'utf8'
+		'charset'	=> 'utf8',
+		'options'	=> array ()
 	);
 	
 	/**
