@@ -117,8 +117,8 @@
 		
         this.setDescription (overlay);
 
-        this.overlayName.focus ();
-        this.overlayName.select ();
+        //this.overlayName.focus ();
+        //this.overlayName.select ();
     },
 
     // apply all changes & stop editing mode for current overlay
@@ -551,8 +551,8 @@
 	{
         this.placemarkControl.show ();
         this.lineStyleControl.hide ();
-        this.overlayName.focus ();
-        this.overlayName.select ();
+        //this.overlayName.focus ();
+        //this.overlayName.select ();
     },
 
     // hides PlacemarkSelectorControl pane & show LineStyleControl pane
@@ -560,8 +560,8 @@
 	{
         this.placemarkControl.hide ();
         this.lineStyleControl.show ();
-        this.overlayName.focus ();
-        this.overlayName.select ();
+        //this.overlayName.focus ();
+        //this.overlayName.select ();
     },
 
     // constructs LineStyleControl DOM & adds it to the pane
