@@ -28,26 +28,49 @@
 			<td style="padding:6px" valign="top" width="150"><b>{if $i->Comment}{$i->Comment}{else}{$i->Field}{/if}:</b> </td> 
 			<td style="padding:6px" valign="top">
 				{if isset($i->Values)}
-				<select id="column-{$i->Field}" name="column[{$i->Field}]"
-					{if isset($events[$field])}
-					{foreach from=$events[$field] item="method" key="event"}
-					 on{$event}="{$method}"	
-					{/foreach}
+					{if isset($link_models[$field])}
+					<div style="height:180px; overflow: auto">
+						{assign var="linked_items" value=$row->$field}
+			
+						<input type="hidden" id="column-{$i->Field}" name="column[{$i->Field}]" value="0" />
+				
+						{foreach from=$i->Values item="ival"}
+							<input type="checkbox" name="column[{$i->Field}][]" value="{$ival->key()}" 
+								{if isset($events[$field])}
+								{foreach from=$events[$field] item="method" key="event"}
+								 on{$event}="{$method}"	
+								{/foreach}
+								{/if}
+								{foreach from=$row->$field item="rowval"}
+									{if $rowval->key()==$ival->key()}
+										checked="checked"
+									{/if}
+								{/foreach}
+							/> {$ival->title()} <br />
+						{/foreach}
+					</div>
+					{else}
+					<select id="column-{$i->Field}" name="column[{$i->Field}]"
+						{if isset($events[$field])}
+						{foreach from=$events[$field] item="method" key="event"}
+						 on{$event}="{$method}"	
+						{/foreach}
+						{/if}
+					>
+						<option value="0">Не указано</option>
+						{assign var="selected" value=0}
+						{foreach from=$i->Values item="j"}
+							<option value="{$j->key()}"{if isset($row->$column) && $row->$column==$j->key()} selected="selected"
+							{assign var="selected" value=1}{/if}>
+							{assign var="temp" value=$j->title()}
+							{$temp|truncate:"100"}
+							</option>
+						{/foreach} 
+						{if $row && isset($row->$column) && $row->$column && !$selected}
+						<option value="{$row->$column}">Указано значение {$row->$column}</option>	
+						{/if}
+					</select>
 					{/if}
-				>
-					<option value="0">Не указано</option>
-					{assign var="selected" value=0}
-					{foreach from=$i->Values item="j"}
-						<option value="{$j->key()}"{if isset($row->$column) && $row->$column==$j->key()} selected="selected"
-						{assign var="selected" value=1}{/if}>
-						{assign var="temp" value=$j->title()}
-						{$temp|truncate:"100"}
-						</option>
-					{/foreach} 
-					{if $row && isset($row->$column) && $row->$column && !$selected}
-					<option value="{$row->$column}">Указано значение {$row->$column}</option>	
-					{/if}
-				</select>
 				{elseif $i->Type=='tinyint(1)'}
 				<input name="column[{$i->Field}]" type="hidden" value="0" />
 				<input id="column-{$i->Field}" type="checkbox" value="1" name="column[{$i->Field}]"{if isset($row->$column) && $row->$column} checked="checked"{/if}
