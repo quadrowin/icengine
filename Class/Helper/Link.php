@@ -32,12 +32,25 @@ class Helper_Link
 	protected static function _schemeLink ($scheme, $key1, $key2)
 	{
 		$link_class = $scheme ['link'];
+		
+		$query = Query::instance ()
+			->where ($scheme ['fromKey'], $key1)
+			->where ($scheme ['toKey'], $key2);
+		
+		if (!empty ($scheme ['addict']))
+		{
+			foreach ($scheme ['addict'] as $field => $value)
+			{
+				$query
+					->where ($field, $value);
+			}
+		}
+		
 		$link = Model_Manager::byQuery (
 			$link_class,
-			Query::instance ()
-				->where ($scheme ['fromKey'], $key1)
-				->where ($scheme ['toKey'], $key2)
+			$query
 		);
+		
 		return $link;
 	}
 	
@@ -234,6 +247,15 @@ class Helper_Link
 			$query
 				->select ($column);
 			
+			if (!empty ($scheme ['addict']))
+			{
+				foreach ($scheme ['addict'] as $field => $value)
+				{
+					$query
+						->where ($field, $value);
+				}
+			}
+			
 			$ids = DDS::execute ($query)->getResult ()->asColumn ($column);
 			
 			$result = Model_Collection_Manager::byQuery (
@@ -257,7 +279,7 @@ class Helper_Link
 	 */
 	public static function linkedKeys (Model $model1, $linked_model_name)
 	{
-		$collection = self::linkedItems ($model, $linked_model_name);
+		$collection = self::linkedItems ($model1, $linked_model_name);
 		
 		return $collection->column (Model_Scheme::keyField ($linked_model_name));
 	}
@@ -310,8 +332,6 @@ class Helper_Link
 	 */
 	public static function unlinkWith (Model $model, $linked_model_name)
 	{
-		$collection = self::linkedItems ($model, $linked_model_name);
-		
 		$table1 = $model->modelName ();
 		$table2 = $linked_model_name;
 		
@@ -368,6 +388,15 @@ class Helper_Link
 			{
 				$query
 					->where ($scheme ['fromKey'], $model->key ());
+			}
+			
+			if (!empty ($scheme ['addict']))
+			{
+				foreach ($scheme ['addict'] as $field => $value)
+				{
+					$query
+						->where ($field, $value);
+				}
 			}
 			
 			//echo $query->translate ();

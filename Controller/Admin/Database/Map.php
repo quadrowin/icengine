@@ -141,7 +141,7 @@ class Controller_Admin_Database_Map extends Controller_Abstract
 			$class_name,
 			$row_id
 		);
-	
+
 		if (!$row)
 		{
 			return;
@@ -169,7 +169,7 @@ class Controller_Admin_Database_Map extends Controller_Abstract
 		
 		Loader::load ('Geo_Point_Style');
 		Loader::load ('Geo_Line_Style');
-		
+
 		foreach ($data as $point)
 		{
 			$cname = 'Point';
@@ -192,6 +192,9 @@ class Controller_Admin_Database_Map extends Controller_Abstract
 					Query::instance ()
 						->where ('name', $point ['style'])
 				);
+				if (!$style) {
+					$style = Model_Manager::byKey('Geo_Point_Style', 1);
+				}
 			}
 			
 			if (!$style)
