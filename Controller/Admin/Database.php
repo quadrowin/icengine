@@ -277,7 +277,6 @@ class Controller_Admin_Database extends Controller_Abstract
 	public function index ()
 	{
 		$tables = Helper_Data_Source::tables ();;
-		
 		$tmp_tables = $this->__aclTables ($tables);
 		
 		if (!$tmp_tables || !User::id ())
@@ -288,7 +287,6 @@ class Controller_Admin_Database extends Controller_Abstract
 		$result = array ();
 		
 		Loader::load ('Table_Rate');
-		
 		foreach ($tables as $table)
 		{
 			$table ['Rate'] = 0;
@@ -296,9 +294,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			if (in_array ($table ['Name'], $tmp_tables))
 			{
 				$rate = Table_Rate::byTable ($table ['Name']);
-				
 				$table ['Rate'] = $rate->value; 
-				
 				$result [] = $table;
 			}
 		}
@@ -306,7 +302,6 @@ class Controller_Admin_Database extends Controller_Abstract
 		Helper_Array::mosort ($result, 'Rate DESC,Comment');
 		
 		$tmp = array ();
-		
 		foreach ($result as $i => $r)
 		{
 			if (!$r ['Comment'])
@@ -317,7 +312,6 @@ class Controller_Admin_Database extends Controller_Abstract
 		}
 		
 		Helper_Array::mosort ($tmp, 'Name');
-		
 		$result = array_merge ($result, $tmp);
 		
 		$this->_output->send (array (
@@ -333,9 +327,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		Loader::load ('Table_Rate');
 		
 		$rate = Table_Rate::byTable ($table)->inc ();
-
 		$fields = Helper_Data_Source::fields ('`' . $table . '`');
-		
 		$acl_fields = $this->__aclFields ($table, $fields);
 		
 		if (!$acl_fields || !User::id ())
@@ -344,9 +336,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		}
 		
 		$prefix = Model_Scheme::$default ['prefix'];
-		
 		$class_name = $this->__className ($table, $prefix);
-		
 		$row = Model_Manager::get (
 			$class_name,
 			$row_id
