@@ -328,16 +328,8 @@ class Controller_Admin_Database extends Controller_Abstract
 	/**
 	 * @desc Поля записи
 	 */
-	public function row ()
+	public function row ($table, $row_id)
 	{
-		list (
-			$table,
-			$row_id
-		) = $this->_input->receive (
-			'table',
-			'row_id'	
-		);
-		
 		Loader::load ('Table_Rate');
 		
 		$rate = Table_Rate::byTable ($table)->inc ();
@@ -564,6 +556,39 @@ class Controller_Admin_Database extends Controller_Abstract
 			
 		}
 		
+		$exists_links = Model_Scheme::links ($class_name);
+
+		$link_models = array ();
+		
+		if ($exists_links)
+		{
+			foreach ($exists_links as $link_name => $data)
+			{
+				$row->set (
+					$link_name,
+					Helper_Link::linkedItems ($row, $link_name)
+				);
+				
+				$link_models [$link_name] = Model_Collection_Manager::create (
+					$link_name
+				);
+				
+				$link_table = Model_Scheme::table ($row->modelName ());
+				$table_info = Helper_Data_Source::table ('`' . $link_table . '`');
+				
+				$field = new Objective (array (
+					'Field'		=> $link_name,
+					'Values'	=> array (),
+					'Comment'	=> !empty ($table_info ['Comment'])
+						? $table_info ['Comment'] : null
+				));
+				
+				$field->Values = $link_models [$link_name];
+				
+				$fields [] = $field;
+			}
+		}
+		
 		// Получаем эвенты
 		$events  = array ();
 		
@@ -599,13 +624,14 @@ class Controller_Admin_Database extends Controller_Abstract
 		}
 		
 		$this->_output->send (array (
-			'row'		=> $row,
-			'fields'	=> $fields,
-			'table'		=> $table,
-			'tabs'		=> $tabs,
-			'events'	=> $events,
-			'plugins'	=> $plugins,
-			'keyField'	=> Model_Scheme::keyField ($class_name)
+			'row'			=> $row,
+			'fields'		=> $fields,
+			'link_models'	=> $link_models,
+			'table'			=> $table,
+			'tabs'			=> $tabs,
+			'events'		=> $events,
+			'plugins'		=> $plugins,
+			'keyField'		=> Model_Scheme::keyField ($class_name)
 		));
 	}
 	
@@ -905,6 +931,18 @@ class Controller_Admin_Database extends Controller_Abstract
 			$row_id
 		);
 		
+		$exists_links = Model_Scheme::links ($class_name);
+		$links_to_save = array ();
+		
+		foreach ($column as $field => $value)
+		{
+			if (isset ($exists_links [$field]))
+			{
+				$links_to_save [$field] = $value;
+				unset ($column [$field]);
+			}
+		}
+		
 		foreach ($column as $field => $value)
 		{
 			if (!in_array ($field, $acl_fields))
@@ -923,7 +961,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		}
 		
 		$updated_fields = $column;
-
+	
 		foreach ($updated_fields as $field => $value)
 		{
 			if (isset ($modificators [$field]))
@@ -964,6 +1002,29 @@ class Controller_Admin_Database extends Controller_Abstract
 				$row->save ();
 //				print_r ($row);
 //				echo DDS::getDataSource ()->getQuery ()->translate ();
+			}
+		}
+		
+		foreach ($links_to_save as $link => $links)
+		{
+			Helper_Link::unlinkWith ($row, $link);
+			
+			if (!is_array ($links))
+			{
+				continue;
+			}
+			
+			foreach ($links as $link_id)
+			{
+				$link_row = Model_Manager::byKey (
+					$link,
+					$link_id
+				);
+				
+				if ($link_row)
+				{
+					Helper_Link::link ($row, $link_row);
+				}
 			}
 		}
 		

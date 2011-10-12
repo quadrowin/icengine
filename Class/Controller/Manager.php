@@ -96,9 +96,7 @@ class Controller_Manager extends Manager_Abstract
 	protected static function _cacheConfig ($controller, $action)
 	{
 		$config = self::config ();
-		
 		$cfg = $config ['actions'][$controller . '::' . $action];
-		
 		$cfg = $cfg ? $cfg : $config ['actions'] [$controller];
 		
 		if (isset ($cfg ['tags'], $cfg ['tag_provider']))
@@ -376,15 +374,20 @@ class Controller_Manager extends Manager_Abstract
 		$cache_config = self::_cacheConfig ($a [0], $a [1]);
 		
 //		Debug::microtime ($a [0] . '/' . $a [1] . '/ ' . var_export ($cache_config, true));
-		$start_time = microtime (true);
+		//$start_time = microtime (true);
 		
-		if ($options === true)
+		/*if ($options === true)
 		{
 			$options = array ('full_result' => false);
 		}
 		elseif ($options === false)
 		{
 			$options = array ('full_result' => true);
+		}*/
+		
+		if (is_bool ($options))
+		{
+			$options = array ('full_result' => !$options);
 		}
 		
 		$html = Executor::execute (
@@ -393,11 +396,11 @@ class Controller_Manager extends Manager_Abstract
 			$cache_config
 		);
 		
-		$dt = microtime (true) - $start_time;
+		//$dt = microtime (true) - $start_time;
 		
 //		Debug::microtime ($a [0] . '/' . $a [1] . '/ ' . round ($dt, 5));
 		
-		if ($dt > 1)
+		/*if ($dt > 1)
 		{
 			$f = fopen (IcEngine::root () . 'log/contrlog.txt', 'a');
 			fwrite (
@@ -409,7 +412,7 @@ class Controller_Manager extends Manager_Abstract
 				"\r\n"
 			);
 			fclose ($f);
-		}
+		}*/
 		
 		return $html;
 	}

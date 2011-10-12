@@ -139,9 +139,9 @@ class Executor
 				return $cache ['v'];
 			}
 		}
-
+		
 		$value = self::_executeUncaching ($function, $args);
-
+		
 		$cache_value = array (
 			'v' => $value,
 			'a' => time ()
