@@ -99,6 +99,15 @@ class Controller_Manager extends Manager_Abstract
 		$cfg = $config ['actions'][$controller . '::' . $action];
 		$cfg = $cfg ? $cfg : $config ['actions'] [$controller];
 		
+		if (isset ($cfg ['cache_config']))
+		{
+			list ($class_name, $method) = explode ('::', $cfg ['cache_config']);
+			return call_user_func_array (
+				array ($class_name, $method), 
+				array ($cfg)
+			);
+		}
+		
 		if (isset ($cfg ['tags'], $cfg ['tag_provider']))
 		{
 			$provider = Data_Provider_Manager::get ($cfg ['tag_provider']);
