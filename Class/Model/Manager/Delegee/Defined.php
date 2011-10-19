@@ -23,6 +23,11 @@ class Model_Manager_Delegee_Defined
 		{
 			if ($row ['id'] == $key)
 			{
+				if (isset ($row ['name']))
+				{
+					$model .= '_' . $row ['name'];
+				}
+				Loader::load ($model);
 				return new $model ($row);
 			}
 		}
