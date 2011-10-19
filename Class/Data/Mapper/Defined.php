@@ -8,7 +8,10 @@
  */
 class Data_Mapper_Defined extends Data_Mapper_Abstract
 {
-	
+	/**
+	 * @desc Запрос
+	 * @var array
+	 */
 	protected $_where;
 	
 	/**
@@ -25,23 +28,29 @@ class Data_Mapper_Defined extends Data_Mapper_Abstract
 		{
 			$field = $where [Query::WHERE];
 			$value = $where [Query::VALUE];
-			
+
 			$field = str_replace (' ', '', $field);
 						
 			$s = substr ($field, -2, 2);
-
-			if (ctype_alnum ($s [0]))
-			{
-				$s = $s [1];
-			}
+			$offset = 2;
 			
 			if (ctype_alnum ($s))
 			{
 				$s = '=';
+				$offset = 0;
 			}
-
-			$field = substr ($field, 0, -1 * strlen ($s));
-
+			
+			elseif (ctype_alnum ($s [0]))
+			{
+				$s = $s [1];
+				$offset = 1;
+			}
+			
+			if ($offset)
+			{
+				$field = substr ($field, 0, -1 * $offset);
+			}
+			
 			switch ($s)
 			{
 				case '=': 
@@ -87,7 +96,7 @@ class Data_Mapper_Defined extends Data_Mapper_Abstract
 				'result'	=> array ()
 			));
 		}
-		
+
 		Loader::load ($model_name);
 		
 		$this->_where = $query->getPart (Query::WHERE);  

@@ -248,7 +248,7 @@ class Model_Manager extends Manager_Abstract
 					->getResult ()
 						->asRow ();
 		}
-		
+
 		if (!$data)
 		{
 			return null;
@@ -308,7 +308,7 @@ class Model_Manager extends Manager_Abstract
 				$delegee = 
 					'Model_Manager_Delegee_' .
 					self::$_config ['delegee'][$parent];
-
+				
 				Loader::load ($delegee);
 					
 				$result = call_user_func (
