@@ -41,6 +41,8 @@ class IcEngine
 	
 	public static $frontRender = 'Front';
 	
+	public static $frontTemplate;
+	
 	/**
 	 * @desc Возвращает путь до корня сайта.
 	 * @return string
@@ -210,9 +212,15 @@ class IcEngine
 				'action'		=> self::$frontAction
 			))
 		);
+		
 		self::$_task->setViewRender (
 			View_Render_Manager::byName (self::$frontRender)
 		);
+		
+		if (self::$frontTemplate)
+		{
+			self::$_task->setTemplate (self::$frontTemplate);
+		}
 		
 		Controller_Manager::call (
 			self::$frontController,
