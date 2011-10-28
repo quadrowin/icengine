@@ -566,7 +566,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			$content->save ();
 			
 			// Если это контент с расширением, создаем расширение
-			$content->extending ();
+			// $content->extending ();
 			
 			Loader::load ('Helper_Link');
 			
