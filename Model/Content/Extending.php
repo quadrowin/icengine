@@ -7,7 +7,10 @@
  * @package IcEngine
  *
  */
-class Content_Extending extends Model
+
+Loader::load ('Content_Abstract');
+
+class Content_Extending extends Content_Abstract
 {
 	
 	/**

@@ -28,6 +28,22 @@ class Content extends Model_Factory
 
 		return $content;
 	}
+        
+        /**
+         * @see Model_Factory::delegateClass
+         * @param string $model
+         * @param string $key
+         * @param array|Model $object
+         * @return string
+         */
+        public function delegateClass ($model, $key, $object)
+	{
+            if (empty ($object ['name']))
+            {
+                $object ['name'] = 'Simple';
+            }
+	    return parent::delegateClass ($model, $key, $object);
+	}
 	
 	public function title ()
 	{
