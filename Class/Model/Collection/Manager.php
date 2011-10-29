@@ -79,12 +79,15 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 				self::config ()->cache_provider
 			);
 			
-			foreach ($from as $f)
+			if ($provider)
 			{
-				$tables [] = Model_Scheme::table ($f [Query::TABLE]);
+				foreach ($from as $f)
+				{
+					$tables [] = Model_Scheme::table ($f [Query::TABLE]);
+				}
+
+				$tags = $provider->getTags ($tables);
 			}
-			
-			$tags = $provider->getTags ($tables);
 		}
 		// Генерируем ключ коллекции
 		$key = md5 (

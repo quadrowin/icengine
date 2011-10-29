@@ -447,12 +447,12 @@ class Controller_Content_Abstract extends Controller_Abstract
 		));
 		
 		$this->_output->send (array (
-			'tc' 				=> $tc,
-			'content'			=> $content,
-			'category'			=> $category,
-			'url'				=> $this->__createUrl ($content, $category, $url),
-			'back'				=> $back,
-			'referer'			=> $this->__createReferer ($content, $category, $referer)
+			'tc' 		=> $tc,
+			'content'	=> $content,
+			'category'	=> $category,
+			'url'		=> $this->__createUrl ($content, $category, $url),
+			'back'		=> $back,
+			'referer'	=> $this->__createReferer ($content, $category, $referer)
 		));
 		
 		$this->_afterCreate ();
@@ -554,13 +554,13 @@ class Controller_Content_Abstract extends Controller_Abstract
 		else
 		{
 			$content = new Content (array (
-				'title'					=> $title,
-				'short'					=> $short,
-				'content'				=> $text,
-				'createdAt'				=> Helper_Date::toUnix (),
-				'url'					=> $url,
+				'title'			=> $title,
+				'short'			=> $short,
+				'content'		=> $text,
+				'createdAt'		=> Helper_Date::toUnix (),
+				'url'			=> $url,
 				'Content_Category__id'	=> $category_id,
-				'extending'				=> $this->_extendingModel ()
+				'extending'		=> $this->_extendingModel ()
 			));
 			
 			$content->save ();
@@ -750,7 +750,8 @@ class Controller_Content_Abstract extends Controller_Abstract
 	
 	public function removeImage ()
 	{
-		$image_id = (int) $this->_input->receive ('image_id');
+		$image_id = $this->_input->receive ('image_id');
+		
 		$image = Model_Manager::byQuery (
 			'Component_Image',
 			Query::instance ()
@@ -760,12 +761,57 @@ class Controller_Content_Abstract extends Controller_Abstract
 
 		if (!$image)
 		{
-			$this->_sendError (
+			return $this->_sendError (
 				'not_found',
 				__METHOD__,
 				'/not_found'
 			);
-			return;
+		}
+		
+		$content = Model_Manager::byKey (
+			$image->table,
+			$image->rowId
+		);
+		
+		if (!$content)
+		{
+			return $this->_sendError (
+				'not_found',
+				__METHOD__,
+				'/not_found'
+			);
+		}
+		
+		$content_category = $content->Content_Category;
+		
+		if (!$content_category)
+		{
+			return $this->_sendError (
+				'not_found',
+				__METHOD__,
+				'/not_found'
+			);
+		}
+		
+		$resource_addContent = Acl_Resource::byNameCheck (
+			$this->__categoryModel (),
+			$category->key (),
+			'addContent'
+		);
+		  
+		if (
+			!User::getCurrent ()->isAdmin () &&
+			(
+				!$resource_addContent || 
+				!$resource_addContent->userCan ($user)
+			)
+		)
+		{
+			return $this->_sendError (
+				'not_found',
+				__METHOD__,
+				'/not_found'
+			);
 		}
 
 		$image->delete ();
