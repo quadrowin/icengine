@@ -1,14 +1,14 @@
 <?php
 /**
- * @desc Контролер контекта 
+ * @desc Контролер контекта
  * @author ilya
  * @package IcEngine
  */
 class Controller_Content_Abstract extends Controller_Abstract
 {
-	
+
 	/**
-	 * @desc Создает и возвращает контроллер. 
+	 * @desc Создает и возвращает контроллер.
 	 * Загружает используемые классы.
 	 */
 	public function __construct ()
@@ -18,16 +18,16 @@ class Controller_Content_Abstract extends Controller_Abstract
 		Loader::load ('Temp_Content');
 		Loader::load ('Content_Collection');
 	}
-	
+
 	/**
 	 * @desc После успешного начала создания.
 	 * @override
 	 */
 	protected function _afterCreate ()
 	{
-		
+
 	}
-	
+
 	/**
 	 * @desc После успешного сохранения контента
 	 * @param Content $content Сохраняемый контент.
@@ -38,7 +38,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 	protected function _afterSave (Content $content, $is_new)
 	{
 	}
-	
+
 	/**
 	 * @desc Название модели расширения
 	 * @override
@@ -47,9 +47,9 @@ class Controller_Content_Abstract extends Controller_Abstract
 	{
 		return ''; // без расширения
 	}
-	
+
 	/**
-	 * @desc 
+	 * @desc
 	 * @return Content_Category
 	 */
 	protected function _getInputCategory ()
@@ -61,22 +61,22 @@ class Controller_Content_Abstract extends Controller_Abstract
 			'category_id',
 			'url'
 		);
-		
+
 		if ($category_id)
 		{
 			return Model_Manager::byKey (
 				$this->__categoryModel (),
 				$category_id
-			);	
+			);
 		}
-		
+
 		return Model_Manager::byQuery (
 			$this->__categoryModel (),
 			Query::instance ()
 				->where ('url', $url ? $url : Request::uri ())
-		);		
+		);
 	}
-	
+
 	/**
 	 * @desc
 	 * @return Content
@@ -90,22 +90,22 @@ class Controller_Content_Abstract extends Controller_Abstract
 			'content_id',
 			'url'
 		);
-		
+
 		if ($content_id)
 		{
 			return Model_Manager::byKey (
-				$this->__contentModel (), 
+				$this->__contentModel (),
 				$content_id
 			);
 		}
-		
+
 		return Model_Manager::byQuery (
-			$this->__contentModel (), 
+			$this->__contentModel (),
 			Query::instance ()
 				->where ('url', $url ? $url : Request::uri ())
 		);
 	}
-	
+
 	/**
 	 * @desc Фабрик метод для полечение реферер при сохранении
 	 * @param string $url
@@ -117,7 +117,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 	{
 		return ($url != $content->url) ? $url : $referer;
 	}
-	
+
 	/**
 	 * @desc Получить имя контейнера
 	 * @return string
@@ -126,7 +126,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 	{
 		return 'Content_Category';
 	}
-	
+
 	/**
 	 * @desc Возвращает название модели контента.
 	 * @return string
@@ -135,7 +135,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 	{
 		return 'Content';
 	}
-	
+
 	/**
 	 * @desc Имеет ли текущий пользователь права на
 	 * добавление в категорию
@@ -145,7 +145,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 	public function __checkAcl ($content_category)
 	{
 		$user = User::getCurrent ();
-		
+
 		if ($user->isAdmin ())
 		{
 			return true;
@@ -161,13 +161,13 @@ class Controller_Content_Abstract extends Controller_Abstract
 				'addContent'
 			);
 
-			return (bool) ($resource_addContent 
+			return (bool) ($resource_addContent
 				&& $resource_addContent->userCan ($user));
 		}
 
 		return false;
 	}
-	
+
 	/**
 	 * @desc Фабрик метод для полечение рефера при создании
 	 * @param Model $content
@@ -175,12 +175,12 @@ class Controller_Content_Abstract extends Controller_Abstract
 	 * @param string $referer
 	 * @return string
 	 */
-	protected function __createReferer (Model $content, 
+	protected function __createReferer (Model $content,
 		Model $contetn_category, $referer)
 	{
 		return $referer;
 	}
-	
+
 	/**
 	 * @desc Фабрик метод для полечение URL при создании
 	 * @param Model $content
@@ -188,12 +188,12 @@ class Controller_Content_Abstract extends Controller_Abstract
 	 * @param string $url
 	 * @return string
 	 */
-	protected function __createUrl (Model $content, 
+	protected function __createUrl (Model $content,
 		Model $contetn_category, $url)
 	{
 		return $url;
 	}
-	
+
 	/**
 	 * @desc Фабрик метод для полечение URL при удалении
 	 * @param Model $content
@@ -204,7 +204,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 	{
 		return $url;
 	}
-	
+
 	/**
 	 * @desc Фабрик метод для полечение рефера для списка
 	 * @param Model $content_category
@@ -214,7 +214,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 	{
 		return Request::uri ();
 	}
-	
+
 	/**
 	 * @desc Фабрик метод для полечение URL при сохранении
 	 * @param string $url
@@ -225,10 +225,10 @@ class Controller_Content_Abstract extends Controller_Abstract
 	protected function __saveUrl ($url, $referer, $title)
 	{
 		Loader::load ('Helper_Translit');
-		return rtrim ($url, '/') . '/' . 
+		return rtrim ($url, '/') . '/' .
 			Helper_Translit::makeUrlLink ($title) . '.html';
 	}
-	
+
 	/**
 	 * @desc Список статей
 	 * @param integer $content_category_id - id контейнера
@@ -243,7 +243,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 	public function roll ()
 	{
 		$category = $this->_getInputCategory ();
-		
+
 		if (!$category)
 		{
 			return $this->replaceAction ('Error', 'notFound');
@@ -253,12 +253,12 @@ class Controller_Content_Abstract extends Controller_Abstract
 			$this->__categoryModel (),
 			$category->parentKey ()
 		);
-		
+
 		if (!$parent)
 		{
 			return $this->replaceAction ('Error', 'notFound');
 		}
-		
+
 		$content_collection = Helper_Link::linkedItems (
 			$category,
 			$this->__contentModel ()
@@ -288,7 +288,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			'agency'		=> $agency
 		));
 	}
-	
+
 	/**
 	 * @desc Вывести контект
 	 * @param integer $content_id - id контента
@@ -300,17 +300,17 @@ class Controller_Content_Abstract extends Controller_Abstract
 	public function view ()
 	{
 		$content = $this->_getInputContent ();
-			
+
 		if (!$content)
 		{
 			return $this->replaceAction ('Error', 'notFound');
 		}
-		
+
 		$content_category = Model_Manager::byKey (
 			$this->__categoryModel (),
 			$content->Content_Category__id
 		);
-		
+
 		if (!$content_category)
 		{
 			return $this->replaceAction ('Error', 'notFound');
@@ -337,7 +337,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			'agency'	=> $agency
 		));
 	}
-	
+
 	/**
 	 * @desc Создать или редактировать инстанс статьи
 	 * @param integer $category_id
@@ -384,17 +384,17 @@ class Controller_Content_Abstract extends Controller_Abstract
 				$category_id = $content->Content_Category->id;
 			}
 		}
-		
+
 		$category = Model_Manager::byKey (
 			$this->__categoryModel (),
 			$category_id
 		);
-			
+
 		if (!$category)
 		{
 			return $this->replaceAction ('Error', 'notFound');
 		}
-		
+
 		if ($category->controller && $category->controller != $this->name ())
 		{
 			return $this->replaceAction (
@@ -409,7 +409,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		{
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
-		
+
 		Loader::load ('Acl_Resource');
 
 		$resource_addContent = Acl_Resource::byNameCheck (
@@ -417,18 +417,18 @@ class Controller_Content_Abstract extends Controller_Abstract
 			$category_id,
 			'addContent'
 		);
-		
+
 		if (
 			!User::getCurrent ()->isAdmin() &&
 			(
-				!$resource_addContent || 
+				!$resource_addContent ||
 				!$resource_addContent->userCan (User::getCurrent ())
 			)
 		)
 		{
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
-		
+
 		if (!isset ($content) || !$content)
 		{
 			$content = Model_Manager::get (
@@ -436,7 +436,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 				$content_id
 			);
 		}
-		
+
 		$tc = Temp_Content::create ($this);
 		$tc->attr (array (
 			'controller'	=> $this->name (),
@@ -445,7 +445,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			'content_id'	=> $content_id,
 			'category_id'	=> $category_id
 		));
-		
+
 		$this->_output->send (array (
 			'tc' 		=> $tc,
 			'content'	=> $content,
@@ -454,10 +454,10 @@ class Controller_Content_Abstract extends Controller_Abstract
 			'back'		=> $back,
 			'referer'	=> $this->__createReferer ($content, $category, $referer)
 		));
-		
+
 		$this->_afterCreate ();
 	}
-	
+
 	/**
 	 * @desc Создать/сохранить контент
 	 * @param string $title
@@ -471,19 +471,19 @@ class Controller_Content_Abstract extends Controller_Abstract
 	public function save ()
 	{
 		list (
-			$title, 
+			$title,
 			$short,
 			$text,
 			$utcode,
 			$url
 		) = $this->_input->receive (
-			'title', 
+			'title',
 			'short',
 			'text',
 			'utcode',
 			'url'
 		);
-		
+
 		// Убираем слешы
 		$text = stripslashes ($text);
 
@@ -491,9 +491,9 @@ class Controller_Content_Abstract extends Controller_Abstract
 		{
 			return $this->replaceAction ('Error', 'obsolete');
 		}
-		
+
 		$tc = Temp_Content::byUtcode ($utcode);
-		
+
 		if ($tc->attr ('controller') != $this->name ())
 		{
 			return $this->replaceAction (
@@ -501,32 +501,32 @@ class Controller_Content_Abstract extends Controller_Abstract
 				'save'
 			);
 		}
-		
+
 		$category_id = $tc->attr ('category_id');
 		$content_category = Model_Manager::byKey (
 			$this->__categoryModel (),
 			$category_id
 		);
-		
+
 		$user = User::getCurrent ();
-		
+
 		$resource_addContent = Acl_Resource::byNameCheck (
 			$this->__categoryModel (),
 			$category_id,
 			'addContent'
 		);
-		
+
 		if (
 			!User::getCurrent ()->isAdmin () &&
 			(
-				!$resource_addContent || 
+				!$resource_addContent ||
 				!$resource_addContent->userCan ($user)
 			)
 		)
 		{
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
-		
+
 		$back = $tc->attr ('back');
 		$referer = $tc->attr ('referer');
 		$content_id = $tc->attr ('content_id');
@@ -534,9 +534,9 @@ class Controller_Content_Abstract extends Controller_Abstract
 			$content_category->url,
 			$referer, $title
 		);
-		
+
 		if ($content_id)
-		{			
+		{
 			$content = Model_Manager::byKey (
 				$this->__contentModel (),
 				$content_id
@@ -552,29 +552,34 @@ class Controller_Content_Abstract extends Controller_Abstract
 			));
 		}
 		else
-		{
-			$content = new Content (array (
-				'title'			=> $title,
-				'short'			=> $short,
-				'content'		=> $text,
-				'createdAt'		=> Helper_Date::toUnix (),
-				'url'			=> $url,
-				'Content_Category__id'	=> $category_id,
-				'extending'		=> $this->_extendingModel ()
-			));
-			
+		{ 
+			$content = Model_Manager::get (
+				'Content',
+				0,
+				array (
+					'title'			=> $title,
+					'short'			=> $short,
+					'content'		=> $text,
+					'createdAt'		=> Helper_Date::toUnix (),
+					'url'			=> $url,
+					'name'			=> 'Showplace',
+					'Content_Category__id'	=> $category_id,
+					'extending'		=> $this->_extendingModel ()
+				)
+			);
+
 			$content->save ();
-			
+
 			// Если это контент с расширением, создаем расширение
 			// $content->extending ();
-			
+
 			Loader::load ('Helper_Link');
-			
+
 			if (!$content_category)
 			{
 				return $this->replaceAction ('Error', 'notFound');
 			}
-			
+
 			Helper_Link::link (
 				$content,
 				$content_category
@@ -587,18 +592,18 @@ class Controller_Content_Abstract extends Controller_Abstract
 		}
 
 		$tc->component ('Image')->rejoin ($content);
-		
+
 		$is_new = !$content_id;
-		
+
 		$content->data ('tc', $tc);
 		$this->_afterSave ($content, $is_new);
-		
+
 		if (!Request::isJsHttpRequest ())
 		{
 			Helper_Header::redirect ($referer);
 			die ();
 		}
-		
+
 		$this->_task->setTemplate (null);
 		$this->_output->send (array (
 			'redirect'	=> $referer,
@@ -607,46 +612,46 @@ class Controller_Content_Abstract extends Controller_Abstract
 			)
 		));
 	}
-	
+
 	/**
 	 * @desc Удалить контент
 	 * @param integer $content_id
 	 * @param string $url
 	 */
-	public function delete () 
+	public function delete ()
 	{
 		list (
 			$content_id,
 			$url
 		) = $this->_input->receive (
-			'content_id', 
+			'content_id',
 			'url'
 		);
-		
+
 		$content = Model_Manager::byKey (
-			$this->__contentModel (), 
+			$this->__contentModel (),
 			$content_id
 		);
-		
+
 		if (!$content)
 		{
 			return $this->replaceAction ('Error', 'notFound');
 		}
-		
+
 		Loader::load ('Helper_Link');
-		
+
 		$category_collection = Helper_Link::linkedItems (
 			$content,
 			'Content_Category'
 		);
-		
+
 		if (!$category_collection->count ())
 		{
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
-		
+
 		$category = $category_collection->first ();
-		
+
 		$user = User::getCurrent ();
 
 		$resource_addContent = Acl_Resource::byNameCheck (
@@ -654,11 +659,11 @@ class Controller_Content_Abstract extends Controller_Abstract
 			$category->key (),
 			'addContent'
 		);
-		  
+
 		if (
 			!User::getCurrent ()->isAdmin () &&
 			(
-				!$resource_addContent || 
+				!$resource_addContent ||
 				!$resource_addContent->userCan ($user)
 			)
 		)
@@ -669,9 +674,9 @@ class Controller_Content_Abstract extends Controller_Abstract
 		$content->delete ();
 
 		$url = $this->__deleteUrl ($content, $url);
-		
+
 		$this->_task->setTemplate (null);
-		
+
 		if (Request::isPost ())
 		{
 			$this->_output->send (array (
@@ -697,7 +702,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		Loader::load ('Temp_Content');
 	    $utcode = $this->_input->receive('utcode');
 	    $tc = Temp_Content::byUtcode ($utcode);
-		
+
 	    Loader::load ('Helper_Image');
 	    $image = Helper_Image::uploadSimple (
 		    $tc->modelName(),
@@ -707,25 +712,25 @@ class Controller_Content_Abstract extends Controller_Abstract
 
 		$this->_output->send ('image', $image);
 	}
-	
+
 	public function remove ()
 	{
 		$id = $this->_input->receive ('id');
-		
+
 		$content = Model_Manager::byKey ($this->__contentModel (), $id);
-		
+
 		if (!$content)
 		{
 			return $this->replaceAction ('Error', 'notFound');
 		}
-		
+
 		$category = $content->Content_Category;
-		
+
 		if (!$category)
 		{
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
-		
+
 		$user = User::getCurrent ();
 
 		$resource_addContent = Acl_Resource::byNameCheck (
@@ -733,11 +738,11 @@ class Controller_Content_Abstract extends Controller_Abstract
 			$category->key (),
 			'addContent'
 		);
-		  
+
 		if (
 			!User::getCurrent ()->isAdmin () &&
 			(
-				!$resource_addContent || 
+				!$resource_addContent ||
 				!$resource_addContent->userCan ($user)
 			)
 		)
@@ -747,11 +752,11 @@ class Controller_Content_Abstract extends Controller_Abstract
 
 		$content->delete ();
 	}
-	
+
 	public function removeImage ()
 	{
 		$image_id = $this->_input->receive ('image_id');
-		
+
 		$image = Model_Manager::byQuery (
 			'Component_Image',
 			Query::instance ()
@@ -767,12 +772,12 @@ class Controller_Content_Abstract extends Controller_Abstract
 				'/not_found'
 			);
 		}
-		
+
 		$content = Model_Manager::byKey (
 			$image->table,
 			$image->rowId
 		);
-		
+
 		if (!$content)
 		{
 			return $this->_sendError (
@@ -781,9 +786,9 @@ class Controller_Content_Abstract extends Controller_Abstract
 				'/not_found'
 			);
 		}
-		
+
 		$content_category = $content->Content_Category;
-		
+
 		if (!$content_category)
 		{
 			return $this->_sendError (
@@ -792,17 +797,17 @@ class Controller_Content_Abstract extends Controller_Abstract
 				'/not_found'
 			);
 		}
-		
+
 		$resource_addContent = Acl_Resource::byNameCheck (
 			$this->__categoryModel (),
 			$category->key (),
 			'addContent'
 		);
-		  
+
 		if (
 			!User::getCurrent ()->isAdmin () &&
 			(
-				!$resource_addContent || 
+				!$resource_addContent ||
 				!$resource_addContent->userCan ($user)
 			)
 		)
@@ -815,7 +820,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		}
 
 		$image->delete ();
-		
+
 		$this->_output->send (
 			'data', array ('image_id' => $image_id)
 		);
@@ -824,7 +829,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 	public function check ()
 	{
 		list (
-			$title, 
+			$title,
 			$content_category_id
 		) = $this->_input->receive (
 			'title',
@@ -842,4 +847,4 @@ class Controller_Content_Abstract extends Controller_Abstract
 			'content', $content
 		);
 	}
-} 
+}
