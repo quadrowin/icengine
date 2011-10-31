@@ -50,29 +50,4 @@ class Content extends Model_Factory
 		return $this->title . ' ' . $this->url;
 	}
 
-	/**
-	 * @desc Расширение модели
-	 * @return Content_Extending
-	 */
-	public function extending ()
-	{
-		if (!$this->extending)
-		{
-			return null;
-		}
-
-		$extending = Model_Manager::byKey ($this->extending, $this->id);
-
-		if (!$extending && $this->extending && $this->id)
-		{
-			// Расширение не создано
-			$extending = Model_Manager::get (
-				$this->extending,
-				$this->id
-			)->firstSave ();
-		}
-
-		return $extending;
-	}
-
 }
