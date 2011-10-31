@@ -552,21 +552,17 @@ class Controller_Content_Abstract extends Controller_Abstract
 			));
 		}
 		else
-		{ 
-			$content = Model_Manager::get (
-				'Content',
-				0,
-				array (
-					'title'			=> $title,
-					'short'			=> $short,
-					'content'		=> $text,
-					'createdAt'		=> Helper_Date::toUnix (),
-					'url'			=> $url,
-					'name'			=> 'Showplace',
-					'Content_Category__id'	=> $category_id,
-					'extending'		=> $this->_extendingModel ()
-				)
-			);
+		{
+			$content = new Content (array (
+				'title'			=> $title,
+				'short'			=> $short,
+				'content'		=> $text,
+				'createdAt'		=> Helper_Date::toUnix (),
+				'url'			=> $url,
+				'name'			=> 'Showplace',
+				'Content_Category__id'	=> $category_id,
+				'extending'		=> $this->_extendingModel ()
+			));
 
 			$content->save ();
 
