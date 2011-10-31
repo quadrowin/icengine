@@ -101,8 +101,8 @@ class Controller_Manager extends Manager_Abstract
 
 		if (isset ($cfg ['cache_config']))
 		{
-			Loader::load ($class_name);
 			list ($class_name, $method) = explode ('::', $cfg ['cache_config']);
+			Loader::load ($class_name);
 			return call_user_func_array (
 				array ($class_name, $method),
 				array ($cfg)
