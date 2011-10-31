@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Менеджер контроллеров.
  * @author Юрий
  * @package IcEngine
@@ -8,67 +8,67 @@
  */
 class Controller_Manager extends Manager_Abstract
 {
-	
+
 	/**
 	 * @desc Загруженные контроллеры.
 	 * @var array
 	 */
 	protected static $_controllers = array ();
-	
+
 	/**
 	 * @desc Стек входных транспортов контроллеров.
 	 * @var array
 	 */
 	protected static $_controllersInputs = array ();
-	
+
 	/**
 	 * @desc Стек выходных транспортов контроллеров.
 	 * @var array
 	 */
 	protected static $_controllersOutputs = array ();
-	
+
 	/**
 	 * @desc Текущее задание
 	 * @var Controller_Task
 	 */
 	protected static $_currentTask;
-	
+
 	/**
 	 * @desc Транспорт входных данных.
 	 * @var Data_Transport
 	 */
 	protected static $_input;
-	
+
 	/**
 	 * @desc Транспорт выходных данных.
 	 * @var Data_Transport
 	 */
 	protected static $_output;
-	
+
 	/**
 	 * @desc Отложенные очереди заданийs
 	 * @var array <array>
 	 */
 	protected static $_tasksBuffer = array ();
-	
+
 	/**
 	 * @desc Очередь заданий.
 	 * @var array <Router_Action>
 	 */
 	protected static $_tasksQueue = array ();
-	
+
 	/**
 	 * @desc Результаты выполнения очереди
 	 * @var array <Controller_Task>
 	 */
 	protected static $_tasksResults = array ();
-	
+
 	/**
 	 * @desc Буффер результатов
 	 * @var array <array <Controller_Task>>
 	 */
 	protected static $_tasksResultsBuffer = array ();
-	
+
 	/**
 	 * @desc Config
 	 * @var array
@@ -86,7 +86,7 @@ class Controller_Manager extends Manager_Abstract
 		'actions'			=> array (
 		)
 	);
-	
+
 	/**
 	 * @desc Настройки кэширования для контроллера-экшена.
 	 * @param string $controller Контроллер
@@ -98,20 +98,21 @@ class Controller_Manager extends Manager_Abstract
 		$config = self::config ();
 		$cfg = $config ['actions'][$controller . '::' . $action];
 		$cfg = $cfg ? $cfg : $config ['actions'] [$controller];
-		
+
 		if (isset ($cfg ['cache_config']))
 		{
+			Loader::load ($class_name);
 			list ($class_name, $method) = explode ('::', $cfg ['cache_config']);
 			return call_user_func_array (
-				array ($class_name, $method), 
+				array ($class_name, $method),
 				array ($cfg)
 			);
 		}
-		
+
 		if (isset ($cfg ['tags'], $cfg ['tag_provider']))
 		{
 			$provider = Data_Provider_Manager::get ($cfg ['tag_provider']);
-			
+
 			if ($provider)
 			{
 				$tags = $provider->getTags ($cfg ['tags']->__toArray ());
@@ -122,26 +123,26 @@ class Controller_Manager extends Manager_Abstract
 				}
 			}
 		}
-		
+
 		return $cfg;
 	}
 
 	/**
-	 * 
+	 *
 	 * @param Controller_Abstract $controller
 	 */
 	public static function beforeAction ($controller)
 	{
 		self::$_controllersInputs [] = $controller->getInput ();
 		self::$_controllersOutputs [] = $controller->getOutput ();
-		
+
 		self::getOutput ()->beginTransaction ();
-		
+
 		$controller
 			->setInput (self::getInput ())
 			->setOutput (self::getOutput ());
 	}
-	
+
 	/**
 	 * @desc Вызов экшена контроллера.
 	 * @param string $name Название контроллера.
@@ -150,12 +151,12 @@ class Controller_Manager extends Manager_Abstract
 	 * @param Controller_Task $task [optional] Задание
 	 * @return Controller_Task
 	 */
-	public static function call ($name, $method, $input, 
+	public static function call ($name, $method, $input,
 		$task = null)
 	{
 		return self::callUncached ($name, $method, $input, $task);
 	}
-	
+
 	/**
 	 * @desc Вызов экшена без кэширования.
 	 * @param string $name Название контроллера.
@@ -165,13 +166,13 @@ class Controller_Manager extends Manager_Abstract
 	 * диспетчера.
 	 * @return Controller_Task Итерация с результатами.
 	 */
-	public static function callUncached ($name, $method, $input, 
+	public static function callUncached ($name, $method, $input,
 		$task = null)
 	{
 		Loader::load ('Controller_Action');
 		Loader::load ('Controller_Task');
 		Loader::load ('Route_Action');
-		
+
 		if (class_exists ('Tracer'))
 		{
 			Tracer::begin (
@@ -182,7 +183,7 @@ class Controller_Manager extends Manager_Abstract
 				$method
 			);
 		}
-		
+
 		if (!$task)
 		{
 			$task = new Controller_Task (
@@ -193,13 +194,13 @@ class Controller_Manager extends Manager_Abstract
 				))
 			);
 		}
-		
+
 		$controller = self::get ($name);
-		
+
 		$temp_input = $controller->getInput ();
 		$temp_output = $controller->getOutput ();
 		$temp_task = $controller->getTask ();
-		
+
 		if ($input === null)
 		{
 			$controller->setInput (self::getInput ());
@@ -215,47 +216,47 @@ class Controller_Manager extends Manager_Abstract
 		{
 			$controller->setInput ($input);
 		}
-		
+
 		$controller
 			->setOutput (self::getOutput ())
 			->setTask ($task);
-		
+
 		$controller->getOutput ()->beginTransaction ();
-		
+
 		$controller->_beforeAction ($method);
-		
+
 		$reflection = new ReflectionMethod ($controller, $method);
-		
+
 		$params = $reflection->getParameters ();
 		$c_input = $controller->getInput ();
-		
+
 		foreach ($params as &$param)
 		{
 			$param = $c_input->receive ($param->name);
 		}
-		
+
 		call_user_func_array (
 			array ($controller, $method),
 			$params
 		);
-		
+
 		$controller->_afterAction ($method);
-		
+
 		$task->setTransaction ($controller->getOutput ()->endTransaction ());
-		
+
 		$controller
 			->setInput ($temp_input)
 			->setOutput ($temp_output)
 			->setTask ($temp_task);
-		
+
 		if (class_exists ('Tracer'))
 		{
 			Tracer::end (null);
 		}
-		
+
 		return $task;
 	}
-	
+
 	/**
 	 * @desc Создаем задания из экшинов
 	 * @param Route_Action_Collection $actions
@@ -266,20 +267,20 @@ class Controller_Manager extends Manager_Abstract
 		Data_Transport $input)
 	{
 		$tasks = array ();
-		
+
 		Loader::load ('Controller_Task');
-		
+
 		foreach ($actions as $action)
 		{
 			$task = new Controller_Task ($action);
 			$task->setInput ($input);
-			
+
 			$tasks [] = $task;
 		}
-		
+
 		return $tasks;
 	}
-	
+
 	/**
 	 * @desc Очистка результатов работы контроллеров.
 	 */
@@ -287,7 +288,7 @@ class Controller_Manager extends Manager_Abstract
 	{
 		self::$_tasksResults = array ();
 	}
-	
+
 	/**
 	 * @desc Возвращает контроллер по названию.
 	 * @param string $controller_name
@@ -297,31 +298,31 @@ class Controller_Manager extends Manager_Abstract
 	{
 		$class_name = 'Controller_' . $controller_name;
 		$controller = Resource_Manager::get (
-			'Controller', 
+			'Controller',
 			$class_name
 		);
-			
+
 		if (!($controller instanceof Controller_Abstract))
 		{
 			$file = str_replace ('_', '/', $controller_name) . '.php';
-			
+
 			if (!Loader::requireOnce ($file, 'Controller'))
 			{
 				Loader::load ('Controller_Exception');
 				throw new Controller_Exception ("Controller $class_name not found.");
 			}
-			
+
 			$controller = new $class_name;
-			
+
 			Resource_Manager::set (
 				'Controller',
-				$class_name, 
+				$class_name,
 				$controller
 			);
 		}
 		return $controller;
 	}
-	
+
 	/**
 	 * @return Data_Transport
 	 */
@@ -334,7 +335,7 @@ class Controller_Manager extends Manager_Abstract
 		}
 		return self::$_input;
 	}
-	
+
 	/**
 	 * @desc Возвращает транспорт для выходных данных по умолчанию.
 	 * @return Data_Transport
@@ -345,9 +346,9 @@ class Controller_Manager extends Manager_Abstract
 		{
 			Loader::load ('Data_Transport');
 			Loader::load ('Data_Provider_Router');
-			
+
 			self::$_output = new Data_Transport ();
-			
+
 			foreach (self::config ()->output_filters as $filter)
 			{
 				$filter_class = 'Filter_' . $filter;
@@ -358,7 +359,7 @@ class Controller_Manager extends Manager_Abstract
 		}
 		return self::$_output;
 	}
-	
+
 	/**
 	 * @desc Выполняет указанный контроллер, экшен с заданными параметрами.
 	 * @param string $action Название контроллера или контроллер и экшен
@@ -371,7 +372,7 @@ class Controller_Manager extends Manager_Abstract
 	 * 		html ('Controller', array ('param'	=> 'val'));
 	 * 		html ('Controller/action')
 	 */
-	public static function html ($action, array $args = array (), 
+	public static function html ($action, array $args = array (),
 		$options = true)
 	{
 		$a = explode ('/', $action);
@@ -379,12 +380,12 @@ class Controller_Manager extends Manager_Abstract
 		{
 			$a [1] = 'index';
 		}
-		
+
 		$cache_config = self::_cacheConfig ($a [0], $a [1]);
-		
+
 //		Debug::microtime ($a [0] . '/' . $a [1] . '/ ' . var_export ($cache_config, true));
 		//$start_time = microtime (true);
-		
+
 		/*if ($options === true)
 		{
 			$options = array ('full_result' => false);
@@ -393,39 +394,39 @@ class Controller_Manager extends Manager_Abstract
 		{
 			$options = array ('full_result' => true);
 		}*/
-		
+
 		if (is_bool ($options))
 		{
 			$options = array ('full_result' => !$options);
 		}
-		
+
 		$html = Executor::execute (
 			array (__CLASS__, 'htmlUncached'),
 			array ($a, $args, $options),
 			$cache_config
 		);
-		
+
 		//$dt = microtime (true) - $start_time;
-		
+
 //		Debug::microtime ($a [0] . '/' . $a [1] . '/ ' . round ($dt, 5));
-		
+
 		/*if ($dt > 1)
 		{
 			$f = fopen (IcEngine::root () . 'log/contrlog.txt', 'a');
 			fwrite (
 				$f,
-				date ('m-d H:i:s') . ' ' . 
-				$a [0] . '/' . $a [1] . '/' . 
-				$dt . '/' . 
-				var_export ($cache_config, true) . 
+				date ('m-d H:i:s') . ' ' .
+				$a [0] . '/' . $a [1] . '/' .
+				$dt . '/' .
+				var_export ($cache_config, true) .
 				"\r\n"
 			);
 			fclose ($f);
 		}*/
-		
+
 		return $html;
 	}
-	
+
 	/**
 	 * @desc Выполняет указанный контроллер, экшен с заданными параметрами,
 	 * не используется кэширование.
@@ -439,16 +440,16 @@ class Controller_Manager extends Manager_Abstract
 	 * 		html ('Controller', array ('param'	=> 'val'));
 	 * 		html ('Controller/action')
 	 */
-	public static function htmlUncached ($action, array $args = array (), 
+	public static function htmlUncached ($action, array $args = array (),
 		$options = true)
 	{
 		$a = is_array ($action) ? $action : explode ('/', $action);
-		
+
 		if (count ($a) == 1)
 		{
 			$a [1] = 'index';
 		}
-		
+
 		if (class_exists ('Tracer'))
 		{
 			Tracer::begin (
@@ -459,24 +460,24 @@ class Controller_Manager extends Manager_Abstract
 				$a [1]
 			);
 		}
-		
+
 		$iteration = self::call ($a [0], $a [1], $args);
-		
+
 		$buffer = $iteration->getTransaction ()->buffer ();
 		$result = array (
-			'data'		=> 
-				isset ($buffer ['data']) ? 
-				$buffer ['data'] : 
+			'data'		=>
+				isset ($buffer ['data']) ?
+				$buffer ['data'] :
 				array (),
 			'html'		=> null
 		);
-	   
+
 		$tpl = $iteration->getTemplate ();
-		
+
 		if ($tpl)
 		{
 			$view = View_Render_Manager::pushViewByName ('Smarty');
-			
+
 			try
 			{
 				$view->assign ($buffer);
@@ -484,31 +485,31 @@ class Controller_Manager extends Manager_Abstract
 			}
 			catch (Exception $e)
 			{
-				$msg = 
-					'[' . $e->getFile () . '@' . 
-					$e->getLine () . ':' . 
+				$msg =
+					'[' . $e->getFile () . '@' .
+					$e->getLine () . ':' .
 					$e->getCode () . '] ' .
 					$e->getMessage () . PHP_EOL;
-					
+
 				error_log (
 					$msg . PHP_EOL .
-					$e->getTraceAsString () . PHP_EOL, 
+					$e->getTraceAsString () . PHP_EOL,
 					E_USER_ERROR, 3
 				);
-				
+
 				Debug::log ($msg);
-			
+
 				$result ['error'] = 'Controller_Manager: Error in template.';
 			}
-			
+
 			View_Render_Manager::popView ();
 		}
-		
+
 		if (class_exists ('Tracer'))
 		{
 			Tracer::end ();
 		}
-		
+
 		if ($options === true)
 		{
 			$options = array ('full_result' => false);
@@ -517,12 +518,12 @@ class Controller_Manager extends Manager_Abstract
 		{
 			$options = array ('full_result' => true);
 		}
-		
+
 		return isset ($options ['full_result']) && $options ['full_result']
 			? $result
 			: $result ['html'];
 	}
-	
+
 	/**
 	 * @desc Добавление задания в текущую очередь выполнения.
 	 * @param mixed $action
@@ -568,9 +569,9 @@ class Controller_Manager extends Manager_Abstract
 			throw new Zend_Exception ('Illegal type.');
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Controller_Task|Route_Action|Controller_Action $action
 	 * @return Controller_Task
 	 */
@@ -581,7 +582,7 @@ class Controller_Manager extends Manager_Abstract
 		self::$_currentTask = $task;
 
 		$action = $task->controllerAction ();
-		
+
 		$task = self::call (
 			$action->controller,
 			$action->action,
@@ -590,10 +591,10 @@ class Controller_Manager extends Manager_Abstract
 		);
 
 		self::$_currentTask = $parent_task;
-		
+
 		return $task;
 	}
-	
+
 	/**
 	 * @desc Выполнение очереди заданий
 	 * @param array $actions
@@ -603,11 +604,11 @@ class Controller_Manager extends Manager_Abstract
 	{
 		self::$_tasksBuffer [] = self::$_tasksQueue;
 		self::$_tasksResultsBuffer [] = self::$_tasksResults;
-		
+
 		self::$_tasksQueue = $tasks;
-			
+
 		self::$_tasksResults = array ();
-		
+
 		for ($i = 0; $i < count (self::$_tasksQueue); ++$i)
 		{
 			$task = self::run (self::$_tasksQueue [$i]);
@@ -616,12 +617,12 @@ class Controller_Manager extends Manager_Abstract
 				self::$_tasksResults [] = $task;
 			}
 		}
-		
+
 		$result = self::$_tasksResults;
 		self::$_tasksQueue = array_pop (self::$_tasksBuffer);
 		self::$_tasksResults = array_pop (self::$_tasksResultsBuffer);
-		
+
 		return $result;
 	}
-	
+
 }
