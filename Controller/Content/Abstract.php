@@ -543,8 +543,8 @@ class Controller_Content_Abstract extends Controller_Abstract
 			);
 
 			$referer = $this->_saveReferer ($url, $referer, $content);
-
-			$content->update (array (
+			print_r ($content->base ());
+			$content->base ()->update (array (
 				'title'			=> $title,
 				'short'			=> $short,
 				'content'		=> $text,
