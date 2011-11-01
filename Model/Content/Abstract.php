@@ -1,10 +1,10 @@
 <?php
 /**
- * 
+ *
  * @desc Абстрактный класс модели контента
  * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
- * 
+ *
  * @property id
  * @property name
  * @property title
@@ -18,13 +18,13 @@
  * @property active
  * @property sort
  * @property extending
- * 
+ *
  */
 class Content_Abstract extends Model_Factory_Delegate
 {
-	
+
 	/**
-	 * @desc 
+	 * @desc
 	 * @param string $method
 	 * @return boolean
 	 */
@@ -39,7 +39,7 @@ class Content_Abstract extends Model_Factory_Delegate
 
 		return $this->$method_name ();
 	}
-	
+
 	/**
 	 * @desc
 	 * @return boolean
@@ -50,25 +50,25 @@ class Content_Abstract extends Model_Factory_Delegate
 	}
 
 	/**
-	 * @desc 
+	 * @desc
 	 * @return boolean
 	 */
 	public function checkAclDelete ()
 	{
 		return User::getCurrent ()->hasRole ('admin');
 	}
-	
+
 	/**
-	 * @desc 
+	 * @desc
 	 * @return boolean
 	 */
 	public function checkAclEdit ()
 	{
 		return User::getCurrent ()->hasRole ('admin');
 	}
-	
+
 	/**
-	 * @desc 
+	 * @desc
 	 * @param mixed $data
 	 * @return boolean
 	 */
@@ -85,16 +85,16 @@ class Content_Abstract extends Model_Factory_Delegate
 
 		return true;
 	}
-	
+
 	/**
-	 * @desc 
+	 * @desc
 	 * @return string
 	 */
 	public function delegeeName ()
 	{
 		return substr (get_class ($this), 8);
 	}
-	
+
 	/**
 	 * @desc редактирование контента
 	 * @param mixed $data
@@ -111,7 +111,7 @@ class Content_Abstract extends Model_Factory_Delegate
 
 		return true;
 	}
-	
+
 	/**
 	 * @desc Удаление контента
 	 * @return boolean
@@ -127,30 +127,5 @@ class Content_Abstract extends Model_Factory_Delegate
 
 		return true;
 	}
-	
-	/**
-	 * @desc Расширение модели
-	 * @return Content_Extending
-	 */
-	public function extending ()
-	{
-		if (!$this->extending)
-		{
-			return null;
-		}
-		
-		$extending = Model_Manager::byKey ($this->extending, $this->id);
-				
-		if (!$extending && $this->extending && $this->id)
-		{
-			// Расширение не создано
-			$extending = Model_Manager::get (
-				$this->extending,
-				$this->id
-			)->firstSave ();
-		}
-		
-		return $extending;
-	}
-	
+
 }
