@@ -134,14 +134,16 @@ class Loader
 		
 		if (true)
 		{
-			echo '<pre>Not found: ' . $file . "\n";
-//			echo 'Pathes: ';
-//			var_dump (self::$_pathes);
-//			var_dump (self::$_pathes [$type]);
-			echo "\n\n";
-			debug_print_backtrace ();
-			echo '</pre>';
-			die();
+			include __DIR__ . '/Loader/Exception.php';
+			throw new Loader_Exception("Not found: $file");
+//			echo '<pre>Not found: ' . $file . "\n";
+////			echo 'Pathes: ';
+////			var_dump (self::$_pathes);
+////			var_dump (self::$_pathes [$type]);
+//			echo "\n\n";
+//			debug_print_backtrace ();
+//			echo '</pre>';
+//			die();
 		}
 		
 		return false;
