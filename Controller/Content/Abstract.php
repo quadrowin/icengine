@@ -376,7 +376,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			}
 			else
 			{
-				$content = Model_Manager::get (
+				$content = Model_Manager::byKey (
 					$this->__contentModel (),
 					$content_id
 				);
@@ -384,7 +384,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 				$category_id = $content->Content_Category->id;
 			}
 		}
-
+	
 		$category = Model_Manager::byKey (
 			$this->__categoryModel (),
 			$category_id
