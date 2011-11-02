@@ -261,11 +261,7 @@ class Debug
 	
 	/**
 	 * @desc Внутренний обработчик ошибок.
-	 * @param string $errno Код ошибки.
-	 * @param string $errstr Текст ошибки.
-	 * @param string $errfile Файл.
-	 * @param string $errline Строка.
-	 * @return boolean
+	 * @param Exception $e Объект ошики.
 	 */
 	public static function exceptionHandler (Exception $e)
 	{
@@ -274,7 +270,7 @@ class Debug
 			echo '<pre>' . $e->getTraceAsString () . '</pre>';
 		}
 		
-		$debug = array_slice ($e->getTrace (), 0, 10);
+		$debug = array_slice ($e->getTrace (), 1, 10);
 		self::removeUninterestingObjects ($debug);
 		
 		$log_text =
