@@ -14,7 +14,7 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 	 * @var array
 	 */
 	protected static $_config = array (
-		'cache_provider'	=> 'mysqli_cache',
+		'cache_provider'	=> null,
 		'delegee'			=> array (
 			'Model'				=> 'Simple',
 			'Model_Config'		=> 'Simple',
@@ -71,7 +71,7 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 		
 		$tag_valid = true;
 		
-		if ($from)
+		if ($from && self::config ()->cache_provider)
 		{
 			$tables = array ();
 		
@@ -79,15 +79,12 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 				self::config ()->cache_provider
 			);
 			
-			if ($provider)
+			foreach ($from as $f)
 			{
-				foreach ($from as $f)
-				{
-					$tables [] = Model_Scheme::table ($f [Query::TABLE]);
-				}
-
-				$tags = $provider->getTags ($tables);
+				$tables [] = Model_Scheme::table ($f [Query::TABLE]);
 			}
+			
+			$tags = $provider->getTags ($tables);
 		}
 		// Генерируем ключ коллекции
 		$key = md5 (
