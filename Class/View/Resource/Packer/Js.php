@@ -53,23 +53,24 @@ class View_Resource_Packer_Js extends View_Resource_Packer_Abstract
 //					"\n",
 //					$resource->content ()
 //				);
-			//$packer = new JavaScriptPacker ($resource->content (), 0);
-			//$result .= $packer->pack ();
-			
-//			ob_start ();
-//			print_r (debug_backtrace ());
-//			$trace = ob_get_contents ();
-//			ob_end_clean ();
+			$packer = new JavaScriptPacker ($resource->content (), 0);
+			$result .= $packer->pack ();
+/*			if (!is_file (rtrim ($_SERVER ['DOCUMENT_ROOT'], '/') . '/cache/last'))
+			{
+			ob_start ();
+			print_r (debug_backtrace ());
+			$trace = ob_get_contents ();
+			ob_end_clean ();
 
-/*			file_put_contents (
+			file_put_contents (
 				rtrim ($_SERVER ['DOCUMENT_ROOT'], '/').'/cache/last',
 				
 				$trace . PHP_EOL,
 				//$resource->localPath . ' ' . Helper_Date::toUnix () . ' ' . microtime () . ' ' . $_SERVER ['REMOTE_ADDR'].PHP_EOL,
 				FILE_APPEND
 			);
-*/
-			$result .= $resource->content ();
+			}*/
+			//$result .= $resource->content ();
 		}
 		
 		return $result . $this->config ()->item_postfix;

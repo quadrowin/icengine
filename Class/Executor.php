@@ -131,15 +131,33 @@ class Executor
 				$tag_valid
 			)
 			{
+				file_put_contents (
+					rtrim ($_SERVER ['DOCUMENT_ROOT'], '/') . '/cache/tracet',
+					'cached' . ' ' . json_encode ($args) . PHP_EOL,
+					FILE_APPEND
+				);
 				return $cache ['v'];
 			}
 			
 			if (!self::$_cacher->lock ($key, 5, 1, 1))
 			{
+				file_put_contents (
+					rtrim ($_SERVER ['DOCUMENT_ROOT'], '/') . '/cache/tracet',
+                                        'cached' . ' ' . json_encode ($args) . PHP_EOL,
+                                        FILE_APPEND
+				);
+
 				// ключ уже заблокирова параллельным процессом
 				return $cache ['v'];
 			}
 		}
+
+		file_put_contents (
+			rtrim ($_SERVER ['DOCUMENT_ROOT'], '/') . '/cache/tracet',
+                       	'uncached' . ' ' . json_encode ($args) . PHP_EOL,
+                        FILE_APPEND
+
+		);
 
 		$value = self::_executeUncaching ($function, $args);
 
