@@ -25,10 +25,12 @@ class Content_Abstract extends Model_Factory_Delegate
 
 	public function base ()
 	{
-		return Model_Manager::byKey (
+		$content = Model_Manager::byKey (
 			'Content',
 			$this->key ()
 		);
+
+		return new Content ($content->asRow ());
 	}
 
 	/**
