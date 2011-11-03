@@ -3,7 +3,7 @@
  * 
  * @desc Упаковщик Js ресурсов представления.
  * @author Юрий
- * @package IcEngine
+ * @package IcEnginen
  *
  */
 Loader::load ('View_Resource_Packer_Abstract');
@@ -53,8 +53,10 @@ class View_Resource_Packer_Js extends View_Resource_Packer_Abstract
 //					"\n",
 //					$resource->content ()
 //				);
-			$packer = new JavaScriptPacker ($resource->content (), 0);
-			$result .= $packer->pack ();
+			//$packer = new JavaScriptPacker ($resource->content (), 0);
+			//$result .= $packer->pack ();
+			
+			$result .= $resource->content ();
 		}
 		
 		return $result . $this->config ()->item_postfix;
