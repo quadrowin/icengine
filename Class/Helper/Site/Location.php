@@ -67,15 +67,6 @@ class Helper_Site_Location
 	}
 
 	/**
-	 * @desc Вернуть текущий хост
-	 * @return string
-	 */
-	public static function getLocation ()
-	{
-		return self::$_location;
-	}
-
-	/**
 	 * @desc Загрузка данных о положении из файла.
 	 */
 	public static function load ()
