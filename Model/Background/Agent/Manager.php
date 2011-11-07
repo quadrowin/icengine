@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Менеджер фоновых процессов.
  * @author Yury Shvedov
  * @package IcEngine
@@ -8,23 +8,23 @@
  */
 class Background_Agent_Manager extends Manager_Abstract
 {
-	
+
 	/**
 	 * @desc Конфиг
 	 * @var array
 	 */
 	protected static $_config = array (
-	
-		// 
+
+		//
 		'default_agent_resume_id'	=> 0,
-	
+
 		/**
 		 * @desc Время в секундах после последней активности процесса,
 		 * после которого состояние процесса будет установлено в ERROR.
 		 * @var integer
 		 */
 		'process_to_error_time'		=> 300,
-	
+
 		/**
 		 * @desc Время в секундах после последней активности процесса,
 		 * после которого процесс будет перезапущен
@@ -32,18 +32,18 @@ class Background_Agent_Manager extends Manager_Abstract
 		 */
 		'process_to_restart_time'	=> 600,
 	);
-	
+
 	/**
 	 * @desc Экзмепляр менджера
 	 * @var Background_Agent_Manager
 	 */
 	protected static $_instance;
-	
+
 	private function __construct ()
 	{
-		
+
 	}
-	
+
 	/**
 	 * @desc Поиск зависших сессий. Сессии, чье время последнего апдейта
 	 * превышает заданное будут помечены как fail.
@@ -52,7 +52,7 @@ class Background_Agent_Manager extends Manager_Abstract
 	public function checkErrors ()
 	{
 		$time_limit = (int) $this->config ()->process_to_error_time;
-		
+
 		//Loader::load ('Background_Agent_Collection_Option');
 		Loader::load ('Background_Agent_Session_Collection');
 		$sessions = new Background_Agent_Session_Collection ();
@@ -62,15 +62,15 @@ class Background_Agent_Manager extends Manager_Abstract
 				'time_limit'  => $time_limit
 			)
 		));
-		
+
 		foreach ($sessions as $session)
 		{
 			$session->updateState (Helper_Process::FAIL);
 		}
-		
+
 		return $sessions->count ();
 	}
-	
+
 	/**
 	 * @desc Перезапуск сессий, помеченных как зависшие.
 	 * @return integer Количество перезапущенных процессов.
@@ -78,7 +78,7 @@ class Background_Agent_Manager extends Manager_Abstract
 	public function checkRestarts ()
 	{
 		$time_limit = (int) $this->config ()->process_to_restart_time;
-		
+
 		//Loader::load ('Background_Agent_Collection_Option');
 		$sessions = new Background_Agent_Collection ();
 		$sessions->addOptions (array (
@@ -87,7 +87,7 @@ class Background_Agent_Manager extends Manager_Abstract
 				'time_limit'	=> $time_limit
 			)
 		));
-		
+
 		foreach ($sessions as $session)
 		{
 			/**
@@ -96,10 +96,10 @@ class Background_Agent_Manager extends Manager_Abstract
 			$session->updateState (Helper_Process::PAUSE);
 			$this->resumeSession ($session);
 		}
-		
+
 		return $sessions->count ();
 	}
-	
+
 	public static function instance ()
 	{
 		if (!self::$_instance)
@@ -108,7 +108,7 @@ class Background_Agent_Manager extends Manager_Abstract
 		}
 		return self::$_instance;
 	}
-	
+
 	/**
 	 * @desc Запуск рабочей итерации любой незавершенной сесси фонового
 	 * агента заданного класса.
@@ -121,9 +121,14 @@ class Background_Agent_Manager extends Manager_Abstract
 			Query::instance ()
 				->where ('name', $name)
 		);
-		
+
+		if (!$$agent)
+		{
+			return;
+		}
+
 		Loader::load ('Helper_Process');
-		
+
 		/**
 		 * @desc Незавершенная сессия.
 		 * @var Background_Agent_Session
@@ -134,7 +139,7 @@ class Background_Agent_Manager extends Manager_Abstract
 				->where ('Background_Agent__id', $agent->key())
 				->where ('state', Helper_Process::PAUSE)
 		);
-		
+
 		if ($session)
 		{
 			$session->process ();
@@ -144,7 +149,7 @@ class Background_Agent_Manager extends Manager_Abstract
 			echo "no background agent sessions\n";
 		}
 	}
-	
+
 	/**
 	 * @desc Перезапустить агента
 	 * @param Background_Agent_Session $session
@@ -156,7 +161,7 @@ class Background_Agent_Manager extends Manager_Abstract
 			$session->Background_Agent_Resume->resume ($session);
 		}
 	}
-	
+
 	/**
 	 * @desc Запуск фонового агента
 	 * @param string $name Название.
@@ -169,9 +174,14 @@ class Background_Agent_Manager extends Manager_Abstract
 			Query::instance ()
 				->where ('name', $name)
 		);
-		
+
+		if (!$agent)
+		{
+			return;
+		}
+
 		Loader::load ('Background_Agent_Session');
-		
+
 		$session = new Background_Agent_Session (array (
 			'Background_Agent__id'			=> $agent->id,
 			'startTime'						=> Helper_Date::toUnix (),
@@ -180,7 +190,7 @@ class Background_Agent_Manager extends Manager_Abstract
 			'updateTime'					=> Helper_Date::toUnix (),
 			'params'						=> json_encode ($params),
 			'state'							=> Helper_Process::NONE,
-			'Background_Agent_Resume__id'	=> 
+			'Background_Agent_Resume__id'	=>
 				isset ($params ['Background_Agent_Resume__id']) ?
 					$params ['Background_Agent_Resume__id'] :
 					$this->config ()->default_agent_resume_id
@@ -189,5 +199,5 @@ class Background_Agent_Manager extends Manager_Abstract
 		$session->start ();
 		$this->resumeSession ($session);
 	}
-	
+
 }
