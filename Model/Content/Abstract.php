@@ -23,6 +23,16 @@
 class Content_Abstract extends Model_Factory_Delegate
 {
 
+	public function base ()
+	{
+		$content = Model_Manager::byKey (
+			'Content',
+			$this->key ()
+		);
+
+		return new Content ($content->asRow ());
+	}
+
 	/**
 	 * @desc
 	 * @param string $method
@@ -124,17 +134,24 @@ class Content_Abstract extends Model_Factory_Delegate
 		}
 
 		$extending = Model_Manager::byKey ($this->extending, $this->id);
-
+	
 		if (!$extending && $this->extending && $this->id)
 		{
+			Loader::load ('Content');
 			// Расширение не создано
-			$extending = Model_Manager::get (
-				$this->extending,
-				$this->id
-			)->firstSave ();
+			$extending = new $this->extending (array (
+				Model_Scheme::keyField ($this->extending)	=> $this->id
+			));
+		
+			$extending->save (true);
 		}
 
 		return $extending;
+	}
+
+	public function modelName ()
+	{
+		return get_class ($this);
 	}
 
 	/**

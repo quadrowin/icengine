@@ -56,11 +56,6 @@ class View_Resource_Packer_Js extends View_Resource_Packer_Abstract
 			$packer = new JavaScriptPacker ($resource->content (), 0);
 			$result .= $packer->pack ();
 
-			file_put_contents (
-				rtrim ($_SERVER ['DOCUMENT_ROOT'], '/') . '/cache/last',
-				Helper_Date::toUnix () . PHP_EOL,
-				FILE_APPEND
-			);
 		}
 
 		return $result . $this->config ()->item_postfix;

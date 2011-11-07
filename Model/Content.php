@@ -9,6 +9,11 @@
 class Content extends Model_Factory
 {
 
+	public function base ()
+	{
+		return $this;
+	}
+
 	/**
 	 * @desc Вовзращает контент по названию модели и ключу.
 	 * В случае, если  такой модели не существовало, будет возвращена пустая
@@ -55,7 +60,7 @@ class Content extends Model_Factory
 		{
 			return null;
 		}
-
+		
 		$extending = Model_Manager::byKey ($this->extending, $this->id);
 
 		if (!$extending && $this->extending && $this->id)
