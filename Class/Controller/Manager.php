@@ -232,7 +232,16 @@ class Controller_Manager extends Manager_Abstract
 
 		foreach ($params as &$param)
 		{
-			$param = $c_input->receive ($param->name);
+			$param_value = $c_input->receive ($param->name);
+			if (!$param_value)
+			{
+				$reflection_param = new ReflectionParameter (
+					array ($controller, $method),
+					$param->name
+				);
+				$param_value = $reflection_param->getDefaultValue ();
+			}
+			$param = $param_value;
 		}
 
 		call_user_func_array (
