@@ -8,7 +8,6 @@
  */
 class Data_Source_Mongo extends Data_Source_Abstract
 {
-	
 	public function __construct ()
 	{
 		Loader::load ('Data_Mapper_Mongo');

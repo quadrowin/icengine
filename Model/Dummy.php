@@ -7,5 +7,5 @@
  */
 class Dummy extends Model
 {
-
+	
 }

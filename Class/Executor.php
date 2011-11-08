@@ -85,7 +85,13 @@ class Executor
 		
 		if ($args)
 		{
-			$key .= md5 (json_encode ($args));
+			$arg = array_shift ($args);
+			$key .= md5 (json_encode ($arg));
+			
+			if ($args)
+			{
+				$key .= self::DELIM . md5 (json_encode ($args));
+			}
 		}
 		
 		return $key;
