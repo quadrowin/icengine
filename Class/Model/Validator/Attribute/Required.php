@@ -6,6 +6,6 @@ class Model_Validator_Attribute_Required extends Model_Validator_Attribute_Abstr
 {
 	public static function validate ($model, $field, $value, $input)
 	{
-		return !empty ($model->sfield ($field));
+		return $model->sfield ($field) != null;
 	}
 }
