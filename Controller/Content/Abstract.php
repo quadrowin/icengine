@@ -384,7 +384,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 				$category_id = $content->Content_Category->id;
 			}
 		}
-	
+
 		$category = Model_Manager::byKey (
 			$this->__categoryModel (),
 			$category_id
@@ -543,7 +543,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			);
 
 			$referer = $this->_saveReferer ($url, $referer, $content);
-			
+
 			$content->base ()->update (array (
 				'title'			=> $title,
 				'short'			=> $short,
@@ -708,10 +708,8 @@ class Controller_Content_Abstract extends Controller_Abstract
 		$this->_output->send ('image', $image);
 	}
 
-	public function remove ()
+	public function remove ($id, $uri)
 	{
-		$id = $this->_input->receive ('id');
-
 		$content = Model_Manager::byKey ($this->__contentModel (), $id);
 
 		if (!$content)
@@ -744,6 +742,16 @@ class Controller_Content_Abstract extends Controller_Abstract
 		{
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
+
+		Loader::load ('Page_Error');
+		$error = new Page_Error (array (
+			'pe_url'			=> $content->base ()->url,
+			'pe_http_code'		=> '410 Gone',
+			'pe_redirect_url'	=> '/',
+			'pe_comment'		=> 'Erase with content remove',
+			'pe_enabled'		=> 1
+		));
+		$error->save ();
 
 		$content->delete ();
 	}
