@@ -189,12 +189,12 @@ class Route extends Model_Child
 				}
 			}
 		}
-//		fb($row);
+
 		if (!$row && $config ['use_default_source'])
 		{
 			$select = Query::instance ()
 				->select (array (
-					'Route' => array ('id', 'route', 'View_Render__id')
+					'Route' => array ('id', 'route', 'View_Render__id', 'template' => 'pattern')
 				))
 				->select (array (
 					'View_Render' => array ('name' => 'viewRenderName')
@@ -209,8 +209,8 @@ class Route extends Model_Child
 		
 			$row = DDS::execute ($select)->getResult ()->asRow ();
 		}
+
 //		fb($row);
-//		var_dump(DDS::getDataSource()->getQuery('Mysql'), $row);
 		if (!$row)
 		{
 			Resource_Manager::set ('Route_Cache', $pattern, false);

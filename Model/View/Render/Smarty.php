@@ -6,6 +6,9 @@
  * @package IcEngine
  *
  */
+
+Loader::load ('View_Render_Abstract');
+
 class View_Render_Smarty extends View_Render_Abstract
 {
 	

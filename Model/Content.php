@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Модель контента
  * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
@@ -8,7 +8,12 @@
  */
 class Content extends Model_Factory
 {
-	
+
+	public function base ()
+	{
+		return $this;
+	}
+
 	/**
 	 * @desc Вовзращает контент по названию модели и ключу.
 	 * В случае, если  такой модели не существовало, будет возвращена пустая
@@ -28,10 +33,51 @@ class Content extends Model_Factory
 
 		return $content;
 	}
-	
+
+        /**
+         * @see Model_Factory::delegateClass
+         * @param string $model
+         * @param string $key
+         * @param array|Model $object
+         * @return string
+         */
+        public function delegateClass ($model, $key, $object)
+	{
+            if (empty ($object ['name']))
+            {
+                $object ['name'] = 'Simple';
+            }
+	    return parent::delegateClass ($model, $key, $object);
+	}
+
+	/**
+	 * @desc Расширение модели
+	 * @return Content_Extending
+	 */
+	public function extending ()
+	{
+		if (!$this->extending)
+		{
+			return null;
+		}
+		
+		$extending = Model_Manager::byKey ($this->extending, $this->id);
+
+		if (!$extending && $this->extending && $this->id)
+		{
+			// Расширение не создано
+			$extending = Model_Manager::get (
+				$this->extending,
+				$this->id
+			)->firstSave ();
+		}
+
+		return $extending;
+	}
+
 	public function title ()
 	{
 		return $this->title . ' ' . $this->url;
 	}
-	
+
 }
