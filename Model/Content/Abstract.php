@@ -134,7 +134,7 @@ class Content_Abstract extends Model_Factory_Delegate
 		}
 
 		$extending = Model_Manager::byKey ($this->extending, $this->id);
-	
+		
 		if (!$extending && $this->extending && $this->id)
 		{
 			Loader::load ('Content');
@@ -142,6 +142,8 @@ class Content_Abstract extends Model_Factory_Delegate
 			$extending = new $this->extending (array (
 				Model_Scheme::keyField ($this->extending)	=> $this->id
 			));
+
+			print_r ($extending);
 		
 			$extending->save (true);
 		}
