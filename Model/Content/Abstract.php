@@ -22,13 +22,18 @@
  */
 class Content_Abstract extends Model_Factory_Delegate
 {
-
+	/**
+	 * @desc Получить базовую модель контента
+	 * @return Content
+	 */
 	public function base ()
 	{
-		return Model_Manager::byKey (
+		$content = Model_Manager::byKey (
 			'Content',
 			$this->key ()
 		);
+
+		return new Content ($content->asRow ());
 	}
 
 	/**
@@ -95,7 +100,7 @@ class Content_Abstract extends Model_Factory_Delegate
 	}
 
 	/**
-	 * @desc
+	 * @desc Получить имя фабрики
 	 * @return string
 	 */
 	public function delegeeName ()
@@ -132,7 +137,7 @@ class Content_Abstract extends Model_Factory_Delegate
 		}
 
 		$extending = Model_Manager::byKey ($this->extending, $this->id);
-	
+
 		if (!$extending && $this->extending && $this->id)
 		{
 			Loader::load ('Content');
@@ -140,13 +145,17 @@ class Content_Abstract extends Model_Factory_Delegate
 			$extending = new $this->extending (array (
 				Model_Scheme::keyField ($this->extending)	=> $this->id
 			));
-		
+
 			$extending->save (true);
 		}
 
 		return $extending;
 	}
 
+	/**
+	 * @see Model::modelName
+	 * @return string
+	 */
 	public function modelName ()
 	{
 		return get_class ($this);
@@ -168,4 +177,12 @@ class Content_Abstract extends Model_Factory_Delegate
 		return true;
 	}
 
+	/**
+	 * @see Model::title
+	 * @return string
+	 */
+	public function title ()
+	{
+		return $this->base ()->title . ' ' . $this->base ()->url;
+	}
 }

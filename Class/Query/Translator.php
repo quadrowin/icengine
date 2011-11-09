@@ -1,19 +1,19 @@
 <?php
 /**
- * 
+ *
  * @desc Транслятор запросов.
  * @author Юрий Шведов
  * @package IcEngine
  *
  */
 class Query_Translator
-{	
+{
 	/**
 	 * @desc Подключенные трансляторы.
 	 * @var array
 	 */
 	protected static $_translators = array ();
-	
+
 	/**
 	 * @desc Возвращает объект транслятора по имени.
 	 * @param string $name Название транслятора.
@@ -27,10 +27,10 @@ class Query_Translator
 			Loader::load ($class_name);
 			self::$_translators [$name] = new $class_name ();
 		}
-		
+
 		return self::$_translators [$name];
 	}
-	
+
 	/**
 	 * @desc Транслирует запрос.
 	 * @param Query $query Запрос.
@@ -39,14 +39,14 @@ class Query_Translator
 	public function translate (Query $query)
 	{
 		$type = $query->type ();
-		$type = 
-			strtoupper (substr ($type, 0, 1)) . 
+		$type =
+			strtoupper (substr ($type, 0, 1)) .
 			strtolower (substr ($type, 1));
-		
+
 		return call_user_func (
 			array ($this, '_render' . $type),
 			$query
 		);
 	}
-	
+
 }

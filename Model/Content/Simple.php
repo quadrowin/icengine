@@ -22,10 +22,10 @@ class Content_Simple extends Content_Abstract
     /**
      * @see Content_Extending::extending
      */
-    public function extending ()
-    {
-        
-    }
+    //public function extending ()
+    //{
+    //    
+    //}
 
 	public function modelName ()
 	{
