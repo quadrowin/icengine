@@ -83,8 +83,7 @@ class Controller_Manager extends Manager_Abstract
 		 * @desc Настройки кэширования для экшенов.
 		 * @var array
 		 */
-		'actions'			=> array (
-		)
+		'actions'			=> array ()
 	);
 
 	/**
