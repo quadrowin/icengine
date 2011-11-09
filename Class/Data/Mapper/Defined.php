@@ -78,8 +78,7 @@ class Data_Mapper_Defined extends Data_Mapper_Abstract
 	 * @desc
 	 * @param Query $query
 	 */
-	protected function _selectQuery (Data_Source_Abstract $source, 
-		Query $query)
+	protected function _selectQuery (Data_Source $source, Query $query)
 	{
 		$select = $query->getPart (Query::SELECT);
 		
@@ -123,7 +122,7 @@ class Data_Mapper_Defined extends Data_Mapper_Abstract
 		));
 	}
 	
-	protected function _showQuery (Data_Source_Abstract $source, Query $query)
+	protected function _showQuery (Data_Source $source, Query $query)
 	{
 	}
 	
@@ -131,7 +130,7 @@ class Data_Mapper_Defined extends Data_Mapper_Abstract
 	 * (non-PHPdoc)
 	 * @see Data_Mapper_Abstract::execute()
 	 */
-	public function execute (Data_Source_Abstract $source, Query $query, $options = null)
+	public function execute (Data_Source $source, Query $query, $options = null)
 	{
 		$method = strtolower ($query->type ());
 		

@@ -1,12 +1,12 @@
 <?php
 /**
  * 
- * @desc Абстрактный класс сорса
+ * @desc Источник данных
  * @author Юрий Шведов
  * @package IcEngine
  *
  */
-class Data_Source_Abstract
+class Data_Source
 {
 	
 	/**
