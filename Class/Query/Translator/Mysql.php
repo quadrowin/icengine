@@ -104,15 +104,22 @@ class Query_Translator_Mysql extends Query_Translator
 		return $query->part (Query::DISTINCT) ? self::SQL_DISTINCT : '';
 	}
 
+	/**
+	 *
+	 * @param Query $query
+	 * @return string
+	 */
 	public function _renderDelete (Query $query)
 	{
 		$parts = $query->parts ();
 		//$parts = implode(', ', $parts[Query::DELETE]);
 		foreach($parts[Query::DELETE] as $key => $part)
 		{
+			$query->bind ($part, $part);
+
 			$parts[Query::DELETE][$key] = strpos ($part, self::SQL_ESCAPE) !== false ?
 				$part :
-				strtolower (Model_Scheme::table ($part));
+				'{' . $part . '}';
 			$parts[Query::DELETE][$key] = $this->_escape ($parts[Query::DELETE][$key]);
 		}
 		$tables = count($parts[Query::DELETE]) > 0 ? ' '.implode(', ', $parts[Query::DELETE]).' ' : ' ';
@@ -123,6 +130,12 @@ class Query_Translator_Mysql extends Query_Translator
 			self::_renderWhere ($query);
 	}
 
+	/**
+	 *
+	 * @param Query $query
+	 * @param boolean $use_alias
+	 * @return string
+	 */
 	public function _renderFrom (Query $query, $use_alias = true)
 	{
 		$sql = self::SQL_FROM;
@@ -159,10 +172,15 @@ class Query_Translator_Mysql extends Query_Translator
 			}
 			else
 			{
+				$query->bind (
+					$from [Query::TABLE],
+					$from [Query::TABLE]
+				);
+
 				$table =
 					strpos ($from [Query::TABLE], self::SQL_ESCAPE) !== false ?
 					$from [Query::TABLE] :
-					Model_Scheme::table ($from [Query::TABLE]);
+					'{' . $from [Query::TABLE] . '}';
 
 				$table = $this->_escape ($table);
 			}
@@ -204,6 +222,11 @@ class Query_Translator_Mysql extends Query_Translator
 		return $sql;
 	}
 
+	/**
+	 *
+	 * @param Query $query
+	 * @return string
+	 */
 	public function _renderGroup (Query $query)
 	{
 		$groups = $query->part (Query::GROUP);
@@ -226,7 +249,7 @@ class Query_Translator_Mysql extends Query_Translator
 			elseif (strpos ($column, self::SQL_DOT) !== false)
 			{
 				$column = explode (self::SQL_DOT, $column);
-				$column = array_map (array($this, '_escape'), $column);
+				$column = array_map (array ($this, '_escape'), $column);
 				$columns [] = implode (self::SQL_DOT, $column);
 			}
 			else
@@ -239,6 +262,11 @@ class Query_Translator_Mysql extends Query_Translator
 			implode (self::SQL_COMMA, $columns);
 	}
 
+	/**
+	 *
+	 * @param array $value
+	 * @return string
+	 */
 	public function _renderInArray (array $value)
 	{
 		if (empty ($value))
@@ -254,12 +282,15 @@ class Query_Translator_Mysql extends Query_Translator
 	/**
 	 * @desc Рендеринг INSERT запроса.
 	 * @param Query $query Запрос.
+	 * @param array $map Имена полученные от мапера
 	 * @return string Сформированный SQL запрос.
 	 */
 	public function _renderInsert (Query $query)
 	{
 		$table = $query->part (Query::INSERT);
-		$sql = 'INSERT ' . strtolower (Model_Scheme::table ($table)) . ' (';
+		$sql = 'INSERT {' . $table . '} (';
+
+		$query->bind ($table, $table);
 
 		$fields = array_keys ($query->part (Query::VALUES));
 		$values = array_values ($query->part (Query::VALUES));
@@ -276,6 +307,11 @@ class Query_Translator_Mysql extends Query_Translator
 		return $sql . $fields . ') VALUES (' . $values . ')';
 	}
 
+	/**
+	 *
+	 * @param Query $query
+	 * @return string
+	 */
 	public function _renderLimitoffset (Query $query)
 	{
 		$sql = '';
@@ -295,6 +331,11 @@ class Query_Translator_Mysql extends Query_Translator
 		return $sql;
 	}
 
+	/**
+	 *
+	 * @param Query $query
+	 * @return string
+	 */
 	public function _renderOrder (Query $query)
 	{
 		$orders = $query->part (Query::ORDER);
@@ -331,7 +372,9 @@ class Query_Translator_Mysql extends Query_Translator
 	public function _renderReplace (Query $query)
 	{
 		$table = $query->part (Query::REPLACE);
-		$sql = 'REPLACE ' . strtolower (Model_Scheme::table ($table)) . ' (';
+		$sql = 'REPLACE {' . $table . '} (';
+
+		$query->bind ($table, $table);
 
 		$fields = array_keys ($query->part (Query::VALUES));
 		$values = array_values ($query->part (Query::VALUES));
@@ -485,10 +528,9 @@ class Query_Translator_Mysql extends Query_Translator
 	public function _renderUpdate (Query $query)
 	{
 		$table = $query->part (Query::UPDATE);
-		$sql =
-			'UPDATE ' .
-			strtolower (Model_Scheme::table ($table)) .
-			' SET ';
+		$sql ='UPDATE {' . $table . '} SET ';
+
+		$query->bind ($table, $table);
 
 		$values = $query->part (Query::VALUES);
 		$sets = array();
@@ -511,6 +553,11 @@ class Query_Translator_Mysql extends Query_Translator
 		return $sql . implode (', ', $sets) . ' ' . $this->_renderWhere ($query);
 	}
 
+	/**
+	 *
+	 * @param Query $query
+	 * @return string
+	 */
 	public function _renderUseIndex (Query $query)
 	{
 		$indexes = $query->part (Query::INDEX);
@@ -522,6 +569,11 @@ class Query_Translator_Mysql extends Query_Translator
 		return 'USE INDEX(' . implode (',', $indexes) . ')';
 	}
 
+	/**
+	 *
+	 * @param Query $query
+	 * @return string
+	 */
 	public function _renderWhere (Query $query)
 	{
 		$wheres = $query->part (Query::WHERE);
