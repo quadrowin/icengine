@@ -238,7 +238,11 @@ class Controller_Manager extends Manager_Abstract
 					array ($controller, $method),
 					$param->name
 				);
-				$param_value = $reflection_param->getDefaultValue ();
+				
+				if ($reflaction_param)
+				{
+					$param_value = $reflection_param->getDefaultValue ();
+				}
 			}
 			$param = $param_value;
 		}
