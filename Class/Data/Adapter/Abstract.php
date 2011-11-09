@@ -11,7 +11,7 @@ class Data_Adapter_Abstract
 	 * @desc Настройки адаптера по умолчанию
 	 * @var Query_Options
 	 */
-	protected static $_defaultOptions;
+	protected $_defaultOptions;
 
 	/**
 	 * @desc Затронуто сущностей при изменение

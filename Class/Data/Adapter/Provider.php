@@ -39,11 +39,11 @@ class Data_Adapter_Provider extends Data_Adapter_Abstract
      * @param Query $query
      * @param Query_Options $options
      */
-	protected function _executeDelete (Query $query, Query_Options $options)
+	public function _executeDelete (Query $query, Query_Options $options)
 	{
 		$this->_affectedRows = $this->_fullDeleteByPatterns (
 			$this->translator ()->extractTable ($query),
-			$this->_translated
+			$this->_query
 		);
 
 		return true;
@@ -54,14 +54,14 @@ class Data_Adapter_Provider extends Data_Adapter_Abstract
 	 * @param Query $query
 	 * @param Query_Options $options
 	 */
-    protected function _executeInsert (Query $query, Query_Options $options)
+    public function _executeInsert (Query $query, Query_Options $options)
     {
-        foreach ($this->_translated [0] as $key)
+        foreach ($this->_query [0] as $key)
         {
-        	$this->_provider->set ($key, $this->_translated [1]);
+        	$this->_provider->set ($key, $this->_query [1]);
         }
 
-		$this->_affectedRows = count ($this->_translated [0]);
+		$this->_affectedRows = count ($this->_query [0]);
 
 		return true;
 	}
@@ -72,7 +72,7 @@ class Data_Adapter_Provider extends Data_Adapter_Abstract
 	 * @param Query_Options $options
 	 * @return array
 	 */
-    protected function _executeSelect (Query $query, Query_Options $options)
+    public function _executeSelect (Query $query, Query_Options $options)
     {
 		$translator = $this->translator ();
 
@@ -80,7 +80,7 @@ class Data_Adapter_Provider extends Data_Adapter_Abstract
 		$rows = array ();
 
 		// Выбираем ID всех записей, подходящих под условие
-		foreach ($this->_translated as $pattern)
+		foreach ($this->_query as $pattern)
 		{
 			$keys =
 				(strpos ($pattern, '*') === false) ?
@@ -112,18 +112,18 @@ class Data_Adapter_Provider extends Data_Adapter_Abstract
      * @param Query_Options $options
      * @return boolean
      */
-    protected function _executeUpdate (Query $query, Query_Options $options)
+    public function _executeUpdate (Query $query, Query_Options $options)
     {
     	// Удаление ненужных индексов
 		$this->_fullDeleteByPatterns (
 			$this->translator ()->extractTable ($query),
-			$this->_translated [0]
+			$this->_query [0]
 		);
 
 		// Установка новых значений
-		foreach ($this->_translated [1] as $key)
+		foreach ($this->_query [1] as $key)
 		{
-			$this->_provider->set ($key, $this->_translated [2]);
+			$this->_provider->set ($key, $this->_query [2]);
 		}
 
 		return true;

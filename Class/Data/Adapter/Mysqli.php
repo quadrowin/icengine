@@ -14,7 +14,7 @@ class Data_Adapter_Mysqli extends Data_Adapter_Abstract
 	 * @see Data_Abapter_Abstract::_connectionOptions
 	 * @var array
 	 */
-	protected static $_connectionOptions = array (
+	protected $_connectionOptions = array (
 		'host'		=> 'localhost',
 		'username'	=> '',
 		'password'	=> '',
@@ -39,7 +39,7 @@ class Data_Adapter_Mysqli extends Data_Adapter_Abstract
 	 * @param Query_Options $options Параметры запроса.
 	 * @return boolean
 	 */
-	protected function _executeChange (Query $query, Query_Options $options)
+	public function _executeChange (Query $query, Query_Options $options)
 	{
 		if (!mysql_query ($this->_query, $this->_connection))
 		{
@@ -59,7 +59,7 @@ class Data_Adapter_Mysqli extends Data_Adapter_Abstract
 	 * @param Query_Options $options Параметры запроса.
 	 * @return boolean
 	 */
-	protected function _executeInsert (Query $query, Query_Options $options)
+	public function _executeInsert (Query $query, Query_Options $options)
 	{
 		if (!mysql_query ($this->_query, $this->_connection))
 		{
@@ -81,7 +81,7 @@ class Data_Adapter_Mysqli extends Data_Adapter_Abstract
 	 * @param Query_Options $options Параметры запроса.
 	 * @return array|null
 	 */
-	protected function _executeSelect (Query $query, Query_Options $options)
+	public function _executeSelect (Query $query, Query_Options $options)
 	{
 		$result = mysql_query ($this->_query, $this->_connection);
 
@@ -118,7 +118,7 @@ class Data_Adapter_Mysqli extends Data_Adapter_Abstract
 	/**
 	 * @see Data_Adapter_Abstract::isCurrency
 	 */
-	protected function isCurrency ($result, $options)
+	public function isCurrency ($result, $options)
 	{
 		if (!$options)
 		{
@@ -147,7 +147,8 @@ class Data_Adapter_Mysqli extends Data_Adapter_Abstract
 		$this->_connection = mysql_connect (
 			$this->_connectionOptions ['host'],
 			$this->_connectionOptions ['username'],
-			$this->_connectionOptions ['password']
+			$this->_connectionOptions ['password'],
+			true
 		);
 
 		mysql_select_db (
@@ -188,14 +189,4 @@ class Data_Adapter_Mysqli extends Data_Adapter_Abstract
 		}
 		return parent::setOption ($key, $value);
 	}
-
-	/**
-	 * @see Data_Adapter_Abstract::setTranslatedQuery
-	 * @param string $query
-	 */
-	public function setTranslatedQuery ($query)
-	{
-		$this->_sql = $query;
-	}
-
 }

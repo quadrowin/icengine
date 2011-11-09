@@ -23,7 +23,7 @@ class Data_Adapter_Mysqli_Cached extends Data_Adapter_Mysqli
 	 */
 	protected function _sqlHash ()
 	{
-		return md5 ($this->_sql);
+		return md5 ($this->_query);
 	}
 
 	/**
@@ -32,7 +32,7 @@ class Data_Adapter_Mysqli_Cached extends Data_Adapter_Mysqli
 	 * @param Query_Options $options
 	 * @return boolean
 	 */
-	protected function _executeChange (Query $query, Query_Options $options)
+	public function _executeChange (Query $query, Query_Options $options)
 	{
 		if (!mysql_query ($this->_query))
 		{
@@ -62,7 +62,7 @@ class Data_Adapter_Mysqli_Cached extends Data_Adapter_Mysqli
 	 * @param Query_Options $options
 	 * @return boolean
 	 */
-	protected function _executeInsert (Query $query, Query_Options $options)
+	public function _executeInsert (Query $query, Query_Options $options)
 	{
 		if (!mysql_query ($this->_query))
 		{
@@ -93,7 +93,7 @@ class Data_Adapter_Mysqli_Cached extends Data_Adapter_Mysqli
 	 * @param Query_Options $options
 	 * @return null|array
 	 */
-	protected function _executeSelect (Query $query, Query_Options $options)
+	public function _executeSelect (Query $query, Query_Options $options)
 	{
 		$key = $this->_sqlHash ();
 

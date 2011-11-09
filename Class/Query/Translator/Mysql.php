@@ -115,8 +115,6 @@ class Query_Translator_Mysql extends Query_Translator
 		//$parts = implode(', ', $parts[Query::DELETE]);
 		foreach($parts[Query::DELETE] as $key => $part)
 		{
-			$query->bind ($part, $part);
-
 			$parts[Query::DELETE][$key] = strpos ($part, self::SQL_ESCAPE) !== false ?
 				$part :
 				'{' . $part . '}';
@@ -172,11 +170,6 @@ class Query_Translator_Mysql extends Query_Translator
 			}
 			else
 			{
-				$query->bind (
-					$from [Query::TABLE],
-					$from [Query::TABLE]
-				);
-
 				$table =
 					strpos ($from [Query::TABLE], self::SQL_ESCAPE) !== false ?
 					$from [Query::TABLE] :
@@ -290,8 +283,6 @@ class Query_Translator_Mysql extends Query_Translator
 		$table = $query->part (Query::INSERT);
 		$sql = 'INSERT {' . $table . '} (';
 
-		$query->bind ($table, $table);
-
 		$fields = array_keys ($query->part (Query::VALUES));
 		$values = array_values ($query->part (Query::VALUES));
 
@@ -373,8 +364,6 @@ class Query_Translator_Mysql extends Query_Translator
 	{
 		$table = $query->part (Query::REPLACE);
 		$sql = 'REPLACE {' . $table . '} (';
-
-		$query->bind ($table, $table);
 
 		$fields = array_keys ($query->part (Query::VALUES));
 		$values = array_values ($query->part (Query::VALUES));
@@ -529,8 +518,6 @@ class Query_Translator_Mysql extends Query_Translator
 	{
 		$table = $query->part (Query::UPDATE);
 		$sql ='UPDATE {' . $table . '} SET ';
-
-		$query->bind ($table, $table);
 
 		$values = $query->part (Query::VALUES);
 		$sets = array();
