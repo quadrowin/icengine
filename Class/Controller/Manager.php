@@ -83,8 +83,7 @@ class Controller_Manager extends Manager_Abstract
 		 * @desc Настройки кэширования для экшенов.
 		 * @var array
 		 */
-		'actions'			=> array (
-		)
+		'actions'			=> array ()
 	);
 
 	/**
@@ -232,7 +231,20 @@ class Controller_Manager extends Manager_Abstract
 
 		foreach ($params as &$param)
 		{
-			$param = $c_input->receive ($param->name);
+			$param_value = $c_input->receive ($param->name);
+			if (!$param_value)
+			{
+				$reflection_param = new ReflectionParameter (
+					array ($controller, $method),
+					$param->name
+				);
+				
+				if ($reflaction_param)
+				{
+					$param_value = $reflection_param->getDefaultValue ();
+				}
+			}
+			$param = $param_value;
 		}
 
 		call_user_func_array (

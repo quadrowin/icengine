@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Транслятор в SQL запрос
  * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
@@ -8,7 +8,7 @@
  */
 class Query_Translator_Mysql extends Query_Translator
 {
-	
+
 	// Для построения SQL запроса
 	const SQL_AND			= 'AND';
 	const SQL_ASC			= 'ASC';
@@ -39,9 +39,9 @@ class Query_Translator_Mysql extends Query_Translator
 	const SQL_VALUES		= 'VALUES';
 	const SQL_WHERE			= 'WHERE';
 	const SQL_WILDCARD		= '*';
-	
+
 	const WHERE_VALUE_CHAR	= '?';
-		
+
 	/**
 	 * @desc Обособляет название mysql терма, если в этом есть необходимость.
 	 * Функция вернет исходную строку, если в ней присутствуют спец. символы
@@ -54,7 +54,7 @@ class Query_Translator_Mysql extends Query_Translator
 		if (
 			strpos ($value, self::SQL_WILDCARD) === false &&
 			strpos ($value, '(') === false &&
-			strpos ($value, ' ') === false && 
+			strpos ($value, ' ') === false &&
 			strpos ($value, '.') === false &&
 			strpos ($value, '<') === false &&
 			strpos ($value, '>') === false &&
@@ -66,9 +66,9 @@ class Query_Translator_Mysql extends Query_Translator
 		}
 		return $value;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param mixed $value
 	 * @return string
 	 */
@@ -83,19 +83,19 @@ class Query_Translator_Mysql extends Query_Translator
 //		return self::SQL_QUOTE . mysql_real_escape_string ($value) . self::SQL_QUOTE;
 		return self::SQL_QUOTE . addslashes (iconv ('UTF-8', 'UTF-8//IGNORE', $value)) . self::SQL_QUOTE;
 	}
-	
+
 	public function _partCalcFoundRows (Query $query)
 	{
 		if (!$query->part (Query::CALC_FOUND_ROWS))
 		{
 			return '';
 		}
-		
+
 		return 'SQL_CALC_FOUND_ROWS';
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Query $query
 	 * @return string
 	 */
@@ -103,38 +103,51 @@ class Query_Translator_Mysql extends Query_Translator
 	{
 		return $query->part (Query::DISTINCT) ? self::SQL_DISTINCT : '';
 	}
-	
+
+	/**
+	 *
+	 * @param Query $query
+	 * @return string
+	 */
 	public function _renderDelete (Query $query)
 	{
 		$parts = $query->parts ();
 		//$parts = implode(', ', $parts[Query::DELETE]);
 		foreach($parts[Query::DELETE] as $key => $part)
 		{
+			$query->bind ($part, $part);
+
 			$parts[Query::DELETE][$key] = strpos ($part, self::SQL_ESCAPE) !== false ?
 				$part :
-				strtolower (Model_Scheme::table ($part));
+				'{' . $part . '}';
 			$parts[Query::DELETE][$key] = $this->_escape ($parts[Query::DELETE][$key]);
 		}
 		$tables = count($parts[Query::DELETE]) > 0 ? ' '.implode(', ', $parts[Query::DELETE]).' ' : ' ';
 
-		return 
+		return
 			self::SQL_DELETE . $tables .
-			self::_renderFrom ($query, false) . ' ' . 
+			self::_renderFrom ($query, false) . ' ' .
 			self::_renderWhere ($query);
 	}
-	
+
+	/**
+	 *
+	 * @param Query $query
+	 * @param boolean $use_alias
+	 * @return string
+	 */
 	public function _renderFrom (Query $query, $use_alias = true)
 	{
 		$sql = self::SQL_FROM;
 		$i = 0;
-		
+
 		$from = $query->part (Query::FROM);
-	
+
 		if (!$from)
 		{
 			return;
 		}
-		
+
 		if (count ($from) > 1)
 		{
 			foreach ($from as $a=>$v)
@@ -148,31 +161,36 @@ class Query_Translator_Mysql extends Query_Translator
 				}
 			}
 		}
-		
+
 		$froms = $from;
-		
+
 		foreach ($froms as $alias => $from)
 		{
 			if ($from [Query::TABLE] instanceof Query)
 			{
 				$table = '(' . $this->_renderSelect ($from [Query::TABLE]) . ')';
 			}
-			else 
+			else
 			{
+				$query->bind (
+					$from [Query::TABLE],
+					$from [Query::TABLE]
+				);
+
 				$table =
-					strpos ($from [Query::TABLE], self::SQL_ESCAPE) !== false ? 
+					strpos ($from [Query::TABLE], self::SQL_ESCAPE) !== false ?
 					$from [Query::TABLE] :
-					Model_Scheme::table ($from [Query::TABLE]);
+					'{' . $from [Query::TABLE] . '}';
 
 				$table = $this->_escape ($table);
 			}
-			
+
 			$alias = $this->_escape ($alias);
-			
+
 			if ($from [Query::JOIN] == Query::FROM)
 			{
 				$a = ($table == $alias || !$use_alias);
-				$sql .= 
+				$sql .=
 					($i ? self::SQL_COMMA : ' ') .
 					($a ? $table : ($table . ' AS ' . $alias));
 			}
@@ -180,8 +198,8 @@ class Query_Translator_Mysql extends Query_Translator
 			{
 				if (is_array ($from [Query::WHERE]))
 				{
-					$where = 
-						$this->_escape ($from [Query::WHERE][0]) . 
+					$where =
+						$this->_escape ($from [Query::WHERE][0]) .
 						self::SQL_DOT .
 						$this->_escape ($from [Query::WHERE][1]) .
 						'=' .
@@ -193,8 +211,8 @@ class Query_Translator_Mysql extends Query_Translator
 				{
 					$where = $from [Query::WHERE];
 				}
-				$sql .= ' ' . 
-					$from [Query::JOIN] . ' ' . 
+				$sql .= ' ' .
+					$from [Query::JOIN] . ' ' .
 					$table . ' AS ' . $alias . ' ' .
 					self::SQL_ON .
 					'(' . $from [Query::WHERE] . ')';
@@ -203,16 +221,21 @@ class Query_Translator_Mysql extends Query_Translator
 		}
 		return $sql;
 	}
-	
+
+	/**
+	 *
+	 * @param Query $query
+	 * @return string
+	 */
 	public function _renderGroup (Query $query)
 	{
 		$groups = $query->part (Query::GROUP);
-		
+
 		if (empty ($groups))
 		{
 			return '';
 		}
-		
+
 		$columns = array ();
 		foreach ($groups as $column)
 		{
@@ -226,7 +249,7 @@ class Query_Translator_Mysql extends Query_Translator
 			elseif (strpos ($column, self::SQL_DOT) !== false)
 			{
 				$column = explode (self::SQL_DOT, $column);
-				$column = array_map (array($this, '_escape'), $column);
+				$column = array_map (array ($this, '_escape'), $column);
 				$columns [] = implode (self::SQL_DOT, $column);
 			}
 			else
@@ -234,13 +257,13 @@ class Query_Translator_Mysql extends Query_Translator
 				$columns [] = $this->_escape ($column);
 			}
 		}
-		return  
-			self::SQL_GROUP_BY . ' ' . 
+		return
+			self::SQL_GROUP_BY . ' ' .
 			implode (self::SQL_COMMA, $columns);
 	}
-	
+
 	/**
-	 * @desc Рендер массива для конструкции IN
+	 *
 	 * @param array $value
 	 * @return string
 	 */
@@ -250,66 +273,69 @@ class Query_Translator_Mysql extends Query_Translator
 		{
 			return 'NULL';
 		}
-		
-		if (isset ($value [0]) && is_array ($value [0]))
-		{
-			// Матрица для запросов вида WHERE (1,2) IN ((1,1), (2,2))
-			foreach ($value as &$v)
-			{
-				$v = '(' . 
-					implode (',', array_map (array ($this, '_quote'), $v)) .
-					')';
-			}
-			return implode (',', $value);
-		}
-		
-		return implode (',', array_map (array ($this, '_quote'), $value));
+
+		$result = implode (',', array_map (array ($this, '_quote'), $value));
+
+		return $result;
 	}
-	
+
 	/**
 	 * @desc Рендеринг INSERT запроса.
 	 * @param Query $query Запрос.
+	 * @param array $map Имена полученные от мапера
 	 * @return string Сформированный SQL запрос.
 	 */
 	public function _renderInsert (Query $query)
 	{
 		$table = $query->part (Query::INSERT);
-		$sql = 'INSERT ' . strtolower (Model_Scheme::table ($table)) . ' (';
-		
+		$sql = 'INSERT {' . $table . '} (';
+
+		$query->bind ($table, $table);
+
 		$fields = array_keys ($query->part (Query::VALUES));
 		$values = array_values ($query->part (Query::VALUES));
-		
+
 		for ($i = 0, $icount = count ($fields); $i < $icount; $i++)
 		{
 			$fields [$i] = self::_escape ($fields [$i]);
 			$values [$i] = self::_quote ($values [$i]);
 		}
-		
+
 		$fields = implode (', ', $fields);
 		$values = implode (', ', $values);
-		
+
 		return $sql . $fields . ') VALUES (' . $values . ')';
 	}
-	
+
+	/**
+	 *
+	 * @param Query $query
+	 * @return string
+	 */
 	public function _renderLimitoffset (Query $query)
 	{
 		$sql = '';
 		$limit_count = $query->part (Query::LIMIT_COUNT);
-		
+
 		if (!empty ($limit_count))
 		{
-			$sql .= 
-				' LIMIT ' . (int) $query->part (Query::LIMIT_OFFSET) . 
+			$sql .=
+				' LIMIT ' . (int) $query->part (Query::LIMIT_OFFSET) .
 				self::SQL_COMMA . (int) $query->part (Query::LIMIT_COUNT);
 		}
 		elseif ($query->part (Query::LIMIT_OFFSET))
 		{
 			$sql .= ' LIMIT ' . (int) $query->part (Query::LIMIT_OFFSET);
 		}
-		
+
 		return $sql;
 	}
-	
+
+	/**
+	 *
+	 * @param Query $query
+	 * @return string
+	 */
 	public function _renderOrder (Query $query)
 	{
 		$orders = $query->part (Query::ORDER);
@@ -317,14 +343,14 @@ class Query_Translator_Mysql extends Query_Translator
 		{
 			return '';
 		}
-		
+
 		$columns = array ();
 		foreach ($orders as $order)
 		{
 			$field = explode (self::SQL_DOT, $order [0]);
 			$field = array_map (array($this, '_escape'), $field);
 			$field = implode (self::SQL_DOT, $field);
-			
+
 			if ($order [1] == self::SQL_DESC)
 			{
 				$columns [] = $field . ' ' . self::SQL_DESC;
@@ -334,10 +360,10 @@ class Query_Translator_Mysql extends Query_Translator
 				$columns [] = $field;
 			}
 		}
-		
+
 		return 'ORDER BY ' . implode (self::SQL_COMMA, $columns);
 	}
-	
+
 	/**
 	 * @desc Рендеринг REPLACE запроса.
 	 * @param Query $query Запрос
@@ -346,23 +372,25 @@ class Query_Translator_Mysql extends Query_Translator
 	public function _renderReplace (Query $query)
 	{
 		$table = $query->part (Query::REPLACE);
-		$sql = 'REPLACE ' . strtolower (Model_Scheme::table ($table)) . ' (';
-		
+		$sql = 'REPLACE {' . $table . '} (';
+
+		$query->bind ($table, $table);
+
 		$fields = array_keys ($query->part (Query::VALUES));
 		$values = array_values ($query->part (Query::VALUES));
-		
+
 		for ($i = 0, $icount = count ($fields); $i < $icount; $i++)
 		{
 			$fields [$i] = self::_escape ($fields [$i]);
 			$values [$i] = self::_quote ($values [$i]);
 		}
-		
+
 		$fields = implode (', ', $fields);
 		$values = implode (', ', $values);
-		
+
 		return $sql . $fields . ') VALUES (' . $values . ')';
 	}
-	
+
 	/**
 	 * @desc Рендеринг SELECT запроса.
 	 * @param Query $query Запрос
@@ -371,14 +399,14 @@ class Query_Translator_Mysql extends Query_Translator
 	public function _renderSelect (Query $query)
 	{
 		$sql = '';
-		
+
 		$parts = $query->parts ();
-		
+
 		if ($parts [Query::SELECT])
 		{
 			$sql =
 				'SELECT ' .
-				self::_partCalcFoundRows ($query) . ' ' . 
+				self::_partCalcFoundRows ($query) . ' ' .
 				self::_partDistinct ($query) . ' ';
 
 			$columns = array ();
@@ -394,8 +422,8 @@ class Query_Translator_Mysql extends Query_Translator
 						}
 						else
 						{
-							$source = 
-								$this->_escape ($sparts [0]) . 
+							$source =
+								$this->_escape ($sparts [0]) .
 								self::SQL_DOT;
 						}
 
@@ -428,7 +456,7 @@ class Query_Translator_Mysql extends Query_Translator
 					strpos ($sparts, '(') === false &&
 					strpos ($sparts, ' ') === false &&
 					strpos ($sparts, '`') === false &&
-					strpos ($sparts, '.') === false 
+					strpos ($sparts, '.') === false
 				)
 				{
 					$source = $this->_escape ($sparts);
@@ -463,8 +491,8 @@ class Query_Translator_Mysql extends Query_Translator
 				}
 			}
 		}
-		
-		return $sql . implode (self::SQL_COMMA, $columns) . ' ' . 
+
+		return $sql . implode (self::SQL_COMMA, $columns) . ' ' .
 			self::_renderFrom ($query) . ' ' .
 			self::_renderUseIndex ($query) . ' ' .
 			self::_renderWhere ($query) . ' ' .
@@ -472,7 +500,7 @@ class Query_Translator_Mysql extends Query_Translator
 			self::_renderOrder ($query) . ' ' .
 			self::_renderLimitoffset ($query);
 	}
-	
+
 	/**
 	 * @desc Рендер части SHOW.
 	 * @param Query $query Запрос.
@@ -481,9 +509,9 @@ class Query_Translator_Mysql extends Query_Translator
 	public function _renderShow (Query $query)
 	{
 		$sql = 'SHOW ' . $this->_partDistinct ($query) . ' ';
-		
+
 		$sql .= $query->part (Query::SHOW);
-		
+
 		return $sql . ' ' .
 			self::_renderFrom ($query, false) . ' ' .
 			self::_renderWhere ($query) . ' ' .
@@ -491,7 +519,7 @@ class Query_Translator_Mysql extends Query_Translator
 			self::_renderLimitoffset ($query) . ' ' .
 			self::_renderGroup ($query);
 	}
-	
+
 	/**
 	 * @desc Рендеринг UPDATE запроса.
 	 * @param Query $query Запрос.
@@ -500,14 +528,13 @@ class Query_Translator_Mysql extends Query_Translator
 	public function _renderUpdate (Query $query)
 	{
 		$table = $query->part (Query::UPDATE);
-		$sql = 
-			'UPDATE ' . 
-			strtolower (Model_Scheme::table ($table)) . 
-			' SET ';
-			
+		$sql ='UPDATE {' . $table . '} SET ';
+
+		$query->bind ($table, $table);
+
 		$values = $query->part (Query::VALUES);
 		$sets = array();
-		
+
 		foreach ($values as $field => $value)
 		{
 			if (
@@ -522,10 +549,15 @@ class Query_Translator_Mysql extends Query_Translator
 				$sets [] = self::_escape ($field) . '=' . $this->_quote ($value);
 			}
 		}
-		
+
 		return $sql . implode (', ', $sets) . ' ' . $this->_renderWhere ($query);
 	}
-	
+
+	/**
+	 *
+	 * @param Query $query
+	 * @return string
+	 */
 	public function _renderUseIndex (Query $query)
 	{
 		$indexes = $query->part (Query::INDEX);
@@ -533,23 +565,27 @@ class Query_Translator_Mysql extends Query_Translator
 		{
 			return '';
 		}
-		
+
 		return 'USE INDEX(' . implode (',', $indexes) . ')';
 	}
-	
+
+	/**
+	 *
+	 * @param Query $query
+	 * @return string
+	 */
 	public function _renderWhere (Query $query)
 	{
 		$wheres = $query->part (Query::WHERE);
-		
+
 		if (!$wheres)
 		{
 			return '';
 		}
-		
+
 		$sql = 'WHERE ';
-		
-		//print_r ($wheres);
-		
+
+
 		foreach ($wheres as $i => $where)
 		{
 			if (isset ($where ['empty']))
@@ -557,28 +593,28 @@ class Query_Translator_Mysql extends Query_Translator
 				$sql = '';
 			}
 		}
-		
+
 		foreach ($wheres as $i => $where)
 		{
 			if ($i > 0)
 			{
 				$sql .= ' ' . $where [0] . ' ';
-				
+
 			}
-			
+
 			if (array_key_exists (Query::VALUE, $where))
 			{
 				if ($where [Query::VALUE] instanceof Query)
 				{
-	
+
 					$where [Query::VALUE] = '(' . $this->_renderSelect (
-						$where [Query::VALUE] 
+						$where [Query::VALUE]
 					) . ')';
 				}
-				
+
 				$sql .= $this->_quoteCondition (
 					$where [Query::WHERE],
-					$where [Query::VALUE] 
+					$where [Query::VALUE]
 				);
 			}
 			else
@@ -586,27 +622,24 @@ class Query_Translator_Mysql extends Query_Translator
 				if ($where [Query::WHERE] instanceof Query)
 				{
 					$w = $where [Query::WHERE]->getPart (Query::WHERE);
-				
 					$w [0]['empty'] = true;
-					
 					$where [Query::WHERE]->setPart (Query::WHERE, $w);
-
 					$sql .= '(' . $this->_renderSelect ($where [Query::WHERE]) . ')';
 				}
 				else
 				{
 					 $sql .= $this->_quoteCondition (
-						$where [Query::WHERE] 
+						$where [Query::WHERE]
 					);
 				}
 			}
 		}
-		
+
 		return $sql;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $condition
 	 * @param mixed $value [optional]
 	 * @return string
@@ -617,9 +650,9 @@ class Query_Translator_Mysql extends Query_Translator
 		{
 			return $condition;
 		}
-		
+
 		$value = func_get_arg (1);
-		
+
 		if (strpos ($condition, self::WHERE_VALUE_CHAR) === false)
 		{
 			if (is_array ($value))
@@ -633,12 +666,12 @@ class Query_Translator_Mysql extends Query_Translator
 //					strpos ($value, ')') === false
 //				)
 //				{
-//					$value = $this->_quote ($value); 
+//					$value = $this->_quote ($value);
 //				}
-				
+
 				$value = '=' . $this->_quote ($value);
 			}
-			
+
 			if (
 				strpos ($condition, '(') === false &&
 				strpos ($condition, ' ') === false &&
@@ -648,25 +681,67 @@ class Query_Translator_Mysql extends Query_Translator
 			{
 				return $this->_escape ($condition) . $value;
 			}
-			
+
 			return $condition . $value;
 		}
 		else
 		{
-			return str_replace (
-				self::WHERE_VALUE_CHAR, 
-				is_array ($value) 
-					? $this->_renderInArray ($value) 
-					: $this->_quote ($value),
+			$char_pos = 0;
+			$i = 0;
+
+			if (is_array ($value))
+			{
+				foreach ($value as $key => $val)
+				{
+					if (!is_numeric ($key))
+					{
+						$condition = str_replace (
+							':' . $key,
+							is_array ($val)
+								? $this->_renderInArray ($val)
+								: $this->_quote ($val),
+							$condition
+						);
+					}
+				}
+			}
+
+			$value = (array) $value;
+
+			while ($char_pos !== false)
+			{
+				$char_pos = strpos ($condition, self::WHERE_VALUE_CHAR, $char_pos);
+				if ($char_pos === false)
+				{
+					break;
+				}
+				$val = $value [$i];
+				$val = is_array ($val)
+					? $this->_renderInArray ($val)
+					: $this->_quote ($val);
+				$left = substr ($condition, 0, $char_pos);
+				$right = substr ($condition, $char_pos + 1);
+				$condition = $left . $val . $right;
+				$char_pos += strlen ($val);
+				$i++;
+			}
+
+			return $condition;
+
+//			return str_replace (
+//				self::WHERE_VALUE_CHAR,
+//				is_array ($value)
+//					? $this->_renderInArray ($value)
+//					: $this->_quote ($value),
 //					: (
 //						strpos ($value, '(') !== false ||
-//						strpos ($value, ')') !== false 
+//						strpos ($value, ')') !== false
 //							? $value
 //							: $this->_quote ($value)
 //					),
-				$condition
-			);
+//				$condition
+//			);
 		}
 	}
-	
+
 }
