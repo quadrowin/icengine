@@ -39,7 +39,7 @@ class Data_Mapper
 		$matches = array ();
 		$binds = $query->getBinds ();
 		preg_match_all (
-			$translated_query, '#{([^}]+)}#', $binds
+			'#{([^}]+)}#', $translated_query, $matches
 		);
 
 		$not_array = false;
@@ -127,17 +127,18 @@ class Data_Mapper
 		$this->_adapter->setTranslatedQuery ($translated_query);
 
 		$query_type = $query->type ();
-		$default_methods = $this->_adapter->  getDefaultQueryMethod ();
+
+		$default_methods = $this->_adapter->getDefaultQueryMethod ();
 		$adapter_methods = $this->_adapter->getQueryMethods ();
 		$method = isset ($adapter_methods [$query_type])
 			? $adapter_methods [$query_type]
 			: $default_methods [$query_type];
 
-		$result = $this->_adapter->{$method} ($query, $options);
+		$result = $this->_adapter->{$method} ($clone, $options);
 
 		$errno = $this->_adapter->getErrorCode ();
 		$error = $this->_adapter->getErrorMessage ();
-		$affectedRows = $this->_adapter->getAfftectedRowsCount ();
+		$affectedRows = $this->_adapter->getAffectedRowsCount ();
 		$foundRows = $this->_adapter->getFoundRowsCount ();
 
 		if ($errno)
@@ -146,12 +147,13 @@ class Data_Mapper
 			if (class_exists ('Debug'))
 			{
 				Debug::errorHandler (
-					E_USER_ERROR, $translated_query . '; ' . $error,
+					E_USER_ERROR, json_encode ($translated_query) .
+					'; ' . $error,
 					__FILE__, __LINE__
 				);
 			}
 			throw new Data_Mapper_Exception (
-				$error . "\n" . $translated_query, $errno
+				$error . "\n" . json_encode ($translated_query), $errno
 			);
 		}
 
@@ -191,9 +193,9 @@ class Data_Mapper
 	 * @desc Получить текущий адаптер
 	 * @return Data_Adapter_Abstract
 	 */
-	public static function getAdapter ()
+	public function getAdapter ()
 	{
-		return self::$_adapter;
+		return $this->_adapter;
 	}
 
 	/**
@@ -209,8 +211,8 @@ class Data_Mapper
 	 * @desc Установить адаптер
 	 * @param Data_Adapter_Abstract $adapter
 	 */
-	public static function setAdapter (Data_Adapter_Abstract $adapter)
+	public function setAdapter (Data_Adapter_Abstract $adapter)
 	{
-		self::$_adapter = $adapter;
+		$this->_adapter = $adapter;
 	}
 }
