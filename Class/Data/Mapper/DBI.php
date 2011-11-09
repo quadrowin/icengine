@@ -19,7 +19,7 @@ class Data_Mapper_DBI extends Data_Mapper_Abstract
 		return $options->getNotEmpty () && empty ($result) ? false : true;
 	}
 	
-	public function execute (Data_Source_Abstract $source, Query $query, $options = null)
+	public function execute (Data_Source $source, Query $query, $options = null)
 	{
 		if (!($query instanceof Query))
 		{

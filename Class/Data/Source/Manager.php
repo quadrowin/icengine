@@ -12,7 +12,7 @@ class Data_Source_Manager
 	
 	/**
 	 * @desc Загруженные источники.
-	 * @var array <Data_Source_Abstract>
+	 * @var array <Data_Source>
 	 */
 	protected static $_sources = array ();
 	
@@ -39,7 +39,6 @@ class Data_Source_Manager
 		 */ 
 		'sources'	=> array (
 			'default'	=> array (
-				'source'	=> 'Abstract',
 				'mapper'	=> 'Null',
 				'mapper_options'	=> array (
 					
@@ -64,7 +63,7 @@ class Data_Source_Manager
 	/**
 	 * @desc Получение данных провайдера.
 	 * @param string $name
-	 * @return Data_Source_Abstract
+	 * @return Data_Source
 	 */
 	public static function get ($name)
 	{	
@@ -98,47 +97,18 @@ class Data_Source_Manager
 				return self::$_sources [$name] = self::get ($source_config);
 			}
 			
-			if (!$source_config)
+			Loader::load ('Data_Source');
+			self::$_sources [$name] = new Data_Source ();
+			
+			// Мэппер источника отличается от указанного в конфигах
+			$mapper_class = 'Data_Mapper_' . $source_config ['mapper'];
+			Loader::load ($mapper_class);
+			$mapper = new $mapper_class;
+			self::$_sources [$name]->setDataMapper ($mapper);
+			
+			if ($source_config ['mapper_options'])
 			{
-				$source_config = array (
-					'source'	=> $name
-				);
-			}
-			
-			$conf = $source_config;
-			
-			$source_class = 'Data_Source_' . $conf ['source'];
-			
-			Loader::load ($source_class);
-			
-			$mapper_class = 
-				isset ($conf ['mapper']) ?
-				('Data_Mapper_' . $conf ['mapper']) :
-				'';
-			
-			if ($mapper_class)
-			{
-				Loader::load ($mapper_class);
-			}
-			
-			self::$_sources [$name] = new $source_class ();
-			/**
-			 * @desc Меппер.
-			 * @var Data_Mapper_Abstract $mapper
-			 */
-			$mapper = self::$_sources [$name]->getDataMapper ();
-			
-			if ($mapper_class && !($mapper instanceof $mapper_class))
-			{
-				// Мэппер источника отличается от указанного в конфигах
-				$mapper = new $mapper_class;
-				
-				self::$_sources [$name]->setDataMapper ($mapper);
-			}
-			
-			if (isset ($conf ['mapper_options']))
-			{
-				foreach ($conf ['mapper_options'] as $key => $value)
+				foreach ($source_config ['mapper_options'] as $key => $value)
 				{
 					$mapper->setOption ($key, $value);
 				}

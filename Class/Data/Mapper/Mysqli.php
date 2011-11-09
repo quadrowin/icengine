@@ -193,7 +193,7 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 	 * (non-PHPdoc)
 	 * @see Data_Mapper_Abstract::execute()
 	 */
-	public function execute (Data_Source_Abstract $source, Query $query, $options = null)
+	public function execute (Data_Source $source, Query $query, $options = null)
 	{
 		if (!($query instanceof Query))
 		{

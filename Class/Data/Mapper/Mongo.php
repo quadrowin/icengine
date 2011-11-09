@@ -259,7 +259,7 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 		return $this->_connection;
 	}
 
-	public function execute (Data_Source_Abstract $source, Query $query,
+	public function execute (Data_Source $source, Query $query,
 		$options = null)
 	{
 		if (!($query instanceof Query))
