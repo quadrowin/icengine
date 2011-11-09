@@ -162,7 +162,7 @@ class Query_Translator_Mysql extends Query_Translator
 				$table =
 					strpos ($from [Query::TABLE], self::SQL_ESCAPE) !== false ? 
 					$from [Query::TABLE] :
-					strtolower (Model_Scheme::table ($from [Query::TABLE]));
+					Model_Scheme::table ($from [Query::TABLE]);
 
 				$table = $this->_escape ($table);
 			}
@@ -239,16 +239,31 @@ class Query_Translator_Mysql extends Query_Translator
 			implode (self::SQL_COMMA, $columns);
 	}
 	
+	/**
+	 * @desc Рендер массива для конструкции IN
+	 * @param array $value
+	 * @return string
+	 */
 	public function _renderInArray (array $value)
 	{
 		if (empty ($value))
 		{
 			return 'NULL';
 		}
-
-		$result = implode (',', array_map (array ($this, '_quote'), $value));
 		
-		return $result;
+		if (isset ($value [0]) && is_array ($value [0]))
+		{
+			// Матрица для запросов вида WHERE (1,2) IN ((1,1), (2,2))
+			foreach ($value as &$v)
+			{
+				$v = '(' . 
+					implode (',', array_map (array ($this, '_quote'), $v)) .
+					')';
+			}
+			return implode (',', $value);
+		}
+		
+		return implode (',', array_map (array ($this, '_quote'), $value));
 	}
 	
 	/**
