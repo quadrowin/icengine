@@ -172,7 +172,8 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 		$this->_linkIdentifier = mysql_connect (
 			$this->_connectionOptions ['host'],
 			$this->_connectionOptions ['username'],
-			$this->_connectionOptions ['password']
+			$this->_connectionOptions ['password'],
+			true
 		);
 		
 		mysql_select_db (
@@ -230,15 +231,8 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 		if ($this->_errno)
 		{
 			Loader::load ('Data_Mapper_Mysqli_Exception');
-			if (class_exists ('Debug'))
-			{
-				Debug::errorHandler (
-					E_USER_ERROR, $this->_sql . '; ' . $this->_error,
-					__FILE__, __LINE__
-				);
-			}
 			throw new Data_Mapper_Mysqli_Exception (
-				$this->_error . "\n" . $this->_sql,
+				$this->_error . "\n$m\n" . $this->_sql,
 				$this->_errno
 			);
 		}
