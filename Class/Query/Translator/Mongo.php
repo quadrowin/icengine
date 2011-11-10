@@ -125,7 +125,9 @@ class Query_Translator_Mongo extends Query_Translator
 		//foreach ($from as $alias => $from)
 
 		reset ($from);
-		return '{' . key ($from) . '}';
+		$table = key ($from);
+		$this->_tables [] = $table;
+		return '{' . $table . '}';
 	}
 
 	/**
@@ -215,6 +217,7 @@ class Query_Translator_Mongo extends Query_Translator
 		self::$_map = $map;
 
 		$table = $query->part (Query::INSERT);
+		$this->_tables [] = $table;
 		return array (
 			'collection'	=> '{' . $table .'}',
 			'a'				=> $query->part (Query::VALUES)
@@ -259,6 +262,7 @@ class Query_Translator_Mongo extends Query_Translator
 		self::$_map = $map;
 
 		$table = $query->part (Query::REPLACE);
+		$this->_tables [] = $table;
 		return array (
 			'method'		=> 'save',
 			'collection'	=> '{' . $table . '}',
@@ -400,6 +404,7 @@ class Query_Translator_Mongo extends Query_Translator
 
 		reset ($from);
 		$table = key ($from);
+		$this->_tables [] = $table;
 		return array (
 			'show'			=> $query->part (Query::SHOW),
 			'collection'	=> '{' . $table . '}',
@@ -418,6 +423,7 @@ class Query_Translator_Mongo extends Query_Translator
 		self::$_map = $map;
 
 		$table = $query->part (Query::UPDATE);
+		$this->_tables [] = $table;
 		return array (
 			'collection'	=> '{' . $table . '}',
 			'criteria'		=> $this->_getCriteria ($query),

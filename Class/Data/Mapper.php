@@ -15,75 +15,11 @@ class Data_Mapper
 	protected $_adapter;
 
 	/**
-	 * @desc Текущий оттранслированный запрос
-	 * @var string
-	 */
-	protected $_query;
-
-	/**
 	 * (non-PHPDoc)
 	 */
 	public function __construct ()
 	{
 		$this->initFilters ();
-	}
-
-	/**
-	 * @desc Подготовить строку к запросу
-	 * @param string $translated_query
-	 * @param Query $query
-	 * @return string
-	 */
-	private function _prepareQuery ($translated_query, $query)
-	{
-		$matches = array ();
-		$binds = $query->getBinds ();
-		preg_match_all (
-			'#{([^}]+)}#', $translated_query, $matches
-		);
-
-		$not_array = false;
-
-		if (!empty ($matches [1][0]))
-		{
-			foreach ($matches [1] as $i => $bind)
-			{
-				if (!isset ($binds [$bind]))
-				{
-					$table = Model_Scheme::table ($bind);
-					if ($table)
-					{
-						$binds [$bind] = $table;
-					}
-					else
-					{
-						continue;
-					}
-				}
-
-				if (!is_array ($translated_query))
-				{
-					$not_array = true;
-					$translated_query = array ($translated_query);
-				}
-
-				foreach ($translated_query as &$string)
-				{
-					$string = str_replace (
-						'{' . $bind . '}',
-						$binds [$bind],
-						$string
-					);
-				}
-			}
-		}
-
-		if ($not_array)
-		{
-			$translated_query = reset ($translated_query);
-		}
-
-		return $translated_query;
 	}
 
 	/**
@@ -109,13 +45,19 @@ class Data_Mapper
 		$this->_filters->apply ($where, Query::VALUE);
 		$clone->setPart (Query::WHERE, $where);
 
-		$translated_query = $clone->translate (
+		$translator_result = Query_Translator::factory (
 			$this->_adapter->getTranslatorName ()
-		);
+		)
+			->translate ($clone);
 
-		$translated_query = $this->_prepareQuery (
-			$translated_query, $clone
-		);
+		$tables = $translator_result->getTranslator ()->getTables ();
+		$vars = array ();
+		foreach ($tables as $table)
+		{
+			$vars [$table] = Model_Scheme::table ($table);
+		}
+
+		$translator_result->applyVars ($vars);
 
 		$result = null;
 
@@ -124,6 +66,7 @@ class Data_Mapper
 			$options = $this->_adapter->getDefaultOptions ();
 		}
 
+		$translated_query = $translator_result->getTranslatedQuery ();
 		$this->_adapter->setTranslatedQuery ($translated_query);
 
 		$query_type = $query->type ();

@@ -58,12 +58,6 @@ class Query {
 	);
 
 	/**
-	 * @desc Бинды запросов
-	 * @var array
-	 */
-	protected $_binds = array ();
-
-	/**
 	 * @desc Части запроса
 	 * @var array
 	 */
@@ -125,25 +119,6 @@ class Query {
 	}
 
 	/**
-	 * @desc Забиндить значение
-	 * @param string|array $key
-	 * @return Query
-	 */
-	public function bind ($key)
-	{
-		$value = func_get_arg (1);
-		if ($value)
-		{
-			$key = array ($key => $value);
-		}
-		if (is_array ($key))
-		{
-			$this->_binds = array_merge ($this->_binds, $key);
-		}
-		return $this;
-	}
-
-	/**
 	 * @desc В запрос будет добавлен аргумент для получения полного
 	 * количества строк (SQL_CALC_FOUND_ROWS).
 	 * Работает только для Mysql.
@@ -190,15 +165,6 @@ class Query {
 			self::FROM
 		);
 		return $this;
-	}
-
-	/**
-	 * @desc Получить все бинды
-	 * @return array
-	 */
-	public function getBinds ()
-	{
-		return $this->_binds;
 	}
 
 	/**

@@ -115,9 +115,10 @@ class Query_Translator_Mysql extends Query_Translator
 		//$parts = implode(', ', $parts[Query::DELETE]);
 		foreach($parts[Query::DELETE] as $key => $part)
 		{
-			$parts[Query::DELETE][$key] = strpos ($part, self::SQL_ESCAPE) !== false ?
-				$part :
-				'{' . $part . '}';
+			$this->_tables [] = $part;
+			$parts[Query::DELETE][$key] = strpos ($part, self::SQL_ESCAPE) !== false
+				? $part
+				: '{' . $part . '}';
 			$parts[Query::DELETE][$key] = $this->_escape ($parts[Query::DELETE][$key]);
 		}
 		$tables = count($parts[Query::DELETE]) > 0 ? ' '.implode(', ', $parts[Query::DELETE]).' ' : ' ';
@@ -175,6 +176,7 @@ class Query_Translator_Mysql extends Query_Translator
 					$from [Query::TABLE] :
 					'{' . $from [Query::TABLE] . '}';
 
+				$this->_tables [] = $from [Query::TABLE];
 				$table = $this->_escape ($table);
 			}
 
@@ -281,6 +283,7 @@ class Query_Translator_Mysql extends Query_Translator
 	public function _renderInsert (Query $query)
 	{
 		$table = $query->part (Query::INSERT);
+		$this->_tables [] = $table;
 		$sql = 'INSERT {' . $table . '} (';
 
 		$fields = array_keys ($query->part (Query::VALUES));
@@ -363,6 +366,7 @@ class Query_Translator_Mysql extends Query_Translator
 	public function _renderReplace (Query $query)
 	{
 		$table = $query->part (Query::REPLACE);
+		$this->_tables [] = $table;
 		$sql = 'REPLACE {' . $table . '} (';
 
 		$fields = array_keys ($query->part (Query::VALUES));
@@ -517,6 +521,7 @@ class Query_Translator_Mysql extends Query_Translator
 	public function _renderUpdate (Query $query)
 	{
 		$table = $query->part (Query::UPDATE);
+		$this->_tables [] = $table;
 		$sql ='UPDATE {' . $table . '} SET ';
 
 		$values = $query->part (Query::VALUES);
