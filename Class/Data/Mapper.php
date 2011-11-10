@@ -29,8 +29,7 @@ class Data_Mapper
 	 * @param array $options
 	 * @return Query_Result
 	 */
-	public function execute (Data_Source_Abstract $source, Query $query,
-		$options = null)
+	public function execute (Data_Source $source, Query $query, $options = null)
 	{
 		if (!$this->_adapter->isConnected ())
 		{
