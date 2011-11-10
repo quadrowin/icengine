@@ -419,70 +419,11 @@ class Controller_Admin_Database extends Controller_Abstract
 				{
 					$field_filters = $field_filters->__toArray ();
 				}
+				
+				$collection = $text_value->replace (
+					$row, $table, $fields, $field, $field_filters, $class_name
+				);
 
-				$query = Query::instance ()
-					->select ($text_value->tv_text_table . '.' .
-						$text_value->tv_text_link_field)
-
-					->select ($text_value->tv_text_table . '.' .
-						$text_value->tv_text_field);
-
-				$query
-					->from ('`' . $text_value->tv_text_table . '`' );
-
-				if ($text_value->tv_text_link_condition)
-				{
-					$query
-						->where ($text_value->tv_text_link_condition);
-				}
-
-				if (isset ($field_filters [$field->Field]))
-				{
-					foreach ($field_filters [$field->Field] as $field_filter)
-					{
-						$value = $field_filter ['value'];
-
-						if (strpos ($value, '::') !== false)
-						{
-							$value = call_user_func ($field_filter ['value']);
-						}
-
-						$query->where ($field_filter ['field'], $value);
-					}
-				}
-
-				$result = DDS::execute ($query)
-					->getResult ()
-						->asTable ();
-
-				$collection = Model_Collection_Manager::create (
-					$class_name
-				)
-					->reset ();
-
-
-				$model_class_name = Model_Scheme::tableToModel ($text_value->tv_text_table);
-				$file = str_replace ('_', '/', $model_class_name) . '.php';
-				if (Loader::findFile ($file))
-				{
-					Loader::load ($model_class_name);
-				}
-				else
-				{
-					$model_class_name = $class_name;
-				}
-				$kf = Model_Scheme::keyField ($model_class_name);
-
-				Loader::load ('Dummy');
-
-				foreach ($result as $item)
-				{
-					$collection->add (new Dummy (array (
-						$kf	=> $item [$text_value->tv_text_link_field],
-						'name'	=> $item [$text_value->tv_text_field]
-					)));
-				}
-				//print_r ($collection->items ());
 				$field->Values = $collection;
 			}
 
@@ -491,10 +432,11 @@ class Controller_Admin_Database extends Controller_Abstract
 			{
 				$field_filters = array ();
 
-				$tmp = $this->config ()->field_filters->$class_name;
-
-				if ($tmp)
+				$tmp = $this->config ()->field_filters;
+				if ($tmp->count())
 				{
+					$tmp = $tmp->$class_name;
+					
 					$field_filters = $tmp->__toArray ();
 				}
 
@@ -564,7 +506,8 @@ class Controller_Admin_Database extends Controller_Abstract
 				);
 
 				$link_table = Model_Scheme::table ($row->modelName ());
-				$table_info = Helper_Data_Source::table ('`' . $link_table . '`');
+
+				$table_info = Helper_Data_Source::table ($link_table);
 
 				$field = new Objective (array (
 					'Field'		=> $link_name,
