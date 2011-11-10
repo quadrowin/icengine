@@ -81,7 +81,8 @@ class Data_Adapter_Pdo extends Data_Adapter_Abstract
 	 */
 	public function _executeSelect (Query $query, Query_Options $options)
 	{
-		$statement = $this->_connection->prepare ($this->_query)->execute ();
+		$statement = $this->_connection->prepare ($this->_query);
+		$statement->execute ();
 		$rows = $statement->fetchAll ();
 
 		if (!$rows)
