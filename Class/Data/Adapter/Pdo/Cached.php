@@ -1,15 +1,14 @@
 <?php
 
-Loader::load ('Data_Adapter_Mysqli');
+Loader::load ('Data_Adapter_Pdo');
 
 /**
- *
- * @desc Адаптер для работы с mysql, с кэшированием запросов.
- * @author Юрий Шведов, Илья Колесников
+ * @desc Адаптер для соеденения с pdo с кэшированием
+ * @author Илья Колесников, Юрий Шведов
  * @package IcEngine
  *
  */
-class Data_Adapter_Mysqli_Cached extends Data_Adapter_Mysqli
+class Data_Adapter_Pdo_Cached extends Data_Adapter_Pdo
 {
 	/**
 	 * @desc Кэшер запросов.
@@ -28,21 +27,20 @@ class Data_Adapter_Mysqli_Cached extends Data_Adapter_Mysqli
 
 	/**
 	 * @see Data_Adapter_Abstract::_executeChange
-	 * @param Query $query
-	 * @param Query_Options $options
+	 * @param Query $query Запрос
+	 * @param Query_Options $options Параметры запроса.
 	 * @return boolean
 	 */
 	public function _executeChange (Query $query, Query_Options $options)
 	{
-		if (!mysql_query ($this->_query))
+		$this->_affectedRows = $this->_connection->exec ($query);
+		$error = $this->_connection->errorInfo ();
+		if ($error)
 		{
-			$this->_errno = mysql_errno ();
-			$this->_error = mysql_error ();
+			$this->_errno = $error [0];
+			$this->_error = $error [2];
 			return false;
 		}
-
-		$this->_affectedRows = mysql_affected_rows ();
-
 		if ($this->_affectedRows > 0)
 		{
 			$tags = $query->getTags ();
@@ -52,28 +50,26 @@ class Data_Adapter_Mysqli_Cached extends Data_Adapter_Mysqli
 				$this->_cacher->tagDelete ($tags [$i]);
 			}
 		}
-
 		return true;
 	}
 
 	/**
 	 * @see Data_Adapter_Abstract::_executeInsert
-	 * @param Query $query
-	 * @param Query_Options $options
+	 * @param Query $query Запрос.
+	 * @param Query_Options $options Параметры запроса.
 	 * @return boolean
 	 */
 	public function _executeInsert (Query $query, Query_Options $options)
 	{
-		if (!mysql_query ($this->_query))
+		$this->_affectedRows = $this->_connection->exec ($query);
+		$error = $this->_connection->errorInfo ();
+		if ($error)
 		{
-			$this->_errno = mysql_errno ();
-			$this->_error = mysql_error ();
+			$this->_errno = $error [0];
+			$this->_error = $error [2];
 			return false;
 		}
-
-		$this->_affectedRows = mysql_affected_rows ();
-		$this->_insertId = mysql_insert_id ();
-
+		$this->_insertId = $this->_connection->lastInsertId ();
 		if ($this->_affectedRows > 0)
 		{
 			$tags = $query->getTags ();
@@ -83,15 +79,14 @@ class Data_Adapter_Mysqli_Cached extends Data_Adapter_Mysqli
 				$this->_cacher->tagDelete ($tags [$i]);
 			}
 		}
-
 		return true;
 	}
 
 	/**
-	 * @see Data_Mapper_Abstract::_executeSelect
-	 * @param Query $query
-	 * @param Query_Options $options
-	 * @return null|array
+	 * @see Data_Adapter_Abstract::_executeSelect
+	 * @param Query $query Запрос.
+	 * @param Query_Options $options Параметры запроса.
+	 * @return array|null
 	 */
 	public function _executeSelect (Query $query, Query_Options $options)
 	{
@@ -135,35 +130,30 @@ class Data_Adapter_Mysqli_Cached extends Data_Adapter_Mysqli
 			);
 		}
 
-		$result = mysql_query ($this->_query);
+		$statement = $this->_connection->prepare ($this->_query);
+		$statement->execute ();
 
 		if (class_exists ('Tracer'))
 		{
 			Tracer::end ($this->_query);
 		}
 
-		if (!is_resource ($result))
-		{
-			$this->_errno = mysql_errno ();
-			$this->_error = mysql_error ();
-			return;
-		}
+		$rows = $statement->fetchAll ();
 
-		$rows = array ();
-		while (false != ($row = mysql_fetch_assoc ($result)))
+		if (!$rows)
 		{
-			$rows [] = $row;
+			$rows = array ();
 		}
-		mysql_free_result ($result);
 
 		$this->_numRows = count ($rows);
 
 		if ($query->part (Query::CALC_FOUND_ROWS))
 		{
-			$result = mysql_query (self::SELECT_FOUND_ROWS_QUERY);
-			$row = mysql_fetch_row ($result);
+			$statement = $this->_connection->prepare ($this->_query)->execute (
+				self::SELECT_FOUND_ROWS_QUERY
+			);
+			$row = $statement->fetch ();
 			$this->_foundRows = reset ($row);
-			mysql_free_result ($result);
 		}
 
 		$tags = $query->getTags ();
@@ -221,5 +211,4 @@ class Data_Adapter_Mysqli_Cached extends Data_Adapter_Mysqli
 		}
 		return parent::setOption ($key, $value);
 	}
-
 }
