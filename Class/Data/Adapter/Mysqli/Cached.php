@@ -203,7 +203,7 @@ class Data_Adapter_Mysqli_Cached extends Data_Adapter_Mysqli
 		$this->_cacher = $cacher;
 	}
 
-	/**
+	/** 
 	 * (non-PHPdoc)
 	 * @see Data_Mapper_Mysqli::setOption()
 	 */
