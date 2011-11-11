@@ -33,6 +33,27 @@ class Data_Provider_FileCache extends Data_Provider_Abstract
 	 * 
 	 * @param string $key
 	 * @param mixed $value
+	 * @return boolean
+	 */
+	public function _setOption ($key, $value)
+	{
+		switch ($key)
+		{
+			case 'path':
+				$this->path = $value;
+				return true;
+				
+			case 'temp_prefix':
+				$this->tempPrefix = $value;
+				return true;
+		}
+		return parent::_setOption ($key, $value);
+	}
+	
+	/**
+	 * 
+	 * @param string $key
+	 * @param mixed $value
 	 * @param integet $expiration=0
 	 * @param array $tags=array()
 	 * @return boolean
@@ -551,29 +572,6 @@ class Data_Provider_FileCache extends Data_Provider_Abstract
 		//copy ($tmp_file, $dst_file);
 		//unlink ($tmp_file);
 		//return rename($tmp_file, $dst_file);
-	}
-	
-	/**
-	 * 
-	 * @param string $key
-	 * @param mixed $value
-	 * @return boolean
-	 */
-	public function setOption ($key, $value)
-	{
-		switch ($key)
-		{
-			case 'path':
-				$this->path = $value;
-				break;
-			case 'temp_prefix':
-				$this->tempPrefix = $value;
-				break;
-			default:
-				trigger_error ('Unkown option: ' . $key, E_NOTICE);
-				return false;
-		}
-		return true;
 	}
 	
 }

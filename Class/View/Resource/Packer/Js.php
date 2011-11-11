@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Упаковщик Js ресурсов представления.
  * @author Юрий
  * @package IcEngine
@@ -15,12 +15,12 @@ class View_Resource_Packer_Js extends View_Resource_Packer_Abstract
 	 * @var string
 	 */
 	const PACKER = 'class.JavaScriptPacker.php';
-	
+
 	public function __construct ()
 	{
 		Loader::requireOnce (self::PACKER, 'includes');
 	}
-	
+
 	public function packOne (View_Resource $resource)
 	{
 		if (
@@ -40,24 +40,25 @@ class View_Resource_Packer_Js extends View_Resource_Packer_Abstract
 		{
 			$result = '';
 		}
-		
+
 		if ($this->_currentResource->nopack)
 		{
 			$result .= $resource->content ();
 		}
 		else
 		{
-			$result .= 
-				preg_replace (
-					'#\n\s*/\*.*\*/#Us', 
-					"\n",
-					$resource->content ()
-				);
-//			$packer = new JavaScriptPacker ($resource->content (), 0);
-//			$result .= $packer->pack ();
+//			$result .=
+//				preg_replace (
+//					'#\n\s*/\*.*\*/#Us',
+//					"\n",
+//					$resource->content ()
+//				);
+			$packer = new JavaScriptPacker ($resource->content (), 0);
+			$result .= $packer->pack ();
+
 		}
-		
+
 		return $result . $this->config ()->item_postfix;
 	}
-	
+
 }

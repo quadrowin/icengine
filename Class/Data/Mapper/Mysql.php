@@ -109,7 +109,7 @@ class Data_Mapper_Mysql extends Data_Mapper_Abstract
 		}
 	}
 	
-	public function execute (Data_Source_Abstract $source, Query $query, $options = null)
+	public function execute (Data_Source $source, Query $query, $options = null)
 	{
 		if (!($query instanceof Query))
 		{

@@ -1,10 +1,15 @@
 <?php
-
+/**
+ * 
+ * @desc Абстрактный мэппер
+ * @package IcEngine
+ * 
+ */
 abstract class Data_Mapper_Abstract
 {
 	
 	/**
-	 * Префикс источников индексов
+	 * @desc Префикс источников индексов
 	 * @var string
 	 */
 	const INDEX_PREFIX = 'index_'; 
@@ -178,12 +183,12 @@ abstract class Data_Mapper_Abstract
 	
 	/**
 	 * 
-	 * @param Data_Source_Abstract $source
+	 * @param Data_Source $source
 	 * @param Query $query
 	 * @param Query_Options $options
 	 * @return Query_Result
 	 */
-	public function execute (Data_Source_Abstract $source, Query $query, $options = null)
+	public function execute (Data_Source $source, Query $query, $options = null)
 	{
 		if (!($query instanceof Query))
 		{

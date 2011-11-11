@@ -194,7 +194,7 @@ abstract class Model_Scheme
 
 	/**
 	 * @desc Генерирует новый ID для модели, если для этого в схеме заданы
-	 * правила.
+	 * правила.	
 	 * @param Model $model
 	 * @return string|null.
 	 * 		Сгенерированный ключ или null, если правила не заданы.
@@ -419,6 +419,20 @@ abstract class Model_Scheme
 		return self::$models [$model]['key'];
 	}
 
+	/**
+	 * @desc Получить все ссылки модели
+	 * @param string $model1 
+	 * @return array
+	 */
+	public static function links ($model1)
+	{
+		$model1 = strtolower ($model1);
+		
+		return !empty (self::$models [$model1]['links'])
+			? self::$models [$model1]['links']
+			: null;
+	}
+	
 	/**
 	 * @desc Возвращает схему связи.
 	 * @param string $model1

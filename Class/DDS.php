@@ -6,7 +6,7 @@
  * Easy way to call querys to DB like
  * DDS::execute ($query)
  * 
- * @author yury.s
+ * @author Yury Shvedov
  * @package IcEngine
  * 
  */
@@ -15,7 +15,7 @@ class DDS
 
 	/**
 	 * @desc По умолчанию
-	 * @var Data_Source_Abstract
+	 * @var Data_Source
 	 */
 	protected static $_source;
 	
@@ -33,7 +33,7 @@ class DDS
 	 * @desc Выполняет запрос и возвращает текущний источник
 	 * @param Query $query Запрос
 	 * @param Query_Options $options Опции
-	 * @return Data_Source_Abstract источник данных
+	 * @return Data_Source источник данных
 	 */
 	public static function execute (Query $query, $options = null)
 	{
@@ -45,7 +45,7 @@ class DDS
 	 * Источник данных будет определен автоматически.
 	 * @param Query $query Запрос
 	 * @param Query_Options $options Опции
-	 * @return Data_Source_Abstract источник данных
+	 * @return Data_Source источник данных
 	 */
 	public static function executeAuto (Query $query, $options = null)
 	{
@@ -57,7 +57,7 @@ class DDS
 	
 	/**
 	 * @desc Возвращает текущий источник по умолчанию
-	 * @return Data_Source_Abstract
+	 * @return Data_Source
 	 */
 	public static function getDataSource ()
 	{
@@ -79,9 +79,9 @@ class DDS
 
 	/**
 	 * 
-	 * @param Data_Source_Abstract $source
+	 * @param Data_Source $source
 	 */
-	public static function setDataSource (Data_Source_Abstract $source)
+	public static function setDataSource (Data_Source $source)
 	{
 		self::$_source = $source;
 	}

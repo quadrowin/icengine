@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Шаблоны сообщений.
  * @author Юрий Шведов
  * @package IcEngine
@@ -8,7 +8,7 @@
  */
 class Mail_Template extends Model_Child
 {
-	
+
 	/**
 	 * @desc Данные для пустого шаблона
 	 * @var array
@@ -20,7 +20,7 @@ class Mail_Template extends Model_Child
 		'subject'	=> 'subj',
 		'body'	    => 'body'
 	);
-	
+
 	/**
 	 * Возращается шаблон по имени, либо шаблон по умолчанию
 	 * @param string $name
@@ -34,15 +34,15 @@ class Mail_Template extends Model_Child
 		    Query::instance ()
 		   		->where ('name', $name)
 		);
-		
+
 		if (!$template && $blank)
 		{
 			$template = new Mail_Template (self::$blankTemplate);
 		}
-		
+
 		return $template;
 	}
-	
+
 	/**
 	 * @desc Получение тела по шаблону.
 	 * @param array $data Переменные шаблона.
@@ -54,71 +54,28 @@ class Mail_Template extends Model_Child
 		$smarty->assign ($data);
 
 		$tpl_name = 'Mail/Template/' . $this->name . '.tpl';
-		if($smarty->template_exists($tpl_name))
+		if($smarty->templateExists($tpl_name))
 		{
 			$body = $smarty->fetch ($tpl_name);
 		}
 		else
 		{
-			$smarty->register_resource (
-				$this->resourceKey () . 'b',
-				array (
-					$this,
-					"smarty_get_body",
-					"smarty_get_body_timestamp",
-					"smarty_get_secure",
-					"smarty_get_trusted"
-				)
-			);
-
-			$body = $smarty->fetch ($this->resourceKey () . 'b:body');
+			$body = $smarty->fetch ('string:' . $this->body);
 		}
-		
+
 		View_Render_Manager::popView ();
-		
+
 		$parent = $this->getParent ();
-		
+
 		if ($parent)
 		{
 		    $data ['body'] = $body;
 		    $body = $parent->body ($data);
 		}
-		
+
 		return $body;
 	}
-	
-	public function smarty_get_body ($tpl_name, &$tpl_source)
-	{
-		$tpl_source = $this->body;
-		return true;
-	}
-	
-	public function smarty_get_body_timestamp ()
-	{
-		return time ();
-	}
-	
-	public function smarty_get_subject ($tpl_name, &$tpl_source)
-	{
-		$tpl_source = $this->subject;
-		return true;
-	}
-	
-	public function smarty_get_subject_timestamp ()
-	{
-		return time ();
-	}
-	
-	public function smarty_get_secure ()
-	{
-		return true;
-	}
-	
-	public function smarty_get_trusted ()
-	{
-		
-	}
-	
+
 	/**
 	 * @desc Получение заголовка по шаблону.
 	 * @param array $data
@@ -131,25 +88,14 @@ class Mail_Template extends Model_Child
 			// пустая тема
 			return '';
 		}
-		
+
 		$smarty = View_Render_Manager::pushViewByName ('Smarty')->smarty ();
-		
+
 		$smarty->assign ($data);
-		
-		$smarty->register_resource (
-			$this->resourceKey () . 's',
-			array (
-				$this,
-				"smarty_get_subject",
-				"smarty_get_subject_timestamp",
-				"smarty_get_secure",
-				"smarty_get_trusted"
-			)
-		);
-		
-		$result = $smarty->fetch ($this->resourceKey () . 's:subject');
+
+		$result = $smarty->fetch ('string:' . $this->subject);
 		View_Render_Manager::popView ();
 		return $result;
 	}
-	
+
 }

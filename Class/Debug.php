@@ -260,6 +260,58 @@ class Debug
 	}
 	
 	/**
+	 * @desc Внутренний обработчик ошибок.
+	 * @param Exception $e Объект ошики.
+	 */
+	public static function exceptionHandler (Exception $e)
+	{
+		if (self::$config ['print_backtrace'])
+		{
+			echo '<pre>' . $e->getTraceAsString () . '</pre>';
+		}
+		
+		$debug = array_slice ($e->getTrace (), 1, 10);
+		self::removeUninterestingObjects ($debug);
+		
+		$log_text =
+			(
+				isset ($_SERVER ['HTTP_HOST']) ? 
+				$_SERVER ['HTTP_HOST'] :
+				'empty host'
+			) .
+			(
+				isset ($_SERVER ['REQUEST_URI']) ? 
+				$_SERVER ['REQUEST_URI'] :
+				'/empty uri'
+			) . 
+			(
+				isset ($_SERVER ['HTTP_REFERER']) ?
+				"\r\nreferer: " . $_SERVER ['HTTP_REFERER']  :
+				''
+			) .
+			"\r\n" .
+			'[' . E_ERROR . ':' . $e->getFile() . '@' . $e->getLine() . '] ' . 
+			$e->getMessage() . "\r\n";
+		
+		foreach ($debug as $debug_step)
+		{
+			if (isset ($debug_step ['file']))
+			{
+				$log_text .= 
+					'[' . $debug_step ['file'] . '@' . 
+					$debug_step ['line'] . ':' . 
+					$debug_step ['function'] . ']' . "\r\n";
+			}
+			else
+			{
+				break;
+			}
+		}
+		
+		self::log ($log_text, E_ERROR);
+	}
+	
+	/**
 	 * @desc Включение внутреннего обработчика ошибок.
 	 * @param mixed $config Настройки.
 	 */
@@ -284,6 +336,7 @@ class Debug
 		}
 		
 		set_error_handler (array (__CLASS__, 'errorHandler'));
+		set_exception_handler (array(__CLASS__, 'exceptionHandler'));
 		register_shutdown_function (array (__CLASS__, 'shutdownHandler'));
 	}
 	
@@ -324,34 +377,6 @@ class Debug
 		}
 		
 		echo '</pre>';
-	}
-	
-	public static function popErrorHandler ()
-	{
-		restore_error_handler ();
-	}
-	
-	public static function popExceptionHandler ()
-	{
-		restore_exception_handler ();
-	}
-	
-	/**
-	 * @desc Установка внутреннего обработчика ошибок.
-	 * @param string $type Тип обработчика.
-	 */
-	public static function pushErrorHandler ($type)
-	{
-		set_error_handler ('internal_error_handler_' . $type);
-	}
-	
-	/**
-	 * @desc Установка внутреннего обработчика исключений.
-	 * @param string $type Тип обработчика.
-	 */
-	public static function pushExceptionHandler ($type)
-	{
-		set_exception_handler ('internal_exception_handler_' . $type);
 	}
 	
 	/**
@@ -480,7 +505,8 @@ class Debug
 		$e = error_get_last ();
 		if ($e)
 		{
-			self::errorHandler ($e ['type'], $e ['message'], $e ['file'], $e ['line']);
+			self::errorHandler ($e ['type'], $e ['message'], $e ['file'], 
+				$e ['line']);
 		}
 	}
 	

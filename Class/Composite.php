@@ -26,6 +26,7 @@ class Composite
 	}
 	
 	/**
+	 * (non-PHPDoc)
 	 * @param array<mixed> $items 
 	 */
 	public function __construct ($items)
