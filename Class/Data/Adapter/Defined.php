@@ -79,8 +79,7 @@ class Data_Adapter_Defined extends Data_Adapter_Abstract
 	/**
 	 * @see Data_Adapter_Abstract::_executeSelect
 	 */
-	public function _executeSelect (Data_Source_Abstract $source,
-		Query $query)
+	public function _executeSelect (Query $query, Query_Option $option)
 	{
 		$select = $query->getPart (Query::SELECT);
 

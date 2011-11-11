@@ -591,7 +591,10 @@ class Query {
 	 */
 	public function translate ($translator = 'Mysql')
 	{
-		return Query_Translator::factory ($translator)->translate ($this);
+		return Query_Translator::factory ($translator)->translate (
+			$this,
+			Data_Mapper::getModels ()
+		);
 	}
 
 	/**

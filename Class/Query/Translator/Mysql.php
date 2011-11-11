@@ -115,11 +115,11 @@ class Query_Translator_Mysql extends Query_Translator
 		//$parts = implode(', ', $parts[Query::DELETE]);
 		foreach($parts[Query::DELETE] as $key => $part)
 		{
-			$this->_tables [] = $part;
-			$parts[Query::DELETE][$key] = strpos ($part, self::SQL_ESCAPE) !== false
+			$model_name = self::$_models->get ($part);
+			$parts [Query::DELETE][$key] = strpos ($part, self::SQL_ESCAPE) !== false
 				? $part
-				: '{' . $part . '}';
-			$parts[Query::DELETE][$key] = $this->_escape ($parts[Query::DELETE][$key]);
+				: $model_name ? $model_name : $part;
+			$parts [Query::DELETE][$key] = $this->_escape ($parts[Query::DELETE][$key]);
 		}
 		$tables = count($parts[Query::DELETE]) > 0 ? ' '.implode(', ', $parts[Query::DELETE]).' ' : ' ';
 
@@ -171,10 +171,16 @@ class Query_Translator_Mysql extends Query_Translator
 			}
 			else
 			{
+				$model_name = $use_alias
+					? self::$_models->get ($from [Query::TABLE])
+					: null;
+
 				$table =
 					strpos ($from [Query::TABLE], self::SQL_ESCAPE) !== false ?
 					$from [Query::TABLE] :
-					'{' . $from [Query::TABLE] . '}';
+						$model_name
+							? $model_name
+							: $from [Query::TABLE];
 
 				$this->_tables [] = $from [Query::TABLE];
 				$table = $this->_escape ($table);
@@ -282,9 +288,9 @@ class Query_Translator_Mysql extends Query_Translator
 	 */
 	public function _renderInsert (Query $query)
 	{
+		$model_name = self::$_models->get ($table);
 		$table = $query->part (Query::INSERT);
-		$this->_tables [] = $table;
-		$sql = 'INSERT {' . $table . '} (';
+		$sql = 'INSERT ' . $model_name ? $model_name : $table. ' (';
 
 		$fields = array_keys ($query->part (Query::VALUES));
 		$values = array_values ($query->part (Query::VALUES));
@@ -365,9 +371,9 @@ class Query_Translator_Mysql extends Query_Translator
 	 */
 	public function _renderReplace (Query $query)
 	{
+		$model_name = self::$_models->get ($table);
 		$table = $query->part (Query::REPLACE);
-		$this->_tables [] = $table;
-		$sql = 'REPLACE {' . $table . '} (';
+		$sql = 'REPLACE ' . $model_name ? $model_name : $table . ' (';
 
 		$fields = array_keys ($query->part (Query::VALUES));
 		$values = array_values ($query->part (Query::VALUES));
@@ -520,9 +526,9 @@ class Query_Translator_Mysql extends Query_Translator
 	 */
 	public function _renderUpdate (Query $query)
 	{
+		$model_name = self::$_models->get ($table);
 		$table = $query->part (Query::UPDATE);
-		$this->_tables [] = $table;
-		$sql ='UPDATE {' . $table . '} SET ';
+		$sql ='UPDATE ' . $model_name ? $model_name : $table . ' SET ';
 
 		$values = $query->part (Query::VALUES);
 		$sets = array();

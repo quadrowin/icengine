@@ -1,18 +1,18 @@
 <?php
 /**
- * 
+ *
  * @desc Базовый загрузчик для менеджера коллекций.
- * 
+ *
  */
 class Model_Collection_Manager_Delegee_Simple
 {
-	
+
 	public static function load (Model_Collection $collection, Query $query)
 	{
 		$model = $collection->modelName ();
-		
+
 		// Выполняем запрос, получаем элементы коллеции
-		$query_result = 
+		$query_result =
 			Model_Scheme::dataSource ($model)
 				->execute ($query)
 					->getResult ();
@@ -29,8 +29,9 @@ class Model_Collection_Manager_Delegee_Simple
 		Loader::load ('Helper_Data_Source');
 
 		$scheme = Model_Scheme::getScheme ($model);
-		
+
 		$fields = array_keys ($scheme ['fields']);
+		print_r ($fields);
 
 		$table = $query_result->asTable ();
 
@@ -44,8 +45,8 @@ class Model_Collection_Manager_Delegee_Simple
 				if (!in_array ($field, $fields))
 				{
 					$addicts [$i][$field] = $value;
-				}	
-				else 
+				}
+				else
 				{
 					if (!isset ($items [$i]))
 					{
@@ -56,11 +57,17 @@ class Model_Collection_Manager_Delegee_Simple
 			}
 		}
 
+		if ($table)
+		{
+			print_r ($items);
+			die;
+		}
+
 		$collection->data ('addicts', $addicts);
 
 		return array (
 			'items'	=> $items,
 		);
 	}
-	
+
 }

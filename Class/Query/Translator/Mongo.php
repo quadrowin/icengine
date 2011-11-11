@@ -126,8 +126,7 @@ class Query_Translator_Mongo extends Query_Translator
 
 		reset ($from);
 		$table = key ($from);
-		$this->_tables [] = $table;
-		return '{' . $table . '}';
+		return isset (self::$_models [$table]) ? self::$_models [$table] : $table;
 	}
 
 	/**
@@ -195,10 +194,8 @@ class Query_Translator_Mongo extends Query_Translator
 	 * @param array $map
 	 * @return array
 	 */
-	public function _renderDelete (Query $query, array $map)
+	public function _renderDelete (Query $query)
 	{
-		self::$_map = $map;
-
 		return array (
 			'collection'	=> self::_getFromCollection ($query),
 			'criteria'		=> self::_getCriteria ($query),
@@ -209,17 +206,15 @@ class Query_Translator_Mongo extends Query_Translator
 	/**
 	 * @desc Рендеринг INSERT запроса.
 	 * @param Query $query Запрос.
-	 * @param array $map
 	 * @return string Сформированный SQL запрос.
 	 */
-	public function _renderInsert (Query $query, array $map)
+	public function _renderInsert (Query $query)
 	{
-		self::$_map = $map;
-
 		$table = $query->part (Query::INSERT);
 		$this->_tables [] = $table;
 		return array (
-			'collection'	=> '{' . $table .'}',
+			'collection'	=> isset (self::$_models [$table])
+				? self::$_models [$table] : $table,
 			'a'				=> $query->part (Query::VALUES)
 		);
 	}
@@ -257,15 +252,13 @@ class Query_Translator_Mongo extends Query_Translator
 	 * @param array $map
 	 * @return string Сформированный SQL запрос
 	 */
-	public function _renderReplace (Query $query, array $map)
+	public function _renderReplace (Query $query)
 	{
-		self::$_map = $map;
-
 		$table = $query->part (Query::REPLACE);
-		$this->_tables [] = $table;
 		return array (
 			'method'		=> 'save',
-			'collection'	=> '{' . $table . '}',
+			'collection'	=> isset (self::$_models [$table])
+				? self::$_models [$table] : $table,
 			'arg0'			=> $values
 		);
 	}
@@ -273,10 +266,9 @@ class Query_Translator_Mongo extends Query_Translator
 	/**
 	 * @desc Рендеринг SELECT (find) запроса.
 	 * @param Query $query Запрос
-	 * @param array $map
 	 * @return string Сформированный Mongo запрос
 	 */
-	public function _renderSelect (Query $query, array $map)
+	public function _renderSelect (Query $query)
 	{
 		self::$_map = $map;
 
@@ -380,13 +372,10 @@ class Query_Translator_Mongo extends Query_Translator
 
 	/**
 	 * @desc Рендеринг SHOW запроса
-	 * @param array $map
 	 * @param Query $query
 	 */
-	public function _renderShow (Query $query, array $map)
+	public function _renderShow (Query $query)
 	{
-		self::$_map = $map;
-
 		$from = $query->part (Query::FROM);
 
 		if (!$from)
@@ -407,7 +396,8 @@ class Query_Translator_Mongo extends Query_Translator
 		$this->_tables [] = $table;
 		return array (
 			'show'			=> $query->part (Query::SHOW),
-			'collection'	=> '{' . $table . '}',
+			'collection'	=> isset ($this->_models [$table])
+				? $this->_models [$table] : $table,
 			'model'			=> $table
 		);
 	}
@@ -415,17 +405,15 @@ class Query_Translator_Mongo extends Query_Translator
 	/**
 	 * @desc Рендеринг UPDATE запроса.
 	 * @param Query $query Запрос.
-	 * @param array $map
 	 * @return array
 	 */
-	public function _renderUpdate (Query $query, array $map)
+	public function _renderUpdate (Query $query)
 	{
-		self::$_map = $map;
-
 		$table = $query->part (Query::UPDATE);
 		$this->_tables [] = $table;
 		return array (
-			'collection'	=> '{' . $table . '}',
+			'collection'	=> isset (self::$_models [$table])
+				? self::$_models [$table] : $table,
 			'criteria'		=> $this->_getCriteria ($query),
 			'newobj'		=> $query->part (Query::VALUES),
 			'options'		=> array (

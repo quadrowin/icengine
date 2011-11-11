@@ -9,26 +9,16 @@
 class Query_Translator
 {
 	/**
-	 * @desc Используемые таблицы
-	 * @var array
+	 * @desc Модели
+	 * @var Data_Mapper_Result
 	 */
-	protected $_tables = array ();
+	protected static $_models;
 
 	/**
 	 * @desc Подключенные трансляторы.
 	 * @var array
 	 */
 	protected static $_translators = array ();
-
-	/**
-	 * @desc Очистить таблицы
-	 * @return Query_Translator
-	 */
-	public function eraseTables ()
-	{
-		$this->_tables = array ();
-		return $this;
-	}
 
 	/**
 	 * @desc Возвращает объект транслятора по имени.
@@ -44,16 +34,7 @@ class Query_Translator
 			self::$_translators [$name] = new $class_name ();
 		}
 
-		return self::$_translators [$name]->eraseTables ();
-	}
-
-	/**
-	 * @desc Получить используемые таблицы
-	 * @return array
-	 */
-	public function getTables ()
-	{
-		return $this->_tables;
+		return self::$_translators [$name];
 	}
 
 	/**
@@ -61,12 +42,14 @@ class Query_Translator
 	 * @param Query $query Запрос.
 	 * @return mixed Результат трансляции.
 	 */
-	public function translate (Query $query)
+	public function translate (Query $query, Data_Mapper_Result $models)
 	{
 		$type = $query->type ();
 		$type =
 			strtoupper (substr ($type, 0, 1)) .
 			strtolower (substr ($type, 1));
+
+		self::$_models = $models;
 
 		$translated_query = call_user_func (
 			array ($this, '_render' . $type),

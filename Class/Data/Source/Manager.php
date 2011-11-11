@@ -40,9 +40,7 @@ class Data_Source_Manager
 		'sources'	=> array (
 			'default'	=> array (
 				'adapter'			=> 'Null',
-				'adapter_options'	=> array (
-
-				)
+				'adapter_options'	=> array ()
 			)
 		)
 	);
@@ -98,22 +96,19 @@ class Data_Source_Manager
 			}
 
 			Loader::load ('Data_Source');
-			Loader::load ('Data_Mapper');
 			self::$_sources [$name] = new Data_Source ();
-			$mapper = new Data_Mapper ();
 			// Адаптер источника отличается от указанного в конфигах
 			$adapter_class = 'Data_Adapter_' . $source_config ['adapter'];
 			Loader::load ($adapter_class);
-
 			$adapter = new $adapter_class;
-			$mapper->setAdapter ($adapter);
-			self::$_sources [$name]->setDataMapper ($mapper);
+			self::$_sources [$name]->setAdapter ($adapter);
 
 			if ($source_config ['adapter_options'])
 			{
 				foreach ($source_config ['adapter_options'] as $key => $value)
 				{
-					$mapper->getAdapter ()->setOption ($key, $value);
+					self::$_sources [$name]->getAdapter ()
+						->setOption ($key, $value);
 				}
 			}
 		}

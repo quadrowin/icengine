@@ -89,7 +89,8 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 		// Генерируем ключ коллекции
 		$key = md5 (
 			$model .
-			$query->translate ('Mysql')->getTranslatedQuery () .
+			serialize ($query->translate ('Mysql', Data_Mapper::getModels  ())
+				->getTranslatedQuery ()) .
 			serialize ($collection->getOptions ()->getItems ())
 		);
 
