@@ -104,7 +104,7 @@ class Data_Adapter_Abstract
 	 * @param Query_Options $options
 	 * @return mixed
 	 */
-	public function _executeChange ($query, $options)
+	public function _executeChange (Query $query, Query_Options $options)
 	{
 
 	}
@@ -115,7 +115,7 @@ class Data_Adapter_Abstract
 	 * @param array $options
 	 * @return mixed
 	 */
-	public function _executeInsert ($query, $options)
+	public function _executeInsert (Query $query, Query_Options $options)
 	{
 
 	}
@@ -126,7 +126,7 @@ class Data_Adapter_Abstract
 	 * @param array $options
 	 * @return mixed
 	 */
-	public function _executeSelect ($query, $options)
+	public function _executeSelect (Query $query, Query_Options $options)
 	{
 
 	}
