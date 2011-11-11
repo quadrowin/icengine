@@ -161,7 +161,7 @@ abstract class Bootstrap_Abstract
 			
 			'DDS',
 			'Data_Mapper_Abstract',
-			'Data_Source_Abstract',
+			'Data_Source',
 			'Data_Source_Manager'
 		);
 		

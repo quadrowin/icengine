@@ -78,7 +78,7 @@ abstract class Widget_Abstract
 				array ('_', '::'),
 				'/',
 				get_class ($this)
-			) . '/' . $method . '.tpl';
+			) . '/' . $method;
 		}
 		else
 		{
@@ -134,7 +134,7 @@ abstract class Widget_Abstract
 	
 	/**
 	 * Получение шаблона вида
-	 * "Название/Виджета/метод/$tpl.tpl"
+	 * "Название/Виджета/метод/$tpl"
 	 * @param string $method __METHOD__
 	 * @param string $tpl Шаблон
 	 * @return string
@@ -142,8 +142,7 @@ abstract class Widget_Abstract
 	public function tplFor ($method, $tpl)
 	{
 		return 
-			str_replace (array ('_', '::'), '/', $method) . 
-			'/' . $tpl . '.tpl';
+			str_replace (array ('_', '::'), '/', $method) . '/' . $tpl;
 	}
 
 	/**

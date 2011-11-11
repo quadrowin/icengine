@@ -28,6 +28,7 @@ class Controller_View_Resource extends Controller_Abstract
 		);
 		
 		$vars = array ();
+		
 		if ($params)
 		{
 			foreach ($params as $k => $v)
@@ -105,7 +106,7 @@ class Controller_View_Resource extends Controller_Abstract
 				'ts'	=> $packer->cacheTimestamp ()
 			);
 		}
-		
+
 		$this->_output->send ('reses', $reses);
 	}
 	

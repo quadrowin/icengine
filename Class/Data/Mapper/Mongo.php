@@ -30,7 +30,8 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 		'username'	=> '',
 		'password'	=> '',
 		'database'	=> 'unknown',
-		'charset'	=> 'utf8'
+		'charset'	=> 'utf8',
+		'options'	=> array ()
 	);
 	
 	/**
@@ -242,13 +243,23 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 				$this->_connectionOptions ['password'] . '@';
 		}
 		$url .= $this->_connectionOptions ['host'];
-		$this->_connection = new Mongo ($url, array ("connect" => true));
+		
+		$options = array (
+			'connect'	=> true
+		);
+		
+		if (isset ($this->_connectionOptions ['options']['replicaSet']))
+		{
+			$options ['replicaSet']	= $this->_connectionOptions ['options']['replicaSet'];
+		}
+		
+		$this->_connection = new Mongo ($url, $options);
 		$this->_connection->selectDB ($this->_connectionOptions ['database']);
 
 		return $this->_connection;
 	}
 
-	public function execute (Data_Source_Abstract $source, Query $query,
+	public function execute (Data_Source $source, Query $query,
 		$options = null)
 	{
 		if (!($query instanceof Query))

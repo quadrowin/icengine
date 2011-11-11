@@ -1,15 +1,17 @@
 <?php
+
+Loader::load ('Model_Child');
+
 /**
- * 
+ *
  * @desc Базовая модель категории контента
  * @author Юрий Шведов
  * @package IcEngine
  *
  */
-Loader::load ('Model_Child');
 class Content_Category extends Model_Child
 {
-	
+
 	/**
 	 * @desc Возвращает название модели контента.
 	 * @return string
@@ -18,7 +20,7 @@ class Content_Category extends Model_Child
 	{
 		return 'Content';
 	}
-	
+
 	/**
 	 * @desc Возвращает контент, содержащийся в этом разделе.
 	 * @return Model_Collection
@@ -28,10 +30,10 @@ class Content_Category extends Model_Child
 		return Model_Collection_Manager::byQuery (
 			$this->contentModel (),
 			Query::instance ()
-				->where ('Content_Category__id', $this->id)
+				->where ('Content_Category__id', $this->key())
 		);
 	}
-	
+
 	public function contentCount ()
 	{
 		return DDS::executeAuto (
@@ -41,7 +43,7 @@ class Content_Category extends Model_Child
 				->where ('Content.Content_Category__id', $this->key ())
 		)->getResult ()->asValue ();
 	}
-	
+
 	/**
 	 * @desc Поменять URL категории если в нем один контент
 	 * @return Model
@@ -52,27 +54,19 @@ class Content_Category extends Model_Child
 			$this,
 			'Content'
 		);
-		
+
 		$this->data('content', $articles);
-				
+
 		if ($articles->count () == 1 && !$this->childs()->count ())
 		{
 			$this->url = $articles->first ()->url;
 		}
 		return $this;
 	}
-	
-	public function parentCategory ()
-	{
-		return Model_Manager::byKey (
-			'Content_Category',
-			$this->parentId
-		);
-	}
-	
+
 	public function title ()
 	{
 		return $this->title . ' ' . $this->url;
 	}
-	
+
 }

@@ -50,7 +50,7 @@ abstract class View_Render_Manager extends Manager_Abstract
 		{
 			return self::$_views [$name];
 		}
-		
+
 		$view = Model_Manager::byQuery (
 			'View_Render',
 			Query::instance ()

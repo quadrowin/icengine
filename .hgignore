@@ -10,3 +10,4 @@ relre:\.svn
 syntax: glob
 
 nbproject/
+Model/newEmptyPHP.php
