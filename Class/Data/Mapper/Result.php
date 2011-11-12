@@ -18,7 +18,7 @@ class Data_Mapper_Result
 		if (is_null (self::$_models))
 		{
 			self::$_models = Resource_Manager::get (
-				'Model_Scheme', 'Models'
+				'Data_Mapper', 'Models'
 			);
 		}
 
@@ -81,7 +81,7 @@ class Data_Mapper_Result
 			}
 
 			Resource_Manager::set (
-				'Model_Scheme', 'Models', self::$_models
+				'Data_Mapper', 'Models', self::$_models
 			);
 		}
 
