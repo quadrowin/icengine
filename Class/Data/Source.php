@@ -119,8 +119,6 @@ class Data_Source
 		$affectedRows = $this->_adapter->getAffectedRowsCount ();
 		$foundRows = $this->_adapter->getFoundRowsCount ();
 
-		print_r ($translated_query);
-
 		if ($errno)
 		{
 			Loader::load ('Data_Mapper_Exception');

@@ -31,7 +31,6 @@ class Model_Collection_Manager_Delegee_Simple
 		$scheme = Model_Scheme::getScheme ($model);
 
 		$fields = array_keys ($scheme ['fields']);
-		print_r ($fields);
 
 		$table = $query_result->asTable ();
 
@@ -55,12 +54,6 @@ class Model_Collection_Manager_Delegee_Simple
 					$items [$i][$field] = $value;
 				}
 			}
-		}
-
-		if ($table)
-		{
-			print_r ($items);
-			die;
 		}
 
 		$collection->data ('addicts', $addicts);

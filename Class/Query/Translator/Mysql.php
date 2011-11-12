@@ -175,14 +175,15 @@ class Query_Translator_Mysql extends Query_Translator
 					? self::$_models->get ($from [Query::TABLE])
 					: null;
 
-				$table =
-					strpos ($from [Query::TABLE], self::SQL_ESCAPE) !== false ?
-					$from [Query::TABLE] :
-						$model_name
-							? $model_name
-							: $from [Query::TABLE];
+				if (strpos ($from [Query::TABLE], self::SQL_ESCAPE) !== false)
+				{
+					$table = $from [Query::TABLE];
+				}
+				else
+				{
+					$table = $model_name ? $model_name : $from [Query::TABLE];
+				}
 
-				$this->_tables [] = $from [Query::TABLE];
 				$table = $this->_escape ($table);
 			}
 
