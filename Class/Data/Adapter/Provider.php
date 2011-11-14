@@ -22,7 +22,7 @@ class Data_Adapter_Provider extends Data_Adapter_Abstract
 	 */
     protected $_queryMethods = array (
         Query::SELECT    => '_executeSelect',
-//        Query::SHOW      => '_executeSelect',
+//      Query::SHOW      => '_executeSelect',
         Query::DELETE    => '_executeDelete',
         Query::UPDATE    => '_executeUpdate',
         Query::INSERT    => '_executeInsert'

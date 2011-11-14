@@ -126,7 +126,8 @@ class Query_Translator_Mongo extends Query_Translator
 
 		reset ($from);
 		$table = key ($from);
-		return isset (self::$_models [$table]) ? self::$_models [$table] : $table;
+		$model_name = self::$_models->get ($table);
+		return $model_name ? $model_name: $table;
 	}
 
 	/**
@@ -211,10 +212,9 @@ class Query_Translator_Mongo extends Query_Translator
 	public function _renderInsert (Query $query)
 	{
 		$table = $query->part (Query::INSERT);
-		$this->_tables [] = $table;
+		$model_name = self::$_models->get ($table);
 		return array (
-			'collection'	=> isset (self::$_models [$table])
-				? self::$_models [$table] : $table,
+			'collection'	=> $model_name ? $model_name : $table,
 			'a'				=> $query->part (Query::VALUES)
 		);
 	}
@@ -255,10 +255,10 @@ class Query_Translator_Mongo extends Query_Translator
 	public function _renderReplace (Query $query)
 	{
 		$table = $query->part (Query::REPLACE);
+		$model_name = self::$_models->get ($table);
 		return array (
 			'method'		=> 'save',
-			'collection'	=> isset (self::$_models [$table])
-				? self::$_models [$table] : $table,
+			'collection'	=> $model_name ? $model_name : $table,
 			'arg0'			=> $values
 		);
 	}
@@ -389,15 +389,12 @@ class Query_Translator_Mongo extends Query_Translator
 		}
 
 		//foreach ($from as $alias => $from)
-
-
 		reset ($from);
 		$table = key ($from);
-		$this->_tables [] = $table;
+		$model_name = self::$_models->get ($table);
 		return array (
 			'show'			=> $query->part (Query::SHOW),
-			'collection'	=> isset ($this->_models [$table])
-				? $this->_models [$table] : $table,
+			'collection'	=> $model_name ? $model_name : $table,
 			'model'			=> $table
 		);
 	}
@@ -410,10 +407,9 @@ class Query_Translator_Mongo extends Query_Translator
 	public function _renderUpdate (Query $query)
 	{
 		$table = $query->part (Query::UPDATE);
-		$this->_tables [] = $table;
+		$model_name = self::$_models->get ($table);
 		return array (
-			'collection'	=> isset (self::$_models [$table])
-				? self::$_models [$table] : $table,
+			'collection'	=> $model_name ? $model_name : $table,
 			'criteria'		=> $this->_getCriteria ($query),
 			'newobj'		=> $query->part (Query::VALUES),
 			'options'		=> array (

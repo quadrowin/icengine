@@ -209,10 +209,9 @@ class Data_Source
 	 */
 	public function getQuery ($translator = null)
 	{
-		return
-			$translator ?
-			$this->_query->translate ($translator) :
-			$this->_query;
+		return $translator
+			? $this->_query->translate ($translator, self::$_models)
+			: $this->_query;
 	}
 
 	/**
