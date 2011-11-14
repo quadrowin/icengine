@@ -33,9 +33,9 @@ class Data_Adapter_Pdo_Cached extends Data_Adapter_Pdo
 	 */
 	public function _executeChange (Query $query, Query_Options $options)
 	{
-		$this->_affectedRows = $this->_connection->exec ($query);
+		$this->_affectedRows = $this->_connection->exec ($this->_query);
 		$error = $this->_connection->errorInfo ();
-
+		
 		if (!empty ($error [1]))
 		{
 			$this->_errno = $error [0];
@@ -62,7 +62,7 @@ class Data_Adapter_Pdo_Cached extends Data_Adapter_Pdo
 	 */
 	public function _executeInsert (Query $query, Query_Options $options)
 	{
-		$this->_affectedRows = $this->_connection->exec ($query);
+		$this->_affectedRows = $this->_connection->exec ($this->_query);
 		$error = $this->_connection->errorInfo ();
 		if (!empty ($error [1]))
 		{
@@ -139,7 +139,7 @@ class Data_Adapter_Pdo_Cached extends Data_Adapter_Pdo
 			Tracer::end ($this->_query);
 		}
 
-		$rows = $statement->fetchAll ();
+		$rows = $statement->fetchAll (PDO::FETCH_ASSOC);
 
 		if (!$rows)
 		{

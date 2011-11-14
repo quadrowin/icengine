@@ -42,7 +42,7 @@ class Data_Adapter_Pdo extends Data_Adapter_Abstract
 	 */
 	public function _executeChange (Query $query, Query_Options $options)
 	{
-		$this->_affectedRows = $this->_connection->exec ($query);
+		$this->_affectedRows = $this->_connection->exec ($this->_query);
 		$error = $this->_connection->errorInfo ();
 		if (!empty ($error [1]))
 		{
@@ -61,7 +61,7 @@ class Data_Adapter_Pdo extends Data_Adapter_Abstract
 	 */
 	public function _executeInsert (Query $query, Query_Options $options)
 	{
-		$this->_affectedRows = $this->_connection->exec ($query);
+		$this->_affectedRows = $this->_connection->exec ($this->_query);
 		$error = $this->_connection->errorInfo ();
 		if (!empty ($error [1]))
 		{
@@ -83,7 +83,7 @@ class Data_Adapter_Pdo extends Data_Adapter_Abstract
 	{
 		$statement = $this->_connection->prepare ($this->_query);
 		$statement->execute ();
-		$rows = $statement->fetchAll ();
+		$rows = $statement->fetchAll (PDO::FETCH_ASSOC);
 
 		if (!$rows)
 		{
