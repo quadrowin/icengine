@@ -86,12 +86,19 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 
 			$tags = $provider->getTags ($tables);
 		}
+
+		$ds = Model_Scheme::dataSource ($collection->modelName ());
+		$adapter = $ds->getAdapter ();
+
+		Loader::load ('Composite');
+		$composite = new Composite ($collection->getOptions ()->getItems ());
+
 		// Генерируем ключ коллекции
 		$key = md5 (
 			$model .
-			serialize ($query->translate ('Mysql', Data_Mapper::getModels  ())
-				->getTranslatedQuery ()) .
-			serialize ($collection->getOptions ()->getItems ())
+			serialize ($query->translate ($adapter->getTranslatorName (),
+				Data_Mapper::getModels ())->getTranslatedQuery ()) .
+			serialize ($composite->getName ())
 		);
 
 		// Получаем коллецию из менеджера ресурсов

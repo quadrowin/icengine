@@ -158,7 +158,7 @@ class Data_Adapter_Mongo extends Data_Adapter_Abstract
 	 * @param Query $query
 	 * @param Query_Options $options
 	 */
-	public function _executeShow (Query $query, Query_Option $options)
+	public function _executeShow (Query $query, Query_Options $options)
 	{
 		$this->_collection = $this->connect ()->selectCollection (
 			$this->_connectionOptions ['database'],
