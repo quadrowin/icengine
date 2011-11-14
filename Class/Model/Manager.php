@@ -375,6 +375,11 @@ class Model_Manager extends Manager_Abstract
 
 //		Model_Scheme::setScheme ($result);
 
+		if (!$result->scheme ()->loaded ())
+		{
+			$result->scheme ()->setModel ($result);
+			$result->scheme ()->load ();
+		}
 		return $result->key () ? $result : new $model (array ());
 	}
 

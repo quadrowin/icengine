@@ -296,4 +296,15 @@ class Data_Adapter_Abstract
 	{
 		$this->_query = $query;
 	}
+
+	/**
+	 * @desc Получить значение настройки подключения
+	 * @param string $name
+	 */
+	public function option ($name)
+	{
+		return isset ($this->_connectionOptions [$name])
+			? $this->_connectionOptions [$name]
+			: null;
+	}
 }

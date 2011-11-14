@@ -289,11 +289,11 @@ class Query_Translator_Mysql extends Query_Translator
 	 */
 	public function _renderInsert (Query $query)
 	{
-		$model_name = self::$_models->get ($table);
 		$table = $query->part (Query::INSERT);
-		$sql = 'INSERT ' . $model_name ? $model_name : $table. ' (';
+		$model_name = self::$_models->get ($table);
+		$sql = 'INSERT INTO ' . ($model_name ? $model_name : $table) . ' (';
 
-		$fields = array_keys ($query->part (Query::VALUES));
+		$fields = array_keys ($query->part (Query::VALUES)	);
 		$values = array_values ($query->part (Query::VALUES));
 
 		for ($i = 0, $icount = count ($fields); $i < $icount; $i++)
@@ -372,9 +372,9 @@ class Query_Translator_Mysql extends Query_Translator
 	 */
 	public function _renderReplace (Query $query)
 	{
-		$model_name = self::$_models->get ($table);
 		$table = $query->part (Query::REPLACE);
-		$sql = 'REPLACE ' . $model_name ? $model_name : $table . ' (';
+		$model_name = self::$_models->get ($table);
+		$sql = 'REPLACE ' . ($model_name ? $model_name : $table) . ' (';
 
 		$fields = array_keys ($query->part (Query::VALUES));
 		$values = array_values ($query->part (Query::VALUES));
@@ -527,9 +527,9 @@ class Query_Translator_Mysql extends Query_Translator
 	 */
 	public function _renderUpdate (Query $query)
 	{
-		$model_name = self::$_models->get ($table);
 		$table = $query->part (Query::UPDATE);
-		$sql ='UPDATE ' . $model_name ? $model_name : $table . ' SET ';
+		$model_name = self::$_models->get ($table);
+		$sql ='UPDATE ' . ($model_name ? $model_name : $table) . ' SET ';
 
 		$values = $query->part (Query::VALUES);
 		$sets = array();

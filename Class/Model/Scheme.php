@@ -358,25 +358,14 @@ abstract class Model_Scheme
 
 			if (!$scheme)
 			{
-				Loader::load ($model_name);
-				$scheme = $model_name::scheme ();
-			}
-
-			if (empty ($scheme ['fields']))
-			{
 				Loader::load ('Helper_Data_Source');
-
 				$table = self::table ($model_name);
-
 				$fields = Helper_Data_Source::fields ('`' . $table . '`');
-				
 				$fields = self::_makeScheme ($fields);
-
 				$scheme = array (
 					'fields'	=> $fields,
 					'keys'		=> array ()
 				);
-
 			}
 
 			self::setScheme ($model_name, $scheme);

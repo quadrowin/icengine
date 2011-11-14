@@ -44,7 +44,7 @@ class Data_Adapter_Pdo extends Data_Adapter_Abstract
 	{
 		$this->_affectedRows = $this->_connection->exec ($query);
 		$error = $this->_connection->errorInfo ();
-		if ($error)
+		if (!empty ($error [1]))
 		{
 			$this->_errno = $error [0];
 			$this->_error = $error [2];
@@ -63,7 +63,7 @@ class Data_Adapter_Pdo extends Data_Adapter_Abstract
 	{
 		$this->_affectedRows = $this->_connection->exec ($query);
 		$error = $this->_connection->errorInfo ();
-		if ($error)
+		if (!empty ($error [1]))
 		{
 			$this->_errno = $error [0];
 			$this->_error = $error [2];

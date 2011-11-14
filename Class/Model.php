@@ -15,20 +15,20 @@ abstract class Model implements ArrayAccess
 	 * @desc Базовая модель (без дополнительных полей).
 	 * @var Model
 	 */
-	protected  $_generic = null;
+	protected $_generic = null;
 
 	/**
 	 * @desc Поля реализации.
 	 * @var array
 	 */
-	protected  $_addicts = array ();
+	protected $_addicts = array ();
 
 	/**
 	 * @desc Компоненты для модели.
 	 * Прикрепленные к модели изображения, видео, комментарии и пр.
 	 * @var array <Coponent_Collection>
 	 */
-	protected	$_components = array ();
+	protected $_components = array ();
 
 	/**
 	 * @desc Конфиг
@@ -40,54 +40,51 @@ abstract class Model implements ArrayAccess
 	 * @desc Связанные данные
 	 * @var array
 	 */
-	protected	$_data = array ();
+	protected $_data = array ();
 
 	/**
 	 * @desc Индекс объекта для подсчета количества
 	 * загруженных моделей.
 	 * @var integer
 	 */
-	protected static	$_objectIndex = 0;
+	protected static $_objectIndex = 0;
 
 	/**
 	 * @desc Подгруженные объекты
 	 * @var array
 	 */
-	protected	$_joints = array ();
+	protected $_joints = array ();
 
 	/**
 	 * @desc Данные модели
 	 * @var array
 	 */
-	protected	$_fields;
+	protected $_fields;
 
 	/**
 	 * @desc Все данные загружены
 	 * @var boolean
 	 */
-	protected	$_loaded;
+	protected $_loaded;
 
 	/**
 	 * @desc Плагины
 	 * @var array
 	 */
-	protected	$_plugins;
+	protected $_plugins;
 
 	/**
 	 * @desc Схема модели
-	 * @var array
+	 * @var Model_Mapper_Scheme
 	 */
-	protected static $_scheme = array (
-		'fields'	=> array (),
-		'keys'		=> array ()
-	);
+	protected $_scheme;
 
 
 	/**
 	 * @desc Обновленные поля.
 	 * @var array <boolean>
 	 */
-	protected	$_updatedFields = array ();
+	protected $_updatedFields = array ();
 
 	/**
 	 * @param string $method
@@ -128,6 +125,7 @@ abstract class Model implements ArrayAccess
 	public function __construct (array $fields = array (), $model = null)
 	{
 		$this->_loaded = false;
+		$this->_scheme = new Model_Mapper_Scheme ();
 
 		if ($model)
 		{
@@ -308,6 +306,14 @@ abstract class Model implements ArrayAccess
 			'fields' => $this->asRow (),
 			'data' => $this->_data
 		);
+	}
+
+	/**
+	 * @desc Блок для описания схемы объекта
+	 */
+	public function __scheme ()
+	{
+
 	}
 
 	/**
@@ -769,9 +775,9 @@ abstract class Model implements ArrayAccess
 	 * @desc Получить схему модели
 	 * @return array
 	 */
-	public static function scheme ()
+	public function scheme ()
 	{
-		return static::$_scheme;
+		return $this->_scheme;
 	}
 
 	/**
@@ -995,6 +1001,8 @@ abstract class Model implements ArrayAccess
 					$this->_fields [$field] = $value;
 				}
 			}
+
+			$this->_scheme->update ();
 
 			if ($data)
 			{
