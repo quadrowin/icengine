@@ -116,12 +116,27 @@ class Query_Translator_Mysql extends Query_Translator
 		foreach($parts[Query::DELETE] as $key => $part)
 		{
 			$model_name = self::$_models->get ($part);
-			$parts [Query::DELETE][$key] = strpos ($part, self::SQL_ESCAPE) !== false
-				? $part
-				: $model_name ? $model_name : $part;
-			$parts [Query::DELETE][$key] = $this->_escape ($parts[Query::DELETE][$key]);
+			if (strpos ($part, self::SQL_ESCAPE) !== false)
+			{
+				$table = $part;
+			}
+			else
+			{
+				$table = $model_name ? $model_name : $part;
+			}
+			$parts [Query::DELETE][$key] = $this->_escape ($table);
 		}
 		$tables = count($parts[Query::DELETE]) > 0 ? ' '.implode(', ', $parts[Query::DELETE]).' ' : ' ';
+
+		foreach ($parts [Query::FROM] as &$part)
+		{
+			$model_name = self::$_models->get ($part [Query::TABLE]);
+			$part [Query::TABLE] = $model_name
+				? $model_name
+				: $part [Query::TABLE];
+		}
+
+		$query->  setPart (Query::FROM, $parts [Query::FROM]);
 
 		return
 			self::SQL_DELETE . $tables .
