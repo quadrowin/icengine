@@ -112,7 +112,7 @@ class Query_Translator_Mysql extends Query_Translator
 	public function _renderDelete (Query $query)
 	{
 		$parts = $query->parts ();
-		//$parts = implode(', ', $parts[Query::DELETE]);
+
 		foreach($parts[Query::DELETE] as $key => $part)
 		{
 			$model_name = self::$_models->get ($part);
@@ -126,7 +126,9 @@ class Query_Translator_Mysql extends Query_Translator
 			}
 			$parts [Query::DELETE][$key] = $this->_escape ($table);
 		}
-		$tables = count($parts[Query::DELETE]) > 0 ? ' '.implode(', ', $parts[Query::DELETE]).' ' : ' ';
+		$tables = count ($parts [Query::DELETE]) > 0
+			? ' ' . implode (', ', $parts [Query::DELETE]) . ' '
+			: ' ';
 
 		foreach ($parts [Query::FROM] as &$part)
 		{
@@ -136,7 +138,7 @@ class Query_Translator_Mysql extends Query_Translator
 				: $part [Query::TABLE];
 		}
 
-		$query->  setPart (Query::FROM, $parts [Query::FROM]);
+		$query->setPart (Query::FROM, $parts [Query::FROM]);
 
 		return
 			self::SQL_DELETE . $tables .

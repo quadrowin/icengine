@@ -270,8 +270,6 @@ class Query_Translator_Mongo extends Query_Translator
 	 */
 	public function _renderSelect (Query $query)
 	{
-		self::$_map = $map;
-
 		$fields = array ();
 
 		if (false)
@@ -287,7 +285,7 @@ class Query_Translator_Mongo extends Query_Translator
 						if (empty ($sparts [0]))
 						{
 							$source = '';
-						}
+						} 
 						else
 						{
 							$source =

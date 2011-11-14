@@ -35,7 +35,7 @@ class Data_Adapter_Pdo_Cached extends Data_Adapter_Pdo
 	{
 		$this->_affectedRows = $this->_connection->exec ($this->_query);
 		$error = $this->_connection->errorInfo ();
-		
+
 		if (!empty ($error [1]))
 		{
 			$this->_errno = $error [0];
@@ -150,9 +150,8 @@ class Data_Adapter_Pdo_Cached extends Data_Adapter_Pdo
 
 		if ($query->part (Query::CALC_FOUND_ROWS))
 		{
-			$statement = $this->_connection->prepare ($this->_query)->execute (
-				self::SELECT_FOUND_ROWS_QUERY
-			);
+			$statement = $this->_connection->prepare ($this->_query);
+			$statement->execute (self::SELECT_FOUND_ROWS_QUERY);
 			$row = $statement->fetch ();
 			$this->_foundRows = reset ($row);
 		}
