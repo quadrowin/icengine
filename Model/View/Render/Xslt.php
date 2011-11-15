@@ -14,7 +14,8 @@ class View_Render_Xslt extends View_Render_Abstract
 	 * @var array
 	 */
 	protected static $_config = array (
-		
+		// Пути до шаблонов
+		'templates_path'	=> array (),
 	);
 	
 	/**
@@ -32,7 +33,6 @@ class View_Render_Xslt extends View_Render_Abstract
 		$this->_templatesPathes = array_reverse (
 			$config ['templates_path']->__toArray ()
 		);
-		$this->_processor = new XSLTProcessor ();
 	}
 	
 	/**
@@ -47,7 +47,8 @@ class View_Render_Xslt extends View_Render_Abstract
 		{
 			if (is_numeric ($key))
 			{
-				$key = 'key' . $key;
+				//$key = 'key' . $key;
+				$key = 'items';
 			}
 			
 			if (is_object ($val))
@@ -106,8 +107,11 @@ class View_Render_Xslt extends View_Render_Abstract
 		}
 		
 		$xsl->load ($file);
+		
+		$this->_processor = new XSLTProcessor ();
 		$this->_processor->importStylesheet ($xsl);
 		$this->_processor->transformToURI ($this->xml (), 'php://output');
+		$this->_processor = null;
 		return ob_get_clean ();
 	}
 	
@@ -150,7 +154,7 @@ class View_Render_Xslt extends View_Render_Abstract
         $root = $xml->createElement ('Input');
 		$xml->appendChild ($root);
 		$this->_arrayToXml ($xml, $root, $this->_vars);
-		$xml->save ('D:/temp/1.xml');
+//		$xml->save ('D:/temp/1.xml');
         return $xml;
 	}
 	
