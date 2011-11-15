@@ -12,7 +12,7 @@ class Tracer
 	 * @desc Состояние трейсера.
 	 * @var boolean
 	 */
-	public static $enabled = true;
+	public static $enabled = false;
 	
 	/**
 	 * @desc Сливать ли в файл для каждой
