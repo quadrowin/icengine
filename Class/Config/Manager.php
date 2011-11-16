@@ -2,7 +2,7 @@
 /**
  * 
  * @desc Мэнеджер конфигов.
- * @author Юрий
+ * @author Yury Shvedov
  * @package IcEngine
  *
  */
@@ -10,10 +10,10 @@ class Config_Manager
 {
 	
 	/**
-	 * @desc Путь до конфигов от корня сайта
+	 * @desc Путь до конфигов
 	 * @var string
 	 */
-	const PATH_TO_CONFIG = 'Ice/Config/';
+	protected static $_path;
 	
 	/**
 	 * @desc Флаг означающий, что идет процесс загрузки конфига,
@@ -24,7 +24,7 @@ class Config_Manager
 	protected static $_inLoading = false;
 	
 	/**
-	 * @desc Загружает конфиг из файла и возвращает класс конфига.
+	 * @desc Загружает конфиг из файла и возвращает объект конфига.
 	 * @param string $type Тип конфига.
 	 * @param string|array $config Название конфига или конфиг по умолчанию.
 	 * @return Config_Array|Objective Заруженный конфиг.
@@ -32,7 +32,7 @@ class Config_Manager
 	protected static function _load ($type, $config = '')
 	{
 		$filename = 
-			IcEngine::root () . self::PATH_TO_CONFIG .
+			self::getPath () .
 			str_replace ('_', '/', $type) . 
 			(is_string ($config) && $config ? '/' . $config : '') . 
 			'.php';
@@ -96,6 +96,17 @@ class Config_Manager
 	}
 	
 	/**
+	 * @desc Возвращает текущию директорию конфигов
+	 * @return string
+	 */
+	public static function getPath() {
+		if (!self::$_path) {
+			self::$_path = IcEngine::root () . 'Ice/Config/';
+		}
+		return self::$_path;
+	}
+	
+	/**
 	 * @desc Загрузка реального конфига, игнорируя менеджер ресурсов.
 	 * @param string $type Тип конфига.
 	 * @param string|array $config [optional] Название или конфиг по умолчанию.
@@ -103,6 +114,15 @@ class Config_Manager
 	public static function getReal ($type, $config = null)
 	{
 		return self::_load ($type, $config);
+	}
+	
+	/**
+	 * @desc Устанавливает директорию конфигов
+	 * @param string $path 
+	 */
+	public static function setPath ($path)
+	{
+		self::$_path = $path;
 	}
 	
 }
