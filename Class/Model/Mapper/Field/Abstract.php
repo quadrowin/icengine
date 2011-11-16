@@ -14,18 +14,8 @@ class Model_Mapper_Field_Abstract
 
 	public function addAttribute (Model_Mapper_Field_Attribute_Abstract $attribute)
 	{
-		$valid = Model_Mapper_Field_Attribute_Scheme::validate (
-			$this->getName (),
-			$attribute->getName ()
-		);
-
-		if (!$valid)
-		{
-			return;
-		}
-
 		$attribute->setOwner ($this);
-		$this->_attributes [] = $attribute;
+		$this->_attributes [$attribute->getName ()] = $attribute;
 	}
 
 	public function getAttributes ()
@@ -57,7 +47,7 @@ class Model_Mapper_Field_Abstract
 
 	public function getName ()
 	{
-		return substr (get_class ($this), 18);
+		return substr (get_class ($this), 19);
 	}
 
 	public function getField ()

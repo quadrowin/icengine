@@ -8,7 +8,7 @@ class Model_Mapper_Field_Attribute_Abstract
 
 	public function getValue ()
 	{
-		return $this->value ();
+		return $this->_value;
 	}
 
 	public function setValue ($value)
@@ -28,6 +28,6 @@ class Model_Mapper_Field_Attribute_Abstract
 
 	public function getName ()
 	{
-		return substr (get_class ($this), 28);
+		return substr (get_class ($this), 29);
 	}
 }
