@@ -9,11 +9,11 @@ class Helper_Data_Source
 	 * @param string $field
 	 * @return Objective
 	 */
-	public static function field ($table, $field)
+	public static function field ($model, $field)
 	{
 		$query = Query::instance ()
 			->show ('FULL COLUMNS')
-			->from ($table)
+			->from ($model)
 			->where ('Field', $field);
 		
 		$status = DDS::executeAuto (
@@ -30,11 +30,11 @@ class Helper_Data_Source
 	 * @param string $table
 	 * @return Objective
 	 */
-	public static function fields ($table)
+	public static function fields ($model)
 	{
 		$query = Query::instance ()
 			->show ('FULL COLUMNS')
-			->from ($table);
+			->from ($model);
 
 		$status = DDS::executeAuto (
 			$query
@@ -56,7 +56,7 @@ class Helper_Data_Source
 			->where ('Name', $table)
 			->resetPart (Query::FROM);
 
- 		$status = DDS::executeAuto (
+ 		$status = DDS::execute (
  			$query
  		)
 			->getResult ()
@@ -75,7 +75,7 @@ class Helper_Data_Source
 			->show ('TABLE STATUS')
 			->resetPart (Query::FROM);
 		
-		$status = DDS::executeAuto (
+		$status = DDS::execute (
 			$query
 		)
 			->getResult ()
