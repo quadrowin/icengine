@@ -359,8 +359,8 @@ abstract class Model_Scheme
 			if (!$scheme)
 			{
 				Loader::load ('Helper_Data_Source');
-				$table = self::table ($model_name);
-				$fields = Helper_Data_Source::fields ('`' . $table . '`');
+				//$table = self::table ($model_name);
+				$fields = Helper_Data_Source::fields ($model_name);
 				$fields = self::_makeScheme ($fields);
 				$scheme = array (
 					'fields'	=> $fields,
