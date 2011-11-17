@@ -97,6 +97,7 @@ class Data_Source
 		$clone->setPart (Query::WHERE, $where);
 		
 		$models = $clone->getModels ();
+		
 		foreach ($models as $model)
 		{
 			$model_map->setTable ($model, $this->_mapper->getTable ($model));
