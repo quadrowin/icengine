@@ -5,7 +5,7 @@
  */
 class Model_Validator
 {
-	public function validate ($model, $scheme, $input)
+	public static function validate ($model, $scheme, $input)
 	{
 		Loader::load ('Model_Validator_Attribute');
 
@@ -28,14 +28,14 @@ class Model_Validator
 				}
 
 				$result = Model_Validator_Attribute::validate (
-					$model, $field, $value, $input
+					$attribute, $model, $field, $value, $input
 				);
 
 				$current ['valid'] &= $result;
 				if (!$result)
 				{
 					$error = true;
-					$current ['errors'][$attribute] = true;
+					$current ['errors'][$attribute] = 1;
 				}
 			}
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Менеджер алгоритмов шифрования.
  * @author Юрий Шведов
  * @package IcEngine
@@ -8,19 +8,19 @@
  */
 class Crypt_Manager
 {
-	
+
 	/**
 	 * @desc Разделитель для провайла
 	 * @var string
 	 */
 	const PROFILE_DELIMETER = '://';
-	
+
 	/**
 	 * @desc Загруженные алгоритмы шифрования.
 	 * @var array
 	 */
 	protected static $_crypts = array ();
-	
+
 	/**
 	 * @desc автодекодирование строки.
 	 * @param string $content
@@ -29,29 +29,31 @@ class Crypt_Manager
 	 */
 	public static function autoDecode ($input, $key = null)
 	{
-		$p = strpos ($input, self::PROFILE_DELIMETER);
-		if ($p)
+		if (is_string ($input))
 		{
-			$crypt = substr ($input, 0, $p);
-			$input = substr ($input, $p + strlen (self::PROFILE_DELIMETER));
-			return self::decode ($crypt, $input, $key);
+			$p = strpos ($input, self::PROFILE_DELIMETER);
+			if ($p)
+			{
+				$crypt = substr ($input, 0, $p);
+				$input = substr ($input, $p + strlen (self::PROFILE_DELIMETER));
+				return self::decode ($crypt, $input, $key);
+			}
 		}
-		
 		return $input;
 	}
-	
+
 	/**
 	 * @desc Дешифрование указанными методом.
 	 * @param string $crypt Метод шифрования.
 	 * @param string $content
 	 * @param string $key [optional]
-	 * @return string 
+	 * @return string
 	 */
 	public static function decode ($crypt, $input, $key = null)
 	{
 		return self::get ($crypt)->decode ($input, $key);
 	}
-	
+
 	/**
 	 * @desc Шифрование указанным методом.
 	 * @param string $crypt
@@ -63,7 +65,7 @@ class Crypt_Manager
 	{
 		return self::get ($crypt)->encode ($input, $key);
 	}
-	
+
 	/**
 	 * @desc Возвращает экземпляр класс, реализующего алгоритм шифрования.
 	 * @param string $name Название алгоритма шифрования.
@@ -79,13 +81,13 @@ class Crypt_Manager
 		}
 		return self::$_crypts [$name];
 	}
-	
+
 	/**
 	 * @desc Проверяет соответсвует ли строка заданному значению
 	 * @param string $input Строка.
 	 * @param string $pattern Шаблон для сравнения.
 	 * @param string $key [optional]
-	 * @return boolean 
+	 * @return boolean
 	 */
 	public static function isMatch ($input, $pattern, $key = null)
 	{
@@ -96,10 +98,10 @@ class Crypt_Manager
 			$pattern = substr ($pattern, $p + strlen (self::PROFILE_DELIMETER));
 			return self::encode ($crypt, $input, $key) == $pattern;
 		}
-		
+
 		return $input == $pattern;
 	}
-	
+
 }
 
 if (!class_exists ('Crypt_Abstract'))

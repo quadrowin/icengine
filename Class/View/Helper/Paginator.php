@@ -28,7 +28,7 @@ class View_Helper_Paginator extends View_Helper_Abstract
 		
 		$this->_view->assign ('paginator', $paginator);
 		
-		$template = 'Widget/Paginator/index.tpl';
+		$template = 'Widget/Paginator/index';
 		
 		if (isset ($params ['template']))
 		{

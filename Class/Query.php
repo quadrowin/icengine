@@ -1,13 +1,13 @@
 <?php
 /**
- * 
+ *
  * @desc Запрос к источнику данных.
  * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
  *
  */
 class Query {
-	
+
 	const ASC				= 'ASC';
 	const CALC_FOUND_ROWS	= 'CALC_FOUND_ROWS';
 	const DELETE			= 'DELETE';
@@ -34,10 +34,10 @@ class Query {
 	const VALUES			= 'VALUES';
 	const WHERE				= 'WHERE';
 	const UPDATE			= 'UPDATE';
-	
+
 	const SQL_AND			= 'AND';
 	const SQL_OR			= 'OR';
-	
+
 	/**
 	 * @desc Части запроса по умолчанию.
 	 * @var array
@@ -56,19 +56,19 @@ class Query {
 		self::LIMIT_OFFSET		=> 0,
 		self::INDEX				=> array()
 	);
-	
+
 	/**
 	 * @desc Части запроса
 	 * @var array
 	 */
 	public $_parts;
-	
+
 	/**
 	 * @desc Тип запроса
 	 * @var string
 	 */
 	protected $_type;
-	
+
 	/**
 	 * @desc Возвращает новый пустой запрос.
 	 */
@@ -76,7 +76,7 @@ class Query {
 	{
 		$this->reset ();
 	}
-	
+
 	/**
 	 * @desc Преобразует части запроса в строку
 	 * @return string
@@ -85,11 +85,11 @@ class Query {
 	{
 		return $this->translate ();
 	}
-	
+
 	/**
 	 * @desc Добавление джойна таблицы к запросу
 	 * @param string|array $table Название таблицы или
-	 * пара (table => alias) или, в случае нескольких алиасов 
+	 * пара (table => alias) или, в случае нескольких алиасов
 	 * (table => array (alias1, alias2,...)).
 	 * Джойн нескольких таблиц не поддерживается.
 	 * @param string $type
@@ -117,7 +117,7 @@ class Query {
 			);
 		}
 	}
-	
+
 	/**
 	 * @desc В запрос будет добавлен аргумент для получения полного
 	 * количества строк (SQL_CALC_FOUND_ROWS).
@@ -127,9 +127,9 @@ class Query {
 	public function calcFoundRows ()
 	{
 	   $this->_parts [self::CALC_FOUND_ROWS] = true;
-	   return $this; 
+	   return $this;
 	}
-	
+
 	/**
 	 * @desc Это запрос на удаление
 	 * @return Query
@@ -140,7 +140,7 @@ class Query {
 		$this->_parts [self::DELETE] = func_get_args ();
 		return $this;
 	}
-		
+
 	/**
 	 * @desc Устанавливает значение флага DISTINCT
 	 * @param boolean $value
@@ -151,22 +151,22 @@ class Query {
 		$this->_parts [self::DISTINCT] = (bool) $value;
 		return $this;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string|array $table Имя таблицы или array('table' => 'alias')
-	 * @param string $alias 
+	 * @param string $alias
 	 * @return Query
 	 */
 	public function from ($table, $alias = null)
 	{
 		$this->_join (
-			$alias ? array ($table => $alias) : $table, 
+			$alias ? array ($table => $alias) : $table,
 			self::FROM
 		);
 		return $this;
 	}
-	
+
 	/**
 	 * @desc Возвращает часть запроса
 	 * @param string $name
@@ -176,7 +176,7 @@ class Query {
 	{
 		return isset ($this->_parts [$name]) ? $this->_parts [$name] : null;
 	}
-	
+
 	/**
 	 * @desc Возвращает теги запроса
 	 * @return array<string>
@@ -184,28 +184,28 @@ class Query {
 	public function getTags ()
 	{
 		$tags = array ();
-		
+
 		$from = $this->getPart (Query::FROM);
 		foreach ($from as $info)
 		{
 			$tags [] = Model_Scheme::table ($info [Query::TABLE]);
 		}
-		
+
 		$insert = $this->getPart (QUERY::INSERT);
 		if ($insert)
 		{
 	   		$tags [] = Model_Scheme::table ($insert);
 		}
-	   	
+
 		$update = $this->getPart (QUERY::UPDATE);
 		if ($update)
 		{
 			$tags [] = Model_Scheme::table ($update);
 		}
-		
+
 		return array_unique ($tags);
 	}
-	
+
 	/**
 	 * @desc Устанавливает правило группировки
 	 * @param array|string $fields
@@ -218,15 +218,15 @@ class Query {
 		{
 			$columns = func_get_args ();
 		}
-		
+
 		foreach ($columns as $column)
 		{
 			$this->_parts [self::GROUP] [] = $column;
 		}
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * @desc Создает и возвращает новый запрос.
 	 * Аналогично "new Query()".
@@ -236,7 +236,7 @@ class Query {
 	{
 		return new self ();
 	}
-	
+
 	/**
 	 * @desc Запрос преобразуется в запрос на вставку
 	 * @return Query
@@ -247,9 +247,9 @@ class Query {
 		$this->_type = self::INSERT;
 		return $this;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string|array $table
 	 * @param string $condition
 	 * @return Query
@@ -257,12 +257,12 @@ class Query {
 	public function innerJoin ($table, $condition)
 	{
 		$this->_join ($table, self::INNER_JOIN, $condition);
-		
+
 		return $this;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string|array $table
 	 * @param string $condition
 	 * @return Query
@@ -270,15 +270,15 @@ class Query {
 	public function leftJoin ($table, $condition)
 	{
 		$this->_join ($table, self::LEFT_JOIN, $condition);
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * @desc Задает правило сортировки
 	 * @param string|array $sort
 	 * 		'id' | array('id' => Query::DESC)
-	 * @return Query 
+	 * @return Query
 	 */
 	public function order ($sort)
 	{
@@ -286,7 +286,7 @@ class Query {
 		{
 			$sort = func_get_args ($sort);
 		}
-		
+
 		foreach ($sort as $field => $direction)
 		{
 			if (is_numeric ($field))
@@ -296,10 +296,10 @@ class Query {
 			}
 			$this->_parts [self::ORDER] [] = array ($field, $direction);
 		}
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * @desc Добавляет к запросу условие "или".
 	 * @param string $condition
@@ -313,17 +313,17 @@ class Query {
 			0				=> self::SQL_OR,
 			self::WHERE		=> $condition
 		);
-		
+
 		if (func_num_args () > 1)
 		{
 			$where [self::VALUE] = func_get_arg (1);
 		}
-		
+
 		$this->_parts [self::WHERE] [] = $where;
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * @desc Возвращает часть запроса
 	 * @param string $name
@@ -334,7 +334,7 @@ class Query {
 	{
 		return isset ($this->_parts [$name]) ? $this->_parts [$name] : $default;
 	}
-	
+
 	/**
 	 * @desc Возвращает все части запроса.
 	 * @return array
@@ -343,7 +343,7 @@ class Query {
 	{
 		return $this->_parts;
 	}
-	
+
 	/**
 	 * @desc Запрос преобразуется в запрос на replace.
 	 * @param string $table таблица.
@@ -355,7 +355,7 @@ class Query {
 		$this->_type = self::REPLACE;
 		return $this;
 	}
-	
+
 	/**
 	 * @desc Сброс всех частей запроса.
 	 * @return Query Этот запрос.
@@ -366,7 +366,7 @@ class Query {
 		$this->_type = self::SELECT;
 		return $this;
 	}
-	
+
 	/**
 	 * @desc Сбрасывает часть запроса
 	 * @param string|array $parts
@@ -378,7 +378,7 @@ class Query {
 		{
 			$parts = func_get_args ();
 		}
-		
+
 		foreach ($parts as $part)
 		{
 			if (isset (self::$_defaults [$part]))
@@ -390,16 +390,16 @@ class Query {
 				unset ($this->_parts [$part]);
 			}
 		}
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * @desc Добавить в запрос SELECT часть.
 	 * @param string|array $columns
 	 * @tutorial
 	 * 		select (
-	 * 			'table1'	=> array ('field11' => 'alias11', 'field12'), 
+	 * 			'table1'	=> array ('field11' => 'alias11', 'field12'),
 	 * 			'table2'	=> array ('field21', 'field22')
 	 * 		)
 	 * 		select ('field1', 'field2')
@@ -408,7 +408,7 @@ class Query {
 	 * @return Query
 	 */
 	public function select ($columns)
-	{	
+	{
 		foreach (func_get_args () as $columns)
 		{
 			if (is_array ($columns))
@@ -424,7 +424,7 @@ class Query {
 						{
 							// реальное название столбца
 							$rname = is_numeric ($name) ? $alias : $name;
-							
+
 							$this->_parts [self::SELECT] [$alias] = array ($table, $rname);
 						}
 					}
@@ -440,10 +440,10 @@ class Query {
 				}
 			}
 		}
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * @desc Установка значения для UPDATE
 	 * @param string $column
@@ -462,7 +462,7 @@ class Query {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * @desc Подменяет часть запроса
 	 * @param string $name Часть запроса.
@@ -474,9 +474,9 @@ class Query {
 		$this->_parts [$name] = $value;
 		return $this;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string|array $columns
 	 * @return Query
 	 */
@@ -486,7 +486,7 @@ class Query {
 		$this->_parts [self::SHOW] = $columns;
 		return $this;
 	}
-	
+
 	/**
 	 * @desc Добавление джойна таблицы, если она еще не подключна.
 	 * @param string $table Название таблицы. Алиас не принимается.
@@ -505,16 +505,16 @@ class Query {
 				{
 					return $this->where ($condition);
 				}
-				
+
 				if ($data [self::JOIN] == self::LEFT_JOIN)
 				{
 					$data [self::JOIN] = self::INNER_JOIN;
 				}
-				
+
 				if ($data [self::WHERE] != $condition)
 				{
-					$data [self::WHERE] = 
-						'(' . 
+					$data [self::WHERE] =
+						'(' .
 							$data [self::WHERE] .
 						') AND (' .
 							$condition .
@@ -523,11 +523,11 @@ class Query {
 				return $this;
 			}
 		}
-		
+
 		// Еще не подключена
 		return $this->innerJoin ($table, $condition);
 	}
-	
+
 	/**
 	 * @desc Добавление джойна таблицы, если она еще не подключна.
 	 * @param string $table Название таблицы.
@@ -547,11 +547,11 @@ class Query {
 				{
 					return $this;
 				}
-				
+
 				if ($data [self::WHERE] != $condition)
 				{
-					$data [self::WHERE] = 
-						'(' . 
+					$data [self::WHERE] =
+						'(' .
 							$data [self::WHERE] .
 						') AND (' .
 							$condition .
@@ -560,11 +560,11 @@ class Query {
 				return $this;
 			}
 		}
-		
+
 		// Еще не подключена
 		return $this->leftJoin ($table, $condition);
 	}
-	
+
 	/**
 	 * @desc Формирует новый запрос, определяющий количество записей,
 	 * которые будут выбраны в результате этого запроса.
@@ -573,17 +573,17 @@ class Query {
 	public function toCountQuery ()
 	{
 		$count_query = clone $this;
-		
+
 		$count_query
 			->resetPart (self::SELECT)
 			->select ('COUNT(1) AS `count`')
 			->resetPart (self::LIMIT_COUNT)
 			->resetPart (self::LIMIT_OFFSET)
 			->resetPart (self::ORDER);
-		
+
 		return $count_query;
 	}
-	
+
 	/**
 	 * @desc Транслирует запрос указанным транслятором
 	 * @param string $translator Транслятор.
@@ -591,9 +591,12 @@ class Query {
 	 */
 	public function translate ($translator = 'Mysql')
 	{
-		return Query_Translator::factory ($translator)->translate ($this);
+		return Query_Translator::factory ($translator)->translate (
+			$this,
+			Data_Mapper::getModels ()
+		);
 	}
-	
+
 	/**
 	 * @desc Тип запроса
 	 * @return string SELECT, DELETE, INSERT, UPDATE, SHOW
@@ -602,7 +605,7 @@ class Query {
 	{
 		return $this->_type;
 	}
-	
+
 	/**
 	 * Sets a limit count and offset to the query.
 	 * 10x Zend
@@ -617,7 +620,7 @@ class Query {
 		$this->_parts [self::LIMIT_OFFSET] = (int) $offset;
 		return $this;
 	}
-	
+
 	/**
 	 * @desc Преобразует запрос к запросу на обновление.
 	 * @param string $table Таблица для обновления.
@@ -629,7 +632,7 @@ class Query {
 		$this->_parts [self::UPDATE] = $table;
 		return $this;
 	}
-	
+
 	/**
 	 * Использовать индекс
 	 * @param string $index Название индекса
@@ -640,7 +643,7 @@ class Query {
 		$this->_parts [self::INDEX][] = $index;
 		return $this;
 	}
-	
+
 	/**
 	 * @desc Установка значений для INSERT/UPDATE
 	 * @param array $values
@@ -661,10 +664,10 @@ class Query {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * @desc Добавляет условие к запросу
-	 * @param string $condition Условие 
+	 * @param string $condition Условие
 	 * @param string $value [optional] Значение, подставляемое в условие.
 	 * @return Query
 	 */
@@ -674,15 +677,15 @@ class Query {
 			0				=> self::SQL_AND,
 			self::WHERE		=> $condition
 		);
-		
+
 		if (func_num_args () > 1)
 		{
 			$where [self::VALUE] = func_get_arg (1);
 		}
-		
+
 		$this->_parts [self::WHERE] [] = $where;
-		
+
 		return $this;
 	}
-	
+
 }

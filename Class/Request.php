@@ -1,6 +1,6 @@
-<?php 
+<?php
 /**
- * 
+ *
  * @desc Класс для работы с HTTP запросом.
  * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
@@ -8,11 +8,11 @@
  */
 class Request
 {
-	
+
 	const NONE_IP = '0.0.0.0';
-	
+
 	public static $_params = array ();
-	
+
 	public static $post_charset = 'utf-8';
 	public static $work_charset = 'utf-8';
 
@@ -26,11 +26,11 @@ class Request
 		{
 			return false;
 		}
-		
+
 		$f = reset ($_FILES);
 		return is_array ($f ['name']);
 	}
-	
+
 	/**
 	 * @desc Получить текущий хост.
 	 * @return Ambigous <string, NULL>
@@ -41,7 +41,7 @@ class Request
 			? $_SERVER ['HTTP_HOST']
 			: null;
 	}
-	
+
 	/**
 	 * @desc Получение параметра GET.
 	 * @param string $name Имя параметра
@@ -52,19 +52,19 @@ class Request
 	{
 		return isset ($_GET [$name]) ? $_GET [$name] : $default;
 	}
-	
+
 	/**
 	 * @desc IP источника запроса
 	 * @return string
 	 */
 	public static function ip ()
 	{
-		return isset ($_SERVER ['REMOTE_ADDR']) ? 
+		return isset ($_SERVER ['REMOTE_ADDR']) ?
 			$_SERVER ['REMOTE_ADDR'] : self::NONE_IP;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return boolean
 	 */
 	public static function isAjax ()
@@ -74,17 +74,17 @@ class Request
 			$_SERVER ['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'
 		);
 	}
-	
+
 	/**
 	 * @desc Проверяет, что скрипт был вызван через консоль.
-	 * @return boolean true, если скрипт был вызван из командной строки, 
+	 * @return boolean true, если скрипт был вызван из командной строки,
 	 * иначе - false.
 	 */
 	public static function isConsole ()
 	{
 		return isset ($_SERVER ['argv'], $_SERVER ['argc']);
 	}
-		
+
 	/**
 	 * @desc Проверяет, передены ли файлы от пользователя.
 	 * @return boolean
@@ -93,7 +93,7 @@ class Request
 	{
 		return !empty ($_FILES);
 	}
-	
+
 	/**
 	 * @desc Проверяет, переданы ли GET параметры.
 	 * @return boolean
@@ -102,7 +102,7 @@ class Request
 	{
 		return !empty ($_GET);
 	}
-	
+
 	/**
 	 * @desc Проверяет, был ли это запрос через JsHttpRequest
 	 * @return boolean
@@ -110,15 +110,15 @@ class Request
 	public static function isJsHttpRequest ()
 	{
 		global $JsHttpRequest_Active;
-		
+
 		return (
 			isset ($_SERVER ['REQUEST_METHOD']) &&
 			$_SERVER ['REQUEST_METHOD'] == 'POST' &&
-			isset ($JsHttpRequest_Active) && 
+			isset ($JsHttpRequest_Active) &&
 			$JsHttpRequest_Active
 		);
 	}
-	
+
 	/**
 	 * @desc Проверяет, что это был POST запрос
 	 * @return boolean
@@ -130,7 +130,7 @@ class Request
 			$_SERVER ['REQUEST_METHOD'] == 'POST'
 		);
 	}
-	
+
 	/**
 	 * @desc Получение или установка параметра.
 	 * @param string $key Название параметра.
@@ -150,22 +150,22 @@ class Request
 			return isset (self::$_params [$key]) ? self::$_params [$key] : null;
 		}
 	}
-	
+
 	/**
 	 * @desc Возвращает все параметры адресной строки.
 	 * Это не GET параметры, а параметры, определяемые роутом.
-	 * @return array 
+	 * @return array
 	 */
 	public static function params ()
 	{
 		return self::$_params;
 	}
-	
+
 	/**
 	 * @desc Получение параметра POST.
 	 * @param string $name Имя параметра
 	 * @param mixed $default Значение по умолчанию
-	 * @return mixed 
+	 * @return mixed
 	 */
 	public static function post ($name, $default = false)
 	{
@@ -179,7 +179,7 @@ class Request
 			{
 				return @iconv (
 					self::$post_charset,
-					self::$work_charset, 
+					self::$work_charset,
 					$_POST [$name]
 				);
 			}
@@ -189,7 +189,7 @@ class Request
 			return $default;
 		}
 	}
-	
+
 	/**
 	 * @desc Возвращает переданные скрипту id из $_REQUEST['id'] и $_REQUEST['ids']
 	 * @return array
@@ -197,7 +197,7 @@ class Request
 	public static function postIds ()
 	{
 		$item_ids = array ();
-		
+
 		if (isset ($_REQUEST ['id']))
 		{
 			$item_ids = array ((int) $_REQUEST ['id']);
@@ -212,9 +212,9 @@ class Request
 		}
 		return $item_ids;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $name Имя поля
 	 * @return PostedFile|false
 	 */
@@ -230,7 +230,7 @@ class Request
 			return false;
 		}
 	}
-	
+
 	/**
 	 * @desc Возвращает объект переданного файла.
 	 * @param integer $index Индекс.
@@ -241,7 +241,7 @@ class Request
 	{
 		Loader::load ('Request_File');
 		$files = array_values ($_FILES);
-		
+
 		if (!isset ($files [$index]))
 		{
 			$f = '@file:' . $index;
@@ -250,16 +250,16 @@ class Request
 				Loader::load ('Request_File_Test');
 				return new Request_File_Test ($_POST [$f]);
 			}
-			
+
 			if (isset ($_POST ['params'], $_POST ['params'][$f]))
 			{
 				Loader::load ('Request_File_Test');
 				return new Request_File_Test ($_POST ['params'][$f]);
 			}
-			
+
 			return null;
 		}
-		
+
 		if (is_array ($files [$index]['name']))
 		{
 			$file = array ();
@@ -267,13 +267,13 @@ class Request
 			{
 				$file [$field] = reset ($values);
 			}
-			
+
 			return new Request_File ($file);
 		}
-		
+
 		return new Request_File ($files [$index]);
 	}
-	
+
 	/**
 	 * @desc Возвращает массив объектов переданных файлов.
 	 * @return array Request_File
@@ -288,7 +288,7 @@ class Request
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * @desc Возвращает количество переданных в запросе файлов.
 	 * @return integer Количество переданных файлов.
@@ -297,7 +297,7 @@ class Request
 	{
 		return count ($_FILES);
 	}
-	
+
 	/**
 	 * @desc Возвращает часть адреса без параметров GET.
 	 * @return string Часть URI до знака "?"
@@ -308,9 +308,9 @@ class Request
 		{
 			return '/';
 		}
-		
+
 		$url = $_SERVER ['REQUEST_URI'];
-		
+
 		if ($without_get)
 		{
 			$p = strpos ($url, '?');
@@ -332,18 +332,18 @@ class Request
 		{
 			return '';
 		}
-		
+
 		$url = $_SERVER ['REQUEST_URI'];
 		$p = strpos ($url, '?');
-		
+
 		if ($p !== false)
 		{
 			return substr ($url, $p + 1);
 		}
-	    
+
 		return '';
 	}
-	
+
 	/**
 	 * @return string
 	 */
@@ -352,16 +352,16 @@ class Request
 		return isset ($_SERVER ['HTTP_REFFERER'])
 			? $_SERVER ['HTTP_REFFERER'] : '';
 	}
-	
+
 	/**
 	 * @return string
 	 */
 	public static function requestMethod ()
 	{
-		return isset ($_SERVER ['REQUEST_METHOD']) 
+		return isset ($_SERVER ['REQUEST_METHOD'])
 			? $_SERVER ['REQUEST_METHOD'] : 'GET';
 	}
-	
+
 	/**
 	 * @desc Возвращает название сервера.
 	 * В зависимости от настроек nginx может вернуть "*.server.com"
@@ -372,18 +372,18 @@ class Request
 		return isset ($_SERVER ['SERVER_NAME'])
 			? $_SERVER ['SERVER_NAME'] : '';
 	}
-	
+
 	/**
 	 * @return string
 	 */
 	public static function sessionId ()
-	{ 
+	{
 		if (!class_exists ('Session_Manager'))
 		{
 			Loader::load ('Session_Manager');
 			Session_Manager::init ();
 		}
-		
+
 		if (isset ($_COOKIE ['PHPSESSID']))
 		{
 			session_id ($_COOKIE ['PHPSESSID']);
@@ -392,13 +392,13 @@ class Request
 		{
 			session_id ($_GET ['PHPSESSID']);
 		}
-		
+
 		if (!isset ($_SESSION))
 		{
 			session_start ();
 		}
-		
+
 		return session_id ();
 	}
-	
+
 }

@@ -91,14 +91,12 @@ class Controller_Admin_Acl extends Controller_Abstract
 	/**
 	 * @desc Получить список полей для создания прав
 	 */
-	public function field ()
+	public function field ($role_id)
 	{
 		if (!$this->_checkAccess ())
 		{
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
-		
-		$role_id = $this->_input->receive ('role_id');
 		
 		$role = Model_Manager::byKey (
 			'Acl_Role',
@@ -169,7 +167,7 @@ class Controller_Admin_Acl extends Controller_Abstract
 	/**
 	 * @desc Сохраняем права на поля таблиц
 	 */
-	public function save ()
+	public function save ($role_id)
 	{
 		set_time_limit (0);
 		
@@ -177,8 +175,6 @@ class Controller_Admin_Acl extends Controller_Abstract
 		{
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
-		
-		$role_id = $this->_input->receive ('role_id');
 		
 		$role = Model_Manager::byKey (
 			'Acl_Role',
@@ -218,7 +214,7 @@ class Controller_Admin_Acl extends Controller_Abstract
 			if (!$resource)
 			{
 				$resource = new Acl_Resource (array (
-					'name'						=> $resource_name
+					'name'	=> $resource_name
 				));
 
 				$resource->save ();
