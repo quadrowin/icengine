@@ -18,7 +18,7 @@ function internal_exception_handler_ignore ($exception)
 /**
  * 
  * @desc Класс для отладки.
- * @author Гурус
+ * @author Yury Shvedov
  * @package IcEngine
  *
  */

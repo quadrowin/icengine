@@ -158,7 +158,7 @@ class IcEngine
 		if (!$loaded)
 		{
 			$loaded = true;
-			require dirname (__FILE__) . '/Class/Debug.php';
+			require dirname (__FILE__) . '/App/Class/Debug.php';
 		}
 
 		call_user_func_array (array ('Debug', 'init'), func_get_args ());
@@ -169,18 +169,15 @@ class IcEngine
 	 */
 	public static function initLoader ()
 	{
-		require dirname (__FILE__) . '/Class/Loader.php';
+		require dirname (__FILE__) . '/App/Class/Loader.php';
 
 		Loader::addPathes (array (
 			'Class'			=> array (
-				self::$_path . 'Class/',
-				self::$_path . 'Model/',
-				self::$_path
+				self::$_path . 'App/Class/',
+				self::$_path . 'App/Model/',
+				self::$_path . 'App/'
 			),
-			'Controller'	=> array (
-				self::$_path . 'Controller/'
-			),
-			'includes'		=> self::$_path . 'includes/'
+			'includes'		=> self::$_path . 'Vendor/'
 		));
 	}
 
@@ -193,7 +190,7 @@ class IcEngine
 		if (!$loaded)
 		{
 			$loaded = true;
-			require dirname (__FILE__) . '/Class/Tracer.php';
+			require dirname (__FILE__) . '/App/Base/Tracer.php';
 		}
 	}
 

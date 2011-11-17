@@ -134,6 +134,8 @@ class Loader
 
 		if (true)
 		{
+//			var_dump (self::$_pathes);
+//			var_dump (self::$_pathes [$type]);
 			include __DIR__ . '/Loader/Exception.php';
 			throw new Loader_Exception("Not found: $file");
 //			echo '<pre>Not found: ' . $file . "\n";
