@@ -31,12 +31,12 @@ abstract class Bootstrap_Abstract
 	 * @desc Возвращает загрузчик.
 	 * @param string $path путь до этого загрузчика
 	 */
-	public function __construct ($path)
+	public function __construct ()
 	{
 		$this->_basePath = substr (
-			$path,
+			$this->dir (),
 			0,
-			- strlen ('Model_' . get_class ($this) . '.php')
+			-strlen ('Model/Bootstrap')
 		);
 		$this->_name = substr (get_class ($this), strlen ('Bootstrap_'));
 	}
@@ -54,6 +54,7 @@ abstract class Bootstrap_Abstract
 			'Zend_Exception'
 		);
 		
+		Config_Manager::setPath ($this->basePath () . 'Config/');
 		$this->initFirePhp ();
 		
 		Loader::multiLoad (
@@ -123,6 +124,17 @@ abstract class Bootstrap_Abstract
 	public function basePath ()
 	{
 		return $this->_basePath;
+	}
+	
+	/**
+	 * @desc Возвращает директорию бутстрапа
+	 * В работающем загрузчике __DIR__ или dirname(__FILE__).
+	 * @return string
+	 */
+	public function dir ()
+	{
+		$r = new ReflectionClass ($this);
+		return dirname ($r->getFileName ());
 	}
 	
 	/**

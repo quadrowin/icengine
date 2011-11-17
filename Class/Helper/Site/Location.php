@@ -75,7 +75,8 @@ class Helper_Site_Location
 		if (!self::$_location)
 		{
 
-			$file = IcEngine::root () . 'Ice/Var/Helper/Site/Location.txt';
+			$file = IcEngine::bootstrap ()->basePath () . 
+				'Var/Helper/Site/Location.txt';
 
 			if (file_exists ($file))
 			{
