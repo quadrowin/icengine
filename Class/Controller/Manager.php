@@ -239,7 +239,7 @@ class Controller_Manager extends Manager_Abstract
 					$param->name
 				);
 				
-				if ($reflaction_param)
+				if ($reflection_param)
 				{
 					$param_value = $reflection_param->getDefaultValue ();
 				}
