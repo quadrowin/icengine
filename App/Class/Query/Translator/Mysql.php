@@ -166,13 +166,13 @@ class Query_Translator_Mysql extends Query_Translator
 
 		if (count ($from) > 1)
 		{
-			foreach ($from as $a=>$v)
+			foreach ($from as $a => $v)
 			{
 				if ($v [Query::JOIN] == Query::FROM)
 				{
 					$tmp = $v;
 					unset ($from [$a]);
-					$from = array_merge (array ($a=>$v), $from);
+					$from = array_merge (array ($a => $v), $from);
 					break;
 				}
 			}
@@ -188,17 +188,13 @@ class Query_Translator_Mysql extends Query_Translator
 			}
 			else
 			{
-				$model_name = $use_alias
-					? self::$_models->getTable ($from [Query::TABLE])
-					: null;
-
 				if (strpos ($from [Query::TABLE], self::SQL_ESCAPE) !== false)
 				{
 					$table = $from [Query::TABLE];
 				}
 				else
 				{
-					$table = $model_name ? $model_name : $from [Query::TABLE];
+					$table = self::$_models->getTable ($from [Query::TABLE]);
 				}
 
 				$table = $this->_escape ($table);
