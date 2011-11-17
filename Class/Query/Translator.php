@@ -10,7 +10,7 @@ class Query_Translator
 {
 	/**
 	 * @desc Модели
-	 * @var Data_Mapper_Result
+	 * @var Model_Map
 	 */
 	protected static $_models;
 
@@ -42,7 +42,7 @@ class Query_Translator
 	 * @param Query $query Запрос.
 	 * @return mixed Результат трансляции.
 	 */
-	public function translate (Query $query, Data_Mapper_Result $models)
+	public function translate (Query $query, Model_Map $models)
 	{
 		$type = $query->type ();
 		$type =
