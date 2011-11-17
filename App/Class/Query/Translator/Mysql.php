@@ -322,16 +322,15 @@ class Query_Translator_Mysql extends Query_Translator
 	}
 
 	/**
-	 *
+	 * @desc Ограничения
 	 * @param Query $query
 	 * @return string
 	 */
 	public function _renderLimitoffset (Query $query)
 	{
 		$sql = '';
-		$limit_count = $query->part (Query::LIMIT_COUNT);
 
-		if (!empty ($limit_count))
+		if ($query->part (Query::LIMIT_COUNT))
 		{
 			$sql .=
 				' LIMIT ' . (int) $query->part (Query::LIMIT_OFFSET) .
@@ -339,7 +338,8 @@ class Query_Translator_Mysql extends Query_Translator
 		}
 		elseif ($query->part (Query::LIMIT_OFFSET))
 		{
-			$sql .= ' LIMIT ' . (int) $query->part (Query::LIMIT_OFFSET);
+			$sql .= ' LIMIT ' . (int) $query->part (Query::LIMIT_OFFSET) .
+				self::SQL_COMMA . ' 999999999999999';
 		}
 
 		return $sql;
