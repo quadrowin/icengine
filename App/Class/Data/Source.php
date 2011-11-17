@@ -247,7 +247,7 @@ class Data_Source
 	 * @desc 
 	 * @param Data_Mapper_Abstarct $mapper 
 	 */
-	public function setDataMapper (Data_Mapper_Abstarct $mapper)
+	public function setDataMapper (Data_Mapper_Abstract $mapper)
 	{
 		$this->_mapper = $mapper;
 	}
