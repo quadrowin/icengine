@@ -115,7 +115,7 @@ class Query_Translator_Mysql extends Query_Translator
 
 		foreach($parts[Query::DELETE] as $key => $part)
 		{
-			$model_name = self::$_models->get ($part);
+			$model_name = self::$_models->getTable ($part);
 			if (strpos ($part, self::SQL_ESCAPE) !== false)
 			{
 				$table = $part;
@@ -132,7 +132,7 @@ class Query_Translator_Mysql extends Query_Translator
 
 		foreach ($parts [Query::FROM] as &$part)
 		{
-			$model_name = self::$_models->get ($part [Query::TABLE]);
+			$model_name = self::$_models->getTable ($part [Query::TABLE]);
 			$part [Query::TABLE] = $model_name
 				? $model_name
 				: $part [Query::TABLE];
@@ -189,7 +189,7 @@ class Query_Translator_Mysql extends Query_Translator
 			else
 			{
 				$model_name = $use_alias
-					? self::$_models->get ($from [Query::TABLE])
+					? self::$_models->getTable ($from [Query::TABLE])
 					: null;
 
 				if (strpos ($from [Query::TABLE], self::SQL_ESCAPE) !== false)
@@ -307,7 +307,7 @@ class Query_Translator_Mysql extends Query_Translator
 	public function _renderInsert (Query $query)
 	{
 		$table = $query->part (Query::INSERT);
-		$model_name = self::$_models->get ($table);
+		$model_name = self::$_models->getTable ($table);
 		$sql = 'INSERT INTO ' . ($model_name ? $model_name : $table) . ' (';
 
 		$fields = array_keys ($query->part (Query::VALUES)	);
@@ -390,7 +390,7 @@ class Query_Translator_Mysql extends Query_Translator
 	public function _renderReplace (Query $query)
 	{
 		$table = $query->part (Query::REPLACE);
-		$model_name = self::$_models->get ($table);
+		$model_name = self::$_models->getTable ($table);
 		$sql = 'REPLACE ' . ($model_name ? $model_name : $table) . ' (';
 
 		$fields = array_keys ($query->part (Query::VALUES));
@@ -545,7 +545,7 @@ class Query_Translator_Mysql extends Query_Translator
 	public function _renderUpdate (Query $query)
 	{
 		$table = $query->part (Query::UPDATE);
-		$model_name = self::$_models->get ($table);
+		$model_name = self::$_models->getTable ($table);
 		$sql ='UPDATE ' . ($model_name ? $model_name : $table) . ' SET ';
 
 		$values = $query->part (Query::VALUES);

@@ -72,11 +72,11 @@ class Data_Source
 	 */
 	public function execute ($query = null, $options = null)
 	{
-		Loader::load ('Data_Mapper');
+		Loader::load ('Model_Map');
+		$model_map = new Model_Map;
 
 		$this->setQuery ($query);
-		$this->setModels (Data_Mapper::getModels ());
-
+		
 		if (!$this->_adapter->isConnected ())
 		{
 			$this->_adapter->connect ();
@@ -89,10 +89,16 @@ class Data_Source
 		$where = $clone->getPart (Query::WHERE);
 		$this->_filters->apply ($where, Query::VALUE);
 		$clone->setPart (Query::WHERE, $where);
+		
+		$models = $clone->getModels ();
+		foreach ($models as $model)
+		{
+			$model_map->setTable ($model, Model_Scheme::table ($model));
+		}
 
 		$translator_result = Query_Translator::factory (
 			$this->_adapter->getTranslatorName ()
-		)->translate ($clone, self::$_models);
+		)->translate ($clone, $model_map);
 
 		$result = null;
 
@@ -210,7 +216,7 @@ class Data_Source
 	public function getQuery ($translator = null)
 	{
 		return $translator
-			? $this->_query->translate ($translator, self::$_models)
+			? $this->_query->translate ($translator)
 			: $this->_query;
 	}
 
