@@ -25,6 +25,12 @@ class Data_Source
 	 * @var Data_Mapper_Result
 	 */
 	protected static $_models;
+	
+	/**
+	 * @desc 
+	 * @var Data_Mapper_Abstract
+	 */
+	protected $_mapper;
 
 	/**
 	 * @desc Текущий запрос
@@ -93,7 +99,7 @@ class Data_Source
 		$models = $clone->getModels ();
 		foreach ($models as $model)
 		{
-			$model_map->setTable ($model, Model_Scheme::table ($model));
+			$model_map->setTable ($model, $this->_mapper->getTable ($model));
 		}
 
 		$translator_result = Query_Translator::factory (
@@ -185,6 +191,15 @@ class Data_Source
 	}
 
 	/**
+	 * @desc 
+	 * @return Data_Mapper_Abstract
+	 */
+	public function getDataMapper ()
+	{
+		return $this->_mapper;
+	}
+	
+	/**
 	 * @return integer
 	 */
 	public function getIndex ()
@@ -227,7 +242,16 @@ class Data_Source
 	{
 		return $this->_result;
 	}
-
+	
+	/**
+	 * @desc 
+	 * @param Data_Mapper_Abstarct $mapper 
+	 */
+	public function setDataMapper (Data_Mapper_Abstarct $mapper)
+	{
+		$this->_mapper = $mapper;
+	}
+	
 	/**
 	 *
 	 * @param Data_Source_Collection $sources
