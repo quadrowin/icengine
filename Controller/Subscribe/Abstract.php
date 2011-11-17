@@ -16,13 +16,13 @@ class Controller_Subscribe_Abstract extends Controller_Abstract
 	 */
 	public function backgroundStart ()
 	{
-			Loader::load ('Background_Agent_Manager');
-			Background_Agent_Manager::instance ()->startAgent (
-					self::BACKGROUND_AGENT,
-					array (
-							'Background_Agent_Resume__id'   => 0
-					)
-			);
+		Loader::load ('Background_Agent_Manager');
+		Background_Agent_Manager::instance ()->startAgent (
+				self::BACKGROUND_AGENT,
+				array (
+						'Background_Agent_Resume__id'   => 0
+				)
+		);
 	}
 
 	/**
@@ -30,9 +30,9 @@ class Controller_Subscribe_Abstract extends Controller_Abstract
 	 */
 	public function backgroundProcess ()
 	{
-			Loader::load ('Background_Agent_Manager');
-			Background_Agent_Manager::instance ()->processAgent (
-					self::BACKGROUND_AGENT
-			);
+		Loader::load ('Background_Agent_Manager');
+		Background_Agent_Manager::instance ()->processAgent (
+				self::BACKGROUND_AGENT
+		);
 	}
 }
