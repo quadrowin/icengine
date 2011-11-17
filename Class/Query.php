@@ -632,7 +632,7 @@ class Query {
 		Loader::load ('Model_Map');
 		$model_map = new Model_Map;
 
-		$models = $this->_query->getModels ();
+		$models = $this->getModels ();
 		foreach ($models as $model)
 		{
 			$model_map->setTable ($model, Model_Scheme::table ($model));
