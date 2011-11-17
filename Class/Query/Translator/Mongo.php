@@ -123,9 +123,11 @@ class Query_Translator_Mongo extends Query_Translator
 		}
 
 		//foreach ($from as $alias => $from)
-		
+
 		reset ($from);
-		return strtolower (Model_Scheme::table (key ($from)));
+		$table = key ($from);
+		$model_name = self::$_models->get ($table);
+		return $model_name ? $model_name: $table;
 	}
 
 	/**
@@ -190,6 +192,7 @@ class Query_Translator_Mongo extends Query_Translator
 	/**
 	 * @desc Формирует запрос на удаление
 	 * @param Query $query
+	 * @param array $map
 	 * @return array
 	 */
 	public function _renderDelete (Query $query)
@@ -209,8 +212,9 @@ class Query_Translator_Mongo extends Query_Translator
 	public function _renderInsert (Query $query)
 	{
 		$table = $query->part (Query::INSERT);
+		$model_name = self::$_models->get ($table);
 		return array (
-			'collection'	=> strtolower (Model_Scheme::table ($table)),
+			'collection'	=> $model_name ? $model_name : $table,
 			'a'				=> $query->part (Query::VALUES)
 		);
 	}
@@ -245,14 +249,16 @@ class Query_Translator_Mongo extends Query_Translator
 	/**
 	 * @desc Рендеринг REPLACE запроса.
 	 * @param Query $query Запрос
+	 * @param array $map
 	 * @return string Сформированный SQL запрос
 	 */
 	public function _renderReplace (Query $query)
 	{
 		$table = $query->part (Query::REPLACE);
+		$model_name = self::$_models->get ($table);
 		return array (
 			'method'		=> 'save',
-			'collection'	=> strtolower (Model_Scheme::table ($table)),
+			'collection'	=> $model_name ? $model_name : $table,
 			'arg0'			=> $values
 		);
 	}
@@ -279,7 +285,7 @@ class Query_Translator_Mongo extends Query_Translator
 						if (empty ($sparts [0]))
 						{
 							$source = '';
-						}
+						} 
 						else
 						{
 							$source =
@@ -381,13 +387,12 @@ class Query_Translator_Mongo extends Query_Translator
 		}
 
 		//foreach ($from as $alias => $from)
-
-
 		reset ($from);
 		$table = key ($from);
+		$model_name = self::$_models->get ($table);
 		return array (
 			'show'			=> $query->part (Query::SHOW),
-			'collection'	=> strtolower (Model_Scheme::table ($table)),
+			'collection'	=> $model_name ? $model_name : $table,
 			'model'			=> $table
 		);
 	}
@@ -400,8 +405,9 @@ class Query_Translator_Mongo extends Query_Translator
 	public function _renderUpdate (Query $query)
 	{
 		$table = $query->part (Query::UPDATE);
+		$model_name = self::$_models->get ($table);
 		return array (
-			'collection'	=> strtolower (Model_Scheme::table ($table)),
+			'collection'	=> $model_name ? $model_name : $table,
 			'criteria'		=> $this->_getCriteria ($query),
 			'newobj'		=> $query->part (Query::VALUES),
 			'options'		=> array (

@@ -194,7 +194,7 @@ abstract class Model_Scheme
 
 	/**
 	 * @desc Генерирует новый ID для модели, если для этого в схеме заданы
-	 * правила.	
+	 * правила.
 	 * @param Model $model
 	 * @return string|null.
 	 * 		Сгенерированный ключ или null, если правила не заданы.
@@ -320,7 +320,7 @@ abstract class Model_Scheme
 	public static function dataSource ($model)
 	{
 		$model = strtolower ($model);
-		
+
 		if (!isset (self::$models [$model], self::$models [$model]['source']))
 		{
 			return DDS::getDataSource ();
@@ -358,25 +358,14 @@ abstract class Model_Scheme
 
 			if (!$scheme)
 			{
-				Loader::load ($model_name);
-				$scheme = $model_name::scheme ();
-			}
-
-			if (empty ($scheme ['fields']))
-			{
 				Loader::load ('Helper_Data_Source');
-
 				$table = self::table ($model_name);
-
 				$fields = Helper_Data_Source::fields ('`' . $table . '`');
-
 				$fields = self::_makeScheme ($fields);
-
 				$scheme = array (
 					'fields'	=> $fields,
 					'keys'		=> array ()
 				);
-
 			}
 
 			self::setScheme ($model_name, $scheme);
@@ -421,18 +410,18 @@ abstract class Model_Scheme
 
 	/**
 	 * @desc Получить все ссылки модели
-	 * @param string $model1 
+	 * @param string $model1
 	 * @return array
 	 */
 	public static function links ($model1)
 	{
 		$model1 = strtolower ($model1);
-		
+
 		return !empty (self::$models [$model1]['links'])
 			? self::$models [$model1]['links']
 			: null;
 	}
-	
+
 	/**
 	 * @desc Возвращает схему связи.
 	 * @param string $model1

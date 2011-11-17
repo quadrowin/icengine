@@ -1,5 +1,5 @@
 <?php
-/** 
+/**
  *
  * @desc Помощник для построения зависимостей от положения сайта
  * @author Yury Shvedov
@@ -37,13 +37,19 @@ class Helper_Site_Location
 		{
 			self::load ();
 		}
-		
+
 		$location = self::$_location;
+
 		while (is_string (self::$_config [$location]))
 		{
 			$location = self::$_config [$location];
 		}
-		
+
+		if (strpos ($param, '::') !== false)
+		{
+			list ($location, $param) = explode ('::', $param);
+		}
+
 		return self::$_config [$location][$param];
 	}
 
