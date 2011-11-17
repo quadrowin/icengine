@@ -15,8 +15,8 @@ class Helper_Data_Source
 			->show ('FULL COLUMNS')
 			->from ($table)
 			->where ('Field', $field);
-
-		$status = DDS::execute (
+		
+		$status = DDS::executeAuto (
 			$query
 		)
 			->getResult ()
@@ -36,7 +36,7 @@ class Helper_Data_Source
 			->show ('FULL COLUMNS')
 			->from ($table);
 
-		$status = DDS::execute (
+		$status = DDS::executeAuto (
 			$query
 		)
 			->getResult ()
@@ -56,7 +56,7 @@ class Helper_Data_Source
 			->where ('Name', $table)
 			->resetPart (Query::FROM);
 
- 		$status = DDS::execute (
+ 		$status = DDS::executeAuto (
  			$query
  		)
 			->getResult ()
@@ -74,8 +74,8 @@ class Helper_Data_Source
 		$query = Query::instance ()
 			->show ('TABLE STATUS')
 			->resetPart (Query::FROM);
-
-		$status = DDS::execute (
+		
+		$status = DDS::executeAuto (
 			$query
 		)
 			->getResult ()
