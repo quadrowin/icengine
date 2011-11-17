@@ -133,16 +133,8 @@ class Data_Source
 
 		if ($errno)
 		{
-			Loader::load ('Data_Mapper_Exception');
-			if (class_exists ('Debug'))
-			{
-				Debug::errorHandler (
-					E_USER_ERROR, json_encode ($translated_query) .
-					'; ' . $error,
-					__FILE__, __LINE__
-				);
-			}
-			throw new Data_Mapper_Exception (
+			Loader::load ('Data_Source_Exception');
+			throw new Data_Source_Exception (
 				$error . "\n" . json_encode ($translated_query), $errno
 			);
 		}
