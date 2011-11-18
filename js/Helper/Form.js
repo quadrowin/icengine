@@ -62,27 +62,33 @@ var Helper_Form = {
 		$fields.each (function () {
 
             /**
-             * для корректной обработки параметров с именем "param[]"
+             * для корректной обработки select:multiple и параметров с именем "param[]"
              * @author red
              */
             function _setValue (name, value) {
+                var _name = name;
+                var _isArray = false;
+
+                if (name.slice (-2) == '[]') {
+                    _name = name.slice (0, -2);
+                    _isArray = true;
+                }
                 if (typeof (value) == 'object') {
-                    if (! (name in data)) {
-                        data[name] = [];
+                    _isArray = true;
+                }
+
+                if (_isArray) {
+                    if (! (_name in data)) {
+                        data[_name] = [];
                     }
-                    for(i in value) {
-                        data[name].push(value[i]);
-                    }
-                } else {
-                    if (name.substr (-2) == '[]') {
-                        if (name in data) {
-                            data[name].push (value);
-                        } else {
-                            data[name] = [value];
-                        }
+                    if( typeof (value) == 'object' ) {
+                        for (i in value) { data[_name].push (value[i]); }
                     } else {
-                        data[name] = value;
+                        data[_name].push (value);
                     }
+                }
+                else {
+                    data[_name] = value;
                 }
             }
 
@@ -97,41 +103,40 @@ var Helper_Form = {
 				{
 					if (this.checked)
 					{
-						_setValue (this.name, this.value ? this.value : 'on');
+						_setValue (this.name, $(this).val() ? $(this).val() : 'on');
 					}
 				}
 				else if (this.type == 'radio')
 				{
 					if (this.checked)
 					{
-						_setValue (this.name, this.value);
+						_setValue (this.name, $(this).val ());
 					}
 				}
 				else
 				{
-					if ($(this).attr ('placeholder') == this.value)
+					if ($(this).attr ('placeholder') == $(this).val ())
 					{
 						_setValue (this.name, '');
 					}
 					else
 					{
-						_setValue (this.name, this.value);
+						_setValue (this.name, $(this).val ());
 					}
 				}
 			}
 			else
 			{
-				if ($(this).attr ('placeholder') == this.value)
+				if ($(this).attr ('placeholder') == $(this).val ())
 				{
 					_setValue (this.name, '');
 				}
 				else
 				{
-					_setValue (this.name, this.value);
+					_setValue (this.name, $(this).val ());
 				}
 			}
 		});
-		
 		return data;
 	},
 	
