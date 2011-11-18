@@ -60,35 +60,62 @@ var Helper_Form = {
 		var data = {};	
 		
 		$fields.each (function () {
+
+            /**
+             * для корректной обработки параметров с именем "param[]"
+             * @author red
+             */
+            function _setValue (name, value) {
+                if (typeof (value) == 'object') {
+                    if (! (name in data)) {
+                        data[name] = [];
+                    }
+                    for(i in value) {
+                        data[name].push(value[i]);
+                    }
+                } else {
+                    if (name.substr (-2) == '[]') {
+                        if (name in data) {
+                            data[name].push (value);
+                        } else {
+                            data[name] = [value];
+                        }
+                    } else {
+                        data[name] = value;
+                    }
+                }
+            }
+
+
 			if (this.tagName.toLowerCase () == 'input')
 			{
 				if (this.type == "file")
 				{
-					data [this.name] = this;
+					_setValue (this.name, this);
 				}
 				else if (this.type == 'checkbox')
 				{
 					if (this.checked)
 					{
-						data [this.name] = this.value ? this.value : 'on';
+						_setValue (this.name, this.value ? this.value : 'on');
 					}
 				}
 				else if (this.type == 'radio')
 				{
 					if (this.checked)
 					{
-						data [this.name] = this.value;
+						_setValue (this.name, this.value);
 					}
 				}
 				else
 				{
 					if ($(this).attr ('placeholder') == this.value)
 					{
-						data [this.name] = '';
+						_setValue (this.name, '');
 					}
 					else
 					{
-						data [this.name] = this.value;
+						_setValue (this.name, this.value);
 					}
 				}
 			}
@@ -96,11 +123,11 @@ var Helper_Form = {
 			{
 				if ($(this).attr ('placeholder') == this.value)
 				{
-					data [this.name] = '';
+					_setValue (this.name, '');
 				}
 				else
 				{
-					data [this.name] = this.value;
+					_setValue (this.name, this.value);
 				}
 			}
 		});
