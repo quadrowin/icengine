@@ -31,9 +31,7 @@ editor ('extended');
 								{if isset($link_models[$field])}
 									<div style="height:180px; overflow: auto">
 										{assign var="linked_items" value=$row->$field}
-
 										<input type="hidden" id="column-{$i->Field}" name="column[{$i->Field}]" value="0" />
-
 										{foreach from=$i->Values item="ival"}
 											<input type="checkbox" name="column[{$i->Field}][]" value="{$ival->key()}" 
 												   {if isset($events[$field])}

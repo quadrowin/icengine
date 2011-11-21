@@ -404,29 +404,29 @@ class Controller_Admin_Database extends Controller_Abstract
 					->where ('tv_field_name', $field->Field)
 			);
 
-			//echo DDS::getDataSource ()->getQuery ()->translate () . '<br />';
-
-			// Есть запись для поля таблицы в таблице подстановок
-			if ($text_value && $text_value->tv_text_field)
-			{
-				$field_filters = array ();
-
-				if (!empty ($this->config ()->field_filters))
-				{
-					$field_filters = $this->config ()->field_filters->$class_name;
-				}
-
-				if ($field_filters)
-				{
-					$field_filters = $field_filters->__toArray ();
-				}
-				
-				$collection = $text_value->replace (
-					$row, $table, $fields, $field, $field_filters, $class_name
-				);
-
-				$field->Values = $collection;
-			}
+//			//echo DDS::getDataSource ()->getQuery ()->translate () . '<br />';
+//
+//			// Есть запись для поля таблицы в таблице подстановок
+//			if ($text_value && $text_value->tv_text_field)
+//			{
+//				$field_filters = array ();
+//
+//				if (!empty ($this->config ()->field_filters))
+//				{
+//					$field_filters = $this->config ()->field_filters->$class_name;
+//				}
+//
+//				if ($field_filters)
+//				{
+//					$field_filters = $field_filters->__toArray ();
+//				}
+//				
+//				$collection = $text_value->replace (
+//					$row, $table, $fields, $field, $field_filters, $class_name
+//				);
+//
+//				$field->Values = $collection;
+//			}
 
 			// Поле - поле для связи
 			if (strpos ($field->Field, '__id') !== false)
@@ -523,6 +523,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			}
 		}
 
+		fb($fields);
 		// Получаем эвенты
 		$events  = array ();
 
