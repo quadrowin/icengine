@@ -276,12 +276,12 @@ class Controller_Admin_Database extends Controller_Abstract
 	 */
 	public function index ()
 	{
-		$tables = Helper_Data_Source::tables ();;
+		$tables = Helper_Data_Source::tables ();
 		$tmp_tables = $this->__aclTables ($tables);
 
 		if (!$tmp_tables || !User::id ())
 		{
-			return $this->replaceAction ('Error', 'accessDenied');
+//			return $this->replaceAction ('Error', 'accessDenied');
 		}
 
 		$result = array ();
@@ -328,6 +328,7 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		$rate = Table_Rate::byTable ($table)->inc ();
 		$fields = Helper_Data_Source::fields ('`' . $table . '`');
+
 		$acl_fields = $this->__aclFields ($table, $fields);
 
 		if (!$acl_fields || !User::id ())
@@ -505,7 +506,7 @@ class Controller_Admin_Database extends Controller_Abstract
 					$link_name
 				);
 
-				$link_table = Model_Scheme::table ($row->modelName ());
+				$link_table = Model_Scheme::table ($link_name);
 
 				$table_info = Helper_Data_Source::table ($link_table);
 
