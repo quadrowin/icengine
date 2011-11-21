@@ -33,6 +33,18 @@ class Helper_Data_Source
 	public static function fields ($table)
 	{
 		$query = Query::instance ()
+			->show ('TABLE STATUS')
+			->where ('Name', $table);
+
+		$exists = DDS::execute ($query)
+			->getResult ()->asValue ();
+
+		if (!$exists)
+		{
+			return;
+		}
+
+		$query = Query::instance ()
 			->show ('FULL COLUMNS')
 			->from ($table);
 

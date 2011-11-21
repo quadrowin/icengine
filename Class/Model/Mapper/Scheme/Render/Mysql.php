@@ -4,7 +4,7 @@ class Model_Mapper_Scheme_Render_Mysql
 {
 	public function render ($scheme)
 	{
-		$sql = 'CREATE TABLE IN NOT EXISTS `' .
+		$sql = 'CREATE TABLE IF NOT EXISTS `' .
 			Model_Scheme::table ($scheme->getModel ()->modelName ()). '` (' . "\n";
 		$fields = $scheme->getFields ();
 		if ($fields)
@@ -22,14 +22,14 @@ class Model_Mapper_Scheme_Render_Mysql
 						$sql .= '(' . $max_length . ') ';
 					}
 				}
-				if (isset ($attribute ['Not_Null']))
+				if (isset ($attributes ['Not_Null']))
 				{
 					$sql .= ($attributes ['Not_Null']->getValue () ? 'NOT ' : '') .
 						'NULL ';
 				}
 				if (isset ($attributes ['Default_Value']))
 				{
-					$sql .= 'DEFAULT `' .
+					$sql .= 'DEFAULT \'' .
 						str_replace ('\'', '',
 							$attributes ['Default_Value']->getValue ()) .
 						'\' ';
@@ -67,8 +67,10 @@ class Model_Mapper_Scheme_Render_Mysql
 			foreach ($keys as $key)
 			{
 				$key_name = $key->getName ();
-				$sql .= 'KEY ' . ($key_name != 'Index' ? $key_name . ' '  : '') .
-					'`' . $key->getField () . '` (';
+				$sql .=
+					($key_name != 'Index' ? $key_name . ' KEY ' . '  '  : $key_name) .
+					($key_name != 'Primary' ? '`' . $key->getField () . '`'  : '') .
+					' (';
 				$values = (array) $key->getValue ();
 				foreach ($values as &$value)
 				{

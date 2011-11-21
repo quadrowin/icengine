@@ -1,16 +1,15 @@
 <?php
+
 Loader::load ('Object_Pool');
-Loader::load ('Object_Interface');
+
 /**
- *
- * @desc Базовая модель для всех сущностей.
- * @author Юрий
+ * @desc Базовая модель для всех сущностей. Реализует Active Record.
+ * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
  *
  */
 abstract class Model implements ArrayAccess
 {
-
 	/**
 	 * @desc Базовая модель (без дополнительных полей).
 	 * @var Model
@@ -79,7 +78,6 @@ abstract class Model implements ArrayAccess
 	 */
 	protected $_scheme;
 
-
 	/**
 	 * @desc Обновленные поля.
 	 * @var array <boolean>
@@ -87,6 +85,7 @@ abstract class Model implements ArrayAccess
 	protected $_updatedFields = array ();
 
 	/**
+	 * (non-PHPDoc)
 	 * @param string $method
 	 * @param mixed $params
 	 * @return mixed
@@ -118,7 +117,7 @@ abstract class Model implements ArrayAccess
 	}
 
 	/**
-	 * @desc Создает и возвращает модель.
+	 * (non-PHPDoc)
 	 * @param array $fields Данные модели.
 	 * @param Model $model [optional]
 	 */
@@ -168,7 +167,7 @@ abstract class Model implements ArrayAccess
 	}
 
 	/**
-	 * @desc Возвращает поле.
+	 * (non-PHPDoc)
 	 * @param string $field Поле
 	 * @return mixed
 	 */
@@ -301,10 +300,10 @@ abstract class Model implements ArrayAccess
 	public function __toArray ()
 	{
 		return array (
-			'class'	=> get_class ($this),
-			'model'	=> $this->modelName (),
-			'fields' => $this->asRow (),
-			'data' => $this->_data
+			'class'		=> get_class ($this),
+			'model'		=> $this->modelName (),
+			'fields'	=> $this->asRow (),
+			'data'		=> $this->_data
 		);
 	}
 
@@ -566,6 +565,10 @@ abstract class Model implements ArrayAccess
 		Object_Pool::push ($this);
 	}
 
+	/**
+	 * @desc Возвращает базовую модель
+	 * @return Model
+	 */
 	public function generic ()
 	{
 		return $this->_generic;
@@ -618,6 +621,11 @@ abstract class Model implements ArrayAccess
 		return array_key_exists ($field, $this->_fields);
 	}
 
+	/**
+	 * @desc Получить связанную модель
+	 * @param string $model
+	 * @return Model
+	 */
 	public function getJoint ($model)
 	{
 		return $this->_joints [$model];
@@ -938,6 +946,12 @@ abstract class Model implements ArrayAccess
 		return $valid;
 	}
 
+	/**
+	 * @desc Валидация модели при помощи заданной схемы валидации
+	 * @param string $scheme_name
+	 * @param Data_Transport $input
+	 * @return array
+	 */
 	public function validateWith ($scheme_name, $input)
 	{
 		$model_validator = $this->modelName () . '_Validator_' . $scheme_name;

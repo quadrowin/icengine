@@ -171,7 +171,6 @@ abstract class Model_Scheme
 
 			$scheme [$field] = $s;
 		}
-
 		return $scheme;
 	}
 
@@ -360,12 +359,21 @@ abstract class Model_Scheme
 			{
 				Loader::load ('Helper_Data_Source');
 				$table = self::table ($model_name);
-				$fields = Helper_Data_Source::fields ('`' . $table . '`');
-				$fields = self::_makeScheme ($fields);
-				$scheme = array (
-					'fields'	=> $fields,
-					'keys'		=> array ()
-				);
+				$fields = Helper_Data_Source::fields ($table);
+
+				if ($fields)
+				{
+					$fields = self::_makeScheme ($fields);
+
+					$scheme = array (
+						'fields'	=> $fields,
+						'keys'		=> array ()
+					);
+				}
+				else
+				{
+					return;
+				}
 			}
 
 			self::setScheme ($model_name, $scheme);
