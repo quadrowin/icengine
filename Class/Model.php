@@ -1,7 +1,5 @@
 <?php
 
-Loader::load ('Object_Pool');
-
 /**
  * @desc Базовая модель для всех сущностей. Реализует Active Record.
  * @author Юрий Шведов, Илья Колесников
@@ -10,12 +8,6 @@ Loader::load ('Object_Pool');
  */
 abstract class Model implements ArrayAccess
 {
-	/**
-	 * @desc Базовая модель (без дополнительных полей).
-	 * @var Model
-	 */
-	protected $_generic = null;
-
 	/**
 	 * @desc Поля реализации.
 	 * @var array
@@ -42,11 +34,16 @@ abstract class Model implements ArrayAccess
 	protected $_data = array ();
 
 	/**
-	 * @desc Индекс объекта для подсчета количества
-	 * загруженных моделей.
-	 * @var integer
+	 * @desc Данные модели
+	 * @var array
 	 */
-	protected static $_objectIndex = 0;
+	protected $_fields;
+
+	/**
+	 * @desc Базовая модель (без дополнительных полей).
+	 * @var Model
+	 */
+	protected $_generic = null;
 
 	/**
 	 * @desc Подгруженные объекты
@@ -55,16 +52,17 @@ abstract class Model implements ArrayAccess
 	protected $_joints = array ();
 
 	/**
-	 * @desc Данные модели
-	 * @var array
-	 */
-	protected $_fields;
-
-	/**
 	 * @desc Все данные загружены
 	 * @var boolean
 	 */
 	protected $_loaded;
+
+	/**
+	 * @desc Индекс объекта для подсчета количества
+	 * загруженных моделей.
+	 * @var integer
+	 */
+	protected static $_objectIndex = 0;
 
 	/**
 	 * @desc Плагины
@@ -555,14 +553,6 @@ abstract class Model implements ArrayAccess
 		{
 			return $this->__get ($key);
 		}
-	}
-
-	/**
-	 * @desc Освободить модель и поместить ее в пул моделей
-	 */
-	public function free ()
-	{
-		Object_Pool::push ($this);
 	}
 
 	/**
