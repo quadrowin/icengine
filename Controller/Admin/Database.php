@@ -383,12 +383,12 @@ class Controller_Admin_Database extends Controller_Abstract
 				foreach ($values as $v)
 				{
 					$v = trim ($v, "' ");
-
+			
 					$collection->add (new Model_Proxy (
 						'Dummy',
 						array (
-							'id'	=> $v,
-							'name'	=> $v
+							Model_Scheme::keyField ($class_name)	=> $v,
+							'name'					=> $v
 						)
 					));
 				}
@@ -454,7 +454,7 @@ class Controller_Admin_Database extends Controller_Abstract
 				$result = DDS::execute ($query)
 					->getResult ()
 						->asTable ();
-
+				
 				$collection = Model_Collection_Manager::create (
 					$class_name
 				)
@@ -472,12 +472,12 @@ class Controller_Admin_Database extends Controller_Abstract
 					$model_class_name = $class_name;
 				}
 				$kf = Model_Scheme::keyField ($model_class_name);
-
-				Loader::load ('Dummy');
-
+				
+				Loader::load ('Model_Proxy');
+			
 				foreach ($result as $item)
 				{
-					$collection->add (new Dummy (array (
+					$collection->add (new Model_Proxy ($model_class_name, array (
 						$kf	=> $item [$text_value->tv_text_link_field],
 						'name'	=> $item [$text_value->tv_text_field]
 					)));
