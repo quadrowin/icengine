@@ -523,7 +523,6 @@ class Controller_Admin_Database extends Controller_Abstract
 			}
 		}
 
-		fb($fields);
 		// Получаем эвенты
 		$events  = array ();
 
