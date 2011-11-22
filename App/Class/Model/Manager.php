@@ -94,12 +94,12 @@ class Model_Manager extends Manager_Abstract
 			return ;
 		}
 		Model_Scheme::dataSource ($object->modelName ())
-				->execute (
-					Query::instance ()
-						->delete ()
-						->from ($object->table ())
-						->where ($object->keyField (), $object->key ())
-				);
+			->execute (
+				Query::instance ()
+					->delete ()
+					->from ($object->table ())
+					->where ($object->keyField (), $object->key ())
+			);
 	}
 
 	/**
