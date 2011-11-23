@@ -36,7 +36,7 @@ class Config_Manager
 			str_replace ('_', '/', $type) . 
 			(is_string ($config) && $config ? '/' . $config : '') . 
 			'.php';
-			
+
 		if (is_file ($filename))
 		{
 			$ext = ucfirst (strtolower (substr (strrchr ($filename, '.'), 1)));
