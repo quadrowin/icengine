@@ -6,7 +6,7 @@
  * @package IcEngine
  *
  */
-class Controller_Cli extends Controller_Abstract 
+class Controller_Front_Cli extends Controller_Abstract 
 {
 	
 	/**
