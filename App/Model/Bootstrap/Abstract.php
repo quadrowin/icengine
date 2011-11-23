@@ -36,7 +36,7 @@ abstract class Bootstrap_Abstract
 		$this->_basePath = substr (
 			$this->dir (),
 			0,
-			-strlen ('Model/Bootstrap')
+			-strlen ('App/Model/Bootstrap')
 		);
 		$this->_name = substr (get_class ($this), strlen ('Bootstrap_'));
 	}
@@ -107,14 +107,11 @@ abstract class Bootstrap_Abstract
 	{
 		$path = $this->basePath ();
 		
-		Loader::addPath ('Class', $path . 'Class/');
-		Loader::addPath ('Class', $path . 'Model/');
-		Loader::addPath ('Class', $path);
+		Loader::addPath ('Class', $path . 'App/Class/');
+		Loader::addPath ('Class', $path . 'App/Model/');
+		Loader::addPath ('Class', $path . 'App/');
 		
-		Loader::addPath ('Controller', IcEngine::path () . 'Controller/');
-		Loader::addPath ('Controller', $path . 'Controller/');
-		
-		Loader::addPath ('includes', $path . 'includes/');
+		Loader::addPath ('includes', $path . 'Vendor/');
 	}
 	
 	/**

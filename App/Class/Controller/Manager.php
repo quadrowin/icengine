@@ -318,11 +318,7 @@ class Controller_Manager extends Manager_Abstract
 		{
 			$file = str_replace ('_', '/', $controller_name) . '.php';
 
-			if (!Loader::requireOnce ($file, 'Controller'))
-			{
-				Loader::load ('Controller_Exception');
-				throw new Controller_Exception ("Controller $class_name not found.");
-			}
+			Loader::load ($class_name);
 
 			$controller = new $class_name;
 
