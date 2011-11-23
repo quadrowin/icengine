@@ -129,6 +129,27 @@ class Controller_Admin_Database extends Controller_Abstract
 		$table = Model_Scheme::table ($class_name);
 		foreach ($fields as $i => $field)
 		{
+			// Это линка
+			if (!empty ($field->Link))
+			{
+				if (isset ($field_filters [$field->Field]))
+				{
+					foreach ($field_filters [$field->Field] as $field_filter)
+					{
+						$value = $field_filter ['value'];
+
+						if (strpos ($value, '::') !== false)
+						{
+							$value = call_user_func ($field_filter ['value']);
+						}
+
+						$field->Values = $field->Values->filter (array (
+							$field_filter ['field'] => $value
+						));
+					}
+				}
+			}
+
 			// Тип поля - enum
 			if (strpos ($field->Type, 'enum(') === 0)
 			{
@@ -525,6 +546,40 @@ class Controller_Admin_Database extends Controller_Abstract
 			}
 		}
 
+		$exists_links = Model_Scheme::links ($class_name);
+
+		$link_models = array ();
+
+		if ($exists_links)
+		{
+			foreach ($exists_links as $link_name => $data)
+			{
+				$row->set (
+					$link_name,
+					Helper_Link::linkedItems ($row, $link_name)
+				);
+
+				$link_models [$link_name] = Model_Collection_Manager::create (
+					$link_name
+				);
+
+				$link_table = Model_Scheme::table ($row->modelName ());
+				$table_info = Helper_Data_Source::table ($link_table);
+
+				$field = new Objective (array (
+					'Link'		=> true,
+					'Field'		=> $link_name,
+					'Values'	=> array (),
+					'Comment'	=> !empty ($table_info ['Comment'])
+						? $table_info ['Comment'] : null
+				));
+
+				$field->Values = $link_models [$link_name];
+
+				$fields [] = $field;
+			}
+		}
+
 		$fields = $this->_getValues ($class_name, $fields);
 
 		foreach ($fields as $field)
@@ -547,39 +602,6 @@ class Controller_Admin_Database extends Controller_Abstract
 				$row->set ($field ['Field'], $value);
 			}
 
-		}
-
-		$exists_links = Model_Scheme::links ($class_name);
-
-		$link_models = array ();
-
-		if ($exists_links)
-		{
-			foreach ($exists_links as $link_name => $data)
-			{
-				$row->set (
-					$link_name,
-					Helper_Link::linkedItems ($row, $link_name)
-				);
-
-				$link_models [$link_name] = Model_Collection_Manager::create (
-					$link_name
-				);
-
-				$link_table = Model_Scheme::table ($row->modelName ());
-				$table_info = Helper_Data_Source::table ($link_table);
-
-				$field = new Objective (array (
-					'Field'		=> $link_name,
-					'Values'	=> array (),
-					'Comment'	=> !empty ($table_info ['Comment'])
-						? $table_info ['Comment'] : null
-				));
-
-				$field->Values = $link_models [$link_name];
-
-				$fields [] = $field;
-			}
 		}
 
 		// Получаем эвенты
