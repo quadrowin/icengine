@@ -2,6 +2,8 @@
 
 class Controller_Subscribe_Abstract extends Controller_Abstract
 {
+	protected $_backgroundAgent;
+
 	/**
 	 * @desc Получить имя рассылки
 	 * @return string
@@ -18,7 +20,8 @@ class Controller_Subscribe_Abstract extends Controller_Abstract
 	{
 			Loader::load ('Background_Agent_Manager');
 			Background_Agent_Manager::instance ()->startAgent (
-					self::BACKGROUND_AGENT,
+					//self::BACKGROUND_AGENT,
+					$this->_backgroundAgent,
 					array (
 							'Background_Agent_Resume__id'   => 0
 					)
@@ -32,7 +35,8 @@ class Controller_Subscribe_Abstract extends Controller_Abstract
 	{
 			Loader::load ('Background_Agent_Manager');
 			Background_Agent_Manager::instance ()->processAgent (
-					self::BACKGROUND_AGENT
+					//self::BACKGROUND_AGENT
+					$this->_backgroundAgent
 			);
 	}
 }
