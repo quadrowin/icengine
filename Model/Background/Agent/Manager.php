@@ -122,7 +122,7 @@ class Background_Agent_Manager extends Manager_Abstract
 				->where ('name', $name)
 		);
 
-		if (!$$agent)
+		if (!$agent)
 		{
 			return;
 		}
