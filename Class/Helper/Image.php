@@ -139,7 +139,7 @@ class Helper_Image
 	protected static function _sizing ($type)
 	{
 		self::initConfig ();
-		
+
 		return 
 			(isset (self::$config ['types']) && isset (self::$config ['types'][$type])) ?
 			self::$config ['types'][$type]->asArray() :
@@ -248,11 +248,11 @@ class Helper_Image
 			'rowId'			=> $row_id,
 			'date'			=> Helper_Date::toUnix (),
 			'name'			=> $type,
-			'author'		=> '',
-			'text'			=> '',
-			'largeUrl'		=> '',
-			'smallUrl'		=> '',
-			'originalUrl'	=> '',
+//			'author'		=> '',
+//			'text'			=> '',
+//			'largeUrl'		=> '',
+//			'smallUrl'		=> '',
+//			'originalUrl'	=> '',
 			'User__id'		=> User::id ()
 		));
 		$image->save ();
