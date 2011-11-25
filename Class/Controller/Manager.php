@@ -165,12 +165,13 @@ class Controller_Manager extends Manager_Abstract
 	 * диспетчера.
 	 * @return Controller_Task Итерация с результатами.
 	 */
-	public static function callUncached ($name, $method, $input,
-		$task = null)
+	public static function callUncached ($name, $method, $input, $task = null)
 	{
-		Loader::load ('Controller_Action');
-		Loader::load ('Controller_Task');
-		Loader::load ('Route_Action');
+		Loader::multiLoad (
+			'Controller_Action',
+			'Controller_Task',
+			'Route_Action'
+		);
 
 		if (class_exists ('Tracer'))
 		{
@@ -200,7 +201,7 @@ class Controller_Manager extends Manager_Abstract
 		$temp_output = $controller->getOutput ();
 		$temp_task = $controller->getTask ();
 
-		if ($input === null)
+		if (is_null ($input))
 		{
 			$controller->setInput (self::getInput ());
 		}
@@ -249,6 +250,7 @@ class Controller_Manager extends Manager_Abstract
 				$param = $param_value;
 			}
 		}
+
 		call_user_func_array (
 			array ($controller, $method),
 			$params ? $params : array ()
