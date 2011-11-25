@@ -40,6 +40,13 @@ class Controller_Abstract
 	 * @var array
 	 */
 	protected $_config = array ();
+
+    /**
+     * @author red
+     * @desc Стек ошибок контроллера
+     * @var array
+     */
+    protected $_errors = array ();
 	
 	/**
 	 * @desc Создает и возвращает контроллер.
@@ -47,7 +54,21 @@ class Controller_Abstract
 	public function __construct ()
 	{
 	}
-	
+
+    /**
+     * @author red
+     * @desc Возвращает количество ошибок в стеке контроллера
+     * Используется в Controller_Manager::call и Controller_Abstract::replaceAction
+     * для того, чтобы определить, надо ли вызывать экшен контроллера после выполнения
+     * $controller->_beforeAction (если стек ошибок вырос при выполнении _beforeAction,
+     * экшен и _afterAction не выполняться не будут)
+     * @return boolean
+     */
+    public function hasErrors ()
+    {
+        return (bool)count ($this->_errors);
+    }
+    
 	/**
 	 * @desc Метод выполняется после вызова метода $action из диспетчера
 	 * @param string $action Вызываемый метод.
@@ -238,8 +259,14 @@ class Controller_Abstract
 	 * взято из $text.
 	 * @param string $tpl [optional] Шаблон.
 	 */
-	protected function _sendError ($text, $method = null, $tpl = null)
+	protected function _sendError ($text, $method = null, $tpl = true)
 	{
+        /**
+         * @author red
+         * @desc добавляем ошибку в стек
+         */
+        $this->_errors[] = array($text, $method, $tpl);
+        
 		$this->_output->send (array (
 			'error'	=> $text,
 			array (
@@ -249,6 +276,15 @@ class Controller_Abstract
 		
 		if (!$method)
 		{
+            /**
+             * @author red
+             * не надо выполнять никаких действий, просто фиксируем ошибку в стеке
+             */
+            if (!$tpl)
+            {
+                return;
+            }
+            
 			$method = $text;
 		}
 		
@@ -354,9 +390,15 @@ class Controller_Abstract
 			$other->setInput ($this->_input);
 			$other->setOutput ($this->_output);
 			$other->setTask ($this->_task);
-			$other->_beforeAction ($action);
-			$other->$action ();
-			$other->_afterAction ($action);
+
+            $other->_beforeAction ($action);
+
+            // _beforeAction не генерировал ошибки, можно продолжать
+            if (! $other->hasErrors ())
+            {
+                $other->$action ();
+                $other->_afterAction ($action);
+            }
 		}
 	}
 	
