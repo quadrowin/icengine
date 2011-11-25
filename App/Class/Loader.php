@@ -215,6 +215,12 @@ class Loader
 		{
 			return true;
 		}
+		
+		// namespace like a class name part: "\Ice\" to "Ice_"
+		$namespace_delim = strrpos($class, '\\');
+		if (false !== $namespace_delim) {
+			$class = str_reaplce('\\', '/', substr($class, 1));
+		}
 
 		return self::requireOnce (
 			str_replace ('_', '/', $class) . '.php',
