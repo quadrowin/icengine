@@ -242,7 +242,7 @@ class Controller_Manager extends Manager_Abstract
 						$param->name
 					);
 
-					if ($reflection_param)
+					if ($reflection_param && $reflection_param->isOptional ())
 					{
 						$param_value = $reflection_param->getDefaultValue ();
 					}
