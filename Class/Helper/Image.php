@@ -248,11 +248,11 @@ class Helper_Image
 			'rowId'			=> $row_id,
 			'date'			=> Helper_Date::toUnix (),
 			'name'			=> $type,
-			'author'		=> '',
-			'text'			=> '',
-			'largeUrl'		=> '',
-			'smallUrl'		=> '',
-			'originalUrl'	=> '',
+//			'author'		=> '',
+//			'text'			=> '',
+//			'largeUrl'		=> '',
+//			'smallUrl'		=> '',
+//			'originalUrl'	=> '',
 			'User__id'		=> User::id ()
 		));
 		$image->save ();
