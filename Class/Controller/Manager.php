@@ -165,12 +165,13 @@ class Controller_Manager extends Manager_Abstract
 	 * диспетчера.
 	 * @return Controller_Task Итерация с результатами.
 	 */
-	public static function callUncached ($name, $method, $input,
-		$task = null)
+	public static function callUncached ($name, $method, $input, $task = null)
 	{
-		Loader::load ('Controller_Action');
-		Loader::load ('Controller_Task');
-		Loader::load ('Route_Action');
+		Loader::multiLoad (
+			'Controller_Action',
+			'Controller_Task',
+			'Route_Action'
+		);
 
 		if (class_exists ('Tracer'))
 		{
@@ -200,7 +201,7 @@ class Controller_Manager extends Manager_Abstract
 		$temp_output = $controller->getOutput ();
 		$temp_task = $controller->getTask ();
 
-		if ($input === null)
+		if (is_null ($input))
 		{
 			$controller->setInput (self::getInput ());
 		}
@@ -229,27 +230,30 @@ class Controller_Manager extends Manager_Abstract
 		$params = $reflection->getParameters ();
 		$c_input = $controller->getInput ();
 
-		foreach ($params as &$param)
+		if ($params)
 		{
-			$param_value = $c_input->receive ($param->name);
-			if (!$param_value)
+			foreach ($params as &$param)
 			{
-				$reflection_param = new ReflectionParameter (
-					array ($controller, $method),
-					$param->name
-				);
-				
-				if ($reflaction_param)
+				$param_value = $c_input->receive ($param->name);
+				if (!$param_value)
 				{
-					$param_value = $reflection_param->getDefaultValue ();
+					$reflection_param = new ReflectionParameter (
+						array ($controller, $method),
+						$param->name
+					);
+
+					if ($reflection_param)
+					{
+						$param_value = $reflection_param->getDefaultValue ();
+					}
 				}
+				$param = $param_value;
 			}
-			$param = $param_value;
 		}
 
 		call_user_func_array (
 			array ($controller, $method),
-			$params
+			$params ? $params : array ()
 		);
 
 		$controller->_afterAction ($method);
