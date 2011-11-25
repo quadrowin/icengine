@@ -187,9 +187,10 @@ class Loader
 		}
 
 		// namespace like a class name part: "\Ice\" to "Ice_"
-		$namespace_delim = strrpos($class, '\\');
-		if (false !== $namespace_delim) {
-			$class = str_replace('\\', '/', ltrim($class, '\\'));
+		$namespace_delim = strrpos ($class, '\\');
+		if (false !== $namespace_delim)
+		{
+			$class = str_replace ('\\', '/', ltrim ($class, '\\'));
 		}
 
 		$file = str_replace ('_', '/', $class) . '.php';
@@ -223,9 +224,10 @@ class Loader
 		}
 		
 		// namespace like a class name part: "\Ice\" to "Ice_"
-		$namespace_delim = strrpos($class, '\\');
-		if (false !== $namespace_delim) {
-			$class = str_replace('\\', '/', ltrim($class, '\\'));
+		$namespace_delim = strrpos ($class, '\\');
+		if (false !== $namespace_delim)
+		{
+			$class = str_replace ('\\', '/', ltrim ($class, '\\'));
 		}
 
 		return self::requireOnce (
