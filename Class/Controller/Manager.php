@@ -229,27 +229,29 @@ class Controller_Manager extends Manager_Abstract
 		$params = $reflection->getParameters ();
 		$c_input = $controller->getInput ();
 
-		foreach ($params as &$param)
+		if ($params)
 		{
-			$param_value = $c_input->receive ($param->name);
-			if (!$param_value)
+			foreach ($params as &$param)
 			{
-				$reflection_param = new ReflectionParameter (
-					array ($controller, $method),
-					$param->name
-				);
-
-				if ($reflection_param)
+				$param_value = $c_input->receive ($param->name);
+				if (!$param_value)
 				{
-					$param_value = $reflection_param->getDefaultValue ();
-				}
-			}
-			$param = $param_value;
-		}
+					$reflection_param = new ReflectionParameter (
+						array ($controller, $method),
+						$param->name
+					);
 
+					if ($reflection_param)
+					{
+						$param_value = $reflection_param->getDefaultValue ();
+					}
+				}
+				$param = $param_value;
+			}
+		}
 		call_user_func_array (
 			array ($controller, $method),
-			$params
+			$params ? $params : array ()
 		);
 
 		$controller->_afterAction ($method);
