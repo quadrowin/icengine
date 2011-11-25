@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Менеджер источников данных.
  * По переданному названию загружает конфиг из директории
  * "{$config}/Data/Source/" и создает соответсвующего провайдера.
@@ -9,13 +9,13 @@
  */
 class Data_Source_Manager
 {
-	
+
 	/**
 	 * @desc Загруженные источники.
 	 * @var array <Data_Source_Abstract>
 	 */
 	protected static $_sources = array ();
-	
+
 	/**
 	 * @desc Конфиг
 	 * @var array
@@ -25,10 +25,10 @@ class Data_Source_Manager
 		 * @desc Название источника, вместо которого будет браться название домена.
 		 * Название домена берется из $SERVER ['HTTP_HOST'].
 		 * @var string
-		 */ 
+		 */
 		'source_domain_alias'	=> 'domain',
 		/**
-		 * @desc Название источника, который будет использован вместо 
+		 * @desc Название источника, который будет использован вместо
 		 * имени домена, когда невозможно получить $SERVER ['HTTP_HOST'].
 		 * @var string
 		 */
@@ -36,18 +36,18 @@ class Data_Source_Manager
 		/**
 		 * @desc Массив источников
 		 * @var array
-		 */ 
+		 */
 		'sources'	=> array (
 			'default'	=> array (
 				'source'	=> 'Abstract',
 				'mapper'	=> 'Null',
 				'mapper_options'	=> array (
-					
+
 				)
 			)
 		)
 	);
-	
+
 	/**
 	 * @desc Загружает и возвращает конфиг
 	 * @return Objective
@@ -60,20 +60,20 @@ class Data_Source_Manager
 		}
 		return self::$config;
 	}
-	
+
 	/**
 	 * @desc Получение данных провайдера.
 	 * @param string $name
 	 * @return Data_Source_Abstract
 	 */
 	public static function get ($name)
-	{	
+	{
 		$config = self::config ();
-		
+
 		if ($config ['source_domain_alias'] == $name)
 		{
-			$name = 
-				isset ($_SERVER ['HTTP_HOST']) ? 
+			$name =
+				isset ($_SERVER ['HTTP_HOST']) ?
 					$_SERVER ['HTTP_HOST'] :
 					$config ['empty_domain_source'];
 		}
@@ -97,45 +97,45 @@ class Data_Source_Manager
 			{
 				return self::$_sources [$name] = self::get ($source_config);
 			}
-			
+
 			if (!$source_config)
 			{
 				$source_config = array (
 					'source'	=> $name
 				);
 			}
-			
+
 			$conf = $source_config;
-			
+
 			$source_class = 'Data_Source_' . $conf ['source'];
-			
+
 			Loader::load ($source_class);
-			
-			$mapper_class = 
+
+			$mapper_class =
 				isset ($conf ['mapper']) ?
 				('Data_Mapper_' . $conf ['mapper']) :
 				'';
-			
+
 			if ($mapper_class)
 			{
 				Loader::load ($mapper_class);
 			}
-			
+
 			self::$_sources [$name] = new $source_class ();
 			/**
 			 * @desc Меппер.
 			 * @var Data_Mapper_Abstract $mapper
 			 */
 			$mapper = self::$_sources [$name]->getDataMapper ();
-			
+
 			if ($mapper_class && !($mapper instanceof $mapper_class))
 			{
 				// Мэппер источника отличается от указанного в конфигах
 				$mapper = new $mapper_class;
-				
+
 				self::$_sources [$name]->setDataMapper ($mapper);
-			}
-			
+			} 
+
 			if (isset ($conf ['mapper_options']))
 			{
 				foreach ($conf ['mapper_options'] as $key => $value)
@@ -144,10 +144,10 @@ class Data_Source_Manager
 				}
 			}
 		}
-		
+
 		return self::$_sources [$name];
 	}
-	
+
 	/**
 	 * @desc Находит конфиг по названию.
 	 * @param string $name Название источника.
@@ -156,17 +156,17 @@ class Data_Source_Manager
 	public static function sourceConfig ($name)
 	{
 		$config = self::config ();
-		
+
 		if ($config ['source_domain_alias'] == $name)
 		{
-			$name = 
-				isset ($_SERVER ['HTTP_HOST']) ? 
+			$name =
+				isset ($_SERVER ['HTTP_HOST']) ?
 					$_SERVER ['HTTP_HOST'] :
 					$config ['empty_domain_source'];
 		}
-		
+
 		$src_cfg = $config ['sources'][$name];
-		
+
 		if (!$src_cfg)
 		{
 			foreach ($config ['sources'] as $key => $value)
@@ -177,11 +177,11 @@ class Data_Source_Manager
 				}
 			}
 		}
-		
+
 		return
 			is_string ($src_cfg) ?
 				self::sourceConfig ($src_cfg) :
 				$src_cfg;
 	}
-	
+
 }
