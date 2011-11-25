@@ -1,0 +1,51 @@
+<?php
+
+/**
+ *
+ */
+class Model_Validator
+{
+	public function validate ($model, $scheme, $input)
+	{
+		Loader::load ('Model_Validator_Attribute');
+
+		$validate = array ();
+		$error = false;
+
+		foreach ($scheme as $field=>$attributes)
+		{
+			$current = array (
+				'valid'		=> true,
+				'errors'	=> array ()
+			);
+
+			foreach ($attributes as $attribute => $value)
+			{
+				if (is_numeric ($attribute))
+				{
+					$attribute = $value;
+					$value = true;
+				}
+
+				$result = Model_Validator_Attribute::validate (
+					$model, $field, $value, $input
+				);
+
+				$current ['valid'] &= $result;
+				if (!$result)
+				{
+					$error = true;
+					$current ['errors'][$attribute] = true;
+				}
+			}
+
+			$validate [$field] = $current;
+		}
+
+		if (!$error)
+		{
+			return true;
+		}
+		return $validate;
+	}
+}
