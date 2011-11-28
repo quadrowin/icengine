@@ -4,7 +4,7 @@ class Controller_Subscribe_Abstract extends Controller_Abstract
 {
 	/**
 	 *
-	 * @var type 
+	 * @var type
 	 */
 	protected $_backgroundAgent;
 
@@ -25,7 +25,6 @@ class Controller_Subscribe_Abstract extends Controller_Abstract
 			Loader::load ('Background_Agent_Manager');
 			Background_Agent_Manager::instance ()->startAgent (
 					$this->_backgroundAgent,
-					$this->_backgroundAgent,
 					array (
 							'Background_Agent_Resume__id'   => 0
 					)
@@ -39,7 +38,6 @@ class Controller_Subscribe_Abstract extends Controller_Abstract
 	{
 			Loader::load ('Background_Agent_Manager');
 			Background_Agent_Manager::instance ()->processAgent (
-					$this->_backgroundAgent
 					$this->_backgroundAgent
 			);
 	}
