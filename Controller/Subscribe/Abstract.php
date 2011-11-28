@@ -1,0 +1,48 @@
+<?php
+
+class Controller_Subscribe_Abstract extends Controller_Abstract
+{
+	protected $_backgroundAgent;
+
+	/**
+	 *
+	 * @var type 
+	 */
+	protected $_backgroundAgent;
+
+	/**
+	 * @desc Получить имя рассылки
+	 * @return string
+	 */
+	protected function _subscribeName ()
+	{
+		return substr (get_class ($this), strlen ('Controller_Subscribe') + 1);
+	}
+
+	/**
+	 * @desc Запуск рассылки
+	 */
+	public function backgroundStart ()
+	{
+			Loader::load ('Background_Agent_Manager');
+			Background_Agent_Manager::instance ()->startAgent (
+					$this->_backgroundAgent,
+					$this->_backgroundAgent,
+					array (
+							'Background_Agent_Resume__id'   => 0
+					)
+			);
+	}
+
+	/**
+	 * @desc Продолжение процесса рассылки
+	 */
+	public function backgroundProcess ()
+	{
+			Loader::load ('Background_Agent_Manager');
+			Background_Agent_Manager::instance ()->processAgent (
+					$this->_backgroundAgent
+					$this->_backgroundAgent
+			);
+	}
+}
