@@ -13,7 +13,7 @@ class Helper_Tag_Cloud
 	 * @param integer $sizeStep Шаг шрифта (сколько прибавляется в каждом диапазоне)
 	 * @return Model_Collection
 	 */
-	public function fontSize (Model_Collection $collection, $minSize = 12,
+	public static function fontSize (Model_Collection $collection, $minSize = 12,
 		$maxSize = 30, $sizeStep = 2)
 	{
 		$tags = $collection;
