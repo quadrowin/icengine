@@ -102,11 +102,14 @@ class IcEngine
 	}
 
 	/**
-	 * @desc Инициализация лоадера.
-	 * @param string $root Путь до корня сайта.
-	 * @param string $bootstap Путь до загрузчика.
+	 * @desc Инициализация лоадера
+	 * @param string $root Путь до корня сайта
+	 * @param string $bootstrap_class Класс загрузчика
+	 * @param string $bootstrap_file Путь до загрузчика
 	 */
-	public static function init ($root = null, $bootstap = null)
+	public static function init ($root = null, $bootstap_class = null,
+		$bootstrap_file = null
+	)
 	{
 		// Запоминаем путь до движка
 		self::$_path = __DIR__ . '/';
@@ -124,29 +127,27 @@ class IcEngine
 
 		Loader::load ('Config_Manager');
 
-		if ($bootstap)
+		if ($bootstap_class)
 		{
-			self::initBootstrap ($bootstap);
+			self::initBootstrap ($bootstap_class, $bootstrap_file);
 		}
 
 		register_shutdown_function (array (__CLASS__, 'shutdownHandler'));
 	}
 
 	/**
-	 * @desc Подключает загрузчик и запускает его.
-	 * @param string $path Путь до загрузчика.
+	 * @desc Подключает загрузчик и запускает его
+	 * @param string $class Класс загрузчика
+	 * @param string $path Путь до файла загрузчика
 	 */
-	public static function initBootstrap ($path)
+	public static function initBootstrap ($class, $path)
 	{
 		Loader::multiLoad (
 			'Bootstrap_Abstract',
 			'Bootstrap_Manager'
 		);
 
-		require $path;
-
-		$name = basename ($path, '.php');
-		self::$_bootstrap = Bootstrap_Manager::get ($name, $path);
+		self::$_bootstrap = Bootstrap_Manager::get ($class, $path);
 	}
 
 	/**
@@ -172,12 +173,12 @@ class IcEngine
 		require __DIR__ . '/App/Class/Loader.php';
 
 		Loader::addPathes (array (
-			'Class'			=> array (
+			'' => array (
 				self::$_path . 'App/Class/',
 				self::$_path . 'App/Model/',
 				self::$_path . 'App/'
 			),
-			'includes'		=> self::$_path . 'Vendor/'
+			'includes' => self::$_path . 'Vendor/'
 		));
 	}
 
