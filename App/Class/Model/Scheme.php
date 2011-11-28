@@ -16,20 +16,17 @@ abstract class Model_Scheme
     const DEFAULT_KEY_FIELD = 'id';
 
 	/**
+	 * @desc Конфиг
+	 * @var array
+	 */
+	protected static $_config = array();
+
+	/**
 	 * @desc Схема линка по умолчанию
 	 * @var array
 	 */
 	public static $defaultLinkScheme = array (
 
-	);
-
-	/**
-	 * @desc Префикс по умолчанию для всех таблиц
-	 * @var string
-	 */
-	public static $default = array (
-		'keyGen'	=> null,
-		'prefix'	=> 'ice_'
 	);
 
 	/**
@@ -77,6 +74,17 @@ abstract class Model_Scheme
 		 * @var string
 		 */
 		'alt_name'	=> 'abstract'
+	);
+
+	/**
+	 * @desc Префиксы для пространств имен
+	 * @var array
+	 */
+	public static $namespaces = array (
+		'' => array (
+			'keyGen' => null,
+			'prefix' => 'ice_'
+		)
 	);
 
 	/**
@@ -180,14 +188,16 @@ abstract class Model_Scheme
 	 */
 	public static function init (Config_Array $config)
 	{
-		if ($config->default)
+		self::$_config = $config->__toArray ();
+
+		if (isset (self::$_config ['models']))
 		{
-			self::$default = $config->default;
+			self::$models = self::$_config ['models'];
 		}
 
-		if ($config->models)
+		if (isset (self::$_config ['namespaces']))
 		{
-			self::$models = $config->models->__toArray ();
+			self::$namespaces = self::$_config ['namespaces'];
 		}
 	}
 
@@ -204,11 +214,20 @@ abstract class Model_Scheme
 
 		if (!isset (self::$models [$name], self::$models [$name]['keyGen']))
 		{
-			if (!isset (self::$default ['keyGen']))
+			$ns = '';
+			$p = strrpos ($name, '\\');
+			if (false !== $p)
+			{
+				$ns = substr ($name, 0, $p);
+			}
+
+			if (!isset (self::$namespaces [$ns]['keyGen']))
 			{
 				return null;
+
 			}
-			$keygen = explode ('::', self::$default ['keyGen'], 2);
+
+			$keygen = explode ('::', self::$namespaces [$ns]['keyGen'], 2);
 		}
 		else
 		{
@@ -232,14 +251,6 @@ abstract class Model_Scheme
 	 */
 	public static function table ($model)
 	{
-		if (is_array ($model))
-		{
-			var_dump ($model);
-			echo '<pre>';
-			debug_print_backtrace ();
-			echo '</pre>';
-		}
-
 	    $model = strtolower (
 	    	is_object ($model) ? $model->modelName () : $model
 	    );
@@ -269,7 +280,15 @@ abstract class Model_Scheme
 			return $model;
 		}
 
-		return self::$default ['prefix'] . $model;
+		$p = strrpos ($model, '\\');
+		if (false !== $p)
+		{
+			$namespace = substr ($model, 0, $p);
+			$table = substr ($model, $p + 1);
+			return self::$namespaces [$namespace]['prefix'] . $table;
+		}
+
+		return self::$namespaces ['']['prefix'] . $model;
 
 //		$prefix = isset ($this->prefixes [$model]) ?
 //			$this->prefixes [$model] :
@@ -287,7 +306,7 @@ abstract class Model_Scheme
 	 */
 	public static function tableToModel ($table)
 	{
-		$prefix = self::$default ['prefix'];
+		$prefix = self::$namespaces ['']['prefix'];
 
 		foreach (self::$models as $name => $model)
 		{

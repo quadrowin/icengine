@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Мэнеджер конфигов.
  * @author Yury Shvedov
  * @package IcEngine
@@ -8,13 +8,13 @@
  */
 class Config_Manager
 {
-	
+
 	/**
 	 * @desc Путь до конфигов
 	 * @var string
 	 */
 	protected static $_path;
-	
+
 	/**
 	 * @desc Флаг означающий, что идет процесс загрузки конфига,
 	 * необходим для предотвращения бесконечной рекурсии при
@@ -22,7 +22,7 @@ class Config_Manager
 	 * @var boolean
 	 */
 	protected static $_inLoading = false;
-	
+
 	/**
 	 * @desc Загружает конфиг из файла и возвращает объект конфига.
 	 * @param string $type Тип конфига.
@@ -31,10 +31,10 @@ class Config_Manager
 	 */
 	protected static function _load ($type, $config = '')
 	{
-		$filename = 
+		$filename =
 			self::getPath () .
-			str_replace ('_', '/', $type) . 
-			(is_string ($config) && $config ? '/' . $config : '') . 
+			str_replace ('_', '/', $type) .
+			(is_string ($config) && $config ? '/' . $config : '') .
 			'.php';
 
 		if (is_file ($filename))
@@ -42,17 +42,17 @@ class Config_Manager
 			$ext = ucfirst (strtolower (substr (strrchr ($filename, '.'), 1)));
 			$class = 'Config_' . $ext;
 			Loader::load ($class);
-			
+
 			$result = new $class ($filename);
 		}
 		else
 		{
 			$result = self::emptyConfig ();
 		}
-		
+
 		return is_array ($config) ? $result->merge ($config) : $result;
 	}
-	
+
 	/**
 	 * @desc Пустой конфиг.
 	 * @return Config_Array
@@ -62,7 +62,7 @@ class Config_Manager
 		Loader::load ('Config_Array');
 		return new Config_Array (array ());
 	}
-	
+
 	/**
 	 * @desc Загружает и возвращает конфиг.
 	 * @param string $type Тип конфига.
@@ -74,27 +74,27 @@ class Config_Manager
 	public static function get ($type, $config = '')
 	{
 		$rname = $type . (is_string ($config) && $config ? '/' . $config : '');
-		
+
 		if (self::$_inLoading)
 		{
 			return self::_load ($type, $config);
 		}
-		
+
 		Loader::load ('Resource_Manager');
-		
+
 		self::$_inLoading = true;
 		$cfg = Resource_Manager::get ('Config', $rname);
 		self::$_inLoading = false;
-		
+
 		if (!$cfg)
 		{
 			$cfg = self::_load ($type, $config);
 			Resource_Manager::set ('Config', $rname, $cfg);
 		}
-		
+
 		return $cfg;
 	}
-	
+
 	/**
 	 * @desc Возвращает текущию директорию конфигов
 	 * @return string
@@ -105,7 +105,7 @@ class Config_Manager
 		}
 		return self::$_path;
 	}
-	
+
 	/**
 	 * @desc Загрузка реального конфига, игнорируя менеджер ресурсов.
 	 * @param string $type Тип конфига.
@@ -115,14 +115,14 @@ class Config_Manager
 	{
 		return self::_load ($type, $config);
 	}
-	
+
 	/**
 	 * @desc Устанавливает директорию конфигов
-	 * @param string $path 
+	 * @param string $path
 	 */
 	public static function setPath ($path)
 	{
 		self::$_path = $path;
 	}
-	
+
 }

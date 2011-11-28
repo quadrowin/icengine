@@ -238,7 +238,7 @@ class Controller_Manager extends Manager_Abstract
 					array ($controller, $method),
 					$param->name
 				);
-				
+
 				if ($reflection_param)
 				{
 					$param_value = $reflection_param->getDefaultValue ();
@@ -308,7 +308,19 @@ class Controller_Manager extends Manager_Abstract
 	 */
 	public static function get ($controller_name)
 	{
-		$class_name = 'Controller_' . $controller_name;
+		$p = strrpos ($controller_name, '\\');
+		if (false === $p)
+		{
+			$class_name = 'Controller_' . $controller_name;
+		}
+		else
+		{
+			$class_name =
+				substr ($controller_name, 0, $p + 1) .
+				'Controller_' .
+				substr ($controller_name, $p + 1);
+		}
+
 		$controller = Resource_Manager::get (
 			'Controller',
 			$class_name
@@ -316,10 +328,7 @@ class Controller_Manager extends Manager_Abstract
 
 		if (!($controller instanceof Controller_Abstract))
 		{
-			$file = str_replace ('_', '/', $controller_name) . '.php';
-
 			Loader::load ($class_name);
-
 			$controller = new $class_name;
 
 			Resource_Manager::set (
