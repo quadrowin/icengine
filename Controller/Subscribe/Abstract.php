@@ -2,8 +2,6 @@
 
 class Controller_Subscribe_Abstract extends Controller_Abstract
 {
-	protected $_backgroundAgent;
-
 	/**
 	 *
 	 * @var type 
