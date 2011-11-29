@@ -591,6 +591,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		$is_new = !$content_id;
 
 		$content = $content->base ();
+
 		$content->data ('tc', $tc);
 		$this->_afterSave ($content, $is_new);
 
