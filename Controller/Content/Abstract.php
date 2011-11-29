@@ -590,8 +590,8 @@ class Controller_Content_Abstract extends Controller_Abstract
 
 		$is_new = !$content_id;
 
-		$content->data ('tc', $tc);
-		$this->_afterSave ($content, $is_new);
+		$content->base ()->data ('tc', $tc);
+		$this->_afterSave ($content->base (), $is_new);
 
 		if (!Request::isJsHttpRequest ())
 		{
