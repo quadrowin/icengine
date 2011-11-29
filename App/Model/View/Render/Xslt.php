@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Рендер с использованием шаблонизатора Smarty.
  * @author Yury Shvedov
  * @package IcEngine
@@ -8,7 +8,7 @@
  */
 class View_Render_Xslt extends View_Render_Abstract
 {
-	
+
 	/**
 	 * @desc Конфиг
 	 * @var array
@@ -17,13 +17,13 @@ class View_Render_Xslt extends View_Render_Abstract
 		// Пути до шаблонов
 		'templates_path'	=> array (),
 	);
-	
+
 	/**
 	 * @desc Объект шаблонизатора
 	 * @var Smarty
 	 */
 	protected $_processor;
-	
+
 	/**
 	 * @desc Инициализация процессора
 	 */
@@ -34,7 +34,7 @@ class View_Render_Xslt extends View_Render_Abstract
 			$config ['templates_path']->__toArray ()
 		);
 	}
-	
+
 	/**
 	 * @desc
 	 * @param DOMDocument $xml
@@ -50,7 +50,7 @@ class View_Render_Xslt extends View_Render_Abstract
 				//$key = 'key' . $key;
 				$key = 'items';
 			}
-			
+
 			if (is_object ($val))
 			{
 				if (method_exists ($val, '__toArray'))
@@ -66,7 +66,7 @@ class View_Render_Xslt extends View_Render_Abstract
 					$val = null;
 				}
 			}
-			
+
 			if (is_array ($val))
 			{
 				$element = $xml->createElement ($key);
@@ -80,7 +80,7 @@ class View_Render_Xslt extends View_Render_Abstract
 			}
 		}
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::display()
@@ -89,7 +89,7 @@ class View_Render_Xslt extends View_Render_Abstract
 	{
 		echo $this->fetch ($tpl);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::fetch()
@@ -98,27 +98,27 @@ class View_Render_Xslt extends View_Render_Abstract
 	{
 		ob_start ();
 		$xsl = new DOMDocument ();
-		
+
 		$file = $this->findTemplate ($tpl);
-		
+
 		if (!$file)
 		{
 			trigger_error ("xslt template not found: $tpl", E_USER_WARNING);
 		}
-		
+
 		$xsl->load ($file);
-		
+
 		$this->_processor = new XSLTProcessor ();
 		$this->_processor->importStylesheet ($xsl);
 		$this->_processor->transformToURI ($this->xml (), 'php://output');
 		$this->_processor = null;
 		return ob_get_clean ();
 	}
-	
+
 	/**
 	 * @desc Возвращает путь до шаблона.
 	 * @param type $tpl
-	 * @return string 
+	 * @return string
 	 */
 	public function findTemplate ($tpl)
 	{
@@ -131,10 +131,10 @@ class View_Render_Xslt extends View_Render_Abstract
 				return $fn;
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * @desc Возвращает используемый экземпляр шаблонизатора.
 	 * @return XSLTProcessor
@@ -143,7 +143,7 @@ class View_Render_Xslt extends View_Render_Abstract
 	{
 		return $this->_processor;
 	}
-	
+
 	/**
 	 * @desc Формирует XML документ, содержащий данные для вывода
 	 * @return DOMDocument
@@ -157,5 +157,5 @@ class View_Render_Xslt extends View_Render_Abstract
 //		$xml->save ('D:/temp/1.xml');
         return $xml;
 	}
-	
+
 }
