@@ -28,13 +28,13 @@ class Router
 	
 			if ($gets)
 			{
-				$gets = (array) explode ('&', $gets);
+				$gets = explode ('&', $gets);
 				
 				foreach ($gets as $get)
 				{
 					if (strpos ($get, '=') === false)
 					{
-						$_REQUEST ['get'] = $_GET ['get'] = 1;
+						$_REQUEST [$get] = $_GET [$get] = 1;
 					}
 					else
 					{

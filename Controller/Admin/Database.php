@@ -191,9 +191,70 @@ class Controller_Admin_Database extends Controller_Abstract
 				// Есть запись для поля таблицы в таблице подстановок
 				if ($text_value && $text_value->tv_text_field)
 				{
-					$collection = $text_value->replace (
-						$row, $table, $fields, $field, $field_filters, $class_name
-					);
+				$query = Query::instance ()
+					->select ($text_value->tv_text_table . '.' .
+						$text_value->tv_text_link_field)
+
+					->select ($text_value->tv_text_table . '.' .
+						$text_value->tv_text_field);
+
+				$query
+					->from ('`' . $text_value->tv_text_table . '`' );
+
+				if ($text_value->tv_text_link_condition)
+				{
+					$query
+						->where ($text_value->tv_text_link_condition);
+				}
+
+				if (isset ($field_filters [$field->Field]))
+				{
+					foreach ($field_filters [$field->Field] as $field_filter)
+					{
+						$value = $field_filter ['value'];
+
+						if (strpos ($value, '::') !== false)
+						{
+							$value = call_user_func ($field_filter ['value']);
+						}
+
+						$query->where ($field_filter ['field'], $value);
+					}
+				}
+
+				$result = DDS::execute ($query)
+					->getResult ()
+						->asTable ();
+
+				$collection = Model_Collection_Manager::create (
+					'Dummy'
+				)->reset ();
+
+
+				$model_class_name = Model_Scheme::tableToModel ($text_value->tv_text_table);
+				$file = str_replace ('_', '/', $model_class_name) . '.php';
+				if (Loader::findFile ($file))
+				{
+					Loader::load ($model_class_name);
+				}
+				else
+				{
+					$model_class_name = $class_name;
+				}
+				$kf = Model_Scheme::keyField ($model_class_name);
+
+				Loader::load ('Dummy');
+
+				foreach ($result as $item)
+				{
+					$collection->add (new Dummy (array (
+						$kf	=> $item [$text_value->tv_text_link_field],
+						'name'	=> $item [$text_value->tv_text_field]
+					)));
+				}
+//					$collection = $text_value->replace (
+//						$row, $table, $fields, $field, $field_filters, $class_name
+//					);
 					$field->Values = $collection;
 				}
 			}
@@ -362,7 +423,7 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		$class_name = $this->__className ($table, $prefix);
 
-		$fields = Helper_Data_Source::fields ('`' . $table . '`');
+		$fields = Helper_Data_Source::fields ($table);
 
 		$acl_fields = $this->__aclFields ($table, $fields);
 
@@ -478,7 +539,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		Loader::load ('Table_Rate');
 
 		$rate = Table_Rate::byTable ($table)->inc ();
-		$fields = Helper_Data_Source::fields ('`' . $table . '`');
+		$fields = Helper_Data_Source::fields ($table);
 		$acl_fields = $this->__aclFields ($table, $fields);
 
 		if (!$acl_fields || !User::id ())
@@ -767,7 +828,7 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		$fields = null;
 		$sfields = array ();
-		$fields = Helper_Data_Source::fields ('`' . $table . '`');
+		$fields = Helper_Data_Source::fields ($table);
 		$acl_fields = $this->__aclFields ($table, $fields);
 
 		foreach ($fields as $i => $field)
@@ -929,7 +990,7 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		$class_name = $this->__className ($table, $prefix);
 
-		$fields = Helper_Data_Source::fields ('`' . $table . '`');
+		$fields = Helper_Data_Source::fields ($table);
 
 		$acl_fields = $this->__aclFields ($table, $fields);
 

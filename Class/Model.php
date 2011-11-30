@@ -1080,4 +1080,19 @@ abstract class Model implements ArrayAccess
 		return $this;
 	}
 
+	/**
+	 * @param Model_Component $component .
+	 * @return Model первая модель с show=1.
+	 */
+	public function componentShow ($component)
+	{
+		$components = $this->component($component)->filter(array('show'=>1));
+		if ($components && $components->count())
+		{	
+			return $components->first();
+		}
+		
+		return false;		
+	}
+	
 }
