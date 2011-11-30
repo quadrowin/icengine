@@ -1,40 +1,40 @@
 <?php
 /**
- * 
+ *
  * @desc Базовый класс контроллера.
  * @author Юрий
  * @package IcEngine
  *
  */
 class Controller_Abstract
-{	
-	
+{
+
 	/**
 	 * @desc Последний вызванный экшен.
-	 * В случае, если был вызван replaceAction, может отличаться 
-	 * от $_task. 
+	 * В случае, если был вызван replaceAction, может отличаться
+	 * от $_task.
 	 * @var string
 	 */
 	protected $_currentAction;
-	
+
 	/**
 	 * @desc Текущая задача.
 	 * @var Controller_Task
 	 */
 	protected $_task;
-	
+
 	/**
 	 * @desc Входные данные.
 	 * @var Data_Transport
 	 */
 	protected $_input;
-		
+
 	/**
 	 * @desc Выходные данные.
 	 * @var Data_Transport
 	 */
 	protected $_output;
-	
+
 	/**
 	 * @desc Конфиг контроллера.
 	 * @var array
@@ -47,7 +47,7 @@ class Controller_Abstract
      * @var array
      */
     protected $_errors = array ();
-	
+
 	/**
 	 * @desc Создает и возвращает контроллер.
 	 */
@@ -66,9 +66,9 @@ class Controller_Abstract
      */
     public function hasErrors ()
     {
-        return (bool)count ($this->_errors);
+        return (bool) count ($this->_errors);
     }
-    
+
 	/**
 	 * @desc Метод выполняется после вызова метода $action из диспетчера
 	 * @param string $action Вызываемый метод.
@@ -79,7 +79,7 @@ class Controller_Abstract
 			'after::' . get_class ($this) . '::' . $action
 		);
 	}
-	
+
 	/**
 	 * @desc Метод выполняется перед вызовом метода $action из диспетчера
 	 * @param string $action Вызываемый метод.
@@ -91,9 +91,9 @@ class Controller_Abstract
 			'before::' . $this->_currentAction
 		);
 	}
-	
+
 	public function _helperReturn () {}
-	
+
 	/**
 	 * @desc Временный контент для сохраняемых данных.
 	 * @return Temp_Content|null
@@ -102,31 +102,31 @@ class Controller_Abstract
 	{
 		Loader::load ('Temp_Content');
 		$tc = Temp_Content::byUtcode ($this->_input->receive ('utcode'));
-		
+
 		if (!$tc)
 		{
 			$this->replaceAction ('Error', 'obsolete');
 			return;
 		}
-		
+
 		return $tc;
 	}
-	
+
 	/**
 	 * @desc Получение данных с формы
 	 * @param array|Objective $scheme
-	 * @param boolean|Temp_Content Использовать ли временный контент или 
+	 * @param boolean|Temp_Content Использовать ли временный контент или
 	 * 		сам временный котенты
 	 * @param boolean|string $by_parts Если true, данные будут возвращены
 	 * массивом array ('feilds' => Objective, 'attributes' => Objective),
-	 * если false - все данные объектом Objective, если 'fields' или 
-	 * 'attributes' - только соответствующая часть. 
+	 * если false - все данные объектом Objective, если 'fields' или
+	 * 'attributes' - только соответствующая часть.
 	 * @return Objective|array
 	 */
 	public function _inputFormData ($scheme, $use_tc = null, $by_parts = true)
 	{
 		Loader::load ('Helper_Form');
-		
+
 		// временный контент
 		if ($use_tc)
 		{
@@ -136,28 +136,28 @@ class Controller_Abstract
 				$use_tc = Temp_Content::byUtcode (
 					$this->_input->receive ('utcode')
 				);
-				
+
 				if (!$use_tc)
 				{
 					return $this->replaceAction ('Error', 'obsolete');
 				}
 			}
 		}
-		
+
 		$data = Helper_Form::receiveFields (
 			$this->_input,
 			$scheme,
 			$use_tc
 		);
-		
+
 		Helper_Form::filter ($data, $scheme);
-		
+
 		$valid = Helper_Form::validate ($data, $scheme);
 		if (is_array ($valid))
 		{
 			// ошибка валидации
 			$this->_task->setClassTpl (reset ($valid));
-			
+
 			// TODO пиздец!
 			$this->_output->send (array (
 				'registration'	=> $valid,
@@ -166,22 +166,22 @@ class Controller_Abstract
 					'error'			=> current ($valid)
 				)
 			));
-			
+
 			return false;
 		}
-		
+
 		Helper_Form::unsetIngored ($data, $scheme);
-		
+
 		if (!$by_parts)
 		{
 			return $data;
 		}
-		
+
 		$data = Helper_Form::extractParts ($data, $scheme);
-		
+
 		return isset ($data [$by_parts]) ? $data [$by_parts] : $data;
 	}
-	
+
 	/**
 	 * @desc Сохранение данных с формы
 	 * @param Temp_Content $tc
@@ -193,16 +193,16 @@ class Controller_Abstract
 	 * 		будет модель класса <i>Sample</i>.
 	 * @return Model|null Сохраненная модель, либо null в случае ошибки.
 	 */
-	public function _savePostModel (Temp_Content $tc, $scheme, 
+	public function _savePostModel (Temp_Content $tc, $scheme,
 		$model_class = null)
 	{
 		Loader::load ('Helper_Form');
 		$data = Helper_Form::receiveFields ($this->_input, $scheme);
-		
+
 		Helper_Form::filter ($data, $scheme);
-		
+
 		$valid = Helper_Form::validate ($data, $scheme);
-		
+
 		if (is_array ($valid))
 		{
 			$this->_task->setTemplate (
@@ -212,8 +212,8 @@ class Controller_Abstract
 			$this->_output->send (array (
 				'field'			=> $field,
 				'field_title'	=>
-					isset ($scheme [$field]['title']) ? 
-						$scheme [$field]['title'] : 
+					isset ($scheme [$field]['title']) ?
+						$scheme [$field]['title'] :
 						null,
 				'data'		=> array (
 					'field'	=> key ($valid),
@@ -222,7 +222,7 @@ class Controller_Abstract
 			));
 			return null;
 		}
-		
+
 		if ($model_class instanceof Model)
 		{
 			$model = $model_class;
@@ -235,27 +235,27 @@ class Controller_Abstract
 			}
 			$model = Model_Manager::get ($model_class, $tc->rowId);
 		}
-		
+
 		$parts = Helper_Form::extractParts ($data, $scheme);
 
 		$model->update ($parts ['fields']);
-		
-		
+
+
 		if ($parts ['attributes'])
-		{ 
+		{
 			$model->attr ($parts ['attributes']);
 		};
-			
+
 		return $model;
 	}
-	
+
 	/**
 	 * @desc Завершение работы контроллера ошибкой.
 	 * @param string $text Текст ошибки. Не отображается пользователю,
 	 * виден в консоли отладки.
-	 * @param string $method Экшен, в котором произошла ошибка (__METHOD__) 
+	 * @param string $method Экшен, в котором произошла ошибка (__METHOD__)
 	 * или шаблон (в этому случае метод будет взять из _currentAction).
-	 * Необходим для определения шаблона. Если не передан, будет 
+	 * Необходим для определения шаблона. Если не передан, будет
 	 * взято из $text.
 	 * @param string $tpl [optional] Шаблон.
 	 */
@@ -266,14 +266,14 @@ class Controller_Abstract
          * @desc добавляем ошибку в стек
          */
         $this->_errors[] = array($text, $method, $tpl);
-        
+
 		$this->_output->send (array (
 			'error'	=> $text,
 			array (
 				'error'	=> $text
 			)
 		));
-		
+
 		if (!$method)
 		{
             /**
@@ -284,10 +284,10 @@ class Controller_Abstract
             {
                 return;
             }
-            
+
 			$method = $text;
 		}
-		
+
 		if ($tpl)
 		{
 			$this->_task->setClassTpl ($method, $tpl);
@@ -307,7 +307,7 @@ class Controller_Abstract
 			}
 		}
 	}
-	
+
 	/**
 	 * @desc Загружает и возвращает конфиг для контроллера
 	 * @return Objective
@@ -323,7 +323,7 @@ class Controller_Abstract
 		}
 		return $this->_config;
 	}
-	
+
 	/**
 	 * @desc Возвращает текущую задачу контролера
 	 * @return Controller_Task
@@ -332,7 +332,7 @@ class Controller_Abstract
 	{
 		return $this->_task;
 	}
-	
+
 	/**
 	 * @return Data_Transport
 	 */
@@ -340,7 +340,7 @@ class Controller_Abstract
 	{
 		return $this->_input;
 	}
-	
+
 	/**
 	 * @return Data_Transport
 	 */
@@ -348,16 +348,16 @@ class Controller_Abstract
 	{
 		return $this->_output;
 	}
-	
+
 	/**
 	 * @desc Имя контроллера (без приставки Controller_)
 	 * @return string
 	 */
 	final public function name ()
-	{		
+	{
 		return substr (get_class ($this), 11);
 	}
-	
+
 	/**
 	 * @desc Заменить текущий экшн с передачей всех параметров
 	 */
@@ -372,13 +372,13 @@ class Controller_Abstract
 		{
 			$other = Controller_Manager::get ($controller);
 		}
-		
+
 		$this->_task->setTemplate (
 			'Controller/' .
 			str_replace ('_', '/', $controller) .
 			'/' . $action
 		);
-		
+
 		if ($controller == get_class ($this))
 		{
 			// Этот же контроллер
@@ -401,9 +401,9 @@ class Controller_Abstract
             }
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Controller_Task $task
 	 * @return Controller_Abstract
 	 */
@@ -412,7 +412,7 @@ class Controller_Abstract
 		$this->_task = $task;
 		return $this;
 	}
-	
+
 	/**
 	 * @desc Устанавливает транспорт входных данных.
 	 * @param Data_Transport $input
@@ -423,7 +423,7 @@ class Controller_Abstract
 		$this->_input = $input;
 		return $this;
 	}
-	
+
 	/**
 	 * @desc Устанавливает транспорт выходных данных.
 	 * @param Data_Transport $output
