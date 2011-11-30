@@ -419,7 +419,7 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		$class_name = $this->__className ($table, $prefix);
 
-		$fields = Helper_Data_Source::fields ($table);
+		$fields = Helper_Data_Source::fields ('`' . $table . '`');
 
 		$acl_fields = $this->__aclFields ($table, $fields);
 
@@ -535,7 +535,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		Loader::load ('Table_Rate');
 
 		$rate = Table_Rate::byTable ($table)->inc ();
-		$fields = Helper_Data_Source::fields ($table);
+		$fields = Helper_Data_Source::fields ('`' . $table . '`');
 		$acl_fields = $this->__aclFields ($table, $fields);
 
 		if (!$acl_fields || !User::id ())
@@ -929,7 +929,7 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		$fields = null;
 		$sfields = array ();
-		$fields = Helper_Data_Source::fields ($table);
+		$fields = Helper_Data_Source::fields ('`' . $table . '`');
 		$acl_fields = $this->__aclFields ($table, $fields);
 
 		foreach ($fields as $i => $field)
@@ -1091,7 +1091,7 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		$class_name = $this->__className ($table, $prefix);
 
-		$fields = Helper_Data_Source::fields ($table);
+		$fields = Helper_Data_Source::fields ('`' . $table . '`');
 
 		$acl_fields = $this->__aclFields ($table, $fields);
 
