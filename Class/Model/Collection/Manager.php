@@ -1,14 +1,14 @@
 <?php
 /**
- * 
+ *
  * @desc Менеджер коллекций
  * @author Илья Колесников, Юрий Шведов
  * @package IcEngine
- * 
+ *
  */
 abstract class Model_Collection_Manager extends Manager_Abstract
 {
-	
+
 	/**
 	 * @desc Конфиг
 	 * @var array
@@ -22,7 +22,7 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 			'Model_Factory'		=> 'Simple'
 		)
 	);
-	
+
 	/**
 	 * @desc Возвращает коллекцию по запросу.
 	 * @author Юрий Шведов
@@ -32,13 +32,12 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 	 */
 	public static function byQuery ($model, Query $query)
 	{
-		$collection = self::create ($model); 
-		
+		$collection = self::create ($model);
+
 		$collection->setQuery ($query);
-		
 		return $collection;
 	}
-	
+
 	/**
 	 * @desc Создает коллекцию по имени.
 	 * @param string $model Модель колекции.
@@ -47,12 +46,12 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 	public static function create ($model)
 	{
 		$class_collection = $model . '_Collection';
-		
+
 		Loader::multiLoad ($model, $class_collection);
-		
+
 		return new $class_collection ();
 	}
-	
+
 	/**
 	 * @desc получить коллекцию из хранилища по запросу и опшинам
 	 * @param Model_Collection
@@ -62,23 +61,23 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 	{
 		// Название модели
 		$model = $collection->modelName ();
-		
+
 		$from = $query->getPart (Query::FROM);
-		
+
 		$collection_tags = array ();
-		
+
 		$tags = array ();
-		
+
 		$tag_valid = true;
-		
+
 		if ($from)
 		{
 			$tables = array ();
-		
+
 			$provider = Data_Provider_Manager::get (
 				self::config ()->cache_provider
 			);
-			
+
 			if ($provider)
 			{
 				foreach ($from as $f)
@@ -95,10 +94,10 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 			$query->translate ('Mysql') .
 			serialize ($collection->getOptions ()->getItems ())
 		);
-		
+
 		// Получаем коллецию из менеджера ресурсов
 		$pack = Resource_Manager::get ('Model_Collection', $key);
-		
+
 		// Если коллекцию уже использовалась в текущем сценарии,
 		// то в менеджере ресурсов она будет уже инициализированная
 		if ($pack instanceof Model_Collection)
@@ -107,49 +106,49 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 			$collection->data ($pack->data ());
 			return ;
 		}
-		
+
 		$addicts = array ();
-		
+
 		// Из менеджера ресурсов получили свернутую коллекцию
 		if (is_array ($pack))
 		{
 			$collection->data ($pack ['data']);
-			
+
 			$items = array ();
-			
+
 			foreach ($pack ['items'] as $i => $item)
 			{
 				$items [] 	= $item ['id'];
 				$addicts [] = $item ['addicts'];
 			}
-			
+
 			$collection_tags = $pack ['t'];
-			
+
 			if ($collection_tags && array_diff ($tags, $collection_tags))
 			{
 				$tag_valid = false;
 			}
-			
+
 			$pack ['items']	= $items;
-			
+
 			$collection->data ('addicts', $addicts);
 		}
-		
+
 		if (!is_array ($pack) || !$tag_valid)
 		{
 			// Делегируемый класс определяем по первому или нулевому
 			// предку.
 			$parents = class_parents ($model);
-			
+
 			$first = end ($parents);
 			$second = prev ($parents);
 
-			$parent = 
+			$parent =
 				$second && isset (self::$_config ['delegee'][$second]) ?
 				$second :
 				$first;
- 
-			$delegee = 
+
+			$delegee =
 				'Model_Collection_Manager_Delegee_' .
 				self::$_config ['delegee'][$parent];
 
@@ -159,14 +158,14 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 				array ($delegee, 'load'),
 				$collection, $query
 			);
-	
+
 			$collection->data ('t', $tags);
-			
+
 			$addicts = $collection->data ('addicts');
 		}
-		
+
 		static $key_fields = array ();
-		
+
 		// Инициализируем модели коллекции
 		foreach ($pack ['items'] as $i => $item)
 		{
@@ -174,18 +173,18 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 			{
 				$pack ['items'][$i] = Model_Manager::get ($model, $item);
 			}
-			else 
+			else
 			{
 				if (isset ($key_fields [$model]))
 				{
 					$kf = $key_fields [$model];
 				}
-				else 
+				else
 				{
 					$kf = Model_Scheme::keyField ($model);
 					$key_fields [$model] = $kf;
 				}
-				
+
 				if (isset ($item [$kf]))
 				{
 					$pack ['items'][$i] = Model_Manager::get (
@@ -194,25 +193,25 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 						$item
 					);
 				}
-				else 
+				else
 				{
 					unset ($pack ['items'][$i]);
 					continue;
 				}
 			}
-			
+
 			if (!empty ($addicts [$i]))
 			{
 				$pack ['items'][$i]->set ($addicts [$i]);
 			}
 		}
-		
+
 		$collection->setItems ($pack ['items']);
-		
+
 		// В менеджере ресурсов сохраняем клона коллеции
 		Resource_Manager::set (
-			'Model_Collection', 
-			$key, 
+			'Model_Collection',
+			$key,
 			self::create ($collection->modelName ())
 				->assign ($collection)
 		);
