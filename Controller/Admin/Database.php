@@ -619,7 +619,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			$plugins = $plugins->__toArray ();
 		}
 
-		// Получаем список вкладок 
+		// Получаем список вкладок
 		$tabs = array ();
 
 		if (!empty ($this->config ()->tabs))
@@ -783,6 +783,22 @@ class Controller_Admin_Database extends Controller_Abstract
 		}
 
 		$search_fields = $this->_getValues (null, $class_name, clone $fields);
+		$config_search_fields = $this->config ()->search_fields;
+		if ($config_search_fields)
+		{
+			$config_search_fields = $config_search_fields->$class_name;
+			if ($config_search_fields)
+			{
+				$config_search_fields = $config_search_fields->__toArray ();
+				foreach ($search_fields as $i=>$v)
+				{
+					if (!in_array ($v->Field, $config_search_fields))
+					{
+						unset ($search_fields [$i]);
+					}
+				}
+			}
+		}
 
 		if ($class_fields)
 		{
