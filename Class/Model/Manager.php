@@ -93,6 +93,7 @@ class Model_Manager extends Manager_Abstract
 		{
 			return ;
 		}
+       
 		Model_Scheme::dataSource ($object->modelName ())
 				->execute (
 					Query::instance ()

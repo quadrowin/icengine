@@ -225,38 +225,42 @@ class Controller_Manager extends Manager_Abstract
 
 		$controller->_beforeAction ($method);
 
-		$reflection = new ReflectionMethod ($controller, $method);
+		// _beforeAction не генерировал ошибки, можно продолжать
+        if (!$controller->hasErrors ())
+        {
+			$reflection = new ReflectionMethod ($controller, $method);
 
-		$params = $reflection->getParameters ();
-		$c_input = $controller->getInput ();
+			$params = $reflection->getParameters ();
+			$c_input = $controller->getInput ();
 
-		if ($params)
-		{
-			foreach ($params as &$param)
+			if ($params)
 			{
-				$param_value = $c_input->receive ($param->name);
-				if (!$param_value)
+				foreach ($params as &$param)
 				{
-					$reflection_param = new ReflectionParameter (
-						array ($controller, $method),
-						$param->name
-					);
-
-					if ($reflection_param && $reflection_param->isOptional ())
+					$param_value = $c_input->receive ($param->name);
+					if (!$param_value)
 					{
-						$param_value = $reflection_param->getDefaultValue ();
+						$reflection_param = new ReflectionParameter (
+							array ($controller, $method),
+							$param->name
+						);
+
+						if ($reflection_param && $reflection_param->isOptional ())
+						{
+							$param_value = $reflection_param->getDefaultValue ();
+						}
 					}
+					$param = $param_value;
 				}
-				$param = $param_value;
 			}
+
+			call_user_func_array (
+				array ($controller, $method),
+				$params ? $params : array ()
+			);
+
+			$controller->_afterAction ($method);
 		}
-
-		call_user_func_array (
-			array ($controller, $method),
-			$params ? $params : array ()
-		);
-
-		$controller->_afterAction ($method);
 
 		$task->setTransaction ($controller->getOutput ()->endTransaction ());
 
