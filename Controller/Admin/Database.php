@@ -644,7 +644,10 @@ class Controller_Admin_Database extends Controller_Abstract
 				{
 					$tmp = $tmp->$class_name;
 
-					$field_filters = $tmp->__toArray ();
+					if ($tmp)
+					{
+						$field_filters = $tmp->__toArray ();
+					}
 				}
 
 				$cn = substr ($field->Field, 0, -4);
