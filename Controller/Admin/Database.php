@@ -110,6 +110,190 @@ class Controller_Admin_Database extends Controller_Abstract
 	}
 
 	/**
+	 * @desc Подготовить поля к выводу
+	 * @param string $class_name
+	 * @param Objective $fields
+	 * @return Objective
+	 */
+	private function _getValues ($class_name, $fields)
+	{
+		$field_filters = array ();
+
+		$tmp = $this->config ()->field_filters->$class_name;
+
+		if ($tmp)
+		{
+			$field_filters = $tmp->__toArray ();
+		}
+
+		$table = Model_Scheme::table ($class_name);
+		foreach ($fields as $i => $field)
+		{
+			// Это линка
+			if (!empty ($field->Link))
+			{
+				if (isset ($field_filters [$field->Field]))
+				{
+					foreach ($field_filters [$field->Field] as $field_filter)
+					{
+						$value = $field_filter ['value'];
+
+						if (strpos ($value, '::') !== false)
+						{
+							$value = call_user_func ($field_filter ['value']);
+						}
+
+						$field->Values = $field->Values->filter (array (
+							$field_filter ['field'] => $value
+						));
+					}
+				}
+			}
+
+			// Тип поля - enum
+			if (strpos ($field->Type, 'enum(') === 0)
+			{
+				$values = substr ($field->Type, 6, -1);
+				$values = explode (',', $values);
+
+				$collection = Model_Collection_Manager::create (
+					'Dummy'
+				)->reset ();
+
+				Loader::load ('Model_Proxy');
+				foreach ($values as $v)
+				{
+					$v = trim ($v, "' ");
+
+					$collection->add (new Model_Proxy (
+						'Dummy',
+						array (
+							'id'	=> $v,
+							'name'	=> $v
+						)
+					));
+				}
+
+				$field->Values = $collection;
+			}
+
+			$text_value = Model_Manager::byQuery (
+				'Text_Value',
+				Query::instance ()
+					->where ('tv_field_table', $table)
+					->where ('tv_field_name', $field->Field)
+			);
+
+			//echo DDS::getDataSource ()->getQuery ()->translate () . '<br />';
+
+			// Есть запись для поля таблицы в таблице подстановок
+			if ($text_value && $text_value->tv_text_field)
+			{
+				$query = Query::instance ()
+					->select ($text_value->tv_text_table . '.' .
+						$text_value->tv_text_link_field)
+
+					->select ($text_value->tv_text_table . '.' .
+						$text_value->tv_text_field);
+
+				$query
+					->from ('`' . $text_value->tv_text_table . '`' );
+
+				if ($text_value->tv_text_link_condition)
+				{
+					$query
+						->where ($text_value->tv_text_link_condition);
+				}
+
+				if (isset ($field_filters [$field->Field]))
+				{
+					foreach ($field_filters [$field->Field] as $field_filter)
+					{
+						$value = $field_filter ['value'];
+
+						if (strpos ($value, '::') !== false)
+						{
+							$value = call_user_func ($field_filter ['value']);
+						}
+
+						$query->where ($field_filter ['field'], $value);
+					}
+				}
+
+				$result = DDS::execute ($query)
+					->getResult ()
+						->asTable ();
+
+				$collection = Model_Collection_Manager::create (
+					'Dummy'
+				)->reset ();
+
+
+				$model_class_name = Model_Scheme::tableToModel ($text_value->tv_text_table);
+				$file = str_replace ('_', '/', $model_class_name) . '.php';
+				if (Loader::findFile ($file))
+				{
+					Loader::load ($model_class_name);
+				}
+				else
+				{
+					$model_class_name = $class_name;
+				}
+				$kf = Model_Scheme::keyField ($model_class_name);
+
+				Loader::load ('Dummy');
+
+				foreach ($result as $item)
+				{
+					$collection->add (new Dummy (array (
+						$kf	=> $item [$text_value->tv_text_link_field],
+						'name'	=> $item [$text_value->tv_text_field]
+					)));
+				}
+
+				$field->Values = $collection;
+			}
+
+			// Поле - поле для связи
+			if (strpos ($field->Field, '__id') !== false)
+			{
+				$cn = substr ($field->Field, 0, -4);
+
+				$query = Query::instance ();
+
+				if (isset ($field_filters [$field->Field]))
+				{
+					foreach ($field_filters [$field->Field] as $field_filter)
+					{
+						$value = $field_filter ['value'];
+
+						if (strpos ($value, '::') !== false)
+						{
+							$value = call_user_func ($field_filter ['value']);
+						}
+
+						$query->where ($field_filter ['field'], $value);
+					}
+				}
+
+				$field->Values = Model_Collection_Manager::byQuery (
+					$cn,
+					$query
+				);
+			}
+
+			// Ссылка на родителя
+			if ($field->Field == 'parentId')
+			{
+				$field->Values = Model_Collection_Manager::create (
+					$class_name
+				);
+			}
+		}
+		return $fields;
+	}
+
+	/**
 	 * @desc Залогоровать операцию
 	 * @param string $action
 	 * @param string $table
@@ -235,7 +419,7 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		$class_name = $this->__className ($table, $prefix);
 
-		$fields = Helper_Data_Source::fields ('`' . $table . '`');
+		$fields = Helper_Data_Source::fields ($table);
 
 		$acl_fields = $this->__aclFields ($table, $fields);
 
@@ -271,12 +455,36 @@ class Controller_Admin_Database extends Controller_Abstract
 		Helper_Header::redirect ('/cp/table/' . $table . '/');
 	}
 
+	private function filters($collection, $class_name) {
+		$filters = null;
+
+		if (!empty ($this->config ()->filters))
+		{
+			$filters = $this->config ()->filters->$class_name;
+		}
+
+		if ($filters)
+		{
+			$filters = $filters->__toArray ();
+
+			foreach ($filters as $field => $value)
+			{
+				if (strpos ($value, '::') !== false)
+				{
+					$value = call_user_func ($value);
+				}
+				$collection->where ($field, $value);
+			}
+		}
+		return $collection;
+	}
+
 	/**
 	 * @desc Список таблиц
 	 */
 	public function index ()
 	{
-		$tables = Helper_Data_Source::tables ();;
+		$tables = Helper_Data_Source::tables ();
 		$tmp_tables = $this->__aclTables ($tables);
 
 		if (!$tmp_tables || !User::id ())
@@ -327,7 +535,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		Loader::load ('Table_Rate');
 
 		$rate = Table_Rate::byTable ($table)->inc ();
-		$fields = Helper_Data_Source::fields ('`' . $table . '`');
+		$fields = Helper_Data_Source::fields ($table);
 		$acl_fields = $this->__aclFields ($table, $fields);
 
 		if (!$acl_fields || !User::id ())
@@ -356,7 +564,6 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		foreach ($fields as $i => $field)
 		{
-			// На поле нет разрешения
 			if (!in_array ($field ['Field'], $acl_fields))
 			{
 				unset ($fields [$i]);
@@ -366,7 +573,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			if (!$row->key () && $field ['Field'] != $row->keyField ())
 			{
 				$row->set ($field ['Field'], $field ['Default']);
-			}
+		}
 
 			// Тип поля - enum
 			if (strpos ($field->Type, 'enum(') === 0)
@@ -383,7 +590,7 @@ class Controller_Admin_Database extends Controller_Abstract
 				foreach ($values as $v)
 				{
 					$v = trim ($v, "' ");
-			
+
 					$collection->add (new Model_Proxy (
 						'Dummy',
 						array (
@@ -403,8 +610,8 @@ class Controller_Admin_Database extends Controller_Abstract
 					->where ('tv_field_name', $field->Field)
 			);
 
-			//echo DDS::getDataSource ()->getQuery ()->translate () . '<br />';
-
+//			//echo DDS::getDataSource ()->getQuery ()->translate () . '<br />';
+//
 			// Есть запись для поля таблицы в таблице подстановок
 			if ($text_value && $text_value->tv_text_field)
 			{
@@ -420,69 +627,10 @@ class Controller_Admin_Database extends Controller_Abstract
 					$field_filters = $field_filters->__toArray ();
 				}
 
-				$query = Query::instance ()
-					->select ($text_value->tv_text_table . '.' .
-						$text_value->tv_text_link_field)
+				$collection = $text_value->replace (
+					$row, $table, $fields, $field, $field_filters, $class_name
+				);
 
-					->select ($text_value->tv_text_table . '.' .
-						$text_value->tv_text_field);
-
-				$query
-					->from ('`' . $text_value->tv_text_table . '`' );
-
-				if ($text_value->tv_text_link_condition)
-				{
-					$query
-						->where ($text_value->tv_text_link_condition);
-				}
-
-				if (isset ($field_filters [$field->Field]))
-				{
-					foreach ($field_filters [$field->Field] as $field_filter)
-					{
-						$value = $field_filter ['value'];
-
-						if (strpos ($value, '::') !== false)
-						{
-							$value = call_user_func ($field_filter ['value']);
-						}
-
-						$query->where ($field_filter ['field'], $value);
-					}
-				}
-
-				$result = DDS::execute ($query)
-					->getResult ()
-						->asTable ();
-				
-				$collection = Model_Collection_Manager::create (
-					$class_name
-				)
-					->reset ();
-
-
-				$model_class_name = Model_Scheme::tableToModel ($text_value->tv_text_table);
-				$file = str_replace ('_', '/', $model_class_name) . '.php';
-				if (Loader::findFile ($file))
-				{
-					Loader::load ($model_class_name);
-				}
-				else
-				{
-					$model_class_name = $class_name;
-				}
-				$kf = Model_Scheme::keyField ($model_class_name);
-				
-				Loader::load ('Model_Proxy');
-			
-				foreach ($result as $item)
-				{
-					$collection->add (new Model_Proxy ($model_class_name, array (
-						$kf	=> $item [$text_value->tv_text_link_field],
-						'name'	=> $item [$text_value->tv_text_field]
-					)));
-				}
-				//print_r ($collection->items ());
 				$field->Values = $collection;
 			}
 
@@ -491,10 +639,11 @@ class Controller_Admin_Database extends Controller_Abstract
 			{
 				$field_filters = array ();
 
-				$tmp = $this->config ()->field_filters->$class_name;
-
-				if ($tmp)
+				$tmp = $this->config ()->field_filters;
+				if ($tmp->count())
 				{
+					$tmp = $tmp->$class_name;
+
 					$field_filters = $tmp->__toArray ();
 				}
 
@@ -563,10 +712,14 @@ class Controller_Admin_Database extends Controller_Abstract
 					$link_name
 				);
 
-				$link_table = Model_Scheme::table ($row->modelName ());
-				$table_info = Helper_Data_Source::table ('`' . $link_table . '`');
+				$link_models [$link_name] = $this->filters($link_models [$link_name], $link_name);
+
+				$link_table = Model_Scheme::table ($link_name);
+
+				$table_info = Helper_Data_Source::table ($link_table);
 
 				$field = new Objective (array (
+					'Link'		=> true,
 					'Field'		=> $link_name,
 					'Values'	=> array (),
 					'Comment'	=> !empty ($table_info ['Comment'])
@@ -576,6 +729,29 @@ class Controller_Admin_Database extends Controller_Abstract
 				$field->Values = $link_models [$link_name];
 
 				$fields [] = $field;
+			}
+		}
+
+		$fields = $this->_getValues ($class_name, $fields);
+
+		foreach ($fields as $field)
+		{
+			if (!$row->key () && $field ['Field'] != $row->keyField ())
+			{
+				$row->set ($field ['Field'], $field ['Default']);
+			}
+
+			// Автовыбор
+			if (isset ($auto_select [$field ['Field']]) && !$row->key ())
+			{
+				$value = $auto_select [$field ['Field']];
+
+				if (strpos ($value, '::') !== false)
+				{
+					$value = call_user_func ($value);
+				}
+
+				$row->set ($field ['Field'], $value);
 			}
 		}
 
@@ -660,30 +836,9 @@ class Controller_Admin_Database extends Controller_Abstract
 		$collection = Model_Collection_Manager::create ($class_name);
 
 		// Получаем фильтры
-
-		$filters = null;
-
-		if (!empty ($this->config ()->filters))
-		{
-			$filters = $this->config ()->filters->$class_name;
-		}
-
-		if ($filters)
-		{
-			$filters = $filters->__toArray ();
-
-			foreach ($filters as $field => $value)
-			{
-				if (strpos ($value, '::') !== false)
-				{
-					$value = call_user_func ($value);
-				}
-				$collection->where ($field, $value);
-			}
-		}
+		$collection = $this->filters($collection, $class_name);
 
 		// Сортируем коллекцию, если есть конфиг для сортировки
-
 		$sort = null;
 
 		if (!empty ($this->config ()->sort))
@@ -701,6 +856,7 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		Loader::load ('Paginator');
 
+		$search = array ();
 		if (!$limitator)
 		{
 			// Накладываем лимиты
@@ -717,10 +873,28 @@ class Controller_Admin_Database extends Controller_Abstract
 				$_GET ['limit'] = $limit;
 			}
 
+			$search = Request::get ('search');
+			if ($search)
+			{
+				foreach ($search as $f=>$v)
+				{
+					if (!$v)
+					{
+						continue;
+					}
+					if (is_numeric ($v))
+					{
+						$collection->where ($f, $v);
+					}
+					else
+					{
+						$collection->where ($f . ' LIKE ?', '%' . $v . '%');
+					}
+				}
+			}
+
 			$paginator = Paginator::fromGet ();
-
 			$collection->setPaginator ($paginator);
-
 			$collection->load ();
 
 			$paginator_html = Controller_Manager::html (
@@ -754,23 +928,31 @@ class Controller_Admin_Database extends Controller_Abstract
 		}
 
 		$fields = null;
-
 		$sfields = array ();
+		$fields = Helper_Data_Source::fields ($table);
+		$acl_fields = $this->__aclFields ($table, $fields);
+
+		foreach ($fields as $i => $field)
+		{
+			if (!in_array ($field ['Field'], $acl_fields))
+			{
+				unset ($fields [$i]);
+			}
+			else
+			{
+				$sfields [] = $field ['Field'];
+			}
+		}
+
+		$search_fields = $this->_getValues ($class_name, clone $fields);
 
 		if ($class_fields)
 		{
 			$class_fields = $class_fields->__toArray ();
 
-			$fields = Helper_Data_Source::fields ('`' . $table . '`');
-
-			$acl_fields = $this->__aclFields ($table, $fields);
-
 			foreach ($fields as $i => $field)
 			{
-				if (
-					!in_array ($field ['Field'], $acl_fields) ||
-					!in_array ($field ['Field'], $class_fields)
-				)
+				if (!in_array ($field ['Field'], $class_fields))
 				{
 					unset ($fields [$i]);
 				}
@@ -780,6 +962,8 @@ class Controller_Admin_Database extends Controller_Abstract
 				}
 			}
 		}
+
+		$sfields = array_unique ($sfields);
 
 		$title = null;
 
@@ -871,13 +1055,14 @@ class Controller_Admin_Database extends Controller_Abstract
 		$this->_output->send (array (
 			'collection'		=> $collection,
 			'fields'			=> $fields,
+			'search'			=> $search,
+			'search_fields'		=> $search_fields,
 			'sfields'			=> $sfields,
 			'class_name'		=> $class_name,
 			'table'				=> $table,
 			'limitators'		=> $limitators,
 			'limitator'			=> $limitator,
-			'title'				=> !empty ($title)
-				? $title : $this->config ()->default_title,
+			'title'				=> !empty ($title) ? $title : $this->config ()->default_title,
 			'links'				=> $links,
 			'keyField'			=> Model_Scheme::keyField ($class_name),
 			'styles'			=> $styles,
@@ -906,7 +1091,7 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		$class_name = $this->__className ($table, $prefix);
 
-		$fields = Helper_Data_Source::fields ('`' . $table . '`');
+		$fields = Helper_Data_Source::fields ($table);
 
 		$acl_fields = $this->__aclFields ($table, $fields);
 
