@@ -115,7 +115,7 @@ class Controller_Admin_Database extends Controller_Abstract
 	 * @param Objective $fields
 	 * @return Objective
 	 */
-	private function _getValues ($class_name, $fields)
+	private function _getValues ($row, $class_name, $fields)
 	{
 		$field_filters = array ();
 
@@ -177,83 +177,26 @@ class Controller_Admin_Database extends Controller_Abstract
 				$field->Values = $collection;
 			}
 
-			$text_value = Model_Manager::byQuery (
-				'Text_Value',
-				Query::instance ()
-					->where ('tv_field_table', $table)
-					->where ('tv_field_name', $field->Field)
-			);
-
-			//echo DDS::getDataSource ()->getQuery ()->translate () . '<br />';
-
-			// Есть запись для поля таблицы в таблице подстановок
-			if ($text_value && $text_value->tv_text_field)
+			if ($row)
 			{
-				$query = Query::instance ()
-					->select ($text_value->tv_text_table . '.' .
-						$text_value->tv_text_link_field)
+				$text_value = Model_Manager::byQuery (
+					'Text_Value',
+					Query::instance ()
+						->where ('tv_field_table', $table)
+						->where ('tv_field_name', $field->Field)
+				);
 
-					->select ($text_value->tv_text_table . '.' .
-						$text_value->tv_text_field);
+				//echo DDS::getDataSource ()->getQuery ()->translate () . '<br />';
 
-				$query
-					->from ('`' . $text_value->tv_text_table . '`' );
-
-				if ($text_value->tv_text_link_condition)
+				// Есть запись для поля таблицы в таблице подстановок
+				if ($text_value && $text_value->tv_text_field)
 				{
-					$query
-						->where ($text_value->tv_text_link_condition);
+					$collection = $text_value->replace (
+						$row, $table, $fields, $field, $field_filters, $class_name
+					);
+					$field->Values = $collection;
 				}
-
-				if (isset ($field_filters [$field->Field]))
-				{
-					foreach ($field_filters [$field->Field] as $field_filter)
-					{
-						$value = $field_filter ['value'];
-
-						if (strpos ($value, '::') !== false)
-						{
-							$value = call_user_func ($field_filter ['value']);
-						}
-
-						$query->where ($field_filter ['field'], $value);
-					}
-				}
-
-				$result = DDS::execute ($query)
-					->getResult ()
-						->asTable ();
-
-				$collection = Model_Collection_Manager::create (
-					'Dummy'
-				)->reset ();
-
-
-				$model_class_name = Model_Scheme::tableToModel ($text_value->tv_text_table);
-				$file = str_replace ('_', '/', $model_class_name) . '.php';
-				if (Loader::findFile ($file))
-				{
-					Loader::load ($model_class_name);
-				}
-				else
-				{
-					$model_class_name = $class_name;
-				}
-				$kf = Model_Scheme::keyField ($model_class_name);
-
-				Loader::load ('Dummy');
-
-				foreach ($result as $item)
-				{
-					$collection->add (new Dummy (array (
-						$kf	=> $item [$text_value->tv_text_link_field],
-						'name'	=> $item [$text_value->tv_text_field]
-					)));
-				}
-
-				$field->Values = $collection;
 			}
-
 			// Поле - поле для связи
 			if (strpos ($field->Field, '__id') !== false)
 			{
@@ -573,114 +516,6 @@ class Controller_Admin_Database extends Controller_Abstract
 			if (!$row->key () && $field ['Field'] != $row->keyField ())
 			{
 				$row->set ($field ['Field'], $field ['Default']);
-		}
-
-			// Тип поля - enum
-			if (strpos ($field->Type, 'enum(') === 0)
-			{
-				$values = substr ($field->Type, 6, -1);
-				$values = explode (',', $values);
-
-				$collection = Model_Collection_Manager::create (
-					$class_name
-				)
-					->reset ();
-
-				Loader::load ('Model_Proxy');
-				foreach ($values as $v)
-				{
-					$v = trim ($v, "' ");
-
-					$collection->add (new Model_Proxy (
-						'Dummy',
-						array (
-							Model_Scheme::keyField ($class_name)	=> $v,
-							'name'					=> $v
-						)
-					));
-				}
-
-				$field->Values = $collection;
-			}
-
-			$text_value = Model_Manager::byQuery (
-				'Text_Value',
-				Query::instance ()
-					->where ('tv_field_table', $table)
-					->where ('tv_field_name', $field->Field)
-			);
-
-//			//echo DDS::getDataSource ()->getQuery ()->translate () . '<br />';
-//
-			// Есть запись для поля таблицы в таблице подстановок
-			if ($text_value && $text_value->tv_text_field)
-			{
-				$field_filters = array ();
-
-				if (!empty ($this->config ()->field_filters))
-				{
-					$field_filters = $this->config ()->field_filters->$class_name;
-				}
-
-				if ($field_filters)
-				{
-					$field_filters = $field_filters->__toArray ();
-				}
-
-				$collection = $text_value->replace (
-					$row, $table, $fields, $field, $field_filters, $class_name
-				);
-
-				$field->Values = $collection;
-			}
-
-			// Поле - поле для связи
-			if (strpos ($field->Field, '__id') !== false)
-			{
-				$field_filters = array ();
-
-				$tmp = $this->config ()->field_filters;
-				if ($tmp->count())
-				{
-					$tmp = $tmp->$class_name;
-
-					if ($tmp)
-					{
-						$field_filters = $tmp->__toArray ();
-					}
-				}
-
-				$cn = substr ($field->Field, 0, -4);
-
-				$query = Query::instance ();
-
-				if (isset ($field_filters [$field->Field]))
-				{
-					foreach ($field_filters [$field->Field] as $field_filter)
-					{
-						$value = $field_filter ['value'];
-
-						if (strpos ($value, '::') !== false)
-						{
-							$value = call_user_func ($field_filter ['value']);
-						}
-
-						$query->where ($field_filter ['field'], $value);
-					}
-				}
-
-				$field->Values = Model_Collection_Manager::byQuery (
-					$cn,
-					$query
-				);
-			}
-
-			// Ссылка на родителя
-			if ($field->Field == 'parentId')
-			{
-				$field->Values = Model_Collection_Manager::create (
-					$class_name
-				);
 			}
 
 			// Автовыбор
@@ -735,7 +570,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			}
 		}
 
-		$fields = $this->_getValues ($class_name, $fields);
+		$fields = $this->_getValues ($row, $class_name, $fields);
 
 		foreach ($fields as $field)
 		{
@@ -947,7 +782,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			}
 		}
 
-		$search_fields = $this->_getValues ($class_name, clone $fields);
+		$search_fields = $this->_getValues (null, $class_name, clone $fields);
 
 		if ($class_fields)
 		{
