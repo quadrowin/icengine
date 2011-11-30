@@ -60,51 +60,83 @@ var Helper_Form = {
 		var data = {};	
 		
 		$fields.each (function () {
+
+            /**
+             * для корректной обработки select:multiple и параметров с именем "param[]"
+             * @author red
+             */
+            function _setValue (name, value) {
+                var _name = name;
+                var _isArray = false;
+
+                if (name.slice (-2) == '[]') {
+                    _name = name.slice (0, -2);
+                    _isArray = true;
+                }
+                if (typeof (value) == 'object') {
+                    _isArray = true;
+                }
+
+                if (_isArray) {
+                    if (! (_name in data)) {
+                        data[_name] = [];
+                    }
+                    if( typeof (value) == 'object' ) {
+                        for (i in value) { data[_name].push (value[i]); }
+                    } else {
+                        data[_name].push (value);
+                    }
+                }
+                else {
+                    data[_name] = value;
+                }
+            }
+
+
 			if (this.tagName.toLowerCase () == 'input')
 			{
 				if (this.type == "file")
 				{
-					data [this.name] = this;
+					_setValue (this.name, this);
 				}
 				else if (this.type == 'checkbox')
 				{
 					if (this.checked)
 					{
-						data [this.name] = this.value ? this.value : 'on';
+						_setValue (this.name, $(this).val() ? $(this).val() : 'on');
 					}
 				}
 				else if (this.type == 'radio')
 				{
 					if (this.checked)
 					{
-						data [this.name] = this.value;
+						_setValue (this.name, $(this).val ());
 					}
 				}
 				else
 				{
-					if ($(this).attr ('placeholder') == this.value)
+					if ($(this).attr ('placeholder') == $(this).val ())
 					{
-						data [this.name] = '';
+						_setValue (this.name, '');
 					}
 					else
 					{
-						data [this.name] = this.value;
+						_setValue (this.name, $(this).val ());
 					}
 				}
 			}
 			else
 			{
-				if ($(this).attr ('placeholder') == this.value)
+				if ($(this).attr ('placeholder') == $(this).val ())
 				{
-					data [this.name] = '';
+					_setValue (this.name, '');
 				}
 				else
 				{
-					data [this.name] = this.value;
+					_setValue (this.name, $(this).val ());
 				}
 			}
 		});
-		
 		return data;
 	},
 	

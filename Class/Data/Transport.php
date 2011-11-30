@@ -241,7 +241,31 @@ class Data_Transport
 		}
 		return $result;
 	}
-	
+
+
+    /**
+     * @desc получает модель, заполненную входными данными. Входные данные должны иметь имена
+     *      ModelName[field1], ModelName[field2], ..., ModelName[fieldN]
+     * @author red
+     * @param string $model_name наименование модели
+     * @return Model
+     */
+    public function receiveModel ($model_name)
+    {
+        $fields = Model_Scheme::fieldsNames ($model_name);
+        $values = $this->receive($model_name);
+
+        $model_data = array();
+        foreach ($fields as $field)
+        {
+            $model_data[$field] = $values[$field];
+        }
+
+        $model = Model_Manager::create ($model_name, $model_data);
+        return $model;
+    }
+
+
 	/**
 	 * @desc Возвращает массив пар "ключ - значение"
 	 * @param string $_ Название переменной
