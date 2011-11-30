@@ -619,7 +619,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			$plugins = $plugins->__toArray ();
 		}
 
-		// Получаем список вкладок
+		// Получаем список вкладок 
 		$tabs = array ();
 
 		if (!empty ($this->config ()->tabs))
