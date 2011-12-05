@@ -369,9 +369,16 @@ class Debug
 			echo str_replace (
 				array (
 					"=>\n",
-					"=> \n"
+					"=> \n",
+					'<',
+					'>'
 				),
-				'=&gt;',
+				array (
+					'=&gt;',
+					'=&gt;',
+					'&lt;',
+					'&gt;'
+				),
 				var_export ($var, true)
 			) . "\n";
 		}
