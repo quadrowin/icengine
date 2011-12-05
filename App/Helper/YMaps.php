@@ -1,24 +1,27 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Хелпер для работы с яндекс картами.
  * @author Yury Shvedov
- * @package IcEngine
- * 
+ * @package Ice
+ *
  */
 class Helper_YMaps
 {
-	
+
 	/**
 	 * @desc Находит положение по названию (адресу)
 	 * @param string $key
 	 * @param string $address
-	 * @param integer $limit 
+	 * @param integer $limit
 	 * @param boolean $only_pos
 	 * @return stdClass|array|null Объект, содержащий данные о точке.
 	 * Позицию можно получить
 	 */
-	public static function geocodePoint ($key, $address, $limit = 1, 
+	public static function geocodePoint ($key, $address, $limit = 1,
 		$only_pos = false)
 	{
 		$params = array (
@@ -31,68 +34,68 @@ class Helper_YMaps
 			'http://geocode-maps.yandex.ru/1.x/?' .
 			http_build_query ($params)
 		));
-		
+
 		if (isset ($response->error) && $response->error)
 		{
 			return null;
 		}
-		
+
 		if ($response->response->GeoObjectCollection->metaDataProperty->GeocoderResponseMetaData->found > 0)
 		{
 			$r = $response->response->GeoObjectCollection->featureMember [0];
-			return 
+			return
 				$only_pos
 				? explode (' ', (string) $r->GeoObject->Point->pos)
 				: $r;
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * @desc Фукнция возвращает расстояние между двумя точками.
 	 * Функция взята из YMaps.GeoCoordSystem
-	 * @param array $A Координаты первой точки в градусах 
+	 * @param array $A Координаты первой точки в градусах
 	 * $A [0] широта (longitude), $a долгота (latitude)
 	 * @param array $z
 	 * $z [0] широта (longitude), $z долгота (latitude)
-	 * @return float 
+	 * @return float
 	 */
 	public static function distance ($A, $z)
 	{
 		$AgetX = $A [0];
 		$AgetY = $A [1];
-		
+
 		$zgetX = $z [0];
 		$zgetY = $z [1];
-		
+
 		$B = pi () / 180;
 		$x = $AgetX * $B;
 		$v = $AgetY * $B;
 		$w = $zgetX * $B;
 		$u = $zgetY * $B;
 		$y = 0;
-		
+
 		$this_epsilon = 1e-10;
 		$this_radius = 6378137;
 		$this_e2 = 0.00669437999014;
-		
+
 		if (
 			!(
-				Abs ($u - $v) < $this_epsilon && 
+				Abs ($u - $v) < $this_epsilon &&
 				Abs ($x - $w) < $this_epsilon
 			)
 		)
 		{
 			$C = cos (($v + $u) / 2);
 			$t = $this_radius * sqrt ((1 - $this_e2) / (1 - $this_e2 * $C * $C));
-			$y = 
+			$y =
 				$t * acos (
-					sin ($v) * sin ($u) + 
+					sin ($v) * sin ($u) +
 					cos ($v) * cos ($u) * cos ($w - $x)
 				);
 		}
-		
+
 		return $y;
 	}
 
@@ -100,7 +103,7 @@ class Helper_YMaps
 	 * @desc Альтернативный метод расчета расстояния.
 	 * Функция найдена на просторах инета, в целом результаты не сильно
 	 * отличаются от функции яндекса.
-	 * @param float $long1 
+	 * @param float $long1
 	 * @param float $lat1
 	 * @param float $long2
 	 * @param float $lat2
@@ -114,7 +117,7 @@ class Helper_YMaps
 		static $b  = 6356752.314245;
 		static $e2 = 0.006739496742337;
 		static $f  = 0.003352810664747;
-		
+
 		$fdLambda = ($long1 - $long2) * $D2R;
 		$fdPhi  = ($lat1 - $lat2) * $D2R;
 
@@ -123,12 +126,12 @@ class Helper_YMaps
 		$fTemp  = 1 - $e2 * (pow (sin ($fPhimean), 2));
 		$fRho  = ($a * (1 - $e2)) / pow ($fTemp, 1.5);
 		$fNu  = $a / (
-			sqrt (1 - $e2 * 
+			sqrt (1 - $e2 *
 			pow (sin ($fPhimean), 2))
 		);
 
 		$fz   = sqrt (
-			pow (sin ($fdPhi / 2.0), 2) + cos ($lat2 * $D2R) * 
+			pow (sin ($fdPhi / 2.0), 2) + cos ($lat2 * $D2R) *
 			cos ($lat1 * $D2R) * pow (sin ($fdLambda / 2.0), 2)
 		);
 		$fz   = 2 * asin ($fz);
@@ -136,7 +139,7 @@ class Helper_YMaps
 		$fAlpha  = cos ($lat2 * $D2R) * sin ($fdLambda) * 1 / sin ($fz);
 		$fAlpha  = asin ($fAlpha);
 
-		$fR   = 
+		$fR   =
 			($fRho * $fNu) / (
 				($fRho * pow (sin ($fAlpha), 2)) +
 				($fNu * pow (cos ($fAlpha), 2))
@@ -144,7 +147,7 @@ class Helper_YMaps
 
 		return $fz * $fR;
 	}
-	
+
 	/**
 	 * @desc Парсинг страницы с расписанием яндекса на время вылета,
 	 * прилета и продолжительности
@@ -173,9 +176,9 @@ class Helper_YMaps
 			//'<div class="b-timetable__days [^>]*>(.+?)</div>' . // дни курсирования (может не быть, бывает цена в рублях)
 			//'.+?' .
 		'</tbody>#m';
-		
+
 		//$regexp = '#<tbody class="js-datetime-group">.+?<div class="b-timetable__tripname">(.+?)</div>.+?<div class="b-timetable__time">(.+?)<strong[^>]*>(.+?)</strong>.+?<div class="b-timetable__time">(.+?)<strong[^>]*>(.+?)</strong>.+?<div class="b-timetable__pathtime">(.+?)</div>.+?<div class="b-timetable__days [^>]*>(.+?)</div>.+?</tbody>#g';
-		
+
 //		array(7) {
 //			[0]=> array(1) {
 //				[0]=> string(12360) "<tbody class="js-datetime-group">                                <tr class="b-timetable__row {'seats': 'n', 'depTime': 'evening', 'carrier': '96', 'stationFrom': '9600216', 'arrTime': 'night', 'stationTo': '9623569'}">                    <td class="b-timetable__column b-timetable__column_type_ico b-timetable__column_position_first"><a class="b-link" href="/thread/7R-4101A_c96_agent/?station_to=9623569&point_from=c213&departure=2011-07-20&point_to=c237&station_from=9600216"><span class="b-transico b-transico_type_plane"><img class="b-transico__i"                                                                                       src="http://static.rasp.yandex.net/2.6.36/blocks/b-transico/b-transico.png"                                                                                       alt=""/><img class="b-transico__print" src="http://static.rasp.yandex.net/2.6.36/blocks/b-transico/b-transico__plane.png" alt=""/></span></a></td>                <td class="b-timetable__column b-timetable__column_type_trip">                                                                                             <div class="b-timetable__tripname">            <a class="b-link" href="/thread/7R-4101A_c96_agent/?station_to=9623569&point_from=c213&departure=2011-07-20&point_to=c237&station_from=9600216"><strong>7R 4101</strong> <span class="g-nowrap">Москва</span> — <span class="g-nowrap">Новокузнецк</span></a>        </div>        <div class="b-timetable__description">            Airbus А320, <a class="b-link" href="/info/company/96">Руслайн</a>                                        <img alt="Электронный билет" src="http://static.rasp.yandex.net/2.6.36/i/eticket.png" class="b-ico b-ico_type_eticket js-et-marker g-hidden">                    </div>                                                                </td>                    <td class="b-timetable__column b-timetable__column_type_departure b-timetable__column_state_current">                <div class="b-timetable__time">                            <span class="js-datetime js-no-repeat {'shifts': {'213': 0}, 'local': 'July 20, 2011 22:10:00', 'col': 'dep'}"><strong>22:10</strong>, 20&nbsp;июля</span>                    </div>                        <div class="b-timetable__platform">                <a class="b-link b-link_theme_gray" href="/info/station/9600216/">Домодедово</a>        </div>            </td>                    <td class="b-timetable__column b-timetable__column_type_arrival">                <div class="b-timetable__time">                            <span class="js-datetime js-no-repeat {'shifts': {'213': -180}, 'local': 'July 21, 2011 05:30:00', 'col': 'arr'}"><strong>05:30</strong>, 21&nbsp;июля</span>                    </div>                        <div class="b-timetable__platform">                <a class="b-link b-link_theme_gray" href="/info/station/9623569/">Спиченково</a>        </div>            </td>                    <td class="b-timetable__column b-timetable__column_type_time {raw: 260}">                        <div class="b-timetable__pathtime">        	        	            4 <span class="b-timetable__mark">ч</span>	        	            20 <span class="b-timetable__mark">мин</span>	        	        </div>                                                    </td>                                                            <td class="b-timetable__column b-timetable__column_type_price">                    <div class="js-tariffs {link: 'http://clck.yandex.ru/redir/dtype=stred/pid=168/cid=70831/*http://rasp.yandex.ru/buy/?station_to=9623569&thread=7R-4101A_c96_agent&station_from=9600216&date=2011-07-20&point_to=c237&point_from=c213'}" id="js-s-7R-4101-0720">                                    &nbsp;                                            </div>                            <div class="b-spin b-spin_size_10 js-tariffs-spinner-plane_2011-07-20"><img class="b-ico" src="//yandex.st/lego/_/La6qi18Z8LwgnZdsAr1qy1GwCwo.gif" alt="" width="10" /></div>                        </div>    </td>                            </tr>                                            <tr class="b-timetable__row {'seats': 'n', 'depTime': 'evening', 'carrier': '30', 'stationFrom': '9600216', 'arrTime': 'night', 'stationTo': '9623569'}">                    <td class="b-timetable__column b-timetable__column_type_ico b-timetable__column_position_first"><a class="b-link" href="/thread/U6-101A_c30_agent/?station_to=9623569&point_from=c213&departure=2011-07-20&point_to=c237&station_from=9600216"><span class="b-transico b-transico_type_plane"><img class="b-transico__i"                                                                                       src="http://static.rasp.yandex.net/2.6.36/blocks/b-transico/b-transico.png"                                                                                       alt=""/><img class="b-transico__print" src="http://static.rasp.yandex.net/2.6.36/blocks/b-transico/b-transico__plane.png" alt=""/></span></a></td>                <td class="b-timetable__column b-timetable__column_type_trip">                                                                                             <div class="b-timetable__tripname">            <a class="b-link" href="/thread/U6-101A_c30_agent/?station_to=9623569&point_from=c213&departure=2011-07-20&point_to=c237&station_from=9600216"><strong>U6 101</strong> <span class="g-nowrap">Москва</span> — <span class="g-nowrap">Новокузнецк</span></a>        </div>        <div class="b-timetable__description">            Airbus А320, <a class="b-link" href="/info/company/30">Уральские Авиалинии</a>                                        <img alt="Электронный билет" src="http://static.rasp.yandex.net/2.6.36/i/eticket.png" class="b-ico b-ico_type_eticket js-et-marker g-hidden">                    </div>                                                                </td>                    <td class="b-timetable__column b-timetable__column_type_departure b-timetable__column_state_current">                <div class="b-timetable__time">                            <span class="js-datetime js-no-repeat {'shifts': {'213': 0}, 'local': 'July 20, 2011 22:10:00', 'col': 'dep'}"><strong>22:10</strong></span>                    </div>                        <div class="b-timetable__platform">                <a class="b-link b-link_theme_gray" href="/info/station/9600216/">Домодедово</a>        </div>            </td>                    <td class="b-timetable__column b-timetable__column_type_arrival">                <div class="b-timetable__time">                            <span class="js-datetime js-no-repeat {'shifts': {'213': -180}, 'local': 'July 21, 2011 05:30:00', 'col': 'arr'}"><strong>05:30</strong></span>                    </div>                        <div class="b-timetable__platform">                <a class="b-link b-link_theme_gray" href="/info/station/9623569/">Спиченково</a>        </div>            </td>                    <td class="b-timetable__column b-timetable__column_type_time {raw: 260}">                        <div class="b-timetable__pathtime">        	        	            4 <span class="b-timetable__mark">ч</span>	        	            20 <span class="b-timetable__mark">мин</span>	        	        </div>                                                    </td>                                                            <td class="b-timetable__column b-timetable__column_type_price">                    <div class="js-tariffs {link: 'http://clck.yandex.ru/redir/dtype=stred/pid=168/cid=70831/*http://rasp.yandex.ru/buy/?station_to=9623569&thread=U6-101A_c30_agent&station_from=9600216&date=2011-07-20&point_to=c237&point_from=c213'}" id="js-s-U6-101-0720">                                    &nbsp;                                            </div>                            <div class="b-spin b-spin_size_10 js-tariffs-spinner-plane_2011-07-20"><img class="b-ico" src="//yandex.st/lego/_/La6qi18Z8LwgnZdsAr1qy1GwCwo.gif" alt="" width="10" /></div>                        </div>    </td>                            </tr>                                            <tr class="b-timetable__row b-timetable__row_position_last {'seats': 'n', 'depTime': 'evening', 'carrier': '23', 'stationFrom': '9600216', 'arrTime': 'morning', 'stationTo': '9623569'}">                    <td class="b-timetable__column b-timetable__column_type_ico b-timetable__column_position_first"><a class="b-link" href="/thread/S7-809A_c23_agent/?station_to=9623569&point_from=c213&departure=2011-07-20&point_to=c237&station_from=9600216"><span class="b-transico b-transico_type_plane"><img class="b-transico__i"                                                                                       src="http://static.rasp.yandex.net/2.6.36/blocks/b-transico/b-transico.png"                                                                                       alt=""/><img class="b-transico__print" src="http://static.rasp.yandex.net/2.6.36/blocks/b-transico/b-transico__plane.png" alt=""/></span></a></td>                <td class="b-timetable__column b-timetable__column_type_trip">                                                                                             <div class="b-timetable__tripname">            <a class="b-link" href="/thread/S7-809A_c23_agent/?station_to=9623569&point_from=c213&departure=2011-07-20&point_to=c237&station_from=9600216"><strong>S7 809</strong> <span class="g-nowrap">Москва</span> — <span class="g-nowrap">Новокузнецк</span></a>        </div>        <div class="b-timetable__description">            Airbus A319, <a class="b-link" href="/info/company/23">S7 Airlines</a>                                        <img alt="Электронный билет" src="http://static.rasp.yandex.net/2.6.36/i/eticket.png" class="b-ico b-ico_type_eticket js-et-marker g-hidden">                    </div>                                                                </td>                    <td class="b-timetable__column b-timetable__column_type_departure b-timetable__column_state_current">                <div class="b-timetable__time">                            <span class="js-datetime js-no-repeat {'shifts': {'213': 0}, 'local': 'July 20, 2011 23:15:00', 'col': 'dep'}"><strong>23:15</strong></span>                    </div>                        <div class="b-timetable__platform">                <a class="b-link b-link_theme_gray" href="/info/station/9600216/">Домодедово</a>        </div>            </td>                    <td class="b-timetable__column b-timetable__column_type_arrival">                <div class="b-timetable__time">                            <span class="js-datetime js-no-repeat {'shifts': {'213': -180}, 'local': 'July 21, 2011 06:25:00', 'col': 'arr'}"><strong>06:25</strong></span>                    </div>                        <div class="b-timetable__platform">                <a class="b-link b-link_theme_gray" href="/info/station/9623569/">Спиченково</a>        </div>            </td>                    <td class="b-timetable__column b-timetable__column_type_time {raw: 250}">                        <div class="b-timetable__pathtime">        	        	            4 <span class="b-timetable__mark">ч</span>	        	            10 <span class="b-timetable__mark">мин</span>	        	        </div>                                                    </td>                                                            <td class="b-timetable__column b-timetable__column_type_price">                    <div class="js-tariffs {link: 'http://clck.yandex.ru/redir/dtype=stred/pid=168/cid=70831/*http://rasp.yandex.ru/buy/?station_to=9623569&thread=S7-809A_c23_agent&station_from=9600216&date=2011-07-20&point_to=c237&point_from=c213'}" id="js-s-S7-809-0720">                                    &nbsp;                                            </div>                            <div class="b-spin b-spin_size_10 js-tariffs-spinner-plane_2011-07-20"><img class="b-ico" src="//yandex.st/lego/_/La6qi18Z8LwgnZdsAr1qy1GwCwo.gif" alt="" width="10" /></div>                        </div>    </td>                            </tr>                            </tbody>"
@@ -198,15 +201,15 @@ class Helper_YMaps
 //			[6]=> array(1) {
 //				[0]=> string(161) "        	        	            4 <span class="b-timetable__mark">ч</span>	        	            20 <span class="b-timetable__mark">мин</span>	        	        "
 //			}
-		
+
 		preg_match_all (
 			$regexp,
 			$html,
 			$matches
 		);
-		
+
 		$results = array ();
-		
+
 		if ($matches)
 		{
 			$keys = array_keys ($matches [0]);
@@ -232,10 +235,10 @@ class Helper_YMaps
 				);
 			}
 		}
-		
+
 		return $results;
 	}
-	
+
 	/**
 	 * @desc Получение с расписани яндекса времени в пути.
 	 * @param string $from Город отправления
@@ -255,21 +258,21 @@ class Helper_YMaps
 			),
 			$options
 		);
-		
-		$url = 
+
+		$url =
 			'http://rasp.yandex.ru/search/' .
-			($options ['type'] ? $options ['type'] . '/' : '') . 
-			'?toName=' . urlencode ($to) . 
+			($options ['type'] ? $options ['type'] . '/' : '') .
+			'?toName=' . urlencode ($to) .
 			//'&toId=c213' .
-			'&fromName=' . urlencode ($from) . 
+			'&fromName=' . urlencode ($from) .
 			//'&fromId=' .
 			'&when=' . urlencode ($options ['when']);
-		
+
 		$html = file_get_contents ($url);
-		
+
 		echo "$url\n";
-		
+
 		return self::parseYandexRasp ($html);
 	}
-	
+
 }

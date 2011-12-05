@@ -1,10 +1,13 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Контроллер для компновки ресурсов представления.
  * Предназначен для сбора js, css файлов в один.
  * @author Юрий
- * @package IcEngine
+ * @package Ice
  *
  */
 class Controller_View_Resource extends Controller_Abstract
@@ -26,9 +29,9 @@ class Controller_View_Resource extends Controller_Abstract
 			'params',
 			'name'
 		);
-		
+
 		$vars = array ();
-		
+
 		if ($params)
 		{
 			foreach ($params as $k => $v)
@@ -36,28 +39,28 @@ class Controller_View_Resource extends Controller_Abstract
 				$vars ['{$' . $k . '}'] = $v;
 			}
 		}
-		
+
 		$reses = array ();
-		
+
 		Loader::load ('View_Resource_Manager');
-		
+
 		foreach ($config->targets as $name => $target)
 		{
 			if (
-				($type && $type != $target->type) || 
+				($type && $type != $target->type) ||
 				($name_filter && $name_filter != $name)
 			)
 			{
 				continue;
 			}
-			
+
 			$res = array ();
 
 			foreach ($target->sources as $source)
 			{
 				if (is_string ($source))
 				{
-					$src_dir = IcEngine::root ();
+					$src_dir = Core::root ();
 					$src_files = array ($source);
 				}
 				else
@@ -72,7 +75,7 @@ class Controller_View_Resource extends Controller_Abstract
 				foreach ($src_files as $src_file)
 				{
 					$src_file = strtr ($src_file, $vars);
-					
+
 					$res = array_merge (
 						$res,
 						View_Resource_Manager::patternLoad (
@@ -83,7 +86,7 @@ class Controller_View_Resource extends Controller_Abstract
 					);
 				}
 			}
-			
+
 			$packer = View_Resource_Manager::packer ($target->type);
 			$packer_config = $target->packer_config;
 
@@ -94,12 +97,12 @@ class Controller_View_Resource extends Controller_Abstract
 					$vars
 				);
 			}
-			
+
 			$dst_file = strtr ($target->file, $vars);
 			$packer->pushConfig ($packer_config);
 			$packer->pack ($res, $dst_file, $packer_config);
 			$packer->popConfig ();
-			
+
 			$reses [$name] = array (
 				'type'	=> $target->type,
 				'url'	=> strtr ($target->url, $vars),
@@ -109,5 +112,5 @@ class Controller_View_Resource extends Controller_Abstract
 
 		$this->_output->send ('reses', $reses);
 	}
-	
+
 }

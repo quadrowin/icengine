@@ -1,5 +1,7 @@
 <?php
 
+namespace Ice;
+
 class Model_Mapper_Scheme_Render
 {
 	public function render ($name, $scheme)

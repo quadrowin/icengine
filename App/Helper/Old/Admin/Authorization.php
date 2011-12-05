@@ -1,14 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Помощник для авторизации пользователя
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Helper_Old_Admin_Authorization
 {
-	
+
 	/**
 	 * @desc Авторизовать пользователя в админке
 	 * @param User $user Пользователь
@@ -18,7 +21,7 @@ class Helper_Old_Admin_Authorization
 	{
 		throw new Exception ("Not realised.");
 	}
-	
+
 	/**
 	 * @desc Выход из админки
 	 */
@@ -26,5 +29,5 @@ class Helper_Old_Admin_Authorization
 	{
 		throw new Exception ("Not realised.");
 	}
-	
+
 }

@@ -1,12 +1,15 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Лог состояния сообщения.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Mail_Message_Log extends Model
 {
-	
+
 }

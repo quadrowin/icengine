@@ -1,9 +1,10 @@
 <?php
 /**
- * 
+ *
  * @desc Менеджер хелперов представления
  * @author Юрий
  * @package IcEngine
+ * @deprecated
  *
  */
 abstract class View_Helper_Manager
@@ -13,7 +14,7 @@ abstract class View_Helper_Manager
 	 * @var array <View_Helper_Abstract>
 	 */
 	protected static $_helpers;
-	
+
 	/**
 	 * @desc Возвращает результат работы хелпера.
 	 * @param string $name Название помощника

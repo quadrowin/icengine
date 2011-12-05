@@ -1,5 +1,7 @@
 <?php
 
+namespace Ice;
+
 class Model_Mapper_Scheme
 {
 	protected $_fields = array ();

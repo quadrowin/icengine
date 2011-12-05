@@ -1,4 +1,7 @@
 <?php
+
+namespace Ice;
+
 /**
  *
  * @desc Загрузчик модулей и классов.
@@ -139,13 +142,13 @@ class Loader
 	 * @desc Подключение класса.
 	 * @param string $class_name Название класса.
 	 * @param string $namespace [optional] Пространство
-	 * @return boolean true, если удалось подключить, иначе false.
+	 * @return string Полное название класса (с пространством).
 	 */
 	public static function load ($class, $namespace = null)
 	{
-		if (class_exists ($class))
+		if (class_exists ($class, false))
 		{
-			return true;
+			return $class;
 		}
 
 		if (null === $namespace)
@@ -163,10 +166,12 @@ class Loader
 			}
 		}
 
-		return self::requireOnce (
+		self::requireOnce (
 			str_replace ('_', '/', $class) . '.php',
 			$namespace
 		);
+
+		return $namespace . '\\' . $class;
 	}
 
 	/**

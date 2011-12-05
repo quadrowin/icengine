@@ -1,14 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Абстрактная коллекция для одиночного компонента
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 abstract class Component_Single_Collection extends Component_Collection
 {
-	
+
 	/**
 	 * @desc Создаение компонента, если его не существует
 	 * @return Model_Component
@@ -22,7 +25,7 @@ abstract class Component_Single_Collection extends Component_Collection
 		));
 		return $component->save ();
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Model_Collection::load()
@@ -30,15 +33,15 @@ abstract class Component_Single_Collection extends Component_Collection
 	public function load ($columns = array ())
 	{
 		parent::load ($columns);
-		
+
 		if (!$this->_items)
 		{
 			$this->_items = array (
 				$this->_createSingle ()
 			);
 		}
-		
+
 		return $this;
 	}
-	
+
 }

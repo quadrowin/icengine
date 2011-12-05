@@ -1,9 +1,12 @@
 <?php
+
+namespace Ice;
+
 /**
  *
  * @desc Менеджер моделей.
- * @author Юрий
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class Model_Manager extends Manager_Abstract
@@ -14,11 +17,11 @@ class Model_Manager extends Manager_Abstract
 	 * @var array
 	 */
 	protected static $_config = array (
-		'delegee'	=> array (
-			'Model'				=> 'Simple',
-			'Model_Config'		=> 'Config',
-			'Model_Defined'		=> 'Defined',
-			'Model_Factory'		=> 'Factory'
+		'delegee' => array (
+			'Ice\\Model' => 'Simple',
+			'Ice\\Model_Config' => 'Config',
+			'Ice\\Model_Defined' => 'Defined',
+			'Ice\\Model_Factory' => 'Factory'
 		)
 	);
 
@@ -329,7 +332,7 @@ class Model_Manager extends Manager_Abstract
 					$first;
 
 				$delegee =
-					'Model_Manager_Delegee_' .
+					__NAMESPACE__ . '\\Model_Manager_Delegee_' .
 					self::$_config ['delegee'][$parent];
 
 				Loader::load ($delegee);

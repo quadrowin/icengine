@@ -1,9 +1,11 @@
 <?php
 
+namespace Ice;
+
 class Acl_Role_Collection_Option_Role_Type extends Model_Collection_Option_Abstract
 {
 	/**
-	 * 
+	 *
 	 * @param Model_Collection $items
 	 * @param Query $query
 	 * @param array $params
@@ -12,8 +14,8 @@ class Acl_Role_Collection_Option_Role_Type extends Model_Collection_Option_Abstr
 	{
 		$role_type_id = !empty ($params ['role_type_id']) ?
 			$params ['role_type_id'] : 0;
-			
-		$query	
+
+		$query
 			->where ('Acl_Role.Acl_Role_Type__id=?', $role_type_id);
 	}
 }

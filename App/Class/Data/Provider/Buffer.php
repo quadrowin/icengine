@@ -1,26 +1,28 @@
 <?php
 
-if (!class_exists ('Data_Provider_Abstract'))
+namespace Ice;
+
+if (!class_exists (__NAMESPACE__ . '\\Data_Provider_Abstract'))
 {
 	include __DIR__ . '/Abstract.php';
 }
 /**
- * 
- * @desc Буфер данных. Используется для хранения данных в пределах 
+ *
+ * @desc Буфер данных. Используется для хранения данных в пределах
  * 		текущего процесса.
- * @author Юрий
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class Data_Provider_Buffer extends Data_Provider_Abstract
 {
-	
+
 	/**
 	 * @desc Содержимое буфера.
 	 * @var array
 	 */
 	protected $_buffer;
-	
+
 	/**
 	 * Возвращает объект буфера данных.
 	 */
@@ -28,7 +30,7 @@ class Data_Provider_Buffer extends Data_Provider_Abstract
 	{
 		$this->_buffer = array ();
 	}
-		
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::get()
@@ -37,7 +39,7 @@ class Data_Provider_Buffer extends Data_Provider_Abstract
 	{
 		return isset ($this->_buffer [$key]) ? $this->_buffer [$key] : null;
 	}
-	
+
 	/**
 	 * @desc Всё содержимое буфера.
 	 * @return array
@@ -46,7 +48,7 @@ class Data_Provider_Buffer extends Data_Provider_Abstract
 	{
 		return $this->_buffer;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::flush()
@@ -55,7 +57,7 @@ class Data_Provider_Buffer extends Data_Provider_Abstract
 	{
 		$this->_buffer = array ();
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::set()

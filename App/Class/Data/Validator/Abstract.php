@@ -1,28 +1,31 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Абстрактный класс валидатора
- * @author Юрий
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
-abstract class Data_Validator_Abstract 
+abstract class Data_Validator_Abstract
 {
-	
+
 	const INVALID = 'invalid';
-	
+
 	/**
 	 * @desc Валидация строки
 	 * @param string $data Данные.
 	 * @return true|string
-	 * 		true, если данные прошли валидацию или 
+	 * 		true, если данные прошли валидацию или
 	 * 		строка ошибки.
 	 */
 	public function validate ($data)
 	{
 		return true;
 	}
-	
+
 	/**
 	 * @desc Валидация поля с использованием схемы
 	 * @param string $field
@@ -38,8 +41,8 @@ abstract class Data_Validator_Abstract
 	public function validateEx ($field, $data, $scheme)
 	{
 		return
-			$this->validate ($data->$field) === true ? 
+			$this->validate ($data->$field) === true ?
 			true : get_class ($this) . '/' . self::INVALID;
 	}
-	
+
 }

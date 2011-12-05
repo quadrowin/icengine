@@ -1,28 +1,30 @@
 <?php
 
-class Smarty extends Subscribe_Render_Abstract
+namespace Ice;
+
+class Subscribe_Render_Smarty extends Subscribe_Render_Abstract
 {
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $_template = '';
-	
-	
+
+
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const PATH_TO_SMARTY = '';
-	
+
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const DATA_VAR = 'data';
-	
+
 	/**
-	 * 
+	 *
 	 * @param array $data
 	 */
 	public function render ($data)

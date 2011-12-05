@@ -1,5 +1,7 @@
 <?php
 
+namespace Ice;
+
 class Filter_Escape
 {
 
@@ -7,5 +9,5 @@ class Filter_Escape
 	{
 		return DDS::escape ($data);
 	}
-	
+
 }

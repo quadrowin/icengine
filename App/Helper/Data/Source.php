@@ -1,5 +1,7 @@
 <?php
 
+namespace Ice;
+
 class Helper_Data_Source
 {
 
@@ -15,7 +17,7 @@ class Helper_Data_Source
 			->show ('FULL COLUMNS')
 			->from ($model)
 			->where ('Field', $field);
-		
+
 		$status = DDS::executeAuto (
 			$query
 		)
@@ -74,7 +76,7 @@ class Helper_Data_Source
 		$query = Query::instance ()
 			->show ('TABLE STATUS')
 			->resetPart (Query::FROM);
-		
+
 		$status = DDS::execute (
 			$query
 		)

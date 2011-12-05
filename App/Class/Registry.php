@@ -1,22 +1,25 @@
 <?php
 
+namespace Ice;
+
 /**
+ *
  * @desc Регистр глобальных переменных
- * @package IcEngine
  * @author Юрий Шведов
- * @copyright i-complex.ru
+ * @package Ice
+ *
  */
 class Registry
 {
-	
+
 	/**
 	 * @desc Хранимые данные
 	 * @var array
 	 */
 	public static $data = array ();
-	
+
 	/**
-	 * @desc Возвращает true, если значение задано и отлично от null. 
+	 * @desc Возвращает true, если значение задано и отлично от null.
 	 * Иначе false.
 	 * @param string $index
 	 * @return boolean
@@ -25,7 +28,7 @@ class Registry
 	{
 		return isset (self::$data [$index]);
 	}
-	
+
 	/**
 	 * @desc Чтение значения
 	 * @param string $index
@@ -35,7 +38,7 @@ class Registry
 	{
 		return self::$data [$index];
 	}
-	
+
 	/**
 	 * @desc Запись значения
 	 * @param string $index
@@ -45,7 +48,7 @@ class Registry
 	{
 		self::$data [$index] = $value;
 	}
-	
+
 	/**
 	 * @desc silent get. Не вызывает ошибки, если значение не определено.
 	 * @param string $index
@@ -55,7 +58,7 @@ class Registry
 	{
 		return isset (self::$data [$index]) ? self::$data [$index] : null;
 	}
-	
+
 	/**
 	 * @desc Получение по ссылке
 	 * @param string $index
@@ -65,9 +68,9 @@ class Registry
 	{
 		return self::$data [$index];
 	}
-	
+
 	/**
-	 * @desc Передача по ссылке 
+	 * @desc Передача по ссылке
 	 * @param string $index
 	 * @param mixed $value
 	 */
@@ -75,5 +78,5 @@ class Registry
 	{
 		self::$data [$index] = &$value;
 	}
-	
+
 }

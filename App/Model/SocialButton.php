@@ -1,6 +1,8 @@
-<?php 
+<?php
+
+namespace Ice;
 
 class SocialButton extends Model
 {
-	
+
 }

@@ -1,9 +1,13 @@
 <?php
 
+namespace Ice;
+
 /**
+ *
  * @desc Результат работы транслятора
- * @package IcEngine
  * @author Илья Колесников, Юрий Шведов
+ * @package Ice
+ * 
  */
 class Query_Translator_Result
 {

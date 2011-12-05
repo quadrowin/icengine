@@ -1,14 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Абстрактный класс фильтра
- * @author Юрий
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 abstract class Filter_Abstract
 {
-	
+
 	/**
 	 * @desc Обычная фильтрация.
 	 * @param string $data
@@ -18,7 +21,7 @@ abstract class Filter_Abstract
 	{
 		return $data;
 	}
-	
+
 	/**
 	 * @desc Фильтрация с использование схемы
 	 * @param string $field Имя поля.
@@ -29,5 +32,5 @@ abstract class Filter_Abstract
 	{
 		return $this->filter ($data->$field);
 	}
-	
+
 }

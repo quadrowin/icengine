@@ -1,41 +1,45 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
- * @desc 
+ *
+ * @desc
  * @author Юрий Шведов
- * 
+ * @package Ice
+ *
  */
 class Bootstrap_UnitTest extends Bootstrap_Abstract
 {
-	
+
 	/**
-	 * @desc 
-	 * @param string $path 
+	 * @desc
+	 * @param string $path
 	 */
 	public function __construct ()
 	{
 		parent::__construct (__FILE__);
 	}
-	
+
 	/**
 	 * @desc Запускает загрузчик.
 	 */
 	public function _run ()
 	{
 		$this->addLoaderPathes ();
-		
+
 		Loader::load ('Config_Manager');
 		Loader::Load ('Helper_Site_Location');
 		Loader::load ('Zend_Exception');
 		Loader::load ('Registry');
 		Loader::load ('Request');
-		
+
 		Loader::load ('Manager_Abstract');
-		
+
 		$this->initMessageQueue ();
-		
+
 		$this->initDds ();
-		
+
 		Loader::multiLoad (
 			'Executor',
 			'Helper_Action',
@@ -59,18 +63,18 @@ class Bootstrap_UnitTest extends Bootstrap_Abstract
 			'View_Helper_Abstract',
 			'Authorization_Abstract'
 		);
-		
+
 		$this->initAttributeManager ();
-		
+
 		$this->initModelScheme ('Vipgeo');
-		
+
 		$this->initModelManager ();
-		
+
 		$this->initAcl ();
-		
+
 		$this->initUser ();
-		
+
 		$this->initView ();
 	}
-	
+
 }

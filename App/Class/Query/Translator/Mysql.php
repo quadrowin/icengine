@@ -1,9 +1,12 @@
 <?php
+
+namespace Ice;
+
 /**
  *
  * @desc Транслятор в SQL запрос
  * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
+ * @package Ice
  *
  */
 class Query_Translator_Mysql extends Query_Translator
@@ -112,11 +115,11 @@ class Query_Translator_Mysql extends Query_Translator
 	public function _renderDelete (Query $query)
 	{
 		$tables = $query->part (Query::DELETE);
-		
+
 		foreach ($tables as &$table)
 		{
-			$table = strpos ($table, self::SQL_ESCAPE) !== false 
-				? $table 
+			$table = strpos ($table, self::SQL_ESCAPE) !== false
+				? $table
 				: $this->_models->getTable ($table);
 			$table = $this->_escape ($table);
 		}

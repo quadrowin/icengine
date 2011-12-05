@@ -1,10 +1,15 @@
 <?php
+
+namespace Ice;
+
 /**
+ *
  * @desc Событие при обновлении модели.
  * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
+ * @package Ice
+ * 
  */
 class Message_Update extends Message_Abstract
 {
-	
+
 }

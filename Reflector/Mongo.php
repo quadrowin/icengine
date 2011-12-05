@@ -1,7 +1,11 @@
 <?php
 /**
-* Class Mongo
-*/
+ *
+ * @desc Class Mongo
+ * @author Yury Shvedov
+ * @package Ice
+ * 
+ */
 class Mongo {
 /**
 * Creates a new database connection object

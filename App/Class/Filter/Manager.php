@@ -1,23 +1,25 @@
 <?php
-/**
- * 
- * @desc Менеджер фильтров
- * @author Юрий
- * @package IcEngine
- *
- */
+
+namespace Ice;
 
 Loader::load ('Filter_Abstract');
 
+/**
+ *
+ * @desc Менеджер фильтров
+ * @author Yury Shvedov
+ * @package Ice
+ *
+ */
 class Filter_Manager
 {
-	
+
 	/**
 	 * @desc Подключенные фильтры.
 	 * @var array <Filter_Abstract>
 	 */
 	protected static $_filters = array ();
-	
+
 	/**
 	 * @param string $name Фильтр.
 	 * @return Filter_Abstract
@@ -28,12 +30,12 @@ class Filter_Manager
 		{
 			return self::$_filters [$name];
 		}
-		
+
 		$class = 'Filter_' . $name;
 		Loader::load ($class);
 		return self::$_filters [$name] = new $class ();
 	}
-	
+
 	/**
 	 * @desc Фильтрация
 	 * @param string $name Фильтр
@@ -44,7 +46,7 @@ class Filter_Manager
 	{
 		return self::get ($name)->filter ($data);
 	}
-	
+
 	/**
 	 * @desc Фильтрация с использованием схемы
 	 * @param string $name Фильтр
@@ -57,5 +59,5 @@ class Filter_Manager
 	{
 		return self::get ($name)->filterEx ($field, $data, $scheme);
 	}
-	
+
 }

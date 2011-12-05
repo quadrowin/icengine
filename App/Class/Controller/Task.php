@@ -1,9 +1,11 @@
 <?php
+
+namespace Ice;
 /**
  *
  * @desc Задание на выполнение контроллера.
  * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
+ * @package Ice
  *
  */
 class Controller_Task
@@ -82,9 +84,14 @@ class Controller_Task
 
 		if ($action)
 		{
+			$p = strrpos ($action->controller, '\\');
+			$controller = (false === $p)
+				? $action->controller
+				: substr ($action->controller, $p + 1);
+
 			$this->_template =
 				'Controller/' .
-				str_replace (array ('_', '\\'), '/', $action->controller) .
+				str_replace ('_', '/', $controller) .
 				'/' .
 				$action->action;
 		}

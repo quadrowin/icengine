@@ -1,21 +1,24 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Генерация уникальный идентификаторов.
- * @author Юрий
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class Helper_Unique
 {
-	
+
 	/**
 	 * @desc Счетчик для избежания генерации одинаковых ID в рамках
 	 * одного процесса.
 	 * @var integer
 	 */
 	private static $_counter = 0;
-	
+
 	/**
 	 * @desc Генерирует уникальный идентификатор на основе названия модели
 	 * или текущего времени.
@@ -27,7 +30,7 @@ class Helper_Unique
 		$ext = 1000 + self::$_counter++;
 		return $model->modelName () . uniqid (__CLASS__, true) . $ext;
 	}
-	
+
 	/**
 	 * @desc Получить уникальный хэш
 	 * @return string
@@ -36,5 +39,5 @@ class Helper_Unique
 	{
 		return uniqid (null, true);
 	}
-	
+
 }

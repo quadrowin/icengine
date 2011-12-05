@@ -1,16 +1,18 @@
 <?php
 
+namespace Ice;
+
 class Query_Translator_CachePattern extends Query_Translator
 {
-	
+
 	/**
-	 * Разделитель 
+	 * Разделитель
 	 * @var string
 	 */
 	public $cache_base_delim = '\\';
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $table
 	 * @param integer $index_num
 	 * @param string $index_use
@@ -33,9 +35,9 @@ class Query_Translator_CachePattern extends Query_Translator
 		}
 		return $pattern . ':*';
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Query $query
 	 * @return string
 	 */
@@ -45,7 +47,7 @@ class Query_Translator_CachePattern extends Query_Translator
 	    $table = '';
 		$joins = array ();
 		$jalias = array ();
-		
+
 		foreach ($parts [Query::FROM] as $alias => $from)
 		{
 			if ($from [Query::JOIN] == Query::FROM)
@@ -59,13 +61,13 @@ class Query_Translator_CachePattern extends Query_Translator
 			elseif ($from [Query::JOIN] == Query::INNER_JOIN)
 			{
 				if (
-					!is_array ($from [Query::WHERE]) || 
+					!is_array ($from [Query::WHERE]) ||
 					count ($from [Query::WHERE]) != 4
 				)
 				{
 					return false;
 				}
-				$joins []= 
+				$joins []=
 					$from [Query::FROM] . ':' .
 					$from [Query::WHERE] [1] . '=' .
 					$from [Query::WHERE] [3] . ';';
@@ -76,9 +78,9 @@ class Query_Translator_CachePattern extends Query_Translator
 			}
 			$jalias [$alias] = $from [Query::FROM];
 		}
-		
+
 		$indexes = Model_Scheme::indexes ($table, $joins);
-		
+
 		if ($indexes === false)
 		{
 			return false;
@@ -88,21 +90,21 @@ class Query_Translator_CachePattern extends Query_Translator
 		{
 			return $table . 'II' . self::$cache_base_delim . '*';
 		}
-		
+
 		if (empty ($indexes))
 		{
 			return false;
 		}
-		
+
 		// Покрытие индексом запроса
 		// Изначально строка "11111", по мере использования,
 		// 1 заменяются на 0.
 		$index_use = array();
 		// Значения для полей индекса
 		$index_values = array();
-		
+
 		$keys = array_keys($indexes);
-		
+
 		foreach ($keys as $i)
 		{
 			if (count($indexes[$i]) < count($parts[Query::WHERE]))
@@ -115,7 +117,7 @@ class Query_Translator_CachePattern extends Query_Translator
 				$index_values[$i] = array();
 			}
 		}
-		
+
 //		$matches = array ();
 //		preg_match_all ('/([^\.]+)?\.?(.*?)(\!\=|\>\=|\<=|\<|\>|\=)\"(.*?)\"$/', $args, $matches);
 //		if (!empty ($matches [2][0]) && !empty ($matches [3][0]) && isset ($matches [4][0]))
@@ -130,25 +132,25 @@ class Query_Translator_CachePattern extends Query_Translator
 //			}
 //		}
 //		$parts = (array) $this->escape ($args, '');
-		
+
 		// Запоминаем значения для полей индекса
 		foreach ($parts[Query::WHERE] as $wi => &$where)
 		{
 			$cond = $where[Query::WHERE];
-			
+
 			if (!is_scalar($where[Query::VALUE]))
 			{
 				//predump($where, 'where');
 				//trigger_error('Not a scalar type in condition', E_USER_NOTICE);
 				return false;
 			}
-			
+
 			if (!is_array($cond))
 			{
 				// Получаем таблицу и колонку
 				$cond = explode('.', $cond, 2);
 			}
-			
+
 			if (count($cond) == 1)
 			{
 				$cond[1] = $cond[0];
@@ -158,15 +160,15 @@ class Query_Translator_CachePattern extends Query_Translator
 			{
 				return false;
 			}
-			
+
 			$cond[0] = trim($cond[0], '`?= ');
 			$cond[1] = trim($cond[1], '`?= ');
-			
+
 			if (isset($jalias[$cond[0]]))
 			{
 				$cond[0] = $jalias[$cond[0]];
 			}
-			
+
 			foreach ($indexes as $ii => &$columns)
 			{
 				foreach ($columns as $ci => &$column)
@@ -174,8 +176,8 @@ class Query_Translator_CachePattern extends Query_Translator
 					if ($cond[0] == $column[0] && $cond[1] == $column[1])
 					{
 						if (
-							!isset($where[Query::TYPE]) || 
-							empty($where[Query::TYPE]) || 
+							!isset($where[Query::TYPE]) ||
+							empty($where[Query::TYPE]) ||
 							$where[Query::TYPE] == '='
 						)
 						{
@@ -187,48 +189,48 @@ class Query_Translator_CachePattern extends Query_Translator
 							$index_use[$ii][$ci] = 0;
 							$index_values[$ii][$ci] = str_replace('%25', '*', urlencode($where[Query::VALUE]));
 						}
-						
+
 					}
 				}
 				unset($column);
 			}
 			unset($columns);
 		}
-		
+
 		// выбираем индекс
 		$best_v = 0;
 		$best_i = 0;
 		foreach ($index_use as $ii => $use)
 		{
 			$v = strpos($use, '1');
-			
+
 			if ($v === false)
 			{
 				// Индекс полностью покрывает запрос
 				return self::_pattern($table, $ii, $use, $index_values[$ii]);
 			}
-			
+
 			if ($v > $best_v)
 			{
 				$best_v = $v;
 				$best_i = $ii;
 			}
 		}
-		
+
 		if ($best_v >= 0)
 		{
 			$pattern = self::_pattern(
-				$table, $best_i, 
+				$table, $best_i,
 				$index_use[$best_i], $index_values[$best_i]
-			); 
-			
+			);
+
 			return self::_pattern(
-				$table, $best_i, 
+				$table, $best_i,
 				$index_use[$best_i], $index_values[$best_i]
 			);
 		}
-		
+
 		return false;
 	}
-	
+
 }

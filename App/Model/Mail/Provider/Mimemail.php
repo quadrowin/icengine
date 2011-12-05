@@ -1,20 +1,22 @@
 <?php
-/**
- * 
- * @desc Провайдер для отправки сообщений по почте.
- * @author Юрий Шведов
- * @package IcEngine
- *
- */
 
-if (!class_exists ('Mail_Provider_Abstract'))
+namespace Ice;
+
+if (!class_exists (__NAMESPACE__ . '\\Mail_Provider_Abstract'))
 {
-    include dirname (__FILE__) . '/Abstract.php';
+    include __DIR__ . '/Abstract.php';
 }
 
+/**
+ *
+ * @desc Провайдер для отправки сообщений по почте.
+ * @author Юрий Шведов
+ * @package Ice
+ *
+ */
 class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 {
-	
+
 	/**
 	 * @desc Конфиг
 	 * @var array
@@ -47,19 +49,19 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 		// SSL
 		'smtp_secure'		=> 'ssl'
 	);
-	
+
 	/**
 	 * @desc Мейлер
 	 * @var PHPMailer
 	 */
 	protected $_mailer;
-	
+
 	/**
 	 * @desc Последняя ошибка
 	 * @var string
 	 */
 	protected $_lastError = '';
-	
+
 	/**
 	 * @desc Создает и возвращает мейлер.
 	 * @return PHPMailer
@@ -72,7 +74,7 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 		}
 		return $this->_mailer;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Mail_Provider_Abstract::send()
@@ -80,10 +82,10 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 	public function send (Mail_Message $message, $config)
 	{
 		$to_name = $message->toName ? $message->toName : 0;
-		
+
 		$this->logMessage ($message, self::MAIL_STATE_SENDING);
 		$this->_lastError = '';
-		
+
 		$result = $this->sendEx (
 			array (
 				$to_name	=> $message->address
@@ -92,7 +94,7 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 			$message->body,
 			$config
 		);
-		
+
 		if ($result)
 		{
 			$this->logMessage (
@@ -109,10 +111,10 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 				$this->_lastError
 			);
 		}
-		
+
 		return $result;
 	}
-	
+
 	/**
 	 * @desc Отправка сообщения на емейл
 	 * @param array|string $addresses
@@ -126,11 +128,11 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 			$this->config ()->phpmailer_path,
 			'includes'
 		);
-		
+
 		$mail = $this->_mailer ();
-		
+
 		$mail->ClearAddresses ();
-		
+
 		foreach ((array) $addresses as $to_name => $address)
 		{
 			$mail->addAddress (
@@ -138,44 +140,44 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 				is_numeric ($to_name) ? '' : $to_name
 			);
 		}
-		
+
 		$this_config = $this->config ();
-		
+
 		$mail->From =
-			isset ($config ['from_email']) ? 
-				$config ['from_email'] : 
+			isset ($config ['from_email']) ?
+				$config ['from_email'] :
 				$this_config ['from_email'];
-				
+
 		$mail->FromName =
-			isset ($config ['from_name']) ? 
-				$config ['from_name'] : 
+			isset ($config ['from_name']) ?
+				$config ['from_name'] :
 				$this_config ['from_name'];
-				
+
 		if (isset ($config ['reply_address']) && $config ['reply_address'])
 		{
-			$reply_name = 
-				isset ($config ['reply_name']) 
-				? $config ['reply_name'] 
+			$reply_name =
+				isset ($config ['reply_name'])
+				? $config ['reply_name']
 				: '';
 			$mail->AddReplyTo ($config ['reply_address'], $reply_name);
 		}
 		elseif ($this_config ['reply_address'])
 		{
 			$reply_name =
-				isset ($this_config ['reply_name']) 
+				isset ($this_config ['reply_name'])
 				? $this_config ['reply_name']
 				: '';
-			
+
 			$mail->AddReplyTo ($this_config ['reply_address'], $reply_name);
 		}
-				
+
 		if ($this_config ['send_charset'])
 		{
 			$mail->CharSet = $this_config ['send_charset'];
 		}
-				
+
 		$mail->IsHTML (true);
-		
+
 		if ($this_config ['smtp'])
 		{
 			// Отправка через SMTP
@@ -186,25 +188,25 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 			$mail->Port = $this_config ['smtp_port'];
 			$mail->Username = $this_config ['smtp_username'];
 			$mail->Password = $this_config ['smtp_password'];
-			
+
 			if ($this_config ['smtp_sender'])
 			{
 				$mail->Sender = $this_config ['smtp_sender'];
 				$mail->From = $this_config ['smtp_sender'];
 			}
-			
+
 			if ($this_config ['smtp_secure'])
 			{
 				$mail->SMTPSecure = $this_config ['smtp_secure'];
 			}
 		}
-		
-		$base_charset = 
+
+		$base_charset =
 			isset ($config ['base_charset']) ?
 				$config ['base_charset'] :
 				$this_config ['base_charset'];
-				
-		$send_charset = 
+
+		$send_charset =
 			isset ($config ['send_charset']) ?
 				$config ['send_charset'] :
 				$this_config ['send_charset'];
@@ -214,19 +216,19 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 			$base_charset &&
 			$send_charset &&
 			$base_charset != $send_charset;
-				
+
 		// Тема
-		$mail->Subject = 
+		$mail->Subject =
 			$recoding ?
-				iconv ($base_charset, $send_charset, $subject) : 
+				iconv ($base_charset, $send_charset, $subject) :
 				$subject;
-				
+
 		// Тело
 		$mail->Body =
-			$recoding ? 
+			$recoding ?
 				iconv ($base_charset, $send_charset, $body) :
 				$body;
-		
+
 		try
 		{
 			$result = $mail->Send ();
@@ -236,10 +238,10 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 			$this->_lastError = $e->getMessage ();
 			return false;
 		}
-		
+
 		$this->_lastError = $mail->ErrorInfo;
-				
+
 		return $result;
 	}
-	
+
 }

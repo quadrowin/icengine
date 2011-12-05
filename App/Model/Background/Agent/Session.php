@@ -1,20 +1,23 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Сессия фонового агента
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Background_Agent_Session extends Model
 {
-	
+
 	/**
 	 * @desc Параметры
 	 * @var string
 	 */
 	protected $_params = array ();
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Model::_afterConstruct()
@@ -28,7 +31,7 @@ class Background_Agent_Session extends Model
 			$this->_fields ['key'] = time () . rand (10000, 99999);
 		}
 	}
-	
+
 	/**
 	 * @desc Остановка. Вызывается из агента.
 	 */
@@ -36,7 +39,7 @@ class Background_Agent_Session extends Model
 	{
 		$this->updateState ($state);
 	}
-	
+
 	/**
 	 * @desc Параметры
 	 * @return array
@@ -45,30 +48,30 @@ class Background_Agent_Session extends Model
 	{
 		return $this->_params;
 	}
-	
+
 	/**
 	 * @desc Процесс
 	 */
 	public function process ()
 	{
 		$this->updateState (Helper_Process::ONGOING);
-		
+
 		$this->Background_Agent->process ($this);
-		
+
 		$update = array (
 			'updateTime'	=> Helper_Date::toUnix (),
 			'params'		=> json_encode ($this->_params),
 			'iteration'		=> $this->iteration + 1
 		);
-		
+
 		if ($this->state == Helper_Process::ONGOING)
 		{
 			$update ['state'] = Helper_Process::PAUSE;
 		}
-    	
+
     	$this->update ($update);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Model::save()
@@ -78,7 +81,7 @@ class Background_Agent_Session extends Model
 		$this->params = json_encode ($this->_params);
 		return parent::save ($hard_insert);
 	}
-	
+
 	/**
 	 * @desc Устанавливает параметры
 	 * @param array $params
@@ -87,7 +90,7 @@ class Background_Agent_Session extends Model
 	{
 		$this->_params = $params;
 	}
-	
+
 	/**
 	 * @desc Запуск
 	 * @param array $params
@@ -95,14 +98,14 @@ class Background_Agent_Session extends Model
 	public function start ()
 	{
 		$this->Background_Agent->start ($this);
-		
+
 		$this->update (array (
 			'iteration'		=> 0,
 			'state'			=> Helper_Process::PAUSE,
 			'updateTime'	=> Helper_Date::toUnix ()
 		));
 	}
-	
+
 	/**
 	 * @desc Остановка процесса
 	 */
@@ -110,30 +113,30 @@ class Background_Agent_Session extends Model
 	{
 		$this->updateState (Helper_Process::STOPED);
 	}
-	
+
 	/**
 	 * @desc Обновить состояние процесса.
-	 * При длительных процессах необходимо периодически вызывать для 
+	 * При длительных процессах необходимо периодически вызывать для
 	 * предотвращения пометки процесса как зависшего.
 	 * @param integer $state Новое состояние (если необходимо изменить)
 	 */
 	public function updateState ($state = null)
 	{
 		$time = Helper_Date::toUnix ();
-		
+
 		// не обновляем чаще, чем раз в секунду
 		if (
-			$time == $this->updateTime && 
+			$time == $this->updateTime &&
 			($state == null || $state == $this->state)
 		)
 		{
 			return ;
 		}
-		
+
 		$this->update (array (
 			'state'				=> $state == null ? $this->state : $state,
 			'updateTime'		=> $time
 		));
 	}
-	
+
 }

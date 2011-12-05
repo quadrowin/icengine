@@ -1,13 +1,16 @@
 <?php
+
+namespace Ice;
+
+Loader::load ('View_Resource_Packer_Abstract');
+
 /**
  *
  * @desc Упаковщик Js ресурсов представления.
  * @author Юрий
- * @package IcEngine
+ * @package Ice
  *
  */
-Loader::load ('View_Resource_Packer_Abstract');
-
 class View_Resource_Packer_Js extends View_Resource_Packer_Abstract
 {
 	/**

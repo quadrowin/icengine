@@ -1,14 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Продвайдер POST данных.
  * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
+ * @package Ice
  *
  */
 class Data_Provider_Post extends Data_Provider_Abstract
 {
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::get()
@@ -17,7 +20,7 @@ class Data_Provider_Post extends Data_Provider_Abstract
 	{
 		return isset ($_POST [$key]) ? $_POST [$key] : null;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::getAll()
@@ -26,7 +29,7 @@ class Data_Provider_Post extends Data_Provider_Abstract
 	{
 		return $_POST;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::set()
@@ -35,5 +38,5 @@ class Data_Provider_Post extends Data_Provider_Abstract
 	{
 		$_POST [$key] = $value;
 	}
-	
+
 }

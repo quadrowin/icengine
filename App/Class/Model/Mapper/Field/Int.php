@@ -1,5 +1,7 @@
 <?php
 
+namespace Ice;
+
 Loader::load ('Model_Mapper_Field_Abstract');
 
 class Model_Mapper_Field_Int extends Model_Mapper_Field_Abstract

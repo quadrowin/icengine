@@ -1,20 +1,23 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Работа с данными Memcached
- * @author Юрий
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class Data_Provider_Memcached extends Data_Provider_Abstract
 {
-	
+
 	/**
 	 * @desc Соединение с memcached
 	 * @var Memcached
 	 */
 	public $conn = null;
-	
+
 	/**
 	 * Максимальное количество выбираемых за раз значений.
 	 * Необходимо для обхода бага, когда
@@ -22,9 +25,9 @@ class Data_Provider_Memcached extends Data_Provider_Abstract
 	 * @var integer
 	 */
 	public $mget_limit = 999;
-	
+
 	/**
-	 * 
+	 *
 	 * @param array $config
 	 */
 	public function __construct ($config = array ())
@@ -32,11 +35,11 @@ class Data_Provider_Memcached extends Data_Provider_Abstract
 		$this->conn = new Memcached ();
 		$this->setOption (Memcached::OPT_COMPRESSION, 0);
 		$this->setOption (
-			Memcached::OPT_DISTRIBUTION, 
+			Memcached::OPT_DISTRIBUTION,
 			Memcached::OPT_LIBKETAMA_COMPATIBLE
 		);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::add()
@@ -47,18 +50,18 @@ class Data_Provider_Memcached extends Data_Provider_Abstract
 		{
 			$this->tracer->add ('add', $key, $expiration);
 		}
-		
+
 		if ($expiration < 0)
 		{
 			$expiration = 0;
 		}
-		
+
 		return $this->conn->add (
 			$this->keyEncode ($key),
 			$value, $expiration
 		);
 	}
-	
+
 	/**
 	 * @desc Добавление сервера
 	 * @param string $host
@@ -71,9 +74,9 @@ class Data_Provider_Memcached extends Data_Provider_Abstract
 		$this->servers [] = array ($host, $port, $weight);
 		return $this->conn->addServer ($host, $port, $weight);
 	}
-	
+
 	/**
-	 * @desc Добавление списка серверов 
+	 * @desc Добавление списка серверов
 	 * @param array $a
 	 */
 	public function addServers (array $a)
@@ -84,7 +87,7 @@ class Data_Provider_Memcached extends Data_Provider_Abstract
 		}
 		return true;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::append()
@@ -95,10 +98,10 @@ class Data_Provider_Memcached extends Data_Provider_Abstract
 		{
 			$this->tracer->add ('append', $key);
 		}
-		
+
 		return $this->conn->append ($this->keyEncode ($key), $value);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::decrement()
@@ -109,10 +112,10 @@ class Data_Provider_Memcached extends Data_Provider_Abstract
 		{
 			$this->tracer->add ('decrement', $key);
 		}
-		
+
 		return $this->conn->decrement ($this->keyEncode ($key), $value);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::delete()
@@ -123,12 +126,12 @@ class Data_Provider_Memcached extends Data_Provider_Abstract
 		{
 			$this->tracer->add ('delete', $keys, $time);
 		}
-		
+
 		if ($time < 0)
 		{
 			$time = 0;
 		}
-		
+
 		if (!is_array ($keys))
 		{
 			if ($set_deleted)
@@ -144,7 +147,7 @@ class Data_Provider_Memcached extends Data_Provider_Abstract
 			}
 			return $this->conn->delete ($this->keyEncode ($keys), $time);
 		}
-		
+
 		foreach ($keys as $key)
 		{
 			$tt = $time;
@@ -156,12 +159,12 @@ class Data_Provider_Memcached extends Data_Provider_Abstract
 				}
 				$key = $key [0];
 			}
-			
+
 			if (isset ($this->locks [$key]))
 			{
 				unset ($this->locks [$key]);
 			}
-			
+
 			if ($set_deleted)
 			{
 				$this->conn->set (
@@ -172,7 +175,7 @@ class Data_Provider_Memcached extends Data_Provider_Abstract
 			$this->conn->delete ($this->keyEncode ($key), $tt);
 		}
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::flush()
@@ -183,10 +186,10 @@ class Data_Provider_Memcached extends Data_Provider_Abstract
 		{
 			$this->tracer->add ('flush', $delay);
 		}
-		
+
 		return $this->conn->flush ($delay);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::get()
@@ -197,10 +200,10 @@ class Data_Provider_Memcached extends Data_Provider_Abstract
 		{
 			$this->tracer->add ('get', $key);
 		}
-		
+
 		return $this->conn->get ($this->keyEncode ($key), $plain);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::getMulti()
@@ -211,15 +214,15 @@ class Data_Provider_Memcached extends Data_Provider_Abstract
 		{
 			$this->tracer->add ('getMulti', implode (',', $keys));
 		}
-		
+
 		$keys = array_map (
 			array ($this, 'keyEncode'),
 			$keys
 		);
-		
+
 		if ($this->mget_limit && count ($keys) > $this->mget_limit)
 		{
-			// Ограничение на максимальную выборку из кеша. 
+			// Ограничение на максимальную выборку из кеша.
 			// fix redis.c bug -.-
 			// http://code.google.com/p/redis/issues/detail?id=24
 			$start = 0;
@@ -228,7 +231,7 @@ class Data_Provider_Memcached extends Data_Provider_Abstract
 			{
 				$subkeys = array_slice ($keys, $start, $this->mget_limit);
 				$r = array_merge (
-					$r, 
+					$r,
 					$this->conn->getMulti ($subkeys)
 				);
 				$start += $this->mget_limit;
@@ -238,15 +241,15 @@ class Data_Provider_Memcached extends Data_Provider_Abstract
 		{
 			$r = $this->conn->getMulti ($keys);
 		}
-		
+
 		if ($numeric_index)
 		{
 			return array_values ($r);
 		}
-		
+
 		return array_combine ($keys, array_values ($r));
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::getStats()
@@ -255,7 +258,7 @@ class Data_Provider_Memcached extends Data_Provider_Abstract
 	{
 		return $this->conn->getStats ();
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::increment()
@@ -266,10 +269,10 @@ class Data_Provider_Memcached extends Data_Provider_Abstract
 		{
 			$this->tracer->add ('increment', $key);
 		}
-		
+
 		return $this->conn->increment ($this->keyEncode ($key), $value);
 	}
-	
+
 	/**
 	 * @desc Кодирование ключа для корректного сохранения в редисе.
 	 * @param string $key
@@ -279,7 +282,7 @@ class Data_Provider_Memcached extends Data_Provider_Abstract
 	{
 		return urlencode ($this->prefix . $key);
 	}
-	
+
 	/**
 	 * @desc Декодирование ключа.
 	 * @param string $key
@@ -289,7 +292,7 @@ class Data_Provider_Memcached extends Data_Provider_Abstract
 	{
 		return substr (urldecode ($key), strlen ($this->prefix));
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::keys()
@@ -300,19 +303,19 @@ class Data_Provider_Memcached extends Data_Provider_Abstract
 		{
 			$this->tracer->add ('keys', $pattern);
 		}
-		
+
 		$mask = $this->keyEncode ($pattern);
 		$mask = str_replace ('%2A', '*', $mask);
 		$r = $this->conn->keys ($mask, empty ($server) ? '' : $server);
-		
+
 		if (empty ($r) || (count ($r) == 1 && empty ($r [0])))
 		{
 			return array ();
 		}
-		
+
 		return array_map (array ($this, 'keyDecode'), $r);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::prepend()
@@ -323,10 +326,10 @@ class Data_Provider_Memcached extends Data_Provider_Abstract
 		{
 			$this->tracer->add ('prepend', $key);
 		}
-		
+
 		return $this->conn->prepend ($this->keyEncode ($key), $value);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::set()
@@ -337,15 +340,15 @@ class Data_Provider_Memcached extends Data_Provider_Abstract
 		{
 			$this->tracer->add ('set', $key, $value, $expiration);
 		}
-		
+
 		if ($expiration < 0)
 		{
 			$expiration = 0;
 		}
-		
+
 		return $this->conn->set ($this->keyEncode ($key), $value, $expiration, $tags);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::setOption()
@@ -357,7 +360,7 @@ class Data_Provider_Memcached extends Data_Provider_Abstract
 			case 'mget_limit':
 				$this->mget_limit = $value;
 				return true;
-				
+
 			case 'servers':
 				foreach ($value as $server)
 				{
@@ -369,13 +372,13 @@ class Data_Provider_Memcached extends Data_Provider_Abstract
 				}
 				return true;
 		}
-		
+
 		if (parent::setOption ($key, $value))
 		{
 			return true;
 		}
-		
+
 		return $this->conn->setOption ($key, $value);
 	}
-	
+
 }

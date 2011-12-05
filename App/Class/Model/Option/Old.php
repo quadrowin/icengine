@@ -1,9 +1,13 @@
 <?php
+
+namespace Ice;
+
 /**
  *
  * @desc Опция, подключающая старые опции - потомки
  * от Model_Collection_Option_Abstract.
  * @author Юрий Шведов
+ * @package Ice
  *
  */
 class Model_Option_Old extends Model_Option

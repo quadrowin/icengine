@@ -1,14 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Модель для создания коротких адресов
  * @author Yury Shvedov
- * @package IcEngine
- * 
+ * @package Ice
+ *
  */
 class Tiny_Link extends Model
 {
-	
+
 	/**
 	 * @desc Config
 	 * @var array
@@ -28,12 +31,12 @@ class Tiny_Link extends Model
 		 */
 		'redirectorUrl' => '/r/{$short}'
 	);
-	
+
 	/**
-	 * @desc Конвертирование числа в систему счисления согласно заданному 
+	 * @desc Конвертирование числа в систему счисления согласно заданному
 	 * в конфигах алфавиту.
 	 * длинне алфавита
-	 * @param integer $int Число 
+	 * @param integer $int Число
 	 * @return string Число в системе счисления с основанием равной
 	 * длинне алфавита с символами из этого алфавита.
 	 */
@@ -41,38 +44,38 @@ class Tiny_Link extends Model
 	{
 		$abc = self::config ()->abc;
 		$base = strlen ($abc);
-		
+
 		$result = '';
 		while ($int > 0)
 		{
 			$result .= $abc [$int % $base];
 			$int = (int) ($int / $base);
 		}
-		
+
 		return $result;
 	}
-	
+
 	/**
 	 * @desc Декодирование числа.
 	 * Декодирует число, полученное intEncode.
 	 * @param string $short Закодированное число
-	 * @return integer Исходное числа в десятичной системе счисления. 
+	 * @return integer Исходное числа в десятичной системе счисления.
 	 */
 	public static function intDecode ($short)
 	{
 		$abc = array_flip (str_split (self::config ()->abc));
 		$base = count ($abc);
-		
+
 		$result = 0;
 		for ($i = 0, $icount = strlen ($short); $i < $icount; ++$i)
 		{
 			$c = $short [$i];
 			$result += pow ($base, $i) * $abc [$c];
 		}
-		
+
 		return (int) $result;
 	}
-	
+
 	/**
 	 * @desc Получает модель короткой ссылки, если для такого адреса
 	 * короткой ссылки не сущетсвует - создает ее.
@@ -86,7 +89,7 @@ class Tiny_Link extends Model
 			Query::instance ()
 				->where ('link', $href)
 		);
-		
+
 		if (!$link)
 		{
 			$link = new self (array (
@@ -98,13 +101,13 @@ class Tiny_Link extends Model
 				'short'	=> self::intEncode ($link->key ())
 			));
 		}
-		
+
 		return $link;
 	}
-	
+
 	/**
 	 * @desc Получает модель короткой ссылки по хешу.
-	 * @param string $short 
+	 * @param string $short
 	 * @return Tiny_Link|null
 	 */
 	public static function byShort ($short)
@@ -112,7 +115,7 @@ class Tiny_Link extends Model
 		$int = self::intDecode ($short);
 		return Model_Manager::byKey (__CLASS__, $int);
 	}
-	
+
 	/**
 	 * @desc Возвращает полный адрес короткой ссылки.
 	 * Предполагается, что по возвращаемому адресу будет нахоидься скрипт
@@ -127,5 +130,5 @@ class Tiny_Link extends Model
 			$this->config ()->redirectorUrl
 		);
 	}
-	
+
 }

@@ -1,18 +1,21 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Модель, необходимая для организации фабрик.
- * Используется в случаях, когда модели могут быть реализованы 
+ * Используется в случаях, когда модели могут быть реализованы
  * разными классами.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Model_Factory extends Model
 {
-	
+
 	/**
-	 * @desc Возвращает название класса, который будет использоваться 
+	 * @desc Возвращает название класса, который будет использоваться
 	 * в качестве модели.
 	 * @param string $model Название модели.
 	 * @param string $key Первичный ключ.
@@ -25,7 +28,7 @@ class Model_Factory extends Model
 	    {
 		    return $model . '_' . $object ['name'];
 	    }
-	    
+
 		return $model . '_' . DDS::execute (
 		    Query::instance ()
 			    ->select ('name')
@@ -33,7 +36,7 @@ class Model_Factory extends Model
 			    ->where ('id=?', $key)
 		)->getResult ()->asValue ();
 	}
-	
+
 	/**
 	 * @desc Возвращает таблицу
 	 * @return string
@@ -42,5 +45,5 @@ class Model_Factory extends Model
 	{
 		return get_class ($this);
 	}
-	
+
 }

@@ -1,15 +1,15 @@
 /**
- * 
+ *
  * @desc Помощник для работы с массивами.
- * @package IcEngine
- * 
+ * @package Ice
+ *
  */
 Ice.Helper_Array = {
-	
+
 	/**
 	 * @desc Перемешивает массив.
 	 * @param a Array Массив, элементы которого будут перемешаны
-	 * @param rnd Number [optional] 
+	 * @param rnd Number [optional]
 	 */
 	shuffle: function (a, rnd)
 	{
@@ -32,5 +32,5 @@ Ice.Helper_Array = {
 			return rnd [p] > 4;
 		});
 	}
-	
+
 };

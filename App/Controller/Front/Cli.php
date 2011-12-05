@@ -1,14 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
- * @desc Контроллер консоли.
+ *
+ * @desc Фронт контроллер консоли.
  * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
+ * @package Ice
  *
  */
-class Controller_Front_Cli extends Controller_Abstract 
+class Controller_Front_Cli extends Controller_Abstract
 {
-	
+
 	/**
 	 * @desc Разобранные переменные из инпута
 	 * @return Data_Transport
@@ -18,7 +21,7 @@ class Controller_Front_Cli extends Controller_Abstract
 		Loader::load ('Data_Provider_Buffer');
 		$buffer = new Data_Provider_Buffer ();
 		$argv = $this->_input->receiveAll ();
-		
+
 		foreach ($argv as $arg)
 		{
 			$p = strpos ($arg, '=');
@@ -30,40 +33,40 @@ class Controller_Front_Cli extends Controller_Abstract
 				);
 			}
 		}
-		
+
 		$transport = new Data_Transport ();
 		return $transport->appendProvider ($buffer);
 	}
-	
+
 	/**
 	 * @desc Запуск контроллера консоли
 	 */
 	public function index ()
 	{
 		Loader::load ('Controller_Dispatcher');
-		
+
 		try
 		{
 			$ca = $this->_input->receive (1);
 			$action = explode ('/', $ca);
-			
+
 			$action = Controller_Dispatcher::dispatch (
 				$action [0] ? $action [0] : $ca,
 				isset ($action [1]) && $action [1] ? $action [1] : 'index'
 			);
-			
+
 			Loader::load ('Controller_Action');
 			$action = new Controller_Action ($action);
-			
+
 			$task = new Controller_Task ($action);
 			$task->setInput ($this->_parsedInput ());
-			
+
 			/**
 			 * @desc Выполненяем задания.
 			 * @var array <Controller_Task>
 			 */
 			$tasks = Controller_Manager::runTasks (array ($task));
-			
+
 			$this->_output->send ('tasks', $tasks);
 		}
 		catch (Zend_Exception $e)
@@ -72,5 +75,5 @@ class Controller_Front_Cli extends Controller_Abstract
 			Error::render ($e);
 		}
 	}
-	
+
 }

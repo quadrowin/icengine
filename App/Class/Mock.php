@@ -1,8 +1,12 @@
 <?php
 
+namespace Ice;
+
 /**
+ *
  * @desc Заместитель классов
  * @author Илья Колесников
+ * 
  */
 class Mock
 {
@@ -11,13 +15,13 @@ class Mock
 	 * @var array <string>
 	 */
 	protected static $_methods = array ();
-	
+
 	/**
 	 * @desc Название класса, который будет замещаться
 	 * @var string
 	 */
 	private static $_className;
-	
+
 	/**
 	 * (non-PHPDoc)
 	 * @param string $class_name
@@ -26,7 +30,7 @@ class Mock
 	{
 		$this->_className = $class_name;
 	}
-	
+
 	/**
 	 * (non-PHPDoc)
 	 * @param string $key
@@ -41,28 +45,28 @@ class Mock
 				array ($this)
 			);
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * (non-PHPDoc)
 	 * @param string $key
-	 * @param mixed $value 
+	 * @param mixed $value
 	 */
 	public function __set ($key, $value)
 	{
-		
+
 	}
-	
+
 	/**
 	 * (non-PHPDoc)
 	 */
 	private function __clone ()
 	{
-		
+
 	}
-	
+
 	/**
 	 * (non-PHPDoc)
 	 * @param string $method
@@ -79,14 +83,14 @@ class Mock
 			);
 		}
 	}
-	
+
 	/**
 	 * @desc Регистрирует метод для заменителя
 	 * @param string $method_name
-	 * @param $method 
+	 * @param $method
 	 */
 	public function register ($method_name, $method)
 	{
-		self::$_methods [$method_name] = $method; 
+		self::$_methods [$method_name] = $method;
 	}
 }

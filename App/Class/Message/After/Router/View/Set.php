@@ -1,19 +1,22 @@
 <?php
+
+namespace Ice;
+
 /**
  * @desc Событие после определения роутера и установки соответсвующего ему
  * рендера.
  * Основное назначение - подмена шаблона рендера.
- * @author Юрий
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class Message_After_Router_View_Set extends Message_Abstract
 {
-	
+
 	public static function push (Route $route, View_Render_Abstract $view,
 		array $params = array ())
 	{
-		IcEngine::$messageQueue->push (
+		\Ice\Core::$messageQueue->push (
 			'After_Router_View_Set',
 			array_merge (
 				$params,
@@ -24,7 +27,7 @@ class Message_After_Router_View_Set extends Message_Abstract
 			)
 		);
 	}
-	
+
 	/**
 	 * @return Router
 	 */
@@ -32,7 +35,7 @@ class Message_After_Router_View_Set extends Message_Abstract
 	{
 		return $this->route;
 	}
-	
+
 	/**
 	 * @return View_Render_Abstract
 	 */
@@ -40,5 +43,5 @@ class Message_After_Router_View_Set extends Message_Abstract
 	{
 		return $this->view;
 	}
-	
+
 }

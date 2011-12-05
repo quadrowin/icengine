@@ -1,8 +1,10 @@
 <?php
 
+namespace Ice;
+
 class Acl_Role_Collection extends Model_Collection
 {
-	
+
 	/**
 	 * Добавление ролей пользователю
 	 * @param User $user
@@ -15,9 +17,9 @@ class Acl_Role_Collection extends Model_Collection
 			$item->attachUser($user);
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param User $user
 	 */
 	public function deattachUser (User $user)
@@ -28,9 +30,9 @@ class Acl_Role_Collection extends Model_Collection
 			$item->deattachUser ($user);
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Acl_Resource $resource
 	 * @return boolean
 	 */
@@ -46,9 +48,9 @@ class Acl_Role_Collection extends Model_Collection
 		}
 		return false;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param User $user
 	 * @return boolean
 	 */
@@ -64,8 +66,8 @@ class Acl_Role_Collection extends Model_Collection
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 }

@@ -1,38 +1,41 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Хелпер управления заголовоками
  * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
+ * @package Ice
  *
  */
 class Helper_Header
 {
 	/**
-	 * 
+	 *
 	 * @desc Код ошибки "ресурс перемещен постоянно"
 	 * @var integer
 	 */
 	const E301 = 301;
-	
+
 	/**
 	 * @desc Код ошибки "доступ закрыт"
 	 * @var integer
 	 */
 	const E403 = 403;
-	
+
 	/**
 	 * @desc Код ошибки "страница не найдена"
 	 * @var integer
 	 */
 	const E404 = 404;
-	
+
 	/**
 	 * @desc Флаг кодирования gzip
 	 * @var string
 	 */
 	const CONTENT_ENCODING_GZIP = 'gzip';
-	
+
 	/**
 	 * @desc Сообщения с ошибками
 	 * @var array
@@ -51,7 +54,7 @@ class Helper_Header
 			"Status: 301 Moved Remanently"
 		)
 	);
-	
+
 	/**
 	 * @desc Отправить статус в заголовке ответа
 	 * @param integer $status Статус.
@@ -70,7 +73,7 @@ class Helper_Header
 			}
 		}
 	}
-	
+
 	/**
 	 * @desc Редирект по указанному адресу.
 	 * К переданному $uri при необходимости будет добавлено имя сервера
@@ -81,11 +84,11 @@ class Helper_Header
 	 */
 	public static function redirect ($uri, $code = null)
 	{
-		$full_uri = 
+		$full_uri =
 			substr ($uri, 0, 7) == 'http://' ?
 			$uri :
 			('http://' . Request::host () . $uri);
-		
+
 		if (!headers_sent ())
 		{
 			if ($code)
@@ -102,17 +105,17 @@ class Helper_Header
 			self::jsRedirect ($uri);
 		}
 	}
-	
+
 	/**
 	 * @desc Редирект через javascript.
 	 * @param string $uri Адрес для редиректа
 	 */
 	public static function jsRedirect ($uri)
 	{
-		echo 
-			'<script type="text/javascript">window.location.href="' . 
+		echo
+			'<script type="text/javascript">window.location.href="' .
 			$uri .
 			'"</script>';
 	}
-	
+
 }

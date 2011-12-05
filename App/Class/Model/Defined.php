@@ -1,19 +1,23 @@
 <?php
 
+namespace Ice;
+
 /**
+ * 
  * @desc Модель ячейки данных. Может быть уже заполнена
  * @author Роман Кузнецов, Колесников Илья
- * @package IcEngine
+ * @package Ice
+ *
  */
 class Model_Defined extends Model
 {
-	
+
 	/**
-	 * @desc 
+	 * @desc
 	 * @var array
 	 */
     public static $rows = array ();
-    
+
 	/**
 	 * (non-PHPDoc)
 	 * @see Model::delete
@@ -22,7 +26,7 @@ class Model_Defined extends Model
 	{
 		throw new Exception ('It\'s a defined model');
 	}
-	
+
 	/**
 	 * (non-PHPDoc)
 	 * @see Model::save
@@ -31,7 +35,7 @@ class Model_Defined extends Model
 	{
 		throw new Exception ('It\'s a defined model');
 	}
-	
+
 	/**
 	 * (non-PHPDoc)
 	 * @see Model::update

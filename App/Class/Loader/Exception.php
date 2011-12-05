@@ -1,11 +1,14 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Ошибка загрузчика
- * @author Shvedov_U
- * @package IcEngine
- * 
+ * @author Yury Shvedov
+ * @package Ice
+ *
  */
 class Loader_Exception extends Exception {
-	
+
 }

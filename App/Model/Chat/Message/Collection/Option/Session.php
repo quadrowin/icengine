@@ -1,9 +1,11 @@
 <?php
 
+namespace Ice;
+
 class Chat_Message_Collection_Option_Session extends Model_Collection_Option_Abstract
 {
 	/**
-	 * 
+	 *
 	 * @param Model_Collection $items
 	 * @param Query $query
 	 * @param array $params

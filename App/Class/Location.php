@@ -1,12 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
  *
- * @desc Помощник для построения зависимостей от положения сайта
+ * @desc Помощник для построения зависимостей от положения сайта.
+ * Для использования класса, следует поместить файл "Location.txt"
+ * в директорию "Var" проекта.
  * @author Yury Shvedov
- * @package IcEngine
+ * @package Ice
  *
  */
-class Helper_Site_Location
+class Location
 {
 
 	/**
@@ -71,12 +76,10 @@ class Helper_Site_Location
 	 */
 	public static function load ()
 	{
-
 		if (!self::$_location)
 		{
 
-			$file = IcEngine::bootstrap ()->basePath () . 
-				'Var/Helper/Site/Location.txt';
+			$file = Core::bootstrap ()->basePath () . 'Var/Location.txt';
 
 			if (file_exists ($file))
 			{

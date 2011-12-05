@@ -1,12 +1,14 @@
 <?php
 
+namespace Ice;
+
 Loader::load ('Data_Adapter_Mysqli');
 
 /**
  *
  * @desc Адаптер для работы с mysql, с кэшированием запросов.
  * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
+ * @package Ice
  *
  */
 class Data_Adapter_Mysqli_Cached extends Data_Adapter_Mysqli
@@ -203,7 +205,7 @@ class Data_Adapter_Mysqli_Cached extends Data_Adapter_Mysqli
 		$this->_cacher = $cacher;
 	}
 
-	/** 
+	/**
 	 * (non-PHPdoc)
 	 * @see Data_Mapper_Mysqli::setOption()
 	 */

@@ -1,9 +1,12 @@
 <?php
+
+namespace Ice;
+
 /**
  *
  * @desc Транслятор запросов.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Query_Translator
@@ -29,7 +32,7 @@ class Query_Translator
 	{
 		if (!isset (self::$_translators [$name]))
 		{
-			$class_name = 'Query_Translator_' . $name;
+			$class_name = __NAMESPACE__ . '\\Query_Translator_' . $name;
 			Loader::load ($class_name);
 			self::$_translators [$name] = new $class_name ();
 		}

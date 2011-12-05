@@ -1,9 +1,12 @@
 <?php
+
+namespace Ice;
+
 /**
  *
  * @desc Помощник для перевода текста в транслит
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Helper_Translit

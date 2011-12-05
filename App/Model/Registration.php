@@ -1,67 +1,70 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Модель регистрации на сайте
- * @author Гурус
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class Registration extends Model
 {
-	
+
 	/**
 	 * @desc Время окончания регистрации, если она не закончена.
 	 * @var string
 	 */
 	const EMPTY_FINISH_TIME = '2000-01-01';
-	
+
 	/**
 	 * @desc Конфиг
 	 * @var array
-	 */	
+	 */
 	protected static $_config = array (
 		/**
 		 * Событие после подтверждения емейла
 		 * @var function (Registration)
 		 */
 		'after_confirm'	=> null,
-		
+
 		/**
 		 * Событие после создания регистрации
 		 * @var function (Registration, array) boolean
 		 */
 		'after_create'	=> null,
-		
+
 		/**
 		 * Автоактивация (не требует активации по email).
 		 * @var boolean
 		 */
 		'auto_active'	=> false,
-		
+
 		/**
 		 * @desc Автосоздание и активация пользователя.
-		 * @var boolean 
+		 * @var boolean
 		 */
 		'auto_user'		=> true,
-	
+
 		// Шаблон сообщения
 		'mail_template'		=> 'user_register',
-	
+
 		// Провайдер для отправки сообщений
 		'mail_provider'		=> 'Mimemail',
-		
+
 		/**
 		 * Отсылать сообщение.
 		 * @var boolean
 		 */
 		'sendmail'		=> true,
-		
+
 		/**
 		 * Ограничение на количество регистраций с одного ИП в день
 		 * @var integer
 		 */
 		'ip_day_limit'	=> 20,
-		
+
 		/**
 		 * Поля.
 		 * @var array
@@ -95,7 +98,7 @@ class Registration extends Model
 			)
 		)
 	);
-	
+
 	/**
 	 * @desc Автоактивация пользователя
 	 */
@@ -106,11 +109,11 @@ class Registration extends Model
 			Loader::load ('Zend_Exception');
 			throw new Zend_Exception ('User unexists.');
 		}
-		
+
 		$this->User->update (array (
 			'active'	=> 1
 		));
-		
+
 		if ($this->config ()->after_confirm)
 		{
 			Loader::load ($this->config ()->after_confirm [0]);
@@ -120,10 +123,10 @@ class Registration extends Model
 			);
 		}
 	}
-	
+
 	/**
 	 * @desc Автосоздание пользователя после регистрации.
-	 * @param array|Objective $data 
+	 * @param array|Objective $data
 	 * @return User
 	 */
 	public function _autoUserCreate ($data)
@@ -131,7 +134,7 @@ class Registration extends Model
 		return User::create (array_merge (
 			array (
 				'email'			=> $data ['email'],
-				'password'		=> $data ['password'], 
+				'password'		=> $data ['password'],
 				'name'		=>  $data['name'],
 				'surname'		=>  $data['surname'],
 				'Sex__id'		=>  $data['Sex__id'],
@@ -140,7 +143,7 @@ class Registration extends Model
 			$data
 		));
 	}
-	
+
 	/**
 	 * @desc Возвращает регистрацию по уникальному коду.
 	 * @param string $code
@@ -151,10 +154,10 @@ class Registration extends Model
 		return Model_Manager::byQuery (
 			__CLASS__,
 			Query::instance ()
-				->where ('code', $code) 
+				->where ('code', $code)
 		);
 	}
-	
+
 	/**
 	 * @desc Ссылка на подтверждение регистрации.
 	 * @return string
@@ -163,7 +166,7 @@ class Registration extends Model
 	{
 		return '/registration/' . $this->code;
 	}
-	
+
 	/**
 	 * @desc Создание новой регистрации
 	 * @param array $data
@@ -173,7 +176,7 @@ class Registration extends Model
 	 */
 	public static function create (array $data)
 	{
-		
+
 		$registration = new Registration (array (
 			'id'			=> $data ['User__id'],
 			'User__id'		=> $data ['User__id'],
@@ -183,15 +186,15 @@ class Registration extends Model
 			'day'			=> Helper_Date::eraDayNum (),
 			'finished'		=> 0,
 			'finishTime'	=> self::EMPTY_FINISH_TIME,
-			'code'			=> 
-				isset ($data ['code']) ? 
+			'code'			=>
+				isset ($data ['code']) ?
 					$data ['code'] :
 					self::generateUniqueCode ($data ['User__id'])
 		));
-		
+
 		return $registration->save (true);
 	}
-	
+
 	/**
 	 * @desc Завершение процесса регистрации, активация пользователя.
 	 * @return Registration
@@ -202,18 +205,18 @@ class Registration extends Model
 			'finished'		=> 1,
 			'finishTime'	=> date ('Y-m-d H:i:s')
 		));
-		
+
 		if ($this->config ()->auto_user)
 		{
 			$this->_autoUserActivate ();
 		}
-		
+
 		//Loader::load ('Message_After_Registration_Finish');
 		//Message_After_Registration_Finish::push ($this);
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * @desc Возвращает новый уникальный код для активация по емейл.
 	 * @param integer $id Первичный ключ регистрации.
@@ -225,7 +228,7 @@ class Registration extends Model
 			chr (rand (ord ('a'), ord ('z'))) . $id . 'a' .
 			md5 (time ()) . md5 (rand (12345678, 87654321));
 	}
-	
+
 	/**
 	 * @desc Регистрация.
 	 * @param array|Objective $data
@@ -234,7 +237,7 @@ class Registration extends Model
 	public function register ($data)
 	{
 		$config = $this->config ();
-		
+
 		$this->update (array (
 			'User__id'		=> 0,
 			'email'			=> $data ['email'],
@@ -245,7 +248,7 @@ class Registration extends Model
 			'finishTime'	=> self::EMPTY_FINISH_TIME,
 			'code'			=> ''
 		));
-		
+
 		if ($config ['user'])
 		{
 			$this->update (array (
@@ -253,19 +256,19 @@ class Registration extends Model
 				'code'	=> self::generateUniqueCode ($user->id)
 			));
 		}
-		
+
 		if ($config ['auto_user'])
 		{
 			if ($data ['user']) {
 				$user = $data ['user'];
 			}
-			else 
+			else
 			{
 				$user = $this->_autoUserCreate ($data);
 			}
 			//Loader::load ('Message_After_Registration_Start');
 			//Message_After_Registration_Start::push ($this);
-			
+
 			$this->update (array (
 				'User__id'	=> $user->id,
 				'code'		=> self::generateUniqueCode ($user->id)
@@ -276,13 +279,13 @@ class Registration extends Model
 			//Loader::load ('Message_After_Registration_Start');
 			//Message_After_Registration_Start::push ($this);
 		}
-		
+
 		if ($config ['after_create'])
 		{
 			Loader::load ($config ['after_create'][0]);
 			if (
 				!call_user_func (
-					$config ['after_create']->__toArray (), 
+					$config ['after_create']->__toArray (),
 					$this, $data
 				)
 			)
@@ -292,12 +295,12 @@ class Registration extends Model
 				return null;
 			};
 		}
-		
+
 		if ($this->config ()->sendmail)
 		{
 			Loader::load ('Mail_Message');
 			$message = Mail_Message::create (
-				$config ['mail_template'], 
+				$config ['mail_template'],
 				$data ['email'],
 				$data ['email'],
 				array (
@@ -311,10 +314,10 @@ class Registration extends Model
 			);
 			$message->send ();
 		}
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * @desc Отправка сообщения о регистрации
 	 * @param array $data Дополнительные данные для сообщения.
@@ -325,7 +328,7 @@ class Registration extends Model
 		$config = $this->config ();
 		Loader::load ('Mail_Message');
 		$message = Mail_Message::create (
-			$config ['mail_template'], 
+			$config ['mail_template'],
 			$this->email,
 			$this->email,
 			array_merge (
@@ -342,9 +345,9 @@ class Registration extends Model
 		);
 		return $message->send ();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Objective $data
 	 * 		string ['email'] емейл
 	 * 		string ['password'] пароль
@@ -356,20 +359,20 @@ class Registration extends Model
 		$fields = $reg->config ()->fields;
 		Helper_Form::filter ($data, $fields);
 		$result = Helper_Form::validate ($data, $fields);
-		
+
 		if (is_array ($result))
 		{
 			return $result;
 		}
-		
+
 		Helper_Form::unsetIngored ($data, $fields);
-		
+
 		$reg = $reg->register ($data);
-		
-		return 
-			$reg 
-			? $reg 
+
+		return
+			$reg
+			? $reg
 			: array ('unknown' => 'Data_Validator_Registration/unknown');
 	}
-	
+
 }

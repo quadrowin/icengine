@@ -1,20 +1,23 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Рендер данных для библиотеки JsHttpRequest
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class View_Render_JsHttpRequest extends View_Render_Abstract
 {
-	
+
 	/**
 	 * @desc Экземпляр бекэнда.
 	 * @var JsHttpRequest
 	 */
 	protected $_request;
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::_afterConstruct()
@@ -22,9 +25,9 @@ class View_Render_JsHttpRequest extends View_Render_Abstract
 	protected function _afterConstruct ()
 	{
 		Loader::load ('JsHttpRequest', 'includes');
-		$this->_request = new JsHttpRequest ('UTF-8');
+		$this->_request = new \JsHttpRequest ('UTF-8');
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::fetch()
@@ -35,7 +38,7 @@ class View_Render_JsHttpRequest extends View_Render_Abstract
 		$this->_vars = array ();
 		return $result;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::display()
@@ -53,21 +56,21 @@ class View_Render_JsHttpRequest extends View_Render_Abstract
 //		}
 		die ();
 	}
-	
+
 	public function render (Controller_Task $task)
 	{
 		$buffer = $task->getTransaction ()->buffer ();
 		$this->_vars = $buffer;
 		$this->display ($task->getTemplate ());
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::addHelper()
 	 */
 	public function addHelper ($helper, $method)
 	{
-		
+
 	}
-	
+
 }

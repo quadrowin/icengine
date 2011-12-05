@@ -1,16 +1,19 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Теги.
  * Позволяют привязывать к моделям слова и позже находить их.
  * @author Yury Shvedov
- * @package IcEngine
- * 
+ * @package Ice
+ *
  * @property string $name Название тега
  * @property string $translit Тег транслитом (для формирования ссылок)
  * @property string $table Тазвание модели
  * @property integer $rowId ПК модели
- * 
+ *
  */
 class Component_Tag extends Model_Component
 {
@@ -27,14 +30,14 @@ class Component_Tag extends Model_Component
 				'name'		=> 'Translit',
 				'translit'	=> $tag
 			));
-		
+
 		return $tags;
 	}
-	
+
 	/**
 	 * @desc Получить коллекцию моделей для тега.
 	 * @param string $tag Тег.
-	 * @param Model $exclude [optional] Модель, которая не будет включена 
+	 * @param Model $exclude [optional] Модель, которая не будет включена
 	 * в результат.
 	 * @return Model_Collection Коллекция моделей с эти тегом.
 	 */
@@ -42,12 +45,12 @@ class Component_Tag extends Model_Component
 	{
 		Loader::load ('Helper_Translate');
 		$tag = Helper_Translit::translit ($tag, 'en');
-		
+
 		$tags = self::byTranslit ($tag, $exclude);
-		
+
 		$result = Model_Collection_Manager::create ('Proxy')
 			->reset ();
-		
+
 		$included = array ();
 		foreach ($this as $tag)
 		{
@@ -59,10 +62,10 @@ class Component_Tag extends Model_Component
 				$result->add ($item);
 			}
 		}
-		
+
 		return $result;
 	}
-	
+
 	/**
 	 * @desc Переопределяет теги для модели.
 	 * @param string|array $tags массив тегов или теги через запятую
@@ -81,14 +84,14 @@ class Component_Tag extends Model_Component
 		{
 			$table = $model;
 		}
-		
+
 		if (is_array ($tags))
 		{
 			$tags = implode (',', $tags);
 		}
 		$tags = mb_strtolower ($tags, 'UTF-8');
 		$tags = implode (',', $tags);
-		
+
 		// Ключи массива - теги в транслите, так теги будут уникальными
 		$by_trans = array ();
 		Loader::load ('Helper_Translit');
@@ -106,7 +109,7 @@ class Component_Tag extends Model_Component
 				);
 			}
 		}
-		
+
 		// Существующие теги
 		$exists = Model_Collection_Manager::create ('Component_Tag')
 			->addOptions (array (
@@ -114,7 +117,7 @@ class Component_Tag extends Model_Component
 				'table'		=> $table,
 				'row_id'	=> $id
 			));
-		
+
 		// сравниваем существующие и новые теги
 		foreach ($exists as $i => $tag)
 		{
@@ -129,7 +132,7 @@ class Component_Tag extends Model_Component
 				$tag->delete ();
 			}
 		}
-		
+
 		// Создаем новые теги
 		foreach ($by_trans as $tag)
 		{
@@ -137,5 +140,5 @@ class Component_Tag extends Model_Component
 			$tag->save ();
 		}
 	}
-	
+
 }

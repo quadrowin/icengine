@@ -1,12 +1,14 @@
 <?php
 
+namespace Ice;
+
 class Controller_Terminate extends Controller_Abstract
 {
 	public function _beforeAction ($action)
 	{
-		
+
 	}
-	
+
 	/**
 	 * @desc Вызывает die ().
 	 */
@@ -14,5 +16,5 @@ class Controller_Terminate extends Controller_Abstract
 	{
 		die ();
 	}
-	
+
 }

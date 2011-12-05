@@ -1,20 +1,23 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Коллекция фильтров
- * @author Илья
- * @package IcEngine
+ * @author Ilya Kolesnikov
+ * @package Ice
  *
  */
-class Filter_Collection 
+class Filter_Collection
 {
-	
+
 	/**
 	 * @desc Фильтры
 	 * @var array <Filter_Abstract>
 	 */
 	protected $_filters;
-	
+
 	/**
 	 * @desc Возвращает экземпляр коллекции фильтров.
 	 */
@@ -22,7 +25,7 @@ class Filter_Collection
 	{
 		$this->_filters = array ();
 	}
-	
+
 	/**
 	 * @desc Добавляет фильтр в коллекцию.
 	 * @param Filter_Abstract $filter
@@ -32,7 +35,7 @@ class Filter_Collection
 		$this->_filters [] = $filter;
 		return $this;
 	}
-	
+
 	/**
 	 * @desc Последовательно применяет фильтры на данные.
 	 * @param mixed $data
@@ -45,7 +48,7 @@ class Filter_Collection
 		{
 			$fields = (array) $fields;
 		}
-		
+
 		if (!is_array ($data))
 		{
 			for ($i = 0, $count = sizeof ($this->_filters); $i < $count; $i++)
@@ -67,7 +70,7 @@ class Filter_Collection
 				}
 			}
 		}
-		
+
 		return $this;
 	}
 }

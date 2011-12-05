@@ -1,5 +1,7 @@
 <?php
 
+namespace Ice;
+
 class Controller_Error extends Controller_Abstract
 {
 
@@ -14,7 +16,7 @@ class Controller_Error extends Controller_Abstract
 		Loader::load ('Header');
 		Header::setStatus(Header::E404);
 	}
-	
+
 	/**
 	 * @desc Доступ запрещен.
 	 */
@@ -28,14 +30,14 @@ class Controller_Error extends Controller_Abstract
 		));
 		return $this->replaceAction ('Authorization', 'accessDenied');
 	}
-	
+
 	/**
 	 * @desc Пустое вместо
 	 */
 	public function blank ()
 	{
 	}
-	
+
 	/**
 	 * @desc Страница не найдена
 	 */
@@ -48,7 +50,7 @@ class Controller_Error extends Controller_Abstract
 			)
 		));
 	}
-	
+
 	/**
 	 * @desc Страница устарела.
 	 * В большинстве случаев означает неверный utcode или прикрепление
@@ -63,5 +65,5 @@ class Controller_Error extends Controller_Abstract
 			)
 		));
 	}
-	
+
 }

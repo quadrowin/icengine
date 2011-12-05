@@ -1,26 +1,29 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Менеджер для работы с сессиями.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Session_Manager
 {
-	
+
 	/**
 	 * @desc Провайдер данных.
 	 * @var Data_Provider_Abstract
 	 */
 	public static $provider;
-	
+
 	/**
-	 * @desc 
+	 * @desc
 	 * @var string
 	 */
 	public static $sessSavePath;
-	
+
 	/**
 	 * @desc Config
 	 * @var array
@@ -37,7 +40,7 @@ class Session_Manager
 		 */
 		'provider'		=> null,
 	);
- 
+
 	/**
 	 * @desc Close function, this works like a destructor in classes and is executed when the session operation is done.
 	 */
@@ -45,7 +48,7 @@ class Session_Manager
 	{
 		return true;
 	}
-	
+
 	/**
 	 * @return Objective
 	 */
@@ -57,7 +60,7 @@ class Session_Manager
 		}
 		return self::$_config;
 	}
- 
+
 	/**
 	 * @desc The destroy handler, this is executed when a session is destroyed with session_destroy() and takes the session id as its only parameter.
 	 */
@@ -66,14 +69,14 @@ class Session_Manager
  		self::$provider->delete ($id);
  		return true;
  	}
- 
+
 	/**
 	 * @desc The garbage collector, this is executed when the session garbage collector is executed and takes the max session lifetime as its only parameter.
 	 */
 	public static function gc ($maxlifetime)
 	{
 	}
-	
+
 	/**
 	 * @desc Инициализация менеджера сессий
 	 */
@@ -87,9 +90,9 @@ class Session_Manager
 			);
 		}
 	}
-	
+
 	/**
-	 * @desc 
+	 * @desc
 	 * @param Data_Provider_Abstract $provider
 	 */
 	public static function initProvider (Data_Provider_Abstract $provider)
@@ -104,11 +107,11 @@ class Session_Manager
 			__CLASS__ . '::gc'
 		);
 	}
-	
+
 	/**
 	 * @desc Open function, this works like a constructor in classes and
-	 * is executed when the session is being opened. The open function expects 
-	 * two parameters, where the first is the save path and the second is 
+	 * is executed when the session is being opened. The open function expects
+	 * two parameters, where the first is the save path and the second is
 	 * the session name.
 	 * @param string $save_path
 	 * @param string $session_name
@@ -118,25 +121,25 @@ class Session_Manager
 		self::$sessSavePath = $save_path;
 		return true;
 	}
-	
+
 	/**
-	 * @desc Read function must return string value always to make save handler 
-	 * work as expected. Return empty string if there is no data to read. 
-	 * Return values from other handlers are converted to boolean expression. 
+	 * @desc Read function must return string value always to make save handler
+	 * work as expected. Return empty string if there is no data to read.
+	 * Return values from other handlers are converted to boolean expression.
 	 * TRUE for success, FALSE for failure.
 	 */
 	public static function read ($id)
 	{
 		return (string) self::$provider->get ($id);
 	}
-	
+
 	/**
 	 * @desc Write function that is called when session data is to be saved.
-	 * This function expects two parameters: an identifier and the data 
+	 * This function expects two parameters: an identifier and the data
 	 * associated with it.
-	 * Note: 
-	 * The "write" handler is not executed until after the output stream 
-	 * is closed. Thus, output from debugging statements in the "write" handler 
+	 * Note:
+	 * The "write" handler is not executed until after the output stream
+	 * is closed. Thus, output from debugging statements in the "write" handler
 	 * will never be seen in the browser. If debugging output is necessary,
 	 * it is suggested that the debug output be written to a file instead.
 	 */
@@ -145,5 +148,5 @@ class Session_Manager
 		self::$provider->set ($id, $data, (int) self::config ()->TTL);
 		return true;
 	}
-	
+
 }
