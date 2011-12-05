@@ -230,28 +230,25 @@ class Helper_Image
 	public static function uploadSimple ($table, $row_id, $type, $sizing = null)
 	{
 		$file = Request::fileByIndex (0);
-
+		Loader::load('Helper_Site_Location');
 		$host = Helper_Site_Location::getLocation ();
 		if ($host == 'localhost')
 		{
 			$host = '';
 		}
-		else
+		elseif($host)
 		{
 			$host = 'http://' . $host;
 		}
-
 		if (!$file)
 		{
 			self::$code = 400;
 			return self::_error ('not_received');
 		}
-
 		if (!$sizing)
 		{
 			$sizing = self::_sizing ($type);
 		}
-
 		Loader::load ('Component_Image');
 		$image = new Component_Image (array (
 			'table'			=> $table,
@@ -283,7 +280,6 @@ class Helper_Image
 			self::$code = 500;
 			return self::_error ('unable_to_move');
 		}
-
    	 	$info = getimagesize ($original);
 
 		if (!$info)
@@ -353,7 +349,7 @@ class Helper_Image
 		}
 
 		$attributes = array ();
-
+		
 		if (!empty ($sizing ['attributes']))
 		{
 			foreach ($sizing ['attributes'] as $key => $v)
@@ -384,9 +380,8 @@ class Helper_Image
 			$attributes = array_merge ($attributes, $tmp);
 			$i++;
 		}
-
 		$image->attr ($attributes);
-
+		
 		return $image;
 	}
 
