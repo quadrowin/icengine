@@ -1,20 +1,23 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Результат работы запроса
  * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
+ * @package Ice
  *
  */
-class Query_Result 
+class Query_Result
 {
-	
+
 	/**
 	 * @desc Результат.
 	 * @var array
 	 */
 	private $_result;
-	
+
 	/**
 	 * @desc Создает и возвращает результат запроса
 	 * @param array $result Результаты запроса.
@@ -23,7 +26,7 @@ class Query_Result
 	{
 		$this->_result = $result;
 	}
-	
+
 	/**
 	 * @desc Возвращает одну колонку результата.
 	 * @param string|null $name [optional]
@@ -35,7 +38,7 @@ class Query_Result
 	public function asColumn ($name = null)
 	{
 		$result = array ();
-		
+
 		if ($name)
 		{
 			foreach ($this->_result ['result'] as $row)
@@ -50,10 +53,10 @@ class Query_Result
 				$result [] = reset ($row);
 			}
 		}
-		
+
 		return $result;
 	}
-	
+
 	/**
 	 * @desc Результат запроса - единственная запись таблицы.
 	 * @return array|null
@@ -64,27 +67,27 @@ class Query_Result
 		{
 			return null;
 		}
-		
+
 		// результат - массив
 		if (is_array ($this->_result ['result']))
 		{
 			$result = reset ($this->_result ['result']);
 			return is_array ($result) ? $result : null;
 		}
-		
+
 		// результат - объект
 		foreach ($this->_result ['result'] as $result)
 		{
 			return $result;
 		}
 	}
-	
+
 	/**
 	 * @desc Результат запроса - таблица записей.
 	 * @param string $key
-	 * 		Поле которое будет использоваться в качестве ключа 
+	 * 		Поле которое будет использоваться в качестве ключа
 	 * 		при формировании массива строк. Если не указано,
-	 * 		будут использованы номера в порядке выбора. 
+	 * 		будут использованы номера в порядке выбора.
 	 * @return array
 	 */
 	public function asTable ($key = null)
@@ -104,11 +107,11 @@ class Query_Result
 				}
 				return $result;
 			}
-			
+
 			return $this->_result ['result'];
 		}
 	}
-	
+
 	/**
 	 * @desc Результат запроса - единственное значение.
 	 * @return mixed
@@ -122,11 +125,11 @@ class Query_Result
 		{
 			return null;
 		}
-		
+
 		reset ($this->_result ['result'][0]);
 		return current ($this->_result ['result'][0]);
 	}
-	
+
 	/**
 	 * @desc Возвращает общее количество подходящих под условие строк.
 	 * @return integer
@@ -135,7 +138,7 @@ class Query_Result
 	{
 	    return $this->_result ['foundRows'];
 	}
-	
+
 	/**
 	 * @desc Значение последнего добавленого автоинкрементного ключа.
 	 * @return integer
@@ -144,18 +147,18 @@ class Query_Result
 	{
 		return $this->_result ['insertKey'];
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return boolean
 	 */
 	public function isNull ()
 	{
-		return 
+		return
 			isset ($this->_result ['is_null']) &&
 			$this->_result ['is_null'];
 	}
-	
+
 	/**
 	 * @desc Количество затронутых запросом записей.
 	 * Количество удаленных, измененных, добавленных или выбранных записей.
@@ -165,7 +168,7 @@ class Query_Result
 	{
 		return $this->_result ['touchedRows'];
 	}
-	
+
 	/**
 	 * @return Data_Source_Abstract
 	 */
@@ -173,7 +176,7 @@ class Query_Result
 	{
 		return $this->_result ['source'];
 	}
-	
+
 	/**
 	 * @return mixed
 	 */
@@ -181,5 +184,5 @@ class Query_Result
 	{
 		return $this->_result ['result'];
 	}
-	
+
 }

@@ -1,16 +1,19 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Класс для создания простых моделей.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Model_Manager_Delegee_Simple
 {
-	
+
 	/**
-	 * @desc 
+	 * @desc
 	 * @param string $model
 	 * @param string $key
 	 * @param mixed $object
@@ -19,5 +22,5 @@ class Model_Manager_Delegee_Simple
 	{
 		return new $model (is_array ($object) ? $object : array ());
 	}
-	
+
 }

@@ -1,14 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Класс для имитации загрузки файлов.
  * @author Юрий
- * @package IcEngine
+ * @package Ice
  *
  */
 class Request_File_Test extends Request_File
 {
-	
+
 	public $tests = array (
 		'test'	=> array (
 			'name'		=> 'test.jpg',
@@ -18,17 +21,17 @@ class Request_File_Test extends Request_File
 			'error'		=> false
 		)
 	);
-	
+
 	function __construct ($index = 0)
 	{
 		$this->tests [$index]['tmp_name'] = str_replace (
 			'{$engine_path}',
-			IcEngine::path (),
+			\Ice\Core::path (),
 			$this->tests [$index]['tmp_name']
 		);
 		parent::__construct ($this->tests [$index]);
 	}
-	
+
 	/**
 	 * @return boolean
 	 */
@@ -36,7 +39,7 @@ class Request_File_Test extends Request_File
 	{
 		return true;
 	}
-	
+
 	/**
 	 * Сохранить файл в $destination
 	 * @param string $destination Путь к файлу
@@ -47,5 +50,5 @@ class Request_File_Test extends Request_File
 		$this->destination = $destination;
 		return copy ($this->tmp_name, $destination);
 	}
-	
+
 }

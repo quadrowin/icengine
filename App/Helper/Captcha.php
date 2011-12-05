@@ -1,16 +1,19 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Помощник для каптчи.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Helper_Captcha
 {
-	
+
 	const SF_AUTO_CODE = 'Captcha_Auto_Code';
-	
+
 	/**
 	 * @desc Проверка сгенерированного ранее кода, переданного от пользователя.
 	 * @param array $src Массив со входными данными.
@@ -24,18 +27,18 @@ class Helper_Captcha
 			: (isset ($_POST ['acaptcha']) ? $_POST ['acaptcha'] : null)
 		);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return string
 	 */
 	public static function generateAutocode ()
-	{ 
+	{
 		return substr (md5 (time () . __METHOD__), 3, 10);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return array
 	 */
 	public static function generatePair ()
@@ -43,7 +46,7 @@ class Helper_Captcha
 		$code = time ();
 		return array ($code, md5 ($code));
 	}
-	
+
 	/**
 	 * @desc Проверка введенного пользователем кода.
 	 * @param string $code Полученный от пользователя код.
@@ -51,9 +54,9 @@ class Helper_Captcha
 	 */
 	public static function check ($code)
 	{
-		return 
+		return
 			isset ($_SESSION [Helper_Captcha::SF_AUTO_CODE]) &&
 			$_SESSION [Helper_Captcha::SF_AUTO_CODE] == $code;
 	}
-	
+
 }

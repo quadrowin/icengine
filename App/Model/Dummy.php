@@ -1,10 +1,14 @@
+<?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Заглушка для модели
- * @package IcEngine
- * 
+ * @package Ice
+ *
  */
 class Dummy extends Model
 {
-	
+
 }

@@ -1,12 +1,15 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Фактори модели схемы рейтинга.
- * @author Юрий
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class Component_Rating_Scheme extends Model_Factory
 {
-	
+
 }

@@ -1,15 +1,17 @@
 <?php
 
+namespace Ice;
+
 /**
  * @desc Менеджер рассылок
- * @author ilya
- * @package IcEngine
+ * @author Ilya Kolesnikov
+ * @package Ice
  *
  */
-class Subscribe_Manager 
+class Subscribe_Manager
 {
 	/**
-	 * 
+	 *
 	 * @desc Получить рассылку по имени
 	 * @param string $name
 	 * @return Model
@@ -22,9 +24,9 @@ class Subscribe_Manager
 				->where ('name', $name)
 		);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @desc Получить конфиг по имени
 	 * @param string $name
 	 * @return Config_Array

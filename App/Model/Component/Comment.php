@@ -1,14 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Компонент - комментарий
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Component_Comment extends Model_Component
 {
-	
+
 	/**
 	 * @desc Возвращает родительский комментарий.
 	 * @return Component_Comment
@@ -17,15 +20,15 @@ class Component_Comment extends Model_Component
 	{
 		return Model_Manager::get ($this->modelName (), $this->parentId);
 	}
-	
+
 	/**
 	 * @return string
 	 */
 	public function text ()
 	{
-		return htmlspecialchars_decode (trim (stripslashes ($this->text)));	
+		return htmlspecialchars_decode (trim (stripslashes ($this->text)));
 	}
-	
+
 	/**
 	 * @desc Возвращает уровень комментария относительно корня.
 	 * @param integer $rate
@@ -43,5 +46,5 @@ class Component_Comment extends Model_Component
 	        return 0;
 	    }
 	}
-	
+
 }

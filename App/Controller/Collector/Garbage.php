@@ -1,5 +1,7 @@
 <?php
 
+namespace Ice;
+
 class Controller_Collector_Garbage extends Controller_Abstract
 {
 	/**
@@ -8,7 +10,7 @@ class Controller_Collector_Garbage extends Controller_Abstract
 	public function process ()
 	{
 		Loader::load ('Background_Agent_Manager');
-		
+
 		$name = $this->_input->receive ('name');
 
 		Background_Agent_Manager::instance ()->startAgent (

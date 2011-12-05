@@ -1,20 +1,22 @@
 <?php
 
-if (!class_exists ('Data_Provider_Abstract'))
+namespace Ice;
+
+if (!class_exists (__NAMESPACE__ . '\\Data_Provider_Abstract'))
 {
-	include dirname (__FILE__) . '/Abstract.php';
+	include __DIR__ . '/Abstract.php';
 }
 
 /**
- * 
+ *
  * @desc Провайдер данных из адресной строки
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Data_Provider_Router extends Data_Provider_Abstract
 {
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::get()
@@ -23,7 +25,7 @@ class Data_Provider_Router extends Data_Provider_Abstract
 	{
 		return Request::param ($key);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::getAll()
@@ -32,7 +34,7 @@ class Data_Provider_Router extends Data_Provider_Abstract
 	{
 		return Request::$_params;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::set()
@@ -41,5 +43,5 @@ class Data_Provider_Router extends Data_Provider_Abstract
 	{
 		Request::param ($key, $value);
 	}
-	
+
 }

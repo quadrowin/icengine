@@ -1,9 +1,13 @@
 <?php
 
+namespace Ice;
+
 /**
+ *
  * @desc Абстрактный адаптер данных. Служит для выполнения запросов
  * @author Илья Колесников
- * @package IcEngine
+ * @package Ice
+ * 
  */
 class Data_Adapter_Abstract
 {

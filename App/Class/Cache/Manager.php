@@ -1,8 +1,10 @@
 <?php
 
+namespace Ice;
+
 /**
- * 
- * @package IcEngine
+ *
+ * @package Ice
  *
  */
 class Cache_Manager
@@ -13,7 +15,7 @@ class Cache_Manager
      * @var array <Data_Provider_Abstract>
      */
     protected static $_cachers = array ();
-    
+
     /**
      * @desc Получить кэшеров класса
      * @param string $class
@@ -25,9 +27,9 @@ class Cache_Manager
         {
             self::$_cachers [$class] = new Data_Provider_Abstract ();
         }
-        return self::$_cachers [$class]; 
+        return self::$_cachers [$class];
     }
-    
+
     /**
      * @desc загрузить конфиг кэшеров
      * @param string $file
@@ -39,14 +41,14 @@ class Cache_Manager
         {
             return null;
         }
-        
+
         $options = new Cache_Options ();
-        
+
         $conf = new Config_Php ($file);
 
         $options->applyConfig ($conf);
-        
+
         return $options;
     }
-    
+
 }

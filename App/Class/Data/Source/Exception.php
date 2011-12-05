@@ -1,9 +1,12 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Exception
  * @author Shvedov_U
- * @package IcEngine
- * 
+ * @package Ice
+ *
  */
 class Data_Source_Exception extends Exception { }

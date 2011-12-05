@@ -1,5 +1,7 @@
 <?php
 
+namespace Ice;
+
 class Model_Mapper_Field_Attribute_Abstract
 {
 	protected $_owner;

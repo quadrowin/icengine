@@ -1,16 +1,19 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Шифрование XOR.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Crypt_Xor extends Crypt_Abstract
 {
-	
+
 	/**
-	 * @desc 
+	 * @desc
 	 * @param string $input
 	 * @param string $key
 	 * @return string
@@ -30,7 +33,7 @@ class Crypt_Xor extends Crypt_Abstract
 		}
 		return $input;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Crypt_Abstract::encode()
@@ -39,7 +42,7 @@ class Crypt_Xor extends Crypt_Abstract
 	{
 		return self::_xor ($input, $key);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Crypt_Abstract::encode()
@@ -48,5 +51,5 @@ class Crypt_Xor extends Crypt_Abstract
 	{
 		return self::_xor ($input, $key);
 	}
-	
+
 }

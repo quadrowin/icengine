@@ -1,20 +1,23 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Провайдер данных для получения параметров из консоли.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Data_Provider_Console extends Data_Provider_Abstract
 {
-    
+
     /**
      * @desc Разобранные параметры консоли.
      * @var array
      */
     protected $_args;
-    
+
     /**
      * @desc Создает и возвращает провайдер.
      * @param array $args Параметры консоли.
@@ -31,7 +34,7 @@ class Data_Provider_Console extends Data_Provider_Abstract
             }
         }
     }
-    
+
     /**
      * (non-PHPdoc)
      * @see Data_Provider_Abstract::get()
@@ -40,7 +43,7 @@ class Data_Provider_Console extends Data_Provider_Abstract
 	{
 		return isset ($this->_args [$key]) ? $this->_args [$key] : null;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::getAll()
@@ -49,7 +52,7 @@ class Data_Provider_Console extends Data_Provider_Abstract
 	{
 		return $this->_args;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::set()
@@ -58,5 +61,5 @@ class Data_Provider_Console extends Data_Provider_Abstract
 	{
 		echo "$key => $value\n";
 	}
-    
+
 }

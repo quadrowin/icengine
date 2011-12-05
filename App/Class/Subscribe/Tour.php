@@ -1,5 +1,7 @@
 <?php
 
+namespace Ice;
+
 class Subscribe_Tour extends Subscribe_Abstract
 {
 	public $config = array (
@@ -9,7 +11,7 @@ class Subscribe_Tour extends Subscribe_Abstract
 		),
 		'Subject' => 'Рассылка горячих туров'
 	);
-	
+
 	public function get ($City__id)
 	{
 		Loader::load ('Tour_Hot_Collection');
@@ -18,8 +20,8 @@ class Subscribe_Tour extends Subscribe_Abstract
 			->addOptions (array (
 				'name' => 'city',
 				'City__id' => $City__id
-				
+
 			))
-			->items ();		
+			->items ();
 	}
 }

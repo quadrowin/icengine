@@ -1,5 +1,7 @@
 <?php
 
+namespace Ice;
+
 abstract class Collector_Garbage_Abstract extends Model_Factory_Delegate
 {
 	protected static $_scheme = array (
@@ -26,6 +28,6 @@ abstract class Collector_Garbage_Abstract extends Model_Factory_Delegate
 			)
 		)
 	);
-	
+
 	abstract public function process ();
 }

@@ -1,17 +1,19 @@
 <?php
 
+namespace Ice;
+
 class Helper_Image_Resize
 {
-	
+
 	/**
 	 * Качество сохранения JPEG изображений (от 1 до 100).
 	 * @var integer
 	 */
 	public static $jpegQuality = 90;
-	
+
 	/**
 	 * Изменение размера изображения
-	 * 
+	 *
 	 * @param string $input
 	 * 		Файл с исходным изображением
 	 * @param string $output
@@ -27,18 +29,18 @@ class Helper_Image_Resize
 	 * 		false - края не обрезаются.
 	 * 		true - края будут обрезаны на одинаковую величину с выступающей оси,
 	 * 		изображение будет выравнено по центру.
-	 * 		"up" - при необходимости будет обрезан нижний край изображения, так 
+	 * 		"up" - при необходимости будет обрезан нижний край изображения, так
 	 * 		чтобы верхняя часть сохранилась.
 	 * @param boolean $fit
 	 * 		Если true, конечное изображение будет иметь заданные размеры, игнорируя
 	 * 		начальные пропорции. В этом случае параметр $proportional не учитывается
-	 * 
-	 * @return array|false 
+	 *
+	 * @return array|false
 	 * 		Данные об итоговом изображении (аналогично getimagesize)
 	 * 		или false в случае неудачи.
 	 */
 	public static function resize (
-		$input, $output, $width = 0, $height = 0, 
+		$input, $output, $width = 0, $height = 0,
 		$proportional = false, $crop = true, $fit = false
 	)
 	{
@@ -66,7 +68,7 @@ class Helper_Image_Resize
 			{
 				$factor = min($width / $width_old, $height / $height_old);
 			}
-			
+
 			if ($fit)
 			{
 				$final_width = $width;
@@ -77,22 +79,22 @@ class Helper_Image_Resize
 				$final_width = round ($width_old * $factor);
 				$final_height = round ($height_old * $factor);
 			}
-			
+
 			if ($final_width > $width_old || $final_height > $height_old)
 			{
 				$final_width = $width_old;
 				$final_height = $height_old;
 			}
-			
+
 		}
 		else
 		{
 			$final_width = ($width <= 0) ? $width_old : $width;
 			$final_height = ($height <= 0) ? $height_old : $height;
 		}
-		
+
 		if (is_array($crop)) {
-			
+
 			$scale = $info[0]/$crop['width'];
 			if ($scale<1) {
 				$scale = 1;
@@ -104,7 +106,7 @@ class Helper_Image_Resize
 			$final_width = $crop['x2']-$crop['x1'];
 			$final_height = $crop['y2']-$crop['y1'];
 		}
-		
+
 		switch ($info[2])
 		{
 			case IMAGETYPE_GIF:
@@ -119,7 +121,7 @@ class Helper_Image_Resize
 			default:
 				return false;
 		}
-		
+
 		$image_resized = imagecreatetruecolor ($final_width, $final_height);
 		if (($info [2] == IMAGETYPE_GIF) || ($info [2] == IMAGETYPE_PNG))
 		{
@@ -131,9 +133,9 @@ class Helper_Image_Resize
 				$trnprt_color = imagecolorsforindex ($image, $trnprt_indx);
 				// Allocate the same color in the new image resource
 				$trnprt_indx = imagecolorallocate (
-					$image_resized, 
-					$trnprt_color ['red'], 
-					$trnprt_color ['green'], 
+					$image_resized,
+					$trnprt_color ['red'],
+					$trnprt_color ['green'],
 					$trnprt_color ['blue']
 				);
 				// Completely fill the background of the new image with allocated color.
@@ -160,11 +162,11 @@ class Helper_Image_Resize
 			// растягиваем фото по оси Х
 			$scalex = //($width_old > $height_old);
 				($height_old / $final_height) < ($width_old / $final_width);
-			
-			if (is_array($crop)) {		
+
+			if (is_array($crop)) {
 				imagecopyresampled (
-					$image_resized, $image, 
-					0, 0, $crop['x1'], $crop['y1'], 
+					$image_resized, $image,
+					0, 0, $crop['x1'], $crop['y1'],
 					$crop['x2']-$crop['x1'], $crop['y2']-$crop['y1'],$crop['x2']-$crop['x1'], $crop['y2']-$crop['y1']
 				);
 			} else
@@ -175,8 +177,8 @@ class Helper_Image_Resize
 					$src_width = ($height_old / $final_height) * $final_width;
 					$src_x = $width_old / 2 - $src_width / 2;
 					imagecopyresampled(
-						$image_resized, $image, 
-						0, 0, $src_x, 0, 
+						$image_resized, $image,
+						0, 0, $src_x, 0,
 						$final_width, $final_height, $src_width, $height_old
 					);
 				}
@@ -185,8 +187,8 @@ class Helper_Image_Resize
 					$src_height = ($width_old / $final_width) * $final_height;
 					$src_y = $height_old / 2 - $src_height / 2;
 					imagecopyresampled(
-						$image_resized, $image, 
-						0, 0, 0, 0, 
+						$image_resized, $image,
+						0, 0, 0, 0,
 						$final_width, $final_height, $width_old, $src_height
 					);
 				}
@@ -196,8 +198,8 @@ class Helper_Image_Resize
 				$src_width = ($height_old / $final_height) * $final_width;
 				$src_x = $width_old / 2 - $src_width / 2;
 				imagecopyresampled(
-					$image_resized, $image, 
-					0, 0, $src_x, 0, 
+					$image_resized, $image,
+					0, 0, $src_x, 0,
 					$final_width, $final_height, $src_width, $height_old
 				);
 			}
@@ -206,8 +208,8 @@ class Helper_Image_Resize
 				$src_height = ($width_old / $final_width) * $final_height;
 				$src_y = $height_old / 2 - $src_height / 2;
 				imagecopyresampled (
-					$image_resized, $image, 
-					0, 0, 0, $src_y, 
+					$image_resized, $image,
+					0, 0, 0, $src_y,
 					$final_width, $final_height, $width_old, $src_height
 				);
 			}
@@ -215,12 +217,12 @@ class Helper_Image_Resize
 		else
 		{
 			imagecopyresampled (
-				$image_resized, $image, 
-				0, 0, 0, 0, 
+				$image_resized, $image,
+				0, 0, 0, 0,
 				$final_width, $final_height, $width_old, $height_old
 			);
 		}
-		
+
 		switch ($info [2])
 		{
 			case IMAGETYPE_GIF:
@@ -235,8 +237,8 @@ class Helper_Image_Resize
 			default:
 				return false;
 		}
-		
+
 		return array ($final_width, $final_height, $info [2]);
 	}
-	
+
 }

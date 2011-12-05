@@ -1,9 +1,12 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Коллекция экшенов контроллеров.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Controller_Action_Collection extends Model_Collection

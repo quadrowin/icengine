@@ -1,16 +1,19 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Опция для сортировки по полю "sort".
  * Если $params ['order'] == 'desc', данные будут отсортированы в обратном
  * порядке.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Model_Option_Sort extends Model_Option
 {
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Model_Option::before()
@@ -33,5 +36,5 @@ class Model_Option_Sort extends Model_Option
 			);
 		}
 	}
-	
+
 }

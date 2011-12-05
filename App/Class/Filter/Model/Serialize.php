@@ -1,17 +1,20 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Фильтр для сериализации модели
- * @author Юрий
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class Filter_Model_Serialize
 {
-	
+
 	/**
 	 * @desc Десириализация модели в строку.
-	 * В сериализованнам виде будет записанно название класса, 
+	 * В сериализованнам виде будет записанно название класса,
 	 * а не название модели (прим. View_Render_Front вместо View_Render),
 	 * так как при десиаризации будет вызываться Loader.
 	 * В случае, если объект был удален, в $data будет передано null.
@@ -19,7 +22,7 @@ class Filter_Model_Serialize
 	 * @return string
 	 */
 	public function filter ($data)
-	{	
+	{
 		$data = $data->generic () ? $data->generic () : $data;
 
 		return
@@ -27,5 +30,5 @@ class Filter_Model_Serialize
 			get_class ($data) . ':' . json_encode ($data->getFields ()) :
 			null;
 	}
-	
+
 }

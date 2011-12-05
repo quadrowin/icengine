@@ -1,14 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Ресурс для хранения в сессии.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Session_Resource extends Objective
 {
-	
+
 	/**
 	 * @desc Создает и возвращает ресурс сесии.
 	 * @param string $name Название ресурса в сессии.
@@ -19,8 +22,8 @@ class Session_Resource extends Objective
 		{
 			$_SESSION [$name] = array ();
 		}
-		
+
 		$this->_data = &$_SESSION [$name];
 	}
-	
+
 }

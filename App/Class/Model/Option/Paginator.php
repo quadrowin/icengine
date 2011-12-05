@@ -1,14 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Подключение пагинатора для коллекции
  * @author Юрий Шведов
- * @package IcEngine
- * 
+ * @package Ice
+ *
  */
 class Model_Option_Paginator extends Model_Option
 {
-	
+
 	public function before ()
 	{
 		Loader::load ('Paginator');
@@ -27,5 +30,5 @@ class Model_Option_Paginator extends Model_Option
 		$this->query->calcFoundRows ();
 		$this->query->limit ($pg->pageLimit, $pg->offset ());
 	}
-	
+
 }

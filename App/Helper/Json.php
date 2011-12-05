@@ -1,18 +1,21 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Помощник для работы с json
  * @author Юрий Шведов
- * @package IcEngine
- * 
+ * @package Ice
+ *
  */
 class Helper_Json
 {
-	
+
 	/**
 	 * @desc json_encode средствами PHP
 	 * @param mixed $data
-	 * @return string 
+	 * @return string
 	 */
 	public static function nativeEncode ($data)
 	{
@@ -20,10 +23,10 @@ class Helper_Json
 		{
 			$data = $data->__toArray ();
 		}
-		
+
 		return json_encode ($data);
 	}
-	
+
 	/**
 	 * @desc json_decode ($json, true)
 	 * @param string $json
@@ -33,7 +36,7 @@ class Helper_Json
 	{
 		return json_decode ($json, true);
 	}
-	
+
 	/**
 	 * @desc JSON кодирование с форматированием
 	 * @param mixed $in Данные
@@ -43,7 +46,7 @@ class Helper_Json
 	public static function readableEncode ($in, $indent = 0)
 	{
 		$_myself = __FUNCTION__;
-		
+
 		/**
 		 * @desc Экранирование строк
 		 * @param string
@@ -53,9 +56,9 @@ class Helper_Json
 		{
 			return preg_replace ('!([\b\t\n\r\f\'\\"])!', "\\\\\\1", $str);
 		};
-	
+
 		$out = '';
-	
+
 		foreach ($in as $key => $value)
 		{
 			$out .= str_repeat ("\t", $indent + 1);
@@ -82,19 +85,19 @@ class Helper_Json
 			{
 				$out .= $value;
 			}
-	
+
 			$out .= ",\n";
 		}
-	
+
 		if (!empty ($out))
 		{
 			$out = substr ($out, 0, -2);
 		}
-	
+
 		$out = str_repeat ("\t", $indent) . "{\n" . $out;
 		$out .= "\n" . str_repeat ("\t", $indent) . "}";
-	
+
 		return $out;
 	}
-	
+
 }

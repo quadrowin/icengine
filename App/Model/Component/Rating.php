@@ -1,14 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Рейтинг для любой сущности
- * @author Юрий
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class Component_Rating extends Model_Component
 {
-	
+
 	/**
 	 * @desc Создает и возвращает рейтинг.
 	 * @param array $data Данные
@@ -27,7 +30,7 @@ class Component_Rating extends Model_Component
 			$data
 		));
 	}
-	
+
 	/**
 	 * @desc Изменение рейтинга
 	 * @param integer $change
@@ -38,7 +41,7 @@ class Component_Rating extends Model_Component
 		// если гость, проверяем по сессии
 		if (User::id () == 0) {
 			$log = Model_Manager::byQuery (
-					'Component_Rating_Log', 
+					'Component_Rating_Log',
 					Query::instance ()
 						->where ('session', User_Session::getCurrent ()->phpSessionId)
 						->where ('table', $this->table)
@@ -47,7 +50,7 @@ class Component_Rating extends Model_Component
 			);
 		} else {
 			$log = Model_Manager::byQuery (
-					'Component_Rating_Log', 
+					'Component_Rating_Log',
 					Query::instance ()
 						->where ('User__id', User::id ())
 						->where ('table', $this->table)
@@ -62,7 +65,7 @@ class Component_Rating extends Model_Component
 				'votes'			=> $this->votes,
 				'changeTime'	=> Helper_Date::toUnix ()
 			));
-		}	
+		}
 		else {
 			$this->update (array (
 				'value'			=> $this->value + $change,
@@ -70,7 +73,7 @@ class Component_Rating extends Model_Component
 				'changeTime'	=> Helper_Date::toUnix ()
 			));
 		}
-		
+
 		Loader::load ('Component_Rating_Log');
 		$log = new Component_Rating_Log (array (
 			'table'		=> $this->table,
@@ -82,16 +85,16 @@ class Component_Rating extends Model_Component
 			'session'	=> User_Session::getCurrent ()->phpSessionId
 		));
 		$log->save();
-		
+
 		return $this;
 	}
-	
+
 	/**
-	 * @desc 
+	 * @desc
 	 * @param string $table
 	 * @param string $row_id
 	 * @param mixed $value
-	 * @return integer 
+	 * @return integer
 	 */
 	public static function voteFor ($table, $row_id, $value)
 	{
@@ -100,8 +103,8 @@ class Component_Rating extends Model_Component
 			Query::instance ()
 				->where ('table', $table)
 		);
-		
+
 		return $scheme->vote ($table, $row_id, $value);
 	}
-	
+
 }

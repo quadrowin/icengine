@@ -1,11 +1,13 @@
 <?php
 
+namespace Ice;
+
 Loader::load ('Data_Adapter_Abstract');
 
 /**
  * @desc Адаптер для моделей, данные которых перечисленны в самом классе.
  * @author Илья Колесников
- * @package IcEngine
+ * @package Ice
  *
  */
 class Data_Adapter_Defined extends Data_Adapter_Abstract

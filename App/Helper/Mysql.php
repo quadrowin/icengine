@@ -1,18 +1,20 @@
 <?php
 
+namespace Ice;
+
 /**
- * 
- * @desc Хелпер для мускула. 
+ *
+ * @desc Хелпер для мускула.
  * @author Илья
- * @package IcEngine
- * 
- * @method getModels 
+ * @package Ice
+ *
+ * @method getModels
  *
  */
 class Helper_Mysql
 {
 	/**
-	 * 
+	 *
 	 * @desc Получает список моделей по схеме. Для полученных моделей
 	 * дописывает комментарий, если он есть в БД.
 	 * @param Config_Array $config
@@ -23,7 +25,7 @@ class Helper_Mysql
 		$result = mysql_query (
 			'SHOW TABLE STATUS'
 		);
-		
+
 		if (is_resource ($result) && mysql_num_rows ())
 		{
 			$tables = array ();

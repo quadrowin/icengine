@@ -1,8 +1,10 @@
 <?php
 
+namespace Ice;
+
 class Helper_Action
 {
-	
+
 	/**
 	 * Строит путь по названию метода.
 	 * @param string $method
@@ -10,15 +12,15 @@ class Helper_Action
 	 * @param string $sub
 	 * 		Дополнителнение к названию файла
 	 * @param string $ext
-	 * 		Расширение 
+	 * 		Расширение
 	 * @return string
 	 */
 	public static function path ($method, $sub = '', $ext = '.tpl')
 	{
-		return 
-			str_replace (array ('::', '_'), '/', $method) . 
+		return
+			str_replace (array ('::', '_'), '/', $method) .
 			$sub .
 			$ext;
 	}
-	
+
 }

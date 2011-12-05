@@ -1,9 +1,12 @@
 <?php
+
+namespace Ice;
+
 /**
  *
  * @desc Модель контента
  * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
+ * @package Ice
  *
  */
 class Content extends Model_Factory
@@ -60,7 +63,7 @@ class Content extends Model_Factory
 		{
 			return null;
 		}
-		
+
 		$extending = Model_Manager::byKey ($this->extending, $this->id);
 
 		if (!$extending && $this->extending && $this->id)

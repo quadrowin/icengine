@@ -1,14 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Простой рендер сообщений
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Mail_Render_Simple extends Mail_Render_Abstract
 {
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Mail_Render_Abstract::render()
@@ -21,5 +24,5 @@ class Mail_Render_Simple extends Mail_Render_Abstract
 			$template
 		);
 	}
-	
+
 }

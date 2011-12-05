@@ -1,13 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Класс-фабрика провайдера сообщений
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Mail_Provider extends Model_Factory
 {
+	
 	public static function byName ($name)
 	{
 		return Model_Manager::byQuery (
@@ -16,4 +20,5 @@ class Mail_Provider extends Model_Factory
 				->where ('name', $name)
 		);
 	}
+
 }

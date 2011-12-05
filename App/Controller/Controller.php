@@ -1,16 +1,19 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Контроллер контроллеров.
- * @author Юрий
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class Controller_Controller extends Controller_Abstract
 {
-	
+
 	/**
-	 * @desc 
+	 * @desc
 	 */
 	public function ajax ()
 	{
@@ -23,19 +26,19 @@ class Controller_Controller extends Controller_Abstract
 			'back',
 			'params'
 		);
-		
+
 		$result = Controller_Manager::html (
 			$call,
 			$params ? $params : array (),
 			false
 		);
-		
+
 		$this->_output->send (array (
 			'back'		=> $back,
 			'result'	=> $result
 		));
 	}
-	
+
 	/**
 	 * @desc Вызов экшена контроллера по названию из входных параметров
 	 */
@@ -43,12 +46,12 @@ class Controller_Controller extends Controller_Abstract
 	{
 		$controller = $this->_input->receive ('controller');
 		$action = $this->_input->receive ('action');
-		
+
 		return $this->replaceAction ($controller, $action);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param boolean $with_actions
 	 * @return array
 	 */
@@ -56,20 +59,20 @@ class Controller_Controller extends Controller_Abstract
 	{
 		$controllers = array();
 		$postfix = '.php';
-		
+
 		$action_prefix = 'action';
 		$action_prefix_len = strlen($action_prefix);
-		
+
 		$ajax_prefix = 'ajax';
 		$ajax_prefix_len = strlen($ajax_prefix);
-		
+
 		$post_prefix = 'post';
 		$post_prefix_len = strlen($post_prefix);
-		
+
 		$founded_res_ids = array();
-		
+
 		$controller_name2index = array();
-		
+
 		foreach (Loader::$pathes['controller'] as $path)
 		{
 			$files = scandir($path);
@@ -80,13 +83,13 @@ class Controller_Controller extends Controller_Abstract
 				)
 				{
 					$controller = substr(
-						$file, 
-						0, 
+						$file,
+						0,
 						- strlen($postfix)
 					);
-						
+
 					require_once $path . $file;
-					
+
 					$class = 'Controller_' . $controller;
 					$actions = get_class_methods($class);
 					if (!empty($actions))
@@ -98,7 +101,7 @@ class Controller_Controller extends Controller_Abstract
 						if (class_exists($class))
 						{
 							trigger_error(
-								"No methods found for $class.", 
+								"No methods found for $class.",
 								E_USER_NOTICE
 							);
 						}
@@ -113,7 +116,7 @@ class Controller_Controller extends Controller_Abstract
 					}
 					$resources = array();
 					foreach ($actions as $action)
-					{ 
+					{
 						if (
 							substr($action, 0, $action_prefix_len) == $action_prefix ||
 							substr($action, 0, $ajax_prefix_len) == $ajax_prefix ||
@@ -135,7 +138,7 @@ class Controller_Controller extends Controller_Abstract
 							$founded_res_ids[] = $res->id;
 						}
 					}
-					
+
 					$n = count ($controllers);
 					$controller_name2index [$controller] = $n;
 					$controllers[$n] = array(
@@ -145,11 +148,11 @@ class Controller_Controller extends Controller_Abstract
 				}
 			}
 		}
-		
-		// Несуществующие контроллеры и действия	
+
+		// Несуществующие контроллеры и действия
 		$reses = new Acl_Resource_Collection ();
 		$reses->where ('id NOT IN (?)', $founded_res_ids);
-		
+
 		foreach ($reses->items () as $resource)
 		{
 			$controller = $resource->controller;
@@ -167,35 +170,35 @@ class Controller_Controller extends Controller_Abstract
 			{
 				$n = $controller_name2index [$controller];
 			}
-			
-			$controllers [$n]['resources'][] = $resource; 
+
+			$controllers [$n]['resources'][] = $resource;
 		}
-		
-		
+
+
 		return $controllers;
 	}
-	
+
 	public function multiAction ()
 	{
 		$actions = $this->_input->receive ('actions');
 		$results = array ();
-		
+
 		foreach ($actions as $name => $action)
 		{
 			$results [$name] = Controller_Manager::html (
-				$action ['action'], 
+				$action ['action'],
 				$action
 			);
 		}
-		
+
 		$this->_output->send (array (
 			'data'	=> array (
 				'results' => $results
 			)
 		));
-		
+
 		$this->_task->setTemplate (null);
 	}
-	
-	
+
+
 }

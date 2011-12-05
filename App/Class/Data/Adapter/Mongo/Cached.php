@@ -1,12 +1,14 @@
 <?php
 
+namespace Ice;
+
 Loader::load ('Data_Adapter_Mongo');
 
 /**
  *
  * @desc Адаптер для работы с Mongodb, с кэшированием запросов.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Data_Adapter_Mongo_Cached extends Data_Adapter_Mongo

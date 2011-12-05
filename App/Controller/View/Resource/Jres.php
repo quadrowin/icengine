@@ -1,14 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Контроллер для загрузки js ресурсов.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Controller_View_Resource_Jres extends Controller_Abstract
 {
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Controller_Abstract::index()
@@ -16,11 +19,11 @@ class Controller_View_Resource_Jres extends Controller_Abstract
 	public function index ()
 	{
 		$config = $this->config ();
-		
+
 		Loader::load ('View_Resource_Manager');
-		
+
 		$sources = $config->sources;
-		
+
 		foreach ($config->sources as $source)
 		{
 			View_Resource_Manager::load (
@@ -30,19 +33,19 @@ class Controller_View_Resource_Jres extends Controller_Abstract
 				View_Resource_Manager::JRES
 			);
 		}
-		
+
 		$jreses = View_Resource_Manager::getData (
 			View_Resource_Manager::JRES
 		);
-		
+
 		$packer = View_Resource_Manager::packer (View_Resource_Manager::JRES);
-		
+
 		$packer->pack ($jreses, $config->packed_file);
-		
+
 		$this->_output->send (array (
 			'url'	=> $config->packed_url,
 			'ts'	=> $packer->cacheTimestamp ()
 		));
 	}
-	
+
 }

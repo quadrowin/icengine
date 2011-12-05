@@ -1,14 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Фильтр для декодирования Json
- * @author Юрий
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class Filter_Json_Decode
 {
-	
+
 	/**
 	 * @desc Декодирование Json
 	 * @param string $data
@@ -18,5 +21,5 @@ class Filter_Json_Decode
 	{
 		return json_decode ($data, true);
 	}
-	
+
 }

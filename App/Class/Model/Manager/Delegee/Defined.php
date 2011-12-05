@@ -1,15 +1,18 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Класс для создания определенных моделей.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Model_Manager_Delegee_Defined
 {
 	/**
-	 * @desc 
+	 * @desc
 	 * @param string $model Название модели
 	 * @param string $key Ключ (id)
 	 * @param Model|array $object Объект или данные
@@ -18,7 +21,7 @@ class Model_Manager_Delegee_Defined
 	public static function get ($model, $key, $object)
 	{
 		$rows = $model::$rows;
-		
+
 		foreach ($rows as $row)
 		{
 			if ($row ['id'] == $key)
@@ -31,8 +34,8 @@ class Model_Manager_Delegee_Defined
 				return new $model ($row);
 			}
 		}
-		
+
 		return new $model (is_array ($object) ? $object : array ());
 	}
-	
+
 }

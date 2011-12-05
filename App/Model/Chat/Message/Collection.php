@@ -1,5 +1,7 @@
 <?php
 
+namespace Ice;
+
 class Chat_Message_Collection extends Model_Collection
 {
 	/**
@@ -9,7 +11,7 @@ class Chat_Message_Collection extends Model_Collection
 	public function serialize ()
 	{
 		$result = array ();
-		
+
 		foreach ($this as $item)
 		{
 			$result [] = array (
@@ -23,7 +25,7 @@ class Chat_Message_Collection extends Model_Collection
 				'id'			=> $item->key ()
 			);
 		}
-		
-		return $result; 
+
+		return $result;
 	}
 }

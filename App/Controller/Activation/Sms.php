@@ -1,9 +1,12 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Контроллер активации по СМС.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Controller_Activation_Sms extends Controller_Abstract
@@ -32,7 +35,7 @@ class Controller_Activation_Sms extends Controller_Abstract
 				),
 				// Шаблон СМС
 				'mail_template'		=> 'sms_activate',
-				// Префикс кода 
+				// Префикс кода
 				'prefix'			=> 'phone.',
 				// Минимальное кол-во символов
 				'from'				=> 5,
@@ -41,16 +44,16 @@ class Controller_Activation_Sms extends Controller_Abstract
 			)
 		)
 	);
-	
+
 	/**
 	 * @desc Создание активации с коротким кодом
 	 * @param array $params
 	 */
 	protected function _newActivationShort (array $params)
 	{
-		
+
 	}
-	
+
 	/**
 	 * @desc Отправка кода активации
 	 */
@@ -63,7 +66,7 @@ class Controller_Activation_Sms extends Controller_Abstract
 			'phone',
 			'code_type'
 		);
-		
+
 		if (!$phone || !$code_type)
 		{
 			$this->_sendError (
@@ -73,9 +76,9 @@ class Controller_Activation_Sms extends Controller_Abstract
 			);
 			return;
 		}
-		
+
 		$type = $this->config ()->code_types [$code_type];
-		
+
 		if (!$type)
 		{
 			$this->_sendError (
@@ -85,14 +88,14 @@ class Controller_Activation_Sms extends Controller_Abstract
 			);
 			return;
 		}
-		
+
 		Loader::load ('Helper_Activation');
 		$code = Helper_Activation::newShortCode (
 			$type ['prefix'],
 			$type ['from'],
 			$type ['to']
 		);
-		
+
 		if (!$code)
 		{
 			$this->_sendError (
@@ -102,14 +105,14 @@ class Controller_Activation_Sms extends Controller_Abstract
 			);
 			return;
 		}
-		
+
 		Loader::load ('Activation');
 		$activation = Activation::create (array (
 			'code'				=> $code,
 			'expirationTime'	=> Helper_Date::toUnix (time () + $type ['expiration_time']),
 			'callbackMessage'	=> $type ['callback'] ? $type ['callback'] : ''
 		));
-		
+
 		if (!$activation)
 		{
 			$this->_sendError (
@@ -119,9 +122,9 @@ class Controller_Activation_Sms extends Controller_Abstract
 			);
 			return;
 		}
-		
+
 		$provider_name = $type->provider;
-		
+
 		/**
 		 * @desc Провайдер
 		 * @var Mail_Provider_Abstract
@@ -131,7 +134,7 @@ class Controller_Activation_Sms extends Controller_Abstract
 			Query::instance ()
 			->where ('name', $provider_name)
 		);
-		
+
 		if (!$provider)
 		{
 			$this->_sendError (
@@ -140,7 +143,7 @@ class Controller_Activation_Sms extends Controller_Abstract
 			);
 			return;
 		}
-		
+
 		Loader::load ('Mail_Message');
 		$message = Mail_Message::create (
 			$type ['mail_template'],
@@ -153,7 +156,7 @@ class Controller_Activation_Sms extends Controller_Abstract
 			$provider->id,
 			$type ['provider_config']->__toArray ()
 		)->save ();
-		
+
 		if (!$message->send ())
 		{
 			$this->_sendError (
@@ -163,8 +166,8 @@ class Controller_Activation_Sms extends Controller_Abstract
 			);
 			return;
 		}
-		
+
 		$this->_output->send ('activation', $activation);
 	}
-	
+
 }

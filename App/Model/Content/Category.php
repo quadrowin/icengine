@@ -1,12 +1,14 @@
 <?php
 
+namespace Ice;
+
 Loader::load ('Model_Child');
 
 /**
  *
  * @desc Базовая модель категории контента
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Content_Category extends Model_Child

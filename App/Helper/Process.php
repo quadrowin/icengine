@@ -1,9 +1,12 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Хелпер для описания состояния процесса.
  * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
+ * @package Ice
  *
  */
 class Helper_Process
@@ -13,35 +16,35 @@ class Helper_Process
 	 * @var integer
 	 */
 	const NONE = 0;
-	
+
 	/**
 	 * @desc Выполняется
 	 * @var integer
 	 */
 	const ONGOING = 1;
-	
+
 	/**
 	 * @desc Прервано из-за ошибки
 	 * @var integer
 	 */
 	const FAIL = 2;
-	
+
 	/**
 	 * @desc Успешно выполнено
 	 * @var integer
 	 */
 	const SUCCESS = 3;
-	
+
 	/**
 	 * @desc Временно остановлено
 	 * @var integer
 	 */
 	const PAUSE = 4;
-	
+
 	/**
 	 * @desc Остановлен
 	 * @var integer
 	 */
 	const STOPED = 5;
-	
+
 }

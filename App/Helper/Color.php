@@ -1,14 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Помощник для работы с цветами.
  * @author Yury Shvedov
- * @package IcEngine
- * 
+ * @package Ice
+ *
  */
 class Helper_Color
 {
-	
+
 	/**
 	 * @desc Возвращает массив значений R, G, B для цвета
 	 * @param string $css Цвет CSS
@@ -18,7 +21,7 @@ class Helper_Color
 	{
 		$hexcolor = '000000';
 		$p = 0;
-		
+
 		for ($i = 0; $i < strlen ($css) && $p < strlen ($hexcolor); $i++)
 		{
 			if (strpos ('-01234567890abcdefABCDEF', $css [$i]) > 0)
@@ -27,14 +30,14 @@ class Helper_Color
 				$p++;
 			}
 		}
-		
+
 		return array (
 			0 => hexdec (substr ($hexcolor, 0, 2)),
 			1 => hexdec (substr ($hexcolor, 2, 2)),
 			2 => hexdec (substr ($hexcolor, 4, 2))
 		);
 	}
-	
+
 	/**
 	 *
 	 * @param type $rs		int R составляющая цвета начала диапозона
@@ -55,13 +58,13 @@ class Helper_Color
 		$db =$bf-$bs;
 		// диапозон изменения рейтинга
 		$range = $rateMax - $rateMin;
-		
+
 		$outR = ($rateValue-$rateMin)/$range*$dr+$rs;
 		$outG = ($rateValue-$rateMin)/$range*$dg+$gs;
 		$outB = ($rateValue-$rateMin)/$range*$db+$bs;
-		
+
 		return 'rgb(' . round($outR) . ',' . round($outG) . ',' . round($outB) . ')';
-		
+
 	}
-	
+
 }

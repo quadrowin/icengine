@@ -1,9 +1,12 @@
 <?php
+
+namespace Ice;
+
 /**
  *
  * @desc Запрос к источнику данных.
  * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
+ * @package Ice
  *
  */
 class Query {
@@ -166,7 +169,7 @@ class Query {
 		);
 		return $this;
 	}
-	
+
 	/**
 	 * @desc Возвращает массив моделей, учавствующих в запросе
 	 * @return array
@@ -174,32 +177,32 @@ class Query {
 	public function getModels ()
 	{
 		$result = array ();
-		
+
 		if ($this->_parts [self::INSERT])
 		{
 			$result [] = $this->_parts [self::INSERT];
 		}
-		
+
 		if ($this->_parts [self::REPLACE])
 		{
 			$result [] = $this->_parts [self::REPLACE];
 		}
-		
+
 		foreach ($this->_parts [self::FROM] as $from)
 		{
 			$result [] = $from [self::TABLE];
 		}
-		
+
 		if ($this->_parts [self::UPDATE])
 		{
 			$result [] = $this->_parts [self::UPDATE];
 		}
-		
+
 		if ($this->_parts [self::DELETE])
 		{
 			$rseult = $result + (array) $this->_parts [self::DELETE];
 		}
-		
+
 		return array_unique ($result);
 	}
 
@@ -622,7 +625,7 @@ class Query {
 
 	/**
 	 * @desc Транслирует запрос указанным транслятором
-	 * 2011-11-17 Пока будет так. Метод следует использовать исключительно 
+	 * 2011-11-17 Пока будет так. Метод следует использовать исключительно
 	 * для отладки.
 	 * @param string $translator Транслятор.
 	 * @return mixed Транслированный запрос.
@@ -637,7 +640,7 @@ class Query {
 		{
 			$model_map->setTable ($model, Model_Scheme::table ($model));
 		}
-			
+
 		return Query_Translator::factory ($translator)->translate (
 			$this,
 			$model_map

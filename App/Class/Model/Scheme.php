@@ -1,9 +1,12 @@
 <?php
+
+namespace Ice;
+
 /**
  *
  * @desc Класс хранящий и предоставляющий информацию о схеме моделей.
  * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
+ * @package Ice
  *
  */
 abstract class Model_Scheme
@@ -81,7 +84,7 @@ abstract class Model_Scheme
 	 * @var array
 	 */
 	public static $namespaces = array (
-		'' => array (
+		__NAMESPACE__ => array (
 			'keyGen' => null,
 			'prefix' => 'ice_'
 		)
@@ -214,12 +217,11 @@ abstract class Model_Scheme
 
 		if (!isset (self::$models [$name], self::$models [$name]['keyGen']))
 		{
-			$ns = '';
 			$p = strrpos ($name, '\\');
-			if (false !== $p)
-			{
-				$ns = substr ($name, 0, $p);
-			}
+
+			$ns = (false !== $p)
+				? substr ($name, 0, $p)
+				: __NAMESPACE__;
 
 			if (!isset (self::$namespaces [$ns]['keyGen']))
 			{
@@ -288,7 +290,7 @@ abstract class Model_Scheme
 			return self::$namespaces [$namespace]['prefix'] . $table;
 		}
 
-		return self::$namespaces ['']['prefix'] . $model;
+		return self::$namespaces [__NAMESPACE__]['prefix'] . $model;
 
 //		$prefix = isset ($this->prefixes [$model]) ?
 //			$this->prefixes [$model] :
@@ -306,7 +308,7 @@ abstract class Model_Scheme
 	 */
 	public static function tableToModel ($table)
 	{
-		$prefix = self::$namespaces ['']['prefix'];
+		$prefix = self::$namespaces [__NAMESPACE__]['prefix'];
 
 		foreach (self::$models as $name => $model)
 		{

@@ -12,9 +12,9 @@ class Test_Mail_Provider_Sms_DcnkTest extends PHPUnit_Framework_TestCase
 	 * @var Mail_Provider_Sms_Dcnk
 	 */
 	private $Mail_Provider_Sms_Dcnk;
-	
+
 	private $_number = '+79134236328';
-	
+
 	private $_messageId = 0;
 
 	/**
@@ -23,7 +23,7 @@ class Test_Mail_Provider_Sms_DcnkTest extends PHPUnit_Framework_TestCase
 	protected function setUp ()
 	{
 		parent::setUp ();
-		
+
 		$this->Mail_Provider_Sms_Dcnk = Model_Manager::byQuery (
 			'Mail_Provider',
 			Query::instance ()
@@ -49,19 +49,19 @@ class Test_Mail_Provider_Sms_DcnkTest extends PHPUnit_Framework_TestCase
 		if (!class_exists ('IcEngine'))
 		{
 			date_default_timezone_set ('UTC');
-			
+
 			require dirname (__FILE__) . '/../../../../IcEngine.php';
-			IcEngine::init ();
+			Core::init ();
 			Loader::load ('Loader_Auto');
 			Loader_Auto::register ();
-			
-			Loader::addPath ('includes', IcEngine::root () . 'includes/');
-			
-			IcEngine::initApplication (
+
+			Loader::addPath ('includes', Core::root () . 'includes/');
+
+			Core::initApplication (
 				'Icengine',
-				IcEngine::path () . 'Class/Application/Behavior/Icengine.php'
+				Core::path () . 'Class/Application/Behavior/Icengine.php'
 			);
-			IcEngine::run ();
+			Core::run ();
 		}
 	}
 
@@ -86,14 +86,14 @@ class Test_Mail_Provider_Sms_DcnkTest extends PHPUnit_Framework_TestCase
 			'Mail_Provider__id'		=> $this->Mail_Provider_Sms_Dcnk->id,
 			'params'				=> ''
 		));
-		
+
 		$config = array ();
-		
+
 		$this->_messageId = $this->Mail_Provider_Sms_Dcnk->send (
 			$message,
 			$config
 		);
-		
+
 		Debug::vardump ('message id: ', $this->_messageId);
 	}
 
@@ -105,6 +105,6 @@ class Test_Mail_Provider_Sms_DcnkTest extends PHPUnit_Framework_TestCase
 		$result = $this->Mail_Provider_Sms_Dcnk->getStatus ($this->_messageId);
 		Debug::vardump ('GetStatusResult: ', $result);
 	}
-	
+
 }
 

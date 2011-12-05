@@ -1,5 +1,7 @@
 <?php
 
+namespace Ice;
+
 class Controller_Subscribe_Abstract extends Controller_Abstract
 {
 	/**

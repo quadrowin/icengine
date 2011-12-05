@@ -1,11 +1,13 @@
 <?php
+
+namespace Ice;
+
 /**
  * @desc Класс для работы с Гео-айпи
  * @author Илья Колесников
- * @package IcEngine
+ * @package Ice
  */
-
-class Helper_GeoIP 
+class Helper_GeoIP
 {
 
 	public static function ip2int ($ip)
@@ -23,7 +25,7 @@ class Helper_GeoIP
 	public static function getCity ($ip = null)
 	{
 		$ip = self::ip2int ($ip !== null ? $ip : Request::ip ());
-		
+
 		$city_name = DDS::execute (
 			Query::instance ()
 				->select ('net_city.name_ru AS name')
@@ -39,7 +41,7 @@ class Helper_GeoIP
 			Query::instance ()
 				->where ('name', $city_name)
 		);
-		
+
 		$query = Query::instance ()
 			->select ('city_id')
 			->from ('Net_City_Ip')
@@ -49,7 +51,7 @@ class Helper_GeoIP
 		$city_id = DDS::execute ($query)
 			->getResult ()
 				->asValue ();
-		
+
 		return Model_Manager::byKey (
 			'City',
 			$city_id

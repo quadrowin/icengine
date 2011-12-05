@@ -1,9 +1,12 @@
 <?php
+
+namespace Ice;
+
 /**
  *
  * @desc Диспетчер контроллеров.
  * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
+ * @package Ice
  *
  */
 class Controller_Dispatcher
@@ -21,7 +24,7 @@ class Controller_Dispatcher
 			'action'		=> $action
 		);
 	}
-	
+
 	/**
 	 * @desc Запускает цикл диспетчеризации.
 	 * Находит соответствиие имени файла и метода
@@ -39,7 +42,7 @@ class Controller_Dispatcher
 				$controllerAction->action
 			));
 		}
-		
+
 		return $actions;
 	}
 }

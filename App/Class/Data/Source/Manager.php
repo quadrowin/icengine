@@ -1,11 +1,15 @@
 <?php
+
+namespace Ice;
+
 /**
  *
  * @desc Менеджер источников данных.
  * По переданному названию загружает конфиг из директории
  * "{$config}/Data/Source/" и создает соответсвующего провайдера.
  * @author Юрий
- * @package IcEngine
+ * @package Ice
+ *
  */
 class Data_Source_Manager
 {
@@ -98,10 +102,11 @@ class Data_Source_Manager
 
 			Loader::load ('Data_Source');
 			self::$_sources [$name] = new Data_Source ();
-			
+
 			// Адаптер источника отличается от указанного в конфигах
 			$adapter_class = 'Data_Adapter_' . $source_config ['adapter'];
 			Loader::load ($adapter_class);
+			$adapter_class = __NAMESPACE__ . '\\' . $adapter_class;
 			$adapter = new $adapter_class;
 			self::$_sources [$name]->setAdapter ($adapter);
 
@@ -113,7 +118,7 @@ class Data_Source_Manager
 						->setOption ($key, $value);
 				}
 			}
-			
+
 			// маппер
 			Loader::load ('Data_Mapper_Manager');
 			$mapper = Data_Mapper_Manager::get (

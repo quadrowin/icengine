@@ -1,24 +1,24 @@
 /**
  *
  * @desc Каптча
- * @package IcEngine
- * 
+ * @package Ice
+ *
  */
 Ice.Controller_Captcha = {
-	
+
 	getCode: function ($target)
 	{
-		
+
 		function callback (result)
 		{
 			$target.val (result.data.code);
 		}
-		
+
 		if (!$target.length)
 		{
 			return;
 		}
-		
+
 		Ice.Controller.call (
 			'Captcha/getCode',
 			{
@@ -28,12 +28,12 @@ Ice.Controller_Captcha = {
 			callback, true
 		);
 	},
-	
+
 	regenerateACodes: function ()
 	{
 		Ice.Controller_Captcha.getCode ($('input.acaptcha'));
 	}
-	
+
 };
 
 $(document).ready (function () {

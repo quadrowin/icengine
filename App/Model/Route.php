@@ -1,11 +1,14 @@
 <?php
 
+namespace Ice;
+
 Loader::load ('Model_Child');
+
 /**
  *
  * @desc Роут.
  * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
+ * @package Ice
  *
  */
 class Route extends Model_Child

@@ -1,12 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
+ * 
  * @desc Событие перед началом рендера из фронт контроллера.
- * @author Юрий
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
+ *
  */
 class Message_Before_Render extends Message_Abstract
 {
-	
+
 	public static function push ($view, array $params = array ())
 	{
 		Message_Queue::push (
@@ -17,7 +22,7 @@ class Message_Before_Render extends Message_Abstract
 			)
 		);
 	}
-	
+
 	/**
 	 * @return View_Render_Abstract
 	 */
@@ -25,5 +30,5 @@ class Message_Before_Render extends Message_Abstract
 	{
 		return $this->view;
 	}
-	
+
 }

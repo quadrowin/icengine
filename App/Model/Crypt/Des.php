@@ -1,24 +1,27 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Стандартный DES.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Crypt_Des extends Crypt_Abstract
 {
-	
+
 	protected static $_desKey;
-	
+
 	protected static $_desIV;
-	
+
 	public function __construct ()
 	{
 		self::$_desKey = chr(99).chr(78).chr(99).chr(78).chr(99).chr(78).chr(99).chr(78);
 		self::$_desIV = chr(99).chr(78).chr(99).chr(78).chr(99).chr(78).chr(99).chr(78);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Crypt_Abstract::decode()
@@ -32,7 +35,7 @@ class Crypt_Des extends Crypt_Abstract
 		mcrypt_module_close ($td);
 		return $dec_data;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Crypt_Abstract::encode()
@@ -46,5 +49,5 @@ class Crypt_Des extends Crypt_Abstract
 		mcrypt_module_close ($td);
 		return $enc_data;
 	}
-	
+
 }

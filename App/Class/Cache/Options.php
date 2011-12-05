@@ -1,12 +1,15 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
- * @package IcEngine
+ *
+ * @package Ice
  *
  */
-class Cache_Options 
+class Cache_Options
 {
-    
+
     /**
      * @desc Настройки
      * @var array
@@ -23,12 +26,12 @@ class Cache_Options
 	     */
 	    'hits'			=> 0
 	);
-	
+
 	public function __construct ()
 	{
-	    
+
 	}
-	
+
 	/**
 	 * @desc Применение конфига
 	 * @param Config_Abstract $config
@@ -39,7 +42,7 @@ class Cache_Options
 		$this->_config = $config->merge ($this->_config);
 		return $this;
 	}
-	
+
 	/**
 	 * @desc Возвращает время жизни кэша.
 	 * @return integer
@@ -48,7 +51,7 @@ class Cache_Options
 	{
 		return $this->_config ['expiration'];
 	}
-	
+
 	/**
 	 * @desc Возвращает количество использований кэша.
 	 * @return integer
@@ -57,7 +60,7 @@ class Cache_Options
 	{
 	    return $this->_config ['hits'];
 	}
-    
+
 	/**
 	 * @desc Задает время жизни кэша.
 	 * @param integer $value
@@ -68,7 +71,7 @@ class Cache_Options
 		$this->_config ['expiration'] = $value >= 0 ? (int) $value : 0;
 		return $this;
 	}
-	
+
 	/**
 	 * @desc Задает количество использований кэша.
 	 * @param integer $value
@@ -77,7 +80,7 @@ class Cache_Options
 	public function setHits ($value)
 	{
 	    $this->_config ['hits'] = $value > 0 ? (int) $value : 0;
-	    return $this; 
+	    return $this;
 	}
-    
+
 }

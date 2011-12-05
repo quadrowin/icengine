@@ -1,41 +1,44 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Коллекция опций.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Model_Collection_Option_Collection
 {
-    
+
     /**
      * @desc Коллекция, к которой привязаны опции.
      * Необходима для определения названий классов опций.
      * @var Model_Collection
      */
 	protected $_collection;
-	
+
 	/**
 	 * @desc Опции
 	 * @var array <Model_Collection_Option>
 	 */
 	protected $_items = array ();
-	
+
 	/**
-	 * @desc Метод опции, вызываемый после выполнения запроса 
+	 * @desc Метод опции, вызываемый после выполнения запроса
 	 * на выбор коллекции.
 	 * @var string
 	 */
 	const AFTER = 'after';
-	
+
 	/**
-	 * @desc Метод опции, вызываемый до выполнения запроса 
+	 * @desc Метод опции, вызываемый до выполнения запроса
 	 * на выбор коллекции.
 	 * @var string
 	 */
 	const BEFORE = 'before';
-	
+
 	/**
 	 * @desc Создает и возвращает коллекцию опций.
 	 * @param Model_Collection $collection
@@ -45,9 +48,9 @@ class Model_Collection_Option_Collection
 		Loader::load ('Model_Collection_Option');
 		$this->_collection = $collection;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param mixed $item
 	 * @return Model_Collection_Option
 	 */
@@ -58,7 +61,7 @@ class Model_Collection_Option_Collection
 	        $item = new Model_Collection_Option (
 	        	$item ['name'],
 	        	$item
-	        ); 
+	        );
 	    }
 	    elseif (!$item instanceof Model_Collection_Option)
 	    {
@@ -67,12 +70,12 @@ class Model_Collection_Option_Collection
 	        	array ()
 	        );
 	    }
-	    
+
 	    return $this->_items [] = $item;
 	}
-	
+
 	/**
-	 * @desc 
+	 * @desc
 	 * @param string $type Тип события: "before" или "after".
 	 * @param Model_Collection $collection
 	 * @param Query $query
@@ -96,13 +99,13 @@ class Model_Collection_Option_Collection
 			        $option = new Model_Collection_Option ($option);
 			    }
 			}
-			
+
 			$option->execute ($type, $collection, $query);
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Model_Collection $collection
 	 * @param Query $query
 	 * @rturn mixed
@@ -111,9 +114,9 @@ class Model_Collection_Option_Collection
 	{
 		return $this->execute (self::AFTER, $collection, $query);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Model_Collection $collection
 	 * @param Query $query
 	 */
@@ -121,7 +124,7 @@ class Model_Collection_Option_Collection
 	{
 		return $this->execute (self::BEFORE, $collection, $query);
 	}
-	
+
 	/**
 	 * @return Model_Collection
 	 */
@@ -129,7 +132,7 @@ class Model_Collection_Option_Collection
 	{
 		return $this->_collection;
 	}
-	
+
 	/**
 	 * @return array
 	 */
@@ -137,9 +140,9 @@ class Model_Collection_Option_Collection
 	{
 		return $this->_items;
 	}
-	
+
 	/**
-	 * @desc 
+	 * @desc
 	 * @param mixed $options
 	 */
 	public function setItems ($options)

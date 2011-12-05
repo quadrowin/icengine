@@ -1,9 +1,12 @@
 <?php
+
+namespace Ice;
+
 /**
  *
  * @desc Рендер с использованием шаблонизатора Smarty.
  * @author Yury Shvedov
- * @package IcEngine
+ * @package Ice
  *
  */
 class View_Render_Xslt extends View_Render_Abstract
@@ -41,7 +44,9 @@ class View_Render_Xslt extends View_Render_Abstract
 	 * @param DOMElement $parent
 	 * @param mixed $data
 	 */
-	protected function _arrayToXml (DOMDocument $xml, DOMElement $parent, $data)
+	protected function _arrayToXml (\DOMDocument $xml, \DOMElement $parent,
+		$data
+	)
 	{
 		foreach ($data as $key => $val)
 		{
@@ -97,7 +102,7 @@ class View_Render_Xslt extends View_Render_Abstract
 	public function fetch ($tpl)
 	{
 		ob_start ();
-		$xsl = new DOMDocument ();
+		$xsl = new \DOMDocument ();
 
 		$file = $this->findTemplate ($tpl);
 
@@ -108,7 +113,7 @@ class View_Render_Xslt extends View_Render_Abstract
 
 		$xsl->load ($file);
 
-		$this->_processor = new XSLTProcessor ();
+		$this->_processor = new \XSLTProcessor ();
 		$this->_processor->importStylesheet ($xsl);
 		$this->_processor->transformToURI ($this->xml (), 'php://output');
 		$this->_processor = null;
@@ -150,7 +155,7 @@ class View_Render_Xslt extends View_Render_Abstract
 	 */
 	public function xml ()
 	{
-		$xml = new DOMDocument ('1.0', 'UTF-8');
+		$xml = new \DOMDocument ('1.0', 'UTF-8');
         $root = $xml->createElement ('Input');
 		$xml->appendChild ($root);
 		$this->_arrayToXml ($xml, $root, $this->_vars);

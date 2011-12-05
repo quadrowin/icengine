@@ -1,20 +1,23 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Менеджер фильтров коллекций.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Model_Collection_Filter_Manager
 {
-	
+
 	/**
 	 * @desc Загруженные фильтры.
 	 * @var array <Model_Collection_Filter_Abstract>
 	 */
 	protected static $_filters = array ();
-	
+
 	/**
 	 * @desc Возвращает экземпляр фильтра по мназванию.
 	 * @param string $name
@@ -29,7 +32,7 @@ class Model_Collection_Filter_Manager
 		}
 		return self::$_filters [$name];
 	}
-	
+
 }
 
 Loader::load ('Model_Collection_Filter_Abstract');

@@ -1,14 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
- * @desc Router
- * @author Shvedov_U
- * @package IcEngine
- * 
+ *
+ * @desc Фронт контроллер для работы по адресной строке.
+ * @author Yury Shvedov
+ * @package Ice
+ *
  */
 class Controller_Front_Router extends Controller_Abstract
 {
-	
+
 	public function index ()
 	{
 		Loader::load ('Router');
@@ -19,7 +22,7 @@ class Controller_Front_Router extends Controller_Abstract
 		 * @var route
 		 */
 		$route = Router::getRoute ();
-	
+
 		try
 		{
 			/**
@@ -55,5 +58,5 @@ class Controller_Front_Router extends Controller_Abstract
 			Error::render ($e);
 		}
 	}
-	
+
 }

@@ -1,21 +1,24 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Временный контент - специальная модель, предназначенная для
  * хранения дополнительной информации о форме для редактирования.
- * @author Гурус
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class Temp_Content extends Model
 {
-	
+
 	/**
 	 * @desc Созданные за этот запрос
 	 * @var array
 	 */
 	protected static $_created = array ();
-	
+
 	/**
 	 * @desc Возвращет временный контент по коду
 	 * @param string $utcode
@@ -28,52 +31,52 @@ class Temp_Content extends Model
 			(string) $utcode
 		);
 	}
-	
+
 	/**
 	 * @desc Создает новый временный контент
 	 * @param string|Controller_Abstract $controller Контроллер или название
-	 * @param string $table 
+	 * @param string $table
 	 * @param integer $row_id
 	 * @return Temp_Content
 	 */
 	public static function create ($controller, $table = '', $row_id = 0)
 	{
 		$utcode = self::genUtcode ();
-		
+
 		$tc = new Temp_Content (array (
 			'time'			=> Helper_Date::toUnix (),
 			'utcode'		=> $utcode,
 			'ip'			=> Request::ip (),
-			'controller'	=> 
-				$controller instanceof Controller_Abstract ? 
-				$controller->name () : 
+			'controller'	=>
+				$controller instanceof Controller_Abstract ?
+				$controller->name () :
 				$controller,
 			'table'			=> $table,
 			'rowId'			=> (int) $row_id,
 			'day'			=> Helper_Date::eraDayNum (),
 			'User__id'		=> User::id ()
 		));
-		
+
 		return $tc->save ();
 	}
-	
+
 	/**
 	 * @desc Возвращает временный контент для модели на этом запросе
 	 * @param Model $model
 	 * @param Controller_Abstract $controller
 	 * @return Temp_Content
 	 */
-	public static function getFor (Model $model, 
+	public static function getFor (Model $model,
 		Controller_Abstract $controller = null)
 	{
 		$mname = $model->modelName ();
 		$mkey = $model->key ();
-		
+
 		if (!isset (self::$_created [$mname]))
 		{
 			self::$_created [$mname] = array ();
 		}
-		
+
 		if (!isset (self::$_created [$mname][$mkey]))
 		{
 			self::$_created [$mname][$mkey] = self::create (
@@ -82,10 +85,10 @@ class Temp_Content extends Model
 				$mkey
 			);
 		}
-		
+
 		return self::$_created [$mname][$mkey];
 	}
-	
+
 	/**
 	 * @desc Генерация уникального кода
 	 * @return string
@@ -97,14 +100,14 @@ class Temp_Content extends Model
 		// Вырезаем точку
 		return md5 (time ()) . substr ($u, 9, 5) . substr ($u, 15);
 	}
-	
+
 	public static function idForNew (Temp_Content $tc)
 	{
 		return $tc->utcode;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Model $item
 	 * @param array $components
 	 * @return Temp_Content
@@ -117,5 +120,5 @@ class Temp_Content extends Model
 		}
 		return $this;
 	}
-	
+
 }

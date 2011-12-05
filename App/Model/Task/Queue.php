@@ -1,10 +1,14 @@
 <?php
 
+namespace Ice;
+
 /**
+ *
  * @desc Задание планировщика, добавленно в очередь
  * @author Илья Колесников
- * @package IcEngine
+ * @package Ice
  * @copyright i-complex.ru
+ *
  */
 class Task_Queue extends Model
 {
@@ -27,7 +31,7 @@ class Task_Queue extends Model
 				'type'		=> 'tinyint',
 				'default'	=> 0
 			)
-		), 
+		),
 		'keys'		=> array (
 			array (
 				'primary'	=> 'id',

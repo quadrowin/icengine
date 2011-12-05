@@ -1,12 +1,15 @@
 <?php
+
+namespace Ice;
+
 /**
  *
  * @desc Класс необходимый для инициализации фреймворка.
  * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
+ * @package Ice
  *
  */
-class IcEngine
+class Core
 {
 	/**
 	 * @desc Загрузчик
@@ -42,7 +45,7 @@ class IcEngine
 	 * @desc Фронт контролер по умолчанию
 	 * @var string
 	 */
-	public static $frontController = 'Front';
+	public static $frontController = 'Ice\\Front';
 
 	/**
 	 * @desc Название транспорта по умолчанию
@@ -173,7 +176,7 @@ class IcEngine
 		require __DIR__ . '/App/Class/Loader.php';
 
 		Loader::addPathes (array (
-			'' => array (
+			'Ice' => array (
 				self::$_path . 'App/Class/',
 				self::$_path . 'App/Model/',
 				self::$_path . 'App/'

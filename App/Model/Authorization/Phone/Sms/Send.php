@@ -1,15 +1,19 @@
 <?php
+
+namespace Ice;
+
 Loader::load ('Authorization_Abstract');
+
 /**
- * 
+ *
  * @desc Аавторизация через отправку пользователю СМС сообщения с кодом.
  * @author Юрий Шведов
- * @package IcEngine
- * 
+ * @package Ice
+ *
  */
 class Authorization_Phone_Sms_Send extends Authorization_Abstract
 {
-	
+
 	/**
 	 * @desc Config
 	 * @var array
@@ -36,7 +40,7 @@ class Authorization_Phone_Sms_Send extends Authorization_Abstract
 		// Тестовый режим
 		'sms_test_mode'			=> true
 	);
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Authorization_Abstract::authorize()
@@ -44,9 +48,9 @@ class Authorization_Phone_Sms_Send extends Authorization_Abstract
 	public function authorize ($data)
 	{
 		$user = $this->findUser ($data);
-		
+
 		$prefix = $this->config ()->sms_prefix;
-		
+
 		$activation = Model_Manager::byQuery (
 			'Activation',
 			Query::instance ()
@@ -55,32 +59,32 @@ class Authorization_Phone_Sms_Send extends Authorization_Abstract
 			->where ('User__id', $user ? $user->id : 0)
 			->where ('finished', false)
 		);
-		
+
 		if (!$activation || $activation->finished)
 		{
 			return 'Data_Validator_Activation_Code/invalid';
 		}
-		
+
 		$activation->update (array (
 			'finished'	=> 1
 		));
-		
+
 		if ($user)
 		{
 			return $user->authorize ();
 		}
-		
+
 		// пользователь не зарегистрирован
 		if (!$this->config ()->autoregister)
 		{
 			return 'Data_Validator_Authorization_User/unexists';
 		}
-		
+
 		$user = $this->autoregister ($data, $activation);
 
 		return $user instanceof User ? $user->authorize () : $user;
 	}
-	
+
 	/**
 	 * @desc Авторегистрация пользователя
 	 * @param array $data Данные с формы авторизации.
@@ -90,7 +94,7 @@ class Authorization_Phone_Sms_Send extends Authorization_Abstract
 	public function autoregister ($data, Activation $activation)
 	{
 		$phone = $activation->address;
-		
+
 		$user = User::create (array (
 			'name'		=> Helper_Phone::formatMobile ($phone),
 			'email'		=> '',
@@ -98,10 +102,10 @@ class Authorization_Phone_Sms_Send extends Authorization_Abstract
 			'phone'		=> $phone,
 			'active'	=> 1
 		));
-		
+
 		return $user;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Authorization_Abstract::isRegistered()
@@ -110,21 +114,21 @@ class Authorization_Phone_Sms_Send extends Authorization_Abstract
 	{
 		Loader::load ('Helper_Phone');
 		$phone = Helper_Phone::parseMobile ($login);
-		
+
 		if (!$phone)
 		{
 			return false;
 		}
-		
+
 		$user = Model_Manager::byQuery (
 			'User',
 			Query::instance ()
 			->where ('phone', $phone)
 		);
-		
+
 		return (bool) $user;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Authorization_Abstract::isValidLogin()
@@ -135,7 +139,7 @@ class Authorization_Phone_Sms_Send extends Authorization_Abstract
 		$phone = Helper_Phone::parseMobile ($login);
 		return (bool) $phone;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Authorization_Abstract::findUser()
@@ -150,7 +154,7 @@ class Authorization_Phone_Sms_Send extends Authorization_Abstract
 			->where ('phone', $phone)
 		);
 	}
-	
+
 	/**
 	 * @desc Отправляет пользователю СМС для авторизации
 	 * @param array $data
@@ -161,37 +165,37 @@ class Authorization_Phone_Sms_Send extends Authorization_Abstract
 	{
 		Loader::load ('Helper_Phone');
 		$phone = Helper_Phone::parseMobile ($data ['phone']);
-		
+
 		if (!$phone)
 		{
 			return 'invalidPhone';
 		}
-		
+
 		$user = Model_Manager::byQuery (
 			'User',
 			Query::instance ()
 				->where ('phone', $phone)
 		);
-		
+
 		$config = $this->config ();
-		
+
 		Loader::load ('Helper_Activation');
 		$clear_code = Helper_Activation::generateNumeric (
 			$config ['code_min_length'],
 			$config ['code_max_length']
 		);
-		
+
 		$activation_code = $config ['sms_prefix'] . $clear_code;
-		
+
 		Loader::load ('Activation');
 		$activation = Activation::create (array (
 			'address'			=> $phone,
 			'code'				=> $activation_code,
-			'expirationTime'	=> 
+			'expirationTime'	=>
 				Helper_Date::toUnix (time () + $config ['sms_expiration']),
 			'User__id'			=> $user ? $user->id : 0
 		));
-		
+
 		/**
 		 * @desc Провайдер
 		 * @var Mail_Provider_Abstract
@@ -201,7 +205,7 @@ class Authorization_Phone_Sms_Send extends Authorization_Abstract
 			Query::instance ()
 			->where ('name', $config ['sms_provider'])
 		);
-		
+
 		Loader::load ('Mail_Message');
 		$message = Mail_Message::create (
 			$config ['sms_mail_template'],
@@ -215,13 +219,13 @@ class Authorization_Phone_Sms_Send extends Authorization_Abstract
 			$provider->id,
 			$config ['sms_provider_params']->__toArray ()
 		)->save ();
-		
+
 		if (!$config ['sms_test_mode'])
 		{
 			$message->send ();
 		}
-		
+
 		return $activation;
 	}
-	
+
 }

@@ -1,9 +1,12 @@
 <?php
+
+namespace Ice;
+
 /**
  *
  * @desc Менеджер фоновых процессов.
  * @author Yury Shvedov
- * @package IcEngine
+ * @package Ice
  *
  */
 class Background_Agent_Manager extends Manager_Abstract

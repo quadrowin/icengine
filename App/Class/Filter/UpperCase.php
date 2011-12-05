@@ -1,16 +1,19 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
- * Приводит строку к верхнему регистру 
- * @author Юрий
- * @package IcEngine
- * 
+ *
+ * @desc Приводит строку к верхнему регистру
+ * @author Yury Shvedov
+ * @package Ice
+ *
  */
 class Filter_UpperCase
 {
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $data
 	 * @return string
 	 */
@@ -18,5 +21,5 @@ class Filter_UpperCase
 	{
 		return mb_strtoupper ($data);
 	}
-	
+
 }
