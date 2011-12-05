@@ -1,6 +1,9 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Абстрактный класс фильтра коллекции.
  * @author Юрий Шведов
  * @package IcEngine
@@ -8,22 +11,22 @@
  */
 class Model_Collection_Filter_Abstract
 {
-	
+
 	/**
 	 * @desc Название фильтра
 	 * @var string
 	 */
 	protected $_name;
-	
+
 	/**
 	 * @desc Поля, передаваемые в опцию
-	 * @var array 
+	 * @var array
 	 */
 	public $fields = array (
 		// имя в опции		=> имя в транспорте
 		// 'id'				=> 'city_id'
 	);
-	
+
 	/**
 	 * @desc Валидаторы полей для подключения фильтра
 	 * @var array
@@ -32,7 +35,7 @@ class Model_Collection_Filter_Abstract
 		// имя в опции		=> валидатор или массив валидаторов
 		// 'id'				=> 'Not_Null'
 	);
-	
+
 	/**
 	 * @desc Создает и возвращает фильтр.
 	 * Устанавливает название фильтра.
@@ -43,9 +46,9 @@ class Model_Collection_Filter_Abstract
 		$p = strpos ($class, '_Collection_Filter_');
 		$this->_name = substr ($class, $p + 19);
 	}
-	
+
 	/**
-	 * @desc Добавление в коллекцию опций, определяемых фильтром. 
+	 * @desc Добавление в коллекцию опций, определяемых фильтром.
 	 * @param Model_Collection $collection
 	 * @param array $params
 	 */
@@ -54,7 +57,7 @@ class Model_Collection_Filter_Abstract
 		$params ['name'] = $this->name ();
 		$collection->addOptions ($params);
 	}
-	
+
 	/**
 	 * @desc Проверка полей.
 	 * @param array $params Поля.
@@ -80,7 +83,7 @@ class Model_Collection_Filter_Abstract
 		}
 		return true;
 	}
-	
+
 	/**
 	 * @desc Наложение фильтра на коллекцию.
 	 * @param Model_Collection $collection Коллекция.
@@ -96,7 +99,7 @@ class Model_Collection_Filter_Abstract
 		{
 			reset ($this->fields);
 			$params = array (
-				key ($this->fields) => 
+				key ($this->fields) =>
 					$data->receive (current ($this->fields))
 			);
 		}
@@ -110,13 +113,13 @@ class Model_Collection_Filter_Abstract
 				)
 			);
 		}
-		
+
 		if ($this->_validate ($params))
 		{
 			$this->_filter ($collection, $params);
 		}
 	}
-	
+
 	/**
 	 * @desc Возвращает название фильтра.
 	 * @return string Название фильтра.
@@ -125,5 +128,5 @@ class Model_Collection_Filter_Abstract
 	{
 		return $this->_name;
 	}
-	
+
 }

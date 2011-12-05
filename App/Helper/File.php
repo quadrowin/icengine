@@ -1,14 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Помощник работы с файлами
  * @author Юрий
- * @package IcEngine
+ * @package Ice
  *
  */
 class Helper_File
 {
-	
+
 	/**
 	 * @desc Возвращает расширение файла
 	 * @param $filename Имя файла
@@ -18,7 +21,7 @@ class Helper_File
 	{
 		return strtolower (substr (strrchr ($filename, '.'), 1));
 	}
-	
+
 	/**
 	 * @desc Удаляет переданные файлы
 	 * @param string|array $file Путь до файла (файлов).
@@ -29,7 +32,7 @@ class Helper_File
 	{
 	    $result = 0;
 	    $files = is_array ($file) ? $file : func_get_args ();
-	    
+
 	    foreach ($files as $file)
 	    {
 	        if (is_file ($file))
@@ -38,8 +41,8 @@ class Helper_File
 	            $result++;
 	        }
 	    }
-	    
+
 	    return $result;
 	}
-	
+
 }

@@ -1,9 +1,12 @@
 <?php
+
+namespace Ice;
+
 /**
  *
  * @desc Менеджер коллекций
  * @author Илья Колесников, Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 abstract class Model_Collection_Manager extends Manager_Abstract
@@ -14,12 +17,12 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 	 * @var array
 	 */
 	protected static $_config = array (
-		'cache_provider'	=> null,
-		'delegee'			=> array (
-			'Model'				=> 'Simple',
-			'Model_Config'		=> 'Simple',
-			'Model_Defined'		=> 'Defined',
-			'Model_Factory'		=> 'Simple'
+		'cache_provider' => null,
+		'delegee' => array (
+			'Ice\\Model' => 'Simple',
+			'Ice\\Model_Config' => 'Simple',
+			'Ice\\Model_Defined' => 'Defined',
+			'Ice\\Model_Factory' => 'Simple'
 		)
 	);
 
@@ -48,7 +51,8 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 	{
 		$class_collection = $model . '_Collection';
 
-		Loader::multiLoad ($model, $class_collection);
+		Loader::load ($model);
+		$class_collection = Loader::load ($class_collection);
 
 		return new $class_collection ();
 	}
@@ -154,7 +158,7 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 				$first;
 
 			$delegee =
-				'Model_Collection_Manager_Delegee_' .
+				__NAMESPACE__ . '\\Model_Collection_Manager_Delegee_' .
 				self::$_config ['delegee'][$parent];
 
 			Loader::load ($delegee);

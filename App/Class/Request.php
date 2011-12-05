@@ -1,9 +1,12 @@
 <?php
+
+namespace Ice;
+
 /**
  *
  * @desc Класс для работы с HTTP запросом.
  * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
+ * @package Ice
  *
  */
 class Request
@@ -11,9 +14,23 @@ class Request
 
 	const NONE_IP = '0.0.0.0';
 
+	/**
+	 * @desc Параметр, извлеченные из адресной строки.
+	 * Параметры полученные по роутеру. Это не GET параметры.
+	 * @var array
+	 */
 	public static $_params = array ();
 
+	/**
+	 * @desc Кодировка входящих сообщений
+	 * @var string
+	 */
 	public static $post_charset = 'utf-8';
+
+	/**
+	 * @desc Рабочая кодировка сайта
+	 * @var string
+	 */
 	public static $work_charset = 'utf-8';
 
 	/**

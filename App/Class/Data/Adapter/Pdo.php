@@ -1,11 +1,13 @@
 <?php
 
+namespace Ice;
+
 Loader::load ('Data_Adapter_Abstract');
 
 /**
  * @desc Адаптер для соеденения с pdo
  * @author Илья Колесников, Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Data_Adapter_Pdo extends Data_Adapter_Abstract
@@ -83,7 +85,7 @@ class Data_Adapter_Pdo extends Data_Adapter_Abstract
 	{
 		$statement = $this->_connection->prepare ($this->_query);
 		$statement->execute ();
-		$rows = $statement->fetchAll (PDO::FETCH_ASSOC);
+		$rows = $statement->fetchAll (\PDO::FETCH_ASSOC);
 
 		if (!$rows)
 		{
@@ -137,7 +139,7 @@ class Data_Adapter_Pdo extends Data_Adapter_Abstract
 			$this->_connectionOptions ['host'] . ';dbname=' .
 			$this->_connectionOptions ['database'];
 
-		$this->_connection = new PDO (
+		$this->_connection = new \PDO (
 			$db_string,
 			$this->_connectionOptions ['username'],
 			$this->_connectionOptions ['password']

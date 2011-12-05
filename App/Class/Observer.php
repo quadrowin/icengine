@@ -1,23 +1,31 @@
 <?php
 
+namespace Ice;
+
+/**
+ *
+ * @author Ilya Kolesnikov
+ * @package Ice
+ *
+ */
 class Observer
 {
-	
+
 	/**
 	 * Объекты
 	 * @var array
 	 */
 	private static $_objects = array ();
-	
+
 	/**
 	 * Отслеживаемые события
 	 * @var array
 	 */
 	private static $_events = array ();
-	
+
 	/**
 	 * Добавление обработчика на событие объекта
-	 * 
+	 *
 	 * @param mixed $object
 	 * 		Объект, для которого устанавливается событие
 	 * @param string $event
@@ -34,7 +42,7 @@ class Observer
 			self::$_objects [$o] = $object;
 			self::$_events [$o] = array ();
 		}
-		
+
 		if (isset(self::$_events [$o][$event]))
 		{
 			self::$_events [$o][$event][] = $method;
@@ -44,11 +52,11 @@ class Observer
 			self::$_events [$o][$event] = array ($method);
 		}
 	}
-	
-	
+
+
 	/**
 	 * Оповещение из объекта о наступлении события
-	 * 
+	 *
 	 * @param mixed $object
 	 * 		Объект
 	 * @param string $event
@@ -71,26 +79,26 @@ class Observer
 		{
 			return null;
 		}
-		
+
 		$results = array ();
-		
+
 		foreach (self::$_events [$o][$event] as $i => $method)
 		{
 			$result = call_user_func_array($method, $args);
 			$results [] = $result;
-			
+
 			if (!$callback)
 			{
 				continue;
 			}
-			
+
 			if (call_user_func($callback, $args, $result))
 			{
 				return $i;
 			}
-			
+
 		}
-		
+
 		return true;
 	}
 }

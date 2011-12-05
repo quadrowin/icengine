@@ -1,6 +1,9 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Опция для добавления правила упорядочивания в обратном порядке.
  * Возможно передать поле для сортировки, если поле не передано, сортировка
  * будет идти по ключевому полю.
@@ -10,7 +13,7 @@
  */
 class Model_Option_Order_Name extends Model_Option
 {
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Model_Option::before()
@@ -18,14 +21,14 @@ class Model_Option_Order_Name extends Model_Option
 	public function before ()
 	{
 		$field = '`' . $this->collection->modelName () . '`.`name`';
-		
-		$desc = 
+
+		$desc =
 			isset ($this->params ['order']) &&
-			strtoupper ($this->params ['order']) == 'DESC'; 
-		
+			strtoupper ($this->params ['order']) == 'DESC';
+
 		$this->query->order (array (
 			$field => $desc ? Query::DESC : Query::ASC
 		));
 	}
-	
+
 }

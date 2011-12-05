@@ -1,6 +1,9 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Рендер с использованием шаблонизатора Smarty.
  * @author Yury Shvedov
  * @package IcEngine
@@ -11,13 +14,13 @@ Loader::load ('View_Render_Abstract');
 
 class View_Render_Smarty extends View_Render_Abstract
 {
-	
+
 	/**
 	 * @desc Объект шаблонизатора
 	 * @var Smarty
 	 */
 	protected $_smarty;
-	
+
 	/**
 	 * @desc Конфиг
 	 * @var array
@@ -51,23 +54,23 @@ class View_Render_Smarty extends View_Render_Abstract
 			'Dblbracer'
 		)
 	);
-	
+
 	protected function _afterConstruct ()
 	{
 		$config = $this->config ();
-		if (!class_exists ('Smarty'))
+		if (!class_exists ('Smarty', false))
 		{
 			Loader::requireOnce ($config ['smarty_path'], 'includes');
 		}
-		
-		$this->_smarty = new Smarty ();
-		
+
+		$this->_smarty = new \Smarty ();
+
 		$this->_smarty->compile_dir = $config ['compile_path'];
 		$this->_smarty->template_dir = array_reverse (
 			$config ['templates_path']->__toArray ()
 		);
 		$this->_smarty->plugins_dir = $config ['plugins_path']->__toArray ();
-		
+
 		// Фильтры
 		foreach ($config ['filters'] as $filter)
 		{
@@ -76,7 +79,7 @@ class View_Render_Smarty extends View_Render_Abstract
 			$filter::register ($this->_smarty);
 		}
 	}
-	
+
 	/**
 	 * @desc Получает идентификатор компилятор для шаблона.
 	 * Необходимо, т.к. шаблон зависит от путей шаблонизатора.
@@ -87,7 +90,7 @@ class View_Render_Smarty extends View_Render_Abstract
 	{
 		return crc32 (json_encode ($this->_smarty->template_dir));
 	}
-	
+
 	/**
 	 * @desc Добавление пути до директории с плагинами Smarty
 	 * @param string|array $path Директории с плагинами
@@ -99,7 +102,7 @@ class View_Render_Smarty extends View_Render_Abstract
 			(array) $path
 		);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::addTemplatesPath()
@@ -111,7 +114,7 @@ class View_Render_Smarty extends View_Render_Abstract
 			(array) $this->_smarty->template_dir
 		);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::addHelper()
@@ -119,7 +122,7 @@ class View_Render_Smarty extends View_Render_Abstract
 	public function addHelper ($helper, $method)
 	{
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::assign()
@@ -135,7 +138,7 @@ class View_Render_Smarty extends View_Render_Abstract
 			$this->_smarty->assign ($key, $value);
 		}
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::display()
@@ -145,7 +148,7 @@ class View_Render_Smarty extends View_Render_Abstract
 		$tpl .= '.tpl';
 		return $this->_smarty->display ($tpl, null, $this->_compileId ($tpl));
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::fetch()
@@ -155,7 +158,7 @@ class View_Render_Smarty extends View_Render_Abstract
 		$tpl .= '.tpl';
 		return $this->_smarty->fetch ($tpl);
 	}
-	
+
 	/**
 	 * @desc Возвращает массив путей до шаблонов.
 	 * @return array
@@ -164,7 +167,7 @@ class View_Render_Smarty extends View_Render_Abstract
 	{
 		return $this->_smarty->template_dir;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::getVar()
@@ -173,7 +176,7 @@ class View_Render_Smarty extends View_Render_Abstract
 	{
 		return $this->_smarty->getTemplateVars ($key);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::popVars()
@@ -183,7 +186,7 @@ class View_Render_Smarty extends View_Render_Abstract
 		$this->_smarty->clearAllAssign ();
 		$this->_smarty->assign (array_pop ($this->_varsStack));
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::pushVars()
@@ -193,7 +196,7 @@ class View_Render_Smarty extends View_Render_Abstract
 		$this->_varsStack [] = $this->_smarty->getTemplateVars ();
 		$this->_smarty->clearAllAssign ();
 	}
-	
+
 	/**
 	 * @desc Возвращает используемый экземпляр шаблонизатора.
 	 * @return Smarty
@@ -202,5 +205,5 @@ class View_Render_Smarty extends View_Render_Abstract
 	{
 		return $this->_smarty;
 	}
-	
+
 }

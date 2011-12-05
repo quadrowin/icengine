@@ -1,14 +1,16 @@
 <?php
 
-if (!class_exists ('Data_Provider_Abstract'))
+namespace Ice;
+
+if (!class_exists (__NAMESPACE__ . '\\Data_Provider_Abstract'))
 {
-	include dirname (__FILE__) . '/Abstract.php';
+	include __DIR__ . '/Abstract.php';
 }
 /**
  *
  * @desc Провайдер данных Redis
- * @author Юрий
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class Data_Provider_Redis extends Data_Provider_Abstract

@@ -1,11 +1,13 @@
 <?php
 
+namespace Ice;
+
 Loader::load ('Data_Adapter_Abstract');
 
 /**
  * @desc Адаптер для соеденения с mysql
  * @author Илья Колесников, Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Data_Adapter_Mysqli extends Data_Adapter_Abstract

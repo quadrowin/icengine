@@ -1,14 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Помощник работы с сетью.
- * @author Гурус
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class Helper_Network
 {
-	
+
 	/**
 	 * Вызывает получение страницы на сервере, но ответа не дожидается.
 	 *
@@ -31,7 +34,7 @@ class Helper_Network
 	{
 		// если делать через сокеты, тогда соединения будеть жить пока
 		// работает скрипт, либо пока оно не оборвется, таймаутом например..
-	
+
 	//	$host="www.vasya.com";
 	//	$refer="http://localhost";
 	//	$zap="/b.php?blabla=123";
@@ -39,12 +42,12 @@ class Helper_Network
 	//	$get="GET $zap HTTP/1.1\r\nHost: $host\r\nReferer: $refer\r\nUser-Agent: Mozilla 4.0\r\n\r\n";
 	//	fwrite($fp,$get);
 	//	fclose($fp);
-	
+
 		// если запускаемый скрипт должен работать в фоне и запускающий
 		// скрипт не должен получать данные с него (тупо запустить и все),
 		// то лучше воспользоватся таким кодом:
 	//	pclose(popen('/usr/bin/php /home/user/httpdocs/script.php >> /dev/null &', 'r'));
-	
+
 		// Обработка GET параметров
 		if ($gets)
 		{
@@ -59,7 +62,7 @@ class Helper_Network
 		{
 			$req_get = $page;
 		}
-	
+
 		// Обработка POST параметров
 		if ($posts)
 		{
@@ -70,25 +73,25 @@ class Helper_Network
 			}
 			$req_post = '?' . implode ('&', $req_post);
 		}
-		
+
 		// Запрос
 		$req =
 			"GET $req_get HTTP/1.1\r\n" .
 			"Host: $host\r\n" .
 			"Referer: $refer\r\n " .
 			"User-Agent: $userAgent\r\n\r\n";
-		
+
 		$fp = fsockopen($host, 80);
 		fwrite($fp, $req);
 		fclose($fp);
 	}
-	
+
 	public static function post (
-		$url, 
-		$postdata, 
+		$url,
+		$postdata,
 		$cookie_dir,
 		$uagent = 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 1.1.4322)'
-	) 
+	)
 	{
 	  $ch = curl_init( $url );
 	  curl_setopt($ch, CURLOPT_URL, $url);
@@ -118,10 +121,10 @@ class Helper_Network
 
 	  return $header;
 	}
-	
+
 	/**
 	 * Загружает удаленный файл по указанному пути.
-	 * 
+	 *
 	 * @param string $url
 	 * 		Ссылка на файл
 	 * @param string $dst_file
@@ -136,29 +139,29 @@ class Helper_Network
 		{
 			return false;
 		}
-		
+
 		$fdst = fopen($dst_file, "w");
 		if (!$fdst)
 		{
 			return false;
 		}
-		
+
 		$block_size = 64 * 1024;
 		while (!feof ($fsrc))
 		{
 			$data = fread ($fsrc, $block_size);
 			fwrite($fdst, $data);
 		}
-		
+
 		fclose($fdst);
 		fclose($fsrc);
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * Получение содержимого страницы
-	 * 
+	 *
 	 * @param string $host
 	 * 		Хост
 	 * @param string $page
@@ -176,7 +179,7 @@ class Helper_Network
 		array $gets = array(), array $posts = array(),
 		$refer = 'http://localhost', $userAgent = 'Mozilla 4.0')
 	{
-	
+
 	//	$host="www.vasya.com";
 	//	$refer="http://localhost";
 	//	$zap="/b.php?blabla=123";
@@ -184,7 +187,7 @@ class Helper_Network
 	//	$get="GET $zap HTTP/1.1\r\nHost: $host\r\nReferer: $refer\r\nUser-Agent: Mozilla 4.0\r\n\r\n";
 	//	fwrite($fp,$get);
 	//	fclose($fp);
-	
+
 		// Обработка GET параметров
 		if ($gets)
 		{
@@ -199,7 +202,7 @@ class Helper_Network
 		{
 			$req_get = $page;
 		}
-	
+
 		// Обработка POST параметров
 		if ($posts)
 		{
@@ -210,19 +213,19 @@ class Helper_Network
 			}
 			$req_post = '?' . implode ('&', $req_post);
 		}
-	
+
 		// Запрос
 		$req =
 			"GET $req_get HTTP/1.1\r\n" .
 			"Host: $host\r\n" .
 			"Referer: $refer\r\n " .
 			"User-Agent: $userAgent\r\n\r\n";
-		
+
 		$fp = fsockopen($host, 80);
-		
+
 		// отправка данных
 		fputs($fp, $req);
-		
+
 		// Чтение данных
 		$query = "";
 		while (!feof($fp))
@@ -230,8 +233,8 @@ class Helper_Network
 			$query .= fread($fp, 1048576);
 		}
 		fclose($fp);
-	
+
 		return $query;
 	}
-	
+
 }

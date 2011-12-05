@@ -1,14 +1,36 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Абстрактный класс менеджера
  * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
+ * @package Ice
  *
  */
 abstract class Manager_Abstract
 {
-	
+
+	/**
+	 * @desc Получение названия класса по названию экземпляра.
+	 * @param string $name
+	 * @param string $ext
+	 * @return string
+	 */
+	public static function completeClassName ($name, $ext = null)
+	{
+		if (null === $ext)
+		{
+			$ext = substr (get_called_class(), 0, -strlen ('_Manager'));
+		}
+
+		$p = strrpos ($name, '\\');
+		return (false === $p)
+			? __NAMESPACE__ . '\\' . $ext . '_' . $name
+			: substr ($name, 0, $p + 1) . $ext . '_' . substr ($name, $p + 1);
+	}
+
 	/**
 	 * @desc Конфиги менеджера
 	 * @return Objective
@@ -24,5 +46,5 @@ abstract class Manager_Abstract
 		}
 		return static::$_config;
 	}
-	
+
 }

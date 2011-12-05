@@ -1,16 +1,19 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Кэш контроллеров.
  * Модель сохраняет данные по кэшируемым контроллерам и позже
  * при вызове через бэкграунд агент вызывает их перекомпиляцию.
  * @author Юрий Шведов
- * @package IcEngine
- * 
+ * @package Ice
+ *
  */
 class Controller_Cache extends Model
 {
-	
+
 	/**
 	 * @desc Config
 	 * @var array
@@ -30,10 +33,10 @@ class Controller_Cache extends Model
 			)
 		)
 	);
-	
+
 	public static function html ($action, $args)
 	{
 		return Controller_Manager::html ($action, $args);
 	}
-	
+
 }

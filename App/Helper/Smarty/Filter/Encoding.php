@@ -1,6 +1,9 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Фильтр к смарти для перекодирования шаблонов.
  * @author Юрий
  * @package IcEngine
@@ -8,7 +11,7 @@
  */
 class Helper_Smarty_Filter_Encoding
 {
-	
+
 	/**
 	 * @desc Комментарий файла, если необходимо перекодирование.
 	 * Должен содержаться в первых строках файла
@@ -17,7 +20,7 @@ class Helper_Smarty_Filter_Encoding
 	protected static $_charsets = array (
 		'{*utf8*}'		=> 'utf-8'
 	);
-	
+
 	/**
 	 * @desc Config
 	 * @var array
@@ -28,12 +31,12 @@ class Helper_Smarty_Filter_Encoding
 		 */
 		'result_charset'	=> 'cp1251',
 		/**
-		 * @desc Длина проверяемого сегмента на содержание комментария 
+		 * @desc Длина проверяемого сегмента на содержание комментария
 		 * с кодировкой.
 		 */
 		'check_length'		=> 200
 	);
-	
+
 	/**
 	 * @desc Регистрация фильтра в смарти.
 	 * @param Smarty $smarty
@@ -42,9 +45,9 @@ class Helper_Smarty_Filter_Encoding
 	{
 		$smarty->registerFilter ('pre', array (__CLASS__, 'filterEncoding'));
 	}
-	
+
 	/**
-	 * @desc Перекодирование 
+	 * @desc Перекодирование
 	 * @param string $tpl_source Исходный код шаблона
 	 * @return string Результат.
 	 */
@@ -54,21 +57,21 @@ class Helper_Smarty_Filter_Encoding
 		{
 			return;
 		}
-		
+
 		$check = substr ($tpl_source, 0, self::$_config ['check_length']);
 		foreach (self::$_charsets as $pattern => $charset)
 		{
-			if (strpos ($check, $pattern) !== false) 
+			if (strpos ($check, $pattern) !== false)
 			{
 				return iconv (
-					$charset, 
-					self::$_config ['result_charset'], 
+					$charset,
+					self::$_config ['result_charset'],
 					$tpl_source
 				);
 			}
 		}
-		
-		return $tpl_source;	
+
+		return $tpl_source;
 	}
-	
+
 }

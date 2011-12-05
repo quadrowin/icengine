@@ -1,12 +1,15 @@
 <?php
+
+namespace Ice;
+
 /**
  *
  * @desc Базовый класс коллекции моделей
  * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
+ * @package Ice
  *
  */
-class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
+class Model_Collection implements \ArrayAccess, \IteratorAggregate, \Countable
 {
 	/**
 	 * @desc Клонировать дату
@@ -647,7 +650,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	public function getIterator ()
 	{
 		$this->items ();
-		return new ArrayIterator ($this->_items);
+		return new \ArrayIterator ($this->_items);
 	}
 
 	/**

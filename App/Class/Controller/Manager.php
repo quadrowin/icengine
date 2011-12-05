@@ -1,9 +1,12 @@
 <?php
+
+namespace Ice;
+
 /**
  *
  * @desc Менеджер контроллеров.
- * @author Юрий
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class Controller_Manager extends Manager_Abstract
@@ -172,9 +175,9 @@ class Controller_Manager extends Manager_Abstract
 		Loader::load ('Controller_Task');
 		Loader::load ('Route_Action');
 
-		if (class_exists ('Tracer'))
+		if (class_exists ('Tracer', false))
 		{
-			Tracer::begin (
+			\Tracer::begin (
 				__CLASS__,
 				__METHOD__,
 				__LINE__,
@@ -224,7 +227,7 @@ class Controller_Manager extends Manager_Abstract
 
 		$controller->_beforeAction ($method);
 
-		$reflection = new ReflectionMethod ($controller, $method);
+		$reflection = new \ReflectionMethod ($controller, $method);
 
 		$params = $reflection->getParameters ();
 		$c_input = $controller->getInput ();
@@ -234,7 +237,7 @@ class Controller_Manager extends Manager_Abstract
 			$param_value = $c_input->receive ($param->name);
 			if (!$param_value)
 			{
-				$reflection_param = new ReflectionParameter (
+				$reflection_param = new \ReflectionParameter (
 					array ($controller, $method),
 					$param->name
 				);
@@ -261,9 +264,9 @@ class Controller_Manager extends Manager_Abstract
 			->setOutput ($temp_output)
 			->setTask ($temp_task);
 
-		if (class_exists ('Tracer'))
+		if (class_exists ('Tracer', false))
 		{
-			Tracer::end (null);
+			\Tracer::end (null);
 		}
 
 		return $task;
@@ -311,7 +314,7 @@ class Controller_Manager extends Manager_Abstract
 		$p = strrpos ($controller_name, '\\');
 		if (false === $p)
 		{
-			$class_name = 'Controller_' . $controller_name;
+			$class_name = __NAMESPACE__ . '\\Controller_' . $controller_name;
 		}
 		else
 		{

@@ -1,11 +1,13 @@
 <?php
 
+namespace Ice;
+
 Loader::load ('Data_Adapter_Pdo');
 
 /**
  * @desc Адаптер для соеденения с pdo с кэшированием
  * @author Илья Колесников, Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Data_Adapter_Pdo_Cached extends Data_Adapter_Pdo
@@ -122,7 +124,7 @@ class Data_Adapter_Pdo_Cached extends Data_Adapter_Pdo
 			return $cache ['v'];
 		}
 
-		if (class_exists ('Tracer'))
+		if (class_exists ('Tracer', false))
 		{
 			Tracer::begin (
 				__CLASS__,
@@ -134,12 +136,12 @@ class Data_Adapter_Pdo_Cached extends Data_Adapter_Pdo
 		$statement = $this->_connection->prepare ($this->_query);
 		$statement->execute ();
 
-		if (class_exists ('Tracer'))
+		if (class_exists ('Tracer', false))
 		{
 			Tracer::end ($this->_query);
 		}
 
-		$rows = $statement->fetchAll (PDO::FETCH_ASSOC);
+		$rows = $statement->fetchAll (\PDO::FETCH_ASSOC);
 
 		if (!$rows)
 		{

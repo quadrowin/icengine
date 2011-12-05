@@ -1,9 +1,12 @@
 <?php
+
+namespace Ice;
+
 /**
  *
  * @desc Менеджер алгоритмов шифрования.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Crypt_Manager
@@ -75,7 +78,12 @@ class Crypt_Manager
 	{
 		if (!isset (self::$_crypts [$name]))
 		{
-			$crypt = 'Crypt_' . $name;
+			if (!class_exists (__NAMESPACE__ . '\\Crypt_Abstract'))
+			{
+				require __DIR__ . '/Abstract.php';
+			}
+
+			$crypt = __NAMESPACE__ . '\\Crypt_' . $name;
 			Loader::load ($crypt);
 			self::$_crypts [$name] = new $crypt;
 		}
@@ -102,9 +110,4 @@ class Crypt_Manager
 		return $input == $pattern;
 	}
 
-}
-
-if (!class_exists ('Crypt_Abstract'))
-{
-	require dirname (__FILE__) . '/Abstract.php';
 }

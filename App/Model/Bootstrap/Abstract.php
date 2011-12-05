@@ -1,4 +1,7 @@
 <?php
+
+namespace Ice;
+
 /**
  *
  * @desc Абстрактный класс загрузчика
@@ -65,19 +68,19 @@ abstract class Bootstrap_Abstract
 	{
 		$this->addLoaderPathes ();
 
-		\Loader::multiLoad (
+		Loader::multiLoad (
 			'Manager_Abstract',
 			'Config_Manager',
 			'Zend_Exception'
 		);
 
-		\Config_Manager::setPath (
+		Config_Manager::setPath (
 			$this->basePath () . 'Config/',
 			$this->getNamespace ()
 		);
 		$this->initFirePhp ();
 
-		\Loader::multiLoad (
+		Loader::multiLoad (
 			'Registry',
 			'Request',
 			'Executor',
@@ -131,11 +134,11 @@ abstract class Bootstrap_Abstract
 		$p = strrpos ($class, '\\');
 		$namespace = substr ($class, 0, (int) $p);
 
-		\Loader::addPath ($namespace, $path . 'App/Class/');
-		\Loader::addPath ($namespace, $path . 'App/Model/');
-		\Loader::addPath ($namespace, $path . 'App/');
+		Loader::addPath ($namespace, $path . 'App/Class/');
+		Loader::addPath ($namespace, $path . 'App/Model/');
+		Loader::addPath ($namespace, $path . 'App/');
 
-		\Loader::addPath ('includes', $path . 'Vendor/');
+		Loader::addPath ('includes', $path . 'Vendor/');
 	}
 
 	/**
@@ -172,8 +175,8 @@ abstract class Bootstrap_Abstract
 	 */
 	public function initAttributeManager ()
 	{
-		\Loader::load ('Attribute_Manager');
-		\Attribute_Manager::init ();
+		Loader::load ('Attribute_Manager');
+		Attribute_Manager::init ();
 	}
 
 	/**
@@ -181,7 +184,7 @@ abstract class Bootstrap_Abstract
 	 */
 	public function initAcl ()
 	{
-		\Loader::multiLoad (
+		Loader::multiLoad (
 			'Acl_Resource',
 			'Acl_Role'
 		);
@@ -192,7 +195,7 @@ abstract class Bootstrap_Abstract
 	 */
 	public function initDds ($source_name = 'default')
 	{
-		\Loader::multiLoad (
+		Loader::multiLoad (
 			'Data_Provider_Abstract',
 			'Data_Provider_Manager',
 
@@ -207,7 +210,7 @@ abstract class Bootstrap_Abstract
 			'Data_Source_Manager'
 		);
 
-		\DDS::setDataSource (\Data_Source_Manager::get ($source_name));
+		DDS::setDataSource (Data_Source_Manager::get ($source_name));
 	}
 
 	/**
@@ -217,7 +220,7 @@ abstract class Bootstrap_Abstract
 	{
 		if (!function_exists ('fb'))
 		{
-			\Loader::requireOnce ('FirePHPCore/fb.php', 'includes');
+			Loader::requireOnce ('FirePHPCore/fb.php', 'includes');
 		}
 	}
 
@@ -226,8 +229,8 @@ abstract class Bootstrap_Abstract
 	 */
 	public function initMessageQueue ()
 	{
-		\Loader::load ('Message_Queue');
-		\Message_Queue::flush ();
+		Loader::load ('Message_Queue');
+		Message_Queue::flush ();
 	}
 
 	/**
@@ -235,7 +238,7 @@ abstract class Bootstrap_Abstract
 	 */
 	public function initModelManager ()
 	{
-		\Loader::multiLoad (
+		Loader::multiLoad (
 			'Model_Manager',
 			'Model_Collection_Manager'
 		);
@@ -247,9 +250,9 @@ abstract class Bootstrap_Abstract
 	 */
 	public function initModelScheme ($name)
 	{
-		\Loader::load ('Model_Scheme');
-		\Model_Scheme::init (
-			\Config_Manager::get ('Model_Scheme', $name)
+		Loader::load ('Model_Scheme');
+		Model_Scheme::init (
+			Config_Manager::get ('Model_Scheme', $name)
 		);
 	}
 
@@ -258,15 +261,15 @@ abstract class Bootstrap_Abstract
 	 */
 	public function initUser ()
 	{
-		\Loader::multiLoad (
+		Loader::multiLoad (
 			'User_Abstract',
 			'User',
 			'User_Guest',
 			'User_Session'
 		);
 
-		\User_Guest::init ();
-		\User::init ();
+		User_Guest::init ();
+		User::init ();
 	}
 
 	/**
@@ -274,7 +277,7 @@ abstract class Bootstrap_Abstract
 	 */
 	public function initView ()
 	{
-		\View_Render_Manager::getView ();
+		View_Render_Manager::getView ();
 	}
 
 	/**

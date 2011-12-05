@@ -1,14 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc лог API
  * @author Юрий Шведов
- * @package IcEngine
- * 
+ * @package Ice
+ *
  */
 class Api_Log extends Model
 {
-	
-	
-	
+
+
+
 }

@@ -1,13 +1,16 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Абстрактный класс шифрования
  * @author Юрий Шведов
  *
  */
 abstract class Crypt_Abstract
 {
-	
+
 	/**
 	 * @desc Метод дешифрования. Может быть реализован не для всех алгоритмов.
 	 * @param string $input
@@ -17,12 +20,12 @@ abstract class Crypt_Abstract
 	{
 		return null;
 	}
-	
+
 	/**
 	 * @desc Кодирование содержимого.
 	 * @param string $input Содержимое для шифрования.
 	 * @param string $key [optional] Ключ шифрования (если необходим).
 	 */
 	abstract public function encode ($input, $key = null);
-	
+
 }

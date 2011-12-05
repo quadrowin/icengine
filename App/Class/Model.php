@@ -1,12 +1,14 @@
 <?php
 
+namespace Ice;
+
 /**
  * @desc Базовая модель для всех сущностей. Реализует Active Record.
  * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
+ * @package Ice
  *
  */
-abstract class Model implements ArrayAccess
+abstract class Model implements \ArrayAccess
 {
 	/**
 	 * @desc Поля реализации.
@@ -142,7 +144,7 @@ abstract class Model implements ArrayAccess
 
 			foreach ($vars as $var => $v)
 			{
-				$r = new ReflectionProperty ($this, $var);
+				$r = new \ReflectionProperty ($this, $var);
 				if (!$r->isStatic ())
 				{
 					$this->$var = &$model->__getField ($var);

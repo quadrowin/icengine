@@ -1,5 +1,7 @@
 <?php
 
+namespace Ice;
+
 class Model_Mapper_Field_Attribute
 {
 	public static function factory ($name)

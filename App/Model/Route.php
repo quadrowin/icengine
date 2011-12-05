@@ -1,5 +1,7 @@
 <?php
 
+namespace Ice;
+
 Loader::load ('Model_Child');
 /**
  *

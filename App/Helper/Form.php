@@ -1,33 +1,36 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Обработка данных с формы.
- * @author Goorus
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class Helper_Form
 {
-	
+
 	/**
 	 * @desc Игнорировать данные.
 	 * @var string
 	 */
 	const IGNORE = 'ignore';
-	
+
 	/**
 	 * @desc Поле будет прочитано из входных данных контроллера.
 	 * @var string
 	 */
 	const INPUT = 'input';
-	
+
 	/**
 	 * @desc Поле будет прочитано из входных данных контроллера, но после
 	 * проверки удалено.
 	 * @var string
 	 */
 	const INPUT_IGNORE = 'input,ignore';
-	
+
 	/**
 	 * @desc Пример полей
 	 * @var array
@@ -74,7 +77,7 @@ class Helper_Form
 			)
 		)
 	);
-	
+
 	/**
 	 * @desc Получение значения для поля.
 	 * @param Objective $data Объект для получения данных.
@@ -97,7 +100,7 @@ class Helper_Form
 			{
 				self::_recieveValue (
 					$data, $field,
-					$input, 
+					$input,
 					$value ['add'], $is_new
 				);
 			}
@@ -119,7 +122,7 @@ class Helper_Form
 			$data->$field = $input->receive ($field);
 		}
 	}
-	
+
 	/**
 	 * @desc Возвращает только атрибуты.
 	 * @param Objective $data
@@ -141,7 +144,7 @@ class Helper_Form
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * @desc Возвращает только поля.
 	 * @param Objective $data
@@ -163,7 +166,7 @@ class Helper_Form
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * @desc Разделяет атрибуты и поля.
 	 * @param Objective $data
@@ -176,7 +179,7 @@ class Helper_Form
 	{
 		$attrs = array ();
 		$fields = array ();
-		
+
 		foreach ($data as $field => $value)
 		{
 			if (
@@ -191,13 +194,13 @@ class Helper_Form
 				$fields [$field] = $value;
 			}
 		}
-		
+
 		return array (
 			'fields'		=> $fields,
 			'attributes'	=> $attrs
 		);
 	}
-	
+
 	/**
 	 * @desc Фильтрация значений.
 	 * @param Objective $data Данные для фильтрации.
@@ -207,16 +210,16 @@ class Helper_Form
 	{
 		Loader::load ('Filter_Manager');
 		$obj_scheme = (object) $scheme;
-		
+
 		foreach ($scheme as $field => $info)
 		{
 			if (isset ($info ['value']) && $info ['value'] == self::IGNORE)
 			{
 				continue ;
 			}
-			
+
 			$filters = array ();
-			
+
 			if (isset ($info ['filters']))
 			{
 				if ($info ['filters'] instanceof Objective)
@@ -227,8 +230,8 @@ class Helper_Form
 				{
 					$filters = (array) $info ['filters'];
 				}
-			} 
-			
+			}
+
 			foreach ($filters as $filter)
 			{
 				$data->$field = Filter_Manager::filterEx (
@@ -237,7 +240,7 @@ class Helper_Form
 			}
 		}
 	}
-	
+
 	/**
 	 * @desc Чтение данных из инпута согласно правилам.
 	 * @param Data_Transport $input Входной поток.
@@ -245,11 +248,11 @@ class Helper_Form
 	 * @param Temp_Content $tc Временный контент
 	 * @return Objective Прочитанные поля.
 	 */
-	public static function receiveFields (Data_Transport $input, $fields, 
+	public static function receiveFields (Data_Transport $input, $fields,
 		Temp_Content $tc = null)
 	{
 		$data = new Objective ();
-		
+
 		foreach ($fields as $field => $info)
 		{
 			self::_recieveValue (
@@ -259,10 +262,10 @@ class Helper_Form
 				!$tc || !$tc->rowId
 			);
 		}
-		
+
 		return $data;
 	}
-	
+
 	/**
 	 * @desc Удаление из выборки полей, отмеченных как игнорируемые.
 	 * @param Objective $data
@@ -273,7 +276,7 @@ class Helper_Form
 		foreach ($data as $key => $value)
 		{
 			if (
-				!isset ($scheme [$key]) || 
+				!isset ($scheme [$key]) ||
 				$scheme [$key]['value'] == self::IGNORE ||
 				$scheme [$key]['value'] == self::INPUT_IGNORE
 			)
@@ -282,7 +285,7 @@ class Helper_Form
 			}
 		}
 	}
-	
+
 	/**
 	 * @desc Проверка корректности данных с формы.
 	 * @param Objective $data
@@ -298,38 +301,38 @@ class Helper_Form
 	{
 		Loader::load ('Data_Validator_Manager');
 		$obj_scheme = (object) $scheme;
-		
+
 		foreach ($scheme as $field => $info)
 		{
 			if (isset ($info ['value']) && $info ['value'] == self::IGNORE)
 			{
 				continue ;
 			}
-			
+
 			$validators = array ();
-			
+
 			if (isset ($info ['validators']))
-			{ 
-				$validators = 
-					$info ['validators'] instanceof Objective ? 
-					$info ['validators']->__toArray () : 
+			{
+				$validators =
+					$info ['validators'] instanceof Objective ?
+					$info ['validators']->__toArray () :
 					(array) $info ['validators'];
 			}
-				
+
 			foreach ($validators as $validator)
 			{
 				$result = Data_Validator_Manager::validateEx (
 					$validator, $field, $data, $obj_scheme
 				);
-				
+
 				if ($result !== true)
 				{
 					return array ($field => $result);
 				}
 			}
 		}
-		
+
 		return true;
 	}
-	
+
 }

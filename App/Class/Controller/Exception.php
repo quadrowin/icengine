@@ -1,6 +1,8 @@
 <?php
 
-class Controller_Exception extends Zend_Exception
+namespace Ice;
+
+class Controller_Exception extends \Exception
 {
-	
+
 }

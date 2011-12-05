@@ -1,9 +1,12 @@
 <?php
+
+namespace Ice;
+
 /**
  *
  * @desc Менеджер загрузчиков
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Bootstrap_Manager
@@ -44,7 +47,7 @@ class Bootstrap_Manager
 					Loader::load ($class);
 				}
 			}
-			
+
 			self::$_items [$class] = new $class ();
 		}
 

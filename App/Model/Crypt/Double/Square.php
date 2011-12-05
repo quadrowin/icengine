@@ -1,6 +1,9 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Шифрование методом двойного квадрата.
  * @author Юрий Шведов
  * @package IcEngine
@@ -8,7 +11,7 @@
  */
 class Crypt_Double_Square extends Crypt_Abstract
 {
-	
+
 	/**
 	 * @desc Обратимое шифрование методом "Двойного квадрата".
 	 * (Reversible crypting of "Double square" method)
@@ -69,7 +72,7 @@ class Crypt_Double_Square extends Crypt_Abstract
 		}
 		return implode ('', $o);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Crypt_Abstract::encode()
@@ -78,7 +81,7 @@ class Crypt_Double_Square extends Crypt_Abstract
 	{
 		return self::_dsCrypt ($input, true);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Crypt_Abstract::encode()
@@ -87,5 +90,5 @@ class Crypt_Double_Square extends Crypt_Abstract
 	{
 		return self::_dsCrypt ($input);
 	}
-	
+
 }

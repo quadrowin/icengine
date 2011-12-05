@@ -1,7 +1,10 @@
 <?php
+
+namespace Ice;
+
 Loader::load ('Authorization_Abstract');
 /**
- * 
+ *
  * @desc Авторизация через логинзу.
  * @author Юрий Шведов
  * @package IcEngine
@@ -9,7 +12,7 @@ Loader::load ('Authorization_Abstract');
  */
 class Authorization_Loginza extends Authorization_Abstract
 {
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Authorization_Abstract::authorize()
@@ -18,20 +21,20 @@ class Authorization_Loginza extends Authorization_Abstract
 	{
 		Loader::load ('Authorization_Loginza_Token');
 		$token = Authorization_Loginza_Token::tokenData ();
-		
+
 		Loader::load ('User_Loginza');
 		$loginza = User_Loginza::byToken ($token, true, true);
-		
+
 		$user = $loginza ? $loginza->User : null;
-		
+
 		if (!$user)
 		{
 			$user = $this->autoregister ($token);
 		}
-		
+
 		return $user instanceof User ? $user->authorize () : $user;
 	}
-	
+
 	/**
 	 * @desc Авторегистрация
 	 * @param Authorization_Loginza_Token $token
@@ -44,22 +47,22 @@ class Authorization_Loginza extends Authorization_Abstract
 		{
 			return "Data_Validator_Loginza_Token::invalid";
 		}
-		
+
 		$data = $token->data ('data');
-		
+
 		Loader::load ('Helper_Email');
 		$user = User::create (array (
 			'name'		=> $token->extractName (),
 			'login'		=> (string) $token->identity,
 			'email'		=> (string) $token->email,
 			'password'	=> md5 (time ()),
-			'phone'		=> 
-				isset ($data ['phone']) && is_string ($data ['phone']) ? 
-					$data ['phone'] : 
+			'phone'		=>
+				isset ($data ['phone']) && is_string ($data ['phone']) ?
+					$data ['phone'] :
 					'',
 			'active'	=> 1
 		));
-		
+
 		$ul = new User_Loginza (array (
 			'User__id'	=> $user->key (),
 			'identity'	=> (string) $token->identity,
@@ -69,10 +72,10 @@ class Authorization_Loginza extends Authorization_Abstract
 			'createdAt'	=> Helper_Date::toUnix ()
 		));
 		$ul->save ();
-		
+
 		return $user;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Authorization_Abstract::isRegistered()
@@ -81,7 +84,7 @@ class Authorization_Loginza extends Authorization_Abstract
 	{
 		return false;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Authorization_Abstract::isValidLogin()
@@ -90,7 +93,7 @@ class Authorization_Loginza extends Authorization_Abstract
 	{
 		return false;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Authorization_Abstract::findUser()
@@ -99,11 +102,11 @@ class Authorization_Loginza extends Authorization_Abstract
 	{
 		Loader::load ('Authorization_Loginza_Token');
 		$token = Authorization_Loginza_Token::tokenData ();
-		
+
 		Loader::load ('User_Loginza');
 		$loginza = User_Loginza::byToken ($token);
-		
+
 		return $loginza ? $loginza->User : null;
 	}
-	
+
 }

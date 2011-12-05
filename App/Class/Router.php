@@ -1,9 +1,12 @@
 <?php
+
+namespace Ice;
+
 /**
  *
  * @desc Механизм определения роута по адресу
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Router

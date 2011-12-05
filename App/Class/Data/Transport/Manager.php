@@ -1,14 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Менеджер транспортов
  * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
+ * @package Ice
  *
  */
 class Data_Transport_Manager extends Manager_Abstract
 {
-	
+
 	/**
 	 * @desc Config
 	 * @var array
@@ -46,15 +49,15 @@ class Data_Transport_Manager extends Manager_Abstract
 			'default_output'	=> array ()
 		)
 	);
-	
+
 	/**
 	 * @desc Инициализированные транспорты.
 	 * @var array
 	 */
 	protected static $_transports = array ();
-	
+
 	/**
-	 * @desc 
+	 * @desc
 	 * @param string $name
 	 * @return array
 	 */
@@ -62,18 +65,18 @@ class Data_Transport_Manager extends Manager_Abstract
 	{
 		$config = self::config ();
 		$config = $config ['transports'][$name];
-		
+
 		// Алиасы
 		while (is_string ($config))
 		{
 			$config = $config ['transports'][$config];
 		}
-		
+
 		return $config;
 	}
-	
+
 	/**
-	 * @desc 
+	 * @desc
 	 * @param string $name
 	 * @return Data_Transport
 	 */
@@ -83,11 +86,11 @@ class Data_Transport_Manager extends Manager_Abstract
 		{
 			return self::$_transports [$name];
 		}
-		
+
 		$cfg = self::configFor ($name);
-		
+
 		$transport = new Data_Transport ();
-		
+
 		if (isset ($cfg ['providers']))
 		{
 			foreach ($cfg ['providers'] as $provider)
@@ -97,8 +100,8 @@ class Data_Transport_Manager extends Manager_Abstract
 				);
 			}
 		}
-		
+
 		return self::$_transports [$name] = $transport;
 	}
-	
+
 }

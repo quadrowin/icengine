@@ -1,40 +1,43 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Загружаемое на ютуб видео
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Youtube_Upload extends Model
 {
-	
+
 	const _CPREF_AUTH_TOKEN = 'YoutubeAuthToken_';
 
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const TABLE = 'youtube_upload';
-	
+
 	/**
 	 * @desc Время жизни ключа авторизации на ютубе
 	 * @var integer
 	 */
 	const TOKEN_EXPIRATION = 3600;
-	
+
 	/**
 	 * @desc Название зарегистрированного на ютубе сервиса
 	 * @var string
 	 */
 	protected static $_service = '';
-	
+
 	/**
 	 * @desc Настройки текущего сервиса
 	 * @var array
 	 */
 	protected static $_currentConfig = array ();
-	
+
 	/**
 	 * @desc Получение ключа авторизации сервиса на ютубе
 	 * @return string|false
@@ -42,7 +45,7 @@ class Youtube_Upload extends Model
 	protected static function _authToken ()
 	{
 		$cache = Registry::sget (self::_CPREF_AUTH_TOKEN . self::$_service);
-		
+
 		if (
 			$cache && $cache ['a'] && $cache ['v'] &&
 			($cache ['a'] + self::TOKEN_EXPIRATION < time ())
@@ -50,12 +53,12 @@ class Youtube_Upload extends Model
 		{
 			return $cache ['v'];
 		}
-		
-		$eq = 
-			'accountType=HOSTED_OR_GOOGLE&Email=' . self::$_currentConfig ['email'] . 
-			'&Passwd=' . self::$_currentConfig ['password'] . 
+
+		$eq =
+			'accountType=HOSTED_OR_GOOGLE&Email=' . self::$_currentConfig ['email'] .
+			'&Passwd=' . self::$_currentConfig ['password'] .
 			'&service=youtube&source=' . self::$_currentConfig ['api_name'];
-		
+
 		$fp = fsockopen ("ssl://www.google.com", 443, $errno, $errstr, 20);
 		if ($fp)
 		{
@@ -81,9 +84,9 @@ class Youtube_Upload extends Model
 			);
 			return false;
 		}
-		
+
 		preg_match ("!(.*?)Auth=(.*?)\n!si", $response, $ok);
-		
+
 		if (!isset ($ok[2]))
 		{
 			trigger_error (
@@ -91,16 +94,16 @@ class Youtube_Upload extends Model
 				E_USER_WARNING
 			);
 		}
-		
+
 		$cache = array(
 			'a'	=> time (),
 			'v'	=> $ok[2]
 		);
 		Registry::set (self::_CPREF_AUTH_TOKEN . self::$_service, $cache);
-		
+
 		return $cache ['v'];
 	}
-	
+
 	/**
 	 * Загрузка конфига ютуб сервиса.
 	 * @param string $service
@@ -109,7 +112,7 @@ class Youtube_Upload extends Model
 	{
 		$config = Config_Manager::get (__CLASS__);
 		$config = $config->__toArray ();
-		
+
 		if (!$config || !isset ($config [$service]))
 		{
 			trigger_error (
@@ -122,9 +125,9 @@ class Youtube_Upload extends Model
 		self::$_service = $service;
 		self::$_currentConfig = $config [$service];
 	}
-	
+
 	/**
-	 * @desc 
+	 * @desc
 	 * @param string $code Код
 	 * @return Youtube_Upload
 	 */
@@ -136,7 +139,7 @@ class Youtube_Upload extends Model
 			->from (__CLASS__)
 			->where ('code=?', $code)
 		)->getResult ()->asRow ();
-		
+
 		if ($data)
 		{
 		    return new self ($data);
@@ -146,7 +149,7 @@ class Youtube_Upload extends Model
 		    return null;
 		}
 	}
-	
+
 	/**
 	 * @desc Инициализация новой загрузки
 	 * @param string $service Название сервиса на ютубе.
@@ -156,8 +159,8 @@ class Youtube_Upload extends Model
 	{
 		self::_loadConfig ($service);
 		$auth_token = self::_authToken ();
-		
-		$data = 
+
+		$data =
 			"<?xml version='1.0'?>\r\n" .
 			"<entry xmlns='http://www.w3.org/2005/Atom' " .
 			"xmlns:media='http://search.yahoo.com/mrss/' " .
@@ -169,7 +172,7 @@ class Youtube_Upload extends Model
 					"<media:keywords>Отдых Туризм</media:keywords>" .
 				"</media:group>" .
 			"</entry>";
-		
+
 		$fp = fsockopen ("gdata.youtube.com", 80, $errno, $errstr, 20);
 		if ($fp)
 		{
@@ -183,12 +186,12 @@ class Youtube_Upload extends Model
 			$request .= "\r\n";
 			$request .= $data . "\r\n";
 			socket_set_timeout ($fp, 10);
-			
+
 			fputs ($fp, $request, strlen ($request));
 			$response = fread ($fp, 16384);
 		//	echo '<pre>'; var_dump($response); echo '</pre>';
 			fclose ($fp);
-			
+
 			$p1 = strpos ($response, '<url>');
 			if ($p1 === false)
 			{
@@ -198,7 +201,7 @@ class Youtube_Upload extends Model
 			$p1 += strlen ('<url>');
 			$p2 = strpos ($response, '</url>', $p1);
 			$upload_url = substr ($response, $p1, $p2 - $p1);
-			
+
 			$p1 = strpos ($response, '<token>') + strlen ('<token>');
 			$p2 = strpos ($response, '</token>', $p1);
 			$upload_token = substr ($response, $p1, $p2 - $p1);
@@ -208,13 +211,13 @@ class Youtube_Upload extends Model
 			trigger_error ('Не удалось связаться с сервером youtube.', E_USER_WARNING);
 			return false;
 		}
-		
+
 		return array (
 			'token'	=> $upload_token,
 			'url'	=> $upload_url
 		);
 	}
-	
+
 	/**
 	 * @desc Возвращает адрес для загрузки видео.
 	 * В конец будет добавлен GET параметр для колбэка после загрузки.
@@ -222,22 +225,22 @@ class Youtube_Upload extends Model
 	public function uploadUrl ()
 	{
 //		Длинна запроса получается > 255 символов,
-//		исползуем алиас 
-//		$nexturl = 
+//		исползуем алиас
+//		$nexturl =
 //			'http://' . $_SERVER['SERVER_NAME'] . '/' .
 //			'YoutubeUpload/sysYtCallback?uc=' . $this->code;
-		
+
 		// Алиас
-		$nexturl = 
+		$nexturl =
 			'http://' . $_SERVER ['SERVER_NAME'] . '/' .
 			'yc/?uc=' . $this->code;
-		
-		$url = 
+
+		$url =
 			$this->url .
-			(strpos ($this->url, '?') ? '&' : '?') . 
+			(strpos ($this->url, '?') ? '&' : '?') .
 			'nexturl=' . urlencode ($nexturl);
-		
+
 		return $url;
 	}
-	
+
 }
