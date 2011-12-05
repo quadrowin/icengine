@@ -1,12 +1,14 @@
 <?php
 
+namespace Ice;
+
 Loader::load ('Data_Adapter_Abstract');
 
 /**
  *
  * @desc Адаптер для работы с MongoDB
  * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
+ * @package Ice
  *
  */
 class Data_Adapter_Mongo extends Data_Adapter_Abstract

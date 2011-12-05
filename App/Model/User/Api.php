@@ -1,10 +1,13 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Данные по привязанному аккаунту пользователя в сторонней системе.
  * @author Юрий Шведов
- * @package IcEngine
- * 
+ * @package Ice
+ *
  */
 class User_Api extends Model
 {

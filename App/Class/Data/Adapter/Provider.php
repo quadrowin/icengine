@@ -1,11 +1,13 @@
 <?php
 
+namespace Ice;
+
 Loader::load ('Data_Adapter_Abstract');
 
 /**
  * @desc Адаптер данных через провайдер.
  * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
+ * @package Ice
  *
  */
 class Data_Adapter_Provider extends Data_Adapter_Abstract

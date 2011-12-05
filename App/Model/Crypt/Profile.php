@@ -1,6 +1,9 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Профиль шифрования
  * @author Юрий Шведов
  * @package IcEngine
@@ -8,21 +11,21 @@
  */
 class Crypt_Profile extends Crypt_Abstract
 {
-	
+
 	/**
 	 * @desc
 	 * @var array
 	 */
 	protected $_encode;
-	
+
 	/**
-	 * @desc 
+	 * @desc
 	 * @var array
 	 */
 	protected $_decode;
-	
+
 	/**
-	 * @desc 
+	 * @desc
 	 * @param array $encode Методы для шифрования.
 	 * @param array $decode Методы для дешифрования.
 	 */
@@ -31,7 +34,7 @@ class Crypt_Profile extends Crypt_Abstract
 		$this->_encode = $encode ? (array) $encode : array ();
 		$this->_decode = $decode ? (array) $decode : array ();
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Crypt_Abstract::decode()
@@ -44,7 +47,7 @@ class Crypt_Profile extends Crypt_Abstract
 		}
 		return $input;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Crypt_Abstract::encode()
@@ -57,5 +60,5 @@ class Crypt_Profile extends Crypt_Abstract
 		}
 		return $input;
 	}
-	
+
 }

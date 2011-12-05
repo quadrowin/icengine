@@ -1,4 +1,7 @@
 <?php
+
+namespace Ice;
+
 /**
  *
  * @desc Диспетчер контроллеров.
@@ -21,7 +24,7 @@ class Controller_Dispatcher
 			'action'		=> $action
 		);
 	}
-	
+
 	/**
 	 * @desc Запускает цикл диспетчеризации.
 	 * Находит соответствиие имени файла и метода
@@ -39,7 +42,7 @@ class Controller_Dispatcher
 				$controllerAction->action
 			));
 		}
-		
+
 		return $actions;
 	}
 }

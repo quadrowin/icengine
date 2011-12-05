@@ -1,28 +1,31 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Транзакция данных.
  * Используется для отложенного направления данных в(из) транспорт.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Data_Transport_Transaction
 {
-    
+
     /**
      * @desc Буффер транзакции.
      * Данные, которые были направлены в транспорт.
      * @var array
      */
     protected $_buffer = array ();
-    
+
     /**
      * @desc Транспорт, для которого создана транзакция.
      * @var Data_Transport
      */
     protected $_transport;
-    
+
 	/**
 	 * @desc Создает и возвращает транзакцию.
 	 * @param Data_Transport $transport Трансорт
@@ -31,7 +34,7 @@ class Data_Transport_Transaction
     {
         $this->_transport = $transport;
     }
-    
+
     /**
      * @desc Получает и возвращает значение из транзации.
      * @param string $key Ключ
@@ -41,7 +44,7 @@ class Data_Transport_Transaction
     {
         return isset ($this->_buffer [$key]) ? $this->_buffer [$key] : null;
     }
-    
+
     /**
      * @desc Запись значения в транзакцию.
      * @param array|string $key Ключ или массив пар (Ключ => Значение)
@@ -61,7 +64,7 @@ class Data_Transport_Transaction
             $this->_buffer [$key] = $data;
         }
     }
-    
+
     /**
 	 * @desc Возвращает буффер транзации.
      * @return array
@@ -70,7 +73,7 @@ class Data_Transport_Transaction
     {
         return $this->_buffer;
     }
-    
+
     /**
      * @desc Коммит транзакции.
      * Направляет в транспорт данные, накопленные в транзакции.
@@ -79,5 +82,5 @@ class Data_Transport_Transaction
     {
         $this->_transport->sendForce ($this->_buffer);
     }
-    
+
 }

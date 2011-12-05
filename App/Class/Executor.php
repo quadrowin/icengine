@@ -1,11 +1,13 @@
 <?php
 
+namespace Ice;
+
 /**
  * @desc Исполнитель.
  * Предназначени для запуска функций/методов и кэширования результатов
  * их работы.
- * @author Юрий
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class Executor

@@ -1,5 +1,7 @@
 <?php
 
+namespace Ice;
+
 /**
  * @desc Логи админки
  * @author Илья Колесников
@@ -8,5 +10,5 @@
  */
 class Admin_Log extends Model
 {
-	
+
 }

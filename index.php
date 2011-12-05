@@ -3,8 +3,10 @@
 	<title>IcEngine</title>
 </head>
 <body>
-	<p>Provided by I-complex.</p>
-	<p>thx to googlecode project.</p>
+	<p>
+		thx to <a href="http://i-complex.ru/">i-complex</a> &
+		<a href="http://code.google.com/">googlecode</a>.
+	</p>
 	<p><?=date('Y-m-d')?></p>
 </body>
 </html>

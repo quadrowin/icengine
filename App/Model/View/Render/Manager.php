@@ -1,9 +1,12 @@
 <?php
+
+namespace Ice;
+
 /**
  *
  * @desc Менеджер рендеринга
  * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
+ * @package Ice
  *
  */
 abstract class View_Render_Manager extends Manager_Abstract
@@ -51,33 +54,19 @@ abstract class View_Render_Manager extends Manager_Abstract
 			return self::$_views [$name];
 		}
 
-		$view = Model_Manager::byQuery (
-			'View_Render',
-			Query::instance ()
-				->where ('name', $name)
-		);
+//		$view = Model_Manager::byQuery (
+//			__NAMESPACE__ . '\\View_Render',
+//			Query::instance ()
+//				->where ('name', $name)
+//		);
 
-		if (!$view)
-		{
-			$p = strrpos ($name, '\\');
-			if (false !== $p)
-			{
-				$class_name =
-					substr ($name, 0, $p + 1) .
-					'View_Render_' .
-					substr ($name, $p + 1);
-			}
-			else
-			{
-				$class_name = 'View_Render_' . $name;
-			}
-			Loader::load ($class_name);
+		$class_name = static::completeClassName ($name, 'View_Render');
+		Loader::load ($class_name);
 
-			$view = new $class_name (array (
-				'id'	=> null,
-				'name'	=> $name
-			));
-		}
+		$view = new $class_name (array (
+			'id'	=> null,
+			'name'	=> $name
+		));
 
 		return self::$_views [$name] = $view;
 	}

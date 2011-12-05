@@ -1,12 +1,15 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Модель пункта в счете
- * @author Гурус
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class Bill_Item extends Model
 {
-	
+
 }

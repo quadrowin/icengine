@@ -1,9 +1,12 @@
 <?php
+
+namespace Ice;
+
 /**
  *
  * @desc Источник данных
  * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
+ * @package Ice
  *
  */
 class Data_Source
@@ -25,9 +28,9 @@ class Data_Source
 	 * @var Data_Mapper_Result
 	 */
 	protected static $_models;
-	
+
 	/**
-	 * @desc 
+	 * @desc
 	 * @var Data_Mapper_Abstract
 	 */
 	protected $_mapper;
@@ -82,7 +85,7 @@ class Data_Source
 		$model_map = new Model_Map;
 
 		$this->setQuery ($query);
-		
+
 		if (!$this->_adapter->isConnected ())
 		{
 			$this->_adapter->connect ();
@@ -95,9 +98,9 @@ class Data_Source
 		$where = $clone->getPart (Query::WHERE);
 		$this->_filters->apply ($where, Query::VALUE);
 		$clone->setPart (Query::WHERE, $where);
-		
+
 		$models = $clone->getModels ();
-		
+
 		foreach ($models as $model)
 		{
 			$model_map->setTable ($model, $this->_mapper->getTable ($model));
@@ -134,6 +137,7 @@ class Data_Source
 
 		if ($errno)
 		{
+			\Debug::vardump($this->_adapter);
 			Loader::load ('Data_Source_Exception');
 			throw new Data_Source_Exception (
 				$error . "\n" . json_encode ($translated_query), $errno
@@ -184,14 +188,14 @@ class Data_Source
 	}
 
 	/**
-	 * @desc 
+	 * @desc
 	 * @return Data_Mapper_Abstract
 	 */
 	public function getDataMapper ()
 	{
 		return $this->_mapper;
 	}
-	
+
 	/**
 	 * @return integer
 	 */
@@ -235,16 +239,16 @@ class Data_Source
 	{
 		return $this->_result;
 	}
-	
+
 	/**
-	 * @desc 
-	 * @param Data_Mapper_Abstarct $mapper 
+	 * @desc
+	 * @param Data_Mapper_Abstarct $mapper
 	 */
 	public function setDataMapper (Data_Mapper_Abstract $mapper)
 	{
 		$this->_mapper = $mapper;
 	}
-	
+
 	/**
 	 *
 	 * @param Data_Source_Collection $sources

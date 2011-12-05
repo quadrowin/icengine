@@ -1,4 +1,7 @@
 <?php
+
+namespace Ice;
+
 /**
  *
  * @desc Приложение.

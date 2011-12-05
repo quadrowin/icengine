@@ -1,28 +1,31 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
- * Базовый класс для сообщений
+ *
+ * @desc Базовый класс для сообщений
  * @author Юрий
- * @package IcEngine
+ * @package Ice
  *
  */
 class Message_Abstract
 {
-	
+
 	/**
 	 * Дополнительные параметры сообщений
 	 * @var array
 	 */
 	protected $_data = array ();
-	
+
 	/**
 	 * Тип сообщения
 	 * @var string
 	 */
 	protected $_type;
-	
+
 	/**
-	 * 
+	 *
 	 * @param array $data
 	 * 		Дополнитльные параметры
 	 * @param string $type
@@ -31,15 +34,15 @@ class Message_Abstract
 	public function __construct (array $data = array (), $type = null)
 	{
 		$this->_data = $data;
-		
+
 		if (!$type)
 		{
 		    $this->_type = substr (get_class ($this), strlen ('Message_'));
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $key
 	 * @return mixed
 	 */
@@ -47,9 +50,9 @@ class Message_Abstract
 	{
 		return $this->_data [$key];
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $key
 	 * @param mixed $value
 	 */
@@ -57,7 +60,7 @@ class Message_Abstract
 	{
 		$this->_data [$key] = $value;
 	}
-	
+
 	/**
 	 * Вызвать обработчик
 	 * @param callback $callback
@@ -65,7 +68,7 @@ class Message_Abstract
 	public function notify ($callback)
 	{
 		if (
-			is_array ($callback) && 
+			is_array ($callback) &&
 			isset ($callback [0], $callback [1]) &&
 			is_string ($callback [0])
 		)
@@ -75,7 +78,7 @@ class Message_Abstract
 		}
 		return call_user_func ($callback, $this);
 	}
-	
+
 	/**
 	 * Тип сообщения
 	 * @return string
@@ -84,5 +87,5 @@ class Message_Abstract
 	{
 		return $this->_type;
 	}
-	
+
 }

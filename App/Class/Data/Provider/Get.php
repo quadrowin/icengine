@@ -1,13 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Работа с данными, переданными методом $_GET
  * @author Юрий
+ * @package Ice
  *
  */
 class Data_Provider_Get extends Data_Provider_Abstract
 {
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::get()
@@ -16,7 +20,7 @@ class Data_Provider_Get extends Data_Provider_Abstract
 	{
 		return isset ($_GET [$key]) ? urldecode ($_GET [$key]) : null;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::getAll()
@@ -25,7 +29,7 @@ class Data_Provider_Get extends Data_Provider_Abstract
 	{
 		return $_GET;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::set()
@@ -34,5 +38,5 @@ class Data_Provider_Get extends Data_Provider_Abstract
 	{
 		$_GET [$key] = $value;
 	}
-	
+
 }

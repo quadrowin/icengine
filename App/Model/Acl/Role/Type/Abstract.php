@@ -1,8 +1,10 @@
 <?php
 
+namespace Ice;
+
 abstract class Acl_Role_Type_Abstract extends Model_Factory_Delegate
 {
-    
+
     /**
      * Проверяет отношение пользователя к роли.
      * @param User $user
@@ -20,5 +22,5 @@ abstract class Acl_Role_Type_Abstract extends Model_Factory_Delegate
 		// Зарегистрированный пользователь
 		return Helper_Link::wereLinked ($role, $user);
     }
-    
+
 }

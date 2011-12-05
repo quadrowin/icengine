@@ -1,9 +1,12 @@
 <?php
+
+namespace Ice;
+
 /**
  *
  * @desc Транслятор в Mongo запрос
  * @author Yury Shvedov
- * @package IcEngine
+ * @package Ice
  *
  */
 class Query_Translator_Mongo extends Query_Translator
@@ -285,7 +288,7 @@ class Query_Translator_Mongo extends Query_Translator
 						if (empty ($sparts [0]))
 						{
 							$source = '';
-						} 
+						}
 						else
 						{
 							$source =

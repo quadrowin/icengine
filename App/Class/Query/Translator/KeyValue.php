@@ -1,13 +1,14 @@
 <?php
 
+namespace Ice;
+
 /**
  *
- * @desc
- * 		Транслятор запроса для хранилища key-value.
+ * @desc Транслятор запроса для хранилища key-value.
  * @author Юрий
+ * @package Ice
  *
  */
-
 class Query_Translator_KeyValue extends Query_Translator
 {
 	/**

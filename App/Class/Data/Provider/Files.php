@@ -1,14 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Провайдер для получения файлов из POST запроса.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Data_Provider_Files extends Data_Provider_Abstract
 {
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::get()
@@ -21,7 +24,7 @@ class Data_Provider_Files extends Data_Provider_Abstract
 		}
 		return null;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::getAll()
@@ -30,14 +33,14 @@ class Data_Provider_Files extends Data_Provider_Abstract
 	{
 		return $_FILES;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::set()
 	 */
 	public function set ($key, $value, $expiration = 0, $tags = array ())
 	{
-		
+
 	}
-	
+
 }

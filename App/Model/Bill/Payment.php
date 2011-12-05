@@ -1,12 +1,15 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Платеж по счету
- * @author Гурус
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class Bill_Payment extends Model
 {
-	
+
 }

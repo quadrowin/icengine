@@ -1,14 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Для определения вызова консольных контроллеров
- * @author Shvedov_U
- * @package IcEngine
- * 
+ * @author Yury Shvedov
+ * @package Ice
+ *
  */
 class Controller_Checker_Console
 {
-	
+
 	/**
 	 * @desc Проверяет, является ли вызов консольным.
 	 * @return boolean
@@ -17,5 +20,5 @@ class Controller_Checker_Console
 	{
 		return Request::isConsole ();
 	}
-	
+
 }

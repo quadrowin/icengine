@@ -1,9 +1,12 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Действие контроллера.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Controller_Action extends Model
@@ -13,13 +16,13 @@ class Controller_Action extends Model
 	 * @var string
 	 */
 	const IGNORE_FLAG = 'ignore';
-	
+
 	/**
 	 * @desc Транспорт входной
 	 * @var string
 	 */
 	public $_input;
-	
+
 	/**
 	 * @desc Транспорт выходной
 	 * @var string

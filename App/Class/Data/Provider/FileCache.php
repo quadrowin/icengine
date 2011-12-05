@@ -1,17 +1,19 @@
 <?php
 
+namespace Ice;
+
 class Data_Provider_FileCache extends Data_Provider_Abstract
 {
-	
+
 	/**
 	 * Признак для разбиения ключей по директориям
 	 * @var string
 	 */
 	public $keyDelim = '\\';
-	
+
 	public $path = 'cache/';
 	public $tempPrefix = '_temp_';
-	
+
 	/**
 	 * Очищает указанную директорию.
 	 * Все файлы из директории $dir и всех поддиректорий будут удалены.
@@ -28,9 +30,9 @@ class Data_Provider_FileCache extends Data_Provider_Abstract
 			}
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $key
 	 * @param mixed $value
 	 * @return boolean
@@ -42,16 +44,16 @@ class Data_Provider_FileCache extends Data_Provider_Abstract
 			case 'path':
 				$this->path = $value;
 				return true;
-				
+
 			case 'temp_prefix':
 				$this->tempPrefix = $value;
 				return true;
 		}
 		return parent::_setOption ($key, $value);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $key
 	 * @param mixed $value
 	 * @param integet $expiration=0
@@ -64,45 +66,45 @@ class Data_Provider_FileCache extends Data_Provider_Abstract
 		{
 			$this->tracer->add ('add', $key, $expiration);
 		}
-		
+
 		$file = $this->makePath ($key);
-		
+
 		if (file_exists ($file))
 		{
 			return false;
 		}
-		
+
 		$data = array (
 			'v'	=> $value,
 		);
-		
+
 		if ($expiration > 0)
 		{
 			$data ['e'] = $expiration + time ();
 		}
-		
+
 		if (!empty ($tags))
 		{
 			$data ['t'] = $this->getTags ($tags);
 		}
-		
+
 		$data = json_encode ($data);
-		
+
 		$fh = fopen ($file, 'xb');
 		if (!$fh)
 		{
 			return false;
 		}
 		set_file_buffer ($fh, 0);
-		
+
 		fwrite ($fh, $data, strlen ($data));
 		fclose ($fh);
-		
+
 		return true;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $key
 	 * @param mixed $value
 	 * @return boolean
@@ -113,29 +115,29 @@ class Data_Provider_FileCache extends Data_Provider_Abstract
 		{
 			$this->tracer->add ('append', $key);
 		}
-		
+
 		$file = $this->makePath ($key);
-		
+
 		if (!file_exists ($file))
-		{  
+		{
 			return false;
 		}
-		
+
 		$fh = fopen ($file, 'w+b');
 		if (!$fh)
 		{
 			return false;
 		}
 		set_file_buffer ($fh, 0);
-		
+
 		$size = filesize ($file);
 		if ($size)
 		{
 			$data = fread ($fh, $size);
 			$data = json_decode ($data, true);
-			
+
 			if (
-				isset($data ['e']) && 
+				isset($data ['e']) &&
 				$data ['e'] > 0 && $data ['e'] < time ()
 			)
 			{
@@ -155,12 +157,12 @@ class Data_Provider_FileCache extends Data_Provider_Abstract
 		$data = json_encode ($data);
 		fseek ($fh, 0, SEEK_SET);
 		fwrite ($fh, $data, strlen ($data));
-		
+
 		fclose ($fh);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $key
 	 * @param integer $value=1
 	 * @return boolean
@@ -171,21 +173,21 @@ class Data_Provider_FileCache extends Data_Provider_Abstract
 		{
 			$this->tracer->add ('decrement', $key);
 		}
-		
+
 		$file = $this->makePath ($key);
-		
+
 		if (!file_exists ($file))
-		{  
+		{
 			return false;
 		}
-		
+
 		$fh = fopen ($file, 'w+b');
 		if (!$fh)
 		{
 			return false;
 		}
 		set_file_buffer ($fh, 0);
-		
+
 		$size = filesize ($file);
 		if ($size)
 		{
@@ -203,12 +205,12 @@ class Data_Provider_FileCache extends Data_Provider_Abstract
 		fseek ($fh, 0, SEEK_SET);
 		fwrite ($fh, $data, strlen ($data));
 		ftruncate ($fh, strlen($data));
-		
+
 		fclose ($fh);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string|array $keys
 	 * @param integer $time
 	 * @param boolean $set_deleted=false
@@ -217,31 +219,31 @@ class Data_Provider_FileCache extends Data_Provider_Abstract
 	public function delete ($keys, $time = 0, $set_deleted = false)
 	{
 		$keys = (array) $keys;
-		
+
 		if ($this->tracer)
 		{
 			$this->tracer->add ('delete', implode (',', $keys), $time);
 		}
-		
+
 		$delete_count = 0;
-		
+
 		foreach ($keys as $key)
 		{
 			if (is_array ($key))
 			{
 				$key = $key [0];
 			}
-			
+
 			if (isset ($this->locks [$key]))
 			{
 				unset ($this->locks [$key]);
 			}
-			
+
 			if ($set_deleted)
 			{
 				$this->set ($this->prefixDeleted . $key, time ());
 			}
-			
+
 			$file = $this->makePath ($key);
 			if (file_exists ($file))
 			{
@@ -249,12 +251,12 @@ class Data_Provider_FileCache extends Data_Provider_Abstract
 			}
 			$delete_count++;
 		}
-			
+
 		return $delete_count;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param integer $delay=0
 	 * @return integer
 	 */
@@ -264,17 +266,17 @@ class Data_Provider_FileCache extends Data_Provider_Abstract
 		{
 			$this->tracer->add ('flush', $delay);
 		}
-		
+
 		$delete_count = 0;
-		
+
 		// Данные
 		$this->_clearDir ($this->path);
-		
+
 		return $delete_count;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $key
 	 * @param boolean $plain=false
 	 * @return boolean|string
@@ -285,14 +287,14 @@ class Data_Provider_FileCache extends Data_Provider_Abstract
 		{
 			$this->tracer->add ('get', $key);
 		}
-		
+
 		$file = $this->makePath ($key);
-		
+
 		if (!file_exists ($file))
-		{  
+		{
 			return false;
 		}
-		
+
 		$fh = fopen ($file, 'rb');
 		if (!$fh)
 		{
@@ -305,15 +307,15 @@ class Data_Provider_FileCache extends Data_Provider_Abstract
 		$data = fread ($fh, filesize ($file));
 		flock ($fh, LOCK_UN);
 		fclose ($fh);
-		
+
 		$data = json_decode ($data, true);
-		
+
 		if (!is_array ($data) || !isset ($data ['v']))
 		{
 			return false;
 		}
 		elseif (
-			isset ($data ['e']) && 
+			isset ($data ['e']) &&
 			$data ['e'] > 0 && $data ['e'] < time ()
 		)
 		{
@@ -328,10 +330,10 @@ class Data_Provider_FileCache extends Data_Provider_Abstract
 			unlink ($file);
 			return false;
 		}
-		
+
 		return $data ['v'];
 	}
-	
+
 	/**
      * @method getStats
      * @return array
@@ -341,7 +343,7 @@ class Data_Provider_FileCache extends Data_Provider_Abstract
 	{
 		return '';
 	}
-	
+
 	/**
      * Increment specified key with value.
      * @param string $key incrementing key.
@@ -353,27 +355,27 @@ class Data_Provider_FileCache extends Data_Provider_Abstract
 		{
 			$this->tracer->add ('increment', $key);
 		}
-		
+
 		$file = $this->makePath ($key);
-		
+
 		if (!file_exists ($file))
-		{  
+		{
 			return false;
 		}
-		
+
 		$fh = fopen ($file, 'w+b');
 		if (!$fh)
 		{
 			return false;
 		}
 		set_file_buffer ($fh, 0);
-		
+
 		$size = filesize ($file);
 		if ($size)
 		{
 			$data = fread ($fh, $size);
 			$data = json_decode ($data, true);
-		
+
 			$data ['v'] += $value;
 		}
 		else
@@ -386,10 +388,10 @@ class Data_Provider_FileCache extends Data_Provider_Abstract
 		fseek ($fh, 0, SEEK_SET);
 		fwrite ($fh, $data, strlen ($data));
 		ftruncate ($fh, strlen ($data));
-		
+
 		fclose ($fh);
 	}
-	
+
 	/**
      * Get keys by wildcard
      * @param string $pattern
@@ -401,15 +403,15 @@ class Data_Provider_FileCache extends Data_Provider_Abstract
 		{
 			$this->tracer->add ('keys', $pattern);
 		}
-		
+
 		$mask = $this->makePath ($pattern);
 		$mask = str_replace ('%2A', '*', $mask);
 		$files = glob ($mask);
-		
+
 		$l = strlen ($this->path);
-		
+
 		$keys = array ();
-		
+
 		$es = '_' . DIRECTORY_SEPARATOR;
 		foreach ($files as $file)
 		{
@@ -427,12 +429,12 @@ class Data_Provider_FileCache extends Data_Provider_Abstract
 				);
 			}
 		}
-		
+
 		return $keys;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $key
 	 * @return string
 	 */
@@ -463,12 +465,12 @@ class Data_Provider_FileCache extends Data_Provider_Abstract
 				}
 			}
 		}
-		
+
 		return $path . DIRECTORY_SEPARATOR . $file;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $key
 	 * @param mixed $value
 	 * @return boolean
@@ -479,29 +481,29 @@ class Data_Provider_FileCache extends Data_Provider_Abstract
 		{
 			$this->tracer->add ('prepend', $key);
 		}
-		
+
 		$file = $this->makePath ($key);
-		
+
 		if (!file_exists ($file))
-		{  
+		{
 			return false;
 		}
-		
+
 		$fh = fopen ($file, 'w+b');
 		if (!$fh)
 		{
 			return false;
 		}
         set_file_buffer ($fh, 0);
-		
+
 		$size = filesize ($file);
 		if ($size)
 		{
 			$data = fread ($fh, $size);
 			$data = json_decode ($data, true);
-			
+
 			if (
-				isset ($data['e']) && 
+				isset ($data['e']) &&
 				$data ['e'] > 0 && $data ['e'] < time ()
 			)
 			{
@@ -524,9 +526,9 @@ class Data_Provider_FileCache extends Data_Provider_Abstract
 
 		fclose ($fh);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $key
 	 * @param mixed $value
 	 * @param integer $expiration=0
@@ -539,24 +541,24 @@ class Data_Provider_FileCache extends Data_Provider_Abstract
 		{
 			$this->tracer->add ('set', $key, $expiration);
 		}
-		
+
 		//$tmp_file = $this->makePath ($this->tempPrefix . $key . uniqid() . rand(0, 1000));
 		$dst_file = $this->makePath ($key);
-		
+
 		$data = array (
 			'v'	=> $value
 		);
-		
+
 		if ($expiration > 0)
 		{
 			$data ['e'] = $expiration + time ();
 		}
-		
+
 		if (!empty ($tags))
 		{
 			$data ['t'] = $this->getTags ($tags);
 		}
-		
+
 		$data = json_encode ($data);
 		$fh = fopen ($dst_file, 'wb');
 		if (!$fh)
@@ -564,7 +566,7 @@ class Data_Provider_FileCache extends Data_Provider_Abstract
 			return false;
 		}
 		set_file_buffer ($fh, 0);
-		
+
 		fwrite ($fh, $data, strlen ($data));
 		fclose ($fh);
 		//file_put_contents ($tmp_file, json_encode ($data));
@@ -573,5 +575,5 @@ class Data_Provider_FileCache extends Data_Provider_Abstract
 		//unlink ($tmp_file);
 		//return rename($tmp_file, $dst_file);
 	}
-	
+
 }

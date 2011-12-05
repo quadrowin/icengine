@@ -1,9 +1,12 @@
 <?php
+
+namespace Ice;
+
 /**
  *
  * @desc Мэнеджер конфигов.
  * @author Yury Shvedov
- * @package IcEngine
+ * @package Ice
  *
  */
 class Config_Manager
@@ -31,6 +34,11 @@ class Config_Manager
 	 */
 	protected static function _load ($type, $config = '')
 	{
+		$p = strrpos ($type, '\\');
+		if (false !== $p) {
+			$type = substr ($type, $p + 1);
+		}
+
 		$filename =
 			self::getPath () .
 			str_replace ('_', '/', $type) .
@@ -40,7 +48,7 @@ class Config_Manager
 		if (is_file ($filename))
 		{
 			$ext = ucfirst (strtolower (substr (strrchr ($filename, '.'), 1)));
-			$class = 'Config_' . $ext;
+			$class = __NAMESPACE__ . '\\Config_' . $ext;
 			Loader::load ($class);
 
 			$result = new $class ($filename);
@@ -101,7 +109,7 @@ class Config_Manager
 	 */
 	public static function getPath() {
 		if (!self::$_path) {
-			self::$_path = IcEngine::root () . 'Ice/Config/';
+			self::$_path = \Ice\Core::root () . 'Ice/Config/';
 		}
 		return self::$_path;
 	}

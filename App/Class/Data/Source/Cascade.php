@@ -1,22 +1,25 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Каскад источников данных.
  * Предназначен для получения данных из первого доступного источника,
  * а при обновлении - записи во все источники.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Data_Source_Cascade extends Data_Source_Abstract
 {
-	
+
 	/**
-	 * 
+	 *
 	 * @var array <Data_Mapper_Abstract>
 	 */
 	protected $_mappers = array ();
-	
+
 	/**
 	 * @desc Вычисление ключа запроса.
 	 * @param Query $query Запрос.
@@ -26,13 +29,13 @@ class Data_Source_Cascade extends Data_Source_Abstract
 	{
 		return md5 (json_encode ($query->parts ()));
 	}
-	
+
 	public function addDataMapper (Data_Mapper_Abstract $mapper)
 	{
 		$this->_mappers [] = $mapper;
 		return $this;
 	}
-	
+
 	/**
 	 * @desc Проверяет доступность источника данных
 	 * @return boolean
@@ -41,9 +44,9 @@ class Data_Source_Cascade extends Data_Source_Abstract
 	{
 		return (bool) count ($this->_mappers);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Query $query
 	 * @param Query_Options $options
 	 * @return Data_Source_Abstract $this
@@ -52,16 +55,16 @@ class Data_Source_Cascade extends Data_Source_Abstract
 	{
 		$this->setQuery ($query);
 		$key = $this->_queryKey ($query);
-		
+
 		foreach ($this->_mappers as $index => $mapper)
 		{
 			$this->_mapper = $mapper;
 			$this->setResult ($mapper->execute ($this, $query, $options));
-			
+
 			if ($query->type () == Query::SELECT)
 			{
 				if (
-					$this->success () || 
+					$this->success () ||
 					$index == count ($this->_mappers) - 1
 				)
 				{
@@ -70,7 +73,7 @@ class Data_Source_Cascade extends Data_Source_Abstract
 						$this->_mappers [$i]->unlock (
 							$key,
 							$query,
-							$options, 
+							$options,
 							$this->_result
 						);
 					}
@@ -82,12 +85,12 @@ class Data_Source_Cascade extends Data_Source_Abstract
 				}
 			}
 		}
-		
+
 		return $this;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Data_Mapper_Abstract $mapper
 	 */
 	public function setDataMapper (Data_Mapper_Abstract $mapper)
@@ -96,5 +99,5 @@ class Data_Source_Cascade extends Data_Source_Abstract
 		$this->_mappers [] = $mapper;
 		return $this;
 	}
-	
+
 }

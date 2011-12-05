@@ -1,10 +1,14 @@
 <?php
 
+namespace Ice;
+
 /**
+ * 
  * @desc Реализация паттерна "Composite".
  * Необходим для обращения к коллекции объектов, как к объекту
  * @author Илья Колесников
- * @package IcEngine
+ * @package Ice
+ *
  */
 class Composite
 {

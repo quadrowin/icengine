@@ -1,9 +1,12 @@
 <?php
+
+namespace Ice;
+
 /**
  *
  * @desc Абстрактный класс опций модели.
  * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
+ * @package Ice
  *
  */
 abstract class Model_Option
@@ -104,7 +107,7 @@ abstract class Model_Option
 		elseif ($p === 0)
 		{
 			// Базовые опции всех моделей, например '::Limit'
-			return 'Model_Option_' . substr ($option, $p + 2);
+			return __NAMESPACE__ . '\\Model_Option_' . substr ($option, $p + 2);
 		}
 
 		// Опция другой модели

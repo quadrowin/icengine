@@ -1,5 +1,7 @@
 <?php
 
+namespace Ice;
+
 /**
  * @desc Задание для планировщика
  * @author Илья Колесников
@@ -34,6 +36,6 @@ class Task extends Model
 				'primary'	=> 'id'
 			)
 		)
-		
+
 	);
 }

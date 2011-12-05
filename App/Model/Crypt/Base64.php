@@ -1,6 +1,9 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Шифрование base64
  * @author Юрий Шведов
  * @package IcEngine
@@ -8,7 +11,7 @@
  */
 class Crypt_Base64 extends Crypt_Abstract
 {
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Crypt_Abstract::decode()
@@ -17,7 +20,7 @@ class Crypt_Base64 extends Crypt_Abstract
 	{
 		return base64_decode ($input);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Crypt_Abstract::encode()
@@ -26,5 +29,5 @@ class Crypt_Base64 extends Crypt_Abstract
 	{
 		return base64_encode ($input);
 	}
-	
+
 }

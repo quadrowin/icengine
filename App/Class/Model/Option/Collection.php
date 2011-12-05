@@ -1,27 +1,30 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Коллекция опций модели.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Model_Option_Collection
 {
-    
+
     /**
      * @desc Коллекция, к которой привязаны опции.
      * Необходима для определения названий классов опций.
      * @var Model_Collection
      */
 	protected $_collection;
-	
+
 	/**
 	 * @desc Опции
 	 * @var array <Model_Option>
 	 */
 	protected $_items = array ();
-	
+
 	/**
 	 * @desc Создает и возвращает коллекцию опций.
 	 * @param Model_Collection $collection
@@ -31,7 +34,7 @@ class Model_Option_Collection
 		Loader::load ('Model_Option');
 		$this->_collection = $collection;
 	}
-	
+
 	/**
 	 * @desc Добавление опции
 	 * @param mixed $item
@@ -44,7 +47,7 @@ class Model_Option_Collection
 		{
 			$item = array ('name' => $item);
 		}
-		
+
 		if (is_array ($item))
 	    {
 			$class = Model_Option::getClassName (
@@ -68,9 +71,9 @@ class Model_Option_Collection
 					$item
 				);
 			}
-			
+
 	    }
-		
+
 	    if ($item instanceof Model_Collection_Option_Abstract)
 	    {
 			Loader::load ('Model_Option_Old');
@@ -81,17 +84,17 @@ class Model_Option_Collection
 				)
 	        );
 	    }
-		
+
 		if (!($item instanceof Model_Option))
 		{
 			throw new Zend_Exception ('Unsupported type: ' . gettype ($item));
 		}
-		
+
 	    return $this->_items [] = $item;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Model_Collection $collection
 	 * @param Query $query
 	 * @rturn mixed
@@ -105,9 +108,9 @@ class Model_Option_Collection
 			$option->after ();
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Model_Collection $collection
 	 * @param Query $query
 	 */
@@ -120,7 +123,7 @@ class Model_Option_Collection
 			$option->before ();
 		}
 	}
-	
+
 	/**
 	 * @return Model_Collection
 	 */
@@ -128,7 +131,7 @@ class Model_Option_Collection
 	{
 		return $this->_collection;
 	}
-	
+
 	/**
 	 * @return array
 	 */
@@ -136,9 +139,9 @@ class Model_Option_Collection
 	{
 		return $this->_items;
 	}
-	
+
 	/**
-	 * @desc 
+	 * @desc
 	 * @param mixed $options
 	 */
 	public function setItems ($options)

@@ -1,14 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc DDS Default Data Source
- * 
+ *
  * Easy way to call querys to DB like
  * DDS::execute ($query)
- * 
+ *
  * @author Yury Shvedov
- * @package IcEngine
- * 
+ * @package Ice
+ *
  */
 class DDS
 {
@@ -18,7 +21,7 @@ class DDS
 	 * @var Data_Source
 	 */
 	protected static $_source;
-	
+
 	/**
 	 * @desc Экранирование
 	 * @param string $string
@@ -28,7 +31,7 @@ class DDS
 	{
 	    return mysql_real_escape_string ($string);
 	}
-	
+
 	/**
 	 * @desc Выполняет запрос и возвращает текущний источник
 	 * @param Query $query Запрос
@@ -39,7 +42,7 @@ class DDS
 	{
 		return self::$_source->execute ($query, $options);
 	}
-	
+
 	/**
 	 * @desc Выполняет запрос и возвращает текущний источник.
 	 * Источник данных будет определен автоматически.
@@ -54,7 +57,7 @@ class DDS
 		$source = Model_Scheme::dataSource ($from [Query::TABLE]);
 		return $source->execute ($query, $options);
 	}
-	
+
 	/**
 	 * @desc Возвращает текущий источник по умолчанию
 	 * @return Data_Source
@@ -63,12 +66,12 @@ class DDS
 	{
 		return self::$_source;
 	}
-	
+
 	public static function initAsMysqlAddition ()
 	{
 		self::$_source = new Data_Source_Mysql ();
 	}
-	
+
 	/**
 	 * @return boolean
 	 */
@@ -78,12 +81,12 @@ class DDS
 	}
 
 	/**
-	 * 
+	 *
 	 * @param Data_Source $source
 	 */
 	public static function setDataSource (Data_Source $source)
 	{
 		self::$_source = $source;
 	}
-	
+
 }

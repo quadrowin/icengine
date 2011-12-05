@@ -1,12 +1,15 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Тип платежа
- * @author Гурус
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class Bill_Payment_Type extends Model_Factory
 {
-	
+
 }

@@ -1,9 +1,12 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Помощник для показа дополнительных секций администратора.
  * Код, расположенный между неподходящими блоками acl будет вырезан
- * из шаблона и не 
+ * из шаблона и не
  * @tutorial
  * 		{acl role="admin"}
  * 			some protected data
@@ -19,13 +22,13 @@
  */
 class Helper_Smarty_Filter_Acl
 {
-	
+
 	/**
 	 * @desc Регулярное выражение, по которому ищутся защищенные блоки.
 	 * @var string
 	 */
 	const REGEX	= '#\{acl(\}|\s{1,}[^}]{1,}\})((?:[^[]|\{(?!/?acl})|(?R))+|)\{/acl}#';
-	
+
 	/**
 	 * @desc Проверяет имеет ли пользователь доступ
 	 * @param string $rules
@@ -34,21 +37,21 @@ class Helper_Smarty_Filter_Acl
 	protected static function _accessGranded ($rules)
 	{
 		$rules = preg_split ("#\\s#", trim ($rules, " \t\r\n}"));
-    	
+
 		foreach ($rules as $rule)
 		{
 			if (strncmp ($rule, 'role=', 5) == 0)
 			{
 				// Указаны роли, для которых доступ открыт
-				
+
 				$roles = explode (
-					',', 
+					',',
 					trim (
-						substr ($rule, 5), 
+						substr ($rule, 5),
 						'"\''
 					)
 				);
-				
+
 				foreach ($roles as $role)
 				{
 					$role = Acl_Role::byName ($role);
@@ -62,20 +65,20 @@ class Helper_Smarty_Filter_Acl
 			elseif (strncmp ($rule, 'auth=', 5) == 0)
 			{
 				$auth = trim (
-					substr ($rule, 5), 
+					substr ($rule, 5),
 					'"\''
 				);
-				
+
 				if ($auth != User::authorized ())
 				{
 					return false;
 				}
 			}
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * @desc Регистрация фильтра в смарти.
 	 * @param Smarty $smarty
@@ -84,7 +87,7 @@ class Helper_Smarty_Filter_Acl
 	{
 		$smarty->register_prefilter (array (__CLASS__, 'filterAcl'));
 	}
-	
+
 	/**
 	 * @desc Реализует ACL для шаблона.
 	 * Этот метод вызывается из смарти перед обработкой шаблона.
@@ -98,10 +101,10 @@ class Helper_Smarty_Filter_Acl
 		{
 			return;
 		}
-		
+
 		return self::pregReplace ($tpl_source);
 	}
-	
+
 	/**
 	 * @desc Разбор строки на наличие тегов доступа.
 	 * @param string|array $input
@@ -112,16 +115,16 @@ class Helper_Smarty_Filter_Acl
 	    if (is_array ($input))
 	    {
 			$access = self::_accessGranded ($input [1]);
-			
+
 			$else_pos = strpos ($input [2], '{aclelse}');
-			
+
 			if ($access)
 			{
 				if ($else_pos === false)
 				{
 					return $input [2];
 				}
-				
+
 				$input = substr ($input [2], 0, $else_pos);
 			}
 			elseif ($else_pos !== false)
@@ -133,34 +136,34 @@ class Helper_Smarty_Filter_Acl
 				return '';
 			}
 	    }
-	
+
 	    return preg_replace_callback (self::REGEX, __METHOD__, $input);
 	}
-	
+
 	/**
 	 * @desc Метод для тестирования разобра строки
 	 */
 	public static function pregReplaceTest ($input)
 	{
 		static $deep = 0;
-		
+
 	    if (is_array ($input))
 	    {
 	    	echo $deep . ':', var_export ($input, true), '<br />';
-	    	
+
 	    	$rules = preg_split ("#\\s#", trim ($input [1], " \t\r\n}"));
-	    	
+
 	    	echo 'rules: ', var_export ($rules, true), '<br />';
-	    	
+
 	        $input = '{a' . $deep .'}' . $input [2] . '{/a' . $deep . '}';
 	    }
-	
+
 	    ++$deep;
 	    $r = preg_replace_callback (self::REGEX, __METHOD__, $input);
 	    --$deep;
 	    return $r;
 	}
-	
+
 }
 
 // Тесты
