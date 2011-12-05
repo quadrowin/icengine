@@ -1,5 +1,7 @@
 <?php
 
+namespace Ice;
+
 class Chat_Session_Join_Collection extends Model_Collection
 {
 	public function other ()
@@ -16,7 +18,7 @@ class Chat_Session_Join_Collection extends Model_Collection
 			'Chat_Session_Join',
 			$query
 		);
-		
+
 		return $other_join_collection;
 	}
 }

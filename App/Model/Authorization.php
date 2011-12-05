@@ -9,7 +9,7 @@ namespace Ice;
  * для каждого пользователя реализовать несколько методов авторизации
  * (по логин, по емейлу, по телефону и т.п.)
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Authorization extends Model_Factory

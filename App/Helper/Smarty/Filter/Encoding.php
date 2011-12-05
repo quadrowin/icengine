@@ -5,8 +5,8 @@ namespace Ice;
 /**
  *
  * @desc Фильтр к смарти для перекодирования шаблонов.
- * @author Юрий
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class Helper_Smarty_Filter_Encoding

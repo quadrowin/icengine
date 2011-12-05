@@ -1,14 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Контроллер для вывода хлебных крошек.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Controller_Breadcrumbs extends Controller_Abstract
 {
-    
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Controller_Abstract::index()
@@ -23,10 +26,10 @@ class Controller_Breadcrumbs extends Controller_Abstract
             $path->add ($route);
             $route = $route->getParent ();
         }
-        
+
         $this->_output->send (array (
             'path'	=> $path->reverse ()
         ));
     }
-    
+
 }

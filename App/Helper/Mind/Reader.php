@@ -5,8 +5,8 @@ namespace Ice;
 /**
  *
  * @desc Помощник для чтения мыслей
- * @author Юрий
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class Helper_Mind_Reader

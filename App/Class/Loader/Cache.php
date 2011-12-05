@@ -1,15 +1,18 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Класс для кэширования подключаемых файлов.
  * Подключаемые php модули будут компилироваться в 1 файл.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Loader_Cache
 {
-	
+
 	/**
 	 * @desc Config
 	 * @var array
@@ -26,45 +29,45 @@ class Loader_Cache
 		 */
 		'check_files'		=> true
 	);
-	
+
 	/**
-	 * @desc Имя собранного 
+	 * @desc Имя собранного
 	 * @var string
 	 */
 	protected static $_compiledFilename;
-	
+
 	/**
 	 * @desc Имя файла со статистикой
 	 * @var string
 	 */
 	protected static $_dataFilename;
-	
+
 	/**
 	 * @desc Игнорируемые файлы.
 	 * (Подключены до инициализации кэша лоадера).
 	 * @var array
 	 */
 	protected static $_ignoring = array ();
-	
+
 	/**
 	 * @desc Информация по закешированным файлам.
 	 * @var array
 	 */
 	protected static $_cached = array ();
-	
+
 	/**
 	 * @desc Транзакции
 	 * @var array
 	 */
 	protected static $_transations = array ();
-	
+
 	/**
 	 * @desc Генерирует кэш для текущей транзакции.
 	 */
 	protected static function _generateCache ()
 	{
 		$compiled = '';
-		
+
 		foreach (Loader::$required as $type => $files)
 		{
 			$data = array ();
@@ -73,7 +76,7 @@ class Loader_Cache
 				if (
 					(
 						// Файл уже в кэше
-						!isset (self::$_cached [$type]) || 
+						!isset (self::$_cached [$type]) ||
 						!isset (self::$_cached [$type][$file])
 					) &&
 					(
@@ -89,16 +92,16 @@ class Loader_Cache
 				{
 					continue;
 				}
-				
+
 				$fn = Loader::findFile ($file, $type);
-				
+
 				$data [$file] = array (
 					't'		=> filemtime ($fn),
 					's'		=> filesize ($fn)
 				);
-				
+
 				$content = file_get_contents ($fn);
-				
+
 				$compiled .= str_replace (
 					array (
 						'dirname(__FILE__)',
@@ -107,26 +110,26 @@ class Loader_Cache
 					'\'' . addslashes (dirname ($fn)) . '\'',
 					$content
 				);
-				
+
 				if (strpos (substr ($compiled, -10, 10), '?>') === false)
 				{
 					$compiled .= ' ?>';
 				}
 			}
-			
-			self::$_cached [$type] = 
+
+			self::$_cached [$type] =
 				isset (self::$_cached [$type]) ?
 					array_merge (self::$_cached [$type], $data) :
 					$data;
 		}
-		
+
 		file_put_contents (
 			self::$_dataFilename,
 			json_encode (self::$_cached)
 		);
 		file_put_contents (self::$_compiledFilename, $compiled);
 	}
-	
+
 	/**
 	 * @desc Что-то поменялось
 	 * @return boolean
@@ -134,7 +137,7 @@ class Loader_Cache
 	protected static function _isSomeChanged ()
 	{
 		$config = self::config ();
-		
+
 		foreach (Loader::$required as $type => $files)
 		{
 			foreach ($files as $file => $ok)
@@ -150,7 +153,7 @@ class Loader_Cache
 				{
 					continue;
 				}
-				
+
 				if (
 					!isset (self::$_cached [$type]) ||
 					!isset (self::$_cached [$type][$file])
@@ -158,7 +161,7 @@ class Loader_Cache
 				{
 					return true;
 				}
-				
+
 				if ($config ['check_files'])
 				{
 					$fn		= Loader::findFile ($file, $type);
@@ -174,10 +177,10 @@ class Loader_Cache
 				}
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	protected static function _popTransaction ()
 	{
 		$transaction = array_pop (self::$_transations);
@@ -186,7 +189,7 @@ class Loader_Cache
 		self::$_compiledFilename	= $transaction ['compiled_file'];
 		self::$_cached				= $transaction ['cached'];
 	}
-	
+
 	protected static function _pushTransaction ()
 	{
 		self::$_transations [] = array (
@@ -196,31 +199,31 @@ class Loader_Cache
 			'cached'		=> self::$_cached
 		);
 	}
-	
+
 	/**
 	 * @desc Начало транзакции.
 	 */
 	public static function beginTransaction ($name = null)
 	{
 		$config = self::config ();
-		
+
 		self::_pushTransaction ();
-		
+
 		if (!$config ['enable'])
 		{
 			return ;
 		}
-		
+
 		$name = $name ? $name : '__null';
-		
+
 		$name = urlencode ($name ? $name : '/');
-		
+
 		self::$_dataFilename = self::dataPath () . $name;
-			
+
 		self::$_compiledFilename = self::compiledPath () . $name . '.php';
-		
+
 		self::$_ignoring = Loader::getRequired ();
-		
+
 		if (
 			file_exists (self::$_dataFilename) &&
 			file_exists (self::$_compiledFilename)
@@ -230,7 +233,7 @@ class Loader_Cache
 				file_get_contents (self::$_dataFilename),
 				true
 			);
-			
+
 			foreach (self::$_cached as $type => $files)
 			{
 				foreach ($files as $file => $info)
@@ -244,27 +247,27 @@ class Loader_Cache
 						!$config ['check_files']
 					)
 					{
-						continue ; 
+						continue ;
 					}
-					
+
 					$fn = Loader::findFile ($file, $type);
-					
+
 					$changed = !file_exists ($fn);
-					
+
 					if (!$changed)
 					{
 						$t = $config ['check_filemtime'] ? filemtime ($fn) : 0;
 						$s = $config ['check_filesize'] ? filesize ($fn) : 0;
-						
+
 						$changed = $info ['t'] != $t || $info ['s'] != $s;
 					}
-					
+
 					if ($changed)
 					{
 //						var_dump ('changed: ', array (
 //							'info'	=> $info,
-//							'file'	=> $file, 
-//							't'		=> $t, 
+//							'file'	=> $file,
+//							't'		=> $t,
 //							's'		=> $s,
 //							'fn'	=> $fn
 //						));
@@ -274,7 +277,7 @@ class Loader_Cache
 					}
 				}
 			}
-			
+
 			// Отмечаем, какие файлы загружены
 			foreach (self::$_cached as $type => $files)
 			{
@@ -286,11 +289,11 @@ class Loader_Cache
 				);
 			}
 			self::$_ignoring = Loader::getRequired ();
-			
+
 			require self::$_compiledFilename;
 		}
 	}
-	
+
 	/**
 	 * @desc Удаление всех скомпилированных файлов и данных о них.
 	 */
@@ -300,7 +303,7 @@ class Loader_Cache
 			self::dataPath (),
 			self::compiledPath ()
 		);
-		
+
 		foreach ($pathes as $path)
 		{
 			$handle = opendir ($path);
@@ -317,16 +320,16 @@ class Loader_Cache
 			closedir ($handle);
 		}
 	}
-	
+
 	/**
 	 * @desc Директория с собранными кэшами
 	 * @return string;
 	 */
 	public static function compiledPath ()
 	{
-		return IcEngine::root () . 'cache/Loader/compiled/';
+		return Core::root () . 'cache/Loader/compiled/';
 	}
-	
+
 	/**
 	 * @desc Загружает и возвращает конфиг.
 	 * @return Objective
@@ -339,35 +342,35 @@ class Loader_Cache
 		}
 		return self::$_config;
 	}
-	
+
 	/**
 	 * @desc Директория с данными о кэшах.
 	 * @return string
 	 */
 	public static function dataPath ()
 	{
-		return IcEngine::root () . 'cache/Loader/data/';
+		return Core::root () . 'cache/Loader/data/';
 	}
-	
+
 	/**
 	 * @desc Сохранение статистики по подключаемым файлам
 	 */
 	public static function endTransaction ()
 	{
 		$config = self::config ();
-		
+
 		if (!$config ['enable'])
 		{
 			self::_popTransaction ();
 			return ;
 		}
-		
+
 		if (self::_isSomeChanged ())
 		{
 			self::_generateCache ();
 		}
-		
+
 		self::_popTransaction();
 	}
-	
+
 }

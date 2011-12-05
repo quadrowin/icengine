@@ -6,7 +6,7 @@ namespace Ice;
  *
  * @desc Помощник для работы с json
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Helper_Json

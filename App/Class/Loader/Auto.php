@@ -1,14 +1,14 @@
 <?php
 /**
- * 
+ *
  * @desc Класс для автоматического подключения классов движка.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Loader_Auto
 {
-	
+
 	/**
 	 * @desc Подключение автозагрузки классов
 	 */
@@ -16,7 +16,7 @@ class Loader_Auto
 	{
 		spl_autoload_register ('Loader::load');
 	}
-	
+
 	/**
 	 * @desc Отключение автозагрузки классов
 	 */
@@ -24,5 +24,5 @@ class Loader_Auto
 	{
 		spl_autoload_unregister ('Loader::load');
 	}
-	
+
 }

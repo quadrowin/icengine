@@ -1,18 +1,20 @@
 <?php
 
-if (!class_exists ('Tracer_Abstract'))
+namespace Ice;
+
+if (!class_exists (__NAMESPACE__ . '\\Tracer_Abstract'))
 {
-	include dirname (__FILE__) . '/Abstract.php';
+	include __DIR__ . '/Abstract.php';
 }
 
 class Tracer_Stack extends Tracer_Abstract
 {
-	
+
 	protected $_stack = array ();
-	
+
 	/**
-	 * 
-	 * 
+	 *
+	 *
 	 * @param string $info
 	 * @param string $_ [optional]
 	 */
@@ -20,7 +22,7 @@ class Tracer_Stack extends Tracer_Abstract
 	{
 		$this->_stack [] = func_get_args ();
 	}
-	
+
 	/**
 	 * Фильтр вызовов
 	 * @param string $filter
@@ -29,7 +31,7 @@ class Tracer_Stack extends Tracer_Abstract
 	public function filter ($filter)
 	{
 		$result = array ();
-		
+
 		foreach ($this->_stack as $row)
 		{
 			if ($row [0] == $filter)
@@ -37,13 +39,13 @@ class Tracer_Stack extends Tracer_Abstract
 				return $result;
 			}
 		}
-		
+
 		return $result;
 	}
-	
+
 	public function full ()
 	{
 		return $this->_stack;
 	}
-	
+
 }

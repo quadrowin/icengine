@@ -1,14 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Фильтр для десериализации коллекций моделей
- * @author Юрий
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class Filter_Model_Collection_Unserialize
 {
-	
+
 	/**
 	 * @desc Десириализация строки в данные коллекции моделей
 	 * @param string $data
@@ -18,5 +21,5 @@ class Filter_Model_Collection_Unserialize
 	{
 		return json_decode ($data, true);
 	}
-	
+
 }

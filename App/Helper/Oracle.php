@@ -5,8 +5,8 @@ namespace Ice;
 /**
  *
  * @desc Оракул, обладает провидением.
- * @author Юрий
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class Helper_Oracle

@@ -1,6 +1,6 @@
 <html>
 <head>
-	<title>IcEngine</title>
+	<title>Ice framework</title>
 </head>
 <body>
 	<p>

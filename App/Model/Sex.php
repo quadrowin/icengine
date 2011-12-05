@@ -6,7 +6,7 @@ namespace Ice;
  *
  * @desc Модель, определяющая пол (Мужской, женский).
  * @author Юрий
- * @package IcEngine
+ * @package Ice
  *
  */
 class Sex extends Model

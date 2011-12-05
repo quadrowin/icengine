@@ -6,7 +6,7 @@ namespace Ice;
  *
  * @desc Помощник для экспорта в SQL
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Helper_Sql_Export
@@ -25,7 +25,7 @@ class Helper_Sql_Export
 		$eol = "\r\n";
 
 		$time = date ('Y-m-d H:i:s');
-		fwrite ($output, "# IcEngine tables export started at $time$eol");
+		fwrite ($output, "# Ice tables export started at $time$eol");
 
 		foreach ($tables as $table)
 		{
@@ -77,7 +77,7 @@ class Helper_Sql_Export
 		}
 
 		$time = date ('Y-m-d H:i:s');
-		fwrite ($output, "# IcEngine tables export finished at $time$eol");
+		fwrite ($output, "# Ice tables export finished at $time$eol");
 	}
 
 	/**

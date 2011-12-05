@@ -6,7 +6,7 @@ namespace Ice;
  *
  * @desc Шифрование md5.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Crypt_Md5 extends Crypt_Abstract

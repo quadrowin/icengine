@@ -19,9 +19,9 @@ class Bootstrap_Cli extends Bootstrap_Abstract
 	public function __construct ($path)
 	{
 		parent::__construct ($path);
-		IcEngine::$frontController = 'Cli';
-		IcEngine::$frontRender = 'Cli';
-		IcEngine::$frontInput = 'cli_input';
+		Core::$frontController = 'Cli';
+		Core::$frontRender = 'Cli';
+		Core::$frontInput = 'cli_input';
 	}
 
 }

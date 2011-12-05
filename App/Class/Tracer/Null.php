@@ -1,24 +1,26 @@
 <?php
 
-if (!class_exists ('Tracer_Abstract'))
+namespace Ice;
+
+if (!class_exists (__NAMESPACE__ . '\\Tracer_Abstract'))
 {
-	include dirname (__FILE__) . '/Abstract.php';
+	include __DIR__ . '/Abstract.php';
 }
 
 class Tracer_Null extends Tracer_Abstract
 {
-	
+
 	/**
-	 * 
-	 * 
+	 *
+	 *
 	 * @param string $info
 	 * @param string $_ [optional]
 	 */
 	public function add ($info)
 	{
-	   
+
 	}
-	
+
 	/**
 	 * Фильтр вызовов
 	 * @param string $filter
@@ -28,10 +30,10 @@ class Tracer_Null extends Tracer_Abstract
 	{
 		return array ();
 	}
-	
+
 	public function full ()
 	{
 		return array ();
 	}
-	
+
 }

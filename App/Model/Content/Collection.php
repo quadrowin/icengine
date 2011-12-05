@@ -1,14 +1,14 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Коллекция котента
- * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Content_Collection extends Model_Collection
 {
-	
-	
-	
+
 }

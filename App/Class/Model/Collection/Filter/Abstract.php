@@ -6,7 +6,7 @@ namespace Ice;
  *
  * @desc Абстрактный класс фильтра коллекции.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Model_Collection_Filter_Abstract

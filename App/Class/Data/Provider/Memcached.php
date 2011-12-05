@@ -5,8 +5,8 @@ namespace Ice;
 /**
  *
  * @desc Работа с данными Memcached
- * @author Юрий
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class Data_Provider_Memcached extends Data_Provider_Abstract

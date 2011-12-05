@@ -1,5 +1,7 @@
 <?php
 
+namespace Ice;
+
 class Model_Validator_Abstract
 {
 	protected static $_scheme = array (

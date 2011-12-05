@@ -6,7 +6,7 @@ namespace Ice;
  *
  * @desc Шифрование base64
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Crypt_Base64 extends Crypt_Abstract

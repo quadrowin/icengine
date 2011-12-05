@@ -11,7 +11,7 @@ if (!class_exists (__NAMESPACE__ . '\\Data_Provider_Abstract'))
  *
  * @desc Провайдер данных из адресной строки
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Data_Provider_Router extends Data_Provider_Abstract

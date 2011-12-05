@@ -1,5 +1,7 @@
 <?php
 
+namespace Ice;
+
 class Model_Validator_Attribute
 {
 	public static function validate ($name, $model, $field, $value, $input)

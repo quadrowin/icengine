@@ -1,32 +1,35 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Провайдер для отправки сообщений пользователя.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Mail_Provider_Abstract extends Model_Factory_Delegate
 {
-	
+
 	/**
 	 * @desc Состояние отправки
 	 * @var string
 	 */
 	const MAIL_STATE_SENDING	= 'sending';
-	
+
 	/**
 	 * @desc Отправка прервана
 	 * @var string
 	 */
 	const MAIL_STATE_FAIL		= 'fail';
-	
+
 	/**
 	 * @desc Отправка успешно завершена
 	 * @var stringы
 	 */
 	const MAIL_STATE_SUCCESS	= 'success';
-    
+
 	/**
 	 * @desc Запись в лог состояния сообщения.
 	 * @param Mail_Message $message
@@ -45,12 +48,12 @@ class Mail_Provider_Abstract extends Model_Factory_Delegate
 		));
 		$log->save ();
 	}
-	
+
     /**
 	 * @desc Отправка сообщений.
 	 * @param Mail_Message $message Сообщение.
 	 * @param array $config Параметры.
-	 * @return integer|false Идентикатор сообщения в системе провайдера 
+	 * @return integer|false Идентикатор сообщения в системе провайдера
 	 * или false.
 	 */
 	public function send (Mail_Message $message, $config)
@@ -58,5 +61,5 @@ class Mail_Provider_Abstract extends Model_Factory_Delegate
 		$this->logMessage ($message, self::MAIL_STATE_FAIL);
 		return false;
 	}
-	
+
 }

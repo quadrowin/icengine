@@ -1,14 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Валидатор истинности выражения.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Data_Validator_Not_Empty extends Data_Validator_Abstract
 {
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Validator_Abstract::validate()
@@ -17,5 +20,5 @@ class Data_Validator_Not_Empty extends Data_Validator_Abstract
 	{
 		return (bool) $data;
 	}
-	
+
 }

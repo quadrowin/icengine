@@ -8,7 +8,7 @@ namespace Ice;
  * Возможно передать поле для сортировки, если поле не передано, сортировка
  * будет идти по ключевому полю.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Model_Option_Order_Name extends Model_Option

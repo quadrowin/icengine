@@ -7,7 +7,7 @@ Loader::load ('Authorization_Abstract');
  *
  * @desc Авторизация через логинзу.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Authorization_Loginza extends Authorization_Abstract

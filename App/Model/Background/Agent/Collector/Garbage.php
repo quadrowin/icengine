@@ -1,11 +1,13 @@
 <?php
 
+namespace Ice;
+
 Loader::load ('Background_Agent_Abstract');
 
 /**
  * @desc Агент для запуска gc
  * @author Илья Коленисков
- * @package IcEngine
+ * @package Ice
  * @copyright i-complex.ru
  */
 class Background_Agent_Collector_Garbage extends Background_Agent_Abstract
@@ -16,18 +18,18 @@ class Background_Agent_Collector_Garbage extends Background_Agent_Abstract
 	 */
 	public function _finish ()
 	{
-		
+
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Background_Agent_Abstract::_process()
 	 */
 	public function _process ()
 	{
-		
+
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Background_Agent_Abstract::_start()
@@ -35,16 +37,16 @@ class Background_Agent_Collector_Garbage extends Background_Agent_Abstract
 	public function _start ()
 	{
 		Loader::load ('Collector_Garbage_Manager');
-			
+
 		if (empty ($this->_params ['name']))
 		{
 			return;
 		}
-		
+
 		$name = $this->_params ['name'];
-		
+
 		$collector = Collector_Garbage_Manager::byName ($name);
-		
+
 		$collector->process ();
 	}
 }

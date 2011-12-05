@@ -1,5 +1,7 @@
 <?php
 
+namespace Ice;
+
 class Chat_Message extends Model
 {
 	public function getNew ()

@@ -1,14 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Контроллер активаций.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Controller_Sms_Activation extends Controller_Abstract
 {
-	
+
 	/**
 	 * @desc Отправка сообщения с кодом
 	 */
@@ -19,12 +22,12 @@ class Controller_Sms_Activation extends Controller_Abstract
 		) = $this->_input->receive (
 			'phone'
 		);
-		
+
 		Loader::load ('Helper_Activation');
 		$activation = Helper_Activation::newShortCode ($phone);
-		
-		
-		
+
+
+
 		$this->_output->send (array (
 			'activation'	=> $activation,
 			'data'			=> array (
@@ -32,5 +35,5 @@ class Controller_Sms_Activation extends Controller_Abstract
 			)
 		));
 	}
-	
+
 }

@@ -6,7 +6,7 @@ namespace Ice;
  *
  * @desc Помощник активации.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Helper_Activation

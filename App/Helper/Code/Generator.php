@@ -34,7 +34,7 @@ class Helper_Code_Generator
 
 	public static function tplName ($controller, $action)
 	{
-		$root = rtrim (IcEngine::root (), '/') . '/Ice/View/Controller/';
+		$root = rtrim (Core::root (), '/') . '/Ice/View/Controller/';
 		$root .= str_replace ('_', '/', $controller);
 
 		return $root . '/' . $action . '.tpl';
@@ -69,12 +69,12 @@ class Helper_Code_Generator
 
 	public static function tpl ($file)
 	{
-		return IcEngine::root () . self::config ()->base . $file;
+		return Core::root () . self::config ()->base . $file;
 	}
 
 	public static function createModel ($name)
 	{
-		$root = rtrim (IcEngine::root (), '/') . '/Ice/Model/';
+		$root = rtrim (Core::root (), '/') . '/Ice/Model/';
 		$file_name = self::phpName ($root, $name);
 
 		if (is_file ($file_name))
@@ -124,7 +124,7 @@ class Helper_Code_Generator
 
 	public static function createController ($name, $actions)
 	{
-		$root = rtrim (IcEngine::root (), '/') . '/Ice/Controller/';
+		$root = rtrim (Core::root (), '/') . '/Ice/Controller/';
 		$file_name = self::phpName ($root, $name);
 
 		if (is_file ($file_name))
@@ -253,7 +253,7 @@ class Helper_Code_Generator
 
 	public static function createProject ($config)
 	{
-		$dir = rtrim (IcEngine::root (), '/') . '/';
+		$dir = rtrim (Core::root (), '/') . '/';
 
 		$template = isset ($config ['template'])
 			? $config ['template'] : 'Simple';

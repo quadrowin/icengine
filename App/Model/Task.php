@@ -5,7 +5,7 @@ namespace Ice;
 /**
  * @desc Задание для планировщика
  * @author Илья Колесников
- * @package IcEngine
+ * @package Ice
  * @copyright i-complex.ru
  */
 class Task extends Model

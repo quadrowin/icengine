@@ -1,5 +1,7 @@
 <?php
 
+namespace Ice;
+
 class Controller_Component_Image extends Controller_Abstract
 {
 	public function adminPlugin ()
@@ -8,7 +10,7 @@ class Controller_Component_Image extends Controller_Abstract
 
 		$text = $row->attr ('text');
 		$url = $row->attr ('smallUrl');
-		
+
 		$this->_output->send (array (
 			'row'	=> $row,
 			'text'	=> $text,

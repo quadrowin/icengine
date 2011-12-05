@@ -6,7 +6,7 @@ namespace Ice;
  *
  * @desc Модель для создания коротких адресов
  * @author Yury Shvedov
- * @package IcEngine
+ * @package Ice
  *
  */
 class Tiny_Link extends Model

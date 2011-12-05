@@ -1,18 +1,21 @@
 <?php
 
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Абстрактный клиент
- * @author Илья
- * @package IcEngine
+ * @author Ilya Kolesnikov
+ * @package Ice
+ *
  */
 abstract class Client_Abstract
 {
-	
+
 	protected $_config;
-	
+
 	/**
-	 * 
+	 *
 	 * @desc Получить имя клиента без префикса "Client_"
 	 * @return string
 	 */
@@ -20,5 +23,5 @@ abstract class Client_Abstract
 	{
 		return substr (__CLASS__, 7);
 	}
-	
+
 }

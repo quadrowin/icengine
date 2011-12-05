@@ -1,15 +1,17 @@
 <?php
 
+namespace Ice;
+
 class Subscribe_Provider_Mimemail
 {
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	const MIME_MAIL_PATH 	 = '';
-	
+
 	/**
-	 * 
+	 *
 	 * @param array $mails
 	 * @param string $message
 	 * @param array $config
@@ -33,7 +35,7 @@ class Subscribe_Provider_Mimemail
 					? $config ['From']['name']
 					: '';
 			$mail->IsHTML (true);
-			$mail->Subject = 
+			$mail->Subject =
 				!empty ($config ['Subject'])
 					? $config ['Subject']
 					: '';

@@ -1,15 +1,18 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
- * @desc Примщик платежей для увеличения баланса пользователя на сумму 
+ *
+ * @desc Примщик платежей для увеличения баланса пользователя на сумму
  * платежа.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Bill_Payment_Acceptor_Balance_Increment extends Bill_Payment_Acceptor_Abstract
 {
-	
+
 	/**
 	 * @desc Конфиг
 	 * @var array
@@ -18,7 +21,7 @@ class Bill_Payment_Acceptor_Balance_Increment extends Bill_Payment_Acceptor_Abst
 		// Комментарий к увеличению баланса
 		'increment_comment'		=> 'Пополнение баланса через платеж.'
 	);
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Bill_Payment_Acceptor_Abstract::accept()
@@ -30,5 +33,5 @@ class Bill_Payment_Acceptor_Balance_Increment extends Bill_Payment_Acceptor_Abst
 		$balance = $user->component ('Balance', 0);
 		$balance->change ($payment->value, $config ['increment_comment']);
 	}
-	
+
 }

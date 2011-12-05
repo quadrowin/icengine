@@ -1,14 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Базовая схема рейтинга.
- * @author Юрий
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class Component_Rating_Scheme_Abstract extends Model_Factory_Delegate
 {
-	
+
 	/**
 	 * @desc Изменение рейтинга
 	 * @param string $table Модель
@@ -25,8 +28,8 @@ class Component_Rating_Scheme_Abstract extends Model_Factory_Delegate
 			->where ('table', $table)
 			->where ('rowId', $row_id)
 		);
-		
+
 		return $rating->increment ($value);
 	}
-	
+
 }

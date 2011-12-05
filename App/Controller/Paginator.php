@@ -1,14 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Контроллер пагинатор.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Controller_Paginator extends Controller_Abstract
 {
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Controller_Abstract::index()
@@ -24,21 +27,21 @@ class Controller_Paginator extends Controller_Abstract
 			'template',
 			'tpl'
 		);
-		
+
 	    /* @var $paginator Paginator */
 		$paginator->buildPages ();
-		
+
 		$this->_output->send ('paginator', $paginator);
-		
+
 		if ($template)
 		{
 			$this->_task->setTemplate ($template);
 		}
-		
+
 		if ($tpl)
 		{
 			$this->_task->setClassTpl (__METHOD__, $tpl);
 		}
 	}
-	
+
 }

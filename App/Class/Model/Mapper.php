@@ -1,8 +1,12 @@
 <?php
 
+namespace Ice;
+
 /**
+ *
  * @desc ORM
  * @author Илья Колесников
+ * 
  */
 class Model_Mapper
 {

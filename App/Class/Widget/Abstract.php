@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Абстрактный класс виджета.
  * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
@@ -9,19 +9,19 @@
  */
 abstract class Widget_Abstract
 {
-	
+
 	/**
-	 * 
+	 *
 	 * @var Data_Transport
 	 */
 	protected $_input;
-	
+
 	/**
-	 * 
+	 *
 	 * @var Data_Transport
 	 */
 	protected $_output;
-	
+
 	/**
 	 * Шаблон
 	 * @var string
@@ -31,13 +31,13 @@ abstract class Widget_Abstract
 	public final function __construct ()
 	{
 		Loader::load ('Data_Transport');
-		
+
 		$this->_input = new Data_Transport ();
 		$this->_output = new Data_Transport ();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $text
 	 * 		Системный текст ошибки (не должен отображаться пользователю)
 	 * @param string $method
@@ -61,12 +61,12 @@ abstract class Widget_Abstract
 		}
 		else
 		{
-			$method = Widget_Manager::NULL_TEMPLATE; 
+			$method = Widget_Manager::NULL_TEMPLATE;
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $method
 	 * @return string
 	 */
@@ -85,10 +85,10 @@ abstract class Widget_Abstract
 			$template = $this->_template;
 			$this->_template = null;
 		}
-		
+
 		return $template;
 	}
-	
+
 	/**
 	 * @return Data_Transport
 	 */
@@ -96,7 +96,7 @@ abstract class Widget_Abstract
 	{
 		return $this->_input;
 	}
-	
+
 	/**
 	 * @return Data_Transport
 	 */
@@ -104,9 +104,9 @@ abstract class Widget_Abstract
 	{
 		return $this->_output;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Data_Transport $input
 	 * @return Widget_Abstract
 	 */
@@ -115,9 +115,9 @@ abstract class Widget_Abstract
 		$this->_input = $input;
 		return $this;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Data_Transport $output
 	 * @return Widget_Abstract
 	 */
@@ -131,7 +131,7 @@ abstract class Widget_Abstract
 	{
 		$this->_template = $template;
 	}
-	
+
 	/**
 	 * Получение шаблона вида
 	 * "Название/Виджета/метод/$tpl"
@@ -141,7 +141,7 @@ abstract class Widget_Abstract
 	 */
 	public function tplFor ($method, $tpl)
 	{
-		return 
+		return
 			str_replace (array ('_', '::'), '/', $method) . '/' . $tpl;
 	}
 

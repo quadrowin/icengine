@@ -6,7 +6,7 @@ namespace Ice;
  *
  * @desc Диспетчер контроллеров.
  * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
+ * @package Ice
  *
  */
 class Controller_Dispatcher

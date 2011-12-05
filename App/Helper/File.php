@@ -5,7 +5,7 @@ namespace Ice;
 /**
  *
  * @desc Помощник работы с файлами
- * @author Юрий
+ * @author Yury Shvedov
  * @package Ice
  *
  */

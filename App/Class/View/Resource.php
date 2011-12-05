@@ -1,20 +1,24 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
- * Ресурс представления.
+ *
+ * @desc Ресурс представления.
  * Информация о файле Js или Css.
- * @author Юрий
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class View_Resource extends Objective
 {
-	
+
 	/**
 	 * Время модификации файла
 	 * @var integer
 	 */
 	protected $_filemtime;
-	
+
 	/**
 	 * Ссылка.
 	 * @var string
@@ -30,19 +34,19 @@ class View_Resource extends Objective
 	 * @var string
 	 */
 	public $type;
-	
+
 	/**
 	 * Путь до файла в системе.
 	 * @var string
 	 */
 	public $filePath;
-	
+
 	/**
 	 * Не использовать сжатие ресурсов при упаковке.
 	 * @var boolean
 	 */
 	public $nopack;
-	
+
 	/**
 	 * Содержимое ресурса.
 	 * @return string
@@ -52,7 +56,7 @@ class View_Resource extends Objective
 		$path = $this->filePath;
 		return file_exists ($path) ? file_get_contents ($path) : null;
 	}
-	
+
 	/**
 	 * Время модификации файла.
 	 * @return integer|null
@@ -67,5 +71,5 @@ class View_Resource extends Objective
 		}
 		return $this->_filemtime;
 	}
-	
+
 }

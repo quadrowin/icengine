@@ -1,8 +1,10 @@
 <?php
 
+namespace Ice;
+
 class View_Render_Php extends View_Render_Abstract
 {
-	
+
 	public function fetch ($tpl)
 	{
 		$result = '';
@@ -15,13 +17,13 @@ class View_Render_Php extends View_Render_Abstract
 				include $file;
 				$result = ob_get_contents();
 				ob_end_clean();
-				break;	
+				break;
 			}
 		}
-		
+
 		return $result;
 	}
-	
+
 	public function display ($tpl)
 	{
 		foreach ($this->_templatesPathes as $path)
@@ -38,10 +40,10 @@ class View_Render_Php extends View_Render_Abstract
 			}
 		}
 	}
-	
+
 	public function addHelper ($helper, $method)
 	{
-		
+
 	}
-	
+
 }

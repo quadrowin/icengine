@@ -1,10 +1,12 @@
 <?php
 
+namespace Ice;
+
 class Component_Comment_Collection_Option_Link extends Model_Collection_Option_Abstract
 {
-    
+
 	/**
-	 * 
+	 *
 	 * @param Model_Collection $items
 	 * @param Query $query
 	 * @param array $params
@@ -15,5 +17,5 @@ class Component_Comment_Collection_Option_Link extends Model_Collection_Option_A
 			->where ('table', $params ['table'])
 			->where ('rowId', $params ['rowId']);
 	}
-	
+
 }

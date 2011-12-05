@@ -2,16 +2,15 @@
 
 namespace Ice;
 
+Loader::load ('View_Render_Abstract');
+
 /**
  *
  * @desc Рендер с использованием шаблонизатора Smarty.
  * @author Yury Shvedov
- * @package IcEngine
+ * @package Ice
  *
  */
-
-Loader::load ('View_Render_Abstract');
-
 class View_Render_Smarty extends View_Render_Abstract
 {
 

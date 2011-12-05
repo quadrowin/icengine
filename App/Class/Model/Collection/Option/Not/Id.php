@@ -1,21 +1,24 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Опция для отсеивания по id.
- * Ожадаются параметры $ids с массивом первичных ключей или $id с 
+ * Ожадаются параметры $ids с массивом первичных ключей или $id с
  * единичным первичным ключом
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Model_Collection_Option_Not_Id extends Model_Collection_Option_Abstract
 {
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Model_Collection_Option_Abstract::before()
 	 */
-	public function before (Model_Collection $collection, 
+	public function before (Model_Collection $collection,
 		Query $query, array $params)
 	{
 		if (isset ($params ['ids']) && $params ['ids'])
@@ -33,5 +36,5 @@ class Model_Collection_Option_Not_Id extends Model_Collection_Option_Abstract
 			);
 		}
 	}
-	
+
 }

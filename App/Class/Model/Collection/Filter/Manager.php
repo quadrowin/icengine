@@ -6,7 +6,7 @@ namespace Ice;
  *
  * @desc Менеджер фильтров коллекций.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Model_Collection_Filter_Manager
