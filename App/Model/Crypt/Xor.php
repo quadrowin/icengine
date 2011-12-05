@@ -6,7 +6,7 @@ namespace Ice;
  *
  * @desc Шифрование XOR.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Crypt_Xor extends Crypt_Abstract

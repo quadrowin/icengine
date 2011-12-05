@@ -5,7 +5,7 @@ namespace Ice;
 /**
  *
  * @desc Базовый класс контроллера.
- * @author Юрий
+ * @author Yury Shvedov
  * @package Ice
  *
  */

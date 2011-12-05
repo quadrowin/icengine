@@ -1,9 +1,11 @@
 <?php
 
+namespace Ice;
+
 /**
  * @desc Админка для баз данных
  * @author Илья Колесников
- * @package IcEngine
+ * @package Ice
  */
 class Controller_Admin_Database extends Controller_Abstract
 {

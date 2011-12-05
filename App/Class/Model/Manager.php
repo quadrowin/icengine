@@ -5,7 +5,7 @@ namespace Ice;
 /**
  *
  * @desc Менеджер моделей.
- * @author Юрий
+ * @author Yury Shvedov
  * @package Ice
  *
  */

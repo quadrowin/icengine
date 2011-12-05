@@ -1,6 +1,7 @@
 <?php
 
 namespace Ice;
+
 /**
  *
  * @desc Рендер с использованием шаблонизатора Smarty.

@@ -1,14 +1,16 @@
 <?php
 
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Базовая аргумент комманды
- * 
- * @author Илья
- * @package IcEngine
- * 
+ *
+ * @author Ilya Kolesnikov
+ * @package Ice
+ *
  * @var string $_value
- * 
+ *
  * @method getValue
  * @method setValue (string $value)
  * @method validate
@@ -16,23 +18,23 @@
 class Cli_Command_Argument
 {
 	/**
-	 * 
+	 *
 	 * @desc Текущее значение
 	 * @var string
 	 */
 	protected $_value;
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $value
 	 */
 	public function __construct ($value)
 	{
 		$this->_value = $value;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @desc Получить текущее значение аргумента
 	 * @return string
 	 */
@@ -40,9 +42,9 @@ class Cli_Command_Argument
 	{
 		return $this->_value;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @desc Изменить текущее значение аргумента
 	 * @param string $value
 	 */
@@ -50,9 +52,9 @@ class Cli_Command_Argument
 	{
 		$this->_value = $value;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @desc Базовый метод валидации аргумента
 	 * @return boolean
 	 */

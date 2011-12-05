@@ -1,8 +1,11 @@
 <?php
+
+namespace Ice;
+
 /**
  * @desc Контролер контекта
  * @author ilya
- * @package IcEngine
+ * @package Ice
  */
 class Controller_Content_Abstract extends Controller_Abstract
 {

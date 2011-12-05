@@ -6,7 +6,7 @@ namespace Ice;
  *
  * @desc Шифрование методом двойного квадрата.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Crypt_Double_Square extends Crypt_Abstract

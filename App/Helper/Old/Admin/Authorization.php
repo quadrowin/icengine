@@ -6,7 +6,7 @@ namespace Ice;
  *
  * @desc Помощник для авторизации пользователя
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Helper_Old_Admin_Authorization

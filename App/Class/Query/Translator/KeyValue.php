@@ -5,7 +5,7 @@ namespace Ice;
 /**
  *
  * @desc Транслятор запроса для хранилища key-value.
- * @author Юрий
+ * @author Yury Shvedov
  * @package Ice
  *
  */

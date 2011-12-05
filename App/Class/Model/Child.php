@@ -8,7 +8,7 @@ namespace Ice;
  * Имеет родителя и потомков. Для организации связи, в модели должно
  * существовать поле "parentId", определяющее предка.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 abstract class Model_Child extends Model

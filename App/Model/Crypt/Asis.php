@@ -6,7 +6,7 @@ namespace Ice;
  *
  * @desc Возвращает строку как есть.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Crypt_Asis extends Crypt_Abstract

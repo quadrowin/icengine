@@ -6,7 +6,7 @@ namespace Ice;
  *
  * @desc Стандартный DES.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Crypt_Des extends Crypt_Abstract

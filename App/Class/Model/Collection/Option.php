@@ -1,32 +1,34 @@
 <?php
 /**
- * 
+ *
  * @desc Опция коллекции.
+ * @deprecated Если где-то используется, следует переписать
+ * на Model_Option
  * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
  *
  */
 class Model_Collection_Option
 {
-	
+
 	/**
 	 * @desc Название опции
 	 * @var string
 	 */
 	protected $_name;
-	
+
 	/**
 	 * @desc Параметры
 	 * @var array
 	 */
 	protected $_params;
-	
+
 	/**
 	 * @desc Опция
 	 * @var Model_Collection_Option_Abstract
 	 */
 	protected $_option;
-	
+
 	/**
 	 * @desc Создает и возвращает опцию
 	 * @param string $name Название опции.
@@ -37,7 +39,7 @@ class Model_Collection_Option
 		$this->_name = $name;
 		$this->_params = $params;
 	}
-	
+
 	/**
 	 * @desc Наложение опции.
 	 * @param string $type "before" or "after"
@@ -54,15 +56,15 @@ class Model_Collection_Option
 				$collection
 			);
 		}
-		
+
 		Loader::load ('Executor');
-		
+
 		return Executor::execute (
 			array ($this->_option, $type),
 			array ($collection, $query, $this->_params)
 		);
 	}
-	
+
 	/**
 	 * @desc Получить имя опшина
 	 * @return string
@@ -71,7 +73,7 @@ class Model_Collection_Option
 	{
 		return $this->_name;
 	}
-	
+
 	/**
 	 * @desc Возвращает параметры опции.
 	 * @return array
@@ -80,7 +82,7 @@ class Model_Collection_Option
 	{
 		return $this->_params;
 	}
-	
+
 }
 
 Loader::load ('Model_Collection_Option_Manager');

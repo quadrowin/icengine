@@ -7,7 +7,7 @@ Loader::load ('Background_Agent_Abstract');
 /**
  * @desc Агент для запуска заданий из очереди заданий
  * @author Илья Колесников
- * @package IcEngine
+ * @package Ice
  * @copyright i-complex.ru
  */
 class Background_Agent_Task extends Background_Agent_Abstract

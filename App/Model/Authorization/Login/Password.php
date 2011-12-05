@@ -8,7 +8,7 @@ Loader::load ('Authorization_Abstract');
  *
  * @desc Авторизация по логину и паролю.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Authorization_Login_Password extends Authorization_Abstract

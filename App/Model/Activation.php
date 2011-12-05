@@ -6,7 +6,7 @@ namespace Ice;
  *
  * @desc Активация чего-либо, требующая код подтверждения от пользователя.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Activation extends Model
@@ -97,7 +97,7 @@ class Activation extends Model
 		// Сообщение об успешной активации
 		if ($this->callbackMessage)
 		{
-			IcEngine::$messageQueue->push (
+			Core::$messageQueue->push (
 				$this->callbackMessage,
 				array (
 					'activation'	=> $this

@@ -1,14 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Абстрактный контроллер авторизации.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 abstract class Controller_Authorization_Abstract extends Controller_Abstract
 {
-	
+
 	/**
 	 * @desc Configuration
 	 * @var array
@@ -16,19 +19,19 @@ abstract class Controller_Authorization_Abstract extends Controller_Abstract
 	protected $_config = array (
 		// Включена ли авторегистрация
 		'autoreg_enable'		=> false,
-		
+
 		// Контроллер и экшен, куда будет перенаправлен
 		// запрос для авторегистрации
 		'autoreg_controller'	=> 'Registration',
 		'autoreg_action'		=> 'autoregister',
-		
+
 		// префикс полей авторизации
 		'fields_prefix'			=> 'auth_',
-		
+
 		// эта авторизация активна
 		'enabled'				=> true
 	);
-	
+
 	/**
 	 * @desc Возвращает связанную модель авторизации.
 	 * @return Authorization_Abstract
@@ -45,7 +48,7 @@ abstract class Controller_Authorization_Abstract extends Controller_Abstract
 			->where ('name', $name)
 		);
 	}
-	
+
 	/**
 	 * @desc Авторизация
 	 */
@@ -53,14 +56,14 @@ abstract class Controller_Authorization_Abstract extends Controller_Abstract
 	{
 		Loader::load ('Helper_Array');
 		$prefix = $this->config ()->fields_prefix;
-		
+
 		$data = Helper_Array::prefixed (
 			$this->_input->receiveAll (),
 			$prefix
 		);
-		
+
 		$user = $this->_authorization ()->authorize ($data);
-		
+
 		if (
 			$user == 'Data_Validator_Authorization/userNotFound' &&
 			$this->config ()->autoreg_enable
@@ -71,7 +74,7 @@ abstract class Controller_Authorization_Abstract extends Controller_Abstract
 				$this->config ()->autoreg_action
 			);
 		}
-		
+
 		if (!is_object ($user))
 		{
 			// Неудачная авторизация
@@ -90,7 +93,7 @@ abstract class Controller_Authorization_Abstract extends Controller_Abstract
 					'/fail'
 				);
 			}
-			
+
 			return ;
 		}
 
@@ -98,7 +101,7 @@ abstract class Controller_Authorization_Abstract extends Controller_Abstract
 		$redirect = $this->_input->receive ('redirect');
 		Loader::load ('Helper_Uri');
 		$redirect = Helper_Uri::validRedirect ($redirect);
-		
+
 		$this->_output->send (array (
 			'redirect'	=> $redirect,
 			'data'		=> array (
@@ -106,7 +109,7 @@ abstract class Controller_Authorization_Abstract extends Controller_Abstract
 			)
 		));
 	}
-	
+
 	/**
 	 * @desc Вторая часть диалога авторизации
 	 */
@@ -115,11 +118,11 @@ abstract class Controller_Authorization_Abstract extends Controller_Abstract
 		$login = $this->_input->receive (
 			$this->config ()->fields_prefix . 'login'
 		);
-		
+
 		$this->_output->send (array (
 			'login'			=> $login,
 			'registered'	=> $this->_authorization ()->isRegistered ($login)
 		));
 	}
-	
+
 }

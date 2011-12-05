@@ -1,8 +1,10 @@
 <?php
 
+namespace Ice;
+
 class Controller_SiteMap extends Controller_Abstract
 {
-    
+
     public function index ()
     {
         Loader::load ('SiteMap');
@@ -10,5 +12,5 @@ class Controller_SiteMap extends Controller_Abstract
             'map'	=> SiteMap::asList ()
         ));
     }
-    
+
 }

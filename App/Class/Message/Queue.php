@@ -9,8 +9,8 @@ Loader::load ('Message_Abstract');
  *
  * @desc Класс управления сообщениями внутри процесса.
  * Настройки по умолчанию считываются из config/Message/Queue.php
- * @author Юрий
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 abstract class Message_Queue

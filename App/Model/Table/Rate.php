@@ -1,7 +1,15 @@
 <?php
 
+namespace Ice;
+
 /**
+ *
  * @desc Рейтинг таблиц
+ * Рейтинг ведется в соответвии с частотой обращений к таблице
+ * из универсальной админки.
+ * @author Ilya Kolesnikov
+ * @package Ice
+ *
  */
 class Table_Rate extends Model
 {
@@ -17,7 +25,7 @@ class Table_Rate extends Model
 			Query::instance ()
 				->where ('table', $table)
 		);
-		
+
 		if (!$rate)
 		{
 			$rate = new self (array (
@@ -25,10 +33,10 @@ class Table_Rate extends Model
 				'value' => 0
 			));
 		}
-		
+
 		return $rate;
 	}
-	
+
 	/**
 	 * @desc Инкрементировать рейтинг
 	 */

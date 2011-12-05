@@ -5,8 +5,8 @@ namespace Ice;
 /**
  *
  * @desc Абстрактный класс фильтра
- * @author Юрий
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 abstract class Filter_Abstract

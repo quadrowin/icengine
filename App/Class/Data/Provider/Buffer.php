@@ -10,8 +10,8 @@ if (!class_exists (__NAMESPACE__ . '\\Data_Provider_Abstract'))
  *
  * @desc Буфер данных. Используется для хранения данных в пределах
  * 		текущего процесса.
- * @author Юрий
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class Data_Provider_Buffer extends Data_Provider_Abstract

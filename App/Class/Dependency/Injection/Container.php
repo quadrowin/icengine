@@ -1,5 +1,7 @@
 <?php
 
+namespace Ice;
+
 class Dependency_Injection_Container
 {
 	protected static $_parameters;

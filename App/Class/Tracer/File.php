@@ -1,19 +1,22 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
- * Запись трейса в файл
- * @author Юрий
+ *
+ * @desc Запись трейса в файл
+ * @author Yury Shvedov
  *
  */
 class Tracer_File extends Tracer_Abstract
 {
-	
+
 	/**
 	 * Файл для сохранения
 	 * @var string
 	 */
 	public $file = 'cache/trace.txt';
-	
+
 	public function add ($info)
 	{
 		$text = Helper_Date::toUnix () . ' ' . $info;
@@ -25,15 +28,15 @@ class Tracer_File extends Tracer_Abstract
 		fwrite ($f, $text . PHP_EOL);
 		fclose ($f);
 	}
-	
+
 	public function filter ($filter)
 	{
-		
+
 	}
-	
+
 	public function full ()
 	{
 		return array ();
 	}
-	
+
 }

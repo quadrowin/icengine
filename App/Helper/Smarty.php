@@ -58,7 +58,7 @@ class Helper_Smarty
 			$smarty->template_dir = self::$config ['templates_pathes'];
 
 			$smarty->plugins_dir = array (
-				IcEngine::path () . 'includes/smarty_plugins/',
+				Core::path () . 'includes/smarty_plugins/',
 				Ice_Implementator::path () . 'includes/smarty_plugins/',
 				IcSocialnet_Implementator::path () . 'includes/smarty_plugins/'
 			);

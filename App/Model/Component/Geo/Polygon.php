@@ -1,5 +1,7 @@
 <?php
 
+namespace Ice;
+
 Loader::load ('Model_Component');
 
 class Component_Geo_Polygon extends Model_Component
@@ -8,7 +10,7 @@ class Component_Geo_Polygon extends Model_Component
 	{
 		return $this->component ('Geo_Point');
 	}
-	
+
 	public function style ()
 	{
 		return $this->Geo_Line_Style->name;

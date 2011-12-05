@@ -7,7 +7,7 @@ namespace Ice;
  * @desc Приложение.
  * Для корректной работы потомки должны находиться
  * в соответвующих приложению пространстве имен в директории "App/Class".
- * @author Shvedov_U
+ * @author Yury Shvedov
  * @package Ice
  *
  */

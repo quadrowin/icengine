@@ -1,14 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Компонент рейтинг для сущностей
- * @author Юрий
- * @package IcEngine
- * 
+ * @author Yury Shvedov
+ * @package Ice
+ *
  */
 class Component_Rating_Collection extends Component_Collection
 {
-	
+
 	/**
 	 * @desc Возвращает рейтинг, связанный с сущностью.
 	 * Если такого не сущетсвует, создает его.
@@ -30,7 +33,7 @@ class Component_Rating_Collection extends Component_Collection
 		}
 		return $rating;
 	}
-	
+
 	/**
 	 * @desc Изменить рейтинг
 	 * @param integer $change Изменение рейтинга.
@@ -41,7 +44,7 @@ class Component_Rating_Collection extends Component_Collection
 		$this->single ()->increment ($change);
 		return $this;
 	}
-	
+
 	/**
 	 * @desc Возвращает значение рейтинга.
 	 * @return integer
@@ -50,7 +53,7 @@ class Component_Rating_Collection extends Component_Collection
 	{
 		$this->single ()->value;
 	}
-	
+
 	/**
 	 * @desc Возвращает количество голосов.
 	 * @return integer
@@ -59,5 +62,5 @@ class Component_Rating_Collection extends Component_Collection
 	{
 		$this->single ()->votes;
 	}
-	
+
 }

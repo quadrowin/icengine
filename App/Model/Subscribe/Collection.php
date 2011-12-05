@@ -1,12 +1,14 @@
 <?php
+
+namespace Ice;
 /**
- * 
+ *
  * @desc Коллекци рассылок
- * @package IcEngine
- * 
+ * @package Ice
+ *
  */
 class Subscribe_Collection extends Model_Collection
 {
 
-	
+
 }

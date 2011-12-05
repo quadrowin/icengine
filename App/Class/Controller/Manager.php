@@ -432,7 +432,7 @@ class Controller_Manager extends Manager_Abstract
 
 		/*if ($dt > 1)
 		{
-			$f = fopen (IcEngine::root () . 'log/contrlog.txt', 'a');
+			$f = fopen (Core::root () . 'log/contrlog.txt', 'a');
 			fwrite (
 				$f,
 				date ('m-d H:i:s') . ' ' .

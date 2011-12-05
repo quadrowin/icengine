@@ -5,7 +5,7 @@ namespace Ice;
 /**
  *
  * @desc Транспорт данных
- * @author Юрий
+ * @author Yury Shvedov
  * @package Ice
  *
  */

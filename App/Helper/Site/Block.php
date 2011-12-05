@@ -5,8 +5,8 @@ namespace Ice;
 /**
  *
  * @desc Помощник блокировки сайта.
- * @author Гурус
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class Helper_Site_Block

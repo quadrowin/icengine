@@ -1,9 +1,12 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Демон для авторизации в ejabberd через сайт.
  * @author Юрий Шведов
- * 
+ *
  * Installation:
  *
  *	- Change it's owner to whichever user is running the server, ie. ejabberd
@@ -27,17 +30,17 @@
  *	- if your users have special chars and you're not using UTF-8, set
  *	  config ['charset'] below to match your Joomla encoding
  *
- * 
+ *
  */
 class Controller_Ejabberd_Auth extends Controller_Abstract
 {
-	
+
 	/**
 	 * @desc Ведение логов
 	 * @var boolean
 	 */
 	protected $_loggin = false;
-	
+
 	/**
 	 * @desc Конфиг
 	 * @var array|Objective
@@ -60,12 +63,12 @@ class Controller_Ejabberd_Auth extends Controller_Abstract
 		 */
 		'session_auth'	=> true
 	);
-	
+
 	public function __construct ()
 	{
 		$this->_logging = $this->config ()->logging;
 	}
-	
+
 	/**
 	 * @desc Авторизация пользователя
 	 * @param array $commands
@@ -87,10 +90,10 @@ class Controller_Ejabberd_Auth extends Controller_Abstract
 			$commands [1]
 		);
 		$this->_log ("[debug] doing auth for ". $sUser);
-		
+
 		$jid = $sUser . '@' . $commands [2];
 
-		$query = 
+		$query =
 			Query::instance ()
 				->select ('id, password')
 				->from ('User')
@@ -108,20 +111,20 @@ class Controller_Ejabberd_Auth extends Controller_Abstract
 			fwrite (STDOUT, pack ("nn", 2, 0));
 			return;
 		}
-		
+
 		// trim for console input
 		$auth_key = trim ($commands [3]);
 
 		if ($user ['password'] != $auth_key)
 		{
 			$this->_log ("[exAuth] invalid password for " . $jid);
-			
+
 			if (!$this->_config->session_auth)
 			{
 				fwrite (STDOUT, pack ("nn", 2, 0));
 				return;
 			}
-			
+
 			// Если не совпал пароль проверяем сессию
 			$user_session = Model_Scheme::dataSource ('User_Session')
 				->execute (
@@ -138,7 +141,7 @@ class Controller_Ejabberd_Auth extends Controller_Abstract
 				fwrite (STDOUT, pack ("nn", 2, 0));
 				return;
 			}
-			
+
 			if ($user_session ['User__id'] != $user ['id'])
 			{
 				$this->_log ("[exAuth] user session id mismatch for " . $jid);
@@ -146,12 +149,12 @@ class Controller_Ejabberd_Auth extends Controller_Abstract
 				return;
 			}
 		}
-		
+
 		// korisnik OK
 		$this->_log ("[exAuth] authentificated user " . $jid);
 		fwrite (STDOUT, pack ("nn", 2, 1));
 	}
-	
+
 	/**
 	 * @desc Проверка существования пользователя
 	 * @param array $commands
@@ -165,24 +168,24 @@ class Controller_Ejabberd_Auth extends Controller_Abstract
 			fwrite (STDOUT, pack ("nn", 2, 0));
 			return;
 		}
-		
+
 		if (!isset ($commands [2]))
 		{
 			$this->_log ("[exAuth] invalid isuser command, no host given");
 			fwrite (STDOUT, pack ("nn", 2, 0));
 			return;
 		}
-		
+
 		// ovdje provjeri je li korisnik OK
 		$sUser = str_replace (
-			array ("%20", "(a)"), 
+			array ("%20", "(a)"),
 			array (" ", "@"),
 			$commands [1]
 		);
-		
+
 		// trim for console input
 		$jid = $sUser . '@' . trim ($commands [2]);
-		
+
 		$this->_log ("[debug] checking isuser for $jid");
 
 		$query = Query::instance ()
@@ -210,10 +213,10 @@ class Controller_Ejabberd_Auth extends Controller_Abstract
 			fwrite (STDOUT, pack ("nn", 2, 0));
 		}
 	}
-	
+
 	/**
 	 * @desc Смена пароля (не поддерживается)
-	 * @param array $commands 
+	 * @param array $commands
 	 */
 	public function _cmdSetpass (array $commands)
 	{
@@ -221,26 +224,26 @@ class Controller_Ejabberd_Auth extends Controller_Abstract
 		$this->_log ("[exAuth] setpass command disabled");
 		fwrite (STDOUT, pack ("nn", 2, 0));
 	}
-	
+
 	/**
 	 * @desc Запись в лог
 	 * @param string $text
 	 */
 	public function _log ($text)
 	{
-		
+
 //		echo $text;
-		
+
 		if (!$this->_logging)
 		{
 			return;
 		}
-		
+
 		$f = fopen ($this->_logging, 'a');
 		fwrite ($f, date ('m-d H:i:s ') . $text . "\r\n");
 		fclose ($f);
 	}
-	
+
 	/**
 	 * @desc Запуск цикла демона авторизации
 	 */
@@ -251,41 +254,41 @@ class Controller_Ejabberd_Auth extends Controller_Abstract
 			$this->process ();
 		}
 	}
-	
+
 	/**
 	 * @desc Цикл авторизации
 	 */
 	public function process ()
 	{
 		$header = fgets (STDIN, 3);
-		
+
 		if (!$header)
 		{
 			return;
 		}
-		
+
 		$length = unpack ('n', $header);
 		$length = $length [1];
-		
+
 		if ($length > 0)
 		{
 			// ovo znaci da smo nesto dobili
 			$data = fgets (STDIN, $length + 1);
-			
+
 			$cfg_charset = $this->config ()->charset;
 			if ($cfg_charset && strtoupper ($cfg_charset) != "UTF-8")
 			{
 				$data = iconv ("UTF-8", $cfg_charset, $data);
 			}
-			
+
 			$this->_log ("[debug] received data: " . $data);
-			
+
 			$commands = explode (":", $data);
-			
+
 			if (is_array ($commands))
 			{
 				$method = '_cmd' . ucfirst ($commands [0]);
-				
+
 				if (method_exists ($this, $method))
 				{
 					$this->$method ($commands);
@@ -303,12 +306,12 @@ class Controller_Ejabberd_Auth extends Controller_Abstract
 				fwrite (STDOUT, pack ("nn", 2, 0));
 			}
 		}
-		
+
 		unset ($header);
 		unset ($length);
 		unset ($commands);
-		
+
 		return true;
 	}
-	
+
 }

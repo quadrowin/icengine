@@ -8,7 +8,7 @@ Loader::load ('Authorization_Abstract');
  *
  * @desc Аавторизация через отправку пользователю СМС сообщения с кодом.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Authorization_Phone_Sms_Send extends Authorization_Abstract

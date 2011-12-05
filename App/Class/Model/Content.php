@@ -1,6 +1,7 @@
 <?php
-
 /**
+ *
+ * @desc
  * Соглашение о создании моделей контента (потомков класса Model_Content).
  * Дочерние модели Model_Content должны иметь поля:
  * text		preview		Текстовое превью
@@ -9,15 +10,17 @@
  * int(11)	Content_Category__id 	Раздел контента
  * datetime	date		Время создания
  * int(11)	User__id	Пользователь, разместивший контент
- * int(1)	active		Доступность контента 
- * 
+ * int(1)	active		Доступность контента
+ *
  * @author yury.s
  * @package IcEngine
+ *
+ * @deprecated Не должно нигде использоваться, следует использовать Content
  *
  */
 class Model_Content extends Model
 {
-    
+
     /**
      * @return User
      */
@@ -25,5 +28,5 @@ class Model_Content extends Model
     {
         return $this->User;
     }
-    
+
 }

@@ -6,8 +6,8 @@ namespace Ice;
  *
  * @desc Помощник для подмены открывающих скобок на двойные.
  * Вместо "{" и "}" следует использовать "{{" и "}}".
- * @author Юрий
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class Helper_Smarty_Filter_Dblbracer

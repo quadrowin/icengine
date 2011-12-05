@@ -1,9 +1,12 @@
 <?php
+
+namespace Ice;
+
 /**
  *
  * @desc Шаблоны сообщений.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Mail_Template extends Model_Child

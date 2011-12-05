@@ -6,7 +6,7 @@ namespace Ice;
  *
  * @desc Помощник для работы с email.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Helper_Email

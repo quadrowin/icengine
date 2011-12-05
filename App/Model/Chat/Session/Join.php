@@ -1,5 +1,7 @@
 <?php
 
+namespace Ice;
+
 class Chat_Session_Join extends Model
 {
 	/**
@@ -13,7 +15,7 @@ class Chat_Session_Join extends Model
 	{
 		$join = new self (array (
 			'Chat_Session__id'		=> $session->key (),
-			'name'					=> $name,		
+			'name'					=> $name,
 			'phpSessionId'			=> User_Session::getCurrent ()->phpSessionId,
 			'uri'					=> $uri
 		));

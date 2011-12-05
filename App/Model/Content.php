@@ -6,7 +6,7 @@ namespace Ice;
  *
  * @desc Модель контента
  * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
+ * @package Ice
  *
  */
 class Content extends Model_Factory

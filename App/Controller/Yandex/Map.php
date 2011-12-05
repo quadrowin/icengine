@@ -1,14 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Контроллер для яндекс карт
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Controller_Yandex_Map extends Controller_Abstract
 {
-	
+
 	/**
 	 * @desc Конфиг
 	 * @var array
@@ -21,16 +24,16 @@ class Controller_Yandex_Map extends Controller_Abstract
 			// $pattern	=> $key
 			'/.*forguest\\.grs/'	=> 'AK6GpU0BAAAA0p1BFwIAcBCubCS1dft85kAI-THTx4i475oAAAAAAAAAAABYpvprBqy52GepuLwQlMVPg7xDpg=='
 		),
-		
+
 		// Скрывать ошибки яндекс карт (будут выводиться в консоль)
 		'hide_errors'		=> true,
-		
+
 		// loadByRequire в запросе скрипта
 		'load_by_require'	=> false
 	);
-	
+
 	/**
-	 * @desc Возврщает ключ для домена 
+	 * @desc Возврщает ключ для домена
 	 * @param string $domain Домен. Если null, будет взят из $_SERVER ['HTTP_HOST']
 	 */
 	protected function _getKey ($domain = null)
@@ -39,9 +42,9 @@ class Controller_Yandex_Map extends Controller_Abstract
 		{
 			$domain = $_SERVER ['HTTP_HOST'];
 		}
-		
+
 		$config = $this->config ();
-		
+
 		if ($config ['domains'])
 		{
 			foreach ($config ['domains'] as $pattern => $key)
@@ -52,10 +55,10 @@ class Controller_Yandex_Map extends Controller_Abstract
 				}
 			}
 		}
-		
+
 		return $config ['default_key'];
 	}
-	
+
 	/**
 	 * @desc Добавляет строку подключения скрипта яндекс карт.
 	 */
@@ -72,25 +75,25 @@ class Controller_Yandex_Map extends Controller_Abstract
 			'load_by_require',
 			'wizard'
 		);
-		
+
 		$key = $this->_getKey ($domain);
-		
+
 		$config = $this->config ();
-		
+
 		$this->_output->send (array (
-			'hide_errors'		=> 
+			'hide_errors'		=>
 				is_null ($hide_errors) ?
 					$config ['hide_errors'] :
 					$hide_errors,
 			'key'				=> $key,
-			'load_by_require'	=> 
+			'load_by_require'	=>
 				is_null ($load_by_require) ?
 					$config ['load_by_require'] :
 					$load_by_require,
 			'wizard'			=> $wizard
 		));
 	}
-	
+
 	/**
 	 * @desc Добавляет скрипт, который позволит позже вызвать метод
 	 * Controller_Yandex_Map.lazyLoad js контроллера для инициализации
@@ -109,5 +112,5 @@ class Controller_Yandex_Map extends Controller_Abstract
 			$this->includeScript ();
 		}
 	}
-	
+
 }

@@ -5,7 +5,7 @@ namespace Ice;
 /**
  *
  * @desc Коллекция фильтров
- * @author Илья
+ * @author Ilya Kolesnikov
  * @package Ice
  *
  */

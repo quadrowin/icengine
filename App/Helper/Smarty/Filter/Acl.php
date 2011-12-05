@@ -13,8 +13,8 @@ namespace Ice;
  * 		{aclelse}
  * 			if access denied
  * 		{/acl}
- * @author Юрий
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  * @deprecated Вместо этого фильтра будет использоваться smarty_block_acl,
  * т.к. в противном случае при кэшировании шаблона происходит кэширование
  * прав доступа (т.к. кэширование идет после наложения фильтров).

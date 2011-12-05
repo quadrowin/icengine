@@ -6,7 +6,7 @@ namespace Ice;
  *
  * @desc Профиль шифрования
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
 class Crypt_Profile extends Crypt_Abstract

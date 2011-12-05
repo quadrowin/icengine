@@ -1,5 +1,7 @@
 <?php
 
+namespace Ice;
+
 Loader::load ('Model_Validator_Attribute_Abstract');
 
 class Model_Validator_Attribute_NotEmpty extends Model_Validator_Attribute_Abstract

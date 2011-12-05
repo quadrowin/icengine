@@ -1,14 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Модель логов баланса
- * @author Гурус
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class Component_Balance_Log extends Model
 {
-	
+
 	/**
 	 * @desc Добавить запись в лог об изменении баланса.
 	 * @param string $table Таблица.
@@ -29,5 +32,5 @@ class Component_Balance_Log extends Model
 		));
 		return $log->save ();
 	}
-	
+
 }

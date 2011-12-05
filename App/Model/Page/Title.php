@@ -2,10 +2,11 @@
 
 namespace Ice;
 
-if (!class_exists ('Model_Child'))
+if (!class_exists (__NAMESPACE__ . '\\Model_Child'))
 {
 	Loader::load ('Model_Child');
 }
+
 /**
  *
  * @desc Модель для формирования заголовка страницы.

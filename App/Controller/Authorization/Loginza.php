@@ -1,15 +1,19 @@
 <?php
+
+namespace Ice;
+
+Loader::load ('Controller_Authorization_Abstract');
+
 /**
- * 
+ *
  * @desc Контроллер для работы с Loginza.
  * @author Юрий Шведов
- * @package IcEngine
+ * @package Ice
  *
  */
-Loader::load ('Controller_Authorization_Abstract');
 class Controller_Authorization_Loginza extends Controller_Authorization_Abstract
 {
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Controller_Authorization_Abstract::authorize()
@@ -21,5 +25,5 @@ class Controller_Authorization_Loginza extends Controller_Authorization_Abstract
 		$redirect = $this->_output->receive ('redirect');
 		Helper_Header::redirect ($redirect);
 	}
-	
+
 }

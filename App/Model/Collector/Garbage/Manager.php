@@ -1,9 +1,11 @@
 <?php
 
+namespace Ice;
+
 /**
  * @desc Менеджер gc
  * @author Илья Колесников
- * @package IcEngine
+ * @package Ice
  * @copyright i-complex.ru
  */
 class Collector_Garbage_Manager extends Manager_Abstract

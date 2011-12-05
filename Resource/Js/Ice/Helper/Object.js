@@ -1,11 +1,11 @@
 /**
  *
  * @desc Хелпер для объектов.
- * @package IcEngine
- * 
+ * @package Ice
+ *
  */
 Ice.Helper_Object = {
-	
+
 	/**
 	 * @param object object Объект, из которого будут удалены элементы
 	 * @param offset integer Индекс первого элемента для удаления.
@@ -19,10 +19,10 @@ Ice.Helper_Object = {
 		{
 			return {};
 		}
-		
+
 		var result = {};
 		var result_i = 0;
-		
+
 		if (typeof length == 'undefined')
 		{
 			while (typeof object [offset] != 'undefined')
@@ -51,8 +51,8 @@ Ice.Helper_Object = {
 				++pos;
 			}
 		}
-		
+
 		return result;
 	}
-	
+
 };

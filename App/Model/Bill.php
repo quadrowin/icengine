@@ -5,8 +5,8 @@ namespace Ice;
 /**
  *
  * @desc Модель выставляемого заказчику счета
- * @author Гурус
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class Bill extends Model

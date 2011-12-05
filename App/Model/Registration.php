@@ -5,8 +5,8 @@ namespace Ice;
 /**
  *
  * @desc Модель регистрации на сайте
- * @author Гурус
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class Registration extends Model

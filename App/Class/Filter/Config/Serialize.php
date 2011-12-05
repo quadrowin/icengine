@@ -1,14 +1,17 @@
 <?php
+
+namespace Ice;
+
 /**
- * 
+ *
  * @desc Фильтр для сериализации конфигов
- * @author Юрий
- * @package IcEngine
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class Filter_Config_Serialize
 {
-	
+
 	/**
 	 * @desc Десириализация модели в строку
 	 * @param Config_Array $data
@@ -19,5 +22,5 @@ class Filter_Config_Serialize
 		return
 			get_class ($data) . ':' . json_encode ($data->__toArray ());
 	}
-	
+
 }

@@ -1,13 +1,16 @@
 <?php
+
+namespace Ice;
+
 /**
- * Событие после загрузки контента контроллером.
- * @author Юрий
- * @package IcEngine
+ * @desc Событие после загрузки контента контроллером.
+ * @author Yury Shvedov
+ * @package Ice
  *
  */
 class Message_After_Load_Content extends Message_Abstract
 {
-	
+
 	/**
 	 * @return Model
 	 */
@@ -15,7 +18,7 @@ class Message_After_Load_Content extends Message_Abstract
 	{
 		return $this->model;
 	}
-	
+
 	/**
 	 * @return mixed
 	 */
@@ -23,16 +26,16 @@ class Message_After_Load_Content extends Message_Abstract
 	{
 		return $this->model ()->key ();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Model $model
 	 * @param array $params
 	 * @return Message_After_Load_Content
 	 */
 	public static function push (Model $model, array $params = array ())
 	{
-		return IcEngine::$messageQueue->push (
+		return Core::$messageQueue->push (
 			'After_Load_Content',
 			array_merge (
 				$params,
@@ -42,7 +45,7 @@ class Message_After_Load_Content extends Message_Abstract
 			)
 		);
 	}
-	
+
 	/**
 	 * @return string
 	 */
@@ -50,5 +53,5 @@ class Message_After_Load_Content extends Message_Abstract
 	{
 		return $this->model ()->table ();
 	}
-	
+
 }

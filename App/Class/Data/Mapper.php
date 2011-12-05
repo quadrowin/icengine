@@ -1,9 +1,13 @@
 <?php
 
+namespace Ice;
+
 /**
+ *
  * @desc Класс мэпера данных.
  * @author Илья Колесников
- * @package IcEngine
+ * @package Ice
+ *
  */
 class Data_Mapper
 {
