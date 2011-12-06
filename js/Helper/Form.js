@@ -68,7 +68,10 @@ var Helper_Form = {
             function _setValue (name, value) {
                 var _name = name;
                 var _isArray = false;
-
+				if (!name)
+				{
+					return;
+				}	
                 if (name.slice (-2) == '[]') {
                     _name = name.slice (0, -2);
                     _isArray = true;
@@ -82,6 +85,7 @@ var Helper_Form = {
                         data[_name] = [];
                     }
                     if( typeof (value) == 'object' ) {
+						console.log(_name);
                         for (i in value) { data[_name].push (value[i]); }
                     } else {
                         data[_name].push (value);
