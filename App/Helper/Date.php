@@ -239,13 +239,13 @@ class Helper_Date
 
 	/**
 	 * @desc Возвращает максимальную из дат
-	 * @param DateTime $a
-	 * @param DateTime $b
-	 * @return DateTime
+	 * @param \DateTime $a
+	 * @param \DateTime $b
+	 * @return \DateTime
 	 */
 	public static function max ($a, $b)
 	{
-		if (!($a instanceof DateTime))
+		if (!($a instanceof \DateTime))
 		{
 			if ($a == null)
 			{
@@ -254,7 +254,7 @@ class Helper_Date
 			$a = self::parseDateTime ($a);
 		}
 
-		if (!($b instanceof DateTime))
+		if (!($b instanceof \DateTime))
 		{
 			if ($b == null)
 			{
@@ -270,13 +270,13 @@ class Helper_Date
 
 	/**
 	 * @desc Возвращает минимальную из дат
-	 * @param DateTime $a
-	 * @param DateTime $b
-	 * @return DateTime
+	 * @param \DateTime $a
+	 * @param \DateTime $b
+	 * @return \DateTime
 	 */
 	public static function min ($a, $b)
 	{
-		if (!($a instanceof DateTime))
+		if (!($a instanceof \DateTime))
 		{
 			if ($a == null)
 			{
@@ -285,7 +285,7 @@ class Helper_Date
 			$a = self::parseDateTime ($a);
 		}
 
-		if (!($b instanceof DateTime))
+		if (!($b instanceof \DateTime))
 		{
 			if ($b == null)
 			{
@@ -373,14 +373,14 @@ class Helper_Date
 	/**
 	 * @desc Получение даты и времени из строки.
 	 * @param mixed $date
-	 * @return DateTime|null
+	 * @return \DateTime|null
 	 */
 	public static function parseDateTime ($str)
 	{
 		if (is_numeric ($str))
 		{
-			$dt = new DateTime ('@' . $str);
-			$dt->setTimezone (new DateTimeZone (date_default_timezone_get ()));
+			$dt = new \DateTime ('@' . $str);
+			$dt->setTimezone (new \DateTimeZone (date_default_timezone_get ()));
 			return $dt;
 		}
 
@@ -418,22 +418,22 @@ class Helper_Date
 		if (strlen ($arr [0]) == 4)
 		{
 			// Y-m-d H:i:s
-			return DateTime::createFromFormat ('Y.m.d.H.i.s', $str);
+			return \DateTime::createFromFormat ('Y.m.d.H.i.s', $str);
 		}
 		elseif (strlen ($arr [2]) == 4)
 		{
 			// d.m.Y H:i:s
-			return DateTime::createFromFormat ('d.m.Y.H.i.s', $str);
+			return \DateTime::createFromFormat ('d.m.Y.H.i.s', $str);
 		}
 		elseif (strlen ($arr [3]) == 4)
 		{
 			// H:i:s Y-m-d
-			return DateTime::createFromFormat ('H.i.s.Y.m.d', $str);
+			return \DateTime::createFromFormat ('H.i.s.Y.m.d', $str);
 		}
 		elseif (strlen ($arr [5]) == 4)
 		{
 			// H:i:s d.m.Y
-			return DateTime::createFromFormat ('H.i.s.d.m.Y', $str);
+			return \DateTime::createFromFormat ('H.i.s.d.m.Y', $str);
 		}
 
 		return null;
@@ -596,11 +596,11 @@ class Helper_Date
 	/**
 	 * @descs Разбирает дату и возвращает DateTime.
 	 * @param string $date Дата в формате UNIX.
-	 * @return DateTime
+	 * @return \DateTime
 	 */
 	public static function toDateTime ($date)
 	{
-		return DateTime::createFromFormat (self::UNIX_FORMAT, $date);
+		return \DateTime::createFromFormat (self::UNIX_FORMAT, $date);
 	}
 
 	/**
