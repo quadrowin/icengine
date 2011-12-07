@@ -350,7 +350,17 @@ class Debug
 
 		foreach (func_get_args () as $arg)
 		{
-			echo print_r ($arg, true);
+			echo str_replace (
+				array (
+					'<',
+					'>'
+				),
+				array (
+					'&lt;',
+					'&gt;'
+				),
+				print_r ($arg, true)
+			) . "\n";
 		}
 
 		echo '</pre>';
@@ -369,9 +379,16 @@ class Debug
 			echo str_replace (
 				array (
 					"=>\n",
-					"=> \n"
+					"=> \n",
+					'<',
+					'>'
 				),
-				'=&gt;',
+				array (
+					'=&gt;',
+					'=&gt;',
+					'&lt;',
+					'&gt;'
+				),
 				var_export ($var, true)
 			) . "\n";
 		}
