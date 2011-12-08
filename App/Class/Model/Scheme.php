@@ -84,7 +84,7 @@ abstract class Model_Scheme
 	 * @var array
 	 */
 	public static $namespaces = array (
-		__NAMESPACE__ => array (
+		'ice' => array (
 			'keyGen' => null,
 			'prefix' => 'ice_'
 		)
@@ -221,7 +221,7 @@ abstract class Model_Scheme
 
 			$ns = (false !== $p)
 				? substr ($name, 0, $p)
-				: __NAMESPACE__;
+				: strtolower (__NAMESPACE__);
 
 			if (!isset (self::$namespaces [$ns]['keyGen']))
 			{
@@ -290,7 +290,8 @@ abstract class Model_Scheme
 			return self::$namespaces [$namespace]['prefix'] . $table;
 		}
 
-		return self::$namespaces [__NAMESPACE__]['prefix'] . $model;
+		$namespace = strtolower (__NAMESPACE__);
+		return self::$namespaces [$namespace]['prefix'] . $model;
 
 //		$prefix = isset ($this->prefixes [$model]) ?
 //			$this->prefixes [$model] :
@@ -308,7 +309,8 @@ abstract class Model_Scheme
 	 */
 	public static function tableToModel ($table)
 	{
-		$prefix = self::$namespaces [__NAMESPACE__]['prefix'];
+		$namespace = strtolower (__NAMESPACE__);
+		$prefix = self::$namespaces [$namespace]['prefix'];
 
 		foreach (self::$models as $name => $model)
 		{
