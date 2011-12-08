@@ -178,12 +178,18 @@ class Query {
 	{
 		$result = array ();
 
-		if ($this->_parts [self::INSERT])
+		if (
+			isset ($this->_parts [self::INSERT]) &&
+			$this->_parts [self::INSERT]
+		)
 		{
 			$result [] = $this->_parts [self::INSERT];
 		}
 
-		if ($this->_parts [self::REPLACE])
+		if (
+			isset ($this->_parts [self::REPLACE]) &&
+			$this->_parts [self::REPLACE]
+		)
 		{
 			$result [] = $this->_parts [self::REPLACE];
 		}
@@ -193,12 +199,18 @@ class Query {
 			$result [] = $from [self::TABLE];
 		}
 
-		if ($this->_parts [self::UPDATE])
+		if (
+			isset ($this->_parts [self::UPDATE]) &&
+			$this->_parts [self::UPDATE]
+		)
 		{
 			$result [] = $this->_parts [self::UPDATE];
 		}
 
-		if ($this->_parts [self::DELETE])
+		if (
+			isset ($this->_parts [self::DELETE]) &&
+			$this->_parts [self::DELETE]
+		)
 		{
 			$rseult = $result + (array) $this->_parts [self::DELETE];
 		}
