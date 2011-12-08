@@ -143,6 +143,9 @@ abstract class Bootstrap_Abstract
 
 	/**
 	 * @desc Возвращает путь до начала структуры Ice.
+	 * @deprecated следует использовать Application::getDir()
+	 * Класс Application должен быть реализован для каждого проекта.
+	 * Application::getDir возвращает путь без заключительного слеша.
 	 * @return string.
 	 */
 	public function basePath ()
