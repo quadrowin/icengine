@@ -766,10 +766,9 @@ class Controller_Content_Abstract extends Controller_Abstract
 			'Component_Image',
 			Query::instance ()
 				->where ('id', $image_id)
-				->where ('User__id', User::id ())
 		);
-
-		if (!$image)
+		
+		if (!($image && ($image->User->key()==User::id () || $image->User->hasRole ('Editor'))))
 		{
 			return $this->_sendError (
 				'not_found',
