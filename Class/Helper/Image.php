@@ -239,7 +239,7 @@ class Helper_Image
 	 */
 	public static function uploadSimple ($table, $row_id, $type, $sizing = null)
 	{
-		$this->_log ('test');
+		//$this->_log ('test');
 		$file = Request::fileByIndex (0);
 
 		$host = Helper_Site_Location::getLocation ();
