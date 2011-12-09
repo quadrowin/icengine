@@ -111,8 +111,8 @@ class Helper_Link
 	    $scheme = Model_Scheme::linkScheme (
 			$model1->modelName (), 
 			$model2->modelName ()
-		);
-		    
+		);	
+		
 	    if (!$scheme)
 	    {
 		//	echo '   <b>Нет схемы</b> <br />';
@@ -125,7 +125,6 @@ class Helper_Link
 	    }
 	    else
 	    {
-			
 			$link = self::_schemeLink (
 				$scheme,
 				$model1->key (),
@@ -143,6 +142,7 @@ class Helper_Link
 					'toTable'	=> $model2->table (),
 					'toRowId'	=> $model2->key ()
 				));
+				
 				$link->save ();
 			
 			//	print_r($link) . '<br />';
@@ -150,12 +150,23 @@ class Helper_Link
 			else
 			{
 				$link_class = $scheme ['link'];
+				
 				Loader::load ($link_class);
-
-				$link = new $link_class (array (
+				
+				$data = array (
 					$scheme ['fromKey']	=> $model1->key (),
 					$scheme ['toKey']	=> $model2->key ()
-				));
+				);
+				
+				if (!empty ($scheme['addict']))
+				{
+					foreach ($scheme['addict'] as $key => $value)
+					{
+						$data [$key] = $value;
+					}
+				}
+				
+				$link = new $link_class ($data);
 
 				$link->save ();
 			}
@@ -257,6 +268,7 @@ class Helper_Link
 			}
 			
 			$ids = DDS::execute ($query)->getResult ()->asColumn ($column);
+			
 			
 			$result = Model_Collection_Manager::byQuery (
 				$linked_model_name,
