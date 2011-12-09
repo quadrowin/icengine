@@ -235,14 +235,14 @@ class Controller_Manager extends Manager_Abstract
 		foreach ($params as &$param)
 		{
 			$param_value = $c_input->receive ($param->name);
-			if (!$param_value)
+			if (null === $param_value)
 			{
 				$reflection_param = new \ReflectionParameter (
 					array ($controller, $method),
 					$param->name
 				);
 
-				if ($reflection_param)
+				if ($reflection_param && $reflection_param->isOptional ())
 				{
 					$param_value = $reflection_param->getDefaultValue ();
 				}
