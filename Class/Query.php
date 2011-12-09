@@ -15,6 +15,7 @@ class Query {
 	const DISTINCT			= 'DISTINCT';
 	const FROM 				= 'FROM';
 	const GROUP				= 'GROUP';
+	const HAVING			= 'HAVING';
 	const INDEX				= 'INDEX';
 	const INDEXES			= 'INDEXES';
 	const INNER_JOIN		= 'INNER JOIN';
