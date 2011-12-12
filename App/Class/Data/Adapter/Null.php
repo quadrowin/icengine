@@ -13,4 +13,10 @@ Loader::load ('Data_Adapter_Abstract');
 class Data_Adapter_Null extends Data_Adapter_Abstract
 {
 
+	/**
+	 * @desc Название транслятора
+	 * @var string
+	 */
+	protected $_translatorName = 'Mysql';
+
 }
