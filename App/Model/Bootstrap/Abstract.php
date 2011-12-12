@@ -13,10 +13,10 @@ abstract class Bootstrap_Abstract
 {
 
 	/**
-	 * @desc Путь до начала структуры Ice.
+	 * @desc Путь до начала структуры проекта.
 	 * @var string
 	 */
-	protected $_basePath;
+	protected $_appPath;
 
 	/**
 	 * @desc Название бутстрапа
@@ -42,7 +42,7 @@ abstract class Bootstrap_Abstract
 	 */
 	public function __construct ()
 	{
-		$this->_basePath = substr (
+		$this->_appPath = substr (
 			$this->dir (),
 			0,
 			-strlen ('App/Model/Bootstrap')
@@ -75,7 +75,7 @@ abstract class Bootstrap_Abstract
 		);
 
 		Config_Manager::setPath (
-			$this->basePath () . 'Config/',
+			$this->appPath () . 'Config/',
 			$this->getNamespace ()
 		);
 		$this->initFirePhp ();
@@ -89,12 +89,13 @@ abstract class Bootstrap_Abstract
 			'Helper_Link',
 			'Model',
 			'Model_Child',
-			'Model_Content',
 			'Model_Component',
 			'Model_Collection',
 			'Model_Factory',
 			'Model_Factory_Delegate',
 			'Model_Option',
+			'Model_Content',
+			'Model_Mapper_Scheme',
 			'Component',
 			'Controller_Abstract',
 			'Controller_Front',
@@ -128,7 +129,7 @@ abstract class Bootstrap_Abstract
 	 */
 	public function addLoaderPathes ()
 	{
-		$path = $this->basePath ();
+		$path = $this->appPath ();
 
 		$class = get_class ($this);
 		$p = strrpos ($class, '\\');
@@ -143,14 +144,14 @@ abstract class Bootstrap_Abstract
 
 	/**
 	 * @desc Возвращает путь до начала структуры Ice.
-	 * @deprecated следует использовать Application::getDir()
+	 * Следует использовать Application::getDir().
 	 * Класс Application должен быть реализован для каждого проекта.
 	 * Application::getDir возвращает путь без заключительного слеша.
 	 * @return string.
 	 */
-	public function basePath ()
+	public function appPath ()
 	{
-		return $this->_basePath;
+		return $this->_appPath;
 	}
 
 	/**
@@ -280,7 +281,11 @@ abstract class Bootstrap_Abstract
 	 */
 	public function initView ()
 	{
-		View_Render_Manager::getView ();
+		$view = View_Render_Manager::getView ();
+		$view->addTemplatesPath (array(
+			Core::path () . 'Resource/Template/',
+			$this->appPath () . 'Resource/Template/'
+		));
 	}
 
 	/**

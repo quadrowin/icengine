@@ -79,7 +79,7 @@ class Location
 		if (!self::$_location)
 		{
 
-			$file = Core::bootstrap ()->basePath () . 'Var/Location.txt';
+			$file = Core::bootstrap ()->appPath () . 'Var/Location.txt';
 
 			if (file_exists ($file))
 			{
