@@ -26,7 +26,7 @@ class Route extends Model_Child
 		'empty_route'	=> array (
 			'route'				=> '',
 			'active'			=> 1,
-			'View_Render__id'	=> 1,
+			'viewRenderName'	=> 'Smarty',
 			'params'			=> array (),
 			'weight'			=> 0,
 			'title'				=> '',
@@ -38,7 +38,7 @@ class Route extends Model_Child
 		 * @desc Использовать источник моделей по умолчанию.
 		 * @var boolean
 		 */
-		'use_default_source'	=> true,
+		'use_default_source'	=> false,
 		/**
 		 * @desc Использовать роутеры из конфига.
 		 * @var boolean
@@ -50,7 +50,7 @@ class Route extends Model_Child
 		 */
 		'routes'	=> array (
 			1			=> array (
-				'pattern'			=> '^//$',
+				'pattern'			=> '^/$',
 				'title'				=> 'Главная',
 				'visible'			=> 1,
 				'parentId'			=> 0,
@@ -69,36 +69,10 @@ class Route extends Model_Child
 				'actions'			=> 'Controller/ajax'
 			),
 			4			=> array (
-				'pattern'			=> '^/Controller/post',
-				'View_Render__id'	=> 5,
-				'title'				=> 'post запросы контроллера',
-				'actions'			=> 'Controller/post'
-			),
-			5			=> array (
 				'pattern'			=> '/',
 				'weight'			=> -999999,
 				'title'				=> 'Страница не найдена',
 				'actions'			=> 'Page/notFound'
-			),
-			6			=> array (
-				'pattern'			=> '^/registration/?$',
-				'title'				=> 'Регистрация',
-				'visible'			=> 1,
-				'parentId'			=> 1,
-				'actions'			=> 'Registration'
-			),
-			7			=> array (
-				'route'				=> 'registration/:code',
-				'pattern'			=> '^/registration/[^/]{1\,}//*',
-				'title'				=> 'Регистрация',
-				'parentId'			=> 1,
-				'actions'			=> 'Registration/emailConfirm'
-			),
-			8			=> array (
-				'pattern'			=> '^/login/',
-				'title'				=> 'Авторизация',
-				'parentId'			=> 1,
-				'actions'			=> 'Authorization/login'
 			)
 		)
 	);
@@ -128,7 +102,8 @@ class Route extends Model_Child
 	 */
 	public static function byUrl ($url)
 	{
-		$url = '/' . trim ($url, '/') . '/';
+		$url = trim ($url, '/');
+		$url = $url ? '/' . $url . '/' : '/';
 
 		/*
 		 * Заменяем /12345678/ на /?/.
@@ -150,12 +125,7 @@ class Route extends Model_Child
 			return $router ? new self ($router) : null;
 		}
 
-		$config = Config_Manager::get (
-			__CLASS__,
-			array (
-				'use_default_source'	=> true
-			)
-		);
+		$config = Config_Manager::get (__CLASS__, self::$_config);
 
 		$row = null;
 
