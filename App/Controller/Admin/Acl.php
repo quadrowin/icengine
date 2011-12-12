@@ -19,6 +19,8 @@ class Controller_Admin_Acl extends Controller_Abstract
 	protected $_config = array (
 		// Роли, имеющие доступ к админке
 		'access_roles'	=> array ('admin'),
+		// Типы доступа
+		'access_types'	=> array ('create', 'edit'),
 		// Контроллируемые роли
 		'control_roles'	=> array ('admin')
 	);
@@ -126,15 +128,26 @@ class Controller_Admin_Acl extends Controller_Abstract
 				'fields'	=> array ()
 			);
 
-			foreach ($fields as $field)
+			foreach ($this->config ()->access_types as $type)
 			{
-				$resource_name = 'Table/' . $table ['Name'] . '/' . $field ['Field'];
+				foreach ($fields as $field)
+				{
+					if (!isset ($result [$table ['Name']]['fields'][$field ['Field']]))
+					{
+						$result [$table ['Name']]['fields'][$field ['Field']] = array (
+							'field'			=> $field,
+							'resources'		=> array ()
+						);
+					}
 
-				$result [$table ['Name']]['fields'][] = array (
-					'field'		=> $field,
-					'resource'	=> $resource_name,
-					'on'		=> in_array ($resource_name, $resources)
-				);
+					$resource_name = 'Table/' . $table ['Name'] . '/' . $field ['Field'] . '/' . $type . '/';
+
+					$result [$table ['Name']]['fields'][$field ['Field']]['resources'][$type] = array (
+						'resource'	=> $resource_name,
+						'type'		=> $type,
+						'on'		=> in_array ($resource_name, $resources)
+					);
+				}
 			}
 		}
 
@@ -179,6 +192,7 @@ class Controller_Admin_Acl extends Controller_Abstract
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
 
+		
 		$role = Model_Manager::byKey (
 			'Acl_Role',
 			$role_id

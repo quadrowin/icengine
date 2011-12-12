@@ -103,40 +103,40 @@ class Helper_Link
 	 */
 	public static function link (Model $model1, Model $model2)
 	{
-	    if (strcmp ($model1->modelName (), $model2->modelName ()) > 0)
-	    {
-	        $tmp = $model1;
-	        $model1 = $model2;
-	        $model2 = $tmp;
+		if (strcmp ($model1->modelName (), $model2->modelName ()) > 0)
+		{
+			$tmp = $model1;
+			$model1 = $model2;
+			$model2 = $tmp;
 
-	    }
-
-	    $scheme = Model_Scheme::linkScheme (
-			$model1->modelName (),
+		}
+	    
+		$scheme = Model_Scheme::linkScheme (
+			$model1->modelName (), 
 			$model2->modelName ()
-		);
-
-	    if (!$scheme)
-	    {
-		//	echo '   <b>Нет схемы</b> <br />';
+		);	
+		
+		if (!$scheme)
+		{
+//			echo '   <b>Нет схемы</b> <br />';
 
 			$link = self::_link (
 				$model1->modelName (), $model1->key (),
 				$model2->modelName (), $model2->key ()
 			);
 
-	    }
-	    else
-	    {
-
+		}
+		else
+		{
 			$link = self::_schemeLink (
 				$scheme,
 				$model1->key (),
 				$model2->key ()
 			);
-	    }
-	    if (!$link)
-	    {
+		}
+		
+		if (!$link)
+		{
 			if (!$scheme)
 			{
 				Loader::load ('Link');
@@ -146,19 +146,31 @@ class Helper_Link
 					'toTable'	=> $model2->table (),
 					'toRowId'	=> $model2->key ()
 				));
+				
 				$link->save ();
-
+			
 			//	print_r($link) . '<br />';
 			}
 			else
 			{
 				$link_class = $scheme ['link'];
+				
 				Loader::load ($link_class);
-
-				$link = new $link_class (array (
+				
+				$data = array (
 					$scheme ['fromKey']	=> $model1->key (),
 					$scheme ['toKey']	=> $model2->key ()
-				));
+				);
+				
+				if (!empty ($scheme['addict']))
+				{
+					foreach ($scheme['addict'] as $key => $value)
+					{
+						$data [$key] = $value;
+					}
+				}
+				
+				$link = new $link_class ($data);
 
 				$link->save ();
 			}

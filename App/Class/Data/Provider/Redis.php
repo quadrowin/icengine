@@ -189,6 +189,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 			{
 				unset ($this->locks [$keys]);
 			}
+           
 			return $this->conn->delete ($this->keyEncode ($keys), $time);
 		}
 
