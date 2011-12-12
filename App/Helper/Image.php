@@ -184,6 +184,16 @@ class Helper_Image
     	$tc->attr (self::TEMP_CONTENT_ATTRIBUTE, $tc_types);
     }
 
+	private function _log ($message)
+	{
+		$filename = IcEngine::root () . '/log/image.log';
+		file_put_contents (
+			$filename,
+			date () . ' ' . $message . PHP_EOL . PHP_EOL,
+			FILE_APPEND
+		);
+	}
+
 	/**
 	 * Загрузка изображения для временного контента.
 	 * @param Temp_Content $tc
@@ -232,6 +242,7 @@ class Helper_Image
 	 */
 	public static function uploadSimple ($table, $row_id, $type, $sizing = null)
 	{
+		//$this->_log ('test');
 		$file = Request::fileByIndex (0);
 
 		$host = Helper_Site_Location::getLocation ();

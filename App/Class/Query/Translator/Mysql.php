@@ -704,11 +704,16 @@ class Query_Translator_Mysql extends Query_Translator
 			}
 
 			$value = (array) $value;
+			$i = 0;
 
 			while ($char_pos !== false)
 			{
 				$char_pos = strpos ($condition, self::WHERE_VALUE_CHAR, $char_pos);
 				if ($char_pos === false)
+				{
+					break;
+				}
+				if (!isset ($value [$i]))
 				{
 					break;
 				}

@@ -27,9 +27,9 @@ class Controller_Admin_Database extends Controller_Abstract
 	 * @param array $fields
 	 * @return array<string>
 	 */
-	private function __aclFields ($table, $fields)
+	private function __aclFields ($table, $fields, $type = null)
 	{
-		$acl_fields = $this->__fields ($table);
+		$acl_fields = $this->__fields ($table, $type);
 
 		Loader::load ('Helper_Array');
 
@@ -90,9 +90,9 @@ class Controller_Admin_Database extends Controller_Abstract
 	 * @param string $table
 	 * @return array <string>
 	 */
-	private function __fields ($table)
+	private function __fields ($table, $type = null)
 	{
-		$resources = $this->__resources ();
+		$resources = $this->__resources (null, $type);
 
 		$result = array ();
 
@@ -104,11 +104,143 @@ class Controller_Admin_Database extends Controller_Abstract
 		{
 			if (substr ($r, 0, $len) === $name)
 			{
-				$result [] = substr ($r, $len);
+				$tmp = trim (substr ($r, $len), '/');
+				$r = strrpos ($tmp, '/');
+				if ($r !== false)
+				{
+					$tmp = substr ($tmp, 0, $r);
+				}
+				$result [] = $tmp;
 			}
 		}
-
 		return $result;
+	}
+
+	/**
+	 * @desc Подготовить поля к выводу
+	 * @param string $class_name
+	 * @param Objective $fields
+	 * @return Objective
+	 */
+	private function _getValues ($row, $class_name, $fields)
+	{
+		$field_filters = array ();
+
+		$tmp = $this->config ()->field_filters->$class_name;
+
+		if ($tmp)
+		{
+			$field_filters = $tmp->__toArray ();
+		}
+
+		$table = Model_Scheme::table ($class_name);
+		foreach ($fields as $i => $field)
+		{
+			// Это линка
+			if (!empty ($field->Link))
+			{
+				if (isset ($field_filters [$field->Field]))
+				{
+					foreach ($field_filters [$field->Field] as $field_filter)
+					{
+						$value = $field_filter ['value'];
+
+						if (strpos ($value, '::') !== false)
+						{
+							$value = call_user_func ($field_filter ['value']);
+						}
+
+						$field->Values = $field->Values->filter (array (
+							$field_filter ['field'] => $value
+						));
+					}
+				}
+			}
+
+			// Тип поля - enum
+			if (strpos ($field->Type, 'enum(') === 0)
+			{
+				$values = substr ($field->Type, 6, -1);
+				$values = explode (',', $values);
+
+				$collection = Model_Collection_Manager::create (
+					'Dummy'
+				)->reset ();
+
+				Loader::load ('Model_Proxy');
+				foreach ($values as $v)
+				{
+					$v = trim ($v, "' ");
+
+					$collection->add (new Model_Proxy (
+						'Dummy',
+						array (
+							'id'	=> $v,
+							'name'	=> $v
+						)
+					));
+				}
+
+				$field->Values = $collection;
+			}
+
+			if ($row)
+			{
+				$text_value = Model_Manager::byQuery (
+					'Text_Value',
+					Query::instance ()
+						->where ('tv_field_table', $table)
+						->where ('tv_field_name', $field->Field)
+				);
+
+				//echo DDS::getDataSource ()->getQuery ()->translate () . '<br />';
+
+				// Есть запись для поля таблицы в таблице подстановок
+				if ($text_value && $text_value->tv_text_field)
+				{
+					$collection = $text_value->replace (
+						$row, $table, $fields, $field, $field_filters, $class_name
+					);
+					$field->Values = $collection;
+				}
+			}
+			// Поле - поле для связи
+			if (strpos ($field->Field, '__id') !== false)
+			{
+				$cn = substr ($field->Field, 0, -4);
+
+				$query = Query::instance ();
+
+				if (isset ($field_filters [$field->Field]))
+				{
+					foreach ($field_filters [$field->Field] as $field_filter)
+					{
+						$value = $field_filter ['value'];
+
+						if (strpos ($value, '::') !== false)
+						{
+							$value = call_user_func ($field_filter ['value']);
+						}
+
+						$query->where ($field_filter ['field'], $value);
+					}
+				}
+
+				$field->Values = Model_Collection_Manager::byQuery (
+					$cn,
+					$query
+				);
+			}
+
+			// Ссылка на родителя
+			if ($field->Field == 'parentId')
+			{
+				$field->Values = Model_Collection_Manager::create (
+					$class_name
+				);
+			}
+		}
+		return $fields;
 	}
 
 	/**
@@ -306,7 +438,7 @@ class Controller_Admin_Database extends Controller_Abstract
 	 * @param null|Acl_Role $role
 	 * @return array <string>
 	 */
-	private function __resources ($role = null)
+	private function __resources ($role = null, $type = null)
 	{
 		$query = Query::instance ()
 			->select ('name')
@@ -328,6 +460,16 @@ class Controller_Admin_Database extends Controller_Abstract
 			->getResult ()
 				->asColumn ('name');
 
+		if ($type)
+		{
+			foreach ($resources as $i=>$resource)
+			{
+				if (strpos ($resource, '/' . $type . '/') === false)
+				{
+					unset ($resources [$i]);
+				}
+			}
+		}
 		return (array) $resources;
 	}
 
@@ -360,6 +502,22 @@ class Controller_Admin_Database extends Controller_Abstract
 		}
 
 		return $result;
+	}
+
+	/**
+	 * @desc Получить роли текущего пользователя
+	 * @return array
+	 */
+	public function __userRoles ()
+	{
+		$query = Query::instance ()
+			->select ('fromRowId')
+			->from ('Link')
+			->where ('fromTable', 'Acl_Role')
+			->where ('toTable', 'User')
+			->where ('toTableId', User::id ());
+
+		return DDS::execute ($query)->getResult ()->asColumn ();
 	}
 
 	/**
@@ -436,12 +594,36 @@ class Controller_Admin_Database extends Controller_Abstract
 		Helper_Header::redirect ('/cp/table/' . $table . '/');
 	}
 
+	private function filters($collection, $class_name) {
+		$filters = null;
+
+		if (!empty ($this->config ()->filters))
+		{
+			$filters = $this->config ()->filters->$class_name;
+		}
+
+		if ($filters)
+		{
+			$filters = $filters->__toArray ();
+
+			foreach ($filters as $field => $value)
+			{
+				if (strpos ($value, '::') !== false)
+				{
+					$value = call_user_func ($value);
+				}
+				$collection->where ($field, $value);
+			}
+		}
+		return $collection;
+	}
+
 	/**
 	 * @desc Список таблиц
 	 */
 	public function index ()
 	{
-		$tables = Helper_Data_Source::tables ();;
+		$tables = Helper_Data_Source::tables ();
 		$tmp_tables = $this->__aclTables ($tables);
 
 		if (!$tmp_tables || !User::id ())
@@ -493,7 +675,7 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		$rate = Table_Rate::byTable ($table)->inc ();
 		$fields = Helper_Data_Source::fields ($table);
-		$acl_fields = $this->__aclFields ($table, $fields);
+		$acl_fields = $this->__aclFields ($table, $fields, $row_id != 0 ? 'edit' : 'create');
 
 		if (!$acl_fields || !User::id ())
 		{
@@ -524,13 +706,9 @@ class Controller_Admin_Database extends Controller_Abstract
 			if (!in_array ($field ['Field'], $acl_fields))
 			{
 				unset ($fields [$i]);
+				continue;
 			}
-		}
 
-		$fields = $this->_getValues ($class_name, $fields);
-
-		foreach ($fields as $field)
-		{
 			if (!$row->key () && $field ['Field'] != $row->keyField ())
 			{
 				$row->set ($field ['Field'], $field ['Default']);
@@ -568,10 +746,14 @@ class Controller_Admin_Database extends Controller_Abstract
 					$link_name
 				);
 
-				$link_table = Model_Scheme::table ($row->modelName ());
+				$link_models [$link_name] = $this->filters($link_models [$link_name], $link_name);
+
+				$link_table = Model_Scheme::table ($link_name);
+
 				$table_info = Helper_Data_Source::table ($link_table);
 
 				$field = new Objective (array (
+					'Link'		=> true,
 					'Field'		=> $link_name,
 					'Values'	=> array (),
 					'Comment'	=> !empty ($table_info ['Comment'])
@@ -581,6 +763,29 @@ class Controller_Admin_Database extends Controller_Abstract
 				$field->Values = $link_models [$link_name];
 
 				$fields [] = $field;
+			}
+		}
+
+		$fields = $this->_getValues ($row, $class_name, $fields);
+
+		foreach ($fields as $field)
+		{
+			if (!$row->key () && $field ['Field'] != $row->keyField ())
+			{
+				$row->set ($field ['Field'], $field ['Default']);
+			}
+
+			// Автовыбор
+			if (isset ($auto_select [$field ['Field']]) && !$row->key ())
+			{
+				$value = $auto_select [$field ['Field']];
+
+				if (strpos ($value, '::') !== false)
+				{
+					$value = call_user_func ($value);
+				}
+
+				$row->set ($field ['Field'], $value);
 			}
 		}
 
@@ -665,30 +870,9 @@ class Controller_Admin_Database extends Controller_Abstract
 		$collection = Model_Collection_Manager::create ($class_name);
 
 		// Получаем фильтры
-
-		$filters = null;
-
-		if (!empty ($this->config ()->filters))
-		{
-			$filters = $this->config ()->filters->$class_name;
-		}
-
-		if ($filters)
-		{
-			$filters = $filters->__toArray ();
-
-			foreach ($filters as $field => $value)
-			{
-				if (strpos ($value, '::') !== false)
-				{
-					$value = call_user_func ($value);
-				}
-				$collection->where ($field, $value);
-			}
-		}
+		$collection = $this->filters($collection, $class_name);
 
 		// Сортируем коллекцию, если есть конфиг для сортировки
-
 		$sort = null;
 
 		if (!empty ($this->config ()->sort))
@@ -794,7 +978,23 @@ class Controller_Admin_Database extends Controller_Abstract
 			}
 		}
 
-		$search_fields = $this->_getValues ($class_name, clone $fields);
+		$search_fields = $this->_getValues (null, $class_name, clone $fields);
+		$config_search_fields = $this->config ()->search_fields;
+		if ($config_search_fields)
+		{
+			$config_search_fields = $config_search_fields->$class_name;
+			if ($config_search_fields)
+			{
+				$config_search_fields = $config_search_fields->__toArray ();
+				foreach ($search_fields as $i=>$v)
+				{
+					if (!in_array ($v->Field, $config_search_fields))
+					{
+						unset ($search_fields [$i]);
+					}
+				}
+			}
+		}
 
 		if ($class_fields)
 		{
@@ -912,8 +1112,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			'table'				=> $table,
 			'limitators'		=> $limitators,
 			'limitator'			=> $limitator,
-			'title'				=> !empty ($title)
-				? $title : $this->config ()->default_title,
+			'title'				=> !empty ($title) ? $title : $this->config ()->default_title,
 			'links'				=> $links,
 			'keyField'			=> Model_Scheme::keyField ($class_name),
 			'styles'			=> $styles,

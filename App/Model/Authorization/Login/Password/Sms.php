@@ -188,7 +188,7 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 						md5(`password`)=md5(?) OR
 						`password`=md5(?)
 					)',
-					$data ['password']
+					array ($data ['password'], $data ['password'])
 				)
 				->where ('active', 1)
 		);

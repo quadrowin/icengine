@@ -11,6 +11,46 @@ namespace Ice;
  */
 class Helper_YMaps
 {
+	/**
+	 * @desc Получить названия ближайших метро
+	 * @param string $key
+	 * @param object $point
+	 * @param integer $limit
+	 */
+	public static function closestMetros ($key, $point, $limit)
+	{
+		$params = array (
+			'key'		=> $key,
+			'geocode'	=> $point->long . ',' . $point->lat,
+			'results'	=> $limit
+		);
+		$response = file_get_contents (
+			'http://api-maps.yandex.ru/modules/1.1/metro/src/xml/closest.xml?' .
+			http_build_query ($params)
+		);
+
+		if (!$response)
+		{
+			return null;
+		}
+
+		$matches = array ();
+		preg_match_all (
+			"#метро ([^']+)#u",
+			$response,
+			$matches
+		);
+
+		$result = array ();
+		if (!empty ($matches [1][0]))
+		{
+			foreach ($matches [1] as $metro)
+			{
+				$result [] = trim ($metro);
+			}
+		}
+		return array_values (array_unique ($result));
+	}
 
 	/**
 	 * @desc Находит положение по названию (адресу)

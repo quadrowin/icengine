@@ -13,22 +13,9 @@ Loader::load ('Content_Abstract');
  */
 class Content_Simple extends Content_Abstract
 {
-    	public function base ()
-	{
-		return Model_Manager::byKey (
-			'Content',
-			$this->key ()
-		);
-	}
-
-    /**
-     * @see Content_Extending::extending
-     */
-    //public function extending ()
-    //{
-    //
-    //}
-
+	/**
+	 * @see Content_Abstract::modelName
+	 */
 	public function modelName ()
 	{
 		return 'Content';

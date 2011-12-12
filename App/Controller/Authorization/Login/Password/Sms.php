@@ -106,7 +106,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 							md5(User.password)=md5(?) OR
 							User.password=md5(?)
 						)',
-						$password
+						array ($password, $password)
 					)
 			);
 
