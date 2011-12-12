@@ -9,6 +9,6 @@ namespace Ice;
  * @package Ice
  *
  */
-class Loader_Exception extends Exception {
+class Loader_Exception extends \Exception {
 
 }
