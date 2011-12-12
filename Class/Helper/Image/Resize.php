@@ -46,7 +46,7 @@ class Helper_Image_Resize
 		{
 			return false;
 		}
-		if (class_exists('Imagick'))
+		if (false && class_exists('Imagick'))
 		{
 			$img = new Imagick($input);	
 			$img->thumbnailImage($w, $h, TRUE);
