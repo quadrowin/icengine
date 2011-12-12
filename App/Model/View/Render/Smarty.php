@@ -50,7 +50,7 @@ class View_Render_Smarty extends View_Render_Abstract
 		 * @var array
 		 */
 		'filters'			=> array (
-			'Dblbracer'
+			'Ice\\Dblbracer'
 		)
 	);
 
@@ -73,7 +73,19 @@ class View_Render_Smarty extends View_Render_Abstract
 		// Фильтры
 		foreach ($config ['filters'] as $filter)
 		{
-			$filter = 'Helper_Smarty_Filter_' . $filter;
+			$p = strrpos ($filter, '\\');
+
+			if (false === $p)
+			{
+				$filter = 'Helper_Smarty_Filter_' . $filter;
+			}
+			else
+			{
+				$filter =
+					substr ($filter, 0, $p + 1) .
+					'Helper_Smarty_Filter_' .
+					substr ($filter, $p + 1);
+			}
 			Loader::load ($filter);
 			$filter::register ($this->_smarty);
 		}
