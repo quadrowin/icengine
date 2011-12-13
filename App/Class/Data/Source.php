@@ -137,10 +137,9 @@ class Data_Source
 
 		if ($errno)
 		{
-//			\Debug::vardump($this->_adapter);
 			Loader::load ('Data_Source_Exception');
 			throw new Data_Source_Exception (
-				$error . "\n" . json_encode ($translated_query), $errno
+				$error . "\n" . json_encode ($translated_query), (int) $errno
 			);
 		}
 

@@ -44,7 +44,10 @@ class View_Render_Smarty extends View_Render_Abstract
 		 * @desc Пути до плагинов
 		 * @var array
 		 */
-		'plugins_path'		=> array (),
+		'plugins_path'		=> array (
+			'{$ice}/Vendor/smarty3/plugins',
+			'{$ice}/Vendor/smarty_plugins'
+		),
 		/**
 		 * @desc Фильры
 		 * @var array
@@ -63,12 +66,15 @@ class View_Render_Smarty extends View_Render_Abstract
 		}
 
 		$this->_smarty = new \Smarty ();
+		Loader::load('Helper_Dir');
 
 		$this->_smarty->compile_dir = $config ['compile_path'];
 		$this->_smarty->template_dir = array_reverse (
-			$config ['templates_path']->__toArray ()
+			Helper_Dir::solve ($config ['templates_path'])
 		);
-		$this->_smarty->plugins_dir = $config ['plugins_path']->__toArray ();
+		$this->_smarty->plugins_dir = Helper_Dir::solve (
+			$config ['plugins_path']
+		);
 
 		// Фильтры
 		foreach ($config ['filters'] as $filter)

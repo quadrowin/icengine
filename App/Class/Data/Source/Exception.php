@@ -5,8 +5,8 @@ namespace Ice;
 /**
  *
  * @desc Exception
- * @author Shvedov_U
+ * @author Yury Shvedov
  * @package Ice
  *
  */
-class Data_Source_Exception extends Exception { }
+class Data_Source_Exception extends \Exception { }

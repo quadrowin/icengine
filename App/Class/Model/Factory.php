@@ -26,6 +26,18 @@ class Model_Factory extends Model
 	{
 	    if (is_array ($object) && isset ($object ['name']))
 	    {
+			// check namespace
+			$p = strrpos ($object ['name'], '\\');
+			if ($p)
+			{
+				$p2 = strrpos ($model, '\\');
+
+				return
+					substr ($object ['name'], 0, $p) .
+					substr ($model, $p2) . '_' .
+					substr ($object ['name'], $p + 1);
+			}
+			// without namespace
 		    return $model . '_' . $object ['name'];
 	    }
 
