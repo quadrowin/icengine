@@ -127,7 +127,7 @@ class Controller_Admin_Content_Category extends Controller_Abstract
 			->addOptions ('Root');
 
 		Loader::load ('Paginator');
-		$categories->setPaginator (Paginator::fromInput ($this->_input));
+		//$categories->setPaginator (Paginator::fromInput ($this->_input));
 
 		$this->_output->send (array (
 			'categories'	=> $categories,
