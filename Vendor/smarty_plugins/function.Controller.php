@@ -6,6 +6,6 @@
  */
 function smarty_function_Controller (array $params)
 {
-	Loader::load ('Controller_Manager');
-	return Controller_Manager::html ($params ['call'], $params);
+	Ice\Loader::load ('Controller_Manager');
+	return Ice\Controller_Manager::html ($params ['call'], $params);
 }

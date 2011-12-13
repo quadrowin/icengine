@@ -136,6 +136,7 @@ abstract class Bootstrap_Abstract
 		$namespace = substr ($class, 0, (int) $p);
 
 		Loader::addPath ($namespace, $path . 'App/Class/');
+		Loader::addPath ($namespace, $path . 'App/Controller/');
 		Loader::addPath ($namespace, $path . 'App/Model/');
 		Loader::addPath ($namespace, $path . 'App/');
 

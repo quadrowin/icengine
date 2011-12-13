@@ -32,7 +32,7 @@ class Content_Abstract extends Model_Factory_Delegate
 	public function base ()
 	{
 		$content = Model_Manager::byKey (
-			'Content',
+			'Ice\\Content',
 			$this->key ()
 		);
 

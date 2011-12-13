@@ -90,6 +90,13 @@ class Data_Adapter_Pdo extends Data_Adapter_Abstract
 		if (!$rows)
 		{
 			$rows = array ();
+
+			$error = $statement->errorInfo ();
+			if (!empty ($error [1]))
+			{
+				$this->_errno = $error [1];
+				$this->_error = $error [2];
+			}
 		}
 
 		$this->_numRows = count ($rows);

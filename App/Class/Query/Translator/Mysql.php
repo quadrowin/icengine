@@ -65,7 +65,18 @@ class Query_Translator_Mysql extends Query_Translator
 		)
 		{
 			//return self::SQL_ESCAPE . mysql_real_escape_string ($value) . self::SQL_ESCAPE;
-			return self::SQL_ESCAPE . addslashes (iconv ('UTF-8', 'UTF-8//IGNORE', $value)) . self::SQL_ESCAPE;
+			//return self::SQL_ESCAPE . addslashes (iconv ('UTF-8', 'UTF-8//IGNORE', $value)) . self::SQL_ESCAPE;
+			return
+				self::SQL_ESCAPE .
+				rtrim (
+					str_replace (
+						self::SQL_ESCAPE,
+						'\\' . self::SQL_ESCAPE,
+						iconv ('UTF-8', 'UTF-8//IGNORE', $value)
+					),
+					'\\'
+				) .
+				self::SQL_ESCAPE;
 		}
 		return $value;
 	}

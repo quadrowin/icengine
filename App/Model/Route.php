@@ -416,7 +416,15 @@ class Route extends Model_Child
 	 */
 	public function viewRender ()
 	{
-		$render = $this->View_Render;
+		$render = null;
+
+		if (
+			isset ($this->_fields ['View_Render']) ||
+			isset ($this->_joints ['View_Render']) ||
+			isset ($this->_fields ['View_Render__id'])
+		) {
+			$render = $this->View_Render;
+		}
 
 		if (!$render && isset ($this->_fields ['viewRenderName']))
 		{

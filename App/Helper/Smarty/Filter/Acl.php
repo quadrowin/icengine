@@ -81,9 +81,9 @@ class Helper_Smarty_Filter_Acl
 
 	/**
 	 * @desc Регистрация фильтра в смарти.
-	 * @param Smarty $smarty
+	 * @param \Smarty $smarty
 	 */
-	public static function register (Smarty $smarty)
+	public static function register (\Smarty $smarty)
 	{
 		$smarty->register_prefilter (array (__CLASS__, 'filterAcl'));
 	}
@@ -92,10 +92,10 @@ class Helper_Smarty_Filter_Acl
 	 * @desc Реализует ACL для шаблона.
 	 * Этот метод вызывается из смарти перед обработкой шаблона.
 	 * @param string $tpl_source Исходный код шаблона.
-	 * @param Smarty $smarty Экземпляр смарти
+	 * @param \Smarty $smarty Экземпляр смарти
 	 * @return string Результат фильтрации.
 	 */
-	public static function filterAcl ($tpl_source, Smarty $smarty)
+	public static function filterAcl ($tpl_source, \Smarty $smarty)
 	{
 		if (!$tpl_source)
 		{

@@ -373,7 +373,7 @@ class Debug
 	public static function vardump ($var)
 	{
 		echo '<pre>';
-
+		
 		foreach (func_get_args () as $var)
 		{
 			echo str_replace (

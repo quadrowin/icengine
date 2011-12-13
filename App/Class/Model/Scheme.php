@@ -343,14 +343,29 @@ abstract class Model_Scheme
 	{
 		$model = strtolower ($model);
 
-		if (!isset (self::$models [$model], self::$models [$model]['source']))
+		if (isset (self::$models [$model], self::$models [$model]['source']))
 		{
-			return DDS::getDataSource ();
+			$name = self::$models [$model]['source'];
+			return Data_Source_Manager::get ($name);
 		}
 
-		$name = self::$models [$model]['source'];
+		$p = strrpos ($model, '\\');
+		if ($p)
+		{
+			$ns = substr ($model, 0, $p);
+			if (
+				isset (
+					self::$namespaces [$ns],
+					self::$namespaces [$ns]['source']
+				)
+			)
+			{
+				$name = self::$namespaces [$ns]['source'];
+				return Data_Source_Manager::get ($name);
+			}
+		}
 
-		return Data_Source_Manager::get ($name);
+		return DDS::getDataSource ();
 	}
 
 	/**

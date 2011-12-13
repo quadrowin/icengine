@@ -39,9 +39,9 @@ class Helper_Smarty_Filter_Encoding
 
 	/**
 	 * @desc Регистрация фильтра в смарти.
-	 * @param Smarty $smarty
+	 * @param \Smarty $smarty
 	 */
-	public static function register (Smarty $smarty)
+	public static function register (\Smarty $smarty)
 	{
 		$smarty->registerFilter ('pre', array (__CLASS__, 'filterEncoding'));
 	}
