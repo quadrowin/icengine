@@ -762,14 +762,9 @@ class Controller_Content_Abstract extends Controller_Abstract
 	{
 		$image_id = $this->_input->receive ('image_id');
 
-		$image = Model_Manager::byQuery (
-			'Component_Image',
-			Query::instance ()
-				->where ('id', $image_id)
-				->where ('User__id', User::id ())
-		);
-
-		if (!$image)
+		$image = Model_Manager::byKey ('Component_Image', $image_id);
+		
+		if (!($image && ($image->User__id == User::id () || User::getCurrent()->hasRole ('editor'))))
 		{
 			return $this->_sendError (
 				'not_found',
@@ -805,7 +800,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 
 		$resource_addContent = Acl_Resource::byNameCheck (
 			$this->__categoryModel (),
-			$category->key (),
+			$content_category->key (),
 			'addContent'
 		);
 
