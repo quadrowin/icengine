@@ -6,7 +6,7 @@ namespace Ice;
  *
  * @desc Хелпер работы с директориями
  * @package Ice
- * 
+ *
  */
 class Helper_Dir
 {
@@ -27,7 +27,7 @@ class Helper_Dir
 		if (!self::$_replaces)
 		{
 			self::$_replaces = array(
-				'{$app}' => rtrim (Core::bootstrap ()->appPath (), '\\/'),
+				'{$app}' => Core::bootstrap ()->getAppDir (),
 				'{$ice}' => rtrim (Core::path (), '\\/'),
 				'{$root}' => rtrim (Core::root (), '\\/')
 			);
@@ -36,7 +36,7 @@ class Helper_Dir
 		$result = array();
 		foreach ($dirs as $dir)
 		{
-			$result[] = strtr ($dir, self::$_replaces);
+			$result [] = strtr ($dir, self::$_replaces);
 		}
 
 		return $result;

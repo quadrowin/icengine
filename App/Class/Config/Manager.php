@@ -109,7 +109,7 @@ class Config_Manager
 	 */
 	public static function getPath() {
 		if (!self::$_path) {
-			self::$_path = \Ice\Core::root () . 'Ice/Config/';
+			self::$_path = Core::root () . 'Ice/Config/';
 		}
 		return self::$_path;
 	}

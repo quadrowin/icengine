@@ -16,7 +16,7 @@ abstract class Bootstrap_Abstract
 	 * @desc Путь до начала структуры проекта.
 	 * @var string
 	 */
-	protected $_appPath;
+	protected $_appDir;
 
 	/**
 	 * @desc Название бутстрапа
@@ -42,10 +42,10 @@ abstract class Bootstrap_Abstract
 	 */
 	public function __construct ()
 	{
-		$this->_appPath = substr (
+		$this->_appDir = substr (
 			$this->dir (),
 			0,
-			-strlen ('App/Model/Bootstrap')
+			-strlen ('/App/Model/Bootstrap')
 		);
 		$class = get_class ($this);
 		$p = strrpos ($class, '\\');
@@ -75,7 +75,7 @@ abstract class Bootstrap_Abstract
 		);
 
 		Config_Manager::setPath (
-			$this->appPath () . 'Config/',
+			$this->getConfigDir () . '/',
 			$this->getNamespace ()
 		);
 		$this->initFirePhp ();
@@ -129,7 +129,7 @@ abstract class Bootstrap_Abstract
 	 */
 	public function addLoaderPathes ()
 	{
-		$path = $this->appPath ();
+		$path = $this->getAppDir () . '/';
 
 		$class = get_class ($this);
 		$p = strrpos ($class, '\\');
@@ -144,18 +144,6 @@ abstract class Bootstrap_Abstract
 	}
 
 	/**
-	 * @desc Возвращает путь до начала структуры Ice.
-	 * Следует использовать Application::getDir().
-	 * Класс Application должен быть реализован для каждого проекта.
-	 * Application::getDir возвращает путь без заключительного слеша.
-	 * @return string.
-	 */
-	public function appPath ()
-	{
-		return $this->_appPath;
-	}
-
-	/**
 	 * @desc Возвращает директорию бутстрапа
 	 * В работающем загрузчике __DIR__ или dirname(__FILE__).
 	 * @return string
@@ -167,12 +155,42 @@ abstract class Bootstrap_Abstract
 	}
 
 	/**
+	 * @desc Возвращает путь до начала структуры проекта.
+	 * В проектах следует использовать Application::getDir().
+	 * Класс Application должен быть реализован для каждого проекта.
+	 * Application::getDir возвращает путь без заключительного слеша.
+	 * @return string.
+	 */
+	public function getAppDir ()
+	{
+		return $this->_appDir;
+	}
+
+	/**
+	 * @desc Возвращает директорию конфигов
+	 * @return string
+	 */
+	public function getConfigDir ()
+	{
+		return $this->_appDir . '/Config';
+	}
+
+	/**
 	 * @desc Вовзрващает рабочее пространство имен
 	 * @return string
 	 */
 	public function getNamespace ()
 	{
 		return $this->_namespace;
+	}
+
+	/**
+	 * @desc Директория для переменных
+	 * @return string
+	 */
+	public function getVarDir ()
+	{
+		return $this->_appDir . '/Var';
 	}
 
 	/**
@@ -285,7 +303,7 @@ abstract class Bootstrap_Abstract
 		$view = View_Render_Manager::getView ();
 		$view->addTemplatesPath (array(
 			Core::path () . 'Resource/Template/',
-			$this->appPath () . 'Resource/Template/'
+			$this->getAppDir () . '/Resource/Template/'
 		));
 	}
 

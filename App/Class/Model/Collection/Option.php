@@ -1,11 +1,14 @@
 <?php
+
+namespace Ice;
+
 /**
  *
  * @desc Опция коллекции.
  * @deprecated Если где-то используется, следует переписать
  * на Model_Option
  * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
+ * @package Ice
  *
  */
 class Model_Collection_Option

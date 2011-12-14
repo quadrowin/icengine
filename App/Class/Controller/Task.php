@@ -178,6 +178,12 @@ class Controller_Task
 	 */
 	public function setClassTpl ($class, $template = '')
 	{
+		$p = strrpos ($class, '\\');
+		if ($p)
+		{
+			$class = substr ($class, $p + 1);
+		}
+
 		$template = $template ? ('/' . ltrim ($template, '/')) : '';
 
 		$this->setTemplate (
