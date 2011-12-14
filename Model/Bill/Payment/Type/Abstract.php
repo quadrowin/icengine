@@ -38,6 +38,22 @@ class Bill_Payment_Type_Abstract extends Model_Factory_Delegate
 	{
 		$bill = Model_Manager::byKey('Bill', $params ['Bill__id']);
 		
+		if (!$bill)
+		{
+			return;
+		}
+
+		$payment = Model_Manager::byQuery (
+			'Bill_Payment',
+			Query::instance ()
+				->where ('Bill__id', $params ['Bill__id'])
+		);
+
+		if ($payment)
+		{
+			return;
+		}
+
 		Loader::load ('Bill_Payment');
 		$payment = new Bill_Payment (array (
 			'Bill__id'				=> 
