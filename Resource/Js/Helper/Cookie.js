@@ -3,10 +3,10 @@
  * @desc Помощник для работы с плюшками
  * @author Yury Shvedov
  * @package IcEngine
- * 
+ *
  */
 var Helper_Cookie = {
-	
+
 	/**
 	 * @desc Возвращает значение плюшки
 	 * @param name string
@@ -22,7 +22,7 @@ var Helper_Cookie = {
 			offset = cookie.indexOf(search);
 			if (offset != -1) {
 				offset += search.length;
-				end = cookie.indexOf(";", offset)
+				end = cookie.indexOf(";", offset);
 				if (end == -1) {
 					end = cookie.length;
 				}
@@ -31,7 +31,7 @@ var Helper_Cookie = {
 		}
 		return (setStr);
 	},
-	
+
 	/**
 	 * @desc Устанавливает значение плюшки
 	 * @param name string
@@ -48,5 +48,5 @@ var Helper_Cookie = {
 			((domain) ? "; domain=" + domain : "") +
 			((secure) ? "; secure" : "");
 	}
-	
+
 };

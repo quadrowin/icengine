@@ -98,9 +98,23 @@ abstract class Model_Option
 		$p = strpos ($option, '::');
 		if ($p === false)
 		{
+			$model = $collection->modelName ();
+
+			// namespaces
+			$p = strrpos ($option, '\\');
+			if ($p)
+			{
+				$p2 = strrpos ($model, '\\');
+				return
+					substr ($option, 0, $p + 1) .
+					($p2 ? substr ($model, $p2 + 1) : $model) .
+					'_Option_' .
+					substr ($option, $p + 1);
+			}
+
 			// Опция этой модели
 			return
-				$collection->modelName () .
+				$model .
 				'_Option_' .
 				$option;
 		}

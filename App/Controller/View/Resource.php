@@ -6,7 +6,7 @@ namespace Ice;
  *
  * @desc Контроллер для компновки ресурсов представления.
  * Предназначен для сбора js, css файлов в один.
- * @author Юрий
+ * @author Yury Shvedov
  * @package Ice
  *
  */
@@ -30,7 +30,11 @@ class Controller_View_Resource extends Controller_Abstract
 			'name'
 		);
 
-		$vars = array ();
+		$vars = array (
+			'{$ice}' => rtrim (Core::path (), '\\/'),
+			'{$root}' => rtrim (Core::root (), '\\/'),
+			'{$app}' => Core::bootstrap ()->getAppDir ()
+		);
 
 		if ($params)
 		{
