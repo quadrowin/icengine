@@ -196,70 +196,9 @@ class Controller_Admin_Database extends Controller_Abstract
 				// Есть запись для поля таблицы в таблице подстановок
 				if ($text_value && $text_value->tv_text_field)
 				{
-				$query = Query::instance ()
-					->select ($text_value->tv_text_table . '.' .
-						$text_value->tv_text_link_field)
-
-					->select ($text_value->tv_text_table . '.' .
-						$text_value->tv_text_field);
-
-				$query
-					->from ('`' . $text_value->tv_text_table . '`' );
-
-				if ($text_value->tv_text_link_condition)
-				{
-					$query
-						->where ($text_value->tv_text_link_condition);
-				}
-
-				if (isset ($field_filters [$field->Field]))
-				{
-					foreach ($field_filters [$field->Field] as $field_filter)
-					{
-						$value = $field_filter ['value'];
-
-						if (strpos ($value, '::') !== false)
-						{
-							$value = call_user_func ($field_filter ['value']);
-						}
-
-						$query->where ($field_filter ['field'], $value);
-					}
-				}
-
-				$result = DDS::execute ($query)
-					->getResult ()
-						->asTable ();
-
-				$collection = Model_Collection_Manager::create (
-					'Dummy'
-				)->reset ();
-
-
-				$model_class_name = Model_Scheme::tableToModel ($text_value->tv_text_table);
-				$file = str_replace ('_', '/', $model_class_name) . '.php';
-				if (Loader::findFile ($file))
-				{
-					Loader::load ($model_class_name);
-				}
-				else
-				{
-					$model_class_name = $class_name;
-				}
-				$kf = Model_Scheme::keyField ($model_class_name);
-
-				Loader::load ('Dummy');
-
-				foreach ($result as $item)
-				{
-					$collection->add (new Dummy (array (
-						$kf	=> $item [$text_value->tv_text_link_field],
-						'name'	=> $item [$text_value->tv_text_field]
-					)));
-				}
-//					$collection = $text_value->replace (
-//						$row, $table, $fields, $field, $field_filters, $class_name
-//					);
+					$collection = $text_value->replace (
+						$row, $table, $fields, $field, $field_filters, $class_name
+					);
 					$field->Values = $collection;
 				}
 			}
@@ -1054,12 +993,11 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		$exists_links = Model_Scheme::links ($class_name);
 		$links_to_save = array ();
-
+		
 		if (!is_array ($column))
 		{
 			return;
 		}
-
 		foreach ($column as $field => $value)
 		{
 			if (isset ($exists_links [$field]))
@@ -1068,7 +1006,7 @@ class Controller_Admin_Database extends Controller_Abstract
 				unset ($column [$field]);
 			}
 		}
-
+		
 		foreach ($column as $field => $value)
 		{
 			if (!in_array ($field, $acl_fields))
@@ -1076,17 +1014,15 @@ class Controller_Admin_Database extends Controller_Abstract
 				unset ($column [$field]);
 			}
 		}
-
 		$modificators = array ();
-
-		$tmp = $this->config ()->modificators->$class_name;
-
-		if ($tmp)
-		{
+		if($this->config ()->modificators)
+		{	
+			$tmp = $this->config ()->modificators->$class_name;
 			$modificators = $tmp->__toArray ();
 		}
 
 		$updated_fields = $column;
+		
 
 		foreach ($updated_fields as $field => $value)
 		{
@@ -1101,7 +1037,6 @@ class Controller_Admin_Database extends Controller_Abstract
 				$updated_fields [$field] = $value;
 			}
 		}
-
 		if ($row->key ())
 		{
 			foreach ($column as $field => $value)
@@ -1111,12 +1046,13 @@ class Controller_Admin_Database extends Controller_Abstract
 					unset ($updated_fields [$field]);
 				}
 			}
-
 			if ($updated_fields)
 			{
 				$row->update ($updated_fields);
 //				print_r ($updated_fields);
 //				echo DDS::getDataSource ()->getQuery ()->translate ();
+				var_dump($updated_fields);
+			
 			}
 		}
 		else
@@ -1160,10 +1096,11 @@ class Controller_Admin_Database extends Controller_Abstract
 			$row_id,
 			$updated_fields
 		);
-
-		$after_save = $this->config ()->afterSave->$class_name;
-
-		if ($after_save)
+		if ($this->config ()->afterSave)
+		{		
+			$after_save = $this->config ()->afterSave->$class_name;
+		}
+		if (!empty($after_save) && count($after_save))
 		{
 			foreach ($after_save as $action)
 			{
