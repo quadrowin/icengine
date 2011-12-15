@@ -53,7 +53,7 @@ class View_Render_Xslt extends View_Render_Abstract
 			if (is_numeric ($key))
 			{
 				//$key = 'key' . $key;
-				$key = 'items';
+				$key = 'item';
 			}
 
 			if (is_object ($val))
