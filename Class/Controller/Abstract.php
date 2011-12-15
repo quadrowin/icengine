@@ -288,7 +288,7 @@ class Controller_Abstract
 			$method = $text;
 		}
 
-		if ($tpl)
+		if (! is_bool($tpl))
 		{
 			$this->_task->setClassTpl ($method, $tpl);
 		}

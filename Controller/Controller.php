@@ -23,6 +23,8 @@ class Controller_Controller extends Controller_Abstract
 			'back',
 			'params'
 		);
+
+        $_SERVER ['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
 		
 		$result = Controller_Manager::html (
 			$call,
