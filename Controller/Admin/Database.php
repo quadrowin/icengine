@@ -25,9 +25,9 @@ class Controller_Admin_Database extends Controller_Abstract
 	 * @param array $fields
 	 * @return array<string>
 	 */
-	private function __aclFields ($table, $fields)
+	private function __aclFields ($table, $fields, $type = null)
 	{
-		$acl_fields = $this->__fields ($table);
+		$acl_fields = $this->__fields ($table, $type);
 
 		Loader::load ('Helper_Array');
 
@@ -88,9 +88,9 @@ class Controller_Admin_Database extends Controller_Abstract
 	 * @param string $table
 	 * @return array <string>
 	 */
-	private function __fields ($table)
+	private function __fields ($table, $type = null)
 	{
-		$resources = $this->__resources ();
+		$resources = $this->__resources (null, $type);
 
 		$result = array ();
 
@@ -102,10 +102,15 @@ class Controller_Admin_Database extends Controller_Abstract
 		{
 			if (substr ($r, 0, $len) === $name)
 			{
-				$result [] = substr ($r, $len);
+				$tmp = trim (substr ($r, $len), '/');
+				$r = strrpos ($tmp, '/');
+				if ($r !== false)
+				{
+					$tmp = substr ($tmp, 0, $r);
+				}
+				$result [] = $tmp;
 			}
 		}
-
 		return $result;
 	}
 
@@ -268,7 +273,7 @@ class Controller_Admin_Database extends Controller_Abstract
 	 * @param null|Acl_Role $role
 	 * @return array <string>
 	 */
-	private function __resources ($role = null)
+	private function __resources ($role = null, $type = null)
 	{
 		$query = Query::instance ()
 			->select ('name')
@@ -290,6 +295,16 @@ class Controller_Admin_Database extends Controller_Abstract
 			->getResult ()
 				->asColumn ('name');
 
+		if ($type)
+		{
+			foreach ($resources as $i=>$resource)
+			{
+				if (strpos ($resource, '/' . $type . '/') === false)
+				{
+					unset ($resources [$i]);
+				}
+			}
+		}
 		return (array) $resources;
 	}
 
@@ -322,6 +337,22 @@ class Controller_Admin_Database extends Controller_Abstract
 		}
 
 		return $result;
+	}
+
+	/**
+	 * @desc Получить роли текущего пользователя
+	 * @return array
+	 */
+	public function __userRoles ()
+	{
+		$query = Query::instance ()
+			->select ('fromRowId')
+			->from ('Link')
+			->where ('fromTable', 'Acl_Role')
+			->where ('toTable', 'User')
+			->where ('toTableId', User::id ());
+
+		return DDS::execute ($query)->getResult ()->asColumn ();
 	}
 
 	/**
@@ -479,7 +510,7 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		$rate = Table_Rate::byTable ($table)->inc ();
 		$fields = Helper_Data_Source::fields ('`' . $table . '`');
-		$acl_fields = $this->__aclFields ($table, $fields);
+		$acl_fields = $this->__aclFields ($table, $fields, $row_id != 0 ? 'edit' : 'create');
 
 		if (!$acl_fields || !User::id ())
 		{
