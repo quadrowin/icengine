@@ -1,20 +1,20 @@
 /**
- * Помощник работы с формой.
+ * @desc Помощник работы с формой.
  */
-var Helper_Form = {
-	
+Ice.Helper_Form = {
+
 	/**
 	 * Последняя форма, на которой запущен лоадинг
 	 */
 	$lastLoadings: null,
-	
+
 	_toggleTextForPassword: function ($password)
 	{
 		if ($password.data ('tps_input'))
 		{
 			return $password.data ('tps_input');
 		}
-		
+
 		var elPosition = $password.position ();
 		var $input = $('<input/>', {
 	    	'class': "hidden",
@@ -25,40 +25,40 @@ var Helper_Form = {
 	    	},
 	    	type: 'text'
 	    });
-		
+
 		$input.data ('tps_password', $password);
 		$password.data ('tps_input', $input);
 		$input.appendTo ($password.parent ());
-		
+
 		return $input;
 	},
-	
+
 	ajaxPost: function ($form, url, callback)
 	{
-		var data = Helper_Form.asArray ($form);
-		
+		var data = Ice.Helper_Form.asArray ($form);
+
 		JsHttpRequest.query (url, data, callback, true);
 	},
-	
+
 	/**
 	 * @desc Все поля формы как поля объекта
-	 * @param jQuery $form Форма.
-	 * @param string filter jQuery selector.
+	 * @param $form jQuery Форма.
+	 * @param filter string jQuery selector.
 	 * @returns object Объект, содержащий данные с формы.
 	 */
 	asArray: function ($form, filter)
 	{
-		$fields = 
+		$fields =
 			$form.find ('input,select,textarea')
 			.filter (':not(.nosubmit)');
-		
+
 		if (filter)
 		{
 			$fields.filter (filter);
 		}
-		
-		var data = {};	
-		
+
+		var data = {};
+
 		$fields.each (function () {
 
             /**
@@ -137,22 +137,23 @@ var Helper_Form = {
 				}
 			}
 		});
+
 		return data;
 	},
-	
+
 	defaultCallback: function ($form, result)
 	{
 		if (!result)
 		{
-			Helper_Form.stopLoading ($form);
+			Ice.Helper_Form.stopLoading ($form);
 			return;
 		}
-		
+
 		if (result.data && result.data.alert)
 		{
 			alert (result.data.alert);
 		}
-		
+
 		if (result.html)
 		{
 			if (result.data && result.data.removeForm)
@@ -165,7 +166,7 @@ var Helper_Form = {
 				{
 					$('[name=' + result.data.field + ']').addClass ("err");
 				}
-				
+
 				// последнее вхождение ".result-msg", позволяет
 				// подменять нижнюю часть формы, которая будет содержать
 				// новый .result-msg
@@ -178,12 +179,12 @@ var Helper_Form = {
 				while ($subdiv.length)
 				{
 					$div = $subdiv;
-					$subdiv = $div.find ('.result-msg'); 
+					$subdiv = $div.find ('.result-msg');
 				}
-				
+
 				$div.html (result.html);
 				$div.show ();
-				Helper_Form.stopLoading ($form);
+				Ice.Helper_Form.stopLoading ($form);
 			};
 		}
 		else
@@ -193,7 +194,7 @@ var Helper_Form = {
 				$form.parent ().remove ();
 			}
 		}
-		
+
 		if (result.data && result.data.redirect)
 		{
 			setTimeout (
@@ -203,25 +204,25 @@ var Helper_Form = {
 				1000
 			);
 		};
-		
+
 		if (typeof (Controller_Captcha) != "undefined")
 		{
 			Controller_Captcha.regenerateACodes ($form);
 		}
 	},
-	
+
 	/**
 	 * @desc Отправка формы по умолчанию
-	 * @param jQuery $form Форма или элемент формы.
-	 * @param string action Название контроллера и экшена.
+	 * @param $form jQuery Форма или элемент формы.
+	 * @param action string Название контроллера и экшена.
 	 */
 	defaultSubmit: function ($form, action)
 	{
 		$form = $form.closest ('form');
-		
+
 		function callback (result)
 		{
-			Helper_Form.defaultCallback ($form, result);
+			Ice.Helper_Form.defaultCallback ($form, result);
 //			if (result && result.html)
 //			{
 //				$form.find ('.result-msg').html (result.html);
@@ -232,30 +233,30 @@ var Helper_Form = {
 //				window.location.href = result.redirect;
 //			}
 		}
-		
+
 		if (!action)
 		{
 			action = $form.attr ('onsubmit');
-			
+
 			var p1 = action.indexOf ('(');
 			var p2 = action.indexOf (' ');
-			
+
 			action = action.substring (
 				"Controller_".length,
 				(0 < p2 && p2 < p1) ? p2 : p1
 			);
 			action = action.replace (".", "/");
 		}
-		
+
 		Controller.call (
 			action,
-			Helper_Form.asArray ($form),
+			Ice.Helper_Form.asArray ($form),
 			callback, true
 		);
 	},
-	
+
 	/**
-	 * 
+	 *
 	 * @param jQuery $owner
 	 * @returns jQuery input[type=file]
 	 */
@@ -263,13 +264,13 @@ var Helper_Form = {
 	{
 		var $input = $('input[type="file"]', $owner);
 		var is_new = false;
-		
+
 		if ($input.length == 0)
 		{
 			$input = $('<input type="file" />');
-			is_new = true;			
+			is_new = true;
 		};
-		
+
 		$input.css ({
 			position: "absolute",
 			opacity: 0.0,
@@ -279,66 +280,66 @@ var Helper_Form = {
 			padding: 0,
 			width: "220px"
 		});
-		
+
 		if (is_new)
 		{
 			$owner.append ($input);
 		};
-		
+
 		$owner.data ('input_file_upload', $input);
 		$owner.css ('overflow', 'hidden');
-		
+
 		var pos = $owner.css ('position');
 		if (pos != "relative" && pos != "absolute")
 		{
 			$owner.css ('position', 'relative');
 		};
-		
+
 		$owner.bind ('mousemove', function (event) {
 			var $input = $(event.currentTarget).data ('input_file_upload');
-			
+
 			var y = event.pageY - $owner.offset ().top - 5 + 'px';
 			var x = event.pageX - $owner.offset ().left - 170 + 'px';
-			
+
 			$input.css ({left: x, top: y});
 		});
-		
+
 		return $input;
 	},
-	
+
 	initTogglePasswordStars: function ($from)
 	{
 		if (!$from)
 		{
 			$form = $('body');
 		}
-		
-		$checkboxes = $('input[type="checkbox"].tps_checkbox', $from); 
-		
+
+		$checkboxes = $('input[type="checkbox"].tps_checkbox', $from);
+
 		$checkboxes.each (function () {
 			$(this).bind (
 				'click',
 				function ()
 				{
 					var $this = $(this);
-					
+
 					if ($this.data ('tps_text'))
 					{
-						Helper_Form.togglePasswordStars ($this, $this.data ('tps_text'));
+						Ice.Helper_Form.togglePasswordStars ($this, $this.data ('tps_text'));
 						return;
 					}
-					
+
 					var $parent = $this.parent ();
 					while ($parent.length)
 					{
 						var $tps_password = $parent.find ('.tps_password');
-						
+
 						if ($tps_password.length)
 						{
-							var $tps_input = Helper_Form._toggleTextForPassword ($tps_password);
+							var $tps_input = Ice.Helper_Form._toggleTextForPassword ($tps_password);
 							$this.data ('tps_password', $tps_password);
 							$this.data ('tps_input', $tps_input);
-							Helper_Form.togglePasswordStars ($this);
+							Ice.Helper_Form.togglePasswordStars ($this);
 							return;
 						}
 						$parent = $parent.parent ();
@@ -347,7 +348,7 @@ var Helper_Form = {
 			);
 		});
 	},
-	
+
 	/**
 	 * Генерация уникальных ID для элементов
 	 * Необходимо для чекбоксов в IE: если 2 чекбокса имеют одинаковый id,
@@ -363,19 +364,19 @@ var Helper_Form = {
 			$(this).attr ('id', id);
 		});
 	},
-	
+
 	/**
 	 * Заменить элементы управления на див загрузки
 	 * @param jQuery $controls
 	 */
 	startLoading: function ($controls)
 	{
-		Helper_Form.$lastLoadings = $controls;
+		Ice.Helper_Form.$lastLoadings = $controls;
 		$controls.each (function () {
 			$(this).append ('<div class="loading"></div>');
 		});
 	},
-	
+
 	/**
 	 * Окончание процесса загрузки
 	 * @param jQuery $form
@@ -384,9 +385,9 @@ var Helper_Form = {
 	{
 		if (!$form)
 		{
-			$form = Helper_Form.$lastLoadings;
+			$form = Ice.Helper_Form.$lastLoadings;
 		}
-		
+
 		if (
 			typeof ($form) != 'object' || $form == null ||
 			typeof ($form.find) != 'function'
@@ -394,19 +395,19 @@ var Helper_Form = {
 		{
 			return ;
 		}
-		
+
 		$form.find ('div.loading').remove ();
-		
-		Helper_Form.$lastLoadings = null;
+
+		Ice.Helper_Form.$lastLoadings = null;
 	},
-	
+
 	/**
 	 * Показать/скрыть пароль за звездочками
-	 * 
-	 * Если не передан второй атрибут, то его id должен быть равен 
+	 *
+	 * Если не передан второй атрибут, то его id должен быть равен
 	 * "tps_%id_чекбокса%".
-	 * 
-	 * Если первый атрибут null, второй атрибут обязателен. Состояние 
+	 *
+	 * Если первый атрибут null, второй атрибут обязателен. Состояние
 	 * поля будет изменено на противоположное.
 	 */
 	togglePasswordStars: function ($checkbox, $input)
@@ -414,7 +415,7 @@ var Helper_Form = {
 		var checked;
 		var $tps_input;
 		var $tps_password;
-		
+
 		if ($checkbox)
 		{
 			$tps_input = $checkbox.data ('tps_input');
@@ -427,7 +428,7 @@ var Helper_Form = {
 			if (checked)
 			{
 				$tps_password = $input;
-				$tps_input = Helper_Form._toggleTextForPassword ($tps_password);
+				$tps_input = Ice.Helper_Form._toggleTextForPassword ($tps_password);
 			}
 			else
 			{
@@ -435,7 +436,7 @@ var Helper_Form = {
 				$tps_password = $input.data ('tps_password');
 			}
 		};
-		
+
 		if (checked)
 		{
 			$tps_password.val ($tps_input.val ()).show ();
@@ -447,5 +448,5 @@ var Helper_Form = {
 			$tps_password.hide ();
 		}
 	}
-		
+
 };

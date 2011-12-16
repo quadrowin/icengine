@@ -48,12 +48,6 @@ abstract class Model implements \ArrayAccess
 	protected $_generic = null;
 
 	/**
-	 * @desc Подгруженные объекты
-	 * @var array
-	 */
-	protected $_joints = array ();
-
-	/**
 	 * @desc Все данные загружены
 	 * @var boolean
 	 */
@@ -135,8 +129,7 @@ abstract class Model implements \ArrayAccess
 			// Поля, которые должны различаться у реализаций и генерика
 			static $realized = array (
 				'_generic'	=> null,
-				'_addicts'	=> null,
-				'_joints'	=> null
+				'_addicts'	=> null
 			);
 
 			$vars = get_class_vars (get_class ($this));
@@ -189,7 +182,7 @@ abstract class Model implements \ArrayAccess
 
 			if (array_key_exists ($join_field, $this->_fields))
 			{
-				return $this->_joint ($field, $this->_fields [$join_field]);
+				return $this->_getJoint ($field, $this->_fields [$join_field]);
 			}
 
 			return $this->_generic->$field;
@@ -200,14 +193,9 @@ abstract class Model implements \ArrayAccess
 			return $this->_fields [$field];
 		}
 
-		if (isset ($this->_joints [$field]))
-		{
-			return $this->_joints [$field];
-		}
-
 		if (array_key_exists ($join_field, $this->_fields))
 		{
-			return $this->_joint ($field, $this->_fields [$join_field]);
+			return $this->_getJoint ($field, $this->_fields [$join_field]);
 		}
 
 		if (!$this->_loaded)
@@ -218,7 +206,7 @@ abstract class Model implements \ArrayAccess
 				array_key_exists ($join_field, $this->_fields)
 			)
 			{
-				return $this->_joint ($field, $this->_fields [$join_field]);
+				return $this->_getJoint ($field, $this->_fields [$join_field]);
 			}
 		}
 
@@ -324,22 +312,21 @@ abstract class Model implements \ArrayAccess
 	}
 
 	/**
-	 * @desc Присоединить сущность.
-	 * @param string $model_name
-	 * @param array $data
-	 * @return Model Присоединенная модель.
+	 * @desc Получить связанную модель
+	 * @param string $model
+	 * @param string $key
+	 * @return Model
 	 */
-	protected function _joint ($model_name, $key = null)
+	protected function _getJoint ($model, $key)
 	{
-		if ($key !== null)
-		{
-			$this->setJoint (
-				$model_name,
-				Model_Manager::byKey ($model_name, $key)
-			);
+		// remove namespace
+		$p = strrpos ($model, '\\');
+		if ($p) {
+			$model = substr ($model, $p + 1);
 		}
-
-		return $this->getJoint ($model_name);
+		// add self namespace
+		$model = strstr ($this->modelName (), '\\', true) . '\\' . $model;
+		return Model_Manager::get ($model, $key);
 	}
 
 	/**
@@ -614,16 +601,6 @@ abstract class Model implements \ArrayAccess
 	}
 
 	/**
-	 * @desc Получить связанную модель
-	 * @param string $model
-	 * @return Model
-	 */
-	public function getJoint ($model)
-	{
-		return $this->_joints [$model];
-	}
-
-	/**
 	 * @desc Определяет загружена ли модель
 	 * @return boolean
 	 */
@@ -734,7 +711,6 @@ abstract class Model implements \ArrayAccess
 		$this->_attributes = array ();
 		$this->_data = array ();
 		$this->_fields = array ();
-		$this->_joints = array ();
 		$this->_loaded = false;
 	}
 
@@ -809,16 +785,6 @@ abstract class Model implements \ArrayAccess
 	public function setAttribute ($key, $value = null)
 	{
 		Attribute_Manager::set ($this, $key, $value);
-	}
-
-	/**
-	 * @desc Меняет джоинт для модели
-	 * @param string $model
-	 * @param mixed $value
-	 */
-	public function setJoint ($model, $value)
-	{
-		$this->_joints [$model] = $value;
 	}
 
 	/**

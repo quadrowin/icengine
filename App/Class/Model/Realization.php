@@ -107,19 +107,6 @@ class Model_Realization extends Model
 		return $this->hasField ($key);
 	}
 
-	protected function _joint ($model, $key = null)
-	{
-		if ($key !== null)
-		{
-			$this->_model->setJoint (
-				$model,
-				Model_Manager::byKey ($model, $key)
-			);
-		}
-
-		return $this->_model->getJoint ($model);
-	}
-
 	public function component ($type)
 	{
 		return call_user_func_array (

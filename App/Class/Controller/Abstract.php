@@ -291,7 +291,7 @@ class Controller_Abstract
 			$method = $text;
 		}
 
-		if ($tpl)
+		if (! is_bool($tpl))
 		{
 			$this->_task->setClassTpl ($method, $tpl);
 		}
@@ -358,7 +358,9 @@ class Controller_Abstract
 	 */
 	final public function name ()
 	{
-		return substr (get_class ($this), 11);
+		$class = get_class ($this);
+		$p = strrpos ($class, '\\');
+		return substr ($class, 0, $p + 1) . substr ($class, $p + 12);
 	}
 
 	/**
@@ -378,11 +380,11 @@ class Controller_Abstract
 
 		$this->_task->setTemplate (
 			'Controller/' .
-			str_replace ('_', '/', $controller) .
+			str_replace ('_', '/', substr (strstr ($controller, '\\'), 1)) .
 			'/' . $action
 		);
 
-		if ($controller == get_class ($this))
+		if ($controller == $this->name ())
 		{
 			// Этот же контроллер
 			return $this->$action ();

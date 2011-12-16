@@ -36,13 +36,13 @@ class User_Session extends Model
 		if (!$session && $autocreate)
 		{
     		$session = new User_Session (array (
-    			'id'			=> $session_id,
-    			'User__id'		=> self::$_defaultUserId,
-    			'phpSessionId'	=> $session_id,
-    			'startTime'	    => Helper_Date::toUnix (),
-    			'lastActive'	=> Helper_Date::toUnix (),
-    			'remoteIp'		=> Request::ip (),
-    			'userAgent'	    => substr (getenv ('HTTP_USER_AGENT'), 0, 100)
+    			'id' => $session_id,
+    			'User__id' => self::$_defaultUserId,
+    			'phpSessionId' => $session_id,
+    			'created' => Helper_Date::toUnix (),
+    			'updated' => Helper_Date::toUnix (),
+    			'remoteIp' => Request::ip (),
+    			'userAgent' => substr (getenv ('HTTP_USER_AGENT'), 0, 100)
     		));
     		$session->save (true);
 		}
@@ -96,21 +96,21 @@ class User_Session extends Model
 		if (isset ($new_user_id) && $new_user_id)
 		{
 			$upd = array (
-				'User__id'		=> $new_user_id,
-				'lastActive'	=> $now
+				'User__id'	=> $new_user_id,
+				'updated'	=> $now
 			);
 		}
 		else
 		{
 			// Обновляем сессию не чаще, чем раз в 10 минут.
 			// strlen ('YYYY-MM-DD HH:I_:__') =
-			if (strncmp ($now, $this->lastActive, 15) == 0)
+			if (strncmp ($now, $this->updated, 15) == 0)
 			{
 				return $this;
 			}
 
 			$upd = array (
-				'lastActive'	=> $now
+				'updated'	=> $now
 			);
 		}
 

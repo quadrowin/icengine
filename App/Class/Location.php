@@ -87,7 +87,7 @@ class Location
 			}
 			else
 			{
-				self::$_location = $_SERVER ['HTTP_HOST'];
+				self::$_location = '';
 			}
 		}
 
