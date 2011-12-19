@@ -98,6 +98,7 @@ abstract class Bootstrap_Abstract
 			'Model_Mapper_Scheme',
 			'Component',
 			'Controller_Abstract',
+			'Controller_Exception',
 			'Controller_Front',
 			'Controller_Manager',
 			'Page_Title',
