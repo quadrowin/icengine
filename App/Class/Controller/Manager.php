@@ -255,12 +255,23 @@ class Controller_Manager extends Manager_Abstract
 				$param = $param_value;
 			}
 
-			call_user_func_array (
-				array ($controller, $method),
-				$params
-			);
+			try
+			{
+				call_user_func_array (
+					array ($controller, $method),
+					$params
+				);
 
-			$controller->_afterAction ($method);
+				$controller->_afterAction ($method);
+			}
+			catch (Controller_Exception $e)
+			{
+				$e->setTask ($task);
+				$task->setTemplate ($e->getTemplate ());
+				$controller->getOutput ()->send (array (
+					'exception' => $e
+				));
+			}
 		}
 
 		$task->setTransaction ($controller->getOutput ()->endTransaction ());
