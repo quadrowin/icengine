@@ -83,8 +83,7 @@ class Controller_Manager extends Manager_Abstract
 		 * @desc Настройки кэширования для экшенов.
 		 * @var array
 		 */
-		'actions'			=> array (
-		)
+		'actions'			=> array ()
 	);
 
 	/**
@@ -166,12 +165,13 @@ class Controller_Manager extends Manager_Abstract
 	 * диспетчера.
 	 * @return Controller_Task Итерация с результатами.
 	 */
-	public static function callUncached ($name, $method, $input,
-		$task = null)
+	public static function callUncached ($name, $method, $input, $task = null)
 	{
-		Loader::load ('Controller_Action');
-		Loader::load ('Controller_Task');
-		Loader::load ('Route_Action');
+		Loader::multiLoad (
+			'Controller_Action',
+			'Controller_Task',
+			'Route_Action'
+		);
 
 		if (class_exists ('Tracer'))
 		{
@@ -201,7 +201,7 @@ class Controller_Manager extends Manager_Abstract
 		$temp_output = $controller->getOutput ();
 		$temp_task = $controller->getTask ();
 
-		if ($input === null)
+		if (is_null ($input))
 		{
 			$controller->setInput (self::getInput ());
 		}
@@ -225,22 +225,42 @@ class Controller_Manager extends Manager_Abstract
 
 		$controller->_beforeAction ($method);
 
-		$reflection = new ReflectionMethod ($controller, $method);
+		// _beforeAction не генерировал ошибки, можно продолжать
+        if (!$controller->hasErrors ())
+        {
+			$reflection = new ReflectionMethod ($controller, $method);
 
-		$params = $reflection->getParameters ();
-		$c_input = $controller->getInput ();
+			$params = $reflection->getParameters ();
+			$c_input = $controller->getInput ();
 
-		foreach ($params as &$param)
-		{
-			$param = $c_input->receive ($param->name);
+			if ($params)
+			{
+				foreach ($params as &$param)
+				{
+					$param_value = $c_input->receive ($param->name);
+					if (!$param_value)
+					{
+						$reflection_param = new ReflectionParameter (
+							array ($controller, $method),
+							$param->name
+						);
+
+						if ($reflection_param && $reflection_param->isOptional ())
+						{
+							$param_value = $reflection_param->getDefaultValue ();
+						}
+					}
+					$param = $param_value;
+				}
+			}
+
+			call_user_func_array (
+				array ($controller, $method),
+				$params ? $params : array ()
+			);
+
+			$controller->_afterAction ($method);
 		}
-
-		call_user_func_array (
-			array ($controller, $method),
-			$params
-		);
-
-		$controller->_afterAction ($method);
 
 		$task->setTransaction ($controller->getOutput ()->endTransaction ());
 

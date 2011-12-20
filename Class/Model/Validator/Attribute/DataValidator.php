@@ -11,7 +11,7 @@ class Model_Validator_Attribute_DataValidator extends Model_Validator_Attribute_
 
 		foreach ($value as $validator)
 		{
-			$validor = Data_Validator_Manager::get ($validator);
+			$validator = Data_Validator_Manager::get ($validator);
 			$current = false;
 			if ($validator)
 			{

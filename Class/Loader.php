@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Загрузчик модулей и классов.
  * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
@@ -8,19 +8,19 @@
  */
 class Loader
 {
-	
+
 	/**
 	 * @desc Пути.
 	 * @var array
 	 */
 	protected static $_pathes = array ();
-	
+
 	/**
 	 * @desc Подключенные.
 	 * @var array
 	 */
 	protected static $_required = array ();
-	
+
 	/**
 	 * @desc Добавление пути.
 	 * @param string $type Тип.
@@ -37,7 +37,7 @@ class Loader
 			self::$_pathes [$type][] = $path;
 		}
 	}
-	
+
 	/**
 	 * @desc Добавление путей.
 	 * @param array $pathes
@@ -51,7 +51,7 @@ class Loader
 			if (isset (self::$_pathes [$type]))
 			{
 				self::$_pathes [$type] = array_merge (
-					self::$_pathes [$type], 
+					self::$_pathes [$type],
 					$path
 				);
 			}
@@ -61,13 +61,13 @@ class Loader
 			}
 		}
 	}
-	
+
 	/**
 	 * @desc Возвращает полный путь до файла.
 	 * Если файла не существует, возвращается false.
 	 * @param string $file Искомый файл.
 	 * @param string $type Тип.
-	 * @return string Если файл найден, полный путь до файла. Иначе false. 
+	 * @return string Если файл найден, полный путь до файла. Иначе false.
 	 */
 	public static function findFile ($file, $type = 'Class')
 	{
@@ -79,10 +79,10 @@ class Loader
 				return $fn;
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * @desc Возвращает все пути для указанного типа.
 	 * @param string $type
@@ -90,12 +90,12 @@ class Loader
 	 */
 	public static function getPathes ($type)
 	{
-		return 
+		return
 			isset (self::$_pathes [$type]) ?
 			self::$_pathes [$type] :
-			array (); 
+			array ();
 	}
-	
+
 	/**
 	 * @desc Проверяет был ли уже подключен файл
 	 * @param string $file
@@ -106,7 +106,7 @@ class Loader
 	{
 		return isset (self::$_required [$type][$file]);
 	}
-	
+
 	/**
 	 * @desc Подключение файла.
 	 * @param string $file
@@ -119,11 +119,11 @@ class Loader
 		{
 			return true;
 		}
-		
+
 		for ($i = count (self::$_pathes [$type]) - 1; $i >= 0; --$i)
 		{
 			$fn = self::$_pathes [$type][$i] . $file;
-			
+
 			if (file_exists ($fn))
 			{
 				self::$_required [$type][$file] = true;
@@ -131,7 +131,7 @@ class Loader
 				return true;
 			}
 		}
-		
+
 		if (true)
 		{
 			echo '<pre>Not found: ' . $file . "\n";
@@ -143,12 +143,12 @@ class Loader
 			echo '</pre>';
 			die();
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
-	 * @desc Заного устанавливает пути до файлов. Предыдущие пути будут 
+	 * @desc Заного устанавливает пути до файлов. Предыдущие пути будут
 	 * удалены.
 	 * @param string $type Тип.
 	 * @param string|array $path Путь или массив патей.
@@ -157,18 +157,18 @@ class Loader
 	{
 		self::$_pathes [$type] = (array) $path;
 	}
-	
+
 	/**
 	 * @desc Делает отметку о подключении файла.
 	 * @param string $file Файл.
 	 * @param string $type Тип.
-	 * @param boolean $required [optional] 
+	 * @param boolean $required [optional]
 	 */
 	public static function setRequired ($file, $type, $required = true)
 	{
 		self::$_required [$type][$file] = $required ? true : null;
 	}
-	
+
 	/**
 	 * @desc Попытка подключить указанный класс. В случае ошибки
 	 * не возникает исключения.
@@ -183,13 +183,13 @@ class Loader
 		{
 			return true;
 		}
-		
+
 		$file = str_replace ('_', '/', $class) . '.php';
-		
+
 		for ($i = count (self::$_pathes [$type]) - 1; $i >= 0; --$i)
 		{
 			$fn = self::$_pathes [$type][$i] . $file;
-			
+
 			if (file_exists ($fn))
 			{
 				self::$_required [$type][$file] = true;
@@ -197,10 +197,10 @@ class Loader
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * @desc Подключение класса.
 	 * @param string $class_name Название класса.
@@ -213,13 +213,13 @@ class Loader
 		{
 			return true;
 		}
-		
+
 		return self::requireOnce (
 			str_replace ('_', '/', $class) . '.php',
 			$type
 		);
 	}
-	
+
 	/**
 	 * @desc Загрузка всех классов, переданных в параметрах.
 	 * @param string $class...
@@ -237,5 +237,5 @@ class Loader
 			}
 		}
 	}
-	
+
 }
