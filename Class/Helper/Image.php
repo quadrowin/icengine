@@ -181,6 +181,16 @@ class Helper_Image
     	$tc->attr (self::TEMP_CONTENT_ATTRIBUTE, $tc_types);
     }
 
+	private function _log ($message)
+	{
+		$filename = IcEngine::root () . '/log/image.log';
+		file_put_contents (
+			$filename,
+			date () . ' ' . $message . PHP_EOL . PHP_EOL,
+			FILE_APPEND
+		);
+	}
+
 	/**
 	 * Загрузка изображения для временного контента.
 	 * @param Temp_Content $tc
@@ -229,29 +239,27 @@ class Helper_Image
 	 */
 	public static function uploadSimple ($table, $row_id, $type, $sizing = null)
 	{
+		//$this->_log ('test');
 		$file = Request::fileByIndex (0);
-
+		Loader::load('Helper_Site_Location');
 		$host = Helper_Site_Location::getLocation ();
 		if ($host == 'localhost')
 		{
 			$host = '';
 		}
-		else
+		elseif($host)
 		{
 			$host = 'http://' . $host;
 		}
-
 		if (!$file)
 		{
 			self::$code = 400;
 			return self::_error ('not_received');
 		}
-
 		if (!$sizing)
 		{
 			$sizing = self::_sizing ($type);
 		}
-
 		Loader::load ('Component_Image');
 		$image = new Component_Image (array (
 			'table'			=> $table,
@@ -283,16 +291,34 @@ class Helper_Image
 			self::$code = 500;
 			return self::_error ('unable_to_move');
 		}
-
    	 	$info = getimagesize ($original);
-
+		$filesize = filesize($original);
+		if (isset($sizing['max_upload_file']) && $filesize>((int)$sizing['max_upload_file'])*1024 )
+		{
+			unlink ($original);
+			$image->delete ();
+			self::$lastError ='слишком большой размер файла';
+			self::$code = 100;
+			return;
+		}
 		if (!$info)
 		{
 			unlink ($original);
 			$image->delete ();
 
 			self::$code = 400;
-			return self::_error ('unable_get_size');
+			return self::_error ('файл не является изображением');
+		}
+		if (isset($sizing['max_image_dimension']))
+		{
+			$max_dim = (int)$sizing['max_image_dimension'];
+			if ($info[0]>$max_dim || $info[1]>$max_dim) {
+				unlink ($original);
+				$image->delete ();
+				self::$lastError ='слишком большое разрешение';
+				self::$code = 100;
+				return;
+			}
 		}
 
 		Loader::load ('Helper_Image_Resize');
@@ -310,6 +336,8 @@ class Helper_Image
 			return self::_error ('unable_to_resize');
 		}
 
+		
+		
 		$filenames = array ();
 
 		if (!empty ($sizing ['sizes']))

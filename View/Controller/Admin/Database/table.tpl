@@ -8,7 +8,7 @@
 		<h2>Записи</h2>
 	</div>
 
-	<p><a href="/cp/row/{$table}/0/">Добавить</a></p>
+	<p><a href="/cp/row/{$table}/0/{if $limitator}?limitator={$limitator}{/if}">Добавить</a></p>
 
 	{if $collection}
 
@@ -100,7 +100,7 @@
 					{/if}
 					{/if}
 					{if $field == $title || ($links && in_array($field,$links))}
-					<a href="/cp/row/{$table}/{$row->key()}/" style="
+					<a href="/cp/row/{$table}/{$row->key()}/{if $limitator}?limitator={$limitator}{/if}" style="
 						{if $link_styles}
 							{foreach from=$link_styles item="column" key="c"}
 								{foreach from=$column item="style" key="v"}
