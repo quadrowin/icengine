@@ -18,10 +18,11 @@ class Helper_YMaps
 	{
 		$params = array (
 			'key'		=> $key,
-			'geocode'	=> $point->long . ',' . $point->lat,
+			'geocode'	=> $point['long'] . ',' . $point['lat'],
 			'results'	=> $limit
 		);
-		$response = file_get_contents (
+
+        $response = file_get_contents (
 			'http://api-maps.yandex.ru/modules/1.1/metro/src/xml/closest.xml?' .
 			http_build_query ($params)
 		);
@@ -31,22 +32,57 @@ class Helper_YMaps
 			return null;
 		}
 
-		$matches = array ();
-		preg_match_all (
-			"#метро ([^']+)#u",
-			$response,
-			$matches
-		);
+        // яндекс возвращает JS-коллбек, выдираем из него вызовы 
+        // функции GR с описанием ближайших метро
+        preg_match_all('/GR\(\[.+?\}{5}\)/', $response, $matches);
 
-		$result = array ();
-		if (!empty ($matches [1][0]))
-		{
-			foreach ($matches [1] as $metro)
-			{
-				$result [] = trim ($metro);
-			}
-		}
-		return array_values (array_unique ($result));
+        $closest_metros = array();
+
+        if (sizeof($matches) > 0)
+        {
+            foreach ($matches[0] as $match)
+            {
+                // ищем координаты
+                preg_match('/GR\(\[([\.0-9]+),([\.0-9]+)\]/', $match, $founds);
+
+                str_replace(',', '.', $founds[1]);
+                str_replace(',', '.', $founds[2]);
+
+                $coordX =  + $founds[1];
+                $coordY =  + $founds[2];
+
+                // линия и станция метро
+                preg_match('/ThoroughfareName:\'(.+?)\'.+PremiseName:\'(.+?)\'/', $match, $founds);
+                $metro_line = $founds[1];
+                $metro_station = $founds[2];
+
+                $closest_metros[] = array(
+                    'coordX' => $coordX,
+                    'coordY' => $coordY,
+                    'line' => $metro_line,
+                    'station' => $metro_station,
+                );
+            }
+        }
+
+        return $closest_metros;
+        
+//		$matches = array ();
+//		preg_match_all (
+//			"#метро ([^']+)#u",
+//			$response,
+//			$matches
+//		);
+//
+//		$result = array ();
+//		if (!empty ($matches [1][0]))
+//		{
+//			foreach ($matches [1] as $metro)
+//			{
+//				$result [] = trim ($metro);
+//			}
+//		}
+//		return array_values (array_unique ($result));
 	}
 
 	/**

@@ -85,7 +85,7 @@ class Paginator
 		$half_page = round ($pages_count / 2);
 		$spaced = false;
 
-		$href = $this->href ? $this->href : Request::uri (false);
+		$href = isset ($this->href) ? $this->href : Request::uri (false);
 
 		// Удаление из запроса GET параметра page
 		$p = 'page';
