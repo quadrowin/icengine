@@ -181,6 +181,16 @@ class Helper_Image
     	$tc->attr (self::TEMP_CONTENT_ATTRIBUTE, $tc_types);
     }
 
+	private function _log ($message)
+	{
+		$filename = IcEngine::root () . '/log/image.log';
+		file_put_contents (
+			$filename,
+			date () . ' ' . $message . PHP_EOL . PHP_EOL,
+			FILE_APPEND
+		);
+	}
+
 	/**
 	 * Загрузка изображения для временного контента.
 	 * @param Temp_Content $tc
@@ -229,30 +239,38 @@ class Helper_Image
 	 */
 	public static function uploadSimple ($table, $row_id, $type, $sizing = null)
 	{
+		//$this->_log ('test');
 		$file = Request::fileByIndex (0);
-
+		Loader::load('Helper_Site_Location');
+		$host = Helper_Site_Location::getLocation ();
+		if ($host == 'localhost')
+		{
+			$host = '';
+		}
+		elseif($host)
+		{
+			$host = 'http://' . $host;
+		}
 		if (!$file)
 		{
 			self::$code = 400;
 			return self::_error ('not_received');
 		}
-
 		if (!$sizing)
 		{
 			$sizing = self::_sizing ($type);
 		}
-
 		Loader::load ('Component_Image');
 		$image = new Component_Image (array (
 			'table'			=> $table,
 			'rowId'			=> $row_id,
 			'date'			=> Helper_Date::toUnix (),
 			'name'			=> $type,
-			'author'		=> '',
-			'text'			=> '',
-			'largeUrl'		=> '',
-			'smallUrl'		=> '',
-			'originalUrl'	=> '',
+//			'author'		=> '',
+//			'text'			=> '',
+//			'largeUrl'		=> '',
+//			'smallUrl'		=> '',
+//			'originalUrl'	=> '',
 			'User__id'		=> User::id ()
 		));
 		$image->save ();
@@ -273,7 +291,6 @@ class Helper_Image
 			self::$code = 500;
 			return self::_error ('unable_to_move');
 		}
-
    	 	$info = getimagesize ($original);
 		$filesize = filesize($original);
 		if (isset($sizing['max_upload_file']) && $filesize>((int)$sizing['max_upload_file'])*1024 )
@@ -386,7 +403,7 @@ class Helper_Image
 			$tmp = array (
 				$key . 'Url'	=> str_replace (
 					self::$config ['upload_path'],
-					self::$config ['upload_url'],
+					$host . self::$config ['upload_url'],
 					$filenames [$key]
 				),
 				$key . 'Width'	=> $size ['width'],

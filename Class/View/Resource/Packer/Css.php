@@ -121,6 +121,7 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 		else
 		{
 			$url = $this->_currentResource->urlPath . $matches [1];
+//			fb($matches [1] . ' | ' . $url);
 		}
 		
 		if (isset ($this->_formedUrls [$url]))
@@ -177,7 +178,6 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 	public function packOne (View_Resource $resource)
 	{
 		$resource->urlPath = dirname ($resource->href) . '/';
-		
 		if (
 			$this->config ()->item_prefix &&
 			isset ($resource->filePath)
@@ -216,6 +216,9 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 			$style = str_replace ('  ', ' ', $style); 
 		} while (strlen ($style) != $length);
 		
+		$fname = IcEngine::root () . '/log/css.log';
+		file_put_contents ($fname, time (). PHP_EOL, FILE_APPEND);
+
 		return $prefix . $style . $this->config ()->item_postfix;
 	}
 	

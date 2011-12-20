@@ -8,7 +8,7 @@ class Model_Validator_Abstract
 
 	public static function validate ($model, $input)
 	{
-		Loader::load ('Data_Validator');
-		return Data_Validator::validate ($model, self::$_scheme, $input);
+		Loader::load ('Model_Validator');
+		return Model_Validator::validate ($model, static::$_scheme, $input);
 	}
 }

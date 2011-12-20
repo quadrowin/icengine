@@ -1,14 +1,14 @@
 <?php
 /**
- * 
+ *
  * @desc Контроллер управления доступом
  * @author Илья Колесников, Юрий Шведов
  * @package IcEngine
- * 
+ *
  */
 class Controller_Admin_Acl extends Controller_Abstract
 {
-	
+
 	/**
 	 * @desc Config
 	 * @var array|Objective
@@ -16,15 +16,17 @@ class Controller_Admin_Acl extends Controller_Abstract
 	protected $_config = array (
 		// Роли, имеющие доступ к админке
 		'access_roles'	=> array ('admin'),
+		// Типы доступа
+		'access_types'	=> array ('create', 'edit'),
 		// Контроллируемые роли
 		'control_roles'	=> array ('admin')
 	);
-	
+
 	public function __construct ()
 	{
 		Loader::load ('Helper_Data_Source');
 	}
-	
+
 	/**
 	 * @desc Получить ресурсы Aсl и префиксом Table/
 	 * @param null|Acl_Role $role
@@ -41,20 +43,20 @@ class Controller_Admin_Acl extends Controller_Abstract
 			)
 			->where ('Link.fromTable', 'Acl_Resource')
 			->where ('Link.toTable', 'Acl_Role')
-			->where ('Link.toRowId', 
-				is_null ($role) ? 
+			->where ('Link.toRowId',
+				is_null ($role) ?
 					$this->__roles ()->column ('id') :
 					$role->key ()
 			)
 			->where ('Acl_Resource.name LIKE "Table/%"');
-		
+
 		$resources = DDS::execute ($query)
 			->getResult ()
 				->asColumn ('name');
-		
+
 		return (array) $resources;
 	}
-	
+
 	/**
 	 * @desc Получить все роли пользователя
 	 * @return Acl_Role_Collection
@@ -66,7 +68,7 @@ class Controller_Admin_Acl extends Controller_Abstract
 			'Acl_Role'
 		);
 	}
-	
+
 	/**
 	 * @desc Проверяет, есть ли у текущего пользователя доступ
 	 * к экшенам этого контроллера
@@ -76,7 +78,7 @@ class Controller_Admin_Acl extends Controller_Abstract
 	{
 		$user = User::getCurrent ();
 		$roles = $this->config ()->access_roles;
-		
+
 		foreach ($roles as $role)
 		{
 			if ($user->hasRole ($role))
@@ -84,10 +86,10 @@ class Controller_Admin_Acl extends Controller_Abstract
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * @desc Получить список полей для создания прав
 	 */
@@ -97,52 +99,63 @@ class Controller_Admin_Acl extends Controller_Abstract
 		{
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
-		
+
 		$role_id = $this->_input->receive ('role_id');
-		
+
 		$role = Model_Manager::byKey (
 			'Acl_Role',
 			$role_id
 		);
-		
+
 		if (!$role)
 		{
 			return;
 		}
-		
+
 		$resources = $this->__resources ($role);
-		
+
 		$tables = Helper_Data_Source::tables ();
-		
+
 		$result = array ();
-		
+
 		foreach ($tables as $table)
 		{
 			$fields = Helper_Data_Source::fields ('`' . $table ['Name'] . '`');
-			 
+
 			$result [$table ['Name']] = array (
 				'table'		=> $table,
 				'fields'	=> array ()
 			);
-			
-			foreach ($fields as $field)
+
+			foreach ($this->config ()->access_types as $type)
 			{
-				$resource_name = 'Table/' . $table ['Name'] . '/' . $field ['Field'];
-				
-				$result [$table ['Name']]['fields'][] = array (
-					'field'		=> $field,
-					'resource'	=> $resource_name,
-					'on'		=> in_array ($resource_name, $resources)
-				);
+				foreach ($fields as $field)
+				{
+					if (!isset ($result [$table ['Name']]['fields'][$field ['Field']]))
+					{
+						$result [$table ['Name']]['fields'][$field ['Field']] = array (
+							'field'			=> $field,
+							'resources'		=> array ()
+						);
+					}
+
+					$resource_name = 'Table/' . $table ['Name'] . '/' . $field ['Field'] . '/' . $type . '/';
+
+					$result [$table ['Name']]['fields'][$field ['Field']]['resources'][$type] = array (
+						'resource'	=> $resource_name,
+						'type'		=> $type,
+						'on'		=> in_array ($resource_name, $resources)
+					);
+				}
 			}
 		}
-		
+
 		$this->_output->send (array (
 			'tables'	=> $result,
 			'role_id'	=> $role->key ()
 		));
 	}
-	
+
 	/**
 	 * @desc Получаем список ролей
 	 */
@@ -152,61 +165,61 @@ class Controller_Admin_Acl extends Controller_Abstract
 		{
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
-		
+
 		$role_names = $this->config ()->control_roles->asArray ();
-		
+
 		$role_collection = Model_Collection_Manager::byQuery (
 			'Acl_Role',
 			Query::instance ()
 				->where ('name', $role_names)
 		);
-		
+
 		$this->_output->send (array (
 			'role_collection'	=> $role_collection
 		));
 	}
-	
+
 	/**
 	 * @desc Сохраняем права на поля таблиц
 	 */
 	public function save ()
 	{
 		set_time_limit (0);
-		
+
 		if (!$this->_checkAccess ())
 		{
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
-		
+
 		$role_id = $this->_input->receive ('role_id');
-		
+
 		$role = Model_Manager::byKey (
 			'Acl_Role',
 			$role_id
 		);
-		
+
 		if (!$role)
 		{
 			return;
 		}
-		
+
 		$resources = $this->__resources ($role);
-		
+
 		$resource_collection = Model_Collection_Manager::byQuery (
 			'Acl_Resource',
 			Query::instance ()
 				->where ('name', $resources)
 		);
-			
+
 		foreach ($resource_collection as $resource)
 		{
 			Helper_Link::unlink ($role, $resource);
 		}
-		
+
 		$resources = $this->_input->receive ('resources');
-		
+
 		Loader::load ('Acl_Resource');
-		
+
 		foreach ($resources as $resource_name)
 		{
 			$resource = Model_Manager::byQuery (
@@ -214,22 +227,22 @@ class Controller_Admin_Acl extends Controller_Abstract
 				Query::instance ()
 					->where ('name', $resource_name)
 			);
-			
+
 			if (!$resource)
 			{
 				$resource = new Acl_Resource (array (
-					'name'						=> $resource_name
+					'name'	=> $resource_name
 				));
 
 				$resource->save ();
 			}
-			
+
 			Helper_Link::link ($role, $resource);
 		}
-		
+
 		Loader::load ('Helper_Header');
-		
+
 		Helper_Header::redirect ('/cp/acl/');
 	}
-	
+
 }

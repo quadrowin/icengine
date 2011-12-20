@@ -123,7 +123,7 @@ class Query_Translator_Mongo extends Query_Translator
 		}
 
 		//foreach ($from as $alias => $from)
-		
+
 		reset ($from);
 		return strtolower (Model_Scheme::table (key ($from)));
 	}
