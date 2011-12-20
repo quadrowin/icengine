@@ -14,14 +14,8 @@ namespace Ice;
  *		->setTemplate(__METHOD__ . '/error');
  *
  */
-class Controller_Exception extends \Exception
+class Controller_Exception extends Exception
 {
-
-	/**
-	 * @desc Информация для отладки
-	 * @var array
-	 */
-	protected $_data;
 
 	/**
 	 * @desc Задача контроллера
@@ -34,27 +28,6 @@ class Controller_Exception extends \Exception
 	 * @var string
 	 */
 	protected $_template;
-
-	/**
-	 * @desc Создает и возвращает экземпляр
-	 * @param string $message [optional] Сообщение
-	 * @param string $code [optional] Код исключения
-	 * @return self
-	 */
-	public static function create ($message = null, $code = null)
-	{
-		return new self ($message, $code);
-	}
-
-	/**
-	 * @desc Возвращает информацию для отладки
-	 * @param string $key
-	 * @return mixed
-	 */
-	public function getData ($key)
-	{
-		return isset ($this->_data [$key]) ? $this->_data [$key] : null;
-	}
 
 	/**
 	 * @desc Возвращает задание контроллера
@@ -78,39 +51,6 @@ class Controller_Exception extends \Exception
 			return $this->_task->getTemplate () . '/' . $this->message;
 		}
 		return $this->_template;
-	}
-
-	/**
-	 * @desc Устанавлиает код ошибки
-	 * @param integer $code
-	 * @return Controller_Exception
-	 */
-	public function setCode ($code)
-	{
-		$this->code = $code;
-		return $this;
-	}
-
-	/**
-	 * @desc Сохраняет информацию для отладки
-	 * @param array $data
-	 * @return Controller_Exception
-	 */
-	public function setData (array $data)
-	{
-		$this->_data = $data + $this->_data;
-		return $this;
-	}
-
-	/**
-	 * @desc Устанавливает сообщение об ошибке
-	 * @param string $message
-	 * @return Controller_Exception
-	 */
-	public function setMessage ($message)
-	{
-		$this->message = $message;
-		return $this;
 	}
 
 	/**
