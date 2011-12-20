@@ -18,6 +18,12 @@ class Core
 	protected static $_bootstrap;
 
 	/**
+	 * @desc Dependecy Injection
+	 * @var Di_Container
+	 */
+	protected static $_di;
+
+	/**
 	 * @desc Путь до движка.
 	 * @var string
 	 */
@@ -29,47 +35,17 @@ class Core
 	 */
 	protected static $_root;
 
-/**
+	/**
 	 * @desc Задача фронт контроллера.
 	 * @var Controller_Task
 	 */
 	protected static $_task;
 
 	/**
-	 * @desc Экшин фронт контролера по умолчанию
-	 * @var string
-	 */
-	public static $frontAction = 'index';
-
-	/**
-	 * @desc Фронт контролер по умолчанию
-	 * @var string
-	 */
-	public static $frontController = 'Ice\\Front';
-
-	/**
 	 * @desc Название транспорта по умолчанию
 	 * @var string
 	 */
 	public static $frontInput = 'default_input';
-
-	/**
-	 * @desc Рендер по умолчанию
-	 * @var string
-	 */
-	public static $frontRender = 'Front';
-
-	/**
-	 * @desc Лайаут
-	 * @var string
-	 */
-	public static $frontTemplate;
-
-	/**
-	 * @desc Зарегистрированные менеджеры
-	 * @var array
-	 */
-	protected static $_managers = array ();
 
 	/**
 	 * @desc Возвращает путь до корня сайта.
@@ -92,6 +68,24 @@ class Core
 	}
 
 	/**
+	 * @desc
+	 * @return Data_Source_Abstract
+	 */
+	public static function dds ()
+	{
+		return self::$_di->getInstance ('Default_Data_Source');
+	}
+
+	/**
+	 * @desc Возвращает контейнер внедренных зависимостей
+	 * @return Dependency_Injection_Container
+	 */
+	public static function di ()
+	{
+		return self::$_di;
+	}
+
+	/**
 	 * @desc Вывод результата работы.
 	 */
 	public static function flush ()
@@ -108,9 +102,9 @@ class Core
 	 * @desc Инициализация лоадера
 	 * @param string $root Путь до корня сайта
 	 * @param string $bootstrap_class Класс загрузчика
-	 * @param string $bootstrap_file Путь до загрузчика
+	 * @param string $bootstrap_file Путь до файла загрузчика
 	 */
-	public static function init ($root = null, $bootstap_class = null,
+	public static function init ($root = null, $bootstrap_class = null,
 		$bootstrap_file = null
 	)
 	{
@@ -130,9 +124,15 @@ class Core
 
 		Loader::load ('Config_Manager');
 
-		if ($bootstap_class)
+		if (!self::$_di)
 		{
-			self::initBootstrap ($bootstap_class, $bootstrap_file);
+			Loader::load ('Dependency_Injection_Container');
+			self::$_di = new Dependency_Injection_Container;
+		}
+
+		if ($bootstrap_class)
+		{
+			self::initBootstrap ($bootstrap_class, $bootstrap_file);
 		}
 
 		register_shutdown_function (array (__CLASS__, 'shutdownHandler'));
@@ -199,18 +199,12 @@ class Core
 	}
 
 	/**
-	 * @desc Получить менеджера по имени
-	 * @param string $name
-	 * @return Manager_Abstract
+	 * @desc Возвращает менеджер моделей
+	 * @return Model_Manager
 	 */
-	public static function getManager ($name)
+	public static function modelManager ()
 	{
-		if (!isset (self::$_managers [$name]))
-		{
-			Loader::load ($name . '_Manager');
-			self::$_managers [$name] = new $name . '_Manager';
-		}
-		return self::$_managers [$name];
+		return self::$_di->getInstance ('Model_Manager');
 	}
 
 	/**
@@ -220,16 +214,6 @@ class Core
 	public static function path ()
 	{
 		return self::$_path;
-	}
-
-	/**
-	 * @desc Зарегистрировать нового менеджера по имени
-	 * @param string $name
-	 * @param Manager_Abstract $manager
-	 */
-	public static function registerManager ($name, Manager_Abstract $manager)
-	{
-		self::$_managers [$name] = $manager;
 	}
 
 	/**
@@ -254,29 +238,24 @@ class Core
 			'Controller_Action'
 		);
 
-		self::$_task = new Controller_Task (
-			new Controller_Action (array (
-				'id'			=> null,
-				'controller'	=> self::$frontController,
-				'action'		=> self::$frontAction
-			))
-		);
-
-		self::$_task->setViewRender (
-			View_Render_Manager::byName (self::$frontRender)
-		);
-
-		if (self::$frontTemplate)
-		{
-			self::$_task->setTemplate (self::$frontTemplate);
-		}
+		self::$_task = self::di ()
+			->getNewInstance ('Ice\\Controller_Front_Task');
 
 		Controller_Manager::call (
-			self::$frontController,
-			self::$frontAction,
+			self::$_task->controllerAction ()->controller,
+			self::$_task->controllerAction ()->action,
 			Data_Transport_Manager::get (self::$frontInput),
 			self::$_task
 		);
+	}
+
+	/**
+	 * @desc Установка контейнера зависимостей
+	 * @param Dependency_Injection_Container $di
+	 */
+	public static function setDependencyInjectionContianer ($di)
+	{
+		self::$_di = $di;
 	}
 
 	public static function shutdownHandler ()
