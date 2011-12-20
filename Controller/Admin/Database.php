@@ -427,8 +427,11 @@ class Controller_Admin_Database extends Controller_Abstract
 				$field->Values = $collection;
 			}
 
+			$config_foreign_keys = $this->config ()->foreign_keys->$class_name;
+			$is_foreign_key = in_array($field->Field, $config_foreign_keys->__toArray());
+			
 			// Поле - поле для связи
-			if (strpos ($field->Field, '__id') !== false)
+			if (strpos ($field->Field, '__id') !== false || $is_foreign_key)
 			{
 				$field_filters = array ();
 
@@ -436,25 +439,28 @@ class Controller_Admin_Database extends Controller_Abstract
 				if ($tmp->count())
 				{
 					$tmp = $tmp->$class_name;
-					
-					$field_filters = $tmp->__toArray ();
+					if ($tmp) {
+						$field_filters = $tmp->__toArray ();
+					}
 				}
 
 				$cn = substr ($field->Field, 0, -4);
-
+				
 				$query = Query::instance ();
 
 				if (isset ($field_filters [$field->Field]))
 				{
 					foreach ($field_filters [$field->Field] as $field_filter)
 					{
+						if ($is_foreign_key) {
+							$cn = $field_filter ['model'];
+						}
 						$value = $field_filter ['value'];
 
 						if (strpos ($value, '::') !== false)
 						{
 							$value = call_user_func ($field_filter ['value']);
 						}
-
 						$query->where ($field_filter ['field'], $value);
 					}
 				}
@@ -485,7 +491,6 @@ class Controller_Admin_Database extends Controller_Abstract
 
 				$row->set ($field ['Field'], $value);
 			}
-
 		}
 
 		$exists_links = Model_Scheme::links ($class_name);
