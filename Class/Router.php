@@ -55,7 +55,7 @@ class Router
 			{
 				return;
 			} 
-			
+
 			$parts = (array) explode ('/', trim (self::$_route->route, '/'));
 			
 			$len = min (sizeof ($route), sizeof ($parts));
@@ -78,6 +78,13 @@ class Router
 				foreach (self::$_route->params as $param => $value)
 				{
 					Request::param ($param, $value);
+				}
+			}
+			if (isset(self::$_route->afterGetRoute))
+			{
+				$parts = explode("/",self::$_route->afterGetRoute);
+				if (count($parts)==2 && $parts[0] && $parts[1]) {
+					$task = Controller_Manager::call($parts[0], $parts[1], array('route' => self::$_route, 'url' => $url ) );
 				}
 			}
 		}

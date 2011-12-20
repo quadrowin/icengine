@@ -259,7 +259,7 @@ class Controller_Abstract
 	 * взято из $text.
 	 * @param string $tpl [optional] Шаблон.
 	 */
-	protected function _sendError ($text, $method = null, $tpl = true)
+	protected function _sendError ($text, $method = null, $tpl = true) 
 	{
         /**
          * @author red
@@ -288,7 +288,7 @@ class Controller_Abstract
 			$method = $text;
 		}
 
-		if ($tpl)
+		if (! is_bool($tpl))
 		{
 			$this->_task->setClassTpl ($method, $tpl);
 		}
