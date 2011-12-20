@@ -2,81 +2,130 @@
 
 namespace Ice;
 
+/**
+ *
+ * @desc Dependecy Injection
+ * @author Yury Shvedov
+ * @package Ice
+ *
+ */
 class Dependency_Injection_Container
 {
-	protected static $_parameters;
 
-	protected static $_definitions;
+	/**
+	 * @desc Алиасы классов
+	 * @var array of string
+	 */
+	protected $_classes = array ();
 
-	private static function _parseParameter ($param)
+	/**
+	 * @desc Инициализированные экземпляры
+	 * @var array of array of object
+	 */
+	protected $_instances = array ();
+
+	/**
+	 *
+	 * @param string $class
+	 * @param boolean $autocreate [optional] Автосоздание
+	 * @return object
+	 */
+	public function getInstance ($class, $autocreate = true)
 	{
 		if (
-			$param [0] == '%' &&
-			$param [strlen ($param) - 1] == '%'
+			!isset ($this->_instances [$class]) ||
+			!$this->_instances [$class]
 		)
 		{
-			$param = self::$_parameters [substr ($param, 1, -1)];
+			if (!$autocreate)
+			{
+				return null;
+			}
+
+			$this->pushInstance (
+				$class,
+				$this->getNewInstance ($class)
+			);
 		}
-		elseif ($param [0] == '@')
+
+		return last ($this->_instances [$class]);
+	}
+
+	/**
+	 * @desc Создает и возвращает новый экземпляр класса
+	 * @param string $class
+	 * @return object
+	 */
+	public function getNewInstance ($class)
+	{
+		$class = self::getRealClass ($class);
+		Loader::load ($class);
+		$reflection = new \ReflectionClass ($class);
+		$args = func_get_args ();
+		array_shift ($args);
+		return $reflection->newInstanceArgs ($args);
+	}
+
+	/**
+	 * @desc Возвращает реальный лкасс
+	 * @param string $class
+	 * @return string
+	 */
+	public function getRealClass ($class)
+	{
+		while (isset ($this->_classes [$class]))
 		{
-			$param = self::get (substr ($param, 1));
+			$class = $this->_classes [$class];
 		}
 
-		return $param;
+		return $class;
 	}
 
-	public static function setParameter ($param, $value)
+	/**
+	 *
+	 * @param string $class
+	 * @return boolean
+	 */
+	public function hasInstance ($class)
 	{
-		self::$_parameters [$param] = $value;
+		return
+			isset ($this->_instances [$class]) &&
+			$this->_instances [$class];
 	}
 
-	public static function getParameter ($param)
+	/**
+	 * @desc Устанавлиает экземпляр
+	 * @param string $class
+	 * @param mixed $object
+	 * @return $this
+	 */
+	public function pushInstance ($class, $object)
 	{
-		return isset (self::$_parameters [$param])
-			? self::$_parameters [$param]
-			: null;
+		$this->_instances [$class][] = $object;
+		return $this;
 	}
 
-	public static function setDefinition ($name, $params)
+	/**
+	 *
+	 * @param type $class
+	 * @return Di_Container
+	 */
+	public function popInstance ($class)
 	{
-		self::$_definitions [$name] = $params;
+		array_pop ($this->_instances [$class]);
+		return $this;
 	}
 
-	public static function getDefinition ($name)
+	/**
+	 * @desc Подмена класса
+	 * @param string $class Исходный класс
+	 * @param string $alias Класс реализации
+	 * @return $this
+	 */
+	public function setRealClass ($source, $real)
 	{
-		return isset (self::$_definitions [$name])
-			? self::$_definitions [$name]
-			: null;
+		$this->_classes [$source] = $real;
+		return $this;
 	}
 
-	public static function get ($name)
-	{
-		$class_name = self::_parseParameter (
-			self::$_definitions [$name]['class']
-		);
-
-		$factory_name = self::_parseParameter (
-			self::$_definitions [$name]['factory']
-		);
-
-		list ($factory_name, $factory_method) = explode (
-			'::', $factory_name
-		);
-
-		$args = self::$_definitions [$name]['arguments'];
-		foreach ($args as &$arg)
-		{
-			$arg = self::_parseParameter ($arg);
-		}
-
-		Loader::load ($factory_name);
-		$object = call_user_func_array (
-			array ($factory_name, $factory_method),
-			$args
-		);
-
-		return $object;
-
-
-	}
 }
