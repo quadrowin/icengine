@@ -84,6 +84,7 @@ abstract class Bootstrap_Abstract
 			'Registry',
 			'Request',
 			'Executor',
+			'Exception',
 			'Helper_Action',
 			'Helper_Date',
 			'Helper_Link',
