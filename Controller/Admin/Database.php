@@ -225,10 +225,12 @@ class Controller_Admin_Database extends Controller_Abstract
 	{
 		list (
 			$table,
-			$row_id
+			$row_id,
+			$limitator
 		) = $this->_input->receive (
 			'table',
-			'row_id'
+			'row_id',
+			'limitator'
 		);
 
 		$prefix = Model_Scheme::$default ['prefix'];
@@ -268,7 +270,7 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		Loader::load ('Helper_Header');
 
-		Helper_Header::redirect ('/cp/table/' . $table . '/');
+		Helper_Header::redirect ('/cp/table/' . $table . '/'. ($limitator ? "?limitator=$limitator" : ''));
 	}
 
 	/**
@@ -560,9 +562,12 @@ class Controller_Admin_Database extends Controller_Abstract
 		{
 			$tabs = $this->config ()->tabs->__toArray ();
 		}
+		
+		$limitator = $this->_input->receive('limitator');
 
 		$this->_output->send (array (
 			'row'			=> $row,
+			'limitator'		=> $limitator,
 			'fields'		=> $fields,
 			'link_models'	=> $link_models,
 			'table'			=> $table,
@@ -841,11 +846,13 @@ class Controller_Admin_Database extends Controller_Abstract
 		list (
 			$table,
 			$row_id,
-			$column
+			$column,
+			$limitator
 		) = $this->_input->receive (
 			'table',
 			'row_id',
-			'column'
+			'column',
+			'limitator'
 		);
 
 //		print_r ($_POST);
@@ -1001,7 +1008,7 @@ class Controller_Admin_Database extends Controller_Abstract
 //		print_r ($updated_fields);
 //		echo DDS::getDataSource ()->getQuery ()->translate ();
 
-		Helper_Header::redirect ('/cp/table/' . $table . '/');
+		Helper_Header::redirect ('/cp/table/' . $table . '/'. ($limitator ? "?limitator=$limitator" : ''));
 	}
 
 }
