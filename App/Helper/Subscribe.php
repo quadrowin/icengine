@@ -12,7 +12,8 @@ class Helper_Subscribe
 	 */
 	public static function subscribe ($email, $subscribe_id)
 	{
-		$subscribe = Model_Manager::byKey ('Subscribe', $subscribe_id);
+		$subscribe = Model_Manager::getInstance ()
+			->byKey ('Subscribe', $subscribe_id);
 
 		if (!$subscribe)
 		{
@@ -39,7 +40,8 @@ class Helper_Subscribe
 
 	public static function unsubscribe ($email, $subscribe_id)
 	{
-		$subscribe = Model_Manager::byKey ('Subscribe', $subscribe_id);
+		$subscribe = Model_Manager::getInstance ()
+			->byKey ('Subscribe', $subscribe_id);
 
 		if (!$subscribe)
 		{

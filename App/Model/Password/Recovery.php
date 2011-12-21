@@ -62,11 +62,11 @@ class Password_Recovery extends Model
 	 */
 	public static function byCode ($code)
 	{
-	    return Model_Manager::byQuery (
-	        __CLASS__,
-	        Query::instance ()
-	        ->where ('code', $code)
-	    );
+		return Model_Manager::getInstance ()->byQuery (
+			__CLASS__,
+			Query::instance ()
+				->where ('code', $code)
+		);
 	}
 
 	/**
@@ -74,15 +74,15 @@ class Password_Recovery extends Model
 	 */
 	public static function fromSession ()
 	{
-	    if (!isset (
-	        $_SESSION [self::SF_PRECOVERY],
-	        $_SESSION [self::SF_PRECOVERY]['code']
-	    ))
-	    {
-	        return null;
-	    }
+		if (!isset (
+			$_SESSION [self::SF_PRECOVERY],
+			$_SESSION [self::SF_PRECOVERY]['code']
+		))
+		{
+			return null;
+		}
 
-	    return self::byCode ($_SESSION [self::SF_PRECOVERY]['code']);
+		return self::byCode ($_SESSION [self::SF_PRECOVERY]['code']);
 	}
 
 	/**
@@ -116,11 +116,11 @@ class Password_Recovery extends Model
 	{
 		$day = Helper_Date::eraDayNum ();
 
-		return Model_Collection_Manager::byQuery (
-		    __CLASS__,
-		    Query::instance ()
-		    ->where ('day', $day)
-		    ->where ('email', $email)
+		return Model_Collection_Manager::getInstance ()->byQuery (
+			__CLASS__,
+			Query::instance ()
+				->where ('day', $day)
+				->where ('email', $email)
 		)->count ();
 	}
 
@@ -133,12 +133,12 @@ class Password_Recovery extends Model
 	{
 		$day = Helper_Date::eraDayNum ();
 
-		return Model_Collection_Manager::byQuery (
-		    __CLASS__,
-		    Query::instance ()
-		    ->where ('day', $day)
-		    ->where ('ip', $ip)
-		)->count();
+		return Model_Collection_Manager::getInstance ()->byQuery (
+			__CLASS__,
+			Query::instance ()
+				->where ('day', $day)
+				->where ('ip', $ip)
+		)->count ();
 	}
 
 	/**
@@ -173,10 +173,10 @@ class Password_Recovery extends Model
 					return self::STATE_EMAIL_QUERY_LIMIT;
 				}
 
-				$user = Model_Manager::byQuery (
-				    'User',
-				    Query::instance ()
-				    ->where ('email', $email)
+				$user = Model_Manager::getInstance ()->byQuery (
+					'User',
+					Query::instance ()
+					->where ('email', $email)
 				);
 
 				if (!$user)
@@ -242,7 +242,7 @@ class Password_Recovery extends Model
 			{
 				$_SESSION [self::SF_PRECOVERY] = array(
 					'state_id'	=> self::STATE_CODE_OK,
-					'code'	    => self::$code
+					'code'		=> self::$code
 				);
 				return self::STATE_CODE_OK;
 			}
@@ -265,17 +265,17 @@ class Password_Recovery extends Model
 		for ($i = $from; $i < $to; ++$i)
 		{
 			$day = Helper_Date::eraDayNum (time () - $i * $sec_in_day);
-			$recoverys = Model_Collection_Manager::byQuery (
-			    __CLASS__,
-			    Query::instance ()
-			    	->where ('day', $day)
+			$recoverys = Model_Collection_Manager::getInstance ()->byQuery (
+				__CLASS__,
+				Query::instance ()
+					->where ('day', $day)
 			);
 		}
 	}
 
 	public static function resetSession ()
 	{
-	    $_SESSION [self::SF_PRECOVERY] = array (
+		$_SESSION [self::SF_PRECOVERY] = array (
 			'state_id'	=> self::STATE_NONE);
 	}
 
@@ -291,11 +291,11 @@ class Password_Recovery extends Model
 		$recovery = new Password_Recovery (array (
 			'User__id'		=> $user_id,
 			'email'			=> $email,
-			'queryTime'	    => date ('Y-m-d H:i:s'),
+			'queryTime'		=> date ('Y-m-d H:i:s'),
 			'ip'			=> Request::ip (),
 			'code'			=> $code,
 			'active'		=> 1,
-		    'day'			=> Helper_Date::eraDayNum ()
+			'day'			=> Helper_Date::eraDayNum ()
 		));
 		$recovery->save ();
 
@@ -317,7 +317,7 @@ class Password_Recovery extends Model
 
 	public function startSession ()
 	{
-	    $_SESSION [self::SF_PRECOVERY] = array (
+		$_SESSION [self::SF_PRECOVERY] = array (
 			'state_id'	=> self::STATE_CODE_OK,
 			'code'		=> $this->code);
 	}

@@ -29,7 +29,7 @@ class Content extends Model_Factory
 	{
 		$model_name = 'Content_' . ucfirst ($model_name);
 
-		$content = Model_Manager::get (
+		$content = Model_Manager::getInstance ()->get (
 			$model_name,
 			$key
 		);
@@ -64,12 +64,13 @@ class Content extends Model_Factory
 			return null;
 		}
 
-		$extending = Model_Manager::byKey ($this->extending, $this->id);
+		$extending = Model_Manager::getInstance ()
+			->byKey ($this->extending, $this->id);
 
 		if (!$extending && $this->extending && $this->id)
 		{
 			// Расширение не создано
-			$extending = Model_Manager::get (
+			$extending = Model_Manager::getInstance ()->get (
 				$this->extending,
 				$this->id
 			)->firstSave ();

@@ -48,7 +48,7 @@ class Dependency_Injection_Container
 			);
 		}
 
-		return last ($this->_instances [$class]);
+		return end ($this->_instances [$class]);
 	}
 
 	/**
@@ -59,7 +59,7 @@ class Dependency_Injection_Container
 	public function getNewInstance ($class)
 	{
 		$class = self::getRealClass ($class);
-		Loader::load ($class);
+		$class = Loader::load ($class);
 		$reflection = new \ReflectionClass ($class);
 		$args = func_get_args ();
 		array_shift ($args);

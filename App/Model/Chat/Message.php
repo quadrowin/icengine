@@ -6,7 +6,7 @@ class Chat_Message extends Model
 {
 	public function getNew ()
 	{
-		return Model_Manager::byQuery (
+		return Model_Manager::getInstance ()->byQuery (
 			'Chat_Message',
 			Query::instance ()
 				->innerJoin (

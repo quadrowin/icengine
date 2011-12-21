@@ -50,7 +50,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 	 */
 	protected function _authorization ()
 	{
-		return Model_Manager::byQuery (
+		return Model_Manager::getInstance ()->byQuery (
 			'Authorization',
 			Query::instance ()
 				->where ('name', 'Login_Password_Sms')
@@ -91,7 +91,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 		if (!$activation_id && $activation_code)
 		{
 			// Сразу указали код активации, мб старая активация
-			$activation = Model_Manager::byQuery (
+			$activation = Model_Manager::getInstance ()->byQuery (
 				'Activation',
 				Query::instance ()
 					->from ('Activation')
@@ -172,7 +172,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 			'send'
 		);
 
-		$user = Model_Manager::byQuery (
+		$user = Model_Manager::getInstance ()->byQuery (
 			'User',
 			Query::instance ()
 				->where ('login', $login)
@@ -182,7 +182,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 
 		if (!$user)
 		{
-			$user = Model_Manager::byQuery (
+			$user = Model_Manager::getInstance ()->byQuery (
 				'User',
 				Query::instance ()
 					->where ('login', $login)

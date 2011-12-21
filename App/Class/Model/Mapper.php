@@ -6,7 +6,7 @@ namespace Ice;
  *
  * @desc ORM
  * @author Илья Колесников
- * 
+ *
  */
 class Model_Mapper
 {
@@ -36,7 +36,7 @@ class Model_Mapper
 	public function model ($model_name)
 	{
 		self::$_modelName = $model_name;
-		$scheme = Model_Scheme::getScheme ($model_name);
+		$scheme = Model_Scheme::getInstance ()->getScheme ($model_name);
 		if (!$scheme)
 		{
 			Loader::load ($model_name);
@@ -45,7 +45,7 @@ class Model_Mapper
 			$model->scheme ()->load ();
 			$raw = $model->scheme ()->render ();
 			echo $raw;
-			$ds = Model_Scheme::dataSource ($model_name);
+			$ds = Model_Scheme::getInstance ()->getDataSource ($model_name);
 			$adapter = $ds->getAdapter ();
 			$adapter->setTranslatedQuery ($raw);
 			$adapter->_executeChange (
@@ -55,7 +55,7 @@ class Model_Mapper
 			if (method_exists ($adapter, 'getCacher'))
 			{
 				$adapter->getCacher ()->tagDelete (
-					Model_Scheme::table ($model_name)
+					Model_Scheme::getInstance ()->table ($model_name)
 				);
 			}
 		}

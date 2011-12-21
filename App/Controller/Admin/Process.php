@@ -35,7 +35,8 @@ class Controller_Admin_Process extends Controller_Abstract
 	 */
 	protected function _hasAccess ($model, $field)
 	{
-		$resource = 'Table/' . Model_Scheme::table ($model) . '/' . $field;
+		$resource = 'Table/' . Model_Scheme::getInstance ()->table ($model) .
+			'/' . $field;
 		$resource = Acl_Resource::byNameCheck ($resource);
 
 		return $resource && $resource->userCan (User::getCurrent ());
@@ -93,7 +94,7 @@ class Controller_Admin_Process extends Controller_Abstract
 			return;
 		}
 
-		$model = Model_Manager::byKey ($model, $key);
+		$model = Model_Manager::getInstance ()->byKey ($model, $key);
 
 		$model->update (array (
 			$field	=> $status
@@ -102,13 +103,13 @@ class Controller_Admin_Process extends Controller_Abstract
 		Loader::load ('Admin_Log');
 
 		$log = new Admin_Log (array (
-			'User__id'		=> User::id (),
-			'action'		=> __METHOD__,
-			'table'			=> $model->table (),
-			'rowId'			=> $key,
-			'field'			=> $field,
-			'value'			=> $status,
-			'createdAt'		=> Helper_Date::toUnix ()
+			'User__id' => User::id (),
+			'action' => __METHOD__,
+			'table' => $model->table (),
+			'rowId' => $key,
+			'field' => $field,
+			'value' => $status,
+			'createdAt' => Helper_Date::toUnix ()
 		));
 
 		$log->save ();

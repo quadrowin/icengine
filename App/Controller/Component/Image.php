@@ -28,7 +28,7 @@ class Controller_Component_Image extends Controller_Abstract
 			'text'
 		);
 
-		$image = Model_Manager::byKey (
+		$image = Model_Manager::getInstance ()->byKey (
 			'Component_Image',
 			$id
 		);

@@ -23,7 +23,7 @@ class Controller_Subscribe extends Controller_Abstract
             return null;
         }
 
-        $join = Model_Manager::byQuery (
+        $join = Model_Manager::getInstance ()->byQuery (
             'Subscribe_Subscriber_Join',
             Query::instance ()
             	->where ('code', $code)
@@ -64,7 +64,7 @@ class Controller_Subscribe extends Controller_Abstract
             return ;
         }
 
-        $subscriber = Model_Manager::byKey (
+        $subscriber = Model_Manager::getInstance ()->byKey (
         	'Subscribe_Subscriber',
         	$join->Subscribe_Subscriber->key ()
         );

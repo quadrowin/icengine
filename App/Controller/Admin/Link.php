@@ -8,7 +8,7 @@ namespace Ice;
  * @package Ice
  * @author Илья Колесников
  * @copyright i-complex.ru
- * 
+ *
  */
 class Controller_Admin_Link extends Controller_Abstract
 {
@@ -48,11 +48,12 @@ class Controller_Admin_Link extends Controller_Abstract
 	{
 		$table = $this->_input->receive ('table');
 
-		$class_name = Model_Scheme::tableToModel ($table);
+		$class_name = Model_Scheme::getInstance ()->tableToModel ($table);
 
 		$result = array ();
 
-		$collection = Model_Collection_Manager::create ($class_name);
+		$collection = Model_Collection_Manager::getInstance ()
+			->create ($class_name);
 
 		foreach ($collection as $model)
 		{
@@ -86,15 +87,16 @@ class Controller_Admin_Link extends Controller_Abstract
 			'row1'
 		);
 
-		$class_name1 = Model_Scheme::tableToModel ($table1);
-		$class_name2 = Model_Scheme::tableToModel ($table2);
+		$class_name1 = Model_Scheme::getInstance ()->tableToModel ($table1);
+		$class_name2 = Model_Scheme::getInstance ()->tableToModel ($table2);
 
-		$model1 = Model_Manager::get (
+		$model1 = Model_Manager::getInstance ()->get (
 			$class_name1,
 			$row1
 		);
 
-		$model2_collection = Model_Collection_Manager::create ($class_name2);
+		$model2_collection = Model_Collection_Manager::getInstance ()
+			->create ($class_name2);
 
 		$linked_models = Helper_Link::linkedItems (
 			$model1,
@@ -111,8 +113,11 @@ class Controller_Admin_Link extends Controller_Abstract
 				'linked'	=> 0
 			);
 
+			$key_field = Model_Scheme::getInstance ()
+				->getKeyField ($class_name2);
+
 			$filtered = $linked_models->filter (array (
-				Model_Scheme::keyField ($class_name2)	=> $model->key ()
+				$key_field => $model->key ()
 			));
 
 			if ($filtered->count ())
@@ -147,10 +152,10 @@ class Controller_Admin_Link extends Controller_Abstract
 			'models2'
 		);
 
-		$class_name1 = Model_Scheme::tableToModel ($table1);
-		$class_name2 = Model_Scheme::tableToModel ($table2);
+		$class_name1 = Model_Scheme::getInstance ()->tableToModel ($table1);
+		$class_name2 = Model_Scheme::getInstance ()->tableToModel ($table2);
 
-		$model1 = Model_Manager::get (
+		$model1 = Model_Manager::getInstance ()->get (
 			$class_name1,
 			$row1
 		);
@@ -167,7 +172,7 @@ class Controller_Admin_Link extends Controller_Abstract
 
 		foreach ($models2 as $model2_id)
 		{
-			$model2 = Model_Manager::byKey (
+			$model2 = Model_Manager::getInstance ()->byKey (
 				$class_name2,
 				$model2_id
 			);

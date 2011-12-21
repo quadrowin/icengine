@@ -36,7 +36,7 @@ class Background_Agent_Scheduler extends Background_Agent_Abstract
 	{
 		Loader::load ('Task_Queue');
 
-		$task_collection = Model_Collection_Manager::byQuery (
+		$task_collection = Model_Collection_Manager::getInstance ()->byQuery (
 			'Task',
 			Query::instance ()
 				->where ('active', 1)

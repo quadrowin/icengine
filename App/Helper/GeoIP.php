@@ -36,7 +36,7 @@ class Helper_GeoIP
 				->where ('net_ru.city_id=net_city.id')
 		)->getResult ()->asValue ();
 
-		return Model_Manager::byQuery (
+		return Model_Manager::getInstance ()->byQuery (
 			'City',
 			Query::instance ()
 				->where ('name', $city_name)
@@ -52,7 +52,7 @@ class Helper_GeoIP
 			->getResult ()
 				->asValue ();
 
-		return Model_Manager::byKey (
+		return Model_Manager::getInstance ()->byKey (
 			'City',
 			$city_id
 		);

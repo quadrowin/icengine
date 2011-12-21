@@ -65,7 +65,7 @@ class Controller_Admin_Database extends Controller_Abstract
 	 */
 	private function __className ($table, $prefix)
 	{
-		$class_name = Model_Scheme::tableToModel ($table);
+		$class_name = Model_Scheme::getInstance ()->tableToModel ($table);
 
 		$prefix = ucfirst ($prefix);
 
@@ -133,7 +133,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			$field_filters = $tmp->__toArray ();
 		}
 
-		$table = Model_Scheme::table ($class_name);
+		$table = Model_Scheme::getInstance ()->table ($class_name);
 		foreach ($fields as $i => $field)
 		{
 			// Это линка
@@ -163,9 +163,9 @@ class Controller_Admin_Database extends Controller_Abstract
 				$values = substr ($field->Type, 6, -1);
 				$values = explode (',', $values);
 
-				$collection = Model_Collection_Manager::create (
-					'Dummy'
-				)->reset ();
+				$collection = Model_Collection_Manager::getInstance ()
+					->create ('Dummy')
+						->reset ();
 
 				Loader::load ('Model_Proxy');
 				foreach ($values as $v)
@@ -186,7 +186,7 @@ class Controller_Admin_Database extends Controller_Abstract
 
 			if ($row)
 			{
-				$text_value = Model_Manager::byQuery (
+				$text_value = Model_Manager::getInstance ()->byQuery (
 					'Text_Value',
 					Query::instance ()
 						->where ('tv_field_table', $table)
@@ -226,18 +226,15 @@ class Controller_Admin_Database extends Controller_Abstract
 					}
 				}
 
-				$field->Values = Model_Collection_Manager::byQuery (
-					$cn,
-					$query
-				);
+				$field->Values = Model_Collection_Manager::getInstance ()
+					->byQuery ($cn, $query);
 			}
 
 			// Ссылка на родителя
 			if ($field->Field == 'parentId')
 			{
-				$field->Values = Model_Collection_Manager::create (
-					$class_name
-				);
+				$field->Values = Model_Collection_Manager::getInstance ()
+					->create ($class_name);
 			}
 		}
 		return $fields;
@@ -260,7 +257,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			$field_filters = $tmp->__toArray ();
 		}
 
-		$table = Model_Scheme::table ($class_name);
+		$table = Model_Scheme::getInstance ()->table ($class_name);
 		foreach ($fields as $i => $field)
 		{
 			// Тип поля - enum
@@ -269,9 +266,9 @@ class Controller_Admin_Database extends Controller_Abstract
 				$values = substr ($field->Type, 6, -1);
 				$values = explode (',', $values);
 
-				$collection = Model_Collection_Manager::create (
-					'Dummy'
-				)->reset ();
+				$collection = Model_Collection_Manager::getInstance ()
+					->create ('Dummy')
+						->reset ();
 
 				Loader::load ('Model_Proxy');
 				foreach ($values as $v)
@@ -290,7 +287,7 @@ class Controller_Admin_Database extends Controller_Abstract
 				$field->Values = $collection;
 			}
 
-			$text_value = Model_Manager::byQuery (
+			$text_value = Model_Manager::getInstance ()->byQuery (
 				'Text_Value',
 				Query::instance ()
 					->where ('tv_field_table', $table)
@@ -337,12 +334,14 @@ class Controller_Admin_Database extends Controller_Abstract
 					->getResult ()
 						->asTable ();
 
-				$collection = Model_Collection_Manager::create (
-					'Dummy'
-				)->reset ();
+				$collection = Model_Collection_Manager::getInstance ()
+					->create ('Dummy')
+						->reset ();
 
 
-				$model_class_name = Model_Scheme::tableToModel ($text_value->tv_text_table);
+				$model_class_name = Model_Scheme::getInstance ()
+					->tableToModel ($text_value->tv_text_table);
+
 				$file = str_replace ('_', '/', $model_class_name) . '.php';
 				if (Loader::findFile ($file))
 				{
@@ -352,7 +351,8 @@ class Controller_Admin_Database extends Controller_Abstract
 				{
 					$model_class_name = $class_name;
 				}
-				$kf = Model_Scheme::keyField ($model_class_name);
+				$kf = Model_Scheme::getInstance ()
+					->getKeyField ($model_class_name);
 
 				Loader::load ('Dummy');
 
@@ -389,18 +389,15 @@ class Controller_Admin_Database extends Controller_Abstract
 					}
 				}
 
-				$field->Values = Model_Collection_Manager::byQuery (
-					$cn,
-					$query
-				);
+				$field->Values = Model_Collection_Manager::getInstance ()
+					->byQuery ($cn, $query);
 			}
 
 			// Ссылка на родителя
 			if ($field->Field == 'parentId')
 			{
-				$field->Values = Model_Collection_Manager::create (
-					$class_name
-				);
+				$field->Values = Model_Collection_Manager::getInstance ()
+					->create ($class_name);
 			}
 		}
 		return $fields;
@@ -554,7 +551,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			'row_id'
 		);
 
-		$prefix = Model_Scheme::$default ['prefix'];
+		$prefix = Model_Scheme::getInstance ()->namespaces ['']['prefix'];
 
 		$class_name = $this->__className ($table, $prefix);
 
@@ -570,7 +567,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		/*
 		 * @var Model $row
 		 */
-		$row = Model_Manager::byKey (
+		$row = Model_Manager::getInstance ()->byKey (
 			$class_name,
 			$row_id
 		);
@@ -682,9 +679,9 @@ class Controller_Admin_Database extends Controller_Abstract
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
 
-		$prefix = Model_Scheme::$default ['prefix'];
+		$prefix = Model_Scheme::getInstance ()->namespaces ['']['prefix'];
 		$class_name = $this->__className ($table, $prefix);
-		$row = Model_Manager::get (
+		$row = Model_Manager::getInstance ()->get (
 			$class_name,
 			$row_id
 		);
@@ -729,7 +726,7 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		}
 
-		$exists_links = Model_Scheme::links ($class_name);
+		$exists_links = Model_Scheme::getInstance ()->links ($class_name);
 
 		$link_models = array ();
 
@@ -742,13 +739,15 @@ class Controller_Admin_Database extends Controller_Abstract
 					Helper_Link::linkedItems ($row, $link_name)
 				);
 
-				$link_models [$link_name] = Model_Collection_Manager::create (
+				$link_models [$link_name] = Model_Collection_Manager::getInstance ()
+						->create ($link_name);
+
+				$link_models [$link_name] = $this->filters (
+					$link_models [$link_name],
 					$link_name
 				);
 
-				$link_models [$link_name] = $this->filters($link_models [$link_name], $link_name);
-
-				$link_table = Model_Scheme::table ($link_name);
+				$link_table = Model_Scheme::getInstance ()->table ($link_name);
 
 				$table_info = Helper_Data_Source::table ($link_table);
 
@@ -831,7 +830,8 @@ class Controller_Admin_Database extends Controller_Abstract
 			'tabs'			=> $tabs,
 			'events'		=> $events,
 			'plugins'		=> $plugins,
-			'keyField'		=> Model_Scheme::keyField ($class_name)
+			'keyField'		=> Model_Scheme::getInstance ()
+				->getKeyField ($class_name)
 		));
 	}
 
@@ -863,11 +863,12 @@ class Controller_Admin_Database extends Controller_Abstract
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
 
-		$prefix = Model_Scheme::$default ['prefix'];
+		$prefix = Model_Scheme::getInstance ()->namespaces ['']['prefix'];
 
 		$class_name = $this->__className ($table, $prefix);
 
-		$collection = Model_Collection_Manager::create ($class_name);
+		$collection = Model_Collection_Manager::getInstance ()
+			->create ($class_name);
 
 		// Получаем фильтры
 		$collection = $this->filters($collection, $class_name);
@@ -1061,14 +1062,15 @@ class Controller_Admin_Database extends Controller_Abstract
 
 				foreach ($includes as $field => $model)
 				{
-					$ffield = Model_Scheme::keyField ($model);
+					$ffield = Model_Scheme::getInstance ()
+						->getKeyField ($model);
 
 					if (strpos ($model, '/') !== false)
 					{
 						list ($model, $ffield) = explode ('/', $model);
 					}
 
-					$model = Model_Manager::byQuery (
+					$model = Model_Manager::getInstance ()->byQuery (
 						$model,
 						Query::instance ()
 							->where ($ffield, $item->$field)
@@ -1112,9 +1114,12 @@ class Controller_Admin_Database extends Controller_Abstract
 			'table'				=> $table,
 			'limitators'		=> $limitators,
 			'limitator'			=> $limitator,
-			'title'				=> !empty ($title) ? $title : $this->config ()->default_title,
+			'title'				=> !empty ($title)
+				? $title
+				: $this->config ()->default_title,
 			'links'				=> $links,
-			'keyField'			=> Model_Scheme::keyField ($class_name),
+			'keyField'			=> Model_Scheme::getInstance ()
+				->getKeyField ($class_name),
 			'styles'			=> $styles,
 			'link_styles'		=> $link_styles
 		));
@@ -1137,7 +1142,7 @@ class Controller_Admin_Database extends Controller_Abstract
 
 //		print_r ($_POST);
 
-		$prefix = Model_Scheme::$default ['prefix'];
+		$prefix = Model_Scheme::getInstance ()->namespaces ['']['prefix'];
 
 		$class_name = $this->__className ($table, $prefix);
 
@@ -1151,12 +1156,12 @@ class Controller_Admin_Database extends Controller_Abstract
 		}
 
 		/* @var $row Model */
-		$row = Model_Manager::get (
+		$row = Model_Manager::getInstance ()->get (
 			$class_name,
 			$row_id
 		);
 
-		$exists_links = Model_Scheme::links ($class_name);
+		$exists_links = Model_Scheme::getInstance ()->links ($class_name);
 		$links_to_save = array ();
 
 		if (!is_array ($column))
@@ -1227,7 +1232,11 @@ class Controller_Admin_Database extends Controller_Abstract
 		{
 			if ($updated_fields)
 			{
-				$row->set (Model_Scheme::keyField ($row->modelName ()), null);
+				$row->set (
+					Model_Scheme::getInstance ()
+						->getKeyField ($row->modelName ()),
+					null
+				);
 				$row->set ($updated_fields);
 				$row->save ();
 //				print_r ($row);
@@ -1246,7 +1255,7 @@ class Controller_Admin_Database extends Controller_Abstract
 
 			foreach ($links as $link_id)
 			{
-				$link_row = Model_Manager::byKey (
+				$link_row = Model_Manager::getInstance ()->byKey (
 					$link,
 					$link_id
 				);

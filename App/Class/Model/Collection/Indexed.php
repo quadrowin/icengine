@@ -13,7 +13,8 @@ class Model_Collection_Indexed extends Model_Collection
      */
     public function selectBy (array $conditions)
     {
-		Model_Manager::byQuery ($this->modelName (), $conditions);
+		Model_Manager::getInstance ()
+			->byQuery ($this->modelName (), $conditions);
     }
 
 }

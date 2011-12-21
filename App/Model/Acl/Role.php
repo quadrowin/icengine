@@ -52,7 +52,7 @@ class Acl_Role extends Model
 	 */
 	public static function byName ($name)
 	{
-	    return Model_Manager::byQuery (
+	    return Model_Manager::getInstance ()->byQuery (
 		    'Acl_Role',
 		    Query::instance ()
 		   		->where ('name', $name)
@@ -67,7 +67,7 @@ class Acl_Role extends Model
 	 */
 	public static function byTypeNName ($type_id, $name)
 	{
-		return Model_Manager::byQuery (
+		return Model_Manager::getInstance ()->byQuery (
 		    'Acl_Role',
 		    Query::instance ()
 			    ->where ('Acl_Role_Type__id', $type_id)

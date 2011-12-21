@@ -84,7 +84,7 @@ class Model_Mapper_Scheme
 	public function render ()
 	{
 		Loader::load ('Model_Mapper_Scheme_Render');
-		$ds = Model_Scheme::dataSource ($this->_model);
+		$ds = Model_Scheme::getInstance ()->getDataSource ($this->_model);
 		$adapter = $ds->getAdapter ();
 		$render_name = $adapter->getTranslatorName ();
 		return Model_Mapper_Scheme_Render::render ($render_name, $this);

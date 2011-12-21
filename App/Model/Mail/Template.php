@@ -32,7 +32,7 @@ class Mail_Template extends Model_Child
 	 */
 	public static function byName ($name, $blank = true)
 	{
-		$template = Model_Manager::byQuery (
+		$template = Model_Manager::getInstance ()->byQuery (
 		    'Mail_Template',
 		    Query::instance ()
 		   		->where ('name', $name)

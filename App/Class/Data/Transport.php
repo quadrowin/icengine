@@ -255,7 +255,7 @@ class Data_Transport
      */
     public function receiveModel ($model_name)
     {
-        $fields = Model_Scheme::fieldsNames ($model_name);
+        $fields = Model_Scheme::getInstance ()->fieldsNames ($model_name);
         $values = $this->receive($model_name);
 
         $model_data = array();
@@ -264,7 +264,9 @@ class Data_Transport
             $model_data[$field] = $values[$field];
         }
 
-        $model = Model_Manager::create ($model_name, $model_data);
+        $model = Model_Manager::getInstance ()
+			->create ($model_name, $model_data);
+
         return $model;
     }
 

@@ -25,11 +25,12 @@ class Component_Tag extends Model_Component
 	 */
 	public static function byTranslit ($tag)
 	{
-		$tags = Model_Collection_Manager::create ('Component_Tag')
-			->addOptions (array (
-				'name'		=> 'Translit',
-				'translit'	=> $tag
-			));
+		$tags = Model_Collection_Manager::getInstance ()
+			->create ('Component_Tag')
+				->addOptions (array (
+					'name'		=> 'Translit',
+					'translit'	=> $tag
+				));
 
 		return $tags;
 	}
@@ -48,13 +49,14 @@ class Component_Tag extends Model_Component
 
 		$tags = self::byTranslit ($tag, $exclude);
 
-		$result = Model_Collection_Manager::create ('Proxy')
+		$result = Model_Collection_Manager::getInstance ()->create ('Proxy')
 			->reset ();
 
 		$included = array ();
 		foreach ($this as $tag)
 		{
-			$item = Model_Manager::byKey ($tag->table, $tag->rowId);
+			$item = Model_Manager::getInstance ()
+				->byKey ($tag->table, $tag->rowId);
 			$res_name = $item->resourceKey ();
 			if (!isset ($included [$res_name]))
 			{
@@ -111,12 +113,13 @@ class Component_Tag extends Model_Component
 		}
 
 		// Существующие теги
-		$exists = Model_Collection_Manager::create ('Component_Tag')
-			->addOptions (array (
-				'name'		=> 'Component::Model',
-				'table'		=> $table,
-				'row_id'	=> $id
-			));
+		$exists = Model_Collection_Manager::getInstance ()
+			->create ('Component_Tag')
+				->addOptions (array (
+					'name'		=> 'Component::Model',
+					'table'		=> $table,
+					'row_id'	=> $id
+				));
 
 		// сравниваем существующие и новые теги
 		foreach ($exists as $i => $tag)

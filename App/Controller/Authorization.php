@@ -100,7 +100,7 @@ class Controller_Authorization extends Controller_Abstract
 		 */
 		foreach ($authes as $auth_type)
 		{
-			$auth = Model_Manager::byQuery (
+			$auth = Model_Manager::getInstance ()->byQuery (
 				'Authorization',
 				Query::instance ()
 					->where ('name', $auth_type)
@@ -143,7 +143,7 @@ class Controller_Authorization extends Controller_Abstract
 		$password = $this->_input->receive ('password');
 		Loader::load ('Authorization');
 
-		$user = Model_Manager::byQuery (
+		$user = Model_Manager::getInstance ()->byQuery (
 			'User',
 			Query::instance ()
 				->where ('email', $login)

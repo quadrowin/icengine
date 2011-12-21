@@ -15,10 +15,9 @@ class Model_Collection_Manager_Delegee_Simple
 		$model = $collection->modelName ();
 
 		// Выполняем запрос, получаем элементы коллеции
-		$query_result =
-			Model_Scheme::dataSource ($model)
-				->execute ($query)
-					->getResult ();
+		$query_result = Model_Scheme::getInstance ()->getDataSource ($model)
+			->execute ($query)
+				->getResult ();
 
 		$collection->queryResult ($query_result);
 
@@ -31,7 +30,7 @@ class Model_Collection_Manager_Delegee_Simple
 
 		Loader::load ('Helper_Data_Source');
 
-		$scheme = Model_Scheme::getScheme ($model);
+		$scheme = Model_Scheme::getInstance ()->getScheme ($model);
 
 		$fields = array_keys ($scheme ['fields']);
 

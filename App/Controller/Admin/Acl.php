@@ -103,7 +103,7 @@ class Controller_Admin_Acl extends Controller_Abstract
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
 
-		$role = Model_Manager::byKey (
+		$role = Model_Manager::getInstance ()->byKey (
 			'Acl_Role',
 			$role_id
 		);
@@ -169,7 +169,7 @@ class Controller_Admin_Acl extends Controller_Abstract
 
 		$role_names = $this->config ()->control_roles->asArray ();
 
-		$role_collection = Model_Collection_Manager::byQuery (
+		$role_collection = Model_Collection_Manager::getInstance ()->byQuery (
 			'Acl_Role',
 			Query::instance ()
 				->where ('name', $role_names)
@@ -192,11 +192,8 @@ class Controller_Admin_Acl extends Controller_Abstract
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
 
-		
-		$role = Model_Manager::byKey (
-			'Acl_Role',
-			$role_id
-		);
+
+		$role = Model_Manager::getInstance ()->byKey ('Acl_Role', $role_id);
 
 		if (!$role)
 		{
@@ -205,11 +202,12 @@ class Controller_Admin_Acl extends Controller_Abstract
 
 		$resources = $this->__resources ($role);
 
-		$resource_collection = Model_Collection_Manager::byQuery (
-			'Acl_Resource',
-			Query::instance ()
-				->where ('name', $resources)
-		);
+		$resource_collection = Model_Collection_Manager::getInstance ()
+			->byQuery (
+				'Acl_Resource',
+				Query::instance ()
+					->where ('name', $resources)
+			);
 
 		foreach ($resource_collection as $resource)
 		{
@@ -222,7 +220,7 @@ class Controller_Admin_Acl extends Controller_Abstract
 
 		foreach ($resources as $resource_name)
 		{
-			$resource = Model_Manager::byQuery (
+			$resource = Model_Manager::getInstance ()->byQuery (
 				'Acl_Resource',
 				Query::instance ()
 					->where ('name', $resource_name)

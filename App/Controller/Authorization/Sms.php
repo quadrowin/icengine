@@ -81,7 +81,8 @@ class Controller_Authorization_Sms extends Controller_Abstract
 		$phone = Helper_Phone::parseMobile ($phone);
 		$code = $this->config ()->sms_auth_prefix . $clear_code;
 
-		$activation = Model_Manager::byKey ('Activation', $activation_id);
+		$activation = Model_Manager::getInstance ()
+			->byKey ('Activation', $activation_id);
 
 		if (!$activation || $activation->code != $code)
 		{
@@ -111,7 +112,7 @@ class Controller_Authorization_Sms extends Controller_Abstract
 		/**
 		 * @var User $user
 		 */
-		$user = Model_Manager::byQuery (
+		$user = Model_Manager::getInstance ()->byQuery (
 			'User',
 			Query::instance ()
 				->where ('phone', $phone)
@@ -148,7 +149,7 @@ class Controller_Authorization_Sms extends Controller_Abstract
 		/**
 		 * @var User $user
 		 */
-		$user = Model_Manager::byQuery (
+		$user = Model_Manager::getInstance ()->byQuery (
 			'User',
 			Query::instance ()
 			->where ('phone', $phone)

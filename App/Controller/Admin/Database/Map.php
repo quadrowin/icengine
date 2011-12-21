@@ -27,9 +27,9 @@ class Controller_Admin_Database_Map extends Controller_Abstract
 			'table'
 		);
 
-		$class_name = Model_Scheme::tableToModel ($table);
+		$class_name = Model_Scheme::getInstance ()->tableToModel ($table);
 
-		$row = Model_Manager::byKey (
+		$row = Model_Manager::getInstance ()->byKey (
 			$class_name,
 			$row_id
 		);
@@ -50,9 +50,10 @@ class Controller_Admin_Database_Map extends Controller_Abstract
 
 		$styles = array ();
 
-		$tmp = Model_Collection_Manager::create ($geo_polylines->className ())
-			->assign ($geo_polylines)
-			->add ($geo_polygons);
+		$tmp = Model_Collection_Manager::getInstance ()
+			->create ($geo_polylines->className ())
+				->assign ($geo_polylines)
+				->add ($geo_polygons);
 
 		foreach ($tmp as $item)
 		{
@@ -62,15 +63,16 @@ class Controller_Admin_Database_Map extends Controller_Abstract
 			);
 		}
 
-		$style_collection = Model_Collection_Manager::create (
+		$style_collection = Model_Collection_Manager::getInstance ()->create (
 			'Geo_Point_Style'
 		);
 
 		$lat = 0;
 		$long = 0;
 
-		$tmp = Model_Collection_Manager::create ($geo_polylines->className ())
-			->reset ();
+		$tmp = Model_Collection_Manager::getInstance ()
+			->create ($geo_polylines->className ())
+				->reset ();
 
 		if ($geo_polylines->first ())
 		{
@@ -137,9 +139,9 @@ class Controller_Admin_Database_Map extends Controller_Abstract
 			'table'
 		);
 
-		$class_name = Model_Scheme::tableToModel ($table);
+		$class_name = Model_Scheme::getInstance ()->tableToModel ($table);
 
-		$row = Model_Manager::byKey (
+		$row = Model_Manager::getInstance ()->byKey (
 			$class_name,
 			$row_id
 		);
@@ -181,15 +183,15 @@ class Controller_Admin_Database_Map extends Controller_Abstract
 				$cname = $point ['type'];
 
 				$style = new Geo_Line_Style (array (
-					'name'		=> $point ['style'],
-					'data'		=> json_encode ($point ['serializedStyle'])
+					'name' => $point ['style'],
+					'data' => json_encode ($point ['serializedStyle'])
 				));
 
 				$style->save ();
 			}
 			else
 			{
-				$style = Model_Manager::byQuery (
+				$style = Model_Manager::getInstance ()->byQuery (
 					'Geo_Point_Style',
 					Query::instance ()
 						->where ('name', $point ['style'])

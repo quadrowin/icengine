@@ -54,7 +54,7 @@ abstract class View_Render_Manager extends Manager_Abstract
 			return self::$_views [$name];
 		}
 
-//		$view = Model_Manager::byQuery (
+//		$view = Model_Manager::getInstance ()->byQuery (
 //			__NAMESPACE__ . '\\View_Render',
 //			Query::instance ()
 //				->where ('name', $name)
@@ -135,7 +135,7 @@ abstract class View_Render_Manager extends Manager_Abstract
 	 */
 	public static function pushViewById ($id)
 	{
-		$view = Model_Manager::byKey ('View_Render', $id);
+		$view = Model_Manager::getInstance ()->byKey ('View_Render', $id);
 		return self::pushView ($view);
 	}
 

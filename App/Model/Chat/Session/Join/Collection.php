@@ -14,10 +14,11 @@ class Chat_Session_Join_Collection extends Model_Collection
 			->where ('Chat_Session__id', $sessions)
 			->where ('id NOT IN (?)', $ids);
 
-		$other_join_collection = Model_Collection_Manager::byQuery (
-			'Chat_Session_Join',
-			$query
-		);
+		$other_join_collection = Model_Collection_Manager::getInstance ()
+			->byQuery (
+				'Chat_Session_Join',
+				$query
+			);
 
 		return $other_join_collection;
 	}

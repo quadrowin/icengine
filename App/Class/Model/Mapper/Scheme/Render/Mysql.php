@@ -6,8 +6,9 @@ class Model_Mapper_Scheme_Render_Mysql
 {
 	public function render ($scheme)
 	{
-		$sql = 'CREATE TABLE IF NOT EXISTS `' .
-			Model_Scheme::table ($scheme->getModel ()->modelName ()). '` (' . "\n";
+		$table = Model_Scheme::getInstance ()
+			->table ($scheme->getModel ()->modelName ());
+		$sql = 'CREATE TABLE IF NOT EXISTS `' . $table . "` (\n";
 		$fields = $scheme->getFields ();
 		if ($fields)
 		{

@@ -56,7 +56,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 
 	protected function __makeUniqueLink ($link, $category_id)
 	{
-		$content_category = Model_Collection_Manager::byQuery (
+		$content_category = Model_Collection_Manager::getInstance ()->byQuery (
 			'Content_Category',
 			Query::instance ()
 				->where ('url', $link)
@@ -195,7 +195,8 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 			'referer'
 		);
 
-		$category = Model_Manager::byKey ($this->__categoryModel (), $id);
+		$category = Model_Manager::getInstance ()
+			->byKey ($this->__categoryModel (), $id);
 
 		if (!$category)
 		{
@@ -248,14 +249,14 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 
 		if ($parent_category_id)
 		{
-			$parent_category = Model_Manager::byKey (
+			$parent_category = Model_Manager::getInstance ()->byKey (
 				$this->__categoryModel (),
 				$parent_category_id
 			);
 		}
 		else
 		{
-			$parent_category = Model_Manager::byQuery (
+			$parent_category = Model_Manager::getInstance ()->byQuery (
 				$this->__categoryModel (),
 				Query::instance ()
 					->where (
@@ -333,7 +334,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 		);
 
 		// Получаем родительскую категорию
-		$parent = Model_Manager::byKey (
+		$parent = Model_Manager::getInstance ()->byKey (
 			$this->__categoryModel (),
 			$parent_category_id
 		);
@@ -364,7 +365,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 		$old_url = null;
 		if ($category_id)
 		{
-			$content_category = Model_Manager::byKey (
+			$content_category = Model_Manager::getInstance ()->byKey (
 				$this->__categoryModel (),
 				$category_id
 			);
@@ -511,7 +512,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 			'referer'
 		);
 
-		$category = Model_Manager::byKey (
+		$category = Model_Manager::getInstance ()->byKey (
 			$this->__categoryModel (),
 			$category_id
 		);

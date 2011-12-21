@@ -31,10 +31,8 @@ class Content_Abstract extends Model_Factory_Delegate
 	 */
 	public function base ()
 	{
-		$content = Model_Manager::byKey (
-			'Ice\\Content',
-			$this->key ()
-		);
+		$content = Model_Manager::getInstance ()
+			->byKey ('Ice\\Content', $this->key ());
 
 		return new Content ($content->asRow ());
 	}
@@ -139,14 +137,16 @@ class Content_Abstract extends Model_Factory_Delegate
 			return null;
 		}
 
-		$extending = Model_Manager::byKey ($this->extending, $this->id);
+		$extending = Model_Manager::getInstance ()
+			->byKey ($this->extending, $this->id);
 
 		if (!$extending && $this->extending && $this->id)
 		{
 			Loader::load ('Content');
 			// Расширение не создано
+			$kf = Model_Scheme::getInstance ()->keyField ($this->extending);
 			$extending = new $this->extending (array (
-				Model_Scheme::keyField ($this->extending)	=> $this->id
+				$extending => $this->id
 			));
 
 			$extending->save (true);

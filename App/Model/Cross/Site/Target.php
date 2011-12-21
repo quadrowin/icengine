@@ -16,7 +16,7 @@ class Cross_Site_Target extends Model
 	 */
 	public static function byName ($name)
 	{
-		return Model_Manager::byQuery (
+		return Model_Manager::getInstance ()->byQuery (
 			__CLASS__,
 			Query::instance ()
 			->where ('name', $name)

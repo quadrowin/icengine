@@ -54,7 +54,8 @@ class DDS
 	{
 		$from = $query->getPart (Query::FROM);
 		$from = reset ($from);
-		$source = Model_Scheme::dataSource ($from [Query::TABLE]);
+		$source = Model_Scheme::getInstance ()
+			->getDataSource ($from [Query::TABLE]);
 		return $source->execute ($query, $options);
 	}
 

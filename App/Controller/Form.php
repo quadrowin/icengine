@@ -218,7 +218,7 @@ class Controller_Form extends Controller_Abstract
 			return $this->_accessDenied ();
 		}
 
-		$model = Model_Manager::get ($model_name, $id);
+		$model = Model_Manager::getInstance ()->get ($model_name, $id);
 
 		$this->_output->send ('model', $model);
 	}
@@ -236,7 +236,7 @@ class Controller_Form extends Controller_Abstract
 		// TODO: filters
 		$params = $this->_input->receive (self::PARAM);
 
-		$key_field = Model_Scheme::keyField ($model_name);
+		$key_field = Model_Scheme::getInstance ()->getKeyField ($model_name);
 
 		if (isset ($params [$key_field]))
 		{
@@ -267,14 +267,14 @@ class Controller_Form extends Controller_Abstract
 		// TODO: filters
 		$params = $this->_input->receive (self::PARAM);
 
-		$key_field = Model_Scheme::keyField ($model_name);
+		$key_field = Model_Scheme::getInstance ()->getKeyField ($model_name);
 
 		if (isset ($params [$key_field]))
 		{
 			unset ($params [$key_field]);
 		}
 
-		$model = Model_Manager::byKey ($model_name, $id);
+		$model = Model_Manager::getInstance ()->byKey ($model_name, $id);
 
 		if (!$model)
 		{
@@ -301,12 +301,12 @@ class Controller_Form extends Controller_Abstract
 			}
 		}
 
-		$key_field = Model_Scheme::keyField ($model_name);
+		$key_field = Model_Scheme::getInstance ()->getKeyField ($model_name);
 
-		$collection = Model_Collection_Manager::byQuery (
+		$collection = Model_Collection_Manager::getInstance ()->byQuery (
 			$model_name,
 			Query::instance ()
-			->where ("$key_field IN (?)", $ids)
+				->where ("$key_field IN (?)", $ids)
 		);
 
 		$collection->delete ();

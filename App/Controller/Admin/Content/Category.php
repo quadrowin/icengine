@@ -49,17 +49,19 @@ class Controller_Admin_Content_Category extends Controller_Abstract
 	 */
 	public function getSubcategories ($category_id, $level)
 	{
-		$categories = Model_Collection_Manager::create ('Content_Category')
-			->addOptions (array (
-				'name'	=> 'Parent',
-				'id'	=> (int) $category_id
-			));
+		$categories = Model_Collection_Manager::getInstance ()
+			->create ('Content_Category')
+				->addOptions (array (
+					'name'	=> 'Parent',
+					'id'	=> (int) $category_id
+				));
 
-		$contents = Model_Collection_Manager::create ('Content')
-			->addOptions (array (
-				'name'	=> 'Category',
-				'id'	=> (int) $category_id
-			));
+		$contents = Model_Collection_Manager::getInstance ()
+			->create ('Content')
+				->addOptions (array (
+					'name'	=> 'Category',
+					'id'	=> (int) $category_id
+				));
 
 		$items = array ();
 
@@ -98,11 +100,12 @@ class Controller_Admin_Content_Category extends Controller_Abstract
 	{
 		$this->_task->setViewRender (View_Render_Manager::byName ('Xslt'));
 
-		$contents = Model_Collection_Manager::create ('Content')
-			->addOptions (array (
-				'name'	=> 'Category',
-				'id'	=> (int) $category_id
-			));
+		$contents = Model_Collection_Manager::getInstance ()
+			->create ('Content')
+				->addOptions (array (
+					'name'	=> 'Category',
+					'id'	=> (int) $category_id
+				));
 
 		Loader::load ('Paginator');
 		$paginator = new Paginator ($page);
@@ -126,8 +129,9 @@ class Controller_Admin_Content_Category extends Controller_Abstract
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
 
-		$categories = Model_Collection_Manager::create ('Content_Category')
-			->addOptions ('Root');
+		$categories = Model_Collection_Manager::getInstance ()
+			->create ('Content_Category')
+				->addOptions ('Root');
 
 		Loader::load ('Paginator');
 		//$categories->setPaginator (Paginator::fromInput ($this->_input));
