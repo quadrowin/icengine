@@ -46,7 +46,8 @@ abstract class Model_Component extends Model_Child
 	 */
     public function model ()
     {
-    	return Model_Manager::byKey ($this->table, $this->rowId);
+    	return Model_Manager::getInstance ()
+			->byKey ($this->table, $this->rowId);
     }
 
 }

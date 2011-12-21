@@ -40,7 +40,7 @@ class Data_Validator_Registration_Email
 			return __CLASS__ . '/' . self::INCORRECT;
 		}
 
-		$user = Model_Manager::byQuery (
+		$user = Model_Manager::getInstance ()->byQuery (
 			'User',
 			Query::instance ()
 				->where ('email', $email)
@@ -51,7 +51,7 @@ class Data_Validator_Registration_Email
 			return __CLASS__ . '/' . self::REPEAT;
 		}
 
-		$reg = Model_Manager::byQuery (
+		$reg = Model_Manager::getInstance ()->byQuery (
 			'Registration',
 			Query::instance ()
 				->where ('email', $email)

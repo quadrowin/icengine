@@ -185,10 +185,17 @@ class Loader
 		{
 			if (!class_exists ($class))
 			{
-				self::requireOnce (
-					str_replace ('_', '/', $class) . '.php',
-					$namespace
-				);
+				if (strpos ($class, '\\'))
+				{
+					self::load ($class);
+				}
+				else
+				{
+					self::requireOnce (
+						str_replace ('_', '/', $class) . '.php',
+						$namespace
+					);
+				}
 			}
 		}
 	}

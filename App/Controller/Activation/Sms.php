@@ -129,7 +129,7 @@ class Controller_Activation_Sms extends Controller_Abstract
 		 * @desc Провайдер
 		 * @var Mail_Provider_Abstract
 		 */
-		$provider = Model_Manager::byQuery (
+		$provider = Model_Manager::getInstance ()->byQuery (
 			'Mail_Provider',
 			Query::instance ()
 			->where ('name', $provider_name)

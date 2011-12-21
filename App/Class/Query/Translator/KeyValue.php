@@ -37,9 +37,9 @@ class Query_Translator_KeyValue extends Query_Translator
 	 */
 	protected function _compileKeyMask ($table, array $where)
 	{
-		$key_field = Model_Scheme::keyField ($table);
+		$key_field = Model_Scheme::getInstance ()->getKeyField ($table);
 
-		$indexes = Model_Scheme::indexes ($table);
+		$indexes = Model_Scheme::getInstance ()->getIndexes ($table);
 
 		// Покрытие индексом запроса
 		// Изначально строка "11111", по мере использования,
@@ -169,7 +169,7 @@ class Query_Translator_KeyValue extends Query_Translator
 	 */
 	public function _compileKeys ($table, array $values)
 	{
-		$key_field = Model_Scheme::keyField ($table);
+		$key_field = Model_Scheme::getInstance ()->getKeyField ($table);
 
 		if (!isset ($values [$key_field]))
 		{
@@ -183,7 +183,7 @@ class Query_Translator_KeyValue extends Query_Translator
 			$values [$key_field]
 		);
 
-		$indexes = Model_Scheme::indexes ($table);
+		$indexes = Model_Scheme::getInstance ()->getIndexes ($table);
 		foreach ($indexes as $i => $index)
 		{
 			$index = (array) $index;

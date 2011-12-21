@@ -11,7 +11,7 @@ class Chat_Session extends Model
 	 */
 	public static function byCode ($code)
 	{
-		return Model_Manager::byQuery (
+		return Model_Manager::getInstance ()->byQuery (
 			'Chat_Session',
 			Query::instance ()
 				->where ('code', $code)

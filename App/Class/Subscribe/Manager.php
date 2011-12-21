@@ -18,7 +18,7 @@ class Subscribe_Manager
 	 */
 	public static function byName ($name)
 	{
-		return Model_Manager::byQuery (
+		return Model_Manager::getInstance ()->byQuery (
 			'Subscribe',
 			Query::instance ()
 				->where ('name', $name)

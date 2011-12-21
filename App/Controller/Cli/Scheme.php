@@ -13,9 +13,9 @@ class Controller_Cli_Scheme extends Controller_Abstract
 
 		$model = $this->_input->receive ('model');
 
-		$scheme = Model_Scheme::getScheme ($model);
+		$scheme = Model_Scheme::getInstance ()->getScheme ($model);
 
-		$prefix = Model_Scheme::$defaultPrefix;
+		$prefix = Model_Scheme::getInstance ()->namespaces ['']['prefix'];
 
 		$sql = 'CREATE TABLE `' . $prefix . strtolower ($model) . '` (' . "\r\n";
 
@@ -111,12 +111,12 @@ class Controller_Cli_Scheme extends Controller_Abstract
 
 		Loader::load ('Helper_Data_Source');
 
-		$table = Model_Scheme::table ($model);
+		$table = Model_Scheme::getInstance ()->table ($model);
 
 		$fields = Helper_Data_Source::fields ('`' . $table . '`');
 		$names_db = $fields->column ('Field');
 
-		$scheme = Model_Scheme::getScheme ($model);
+		$scheme = Model_Scheme::getInstance ()->getScheme ($model);
 
 		$names_scheme = array_keys ($scheme ['fields']);
 

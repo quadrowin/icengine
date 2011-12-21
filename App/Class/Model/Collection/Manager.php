@@ -9,7 +9,7 @@ namespace Ice;
  * @package Ice
  *
  */
-abstract class Model_Collection_Manager extends Manager_Abstract
+class Model_Collection_Manager extends Manager_Abstract
 {
 
 	/**
@@ -33,9 +33,9 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 	 * @param Query $query Запрос.
 	 * @return Model_Collection
 	 */
-	public static function byQuery ($model, Query $query)
+	public function byQuery ($model, Query $query)
 	{
-		$collection = self::create ($model);
+		$collection = $this->create ($model);
 
 		$collection->setQuery ($query);
 
@@ -47,7 +47,7 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 	 * @param string $model Модель колекции.
 	 * @return Model_Collection Коллекция.
 	 */
-	public static function create ($model)
+	public function create ($model)
 	{
 		$class_collection = $model . '_Collection';
 
@@ -58,11 +58,20 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 	}
 
 	/**
+	 * @desc Возвращает используемый экземпляр класса
+	 * @return object Model_Collection_Manager
+	 */
+	public static function getInstance ()
+	{
+		return Core::di ()->getInstance (__CLASS__);
+	}
+
+	/**
 	 * @desc получить коллекцию из хранилища по запросу и опшинам
 	 * @param Model_Collection
 	 * @param Query $query
 	 */
-	public static function load (Model_Collection $collection, Query $query)
+	public function load (Model_Collection $collection, Query $query)
 	{
 		// Название модели
 		$model = $collection->modelName ();
@@ -85,13 +94,16 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 
 			foreach ($from as $f)
 			{
-				$tables [] = Model_Scheme::table ($f [Query::TABLE]);
+				$tables [] = Model_Scheme::getInstance ()->table (
+					$f [Query::TABLE]
+				);
 			}
 
 			$tags = $provider->getTags ($tables);
 		}
 
-		$ds = Model_Scheme::dataSource ($collection->modelName ());
+		$ds = Model_Scheme::getInstance ()
+			->getDataSource ($collection->modelName ());
 		$adapter = $ds->getAdapter ();
 
 		Loader::load ('Composite');
@@ -180,7 +192,8 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 		{
 			if (!is_array ($item))
 			{
-				$pack ['items'][$i] = Model_Manager::get ($model, $item);
+				$pack ['items'][$i] = Model_Manager::getInstance ()
+					->get ($model, $item);
 			}
 			else
 			{
@@ -190,17 +203,15 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 				}
 				else
 				{
-					$kf = Model_Scheme::keyField ($model);
+					$kf = Model_Scheme::getInstance ()
+						->getKeyField ($model);
 					$key_fields [$model] = $kf;
 				}
 
 				if (isset ($item [$kf]))
 				{
-					$pack ['items'][$i] = Model_Manager::get (
-						$model,
-						$item [$kf],
-						$item
-					);
+					$pack ['items'][$i] = Model_Manager::getInstance ()
+						->get ($model, $item [$kf], $item);
 				}
 				else
 				{

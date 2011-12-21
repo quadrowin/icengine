@@ -11,10 +11,10 @@ namespace Ice;
  */
 class Mail_Provider extends Model_Factory
 {
-	
+
 	public static function byName ($name)
 	{
-		return Model_Manager::byQuery (
+		return Model_Manager::getInstance ()->byQuery (
 			'Mail_Provider',
 			Query::instance ()
 				->where ('name', $name)

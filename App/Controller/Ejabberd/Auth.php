@@ -101,7 +101,7 @@ class Controller_Ejabberd_Auth extends Controller_Abstract
 
 		$this->_log ("[debug] using query " . $query->translate ('Mysql'));
 
-		$user = Model_Scheme::dataSource ('User')
+		$user = Model_Scheme::getInstance ()->getDataSource ('User')
 			->execute ($query)
 				->getResult ()->asRow ();
 
@@ -126,14 +126,15 @@ class Controller_Ejabberd_Auth extends Controller_Abstract
 			}
 
 			// Если не совпал пароль проверяем сессию
-			$user_session = Model_Scheme::dataSource ('User_Session')
-				->execute (
-					Query::instance ()
-						->select ('*')
-						->from ('User_Session')
-						->where ('id', $commands [3])
-				)
-					->getResult ()->asRow ();
+			$user_session = Model_Scheme::getInstance ()
+				->getDataSource ('User_Session')
+					->execute (
+						Query::instance ()
+							->select ('*')
+							->from ('User_Session')
+							->where ('id', $commands [3])
+					)
+						->getResult ()->asRow ();
 
 			if (!$user_session)
 			{
@@ -196,7 +197,7 @@ class Controller_Ejabberd_Auth extends Controller_Abstract
 		$this->_log ("[debug] query isuser: " . $query->translate ('Mysql'));
 		// т.к. модели будут кэшироваться и постоянно отжирать память,
 		// выбираем просто в массив
-		$user = Model_Scheme::dataSource ('User')
+		$user = Model_Scheme::getInstance ()->getDataSource ('User')
 			->execute ($query)
 				->getResult ()->asRow ();
 

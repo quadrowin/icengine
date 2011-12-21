@@ -21,7 +21,7 @@ class Content_Extending extends Content_Abstract
 	 */
 	public function content ()
 	{
-		return Model_Manager::byKey ('Content', $this->id);
+		return Model_Manager::getInstance ()->byKey ('Content', $this->id);
 	}
 
 	/**

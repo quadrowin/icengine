@@ -40,7 +40,7 @@ class Component_Rating extends Model_Component
 	{
 		// если гость, проверяем по сессии
 		if (User::id () == 0) {
-			$log = Model_Manager::byQuery (
+			$log = Model_Manager::getInstance ()->byQuery (
 					'Component_Rating_Log',
 					Query::instance ()
 						->where ('session', User_Session::getCurrent ()->phpSessionId)
@@ -49,7 +49,7 @@ class Component_Rating extends Model_Component
 						->order (array ('time' => Query::DESC))
 			);
 		} else {
-			$log = Model_Manager::byQuery (
+			$log = Model_Manager::getInstance ()->byQuery (
 					'Component_Rating_Log',
 					Query::instance ()
 						->where ('User__id', User::id ())
@@ -98,7 +98,7 @@ class Component_Rating extends Model_Component
 	 */
 	public static function voteFor ($table, $row_id, $value)
 	{
-		$scheme = Model_Manager::byQuery (
+		$scheme = Model_Manager::getInstance ()->byQuery (
 			'Component_Rating_Scheme',
 			Query::instance ()
 				->where ('table', $table)

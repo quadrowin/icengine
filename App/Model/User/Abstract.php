@@ -75,11 +75,12 @@ class User_Abstract extends Model
 	{
 		if (is_numeric ($alias))
 		{
-			$resource = Model_Manager::get ('Acl_Resource', $alias);
+			$resource = Model_Manager::getInstance ()
+				->get ('Acl_Resource', $alias);
 		}
 		else
 		{
-			$resource = Model_Manager::byQuery (
+			$resource = Model_Manager::getInstance ()->byQuery (
 				'Acl_Resource',
 				Query::instance ()
 					->where ('alias', $alias)
@@ -142,16 +143,13 @@ class User_Abstract extends Model
 
 	/**
 	 * @desc Возвращает id текущего пользователя.
-	 * @return integer id текущего пользователя.
+	 * @return mixed|null id текущего пользователя.
 	 */
 	public static function id ()
 	{
-		if (!self::$_current || !self::$_current->id)
-		{
-			return 0;
-		}
-
-		return self::$_current->id;
+		return self::$_current
+			? self::$_current->key ()
+			: null;
 	}
 
 	/**

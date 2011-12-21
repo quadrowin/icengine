@@ -175,7 +175,8 @@ class Data_Adapter_Mongo extends Data_Adapter_Abstract
 		elseif ($show == 'ENSURE_INDEXES')
 		{
 			// Создание индексов
-			$result = Model_Scheme::getScheme ($this->_query ['model']);
+			$result = Model_Scheme::getInstance ()
+				->getScheme ($this->_query ['model']);
 			$this->_result = $result ['keys'];
 			foreach ($this->_result as $key)
 			{

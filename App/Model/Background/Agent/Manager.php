@@ -119,7 +119,7 @@ class Background_Agent_Manager extends Manager_Abstract
 	 */
 	public function processAgent ($name)
 	{
-		$agent = Model_Manager::byQuery (
+		$agent = Model_Manager::getInstance ()->byQuery (
 			'Background_Agent',
 			Query::instance ()
 				->where ('name', $name)
@@ -136,7 +136,7 @@ class Background_Agent_Manager extends Manager_Abstract
 		 * @desc Незавершенная сессия.
 		 * @var Background_Agent_Session
 		 */
-		$session = Model_Manager::byQuery (
+		$session = Model_Manager::getInstance ()->byQuery (
 			'Background_Agent_Session',
 			Query::instance ()
 				->where ('Background_Agent__id', $agent->key())
@@ -172,7 +172,7 @@ class Background_Agent_Manager extends Manager_Abstract
 	 */
 	public function startAgent ($name, array $params = array ())
 	{
-		$agent = Model_Manager::byQuery (
+		$agent = Model_Manager::getInstance ()->byQuery (
 			'Background_Agent',
 			Query::instance ()
 				->where ('name', $name)

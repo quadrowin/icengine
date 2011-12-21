@@ -26,7 +26,7 @@ class Temp_Content extends Model
 	 */
 	public static function byUtcode ($utcode)
 	{
-		return Model_Manager::byKey (
+		return Model_Manager::getInstance ()->byKey (
 			__CLASS__,
 			(string) $utcode
 		);

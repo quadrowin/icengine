@@ -9,7 +9,7 @@ namespace Ice;
  * @package Ice
  *
  */
-class Model_Manager extends Manager_Abstract
+class Model_Manager
 {
 
 	/**
@@ -55,7 +55,7 @@ class Model_Manager extends Manager_Abstract
 	 * @param Model $object
 	 * @return boolean
 	 */
-	protected static function _read (Model $object)
+	protected function _read (Model $object)
 	{
 		$key = $object->key ();
 
@@ -69,9 +69,10 @@ class Model_Manager extends Manager_Abstract
 			->from ($object->modelName ())
 			->where ($object->keyField (), $key);
 
-		$data = Model_Scheme::dataSource ($object->modelName ())
-			->execute ($query)
-			->getResult ()->asRow ();
+		$data = Model_Scheme::getInstance ()
+			->getDataSource ($object->modelName ())
+				->execute ($query)
+				->getResult ()->asRow ();
 
 		if ($data)
 		{
@@ -90,19 +91,20 @@ class Model_Manager extends Manager_Abstract
 	 * @desc Удаление данных модели из источника.
 	 * @param Model $object
 	 */
-	public static function _remove (Model $object)
+	public function _remove (Model $object)
 	{
 		if (!$object->key ())
 		{
 			return ;
 		}
-		Model_Scheme::dataSource ($object->modelName ())
-			->execute (
-				Query::instance ()
-					->delete ()
-					->from ($object->table ())
-					->where ($object->keyField (), $object->key ())
-			);
+		Model_Scheme::getInstance ()
+			->getDataSource ($object->modelName ())
+				->execute (
+					Query::instance ()
+						->delete ()
+						->from ($object->table ())
+						->where ($object->keyField (), $object->key ())
+				);
 	}
 
 	/**
@@ -112,7 +114,8 @@ class Model_Manager extends Manager_Abstract
 	 */
 	protected static function _write (Model $object, $hard_insert = false)
 	{
-		$ds = Model_Scheme::dataSource ($object->modelName ());
+		$ms = Model_Scheme::getInstance ();
+		$ds = $ms->getDataSource ($object->modelName ());
 
 		$kf = $object->keyField ();
 		$id = $object->key ();
@@ -141,7 +144,7 @@ class Model_Manager extends Manager_Abstract
 			else
 			{
 				// Генерация первичного ключа
-				$new_id = Model_Scheme::generateKey ($object);
+				$new_id = $ms->generateKey ($object);
 				if ($new_id)
 				{
 					// Ключ указан
@@ -184,7 +187,7 @@ class Model_Manager extends Manager_Abstract
 	 * @param integer $key Значение первичного ключа.
 	 * @return Model|null
 	 */
-	public static function byKey ($model, $key)
+	public function byKey ($model, $key)
 	{
 		$result = Resource_Manager::get ('Model', $model . '__' . $key);
 
@@ -193,10 +196,13 @@ class Model_Manager extends Manager_Abstract
 			return $result;
 		}
 
-		return self::byQuery (
+		return $this->byQuery (
 			$model,
 			Query::instance ()
-				->where (Model_Scheme::keyField ($model), $key)
+				->where (
+					Model_Scheme::getInstance ()->getKeyField ($model),
+					$key
+				)
 		);
 	}
 
@@ -207,9 +213,9 @@ class Model_Manager extends Manager_Abstract
 	 * @param mixed $_ [optional]
 	 * @return Model|null
 	 */
-	public static function byOptions ($model, $option)
+	public function byOptions ($model, $option)
 	{
-		$c = Model_Collection_Manager::create ($model)
+		$c = Model_Collection_Manager::getInstance ()->create ($model)
 			->addOptions (array (
 				'name'		=> '::Limit',
 				'count'		=> 1
@@ -229,7 +235,7 @@ class Model_Manager extends Manager_Abstract
 	 * @param Query $query Запрос.
 	 * @return Model|null
 	 */
-	public static function byQuery ($model, Query $query)
+	public function byQuery ($model, Query $query)
 	{
 		$data = null;
 
@@ -245,8 +251,8 @@ class Model_Manager extends Manager_Abstract
 				$query->from ($model, $model);
 			}
 
-			$data =
-				Model_Scheme::dataSource ($model)
+			$data = Model_Scheme::getInstance ()
+				->getDataSource ($model)
 					->execute ($query)
 					->getResult ()
 						->asRow ();
@@ -257,22 +263,38 @@ class Model_Manager extends Manager_Abstract
 			return null;
 		}
 
-		return self::get (
+		return $this->get (
 			$model,
-			$data [Model_Scheme::keyField ($model)],
+			$data [Model_Scheme::getInstance ()->getKeyField ($model)],
 			$data
 		);
+	}
+
+	/**
+	 * @desc Конфиги менеджера
+	 * @return Objective
+	 */
+	public static function config ()
+	{
+		if (is_array (static::$_config))
+		{
+			static::$_config = Config_Manager::get (
+				get_called_class (),
+				static::$_config
+			);
+		}
+		return static::$_config;
 	}
 
 	/**
 	 * @desc Создать модель из источника
 	 * @param string $model_name
 	 * @param array $fields источник значений для полей
-	 * @return
+	 * @return Model
 	 */
-	public static function create ($model_name, $fields)
+	public function create ($model_name, $fields)
 	{
-		$scheme = Model_Scheme::getScheme ($model_name);
+		$scheme = Model_Scheme::getInstance ()->getScheme ($model_name);
 		$scheme_fields = $scheme ['fields'];
 		$row = array ();
 
@@ -292,9 +314,9 @@ class Model_Manager extends Manager_Abstract
 	 * @param string $model Название модели
 	 * @param string $key Ключ (id)
 	 * @param Model|array $object Объект или данные
-	 * @return Model В случае успеха объект, иначе null.
+	 * @return Model Всегда возвращает модель
 	 */
-	public static function get ($model, $key, $object = null)
+	public function get ($model, $key, $object = null)
 	{
 		$cached = $object != null;
 		$result = null;
@@ -327,9 +349,9 @@ class Model_Manager extends Manager_Abstract
 				$second = prev ($parents);
 
 				$parent =
-					$second && isset (self::$_config ['delegee'][$second]) ?
-					$second :
-					$first;
+					$second && isset (self::$_config ['delegee'][$second])
+					? $second
+					: $first;
 
 				$delegee =
 					__NAMESPACE__ . '\\Model_Manager_Delegee_' .
@@ -352,8 +374,8 @@ class Model_Manager extends Manager_Abstract
 			}
 		}
 
-		$readed = !$cached ? self::_read ($result) : true;
-//		$readed = self::_read ($result);
+		$readed = !$cached ? $this->_read ($result) : true;
+//		$readed = $this->_read ($result);
 
 		// В случае factory
 		$model = get_class ($result);
@@ -387,15 +409,24 @@ class Model_Manager extends Manager_Abstract
 	}
 
 	/**
+	 * @desc Возвращает используемый экземпляр класса
+	 * @return object Model_Manager
+	 */
+	public static function getInstance ()
+	{
+		return Core::di ()->getInstance (__CLASS__);
+	}
+
+	/**
 	 * @desc Удаление модели.
 	 * @param Model $object Объект модели.
 	 */
-	public static function remove (Model $object)
+	public function remove (Model $object)
 	{
 		// из хранилища моделей
 		Resource_Manager::set ('Model', $object->resourceKey (), null);
 		// Из БД (или другого источника данных)
-		self::_remove ($object);
+		$this->_remove ($object);
 	}
 
 	/**
@@ -403,9 +434,9 @@ class Model_Manager extends Manager_Abstract
 	 * @param Model $object Объект модели.
 	 * @param boolean $hard_insert Объект будет вставлен в источник данных.
 	 */
-	public static function set (Model $object, $hard_insert = false)
+	public function set (Model $object, $hard_insert = false)
 	{
-		self::_write ($object, $hard_insert);
+		$this->_write ($object, $hard_insert);
 
 		Resource_Manager::set ('Model', $object->resourceKey (), $object);
 	}

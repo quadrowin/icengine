@@ -19,11 +19,12 @@ class Background_Agent_Task extends Background_Agent_Abstract
 
 	public function _process ()
 	{
-		$queue = Model_Collection_Manager::byQuery (
-			'Task_Queue',
-			Query::instance ()
-				->where ('processed', 0)
-		);
+		$queue = Model_Collection_Manager::getInstance ()
+			->byQuery (
+				'Task_Queue',
+				Query::instance ()
+					->where ('processed', 0)
+			);
 
 		foreach ($queue as $action)
 		{

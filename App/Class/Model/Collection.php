@@ -169,7 +169,7 @@ class Model_Collection implements \ArrayAccess, \IteratorAggregate, \Countable
 			if (isset ($item [$key_field]))
 			{
 				// Ести ключевое поле
-				$item = Model_Manager::get (
+				$item = Model_Manager::getInstance ()->get (
 					$this->modelName (),
 					$item [$key_field],
 					$item
@@ -438,18 +438,20 @@ class Model_Collection implements \ArrayAccess, \IteratorAggregate, \Countable
 	public function diff (Model_Collection $collection)
 	{
 		$model_name = $this->modelName ();
-		$kf_this = Model_Scheme::keyField ($model_name);
-		$kf_collection = Model_Scheme::keyField ($collection->modelName ());
+		$kf_this = Model_Scheme::getInstance ()->getKeyField ($model_name);
+		$kf_collection = Model_Scheme::getInstance ()
+			->getKeyField ($collection->modelName ());
 		$array_this = $this->column ($kf_this);
 		$array_collection = $collection->column ($kf_collection);
 		$diff = array_diff ($array_this, $array_collection);
 
-		$result = Model_Collection_Manager::create ($model_name)
+		$result = Model_Collection_Manager::getInstance ()
+			->create ($model_name)
 			->reset ();
 
 		for ($i = 0, $icount = sizeof ($diff); $i < $icount; $i++)
 		{
-			$result->add (Model_Manager::byKey (
+			$result->add (Model_Manager::getInstance ()->byKey (
 				$model_name,
 				$diff [$i]
 			));
@@ -599,7 +601,8 @@ class Model_Collection implements \ArrayAccess, \IteratorAggregate, \Countable
 		foreach ($rows as $row)
 		{
 			$key = isset ($row ['id']) ? $row ['id'] : $row [$kf];
-			$this->_items [] = Model_Manager::get ($model, $key, $row);
+			$this->_items [] = Model_Manager::getInstance ()
+				->get ($model, $key, $row);
 		}
 		return $this;
 	}
@@ -833,7 +836,7 @@ class Model_Collection implements \ArrayAccess, \IteratorAggregate, \Countable
 	 */
 	public function keyField ()
 	{
-		return Model_Scheme::keyField ($this->modelName ());
+		return Model_Scheme::getInstance ()->getKeyField ($this->modelName ());
 	}
 
 	/**
@@ -901,7 +904,7 @@ class Model_Collection implements \ArrayAccess, \IteratorAggregate, \Countable
 		$this->_options->executeBefore ($query);
 		$this->_lastQuery = $query;
 
-		Model_Collection_Manager::load ($this, $query);
+		Model_Collection_Manager::getInstance ()->load ($this, $query);
 		$this->_options->executeAfter ($query);
 
 		if ($this->_paginator)
@@ -1292,7 +1295,7 @@ class Model_Collection implements \ArrayAccess, \IteratorAggregate, \Countable
 	public function unique ()
 	{
 		$model_name = $this->modelName ();
-		$kf = Model_Scheme::keyField ($model_name);
+		$kf = Model_Scheme::getInstance ()->getKeyField ($model_name);
 		$keys = array_unique ($this->column ($kf));
 
 		$collection = new self;
@@ -1300,7 +1303,7 @@ class Model_Collection implements \ArrayAccess, \IteratorAggregate, \Countable
 
 		foreach ($keys as $key)
 		{
-			$model = Model_Manager::byKey (
+			$model = Model_Manager::getInstance ()->byKey (
 				$model_name,
 				$key
 			);

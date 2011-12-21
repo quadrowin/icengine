@@ -18,7 +18,7 @@ class Data_Mapper_Simple extends Data_Mapper_Abstract {
 	 */
 	public function getTable ($model)
 	{
-		return Model_Scheme::table ($model);
+		return Model_Scheme::getInstance ()->table ($model);
 	}
 
 	/**
@@ -28,7 +28,7 @@ class Data_Mapper_Simple extends Data_Mapper_Abstract {
 	 */
 	public function getModel ($table)
 	{
-		return Model_Scheme::tableToModel ($table);
+		return Model_Scheme::getInstance ()->tableToModel ($table);
 	}
 
 }

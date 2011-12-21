@@ -20,7 +20,7 @@ class Table_Rate extends Model
 	 */
 	public static function byTable ($table)
 	{
-		$rate = Model_Manager::byQuery (
+		$rate = Model_Manager::getInstance ()->byQuery (
 			'Table_Rate',
 			Query::instance ()
 				->where ('table', $table)

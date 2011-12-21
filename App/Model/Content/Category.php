@@ -29,7 +29,7 @@ class Content_Category extends Model_Child
 	 */
 	public function contents ()
 	{
-		return Model_Collection_Manager::byQuery (
+		return Model_Collection_Manager::getInstance ()->byQuery (
 			$this->contentModel (),
 			Query::instance ()
 				->where ('Content_Category__id', $this->key())

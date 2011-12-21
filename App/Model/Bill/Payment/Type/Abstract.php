@@ -62,8 +62,9 @@ class Bill_Payment_Type_Abstract extends Model_Factory_Delegate
 		$payment->save ();
 
 		// Приемщики платежей
-		$acceptors = Model_Collection_Manager::create ('Bill_Payment_Acceptor')
-			->addOptions ('::Active', '::Sort');
+		$acceptors = Model_Collection_Manager::getInstance ()
+			->create ('Bill_Payment_Acceptor')
+				->addOptions ('::Active', '::Sort');
 
 		foreach ($acceptors as $acceptor)
 		{

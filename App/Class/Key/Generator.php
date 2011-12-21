@@ -112,8 +112,8 @@ class Key_Generator
 		}
 		else
 		{
-			$ds = Model_Scheme::dataSource ($model);
-			$kf = Model_Scheme::keyField ($model);
+			$ds = Model_Scheme::getInstance ()->getDataSource ($model);
+			$kf = Model_Scheme::getInstance ()->getKeyField ($model);
 			$val = $ds->execute (
 				Query::instance ()
 					->select ($kf)

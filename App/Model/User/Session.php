@@ -31,7 +31,8 @@ class User_Session extends Model
 	 */
 	public static function byPhpSessionId ($session_id, $autocreate = true)
 	{
-		$session = Model_Manager::byKey ('Ice\\User_Session', $session_id);
+		$session = Model_Manager::getInstance ()
+			->byKey ('Ice\\User_Session', $session_id);
 
 		if (!$session && $autocreate)
 		{

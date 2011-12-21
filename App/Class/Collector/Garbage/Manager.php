@@ -56,7 +56,7 @@ abstract class Collector_Garbage_Manager
 
 		foreach (self::$_collectors as $collector)
 		{
-			$collector = Model_Manager::get (
+			$collector = Model_Manager::getInstance ()->get (
 				self::CONTAINER,
 				$collector->id
 			);

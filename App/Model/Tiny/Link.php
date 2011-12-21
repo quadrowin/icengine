@@ -84,7 +84,7 @@ class Tiny_Link extends Model
 	 */
 	public static function byLink ($href)
 	{
-		$link = Model_Manager::byQuery (
+		$link = Model_Manager::getInstance ()->byQuery (
 			__CLASS__,
 			Query::instance ()
 				->where ('link', $href)
@@ -113,7 +113,7 @@ class Tiny_Link extends Model
 	public static function byShort ($short)
 	{
 		$int = self::intDecode ($short);
-		return Model_Manager::byKey (__CLASS__, $int);
+		return Model_Manager::getInstance ()->byKey (__CLASS__, $int);
 	}
 
 	/**

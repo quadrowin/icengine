@@ -50,7 +50,7 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 	 */
 	protected function _authorization ()
 	{
-		return Model_Manager::byQuery (
+		return Model_Manager::getInstance ()->byQuery (
 			'Authorization',
 			Query::instance ()
 				->where ('name', 'Email_Password_Sms')
@@ -196,7 +196,7 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 			'pass'
 		);
 
-		$user = Model_Manager::byQuery (
+		$user = Model_Manager::getInstance ()->byQuery (
 			'User',
 			Query::instance ()
 				->where ('email', $email)

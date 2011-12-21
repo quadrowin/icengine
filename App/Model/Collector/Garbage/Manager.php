@@ -17,7 +17,7 @@ class Collector_Garbage_Manager extends Manager_Abstract
 	 */
 	public static function byName ($name)
 	{
-		return Model_Manager::byQuery (
+		return Model_Manager::getInstance ()->byQuery (
 			'Collector_Garbage',
 			Query::instance ()
 				->where ('name', $name)

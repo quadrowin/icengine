@@ -24,8 +24,9 @@ class Component
 
 		Loader::load ('Component_Collection');
 
-		return Model_Collection_Manager::create ($collection_class)
-			->getFor ($model);
+		return Model_Collection_Manager::getInstance ()
+			->create ($collection_class)
+				->getFor ($model);
 	}
 
 }

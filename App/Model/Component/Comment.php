@@ -18,7 +18,8 @@ class Component_Comment extends Model_Component
 	 */
 	public function getParent ()
 	{
-		return Model_Manager::get ($this->modelName (), $this->parentId);
+		return Model_Manager::getInstance ()
+			->get ($this->modelName (), $this->parentId);
 	}
 
 	/**

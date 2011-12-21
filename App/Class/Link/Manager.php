@@ -122,7 +122,7 @@ class Link_Manager extends Manager_Abstract
 	 */
 	public static function linkedItems (Model $model, $linked_model_name)
 	{
-		$result = Model_Collection_Manager::create (
+		$result = Model_Collection_Manager::getInstance ()->create (
 			$linked_model_name
 		)
 			->reset ();
@@ -134,7 +134,7 @@ class Link_Manager extends Manager_Abstract
 
 		foreach ($receive_keys as $key)
 		{
-			$result->add (Model_Manager::byKey (
+			$result->add (Model_Manager::getInstance ()->byKey (
 				$linked_model_name,
 				$key
 			));

@@ -25,7 +25,7 @@ class Controller_Background extends Controller_Abstract
 	protected function _getAgent ()
 	{
 		$id = $this->_input->receive ('id');
-		$agent = Model_Manager::byKey ('Background_Agent', $id);
+		$agent = Model_Manager::getInstance ()->byKey ('Background_Agent', $id);
 		if (!$agent)
 		{
 			$this->_output->send (array (
@@ -49,11 +49,11 @@ class Controller_Background extends Controller_Abstract
 			'session_key'
 		);
 
-		$session = Model_Manager::byQuery (
+		$session = Model_Manager::getInstance ()->byQuery (
 			'Background_Agent_Session',
 			Query::instance ()
-			->where ('id', $session_id)
-			->where ('key', $session_key)
+				->where ('id', $session_id)
+				->where ('key', $session_key)
 		);
 
 		if (!$session)

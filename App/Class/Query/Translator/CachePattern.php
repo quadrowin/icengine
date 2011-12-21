@@ -79,7 +79,7 @@ class Query_Translator_CachePattern extends Query_Translator
 			$jalias [$alias] = $from [Query::FROM];
 		}
 
-		$indexes = Model_Scheme::indexes ($table, $joins);
+		$indexes = Model_Scheme::getInstance ()->getIndexes ($table, $joins);
 
 		if ($indexes === false)
 		{

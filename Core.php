@@ -199,15 +199,6 @@ class Core
 	}
 
 	/**
-	 * @desc Возвращает менеджер моделей
-	 * @return Model_Manager
-	 */
-	public static function modelManager ()
-	{
-		return self::$_di->getInstance ('Model_Manager');
-	}
-
-	/**
 	 * @desc Путь до корня движка
 	 * @return string
 	 */
@@ -239,7 +230,7 @@ class Core
 		);
 
 		self::$_task = self::di ()
-			->getNewInstance ('Ice\\Controller_Front_Task');
+			->getNewInstance ('Controller_Front_Task');
 
 		Controller_Manager::call (
 			self::$_task->controllerAction ()->controller,

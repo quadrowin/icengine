@@ -2,7 +2,13 @@
 
 namespace Ice;
 
-class Model_Exception extends Zend_Exception
+/**
+ *
+ * @desc Исключение, вызванное моделью
+ * @package Ice
+ * 
+ */
+class Model_Exception extends Exception
 {
 
 }

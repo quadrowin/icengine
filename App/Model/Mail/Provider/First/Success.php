@@ -48,10 +48,10 @@ class Mail_Provider_First_Success extends Mail_Provider_Abstract
 			 * @desc Реальный провайдер
 			 * @var Mail_Provider_Abstract $provider
 			 */
-			$provider = Model_Manager::byQuery (
+			$provider = Model_Manager::getInstance ()->byQuery (
 				'Mail_Provider',
 				Query::instance ()
-				->where ('name', $provider_name)
+					->where ('name', $provider_name)
 			);
 
 			if ($provider && $provider->send ($message, $config))

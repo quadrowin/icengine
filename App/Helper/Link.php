@@ -22,7 +22,7 @@ class Helper_Link
      */
 	protected static function _link ($table1, $key1, $table2, $key2)
 	{
-		return Model_Manager::byQuery (
+		return Model_Manager::getInstance ()->byQuery (
 		    'Link',
 		    Query::instance ()
 			    ->where ('fromTable', $table1)
@@ -49,7 +49,7 @@ class Helper_Link
 			}
 		}
 
-		$link = Model_Manager::byQuery (
+		$link = Model_Manager::getInstance ()->byQuery (
 			$link_class,
 			$query
 		);
@@ -72,7 +72,7 @@ class Helper_Link
 	        $model2 = $tmp;
 	    }
 
-		$scheme = Model_Scheme::linkScheme (
+		$scheme = Model_Scheme::getInstance ()->linkScheme (
 			$model1->modelName (),
 			$model2->modelName ()
 		);
@@ -110,12 +110,12 @@ class Helper_Link
 			$model2 = $tmp;
 
 		}
-	    
-		$scheme = Model_Scheme::linkScheme (
-			$model1->modelName (), 
+
+		$scheme = Model_Scheme::getInstance ()->linkScheme (
+			$model1->modelName (),
 			$model2->modelName ()
-		);	
-		
+		);
+
 		if (!$scheme)
 		{
 //			echo '   <b>Нет схемы</b> <br />';
@@ -134,7 +134,7 @@ class Helper_Link
 				$model2->key ()
 			);
 		}
-		
+
 		if (!$link)
 		{
 			if (!$scheme)
@@ -146,22 +146,22 @@ class Helper_Link
 					'toTable'	=> $model2->table (),
 					'toRowId'	=> $model2->key ()
 				));
-				
+
 				$link->save ();
-			
+
 			//	print_r($link) . '<br />';
 			}
 			else
 			{
 				$link_class = $scheme ['link'];
-				
+
 				Loader::load ($link_class);
-				
+
 				$data = array (
 					$scheme ['fromKey']	=> $model1->key (),
 					$scheme ['toKey']	=> $model2->key ()
 				);
-				
+
 				if (!empty ($scheme['addict']))
 				{
 					foreach ($scheme['addict'] as $key => $value)
@@ -169,7 +169,7 @@ class Helper_Link
 						$data [$key] = $value;
 					}
 				}
-				
+
 				$link = new $link_class ($data);
 
 				$link->save ();
@@ -200,7 +200,7 @@ class Helper_Link
 			$table2 = $tmp;
 		}
 
-		$scheme = Model_Scheme::linkScheme (
+		$scheme = Model_Scheme::getInstance ()->linkScheme (
 			$table1,
 			$table2
 		);
@@ -211,7 +211,8 @@ class Helper_Link
 
 			$result = new $collection_class ();
 
-			$key_field_2 = Model_Scheme::keyField ($linked_model_name);
+			$key_field_2 = Model_Scheme::getInstance ()
+				->getKeyField ($linked_model_name);
 
 			if (strcmp ($model->modelName (), $linked_model_name) > 0)
 			{
@@ -273,10 +274,13 @@ class Helper_Link
 
 			$ids = DDS::execute ($query)->getResult ()->asColumn ($column);
 
-			$result = Model_Collection_Manager::byQuery (
+			$key_field = Model_Scheme::getInstance ()
+				->getKeyField ($linked_model_name);
+
+			$result = Model_Collection_Manager::getInstance ()->byQuery (
 				$linked_model_name,
 				Query::instance ()
-					->where (Model_Scheme::keyField ($linked_model_name), $ids)
+					->where ($key_field, $ids)
 			);
 		}
 
@@ -296,7 +300,9 @@ class Helper_Link
 	{
 		$collection = self::linkedItems ($model1, $linked_model_name);
 
-		return $collection->column (Model_Scheme::keyField ($linked_model_name));
+		return $collection->column (
+			Model_Scheme::getInstance ()->getKeyField ($linked_model_name)
+		);
 	}
 
 	/**
@@ -313,7 +319,7 @@ class Helper_Link
 			$model2 = $tmp;
 	    }
 
-		 $scheme = Model_Scheme::linkScheme (
+		 $scheme = Model_Scheme::getInstance ()->linkScheme (
 			$model1->modelName (),
 			$model2->modelName ()
 		);
@@ -357,7 +363,7 @@ class Helper_Link
 			$table2 = $tmp;
 		}
 
-		$scheme = Model_Scheme::linkScheme (
+		$scheme = Model_Scheme::getInstance ()->linkScheme (
 			$table1,
 			$table2
 		);

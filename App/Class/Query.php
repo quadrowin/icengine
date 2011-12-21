@@ -239,19 +239,20 @@ class Query {
 		$from = $this->getPart (Query::FROM);
 		foreach ($from as $info)
 		{
-			$tags [] = Model_Scheme::table ($info [Query::TABLE]);
+			$tags [] = Model_Scheme::getInstance ()
+				->table ($info [Query::TABLE]);
 		}
 
 		$insert = $this->getPart (QUERY::INSERT);
 		if ($insert)
 		{
-	   		$tags [] = Model_Scheme::table ($insert);
+	   		$tags [] = Model_Scheme::getInstance ()->table ($insert);
 		}
 
 		$update = $this->getPart (QUERY::UPDATE);
 		if ($update)
 		{
-			$tags [] = Model_Scheme::table ($update);
+			$tags [] = Model_Scheme::getInstance ()->table ($update);
 		}
 
 		return array_unique ($tags);
@@ -650,7 +651,10 @@ class Query {
 		$models = $this->getModels ();
 		foreach ($models as $model)
 		{
-			$model_map->setTable ($model, Model_Scheme::table ($model));
+			$model_map->setTable (
+				$model,
+				Model_Scheme::getInstance ()->table ($model)
+			);
 		}
 
 		return Query_Translator::factory ($translator)->translate (

@@ -64,7 +64,7 @@ class Collector_Garbage_Attribute extends Collector_Garbage_Abstract
 
 			foreach ($rows as $row)
 			{
-				$model = Model_Manager::byKey (
+				$model = Model_Manager::getInstance ()->byKey (
 					$row ['table'],
 					$row ['rowId']
 				);

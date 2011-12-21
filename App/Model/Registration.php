@@ -151,7 +151,7 @@ class Registration extends Model
 	 */
 	public static function byCode ($code)
 	{
-		return Model_Manager::byQuery (
+		return Model_Manager::getInstance ()->byQuery (
 			__CLASS__,
 			Query::instance ()
 				->where ('code', $code)

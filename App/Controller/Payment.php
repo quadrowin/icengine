@@ -18,8 +18,9 @@ class Controller_Payment extends Controller_Abstract
 	 */
 	public function assemble ()
 	{
-		$types = Model_Collection_Manager::create ('Bill_Payment_Type')
-			->addOptions('::Active');
+		$types = Model_Collection_Manager::getInstance ()
+			->create ('Bill_Payment_Type')
+				->addOptions ('::Active');
 
 		foreach ($types as $type)
 		{

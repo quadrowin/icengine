@@ -76,7 +76,7 @@ class Page_Title extends Model_Child
 			))
 			->limit (1);
 
-		return Model_Manager::byQuery ('Page_Title', $query);
+		return Model_Manager::getInstance ()->byQuery ('Page_Title', $query);
 	}
 
 	/**
@@ -88,16 +88,16 @@ class Page_Title extends Model_Child
 	{
 		$row = DDS::execute (
 			Query::instance ()
-			->select ('*')
-			->from ('Page_Title')
-			->where ('? RLIKE `pattern`', $uri)
-			->limit (1)
+				->select ('*')
+				->from ('Page_Title')
+				->where ('? RLIKE `pattern`', $uri)
+				->limit (1)
 		)->getResult ()->asRow ();
 
-		return
-			$row ?
-			Model_Manager::get ('Page_Title', $row ['id'], $row) :
-			null;
+		return $row
+			? Model_Manager::getInstance ()
+				->get ('Page_Title', $row ['id'], $row)
+			: null;
 	}
 
 	/**

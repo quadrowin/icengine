@@ -179,7 +179,7 @@ abstract class Subscribe_Abstract extends Model_Factory_Delegate
 	public function subscriberJoin (Subscribe_Subscriber $subscriber,
 	    $autocreate = false)
 	{
-	    $join = Model_Manager::byQuery (
+	    $join = Model_Manager::getInstance ()->byQuery (
 	        'Subscribe_Subscriber_Join',
 	        Query::instance ()
 		        ->where ('Subscribe__id', $this->id)

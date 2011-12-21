@@ -67,13 +67,13 @@ class Controller_Content_Abstract extends Controller_Abstract
 
 		if ($category_id)
 		{
-			return Model_Manager::byKey (
+			return Model_Manager::getInstance ()->byKey (
 				$this->__categoryModel (),
 				$category_id
 			);
 		}
 
-		return Model_Manager::byQuery (
+		return Model_Manager::getInstance ()->byQuery (
 			$this->__categoryModel (),
 			Query::instance ()
 				->where ('url', $url ? $url : Request::uri ())
@@ -96,13 +96,13 @@ class Controller_Content_Abstract extends Controller_Abstract
 
 		if ($content_id)
 		{
-			return Model_Manager::byKey (
+			return Model_Manager::getInstance ()->byKey (
 				$this->__contentModel (),
 				$content_id
 			);
 		}
 
-		return Model_Manager::byQuery (
+		return Model_Manager::getInstance ()->byQuery (
 			$this->__contentModel (),
 			Query::instance ()
 				->where ('url', $url ? $url : Request::uri ())
@@ -252,7 +252,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			return $this->replaceAction ('Error', 'notFound');
 		}
 
-		$parent = Model_Manager::byKey (
+		$parent = Model_Manager::getInstance ()->byKey (
 			$this->__categoryModel (),
 			$category->parentKey ()
 		);
@@ -273,7 +273,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		$agency = null;
 		if ($agency_link)
 		{
-			$agency = Model_Manager::byQuery(
+			$agency = Model_Manager::getInstance ()->byQuery(
 				'Agency',
 				Query::instance()
 					->where('linka', $agency_link.'.html')
@@ -309,7 +309,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			return $this->replaceAction ('Error', 'notFound');
 		}
 
-		$content_category = Model_Manager::byKey (
+		$content_category = Model_Manager::getInstance ()->byKey (
 			$this->__categoryModel (),
 			$content->Content_Category__id
 		);
@@ -323,7 +323,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		$agency = null;
 		if ($agency_link)
 		{
-			$agency = Model_Manager::byQuery(
+			$agency = Model_Manager::getInstance ()->byQuery(
 				'Agency',
 				Query::instance()
 					->where('linka', $agency_link.'.html')
@@ -379,7 +379,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			}
 			else
 			{
-				$content = Model_Manager::byKey (
+				$content = Model_Manager::getInstance ()->byKey (
 					$this->__contentModel (),
 					$content_id
 				);
@@ -388,7 +388,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			}
 		}
 
-		$category = Model_Manager::byKey (
+		$category = Model_Manager::getInstance ()->byKey (
 			$this->__categoryModel (),
 			$category_id
 		);
@@ -434,7 +434,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 
 		if (!isset ($content) || !$content)
 		{
-			$content = Model_Manager::get (
+			$content = Model_Manager::getInstance ()->get (
 				$this->__contentModel (),
 				$content_id
 			);
@@ -506,7 +506,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		}
 
 		$category_id = $tc->attr ('category_id');
-		$content_category = Model_Manager::byKey (
+		$content_category = Model_Manager::getInstance ()->byKey (
 			$this->__categoryModel (),
 			$category_id
 		);
@@ -540,7 +540,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 
 		if ($content_id)
 		{
-			$content = Model_Manager::byKey (
+			$content = Model_Manager::getInstance ()->byKey (
 				$this->__contentModel (),
 				$content_id
 			);
@@ -628,7 +628,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			'url'
 		);
 
-		$content = Model_Manager::byKey (
+		$content = Model_Manager::getInstance ()->byKey (
 			$this->__contentModel (),
 			$content_id
 		);
@@ -715,7 +715,8 @@ class Controller_Content_Abstract extends Controller_Abstract
 
 	public function remove ($id, $uri)
 	{
-		$content = Model_Manager::byKey ($this->__contentModel (), $id);
+		$content = Model_Manager::getInstance ()
+			->byKey ($this->__contentModel (), $id);
 
 		if (!$content)
 		{
@@ -765,8 +766,9 @@ class Controller_Content_Abstract extends Controller_Abstract
 	{
 		$image_id = $this->_input->receive ('image_id');
 
-		$image = Model_Manager::byKey ('Component_Image', $image_id);
-		
+		$image = Model_Manager::getInstance ()
+			->byKey ('Component_Image', $image_id);
+
 		if (!($image && ($image->User__id == User::id () || User::getCurrent()->hasRole ('editor'))))
 		{
 			return $this->_sendError (
@@ -776,7 +778,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			);
 		}
 
-		$content = Model_Manager::byKey (
+		$content = Model_Manager::getInstance ()->byKey (
 			$image->table,
 			$image->rowId
 		);
@@ -839,7 +841,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			'content_category_id'
 		);
 
-		$content = Model_Manager::byQuery (
+		$content = Model_Manager::getInstance ()->byQuery (
 			'Content',
 			Query::instance ()
 				->where ('Content_Category__id', $content_category_id)

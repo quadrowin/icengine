@@ -22,7 +22,7 @@ class Authorization_Email_Password extends Authorization_Abstract
 		$password = $data ['password'];
 		$pass_md5 = md5 ($password);
 
-		$user = Model_Manager::byQuery (
+		$user = Model_Manager::getInstance ()->byQuery (
 			'User',
 			Query::instance ()
 			->where ('email', $email)
@@ -106,7 +106,7 @@ class Authorization_Email_Password extends Authorization_Abstract
 			return false;
 		}
 
-		$user = Model_Manager::byQuery (
+		$user = Model_Manager::getInstance ()->byQuery (
 			'User',
 			Query::instance ()
 				->where ('email', $login)
@@ -132,7 +132,7 @@ class Authorization_Email_Password extends Authorization_Abstract
 	 */
 	public function findUser ($data)
 	{
-		return Model_Manager::byQuery (
+		return Model_Manager::getInstance ()->byQuery (
 			'User',
 			Query::instance ()
 				->where ('email', $data ['login'])

@@ -84,7 +84,7 @@ abstract class Bootstrap_Abstract
 			'Registry',
 			'Request',
 			'Executor',
-			'Exception',
+			'Ice\\Exception',
 			'Helper_Action',
 			'Helper_Date',
 			'Helper_Link',
@@ -276,7 +276,7 @@ abstract class Bootstrap_Abstract
 	public function initModelScheme ($name)
 	{
 		Loader::load ('Model_Scheme');
-		Model_Scheme::init (
+		Model_Scheme::getInstance ()->init (
 			Config_Manager::get ('Model_Scheme', $name)
 		);
 	}

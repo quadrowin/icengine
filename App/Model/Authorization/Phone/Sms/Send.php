@@ -51,13 +51,13 @@ class Authorization_Phone_Sms_Send extends Authorization_Abstract
 
 		$prefix = $this->config ()->sms_prefix;
 
-		$activation = Model_Manager::byQuery (
+		$activation = Model_Manager::getInstance ()->byQuery (
 			'Activation',
 			Query::instance ()
-			->where ('code', $prefix . $data ['activation_code'])
-			->where ('id', $data ['activation_id'])
-			->where ('User__id', $user ? $user->id : 0)
-			->where ('finished', false)
+				->where ('code', $prefix . $data ['activation_code'])
+				->where ('id', $data ['activation_id'])
+				->where ('User__id', $user ? $user->id : 0)
+				->where ('finished', false)
 		);
 
 		if (!$activation || $activation->finished)
@@ -120,10 +120,10 @@ class Authorization_Phone_Sms_Send extends Authorization_Abstract
 			return false;
 		}
 
-		$user = Model_Manager::byQuery (
+		$user = Model_Manager::getInstance ()->byQuery (
 			'User',
 			Query::instance ()
-			->where ('phone', $phone)
+				->where ('phone', $phone)
 		);
 
 		return (bool) $user;
@@ -148,7 +148,7 @@ class Authorization_Phone_Sms_Send extends Authorization_Abstract
 	{
 		Loader::load ('Helper_Phone');
 		$phone = Helper_Phone::parseMobile ($data ['login']);
-		return Model_Manager::byQuery (
+		return Model_Manager::getInstance ()->byQuery (
 			'User',
 			Query::instance ()
 			->where ('phone', $phone)
@@ -171,7 +171,7 @@ class Authorization_Phone_Sms_Send extends Authorization_Abstract
 			return 'invalidPhone';
 		}
 
-		$user = Model_Manager::byQuery (
+		$user = Model_Manager::getInstance ()->byQuery (
 			'User',
 			Query::instance ()
 				->where ('phone', $phone)
@@ -200,7 +200,7 @@ class Authorization_Phone_Sms_Send extends Authorization_Abstract
 		 * @desc Провайдер
 		 * @var Mail_Provider_Abstract
 		 */
-		$provider = Model_Manager::byQuery (
+		$provider = Model_Manager::getInstance ()->byQuery (
 			'Mail_Provider',
 			Query::instance ()
 			->where ('name', $config ['sms_provider'])

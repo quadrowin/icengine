@@ -42,7 +42,7 @@ abstract class Controller_Authorization_Abstract extends Controller_Abstract
 			get_class ($this),
 			strlen ('Controller_Authorization_')
 		);
-		return Model_Manager::byQuery (
+		return Model_Manager::getInstance ()->byQuery (
 			'Authorization',
 			Query::instance ()
 			->where ('name', $name)

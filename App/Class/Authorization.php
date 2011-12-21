@@ -24,11 +24,11 @@ class Authorization
 	 */
 	public static function getAuthUser (Data_Transport $input)
 	{
-		$authes = Model_Collection_Manager::byQuery (
+		$authes = Model_Collection_Manager::getInstance ()->byQuery (
 			'Authorization_Type',
 			Query::instance ()
-			->where ('active', 1)
-			->order ('rank')
+				->where ('active', 1)
+				->order ('rank')
 		);
 
 		$error = 'noAuthMethod';
@@ -57,7 +57,7 @@ class Authorization
 	 */
 	public static function findUser ($login, $password)
 	{
-		return Model_Manager::byQuery (
+		return Model_Manager::getInstance ()->byQuery (
 			'User',
 			Query::instance ()
 			->where (self::$config ['login_field'], $login)

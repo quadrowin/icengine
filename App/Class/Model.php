@@ -326,7 +326,7 @@ abstract class Model implements \ArrayAccess
 		}
 		// add self namespace
 		$model = strstr ($this->modelName (), '\\', true) . '\\' . $model;
-		return Model_Manager::get ($model, $key);
+		return Model_Manager::getInstance ()->get ($model, $key);
 	}
 
 	/**
@@ -501,7 +501,7 @@ abstract class Model implements \ArrayAccess
 
 		if ($key)
 		{
-			Model_Manager::remove ($model);
+			Model_Manager::getInstance ()->remove ($model);
 		}
 	}
 
@@ -518,7 +518,7 @@ abstract class Model implements \ArrayAccess
 		$model = is_null ($this->_generic) ? $this : $this->_generic;
 
 		$field = '`' . $model_name . '`.`' . $model->modelName () . '__id`';
-		return Model_Collection_Manager::byQuery (
+		return Model_Collection_Manager::getInstance ()->byQuery (
 			$model_name,
 			Query::instance ()
 				->where ($field, $model->key ())
@@ -634,7 +634,7 @@ abstract class Model implements \ArrayAccess
 	 */
 	public function keyField ()
 	{
-		return Model_Scheme::keyField ($this->modelName ());
+		return Model_Scheme::getInstance ()->getKeyField ($this->modelName ());
 	}
 
 	/**
@@ -737,11 +737,11 @@ abstract class Model implements \ArrayAccess
 			{
 				$this->_generic->set ($this->_fields);
 			}
-			Model_Manager::set ($this->_generic, $hard_insert);
+			Model_Manager::getInstance ()->set ($this->_generic, $hard_insert);
 		}
 		else
 		{
-			Model_Manager::set ($this, $hard_insert);
+			Model_Manager::getInstance ()->set ($this, $hard_insert);
 		}
 
 		return $this;
@@ -849,7 +849,7 @@ abstract class Model implements \ArrayAccess
 		}
 		else
 		{
-			Model_Manager::get (
+			Model_Manager::getInstance ()->get (
 				$this->modelName (),
 				$this->key (),
 				$this
@@ -1038,7 +1038,9 @@ abstract class Model implements \ArrayAccess
 		$pseudos = array ();
 
 		// Список существующий в модели полей
-		$scheme = Model_Scheme::fieldsNames ($this->modelName ());
+		$scheme = Model_Scheme::getInstance ()->fieldsNames (
+			$this->modelName ()
+		);
 
 		foreach ($this->_fields as $name => $value)
 		{

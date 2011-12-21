@@ -74,7 +74,7 @@ class Controller_Chat_Session extends Controller_Abstract
 				->where ('uri', $uri);
 		}
 
-		$join = Model_Manager::byQuery (
+		$join = Model_Manager::getInstance ()->byQuery (
 			'Chat_Session_Join',
 			$query
 		);
@@ -93,7 +93,7 @@ class Controller_Chat_Session extends Controller_Abstract
 
 		Loader::load ('Chat_Companion');
 
-		$companion = Model_Manager::byQuery (
+		$companion = Model_Manager::getInstance ()->byQuery (
 			'Chat_Companion',
 			Query::instance ()
 				->where ('phpSessionId', User_Session::getCurrent ()->phpSessionId)
@@ -125,7 +125,7 @@ class Controller_Chat_Session extends Controller_Abstract
 	public function sessionsList ()
 	{
 		// Все джоины пользователя
-		$join_collection = Model_Collection_Manager::byQuery (
+		$join_collection = Model_Collection_Manager::getInstance ()->byQuery (
 			'Chat_Session_Join',
 			Query::instance ()
 				->where ('phpSessionId', User_Session::getCurrent ()->phpSessionId)
@@ -153,11 +153,12 @@ class Controller_Chat_Session extends Controller_Abstract
 
 		// Получаем коллекцию имен собеседников - на тот случай,
 		// когда джоин собеседника еще не создан
-		$companion_collection = Model_Collection_Manager::byQuery (
-			'Chat_Companion',
-			Query::instance ()
-				->where ('Chat_Session_Join__id', $my_ids)
-		);
+		$companion_collection = Model_Collection_Manager::getInstance ()
+			->byQuery (
+				'Chat_Companion',
+				Query::instance ()
+					->where ('Chat_Session_Join__id', $my_ids)
+			);
 
 		foreach ($join_collection as $i => $join)
 		{
@@ -187,13 +188,14 @@ class Controller_Chat_Session extends Controller_Abstract
 		$other_ids = $other_join_collection->column ('id');
 
 		// Получаем все непрочитанные сообщения собеседников
-		$message_collection = Model_Collection_Manager::byQuery (
-				'Chat_Message',
-				Query::instance ()
-					->where ('Chat_Session_Join__id', $other_ids)
-					->where ('readed', 0)
-					->group ('Chat_Session_Join__id')
-			);
+		$message_collection = Model_Collection_Manager::getInstance ()
+				->byQuery (
+					'Chat_Message',
+					Query::instance ()
+						->where ('Chat_Session_Join__id', $other_ids)
+						->where ('readed', 0)
+						->group ('Chat_Session_Join__id')
+				);
 
 		// Узнаем были ли новые сообщения от конкретного собеседника
 		foreach ($message_collection as $message)

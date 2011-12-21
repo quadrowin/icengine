@@ -297,10 +297,9 @@ class Route extends Model_Child
 		{
 			$i = 0;
 
-			$route_action_collection = Model_Collection_Manager::create (
-				'Route_Action'
-			)
-				->reset ();
+			$route_action_collection = Model_Collection_Manager::getInstance ()
+				->create ('Route_Action')
+					->reset ();
 
 			$actions =
 				is_object ($this->_fields ['actions']) ?
@@ -343,12 +342,13 @@ class Route extends Model_Child
 		}
 		else
 		{
-			$route_action_collection = Model_Collection_Manager::byQuery (
-				'Route_Action',
-				Query::instance ()
-					->where ('Route__id', $this->key ())
-					->order ('sort')
-			);
+			$route_action_collection = Model_Collection_Manager::getInstance ()
+				->byQuery (
+					'Route_Action',
+					Query::instance ()
+						->where ('Route__id', $this->key ())
+						->order ('sort')
+				);
 		}
 
 		return $route_action_collection;

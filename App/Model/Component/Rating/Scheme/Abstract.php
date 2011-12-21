@@ -22,11 +22,11 @@ class Component_Rating_Scheme_Abstract extends Model_Factory_Delegate
 	 */
 	public function vote ($table, $row_id, $value)
 	{
-		$rating = Model_Manager::byQuery (
+		$rating = Model_Manager::getInstance ()->byQuery (
 			'Component_Rating',
 			Query::instance ()
-			->where ('table', $table)
-			->where ('rowId', $row_id)
+				->where ('table', $table)
+				->where ('rowId', $row_id)
 		);
 
 		return $rating->increment ($value);

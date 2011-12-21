@@ -21,7 +21,7 @@ abstract class Model_Child extends Model
 	{
 		echo 1;
 
-		return Model_Collection_Manager::byQuery (
+		return Model_Collection_Manager::getInstance ()->byQuery (
 			$this->modelName (),
 			Query::instance ()
 				->where (
@@ -47,9 +47,10 @@ abstract class Model_Child extends Model
 	 */
 	public function getParent ()
 	{
-		return $this->parentKey () ?
-			Model_Manager::byKey ($this->modelName (), $this->parentKey ()) :
-			null;
+		return $this->parentKey ()
+			? Model_Manager::getInstance ()
+				->byKey ($this->modelName (), $this->parentKey ())
+			: null;
 	}
 
 	/**

@@ -236,7 +236,8 @@ class Controller_Abstract
 			{
 				$model_class = $this->name ();
 			}
-			$model = Model_Manager::get ($model_class, $tc->rowId);
+			$model = Model_Manager::getInstance ()
+				->get ($model_class, $tc->rowId);
 		}
 
 		$parts = Helper_Form::extractParts ($data, $scheme);

@@ -95,7 +95,7 @@ class Controller_Password_Recovery extends Controller_Abstract
 			return $this->_sendError ('error_email_limit');
 		}
 
-		$user = Model_Manager::byQuery (
+		$user = Model_Manager::getInstance ()->byQuery (
 			'User',
 			Query::instance ()
 				->where ('email', $email)
