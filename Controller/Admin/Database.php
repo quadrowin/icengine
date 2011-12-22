@@ -536,34 +536,6 @@ class Controller_Admin_Database extends Controller_Abstract
 			$auto_select = $auto_select->__toArray ();
 		}
 
-		foreach ($fields as $i => $field)
-		{
-			if (!in_array ($field ['Field'], $acl_fields))
-			{
-				unset ($fields [$i]);
-				continue;
-			}
-
-			if (!$row->key () && $field ['Field'] != $row->keyField ())
-			{
-				$row->set ($field ['Field'], $field ['Default']);
-			}
-
-			// Автовыбор
-			if (isset ($auto_select [$field ['Field']]) && !$row->key ())
-			{
-				$value = $auto_select [$field ['Field']];
-
-				if (strpos ($value, '::') !== false)
-				{
-					$value = call_user_func ($value);
-				}
-
-				$row->set ($field ['Field'], $value);
-			}
-
-		}
-
 		$exists_links = Model_Scheme::links ($class_name);
 
 		$link_models = array ();
@@ -603,6 +575,19 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		$fields = $this->_getValues ($row, $class_name, $fields);
 
+		$modificators = array ();
+
+		$tmp = $this->config ()->modificators;
+		if ($tmp)
+		{
+			$tmp = $tmp->$class_name;
+		}
+
+		if ($tmp)
+		{
+			$modificators = $tmp->__toArray ();
+		}
+
 		foreach ($fields as $field)
 		{
 			if (!$row->key () && $field ['Field'] != $row->keyField ())
@@ -620,6 +605,18 @@ class Controller_Admin_Database extends Controller_Abstract
 					$value = call_user_func ($value);
 				}
 
+				$row->set ($field ['Field'], $value);
+			}
+
+			// Модификатор
+			if (isset ($modificators [$class_name][$field ['Field']]))
+			{
+				$tmp = $modificators [$class_name][$field ['Field']];
+				if (strpos ($tmp, '::'))
+				{
+					$tmp = explode ('::', $tmp);
+				}
+				$value = call_user_func ($tmp, $row->sfield ($field ['Field']));
 				$row->set ($field ['Field'], $value);
 			}
 		}
@@ -1018,7 +1015,11 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		$modificators = array ();
 
-		$tmp = $this->config ()->modificators->$class_name;
+		$tmp = $this->config ()->modificators;
+		if ($tmp)
+		{
+			$tmp = $tmp->$class_name;
+		}
 
 		if ($tmp)
 		{
