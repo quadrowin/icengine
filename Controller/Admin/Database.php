@@ -395,7 +395,7 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		$class_name = $this->__className ($table, $prefix);
 
-		$fields = Helper_Data_Source::fields ($table);
+		$fields = Helper_Data_Source::fields ('`' . $table . '`');
 
 		$acl_fields = $this->__aclFields ($table, $fields);
 
@@ -612,7 +612,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			}
 
 			$config_foreign_keys = $this->config ()->foreign_keys->$class_name;
-			$is_foreign_key = in_array($field->Field, $config_foreign_keys->__toArray());
+			$is_foreign_key = $config_foreign_keys && in_array($field->Field, $config_foreign_keys->__toArray());
 			
 			// Поле - поле для связи
 			if (strpos ($field->Field, '__id') !== false || $is_foreign_key)
@@ -1015,6 +1015,13 @@ class Controller_Admin_Database extends Controller_Abstract
 
 				foreach ($includes as $field => $model)
 				{
+					if (is_object($model))
+					{
+						$field_options = $model;
+						$model = $model->model;
+					} else
+						$field_options = null;
+					
 					$ffield = Model_Scheme::keyField ($model);
 
 					if (strpos ($model, '/') !== false)
@@ -1032,6 +1039,9 @@ class Controller_Admin_Database extends Controller_Abstract
 					{
 						$old [$field] = $item->$field;
 						$item->$field = $model->title ();
+					} else if ($field_options && $field_options->null_title) {
+						$old [$field] = $item->$field;
+						$item->$field = $field_options->null_title;
 					}
 				}
 
@@ -1097,7 +1107,7 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		$class_name = $this->__className ($table, $prefix);
 
-		$fields = Helper_Data_Source::fields ($table);
+		$fields = Helper_Data_Source::fields ('`'. $table. '`');
 
 		$acl_fields = $this->__aclFields ($table, $fields);
 

@@ -64,8 +64,9 @@ class Page_Title extends Model_Child
 	 */
 	public static function byAddress ($host, $page)
 	{
+		$city_id = City::getCityIdByHost($host);
 		$query = Query::instance ()
-			->where ('(? RLIKE `host` OR `host`="")', $host)
+			->where ('City__id', array(0,$city_id))
 			->where ('? RLIKE `pattern`', $page)
 			->order (array (
 				'rate'		=> Query::DESC,
