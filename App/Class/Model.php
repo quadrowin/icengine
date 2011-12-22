@@ -326,7 +326,7 @@ abstract class Model implements \ArrayAccess
 		}
 		// add self namespace
 		$model = strstr ($this->modelName (), '\\', true) . '\\' . $model;
-		return Model_Manager::getInstance ()->get ($model, $key);
+		return $this->getModelManager ()->get ($model, $key);
 	}
 
 	/**
@@ -352,6 +352,33 @@ abstract class Model implements \ArrayAccess
 			$this->_addicts,
 			$this->_generic->getFields ()
 		);
+	}
+
+	/**
+	 * @desc Возвращает коллекцию связанных компонентов или
+	 * элемент коллекции с указанным индексом.
+	 * @param string $type Тип компонентов.
+	 * для получения или коллекция для установки значения.
+	 * @return Model_Collection Коллекция связанных компонентов.
+	 */
+	public function asset ($type)
+	{
+		if ($this->_generic)
+		{
+			return call_user_func_array (
+				array ($this->_generic, __METHOD__),
+				func_get_args ()
+			);
+		}
+
+		$this->_assets [$type] = $this->getModelCollectionManager ()
+			->create ($type)
+			->addOptions (array (
+				'name' => 'Owner',
+				'is' => $this
+			));
+
+		return $this->_assets [$type];
 	}
 
 	/**
@@ -395,51 +422,6 @@ abstract class Model implements \ArrayAccess
 	public function className ()
 	{
 		return get_class ($this);
-	}
-
-	/**
-	 * @desc Возвращает коллекцию связанных компонентов или
-	 * элемент коллекции с указанным индексом.
-	 * @param string $type Тип компонентов.
-	 * @param integer|null|stdClass $index|$value [optional] Индекс
-	 * для получения или коллекция для установки значения.
-	 * @return Component_Collection Коллекция связанных компонентов.
-	 */
-	public function component ($type)
-	{
-		if ($this->_generic)
-		{
-			return call_user_func_array (
-				array ($this->_generic, __METHOD__),
-				func_get_args ()
-			);
-		}
-
-		$index = null;
-
-		if (func_num_args () > 1)
-		{
-			$arg1 = func_get_arg (1);
-			if (is_null ($arg1) || ($arg1 instanceof stdClass))
-			{
-				$this->_components [$type] = $arg1;
-				return ;
-			}
-
-			if (is_int ($arg1))
-			{
-				$index = $arg1;
-			}
-		}
-
-		if (!isset ($this->_components [$type]))
-		{
-			$this->_components [$type] = Component::getFor ($this, $type);
-		}
-
-		return is_null ($index) ?
-			$this->_components [$type] :
-			$this->_components [$type]->item ($index);
 	}
 
 	/**
@@ -501,7 +483,7 @@ abstract class Model implements \ArrayAccess
 
 		if ($key)
 		{
-			Model_Manager::getInstance ()->remove ($model);
+			$this->getModelManager ()->remove ($model);
 		}
 	}
 
@@ -518,7 +500,7 @@ abstract class Model implements \ArrayAccess
 		$model = is_null ($this->_generic) ? $this : $this->_generic;
 
 		$field = '`' . $model_name . '`.`' . $model->modelName () . '__id`';
-		return Model_Collection_Manager::getInstance ()->byQuery (
+		return $this->getModelCollectionManager ()->byQuery (
 			$model_name,
 			Query::instance ()
 				->where ($field, $model->key ())
@@ -561,7 +543,25 @@ abstract class Model implements \ArrayAccess
 	 */
 	public function getAttribute ($key)
 	{
-		return Attribute_Manager::get ($this, $key);
+		return $this->getAttributeManager ()->get ($this, $key);
+	}
+
+	/**
+	 * @desc Менеджер аттрибутов
+	 * @return Attribute_Manager
+	 */
+	public function getAttributeManager ()
+	{
+		return Core::di ()->getInstance ('Attribute_Manager', $this);
+	}
+
+	/**
+	 * @desc Менеджер конфигов
+	 * @return Config_Manager
+	 */
+	public function getConfigManager ()
+	{
+		return Core::di ()->getInstance ('Config_Manager', $this);
 	}
 
 	/**
@@ -571,6 +571,33 @@ abstract class Model implements \ArrayAccess
 	public function getFields ()
 	{
 		return $this->_fields;
+	}
+
+	/**
+	 * @desc Вовзращает менеджера коллекций
+	 * @return Model_Collection_Manager
+	 */
+	public function getModelCollectionManager ()
+	{
+		return Core::di ()->getInstance ('Model_Collection_Manager', $this);
+	}
+
+	/**
+	 * @desc Возвращает менеджер моделей
+	 * @return Model_Manager
+	 */
+	public function getModelManager ()
+	{
+		return Core::di ()->getInstance ('Model_Manager', $this);
+	}
+
+	/**
+	 * @desc Возвращет схему моделей
+	 * @return Model_Scheme
+	 */
+	public function getModelScheme ()
+	{
+		return Core::di ()->getInstance ('Model_Scheme', $this);
 	}
 
 	/**
@@ -634,7 +661,7 @@ abstract class Model implements \ArrayAccess
 	 */
 	public function keyField ()
 	{
-		return Model_Scheme::getInstance ()->getKeyField ($this->modelName ());
+		return $this->getModelScheme ()->getKeyField ($this->modelName ());
 	}
 
 	/**
@@ -737,11 +764,11 @@ abstract class Model implements \ArrayAccess
 			{
 				$this->_generic->set ($this->_fields);
 			}
-			Model_Manager::getInstance ()->set ($this->_generic, $hard_insert);
+			$this->getModelManager ()->set ($this->_generic, $hard_insert);
 		}
 		else
 		{
-			Model_Manager::getInstance ()->set ($this, $hard_insert);
+			$this->getModelManager ()->set ($this, $hard_insert);
 		}
 
 		return $this;
@@ -784,7 +811,7 @@ abstract class Model implements \ArrayAccess
 	 */
 	public function setAttribute ($key, $value = null)
 	{
-		Attribute_Manager::set ($this, $key, $value);
+		$this->getAttributeManager ()->set ($this, $key, $value);
 	}
 
 	/**
@@ -849,7 +876,7 @@ abstract class Model implements \ArrayAccess
 		}
 		else
 		{
-			Model_Manager::getInstance ()->get (
+			$this->getModelManager ()->get (
 				$this->modelName (),
 				$this->key (),
 				$this
@@ -1038,9 +1065,7 @@ abstract class Model implements \ArrayAccess
 		$pseudos = array ();
 
 		// Список существующий в модели полей
-		$scheme = Model_Scheme::getInstance ()->fieldsNames (
-			$this->modelName ()
-		);
+		$scheme = $this->getModelScheme ()->fieldsNames ($this->modelName ());
 
 		foreach ($this->_fields as $name => $value)
 		{

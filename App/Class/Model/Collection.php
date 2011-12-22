@@ -169,7 +169,7 @@ class Model_Collection implements \ArrayAccess, \IteratorAggregate, \Countable
 			if (isset ($item [$key_field]))
 			{
 				// Ести ключевое поле
-				$item = Model_Manager::getInstance ()->get (
+				$item = $this->getModelManager ()->get (
 					$this->modelName (),
 					$item [$key_field],
 					$item
@@ -445,13 +445,13 @@ class Model_Collection implements \ArrayAccess, \IteratorAggregate, \Countable
 		$array_collection = $collection->column ($kf_collection);
 		$diff = array_diff ($array_this, $array_collection);
 
-		$result = Model_Collection_Manager::getInstance ()
+		$result = $this->getModelCollectionManager ()
 			->create ($model_name)
 			->reset ();
 
 		for ($i = 0, $icount = sizeof ($diff); $i < $icount; $i++)
 		{
-			$result->add (Model_Manager::getInstance ()->byKey (
+			$result->add ($this->getModelManager ()->byKey (
 				$model_name,
 				$diff [$i]
 			));
@@ -601,7 +601,7 @@ class Model_Collection implements \ArrayAccess, \IteratorAggregate, \Countable
 		foreach ($rows as $row)
 		{
 			$key = isset ($row ['id']) ? $row ['id'] : $row [$kf];
-			$this->_items [] = Model_Manager::getInstance ()
+			$this->_items [] = $this->getModelManager ()
 				->get ($model, $key, $row);
 		}
 		return $this;
@@ -629,16 +629,6 @@ class Model_Collection implements \ArrayAccess, \IteratorAggregate, \Countable
 	}
 
 	/**
-	 *
-	 * @desc Получить коллекцию опшинов
-	 * @return Model_Collection_Option_Collection
-	 */
-	public function getOptions ()
-	{
-		return $this->_options;
-	}
-
-	/**
 	 * @see items
 	 */
 	public function getItems ()
@@ -654,6 +644,34 @@ class Model_Collection implements \ArrayAccess, \IteratorAggregate, \Countable
 	{
 		$this->items ();
 		return new \ArrayIterator ($this->_items);
+	}
+
+	/**
+	 * @desc Менеджер коллекций
+	 * @return Model_Collection_Manager
+	 */
+	public function getModelCollectionManager ()
+	{
+		return Core::di ()->getInstance ('Model_Collection_Manager', $this);
+	}
+
+	/**
+	 * @desc Менеджер моделей
+	 * @return Model_Manager
+	 */
+	public function getModelManager ()
+	{
+		return Core::di ()->getInstance ('Model_Manager', $this);
+	}
+
+	/**
+	 *
+	 * @desc Получить коллекцию опшинов
+	 * @return Model_Collection_Option_Collection
+	 */
+	public function getOptions ()
+	{
+		return $this->_options;
 	}
 
 	/**
@@ -904,7 +922,7 @@ class Model_Collection implements \ArrayAccess, \IteratorAggregate, \Countable
 		$this->_options->executeBefore ($query);
 		$this->_lastQuery = $query;
 
-		Model_Collection_Manager::getInstance ()->load ($this, $query);
+		$this->getModelCollectionManager ()->load ($this, $query);
 		$this->_options->executeAfter ($query);
 
 		if ($this->_paginator)
@@ -1303,10 +1321,7 @@ class Model_Collection implements \ArrayAccess, \IteratorAggregate, \Countable
 
 		foreach ($keys as $key)
 		{
-			$model = Model_Manager::getInstance ()->byKey (
-				$model_name,
-				$key
-			);
+			$model = $this->getModelManager ()->byKey ($model_name, $key);
 			if ($model)
 			{
 				$collection->add ($model);
