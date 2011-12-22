@@ -609,9 +609,9 @@ class Controller_Admin_Database extends Controller_Abstract
 			}
 
 			// Модификатор
-			if (isset ($modificators [$class_name][$field ['Field']]))
+			if (isset ($modificators [$field ['Field']]))
 			{
-				$tmp = $modificators [$class_name][$field ['Field']];
+				$tmp = $modificators [$field ['Field']];
 				if (strpos ($tmp, '::'))
 				{
 					$tmp = explode ('::', $tmp);
