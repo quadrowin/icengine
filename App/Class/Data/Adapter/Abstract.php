@@ -7,7 +7,7 @@ namespace Ice;
  * @desc Абстрактный адаптер данных. Служит для выполнения запросов
  * @author Илья Колесников
  * @package Ice
- * 
+ *
  */
 class Data_Adapter_Abstract
 {
@@ -280,6 +280,15 @@ class Data_Adapter_Abstract
 	public function getTranslatorName ()
 	{
 		return $this->_translatorName;
+	}
+
+	/**
+	 * @desc 
+	 * @param resource $connection
+	 */
+	public function setConnection ($connection)
+	{
+		$this->_connection = $connection;
 	}
 
 	/**

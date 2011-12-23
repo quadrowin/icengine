@@ -5,9 +5,7 @@ namespace Ice;
 /**
  *
  * @desc Менеджер источников данных.
- * По переданному названию загружает конфиг из директории
- * "{$config}/Data/Source/" и создает соответсвующего провайдера.
- * @author Юрий
+ * @author Yury Shvedov
  * @package Ice
  *
  */
@@ -16,27 +14,15 @@ class Data_Source_Manager
 
 	/**
 	 * @desc Загруженные источники.
-	 * @var array <Data_Source>
+	 * @var array of Data_Source
 	 */
-	protected static $_sources = array ();
+	protected $_sources = array ();
 
 	/**
 	 * @desc Конфиг
 	 * @var array
 	 */
-	public static $config = array (
-		/**
-		 * @desc Название источника, вместо которого будет браться название домена.
-		 * Название домена берется из $SERVER ['HTTP_HOST'].
-		 * @var string
-		 */
-		'source_domain_alias'	=> 'domain',
-		/**
-		 * @desc Название источника, который будет использован вместо
-		 * имени домена, когда невозможно получить $SERVER ['HTTP_HOST'].
-		 * @var string
-		 */
-		'empty_domain_source'	=> 'default',
+	protected $_config = array (
 		/**
 		 * @desc Массив источников
 		 * @var array
@@ -54,13 +40,13 @@ class Data_Source_Manager
 	 * @desc Загружает и возвращает конфиг
 	 * @return Objective
 	 */
-	public static function config ()
+	public function config ()
 	{
-		if (is_array (self::$config))
+		if (is_array ($this->_config))
 		{
-			self::$config = Config_Manager::get (__CLASS__, self::$config);
+			$this->_config = Config_Manager::get (__CLASS__, $this->_config);
 		}
-		return self::$config;
+		return $this->_config;
 	}
 
 	/**
@@ -68,19 +54,11 @@ class Data_Source_Manager
 	 * @param string $name
 	 * @return Data_Source
 	 */
-	public static function get ($name)
+	public function get ($name)
 	{
-		$config = self::config ();
+		$config = $this->config ();
 
-		if ($config ['source_domain_alias'] == $name)
-		{
-			$name =
-				isset ($_SERVER ['HTTP_HOST'])
-					? $_SERVER ['HTTP_HOST']
-					: $config ['empty_domain_source'];
-		}
-
-		if (!isset (self::$_sources [$name]))
+		if (!isset ($this->_sources [$name]))
 		{
 			$source_config = $config ['sources'][$name];
 
@@ -90,31 +68,31 @@ class Data_Source_Manager
 				{
 					if (fnmatch ($key, $name))
 					{
-						return self::$_sources [$name] = self::get ($key);
+						return $this->_sources [$name] = $this->get ($key);
 					}
 				}
 			}
 
 			if (is_string ($source_config))
 			{
-				return self::$_sources [$name] = self::get ($source_config);
+				return $this->_sources [$name] = $this->get ($source_config);
 			}
 
 			Loader::load ('Data_Source');
-			self::$_sources [$name] = new Data_Source ();
+			$this->_sources [$name] = new Data_Source ();
 
 			// Адаптер источника отличается от указанного в конфигах
 			$adapter_class = 'Data_Adapter_' . $source_config ['adapter'];
 			Loader::load ($adapter_class);
 			$adapter_class = __NAMESPACE__ . '\\' . $adapter_class;
 			$adapter = new $adapter_class;
-			self::$_sources [$name]->setAdapter ($adapter);
+			$this->_sources [$name]->setAdapter ($adapter);
 
 			if ($source_config ['adapter_options'])
 			{
 				foreach ($source_config ['adapter_options'] as $key => $value)
 				{
-					self::$_sources [$name]->getAdapter ()
+					$this->_sources [$name]->getAdapter ()
 						->setOption ($key, $value);
 				}
 			}
@@ -126,11 +104,21 @@ class Data_Source_Manager
 				? $source_config ['mapper']
 				: 'Simple'
 			);
-			self::$_sources [$name]->setDataMapper ($mapper);
+			$this->_sources [$name]->setDataMapper ($mapper);
 
 		}
 
-		return self::$_sources [$name];
+		return $this->_sources [$name];
+	}
+
+	/**
+	 * @desc
+	 * @param string|object $context Запрашивающий класс или объект
+	 * @return Data_Source_Manager
+	 */
+	public static function getInstance ($context = null)
+	{
+		return Core::di ()->getInstance (__CLASS__, $context);
 	}
 
 	/**
@@ -138,17 +126,9 @@ class Data_Source_Manager
 	 * @param string $name Название источника.
 	 * @return Objective|null Конфиг.
 	 */
-	public static function sourceConfig ($name)
+	public function getSourceConfig ($name)
 	{
-		$config = self::config ();
-
-		if ($config ['source_domain_alias'] == $name)
-		{
-			$name =
-				isset ($_SERVER ['HTTP_HOST']) ?
-					$_SERVER ['HTTP_HOST'] :
-					$config ['empty_domain_source'];
-		}
+		$config = $this->config ();
 
 		$src_cfg = $config ['sources'][$name];
 
@@ -158,14 +138,26 @@ class Data_Source_Manager
 			{
 				if (fnmatch ($key, $name))
 				{
-					return self::sourceConfig ($key);
+					return $this->getSourceConfig ($key);
 				}
 			}
 		}
 
 		return is_string ($src_cfg)
-			? self::sourceConfig ($src_cfg)
+			? $this->getSourceConfig ($src_cfg)
 			: $src_cfg;
+	}
+
+	/**
+	 * @desc
+	 * @param string $name
+	 * @param Data_Source $source
+	 * @return $this
+	 */
+	public function set ($name, Data_Source $source)
+	{
+		$this->_sources [$name] = $source;
+		return $this;
 	}
 
 }

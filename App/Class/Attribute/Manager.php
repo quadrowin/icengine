@@ -57,7 +57,8 @@ class Attribute_Manager extends Manager_Abstract
 
 		if ($config ['source'])
 		{
-			self::$_source = Data_Source_Manager::get ($config ['source']);
+			self::$_source = Data_Source_Manager::getInstance (__CLASS__)
+				->get ($config ['source']);
 		}
 		else
 		{

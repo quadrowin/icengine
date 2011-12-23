@@ -7,9 +7,10 @@ $_SERVER ['PHPUNIT'] = 1;
 require __DIR__ . '/../Core.php';
 \Ice\Core::init (
 	__DIR__ . '/../../',
-	\Ice\Core::path () . 'App/Model/Bootstrap/UnitTest.php'
+	'Ice\\Bootstrap_UnitTest',
+	__DIR__ . '/../App/Model/Bootstrap/UnitTest.php'
 );
-Loader::load ('Loader_Auto');
-Loader_Auto::register ();
+\Ice\Loader::load ('Loader_Auto');
+\Ice\Loader_Auto::register ();
 
-Loader::addPath ('includes', \Ice\Core::root () . 'includes/');
+//\Ice\Loader::addPath ('Vendor', \Ice\Core::root () . 'includes/');

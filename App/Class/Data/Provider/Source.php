@@ -18,6 +18,10 @@ class Data_Provider_Source extends Data_Provider_Abstract
 	 */
 	protected $_source;
 
+	/**
+	 * @desc Config
+	 * @var array|Objective
+	 */
 	protected $_config = array (
 		/**
 		 *
@@ -63,9 +67,9 @@ class Data_Provider_Source extends Data_Provider_Abstract
 		elseif ($key == 'source')
 		{
 			$this->_source =
-				is_object ($value) ?
-				$value :
-				Data_Source_Manager::get ($value);
+				is_object ($value)
+				? $value
+				: $this->getDataSourceManager ()->get ($value);
 		}
 		else
 		{

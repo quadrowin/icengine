@@ -295,7 +295,7 @@ class Model_Scheme
 		if (isset ($this->models [$model], $this->models [$model]['source']))
 		{
 			$name = $this->models [$model]['source'];
-			return Data_Source_Manager::get ($name);
+			return $this->getDataSourceManager ()->get ($name);
 		}
 
 		$p = strrpos ($model, '\\');
@@ -310,11 +310,20 @@ class Model_Scheme
 			)
 			{
 				$name = $this->namespaces [$ns]['source'];
-				return Data_Source_Manager::get ($name);
+				return $this->getDataSourceManager ()->get ($name);
 			}
 		}
 
 		return DDS::getDataSource ();
+	}
+
+	/**
+	 * @desc
+	 * @return Data_Source_Manager
+	 */
+	public function getDataSourceManager ()
+	{
+		return Data_Source_Manager::getInstance ($this);
 	}
 
 	/**
@@ -401,6 +410,17 @@ class Model_Scheme
 	    return empty ($this->models [$model1]['links'][$model2])
 			? $this->defaultLinkScheme
 			: $this->models [$model1]['links'][$model2];
+	}
+
+	/**
+	 * @desc Установка источника данных для модели
+	 * @param string $model Модель
+	 * @param string $source Источник
+	 */
+	public function setDataSource ($model, $source)
+	{
+		$model = strtolower ($model);
+		$this->models [$model]['source'] = $source;
 	}
 
 	/**

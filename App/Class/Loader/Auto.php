@@ -1,8 +1,11 @@
 <?php
+
+namespace Ice;
+
 /**
  *
  * @desc Класс для автоматического подключения классов движка.
- * @author Юрий Шведов
+ * @author Yury Shvedov
  * @package Ice
  *
  */
@@ -14,7 +17,7 @@ class Loader_Auto
 	 */
 	public static function register ()
 	{
-		spl_autoload_register ('Loader::load');
+		spl_autoload_register ('Ice\\Loader::load');
 	}
 
 	/**
@@ -22,7 +25,7 @@ class Loader_Auto
 	 */
 	public static function unregister ()
 	{
-		spl_autoload_unregister ('Loader::load');
+		spl_autoload_unregister ('Ice\\Loader::load');
 	}
 
 }

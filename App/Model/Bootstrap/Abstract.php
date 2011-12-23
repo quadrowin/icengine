@@ -235,7 +235,9 @@ abstract class Bootstrap_Abstract
 			'Data_Source_Manager'
 		);
 
-		DDS::setDataSource (Data_Source_Manager::get ($source_name));
+		DDS::setDataSource (
+			Data_Source_Manager::getInstance ()->get ($source_name)
+		);
 	}
 
 	/**
