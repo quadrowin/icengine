@@ -30,7 +30,7 @@ class Helper_Oracle
 			$query->where ($what, $how);
 		}
 
-		return Data_Source_Manager::get ('Future')
+		return Data_Source_Manager::getInstance (__CLASS__)->get ('Future')
 			->execute (
 				$query
 			)->getResult ();

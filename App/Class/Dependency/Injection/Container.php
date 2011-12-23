@@ -13,10 +13,16 @@ class Dependency_Injection_Container
 {
 
 	/**
-	 * @desc Экземпляры для классов
+	 * @desc Экземпляры для объектов и классов
 	 * @var array of array of object
 	 */
-	protected $_instances = array ();
+	protected $_specifiedInstances = array ();
+
+	/**
+	 * @desc Экземпляры без контекста
+	 * @var array of array of object
+	 */
+	protected $_publicInstances = array ();
 
 	/**
 	 * @desc Алиасы классов
@@ -47,36 +53,16 @@ class Dependency_Injection_Container
 	}
 
 	/**
-	 * @desc Идентификатор экземпляра класса по умолчанию
-	 * @param string $class
-	 * @return string
-	 */
-	protected function _getPublicMark ($class)
-	{
-		return 'P' . $class;
-	}
-
-	/**
 	 * @desc Удаление последнего экземпляра из стека
 	 * @param string $mark
 	 */
-	protected function _popInstance ($mark)
+	protected function _popSpecifiedInstance ($mark)
 	{
-		array_pop ($this->_instances [$mark]);
-		if (!$this->_instances [$mark])
+		array_pop ($this->_specifiedInstances [$mark]);
+		if (!$this->_specifiedInstances [$mark])
 		{
-			unset ($this->_instances [$mark]);
+			unset ($this->_specifiedInstances [$mark]);
 		}
-	}
-
-	/**
-	 * @desc Помещение в стек экземпляра
-	 * @param string $mark
-	 * @param object $instance
-	 */
-	protected function _pushInstance ($mark, $instance)
-	{
-		$this->_instances [$mark][] = $instance;
 	}
 
 	/**
@@ -89,14 +75,12 @@ class Dependency_Injection_Container
 	{
 		$mark = $this->_getClassMark ($class, $context);
 
-		if (!isset ($this->_instances [$mark]))
+		if (!isset ($this->_specifiedInstances [$mark]))
 		{
-			$instance = $this->getPublicInstance ($class);
-			$this->_pushInstance ($mark, $instance);
-			return $instance;
+			return $this->getPublicInstance ($class);
 		}
 
-		return end ($this->_instances [$mark]);
+		return end ($this->_specifiedInstances [$mark]);
 	}
 
 	/**
@@ -128,14 +112,12 @@ class Dependency_Injection_Container
 	{
 		$mark = $this->_getObjectMark ($class, $context);
 
-		if (!isset ($this->_instances [$mark]))
+		if (!isset ($this->_specifiedInstances [$mark]))
 		{
-			$instance = $this->getClassInstance ($class, get_class ($context));
-			$this->_pushInstance ($mark, $instance);
-			return $instance;
+			return $this->getClassInstance ($class, get_class ($context));
 		}
 
-		return end ($this->_instances [$mark]);
+		return end ($this->_specifiedInstances [$mark]);
 	}
 
 	/**
@@ -145,31 +127,30 @@ class Dependency_Injection_Container
 	 */
 	public function getPublicInstance ($class)
 	{
-		$mark = $this->_getPublicMark ($class);
-
-		if (!isset ($this->_instances [$mark]))
+		if (!isset ($this->_publicInstances [$class]))
 		{
 			$instance = $this->getNewInstance ($class);
-			$this->_pushInstance ($mark, $instance);
+			$this->_publicInstances [$class][] = $instance;
 			return $instance;
 		}
 
-		return end ($this->_instances [$mark]);
+		return end ($this->_publicInstances [$class]);
 	}
 
 	/**
 	 * @desc Создает и возвращает новый экземпляр класса
-	 * @param string $class
+	 * @param string $class Название класса
+	 * @param array $args Параметры конструктора
 	 * @param string|object $context Класс или объект, запрашивающий экземпляр
 	 * @return object
 	 */
-	public function getNewInstance ($class, $context = null)
+	public function getNewInstance ($class, array $args = array (),
+		$context = null
+	)
 	{
 		$class = self::getRealClass ($class);
 		$class = Loader::load ($class);
 		$reflection = new \ReflectionClass ($class);
-		$args = func_get_args ();
-		array_shift ($args);
 		return $reflection->newInstanceArgs ($args);
 	}
 
@@ -198,7 +179,7 @@ class Dependency_Injection_Container
 	public function pushClassInstance ($class, $object, $context)
 	{
 		$mark = $this->_getClassMark ($class, $context);
-		$this->_pushInstance ($mark, $object);
+		$this->_specifiedInstances [$mark][] = $object;
 		return $this;
 	}
 
@@ -230,7 +211,7 @@ class Dependency_Injection_Container
 	public function pushObjectInstance ($class, $object, $context)
 	{
 		$mark = $this->_getObjectMark ($class, $context);
-		$this->_pushInstance ($mark, $object);
+		$this->_specifiedInstances [$mark][] = $object;
 		return $this;
 	}
 
@@ -242,8 +223,7 @@ class Dependency_Injection_Container
 	 */
 	public function pushPublicInstance ($class, $object)
 	{
-		$mark = $this->_getPublicMark ($class);
-		$this->_pushInstance ($mark, $object);
+		$this->_publicInstances [$class][] = $object;
 		return $this;
 	}
 
@@ -256,7 +236,7 @@ class Dependency_Injection_Container
 	public function popClassInstance ($class, $context)
 	{
 		$mark = $this->_getClassMark ($class, $context);
-		$this->_popInstance ($mark);
+		$this->_popSpecifiedInstance ($mark);
 		return $this;
 	}
 
@@ -271,11 +251,39 @@ class Dependency_Injection_Container
 		if ($context)
 		{
 			return is_object ($context)
-				? $this->popObjectInstance ($class, $object, $context)
-				: $this->popClassInstance ($class, $object, $context);
+				? $this->popObjectInstance ($class, $context)
+				: $this->popClassInstance ($class, $context);
 		}
 
 		return $this->popPublicInstance ($class);
+	}
+
+	/**
+	 * @desc
+	 * @param string $class
+	 * @param object $context
+	 * @return $this
+	 */
+	public function popObjectInstance ($class, $context)
+	{
+		$mark = $this->_getObjectMark ($class, $context);
+		$this->_popSpecifiedInstance ($mark);
+		return $this;
+	}
+
+	/**
+	 * @desc
+	 * @param string $class
+	 * @return $this
+	 */
+	public function popPublicInstance ($class)
+	{
+		array_pop ($this->_publicInstances [$class]);
+		if (!$this->_publicInstances [$class])
+		{
+			unset ($this->_publicInstances [$class]);
+		}
+		return $this;
 	}
 
 	/**

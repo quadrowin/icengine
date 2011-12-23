@@ -33,15 +33,15 @@ class Mock
 	 * @desc Название класса, который будет замещаться
 	 * @var string
 	 */
-	protected $_className;
+	protected $_class;
 
 	/**
-	 * (non-PHPDoc)
-	 * @param string $class_name
+	 * @desc Создает и возвращает экземпляр
+	 * @param string $class Название замещаемого класса
 	 */
-	public function __construct ($class_name)
+	public function __construct ($class = null)
 	{
-		$this->_className = $class_name;
+		$this->_className = $class;
 	}
 
 	/**
@@ -51,7 +51,7 @@ class Mock
 	 */
 	public function __get ($key)
 	{
-		return $this->fields [$key];
+		return $this->_fields [$key];
 	}
 
 	/**
@@ -61,15 +61,7 @@ class Mock
 	 */
 	public function __set ($key, $value)
 	{
-		$this->fields [$key] = $value;
-	}
-
-	/**
-	 * (non-PHPDoc)
-	 */
-	private function __clone ()
-	{
-
+		$this->_fields [$key] = $value;
 	}
 
 	/**
@@ -82,7 +74,7 @@ class Mock
 	{
 		if (array_key_exists ($method, $this->_methodsReturn))
 		{
-			return $this->_methodsReturn;
+			return $this->_methodsReturn [$method];
 		}
 
 		if (isset ($this->_methodsCallback [$method]))
@@ -96,37 +88,37 @@ class Mock
 
 	/**
 	 * @desc Установка значения поля
-	 * @param string $field_name
-	 * @param mixed $value
+	 * @param string $field Название поля
+	 * @param mixed $value Значение
 	 * @return $this
 	 */
-	public function registerField ($field_name, $value)
+	public function registerField ($field, $value)
 	{
-		$this->fields [$field_name] = $value;
+		$this->_fields [$field] = $value;
 		return $this;
 	}
 
 	/**
 	 * @desc Регистрирует метод для заменителя
-	 * @param string $method_name Название метода
+	 * @param string $method Название метода
 	 * @param callback $method Колбэк
 	 * @return $this
 	 */
-	public function registerMethodCallback ($method_name, $callback)
+	public function registerMethodCallback ($method, $callback)
 	{
-		$this->_methodsCallback [$method_name] = $method;
+		$this->_methodsCallback [$method] = $callback;
 		return $this;
 	}
 
 	/**
 	 * @desc Метод всегда будет возвращать одно значение
-	 * @param string $method_name Название метода
+	 * @param string $method Название метода
 	 * @param mixed $return Результат
 	 * @return $this
 	 */
-	public function registerMethodReturn ($method_name, $return)
+	public function registerMethodReturn ($method, $return)
 	{
-		$this->_methodsReturn [$method_name] = $return;
+		$this->_methodsReturn [$method] = $return;
 		return $this;
 	}
 

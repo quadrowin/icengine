@@ -5,21 +5,12 @@ namespace Ice;
 /**
  *
  * @desc
- * @author Юрий Шведов
+ * @author Yury Shvedov
  * @package Ice
  *
  */
 class Bootstrap_UnitTest extends Bootstrap_Abstract
 {
-
-	/**
-	 * @desc
-	 * @param string $path
-	 */
-	public function __construct ()
-	{
-		parent::__construct (__FILE__);
-	}
 
 	/**
 	 * @desc Запускает загрузчик.
@@ -65,8 +56,6 @@ class Bootstrap_UnitTest extends Bootstrap_Abstract
 		);
 
 		$this->initAttributeManager ();
-
-		$this->initModelScheme ('Vipgeo');
 
 		$this->initModelManager ();
 
