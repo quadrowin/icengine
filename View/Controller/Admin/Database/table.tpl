@@ -12,21 +12,21 @@
 
 	{if $collection}
 
-	{if $search_fields}
+	{if $search_fields && count($search_fields)>0}
 	<form method="get" action="/cp/table/{$table}/">
-		<div style="height:250px; overflow:auto">
+		<div style="max-height:250px; overflow:auto">
 			<table cellpadding="5">
 				{foreach from=$search_fields item="sf"}
 					{assign var="sff" value=$sf->Field}
 					<tr>
-						<td valign="top" width="150" style="padding-bottom:15px">
+						<td valign="top" width="150" style="padding-bottom:5px">
 							{if !empty($sf->Comment)}
 								{$sf->Comment}
 							{else}
 								{$sf->Field}
 							{/if}
 						</td>
-						<td valign="top" style="padding-bottom:15px">
+						<td valign="top" style="padding-bottom:5px">
 							{if !empty($sf->Values)}
 								<select name="search[{$sf->Field}]" style="width:250px">
 									<option value="0">Не выбрано</option>
