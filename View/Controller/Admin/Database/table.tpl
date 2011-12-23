@@ -12,7 +12,7 @@
 
 	{if $collection}
 
-	{if $search_fields}
+	{if $search_fields && count($search_fields)>0}
 	<form method="get" action="/cp/table/{$table}/">
 		<div style="max-height:250px; overflow:auto">
 			<table cellpadding="5">
