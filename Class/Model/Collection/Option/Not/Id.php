@@ -22,7 +22,7 @@ class Model_Collection_Option_Not_Id extends Model_Collection_Option_Abstract
 		{
 			$query->where (
 				$collection->modelName () . '.id NOT IN (?)',
-				$params ['ids']
+				array($params ['ids'])
 			);
 		}
 		if (isset ($params ['id']) && $params ['id'])
