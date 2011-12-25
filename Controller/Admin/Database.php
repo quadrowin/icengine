@@ -28,13 +28,9 @@ class Controller_Admin_Database extends Controller_Abstract
 	private function __aclFields ($table, $fields, $type = null)
 	{
 		$acl_fields = $this->__fields ($table, $type);
-
 		Loader::load ('Helper_Array');
-
 		$tmp_fields = Helper_Array::column ($fields->__toArray (), 'Field');
-
 		$acl_fields = array_intersect ($acl_fields, $tmp_fields);
-
 		return $acl_fields;
 	}
 
@@ -47,11 +43,8 @@ class Controller_Admin_Database extends Controller_Abstract
 	private function __aclTables ($tables)
 	{
 		$acl_tables = $this->__tables ();
-
 		Loader::load ('Helper_Array');
-
 		$table_names = Helper_Array::column ($tables, 'Name');
-
 		return array_intersect ($table_names, $acl_tables);
 	}
 
@@ -64,7 +57,6 @@ class Controller_Admin_Database extends Controller_Abstract
 	private function __className ($table, $prefix)
 	{
 		$class_name = Model_Scheme::tableToModel ($table);
-
 		$prefix = ucfirst ($prefix);
 
 		if (strpos ($class_name, $prefix) === 0)
@@ -91,11 +83,8 @@ class Controller_Admin_Database extends Controller_Abstract
 	private function __fields ($table, $type = null)
 	{
 		$resources = $this->__resources (null, $type);
-
 		$result = array ();
-
 		$name = 'Table/' . $table . '/';
-
 		$len = strlen ($name);
 
 		foreach ($resources as $r)
@@ -123,7 +112,6 @@ class Controller_Admin_Database extends Controller_Abstract
 	private function _getValues ($row, $class_name, $fields)
 	{
 		$field_filters = array ();
-
 		$tmp = $this->config ()->field_filters->$class_name;
 
 		if ($tmp)
@@ -327,7 +315,6 @@ class Controller_Admin_Database extends Controller_Abstract
 	private function __tables ()
 	{
 		$resources = $this->__resources ();
-
 		$result = array ();
 
 		foreach ($resources as $r)
@@ -390,11 +377,8 @@ class Controller_Admin_Database extends Controller_Abstract
 		);
 
 		$prefix = Model_Scheme::$default ['prefix'];
-
 		$class_name = $this->__className ($table, $prefix);
-
 		$fields = Helper_Data_Source::fields ('`' . $table . '`');
-
 		$acl_fields = $this->__aclFields ($table, $fields);
 
 		if (!$acl_fields || !User::id ())
@@ -429,7 +413,8 @@ class Controller_Admin_Database extends Controller_Abstract
 		Helper_Header::redirect ('/cp/table/' . $table . '/');
 	}
 
-	private function filters($collection, $class_name) {
+	private function filters ($collection, $class_name)
+	{
 		$filters = null;
 
 		if (!empty ($this->config ()->filters))
@@ -537,7 +522,6 @@ class Controller_Admin_Database extends Controller_Abstract
 		}
 
 		$exists_links = Model_Scheme::links ($class_name);
-
 		$link_models = array ();
 
 		if ($exists_links)
@@ -574,7 +558,6 @@ class Controller_Admin_Database extends Controller_Abstract
 		}
 
 		$fields = $this->_getValues ($row, $class_name, $fields);
-
 		$modificators = array ();
 
 		$tmp = $this->config ()->modificators;
@@ -673,7 +656,6 @@ class Controller_Admin_Database extends Controller_Abstract
 	public function table ()
 	{
 		$tables = Helper_Data_Source::tables ();
-
 		$tmp_tables = $this->__aclTables ($tables->__toArray ());
 
 		list (
@@ -687,7 +669,6 @@ class Controller_Admin_Database extends Controller_Abstract
 		Loader::load ('Table_Rate');
 
 		$rate = Table_Rate::byTable ($table)->inc ();
-
 		$acl_fields = $this->__fields ($table);
 
 		if (!in_array ($table, $tmp_tables) || !$acl_fields || !User::id ())
@@ -696,9 +677,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		}
 
 		$prefix = Model_Scheme::$default ['prefix'];
-
 		$class_name = $this->__className ($table, $prefix);
-
 		$collection = Model_Collection_Manager::create ($class_name);
 
 		// Получаем фильтры
@@ -785,7 +764,6 @@ class Controller_Admin_Database extends Controller_Abstract
 		}
 
 		$acl_fields = array ();
-
 		$class_fields = array ();
 
 		if (!empty ($this->config ()->fields))
@@ -846,7 +824,6 @@ class Controller_Admin_Database extends Controller_Abstract
 		}
 
 		$sfields = array_unique ($sfields);
-
 		$title = null;
 
 		if (!empty ($this->config ()->titles))
@@ -970,11 +947,8 @@ class Controller_Admin_Database extends Controller_Abstract
 //		print_r ($_POST);
 
 		$prefix = Model_Scheme::$default ['prefix'];
-
 		$class_name = $this->__className ($table, $prefix);
-
 		$fields = Helper_Data_Source::fields ('`' . $table . '`');
-
 		$acl_fields = $this->__aclFields ($table, $fields);
 
 		if (!$acl_fields || !User::id ())
@@ -1126,5 +1100,4 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		Helper_Header::redirect ('/cp/table/' . $table . '/');
 	}
-
 }
