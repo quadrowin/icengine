@@ -15,7 +15,8 @@ class Model_Manager extends Manager_Abstract
 	 */
 	protected static $_config = array (
 		'delegee'	=> array (
-			'Model'				=> 'Simple',
+			'Model'			=> 'Simple',
+			'Component'		=> 'Simple',
 			'Model_Config'		=> 'Config',
 			'Model_Defined'		=> 'Defined',
 			'Model_Factory'		=> 'Factory'
