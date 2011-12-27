@@ -151,7 +151,9 @@ class Dependency_Injection_Container
 		$class = self::getRealClass ($class);
 		$class = Loader::load ($class);
 		$reflection = new \ReflectionClass ($class);
-		return $reflection->newInstanceArgs ($args);
+		return $reflection->hasMethod('__construct')
+		    ? $reflection->newInstanceArgs ($args)
+		    : $reflection->newInstance ();
 	}
 
 	/**
