@@ -34,18 +34,13 @@ class Loader
 	/**
 	 * @desc Добавление пути
 	 * @param string $namespace Пространство имен
-	 * @param string $path Путь
+	 * @param string|array $path Путь
 	 */
 	public static function addPath ($namespace, $path)
 	{
-		if (!isset (self::$_pathes [$namespace]))
-		{
-			self::$_pathes [$namespace] = array ($path);
-		}
-		else
-		{
-			self::$_pathes [$namespace][] = $path;
-		}
+		self::$_pathes [$namespace] = isset (self::$_pathes [$namespace])
+			? array_merge (self::$_pathes [$namespace], (array) $path)
+			: (array) $path;
 	}
 
 	/**
@@ -231,7 +226,7 @@ class Loader
 //			throw new Loader_Exception ("Not found: $file");
 			echo '<pre>Not found: ' . $file . "\n";
 //			echo 'Pathes: ';
-//			var_dump (self::$_pathes);
+			var_dump (self::$_pathes);
 //			var_dump (self::$_pathes [$namespace]);
 			echo "\n\n";
 			debug_print_backtrace ();
