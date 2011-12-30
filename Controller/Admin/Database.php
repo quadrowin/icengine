@@ -496,7 +496,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		$rate = Table_Rate::byTable ($table)->inc ();
 		$fields = Helper_Data_Source::fields ('`' . $table . '`');
 		$acl_fields = $this->__aclFields ($table, $fields, $row_id != 0 ? 'edit' : 'create');
-
+		
 		if (!$acl_fields || !User::id ())
 		{
 			return $this->replaceAction ('Error', 'accessDenied');
@@ -571,8 +571,17 @@ class Controller_Admin_Database extends Controller_Abstract
 			$modificators = $tmp->__toArray ();
 		}
 
-		foreach ($fields as $field)
+		foreach ($fields as $i => $field)
 		{
+			if (
+				!isset ($exists_links [$field ['Field']]) && 
+				!in_array ($field ['Field'], $acl_fields)
+			)
+			{
+				unset ($fields [$i]);
+				continue;
+			}
+
 			if (!$row->key () && $field ['Field'] != $row->keyField ())
 			{
 				$row->set ($field ['Field'], $field ['Default']);
