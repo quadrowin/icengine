@@ -133,38 +133,38 @@ class Controller_Admin_Database extends Controller_Abstract
 
 						if (strpos ($value, '::') !== false)
 						{
-							$value = call_user_func ($field_filter ['value']);
+								$value = call_user_func ($field_filter ['value']);
 						}
 
-						$field->Values = $field->Values->filter (array (
-							$field_filter ['field'] => $value
-						));
+							$field->Values = $field->Values->filter (array (
+								$field_filter ['field'] => $value
+							));
 					}
 				}
 			}
 
-			// Тип поля - enum
+							// Тип поля - enum
 			if (strpos ($field->Type, 'enum(') === 0)
 			{
 				$values = substr ($field->Type, 6, -1);
 				$values = explode (',', $values);
 
-				$collection = Model_Collection_Manager::create (
-					'Dummy'
-				)->reset ();
-
-				Loader::load ('Model_Proxy');
-				foreach ($values as $v)
-				{
+			$collection = Model_Collection_Manager::create (
+				'Dummy'
+			)->reset ();
+				
+			Loader::load ('Model_Proxy');
+			foreach ($values as $v)
+			{
 					$v = trim ($v, "' ");
-
-					$collection->add (new Model_Proxy (
+					
+				$collection->add (new Model_Proxy (
 						'Dummy',
 						array (
 							'id'	=> $v,
 							'name'	=> $v
-						)
-					));
+					)
+				));
 				}
 
 				$field->Values = $collection;
@@ -172,11 +172,11 @@ class Controller_Admin_Database extends Controller_Abstract
 
 			if ($row)
 			{
-				$text_value = Model_Manager::byQuery (
-					'Text_Value',
-					Query::instance ()
-						->where ('tv_field_table', $table)
-						->where ('tv_field_name', $field->Field)
+					$text_value = Model_Manager::byQuery (
+						'Text_Value',
+						Query::instance ()
+							->where ('tv_field_table', $table)
+							->where ('tv_field_name', $field->Field)
 				);
 
 				//echo DDS::getDataSource ()->getQuery ()->translate () . '<br />';
@@ -184,23 +184,30 @@ class Controller_Admin_Database extends Controller_Abstract
 				// Есть запись для поля таблицы в таблице подстановок
 				if ($text_value && $text_value->tv_text_field)
 				{
-					$collection = $text_value->replace (
-						$row, $table, $fields, $field, $field_filters, $class_name
+						$collection = $text_value->replace (
+								$row, $table, $fields, $field, $field_filters, $class_name
 					);
 					$field->Values = $collection;
 				}
 			}
+			
+			$config_foreign_keys = $this->config ()->foreign_keys->$class_name;
+			$is_foreign_key = $config_foreign_keys && in_array($field->Field, $config_foreign_keys->__toArray());
+			
 			// Поле - поле для связи
-			if (strpos ($field->Field, '__id') !== false)
+			if (strpos ($field->Field, '__id') !== false || $is_foreign_key)
 			{
 				$cn = substr ($field->Field, 0, -4);
-
+				
 				$query = Query::instance ();
 
 				if (isset ($field_filters [$field->Field]))
 				{
 					foreach ($field_filters [$field->Field] as $field_filter)
 					{
+						if ($is_foreign_key) {
+							$cn = $field_filter ['model'];
+						}
 						$value = $field_filter ['value'];
 
 						if (strpos ($value, '::') !== false)
