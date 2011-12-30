@@ -552,7 +552,7 @@ abstract class Model implements \ArrayAccess
 	 */
 	public function getAttributeManager ()
 	{
-		return Core::di ()->getInstance ('Attribute_Manager', $this);
+		return Core::di ()->getInstance ('Ice\\Attribute_Manager', $this);
 	}
 
 	/**
@@ -561,7 +561,7 @@ abstract class Model implements \ArrayAccess
 	 */
 	public function getConfigManager ()
 	{
-		return Core::di ()->getInstance ('Config_Manager', $this);
+		return Core::di ()->getInstance ('Ice\\Config_Manager', $this);
 	}
 
 	/**
@@ -579,7 +579,7 @@ abstract class Model implements \ArrayAccess
 	 */
 	public function getModelCollectionManager ()
 	{
-		return Core::di ()->getInstance ('Model_Collection_Manager', $this);
+		return Core::di ()->getInstance ('Ice\\Model_Collection_Manager', $this);
 	}
 
 	/**
@@ -588,7 +588,7 @@ abstract class Model implements \ArrayAccess
 	 */
 	public function getModelManager ()
 	{
-		return Core::di ()->getInstance ('Model_Manager', $this);
+		return Core::di ()->getInstance ('Ice\\Model_Manager', $this);
 	}
 
 	/**
@@ -597,7 +597,7 @@ abstract class Model implements \ArrayAccess
 	 */
 	public function getModelScheme ()
 	{
-		return Core::di ()->getInstance ('Model_Scheme', $this);
+		return Core::di ()->getInstance ('Ice\\Model_Scheme', $this);
 	}
 
 	/**

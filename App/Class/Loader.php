@@ -220,7 +220,7 @@ class Loader
 			}
 		}
 
-		if (true)
+		if (false)
 		{
 			include __DIR__ . '/Loader/Exception.php';
 //			throw new Loader_Exception ("Not found: $file");

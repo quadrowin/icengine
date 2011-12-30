@@ -395,6 +395,12 @@ class Request
 	 */
 	public static function sessionId ()
 	{
+		static $inited = null;
+		if ($inited)
+		{
+			return session_id ();
+		}
+		
 		if (!class_exists ('Session_Manager'))
 		{
 			Loader::load ('Session_Manager');
@@ -403,19 +409,24 @@ class Request
 
 		if (isset ($_COOKIE ['PHPSESSID']))
 		{
-			session_id ($_COOKIE ['PHPSESSID']);
+			$session_id = session_id ($_COOKIE ['PHPSESSID']);
 		}
 		elseif (isset ($_GET ['PHPSESSID']))
 		{
-			session_id ($_GET ['PHPSESSID']);
+			$session_id = session_id ($_GET ['PHPSESSID']);
+		}
+		else
+		{
+			$session_id = session_id ();
 		}
 
-		if (!isset ($_SESSION))
+		if (!$session_id)
 		{
 			session_start ();
+			$session_id = session_id ();
 		}
-
-		return session_id ();
+		
+		return $session_id;
 	}
 
 }
