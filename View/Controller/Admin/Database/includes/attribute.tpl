@@ -14,8 +14,8 @@
 		Controller.call (
 			'Admin_Attribute/index',
 			{ 
-				table : '{/literal}{$row->modelName()}{literal}',
-				rowId : '{/literal}{$row->key()}{literal}'
+				table : '{/literal}{if !empty($row)}{$row->modelName()}{/if}{literal}',
+				rowId : '{/literal}{if !empty($row)}{$row->key()}{/if}{literal}'
 			},
 			callback
 		);
