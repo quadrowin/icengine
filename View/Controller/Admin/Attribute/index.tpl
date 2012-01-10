@@ -1,3 +1,4 @@
+{if !empty($model)}
 <h3>
 <a id="view" href="javascript:void(0);" onclick="Controller_Admin_Attribute.viewFormAdd();">Добавить атрибут</a>
 </h3>
@@ -34,4 +35,4 @@
 	</tbody>
 </table>
 	
-	
+{/if}	

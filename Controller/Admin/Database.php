@@ -496,7 +496,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		$rate = Table_Rate::byTable ($table)->inc ();
 		$fields = Helper_Data_Source::fields ('`' . $table . '`');
 		$acl_fields = $this->__aclFields ($table, $fields, $row_id != 0 ? 'edit' : 'create');
-
+		
 		if (!$acl_fields || !User::id ())
 		{
 			return $this->replaceAction ('Error', 'accessDenied');
