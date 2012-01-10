@@ -32,7 +32,10 @@ class Content_Abstract extends Model_Factory_Delegate
 			'Content',
 			$this->key ()
 		);
-
+		if (!$content)
+		{
+			return new Content ();
+		}
 		return new Content ($content->asRow ());
 	}
 

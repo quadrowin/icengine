@@ -34,11 +34,13 @@ class Controller_Admin_Database_Map extends Controller_Abstract
 		
 		if (!$row)
 		{
-			return $this->replaceAction (
+			return;
+		/*	return $this->replaceAction (
 				'Error',
 				'notFound'
-			);
+			); */
 		}
+		
 		
 		$geo_points = $row->component ('Geo_Point');
 		
