@@ -43,22 +43,22 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 * @var integer
 	 */
 	const ASSIGN_QUERY 		= 'Query';
-	
+
 	/**
 	 * @desc Добавленные элементы
-	 * @var string 
+	 * @var string
 	 */
 	const DIFF_EDIT_ADD		= 'added';
 
 	/**
 	 * @desc Неизмененные элементы
-	 * @var string 
+	 * @var string
 	 */
 	const DIFF_EDIT_NO		= 'not_changed';
 
 	/**
 	 * @desc Удаленные элементы
-	 * @var string 
+	 * @var string
 	 */
 	const DIFF_EDIT_DEL		= 'removed';
 
@@ -120,7 +120,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		$this->_options = new Model_Option_Collection ($this);
 		Loader::load ($this->modelName ());
 	}
-	
+
 	/**
 	 * @desc Преобразование коллекции к массиву
 	 * @return array
@@ -199,7 +199,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	public function addFilters (Data_Transport $data, $filter)
 	{
 		Loader::load ('Model_Collection_Filter_Manager');
-		
+
 		$arg_count = func_num_args ();
 		for ($i = 1; $i < $arg_count; ++$i)
 		{
@@ -440,7 +440,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		$array_this = $this->column ($kf_this);
 		$array_collection = $collection->column ($kf_collection);
 		$diff = array_diff ($array_this, $array_collection);
-		
+
 		$result = Model_Collection_Manager::create ($model_name)
 			->reset ();
 
@@ -464,7 +464,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
     public function diffEdit ($collection, $fields = array())
     {
 		$model_name = $collection->modelName ();
-		
+
 		// Коллекция добавленных элементов
 		$collection_add = Model_Collection_Manager::create ($model_name)
 			->reset ();
@@ -565,7 +565,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 					foreach ($fields as $field => $value)
 					{
 						$field = str_replace (' ', '', $field);
-						
+
 						$s = substr ($field, -2, 2);
 						$offset = 2;
 
@@ -705,29 +705,29 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	public function fontSize ($minSize = 12, $maxSize = 30, $sizeStep = 2)
 	{
 		$tags = $this;
-		
+
 		if (!$tags)
 		{
 			return;
 		}
 
 		// Количество шагов(диапазонов)
-		$steps	= ($maxSize - $minSize) / $sizeStep; 
+		$steps	= ($maxSize - $minSize) / $sizeStep;
 		$range	= 1;
 		//$range = ceil(count($tags)/$steps); // Диапазон
 
 		$size	= $minSize;
 		$start	= 1;
-		
+
 		for($i = 0; $i <= $steps; $i++)
 		{
 			$end = $start + $range;
-			
+
 			$sizeArray [$size] = array(
-				'start' => $start, 
+				'start' => $start,
 				'end'   => $end
 			);
-			
+
 			$end++;
 			$start = $end;
 			$size  = $size + $sizeStep;
@@ -740,7 +740,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 				foreach ($sizeArray as $key => $size)
 				{
 					if (
-						$tag->count >= $size['start'] && 
+						$tag->count >= $size['start'] &&
 						$tag->count <= $size['end']
 					)
 					{
@@ -866,13 +866,13 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
     public function hasByFields (Model $item, $fields = array())
     {
 		$model = null;
-		
+
 		foreach ($this as $i)
 		{
 			if (empty ($fields))
 			{
 				if (
-					$i->modelName () == $item->modelName () && 
+					$i->modelName () == $item->modelName () &&
 					$i->key () == $item->key ()
 				)
 				{
@@ -882,7 +882,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 			else
 			{
 				$model = $i;
-				
+
 				foreach ($fields as $field)
 				{
 					if ($i->sfield ($field) != $item->sfield ($field))
@@ -892,7 +892,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 					}
 				}
 			}
-			if ($model) 
+			if ($model)
 			{
 				break;
 			}
@@ -1071,9 +1071,15 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 				$this->_paginator->offset ());
 		}
 
+		$scheme_options = Model_Scheme::modelOptions ($this->modelName ());
+		if ($scheme_options)
+		{
+			$this->addOptions ($scheme_options);
+		}
+
 		$this->_options->executeBefore ($query);
 		$this->_lastQuery = $query;
-		
+
 		Model_Collection_Manager::load ($this, $query);
 		$this->_options->executeAfter ($query);
 
@@ -1387,18 +1393,18 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 			// Список пуст
 			return $this;
 		}
-		
+
 		$parents = array ();
 		$child_of = $list [0]->parentRootKey ();
 		$result = array ();
 		$i = 0;
 		$index = array (0 => 0);
 		$full_index = array (-1 => '');
-		
-		do 
+
+		do
 		{
 			$finish = true;
-			
+
 			for ($i = 0; $i < count ($list); ++$i)
 			{
 				if ($list [$i]->parentKey () == $child_of)
@@ -1418,17 +1424,17 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 					$result [$n]->data ('level', count ($parents));
 					$result [$n]->data ('index', $index [count ($parents)]);
 					$parents_count = count ($parents);
-					
+
 					if ($parents_count > 0)
 					{
-						$full_index = $full_index [$parents_count - 1] . 
+						$full_index = $full_index [$parents_count - 1] .
 							$index [count ($parents)];
 					}
 					else
 					{
 						$full_index = (string) $index [count ($parents)];
 					}
-					
+
 					$result [$n]->data ('full_index', $full_index);
 					$result [$n]->data ('broken_parent', false);
 
@@ -1455,7 +1461,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 				$finish = false;
 			}
 		} while (!$finish);
-		
+
 		$this->_items = $result;
 
 		return $this;
@@ -1494,7 +1500,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 				$collection->add ($model);
 			}
 		}
-		
+
 		$collection->data ($this->data ());
 
 		return $collection;
