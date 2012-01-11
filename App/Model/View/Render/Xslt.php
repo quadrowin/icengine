@@ -23,14 +23,14 @@ class View_Render_Xslt extends View_Render_Abstract
 
 	/**
 	 * @desc Объект шаблонизатора
-	 * @var Smarty
+	 * @var \XSLTProcessor
 	 */
 	protected $_processor;
 
 	/**
-	 * @desc Инициализация процессора
+	 * @desc Создает и возвращает экземпляр
 	 */
-	protected function _afterConstruct ()
+	public function __construct ()
 	{
 		$config = $this->config ();
 		$this->_templatesPathes = array_reverse (
@@ -101,9 +101,6 @@ class View_Render_Xslt extends View_Render_Abstract
 	 */
 	public function fetch ($tpl)
 	{
-		ob_start ();
-		$xsl = new \DOMDocument ();
-
 		$file = $this->findTemplate ($tpl);
 
 		if (!$file)
@@ -111,19 +108,21 @@ class View_Render_Xslt extends View_Render_Abstract
 			trigger_error ("xslt template not found: $tpl", E_USER_WARNING);
 		}
 
+		$xsl = new \DOMDocument ();
 		$xsl->load ($file);
 
 		$this->_processor = new \XSLTProcessor ();
 		$this->_processor->importStylesheet ($xsl);
-		$this->_processor->transformToURI ($this->xml (), 'php://output');
+		$xml = $this->_processor->transformToXml ($this->xml ());
 		$this->_processor = null;
-		return ob_get_clean ();
+
+		return $xml;
 	}
 
 	/**
 	 * @desc Возвращает путь до шаблона.
-	 * @param type $tpl
-	 * @return string
+	 * @param string $tpl Название шаблона
+	 * @return string Путь до шаблона
 	 */
 	public function findTemplate ($tpl)
 	{
@@ -142,7 +141,7 @@ class View_Render_Xslt extends View_Render_Abstract
 
 	/**
 	 * @desc Возвращает используемый экземпляр шаблонизатора.
-	 * @return XSLTProcessor
+	 * @return \XSLTProcessor
 	 */
 	public function processor ()
 	{

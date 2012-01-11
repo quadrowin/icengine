@@ -41,9 +41,4 @@ class View_Render_Php extends View_Render_Abstract
 		}
 	}
 
-	public function addHelper ($helper, $method)
-	{
-
-	}
-
 }

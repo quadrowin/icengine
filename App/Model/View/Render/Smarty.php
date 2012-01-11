@@ -57,7 +57,10 @@ class View_Render_Smarty extends View_Render_Abstract
 		)
 	);
 
-	protected function _afterConstruct ()
+	/**
+	 * @desc Создает и возвращает экземпляр
+	 */
+	public function __construct ()
 	{
 		$config = $this->config ();
 		if (!class_exists ('Smarty', false))
@@ -130,14 +133,6 @@ class View_Render_Smarty extends View_Render_Abstract
 			array_reverse ((array) $path),
 			(array) $this->_smarty->template_dir
 		);
-	}
-
-	/**
-	 * (non-PHPdoc)
-	 * @see View_Render_Abstract::addHelper()
-	 */
-	public function addHelper ($helper, $method)
-	{
 	}
 
 	/**

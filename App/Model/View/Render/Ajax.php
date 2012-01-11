@@ -25,9 +25,4 @@ class View_Render_Ajax extends View_Render_Abstract
 		echo json_encode (current ($this->_vars));
 	}
 
-	public function addHelper ($helper, $method)
-	{
-
-	}
-
 }

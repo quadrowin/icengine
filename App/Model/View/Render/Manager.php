@@ -25,12 +25,6 @@ abstract class View_Render_Manager extends Manager_Abstract
 	private static $_viewStack = array ();
 
 	/**
-	 *
-	 * @var string
-	 */
-	private static $_templateExtension = '.tpl';
-
-	/**
 	 * @desc Конфиг
 	 * @var array
 	 */
@@ -99,14 +93,6 @@ abstract class View_Render_Manager extends Manager_Abstract
 	}
 
 	/**
-	 * @return string
-	 */
-	public static function getTemplateExtension ()
-	{
-		return self::$_templateExtension;
-	}
-
-	/**
 	 * @return View_Render_Abstract
 	 */
 	public static function popView ()
@@ -149,15 +135,6 @@ abstract class View_Render_Manager extends Manager_Abstract
 	{
 		$view = self::byName ($name);
 		return self::pushView ($view);
-	}
-
-	/**
-	 *
-	 * @param string $value
-	 */
-	public static function setTemplateExtension ($value)
-	{
-		self::$_templateExtension = $value;
 	}
 
 	/**

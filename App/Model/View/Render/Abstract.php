@@ -9,8 +9,14 @@ namespace Ice;
  * @package Ice
  *
  */
-abstract class View_Render_Abstract extends Model_Factory_Delegate
+abstract class View_Render_Abstract
 {
+
+	/**
+	 * @desc Config
+	 * @var array
+	 */
+	protected static $_config = array ();
 
 	/**
 	 * @desc Пути к директориям шаблонов.
@@ -30,28 +36,6 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	 * @var array
 	 */
 	protected $_varsStack = array ();
-
-	/**
-	 * (non-PHPdoc)
-	 * @see Model::_afterConstruct()
-	 */
-	protected function _afterConstruct ()
-	{
-		if (!isset ($this->_fields ['id']))
-		{
-			$this->_fields ['id'] = 1;
-		}
-	}
-
-	/**
-	 * @desc Добавление хелпера
-	 * @param mixed $helper
-	 * @param string $method
-	 */
-	public function addHelper ($helper, $method)
-	{
-
-	}
 
 	/**
 	 * @desc Добавление пути до директории с шаблонами
@@ -75,11 +59,6 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 		{
 			$this->_vars = array_merge ($this->_vars, $key);
 		}
-		elseif (empty ($key))
-		{
-			Loader::load ('View_Render_Exception');
-			throw new View_Render_Exception ('Empty key field.');
-		}
 		else
 		{
 			$this->_vars [$key] = $value;
@@ -91,6 +70,25 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	 * @param string $tpl
 	 */
 	abstract public function display ($tpl);
+
+	/**
+	 * @desc Config
+	 * @return Objective
+	 */
+	public static function config ()
+	{
+		if (is_array (static::$_config)) {
+			$config_manager = Core::di ()->getInstance (
+				'Config_Manager',
+				__CLASS__
+			);
+			static::$_config = $config_manager->get (
+				get_called_class (),
+				static::$_config
+			);
+		}
+		return static::$_config;
+	}
 
 	/**
 	 * @desc Обрабатывает шаблон и возвращает результат.

@@ -14,14 +14,6 @@ class View_Render_Cli extends View_Render_Abstract
 
 	/**
 	 * (non-PHPdoc)
-	 * @see View_Render_Abstract::addHelper()
-	 */
-	public function addHelper ($helper, $method)
-	{
-	}
-
-	/**
-	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::display()
 	 */
 	public function display ($tpl)
