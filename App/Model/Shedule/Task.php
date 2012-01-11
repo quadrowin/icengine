@@ -8,7 +8,7 @@ namespace Ice;
  * @package Ice
  * @copyright i-complex.ru
  */
-class Task extends Model
+class Shedule_Task extends Model
 {
 	protected static $_scheme = array (
 		'fields'	=> array (

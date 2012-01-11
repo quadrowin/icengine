@@ -10,7 +10,7 @@ namespace Ice;
  * @copyright i-complex.ru
  *
  */
-class Task_Queue extends Model
+class Shedule_Task_Queue extends Model
 {
 	protected static $_scheme = array (
 		'fields'	=> array (
