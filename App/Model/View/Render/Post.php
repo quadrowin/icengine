@@ -26,9 +26,4 @@ class View_Render_Post extends View_Render_Abstract
         die;
 	}
 
-	public function addHelper ($helper, $method)
-	{
-
-	}
-
 }
