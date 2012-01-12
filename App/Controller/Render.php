@@ -14,11 +14,12 @@ class Controller_Render extends Controller_Abstract
 
 	/**
 	 * @desc Рендерим
-	 * @param Controller_Task $task
+	 * @param Task $task
 	 */
-	public function index (Controller_Task $task)
+	public function index (Task $task)
 	{
-		$task->getViewRender ()->render ($task);
+		$render = $task->getRequest ()->getExtra ('render');
+		View_Render_Manager::byName ($render)->render ($task);
 	}
 
 }

@@ -22,6 +22,14 @@ class View_Render_Front extends View_Render_Abstract
 	);
 
 	/**
+	 * @return View_Render_Manager
+	 */
+	protected function _getViewRenderManager ()
+	{
+		return Core::di ()->getInstance ('Ice\\View_Render_Manager', $this);
+	}
+
+	/**
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::display()
 	 */
@@ -39,25 +47,33 @@ class View_Render_Front extends View_Render_Abstract
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::fetch()
 	 */
-	public function render (Controller_Task $task)
+	public function render (Task $task)
 	{
-		$transaction = $task->getTransaction ();
-		$this->assign ($transaction->buffer ());
-		$tasks = $transaction->receive ('tasks');
+		$input = $task->getRequest ()->getInput ();
+		$this->assign ($input->receiveAll ());
+		$tasks = $input->receive ('tasks');
+//		var_dump ($tasks->getResponse ());
+//		var_dump ($input);
+//		var_dump ($input->receiveAll ());
+//		die ();
 
-		foreach ($tasks as $t)
-		{
-			$render = $t->getViewRender ();
-			$result = $render->render ($t);
-			$this->assign ($t->getAssignVar (), $result);
-		}
+//		$tasks->last ();
+//		foreach ($tasks as $t)
+//		{
+//			$render = $t->getResponse ()->getExtra ('render');
+//			$render = View_Render_Manager::byName ($render);
+//			$result = $render->render ($t);
+//			$this->assign ($t->getAssignVar (), $result);
+//		}
 
 		$config = $this->config ();
-		$render = View_Render_Manager::byName ($config ['layout_render']);
+		$render = $this->_getViewRenderManager ()->byName (
+			$config ['layout_render']
+		);
 
-		$render->assign ($this->_vars);
+		$render->assign ($tasks->getResponse ()->getOutput ()->receiveAll ());
 
-		$render->display ($task->getTemplate ());
+		$render->display ($task->getRequest ()->getExtra ('template'));
 	}
 
 }

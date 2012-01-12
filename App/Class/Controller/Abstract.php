@@ -22,7 +22,7 @@ class Controller_Abstract
 
 	/**
 	 * @desc Текущая задача.
-	 * @var Controller_Task
+	 * @var Task
 	 */
 	protected $_task;
 
@@ -93,6 +93,14 @@ class Controller_Abstract
 		Message_Queue::push (
 			'before::' . $this->_currentAction
 		);
+	}
+
+	/**
+	 * @return Controller_Manager
+	 */
+	public function _getControllerManager ()
+	{
+		return Core::di ()->getInstance ('Ice\\Controller_Manager', $this);
 	}
 
 	public function _helperReturn () {}
@@ -313,6 +321,17 @@ class Controller_Abstract
 	}
 
 	/**
+	 * @desc
+	 * @param string $template
+	 */
+	protected function _setTemplate ($template)
+	{
+		$this->_task->getResponse ()->setExtra (array (
+			'template' => $template
+		));
+	}
+
+	/**
 	 * @desc Загружает и возвращает конфиг для контроллера
 	 * @return Objective
 	 */
@@ -330,7 +349,7 @@ class Controller_Abstract
 
 	/**
 	 * @desc Возвращает текущую задачу контролера
-	 * @return Controller_Task
+	 * @return Task
 	 */
 	public function getTask ()
 	{
@@ -376,10 +395,10 @@ class Controller_Abstract
 		}
 		else
 		{
-			$other = Controller_Manager::get ($controller);
+			$other = $this->_getControllerManager ()->get ($controller);
 		}
 
-		$this->_task->setTemplate (
+		$this->_setTemplate (
 			'Controller/' .
 			str_replace ('_', '/', substr (strstr ($controller, '\\'), 1)) .
 			'/' . $action
@@ -392,10 +411,11 @@ class Controller_Abstract
 		}
 		else
 		{
-			$other = Controller_Manager::get ($controller);
-			$other->setInput ($this->_input);
-			$other->setOutput ($this->_output);
-			$other->setTask ($this->_task);
+			$other = $this->_getControllerManager ()->get ($controller);
+			$other
+				->setTask ($this->_task)
+				->setInput ($this->_input)
+				->setOutput ($this->_output);
 
 			$other->_beforeAction ($action);
 
@@ -410,7 +430,7 @@ class Controller_Abstract
 
 	/**
 	 *
-	 * @param Controller_Task $task
+	 * @param Task $task
 	 * @return Controller_Abstract
 	 */
 	public function setTask ($task)

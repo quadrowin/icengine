@@ -26,9 +26,9 @@ class Data_Provider_Buffer extends Data_Provider_Abstract
 	/**
 	 * Возвращает объект буфера данных.
 	 */
-	public function __construct ()
+	public function __construct (array $data = array ())
 	{
-		$this->_buffer = array ();
+		$this->_buffer = $data;
 	}
 
 	/**

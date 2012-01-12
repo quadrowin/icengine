@@ -22,7 +22,7 @@ class View_Render_JsHttpRequest extends View_Render_Abstract
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::_afterConstruct()
 	 */
-	protected function _afterConstruct ()
+	public function __construct ()
 	{
 		Loader::load ('JsHttpRequest', 'includes');
 		$this->_request = new \JsHttpRequest ('UTF-8');
@@ -57,20 +57,10 @@ class View_Render_JsHttpRequest extends View_Render_Abstract
 		die ();
 	}
 
-	public function render (Controller_Task $task)
+	public function render (Task $task)
 	{
-		$buffer = $task->getTransaction ()->buffer ();
-		$this->_vars = $buffer;
-		$this->display ($task->getTemplate ());
-	}
-
-	/**
-	 * (non-PHPdoc)
-	 * @see View_Render_Abstract::addHelper()
-	 */
-	public function addHelper ($helper, $method)
-	{
-
+		$this->_vars = $task->getRequest ()->getInput ()->receiveAll ();
+		$this->display (null);
 	}
 
 }

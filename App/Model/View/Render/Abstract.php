@@ -79,7 +79,7 @@ abstract class View_Render_Abstract
 	{
 		if (is_array (static::$_config)) {
 			$config_manager = Core::di ()->getInstance (
-				'Config_Manager',
+				'Ice\\Config_Manager',
 				__CLASS__
 			);
 			static::$_config = $config_manager->get (
@@ -117,6 +117,18 @@ abstract class View_Render_Abstract
 	}
 
 	/**
+	 * @desc Название рендера
+	 * @return string
+	 */
+	public function name ()
+	{
+		$class = get_class ($this);
+		$p = strpos ($class, '\\');
+		return substr ($class, 0, $p + 1) .
+			substr ($class, $p + strlen ('\\View_Render_'));
+	}
+
+	/**
 	 * @desc Восстанавливает значения переменных шаблонизатора
 	 */
 	public function popVars ()
@@ -135,26 +147,24 @@ abstract class View_Render_Abstract
 
 	/**
 	 * @desc Обработка шаблонов из стека.
-	 * @param array $outputs
+	 * @param Task $task
 	 * @return mixed
 	 */
-	public function render (Controller_Task $task)
+	public function render (Task $task)
 	{
 		Loader::load ('Message_Before_Render');
 		Message_Before_Render::push ($this);
 
-		$transaction = $task->getTransaction ();
+		$this->assign ($task->getRequest ()->getInput ()->receiveAll ());
 
-		$this->assign ($transaction->buffer ());
+		$template = $task->getRequest ()->getExtra ('template');
 
-		$template = $task->getTemplate ();
+		$result = $this->fetch ($template);
 
-		$result = $template ? $this->fetch ($template) : null;
+		$task->getResponse()->getOutput()->send ('content', $result);
 
 		Loader::load ('Message_After_Render');
 		Message_After_Render::push ($this);
-
-		return $result;
 	}
 
 	/**

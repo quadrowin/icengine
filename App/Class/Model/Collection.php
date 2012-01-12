@@ -652,7 +652,8 @@ class Model_Collection implements \ArrayAccess, \IteratorAggregate, \Countable
 	 */
 	public function getModelCollectionManager ()
 	{
-		return Core::di ()->getInstance ('Model_Collection_Manager', $this);
+		return Core::di ()
+			->getInstance ('Ice\\Model_Collection_Manager', $this);
 	}
 
 	/**
@@ -661,7 +662,7 @@ class Model_Collection implements \ArrayAccess, \IteratorAggregate, \Countable
 	 */
 	public function getModelManager ()
 	{
-		return Core::di ()->getInstance ('Model_Manager', $this);
+		return Core::di ()->getInstance ('Ice\\Model_Manager', $this);
 	}
 
 	/**

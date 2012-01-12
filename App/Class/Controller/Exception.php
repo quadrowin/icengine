@@ -18,10 +18,11 @@ class Controller_Exception extends Exception
 {
 
 	/**
-	 * @desc Задача контроллера
-	 * @var Controller_Task
+	 * @desc Флаг, указывающий, что название шаблона будет
+	 * формироваться из вызванного экшена и сообщения ошибки.
+	 * @var boolean
 	 */
-	protected $_task;
+	protected $_autoTemplate = true;
 
 	/**
 	 * @desc Шаблон
@@ -30,44 +31,38 @@ class Controller_Exception extends Exception
 	protected $_template;
 
 	/**
-	 * @desc Возвращает задание контроллера
-	 * @return Controller_Task
+	 * @desc
+	 * @return boolean
 	 */
-	public function getTask ()
+	public function getAutoTemplate ()
 	{
-		return $this->_task;
+		return $this->_autoTemplate;
 	}
 
 	/**
 	 * @desc Возвращает шабон
-	 * @param boolean $auto [optional] Автогенерация пути до шаблона,
-	 * если он не был явно задан.
 	 * @return string
 	 */
-	public function getTemplate ($auto = true)
+	public function getTemplate ()
 	{
-		if ($auto && !$this->_template && $this->_task && $this->message)
-		{
-			return $this->_task->getTemplate () . '/' . $this->message;
-		}
 		return $this->_template;
 	}
 
 	/**
-	 * @desc Задача, в которой произошло исключение
-	 * @param Controller_Task $task
-	 * @return Controller_Exception
+	 * @desc Автогенерация названия шаболна
+	 * @param boolean $auto Флаг автогенерации
+	 * @return $this
 	 */
-	public function setTask (Controller_Task $task)
+	public function setAutoTemplate ($auto)
 	{
-		$this->_task = $task;
+		$this->_autoTemplate = $auto;
 		return $this;
 	}
 
 	/**
 	 * @desc Устанавлиает шаблон ошибки
 	 * @param string $template
-	 * @return Controller_Exception
+	 * @return $this
 	 */
 	public function setTemplate ($template)
 	{
