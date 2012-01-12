@@ -198,7 +198,7 @@ class Helper_Image
 	 * Загрузка изображения для временного контента.
 	 * @param Temp_Content $tc
 	 * @param string $type
-	 * @return null|Component_Image
+	 * @return null|Image
 	 */
 	public static function upload (Temp_Content $tc, $type = null)
 	{
@@ -238,7 +238,7 @@ class Helper_Image
 	 * @param integer $row_id
 	 * @param string $type
 	 * @param array $sizing
-	 * @return Component_Image|null
+	 * @return Image|null
 	 */
 	public static function uploadSimple ($table, $row_id, $type, $sizing = null)
 	{
@@ -266,8 +266,8 @@ class Helper_Image
 			$sizing = self::_sizing ($type);
 		}
 
-		Loader::load ('Component_Image');
-		$image = new Component_Image (array (
+		Loader::load ('Image');
+		$image = new Image (array (
 			'table'			=> $table,
 			'rowId'			=> $row_id,
 			'date'			=> Helper_Date::toUnix (),

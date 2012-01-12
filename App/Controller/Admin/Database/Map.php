@@ -203,7 +203,7 @@ class Controller_Admin_Database_Map extends Controller_Abstract
 				continue;
 			}
 
-			$cname = 'Component_Geo_' . $cname;
+			$cname = 'Geo_' . $cname;
 
 			Loader::load ($cname);
 
@@ -238,11 +238,11 @@ class Controller_Admin_Database_Map extends Controller_Abstract
 
 				$model->save ();
 
-				Loader::load ('Component_Geo_Point');
+				Loader::load ('Geo_Point');
 
 				foreach ($point ['points'] as $p)
 				{
-					$p = new Component_Geo_Point (array (
+					$p = new Geo_Point (array (
 						'table'			=> $model->className (),
 						'rowId'			=> $model->key (),
 						'hasParent'		=> 1,

@@ -103,6 +103,24 @@ class Controller_Abstract
 		return Core::di ()->getInstance ('Ice\\Controller_Manager', $this);
 	}
 
+	/**
+	 *
+	 * @return Model_Collection_Manager
+	 */
+	public function _getModelCollectionManager ()
+	{
+		return Core::di ()->getInstance ('Ice\\Model_Collection_Manager', $this);
+	}
+
+	/**
+	 *
+	 * @return Model_Manager
+	 */
+	public function _getModelManager ()
+	{
+		return Core::di ()->getInstance ('Ice\\Model_Manager', $this);
+	}
+
 	public function _helperReturn () {}
 
 	/**

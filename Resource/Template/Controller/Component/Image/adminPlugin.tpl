@@ -5,7 +5,7 @@ $(function ()
 	$('#save-text').click (function ()
 	{
 		Controller.call (
-			'Component_Image/saveText',
+			'Image/saveText',
 			{
 				id: $('#row-id').val (),
 				text: $('#image-text').val ()

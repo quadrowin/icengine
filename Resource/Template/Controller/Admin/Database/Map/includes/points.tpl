@@ -1,16 +1,16 @@
 {dblbracer}
 {{foreach from=$source item="point" name="point"}}
 	{
-		{{if $point instanceof Component_Geo_Point}}
+		{{if $point instanceof Geo_Point}}
 		points: {
-			lng: {{$point->longitude}}, 
+			lng: {{$point->longitude}},
 			lat: {{$point->latitude}}
 		},
 		{{else}}
 		points: [
 			{{foreach from=$point->points() item="p" name="pp"}}
 				{
-					lng: {{$p->longitude}}, 
+					lng: {{$p->longitude}},
 					lat: {{$p->latitude}}
 				}
 			{{if !$smarty.foreach.pp.last}},{{/if}}
