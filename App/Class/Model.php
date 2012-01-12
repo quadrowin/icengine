@@ -373,10 +373,7 @@ abstract class Model implements \ArrayAccess
 
 		$this->_assets [$type] = $this->getModelCollectionManager ()
 			->create ($type)
-			->addOptions (array (
-				'name' => 'Owner',
-				'is' => $this
-			));
+			->getFor ($this);
 
 		return $this->_assets [$type];
 	}
