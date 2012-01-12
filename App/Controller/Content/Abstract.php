@@ -179,7 +179,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 	 * @return string
 	 */
 	protected function __createReferer (Model $content,
-		Model $contetn_category, $referer)
+		Model $content_category, $referer)
 	{
 		return $referer;
 	}
@@ -192,7 +192,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 	 * @return string
 	 */
 	protected function __createUrl (Model $content,
-		Model $contetn_category, $url)
+		Model $content_category, $url)
 	{
 		return $url;
 	}
@@ -252,7 +252,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			return $this->replaceAction ('Error', 'notFound');
 		}
 
-		$parent = Model_Manager::getInstance ()->byKey (
+		$parent = $this->_getModelManager ()->byKey (
 			$this->__categoryModel (),
 			$category->parentKey ()
 		);
@@ -273,7 +273,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		$agency = null;
 		if ($agency_link)
 		{
-			$agency = Model_Manager::getInstance ()->byQuery(
+			$agency = $this->_getModelManager ()->byQuery(
 				'Agency',
 				Query::instance()
 					->where('linka', $agency_link.'.html')
@@ -309,7 +309,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			return $this->replaceAction ('Error', 'notFound');
 		}
 
-		$content_category = Model_Manager::getInstance ()->byKey (
+		$content_category = $this->_getModelManager ()->byKey (
 			$this->__categoryModel (),
 			$content->Content_Category__id
 		);
@@ -323,7 +323,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		$agency = null;
 		if ($agency_link)
 		{
-			$agency = Model_Manager::getInstance ()->byQuery(
+			$agency = $this->_getModelManager ()->byQuery(
 				'Agency',
 				Query::instance()
 					->where('linka', $agency_link.'.html')
@@ -379,7 +379,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			}
 			else
 			{
-				$content = Model_Manager::getInstance ()->byKey (
+				$content = $this->_getModelManager ()->byKey (
 					$this->__contentModel (),
 					$content_id
 				);
@@ -434,7 +434,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 
 		if (!isset ($content) || !$content)
 		{
-			$content = Model_Manager::getInstance ()->get (
+			$content = $this->_getModelManager ()->get (
 				$this->__contentModel (),
 				$content_id
 			);
@@ -506,7 +506,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		}
 
 		$category_id = $tc->attr ('category_id');
-		$content_category = Model_Manager::getInstance ()->byKey (
+		$content_category = $this->_getModelManager ()->byKey (
 			$this->__categoryModel (),
 			$category_id
 		);
@@ -540,7 +540,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 
 		if ($content_id)
 		{
-			$content = Model_Manager::getInstance ()->byKey (
+			$content = $this->_getModelManager ()->byKey (
 				$this->__contentModel (),
 				$content_id
 			);
@@ -628,7 +628,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			'url'
 		);
 
-		$content = Model_Manager::getInstance ()->byKey (
+		$content = $this->_getModelManager ()->byKey (
 			$this->__contentModel (),
 			$content_id
 		);
@@ -715,7 +715,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 
 	public function remove ($id, $uri)
 	{
-		$content = Model_Manager::getInstance ()
+		$content = $this->_getModelManager ()
 			->byKey ($this->__contentModel (), $id);
 
 		if (!$content)
@@ -766,10 +766,15 @@ class Controller_Content_Abstract extends Controller_Abstract
 	{
 		$image_id = $this->_input->receive ('image_id');
 
-		$image = Model_Manager::getInstance ()
-			->byKey ('Component_Image', $image_id);
+		$image = $this->_getModelManager ()->byKey ('Image', $image_id);
 
-		if (!($image && ($image->User__id == User::id () || User::getCurrent()->hasRole ('editor'))))
+		if (
+			!$image ||
+			!(
+				$image->User__id == User::id () ||
+				User::getCurrent ()->hasRole ('editor')
+			)
+		)
 		{
 			return $this->_sendError (
 				'not_found',
@@ -778,7 +783,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			);
 		}
 
-		$content = Model_Manager::getInstance ()->byKey (
+		$content = $this->_getModelManager ()->byKey (
 			$image->table,
 			$image->rowId
 		);
