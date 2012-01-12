@@ -9,7 +9,7 @@ namespace Ice;
  * @package Ice
  *
  */
-class Controller_Front_Task extends Controller_Task
+class Controller_Front_Task extends Task
 {
 
 	/**
@@ -17,10 +17,13 @@ class Controller_Front_Task extends Controller_Task
 	 * @var array
 	 */
 	protected static $_config = array (
-		'controller'	=> 'Ice\\Front',
-		'action'		=> 'index',
-		'render'		=> 'Front',
-		'template'		=> null
+		'controller' => 'Ice\\Front',
+		'action' => 'index',
+		'render' => 'Front',
+		// Шаблон
+		'template' => 'Controller/Front/index',
+		// Название транспорта по умолчанию
+		'input' => 'default_input'
 	);
 
 	/**
@@ -28,22 +31,32 @@ class Controller_Front_Task extends Controller_Task
 	 */
 	public function __construct ()
 	{
-		parent::__construct (new Controller_Action (array (
-			'id'			=> null,
-			'controller'	=> self::$_config ['controller'],
-			'action'		=> self::$_config ['action']
-		)));
-
 		$config = $this->config ();
 
-		$this->setViewRender (
-			View_Render_Manager::byName ($config ['render'])
+		parent::__construct (
+			'Controller',
+			array (
+				'controller' => $config ['controller'],
+				'action' => $config ['action'],
+				'name' => __CLASS__
+			)
 		);
 
-		if ($config ['template'])
+		$this->_request->setInput (
+			Data_Transport_Manager::get ($config ['input'])
+		);
+
+		$render = $config ['render'];
+
+		if ($this->_request->isJsHttpRequest ())
 		{
-			self::$_task->setTemplate ($config ['template']);
+			$render = 'JsHttpRequest';
 		}
+
+		$this->_response->setExtra (array (
+			'render' => $render,
+			'template' => $config ['template']
+		));
 	}
 
 	/**

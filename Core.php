@@ -37,15 +37,9 @@ class Core
 
 	/**
 	 * @desc Задача фронт контроллера.
-	 * @var Controller_Task
+	 * @var Task_Collection
 	 */
-	protected static $_task;
-
-	/**
-	 * @desc Название транспорта по умолчанию
-	 * @var string
-	 */
-	public static $frontInput = 'default_input';
+	protected static $_tasks;
 
 	/**
 	 * @desc Возвращает путь до корня сайта.
@@ -56,6 +50,15 @@ class Core
 		return isset ($_SERVER ['DOCUMENT_ROOT']) ?
 			rtrim ($_SERVER ['DOCUMENT_ROOT'], '/') . '/' :
 			rtrim (realpath (self::$_path . '..'), '/') . '/';
+	}
+
+	/**
+	 *
+	 * @return Worker_Manager
+	 */
+	protected static function _getWorkerManager ()
+	{
+		return self::$_di->getInstance ('Ice\\Worker_Manager', __CLASS__);
 	}
 
 	/**
@@ -73,7 +76,7 @@ class Core
 	 */
 	public static function dds ()
 	{
-		return self::$_di->getInstance ('Default_Data_Source');
+		return self::$_di->getInstance ('Ice\\Default_Data_Source');
 	}
 
 	/**
@@ -83,19 +86,6 @@ class Core
 	public static function di ()
 	{
 		return self::$_di;
-	}
-
-	/**
-	 * @desc Вывод результата работы.
-	 */
-	public static function flush ()
-	{
-		Controller_Manager::call (
-			'Render', 'index',
-			array (
-				'task'		=> self::$_task
-			)
-		);
 	}
 
 	/**
@@ -225,19 +215,30 @@ class Core
 
 		Loader::multiLoad (
 			'Data_Transport_Manager',
-			'Controller_Task',
-			'Controller_Action'
+			'Task',
+			'Task_Collection'
 		);
 
-		self::$_task = self::di ()
-			->getNewInstance ('Controller_Front_Task');
+		self::$_tasks = new Task_Collection;
 
-		Controller_Manager::call (
-			self::$_task->controllerAction ()->controller,
-			self::$_task->controllerAction ()->action,
-			Data_Transport_Manager::get (self::$frontInput),
-			self::$_task
-		);
+		// Задание на выполнение фронт контроллера
+		self::$_tasks [] = self::di ()
+			->getNewInstance ('Ice\\Controller_Front_Task', array (), __CLASS__);
+
+		// Задание на рендер фронт контроллера
+		self::$_tasks [] = self::di ()
+			->getNewInstance (
+				'Ice\\Task',
+				array (
+					'Render',
+					array (
+						'render' => 'Front'
+					)
+				),
+				__CLASS__
+			);
+
+		self::_getWorkerManager ()->letAll (self::$_tasks);
 	}
 
 	/**

@@ -304,7 +304,9 @@ abstract class Bootstrap_Abstract
 	 */
 	public function initView ()
 	{
-		$view = View_Render_Manager::getView ();
+		$manager = Core::di ()->getInstance ('Ice\\View_Render_Manager', $this);
+		$view = $manager->getDefaultView ();
+
 		$view->addTemplatesPath (array(
 			Core::path () . 'Resource/Template/',
 			$this->getAppDir () . '/Resource/Template/'

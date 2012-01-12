@@ -47,18 +47,7 @@ class Controller_Front extends Controller_Abstract
 			Loader::load ($checker_class);
 			if ($checker_class::check ())
 			{
-				$input = Data_Transport_Manager::get ($option->input);
-
-				$task = Controller_Manager::call (
-					$option->controller,
-					'index',
-					$input
-				);
-
-				$this->_output->send (array (
-					'tasks' => $task->getTransaction ()->receive ('tasks')
-				));
-
+				$this->replaceAction ($option->controller, 'index');
 				return;
 			}
 		}

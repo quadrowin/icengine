@@ -8,7 +8,7 @@ namespace Ice;
  * @package Ice
  *
  */
-class Controller_Task
+class Controller_Task__deprecated
 {
 	/**
 	 * @desc Переменная, куда попадет результат
@@ -28,12 +28,6 @@ class Controller_Task
 	 * @var boolean
 	 */
 	protected $_ignore = false;
-
-	/**
-	 * @desc
-	 * @var integer
-	 */
-	protected $_index;
 
 	/**
 	 * @desc Входные данные
@@ -126,16 +120,6 @@ class Controller_Task
 	}
 
 	/**
-	 * @desc Получить порядковый номер задания
-	 * в очереди заданий
-	 * @return integer
-	 */
-	public function getIndex ()
-	{
-		return $this->_index;
-	}
-
-	/**
 	 * @desc Получить транспорт входных данных
 	 * @return Data_Transport
 	 */
@@ -198,16 +182,6 @@ class Controller_Task
 	public function setIgnore ($value)
 	{
 		$this->_ignore = (bool) $value;
-	}
-
-	/**
-	 * @desc Установить порядковый номер заания
-	 * в очереди заданий
-	 * @param integer $value
-	 */
-	public function setIndex ($value)
-	{
-		$this->_index = $value;
 	}
 
 	/**

@@ -12,6 +12,15 @@ namespace Ice;
 class Controller_Front_Router extends Controller_Abstract
 {
 
+	/**
+	 *
+	 * @return Worker_Manager
+	 */
+	protected function _getWorkerManager ()
+	{
+		return Core::di ()->getInstance ('Ice\\Worker_Manager', $this);
+	}
+
 	public function index ()
 	{
 		Loader::load ('Router');
@@ -34,21 +43,14 @@ class Controller_Front_Router extends Controller_Abstract
 				$route->actions ()
 			);
 
-			/**
-			 * @desc Создаем задания для выполнения.
-			 * В них отдает входные данные.
-			 * @var array <Controller_Task>
-			 */
-			$tasks = Controller_Manager::createTasks (
+			// Создаем задания для выполнения. В них отдает входные данные.
+			$tasks = $this->_getControllerManager ()->createTasks (
 				$actions,
 				$this->getInput ()
 			);
 
-			/**
-			 * @desc Выполненяем задания.
-			 * @var array <Controller_Task>
-			 */
-			$tasks = Controller_Manager::runTasks ($tasks);
+			// Выполненяем задания.
+			$this->_getWorkerManager ()->letAll ($tasks);
 
 			$this->_output->send ('tasks', $tasks);
 		}

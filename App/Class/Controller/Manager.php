@@ -16,61 +16,61 @@ class Controller_Manager extends Manager_Abstract
 	 * @desc Загруженные контроллеры.
 	 * @var array
 	 */
-	protected static $_controllers = array ();
+	protected $_controllers = array ();
 
-	/**
-	 * @desc Стек входных транспортов контроллеров.
-	 * @var array
-	 */
-	protected static $_controllersInputs = array ();
-
-	/**
-	 * @desc Стек выходных транспортов контроллеров.
-	 * @var array
-	 */
-	protected static $_controllersOutputs = array ();
-
-	/**
-	 * @desc Текущее задание
-	 * @var Controller_Task
-	 */
-	protected static $_currentTask;
-
-	/**
-	 * @desc Транспорт входных данных.
-	 * @var Data_Transport
-	 */
-	protected static $_input;
-
-	/**
-	 * @desc Транспорт выходных данных.
-	 * @var Data_Transport
-	 */
-	protected static $_output;
-
-	/**
-	 * @desc Отложенные очереди заданийs
-	 * @var array <array>
-	 */
-	protected static $_tasksBuffer = array ();
-
-	/**
-	 * @desc Очередь заданий.
-	 * @var array <Router_Action>
-	 */
-	protected static $_tasksQueue = array ();
-
-	/**
-	 * @desc Результаты выполнения очереди
-	 * @var array <Controller_Task>
-	 */
-	protected static $_tasksResults = array ();
-
-	/**
-	 * @desc Буффер результатов
-	 * @var array <array <Controller_Task>>
-	 */
-	protected static $_tasksResultsBuffer = array ();
+//	/**
+//	 * @desc Стек входных транспортов контроллеров.
+//	 * @var array
+//	 */
+//	protected $_controllersInputs = array ();
+//
+//	/**
+//	 * @desc Стек выходных транспортов контроллеров.
+//	 * @var array
+//	 */
+//	protected $_controllersOutputs = array ();
+//
+//	/**
+//	 * @desc Текущее задание
+//	 * @var Controller_Task
+//	 */
+//	protected $_currentTask;
+//
+//	/**
+//	 * @desc Транспорт входных данных.
+//	 * @var Data_Transport
+//	 */
+//	protected $_input;
+//
+//	/**
+//	 * @desc Транспорт выходных данных.
+//	 * @var Data_Transport
+//	 */
+//	protected $_output;
+//
+//	/**
+//	 * @desc Отложенные очереди заданийs
+//	 * @var array <array>
+//	 */
+//	protected $_tasksBuffer = array ();
+//
+//	/**
+//	 * @desc Очередь заданий.
+//	 * @var array <Router_Action>
+//	 */
+//	protected $_tasksQueue = array ();
+//
+//	/**
+//	 * @desc Результаты выполнения очереди
+//	 * @var array <Controller_Task>
+//	 */
+//	protected $_tasksResults = array ();
+//
+//	/**
+//	 * @desc Буффер результатов
+//	 * @var array <array <Controller_Task>>
+//	 */
+//	protected $_tasksResultsBuffer = array ();
 
 	/**
 	 * @desc Config
@@ -95,9 +95,9 @@ class Controller_Manager extends Manager_Abstract
 	 * @param string $action Экшен
 	 * @return Objective
 	 */
-	protected static function _cacheConfig ($controller, $action)
+	protected function _cacheConfig ($controller, $action)
 	{
-		$config = self::config ();
+		$config = $this->config ();
 		$cfg = $config ['actions'][$controller . '::' . $action];
 		$cfg = $cfg ? $cfg : $config ['actions'] [$controller];
 
@@ -131,51 +131,62 @@ class Controller_Manager extends Manager_Abstract
 
 	/**
 	 *
+	 * @return View_Render_Manager
+	 */
+	protected function _getViewRenderManager ()
+	{
+		return Core::di ()->getInstance ('Ice\\View_Render_Manager', $this);
+	}
+
+	/**
+	 * @return Worker_Manager
+	 */
+	protected function _getWorkerManager ()
+	{
+		return Core::di ()->getInstance ('Ice\\Worker_Manager', $this);
+	}
+
+	/**
+	 *
 	 * @param Controller_Abstract $controller
 	 */
-	public static function beforeAction ($controller)
+	public function beforeAction ($controller)
 	{
-		self::$_controllersInputs [] = $controller->getInput ();
-		self::$_controllersOutputs [] = $controller->getOutput ();
+		$this->_controllersInputs [] = $controller->getInput ();
+		$this->_controllersOutputs [] = $controller->getOutput ();
 
-		self::getOutput ()->beginTransaction ();
+		$this->getOutput ()->beginTransaction ();
 
 		$controller
-			->setInput (self::getInput ())
-			->setOutput (self::getOutput ());
+			->setInput ($this->getInput ())
+			->setOutput ($this->getOutput ());
 	}
 
 	/**
 	 * @desc Вызов экшена контроллера.
-	 * @param string $name Название контроллера.
-	 * @param string $method Метод.
-	 * @param array|Data_Transport $input Входные данные.
-	 * @param Controller_Task $task [optional] Задание
-	 * @return Controller_Task
+	 * @param Task $task Задание
+	 * @return $this
 	 */
-	public static function call ($name, $method, $input,
-		$task = null)
+	public function call (Task $task)
 	{
-		return self::callUncached ($name, $method, $input, $task);
+		return $this->callUncached ($task);
 	}
 
 	/**
 	 * @desc Вызов экшена без кэширования.
-	 * @param string $name Название контроллера.
-	 * @param string $method Метод.
-	 * @param array|Data_Transport $input Входные данные.
-	 * @param Controller_Task $task [optional] Итерация
-	 * диспетчера.
-	 * @return Controller_Task Итерация с результатами.
+	 * @param Task $task Задание
+	 * @return $this
 	 */
-	public static function callUncached ($name, $method, $input,
-		$task = null)
+	public function callUncached ($task)
 	{
 		Loader::multiLoad (
 			'Controller_Action',
 			'Controller_Task',
 			'Route_Action'
 		);
+
+		$controller = $task->getRequest ()->getExtra ('controller');
+		$action = $task->getRequest ()->getExtra ('action');
 
 		if (class_exists ('Tracer', false))
 		{
@@ -188,51 +199,25 @@ class Controller_Manager extends Manager_Abstract
 			);
 		}
 
-		if (!$task)
-		{
-			$task = new Controller_Task (
-				new Controller_Action (array (
-					'id'			=> null,
-					'controller'	=> $name,
-					'action'		=> $method
-				))
-			);
-		}
-
-		$controller = self::get ($name);
+		$controller = $this->get ($controller);
 
 		$temp_input = $controller->getInput ();
 		$temp_output = $controller->getOutput ();
 		$temp_task = $controller->getTask ();
 
-		if (is_null ($input))
-		{
-			$controller->setInput (self::getInput ());
-		}
-		elseif (is_array ($input))
-		{
-			Loader::load ('Data_Transport');
-			$tmp = new Data_Transport ();
-			$tmp->beginTransaction ()->send ($input);
-			$controller->setInput ($tmp);
-		}
-		else
-		{
-			$controller->setInput ($input);
-		}
-
 		$controller
-			->setOutput (self::getOutput ())
-			->setTask ($task);
+			->setTask ($task)
+			->setInput ($task->getRequest ()->getInput ())
+			->setOutput ($task->getResponse ()->getOutput ());
 
-		$controller->getOutput ()->beginTransaction ();
+		//$controller->getOutput ()->beginTransaction ();
 
-		$controller->_beforeAction ($method);
+		$controller->_beforeAction ($action);
 
 		// _beforeAction не генерировал ошибки, можно продолжать
 		if (!$controller->hasErrors ())
 		{
-			$reflection = new \ReflectionMethod ($controller, $method);
+			$reflection = new \ReflectionMethod ($controller, $action);
 
 			$params = $reflection->getParameters ();
 			$c_input = $controller->getInput ();
@@ -258,68 +243,101 @@ class Controller_Manager extends Manager_Abstract
 			try
 			{
 				call_user_func_array (
-					array ($controller, $method),
+					array ($controller, $action),
 					$params
 				);
 
-				$controller->_afterAction ($method);
+				$controller->_afterAction ($action);
 			}
 			catch (Controller_Exception $e)
 			{
-				$e->setTask ($task);
-				$task->setTemplate ($e->getTemplate ());
-				$controller->getOutput ()->send (array (
-					'exception' => $e
-				));
+				$task->setException ($e);
+				$template = $e->getTemplate ();
+
+				if (!$template && $e->getAutoTemplate ())
+				{
+					$template = $task->getResponse ()->getExtra ('template') .
+						'/' . $e->getMessage ();
+				}
+
+				$task->getResponse ()
+					->setExtra (array (
+						'template' => $template
+					));
 			}
 		}
 
-		$task->setTransaction ($controller->getOutput ()->endTransaction ());
+		//$task->setTransaction ($controller->getOutput ()->endTransaction ());
 
 		$controller
+			->setTask ($temp_task)
 			->setInput ($temp_input)
-			->setOutput ($temp_output)
-			->setTask ($temp_task);
+			->setOutput ($temp_output);
 
 		if (class_exists ('Tracer', false))
 		{
 			\Tracer::end (null);
 		}
 
-		return $task;
+		return $this;
 	}
 
 	/**
 	 * @desc Создаем задания из экшинов
 	 * @param Route_Action_Collection $actions
 	 * @param Data_Transport $input
-	 * @return array <Controller_Task>
+	 * @return Task_Collection
 	 */
-	public static function createTasks (Route_Action_Collection $actions,
+	public function createTasks (Route_Action_Collection $actions,
 		Data_Transport $input)
 	{
-		$tasks = array ();
+		Loader::multiLoad ('Task', 'Task_Collection');
 
-		Loader::load ('Controller_Task');
+		$tasks = new Task_Collection;
+
+		$default_render = $this->_getViewRenderManager ()->getDefaultView ();
 
 		foreach ($actions as $action)
 		{
-			$task = new Controller_Task ($action);
-			$task->setInput ($input);
+			$c = $action->Controller_Action->controller;
+			$a = $action->Controller_Action->action;
+			$task = new Task (
+				'Controller',
+				array (
+					'controller' => $c,
+					'action' => $a,
+				)
+			);
 
-			$tasks [] = $task;
+			$p = strpos ($c, '\\');
+			$cname = (false === $p)
+				? $c
+				: substr ($c, $p + 1);
+
+			$template =
+				'Controller/' .
+				str_replace ('_', '/', $cname . '/' . $a);
+
+			$task->getRequest ()->setInput ($input);
+			$task->getResponse ()->setExtra (array (
+				'template' => $template,
+				'render' => $default_render
+			));
+
+			$tasks->add ($task);
+			$tasks->add (new Task ('Render'));
 		}
 
 		return $tasks;
 	}
 
-	/**
-	 * @desc Очистка результатов работы контроллеров.
-	 */
-	public static function flushResults ()
-	{
-		self::$_tasksResults = array ();
-	}
+//	/**
+//	 * @desc Очистка результатов работы контроллеров.
+//	 */
+//	public function flushResults ()
+//	{
+//		$this->_tasksResults = array ();
+//	}
 
 	/**
 	 * @desc Возвращает контроллер по названию.
@@ -361,56 +379,51 @@ class Controller_Manager extends Manager_Abstract
 	}
 
 	/**
-	 * @return Data_Transport
+	 * @desc Возвращает экземпляр
+	 * @return Controller_Manager
 	 */
-	public static function getInput ()
+	public static function getInstance ()
 	{
-		if (!self::$_input)
-		{
-			Loader::load ('Data_Transport');
-			self::$_input  = new Data_Transport ();
-		}
-		return self::$_input;
+		return Core::di ()->getInstance (__CLASS__);
 	}
 
-	/**
-	 * @desc Возвращает транспорт для выходных данных по умолчанию.
-	 * @return Data_Transport
-	 */
-	public static function getOutput ()
-	{
-		if (!self::$_output)
-		{
-			Loader::load ('Data_Transport');
-			Loader::load ('Data_Provider_Router');
-
-			self::$_output = new Data_Transport ();
-
-			foreach (self::config ()->output_filters as $filter)
-			{
-				$filter_class = 'Filter_' . $filter;
-				Loader::load ($filter_class);
-				$filter = new $filter_class ();
-				self::$_output->outputFilters ()->append ($filter);
-			}
-		}
-		return self::$_output;
-	}
+//	/**
+//	 * @desc Возвращает транспорт для выходных данных по умолчанию.
+//	 * @return Data_Transport
+//	 */
+//	public static function getOutput ()
+//	{
+//		if (!$this->_output)
+//		{
+//			Loader::load ('Data_Transport');
+//			Loader::load ('Data_Provider_Router');
+//
+//			$this->_output = new Data_Transport ();
+//
+//			foreach ($this->config ()->output_filters as $filter)
+//			{
+//				$filter_class = 'Filter_' . $filter;
+//				Loader::load ($filter_class);
+//				$filter = new $filter_class ();
+//				$this->_output->outputFilters ()->append ($filter);
+//			}
+//		}
+//		return $this->_output;
+//	}
 
 	/**
 	 * @desc Выполняет указанный контроллер, экшен с заданными параметрами.
 	 * @param string $action Название контроллера или контроллер и экшен
 	 * в формате "Controller/action".
 	 * @param array $args Параметры контроллера.
-	 * @param mixed $options=true Параметры вызова.
+	 * @param boolean $html_only только результат рендера
 	 * @return string Результат компиляции шабона.
 	 * @todo Это будет в Controller_Render
 	 * @tutorial
 	 * 		html ('Controller', array ('param'	=> 'val'));
 	 * 		html ('Controller/action')
 	 */
-	public static function html ($action, array $args = array (),
-		$options = true)
+	public function html ($action, array $args = array (), $html_only = true)
 	{
 		$a = explode ('/', $action);
 		if (count ($a) == 1)
@@ -418,48 +431,13 @@ class Controller_Manager extends Manager_Abstract
 			$a [1] = 'index';
 		}
 
-		$cache_config = self::_cacheConfig ($a [0], $a [1]);
-
-//		Debug::microtime ($a [0] . '/' . $a [1] . '/ ' . var_export ($cache_config, true));
-		//$start_time = microtime (true);
-
-		/*if ($options === true)
-		{
-			$options = array ('full_result' => false);
-		}
-		elseif ($options === false)
-		{
-			$options = array ('full_result' => true);
-		}*/
-
-		if (is_bool ($options))
-		{
-			$options = array ('full_result' => !$options);
-		}
+		$cache_config = $this->_cacheConfig ($a [0], $a [1]);
 
 		$html = Executor::execute (
-			array (__CLASS__, 'htmlUncached'),
-			array ($a, $args, $options),
+			array ($this, 'htmlUncached'),
+			array ($a, $args, $html_only),
 			$cache_config
 		);
-
-		//$dt = microtime (true) - $start_time;
-
-//		Debug::microtime ($a [0] . '/' . $a [1] . '/ ' . round ($dt, 5));
-
-		/*if ($dt > 1)
-		{
-			$f = fopen (Core::root () . 'log/contrlog.txt', 'a');
-			fwrite (
-				$f,
-				date ('m-d H:i:s') . ' ' .
-				$a [0] . '/' . $a [1] . '/' .
-				$dt . '/' .
-				var_export ($cache_config, true) .
-				"\r\n"
-			);
-			fclose ($f);
-		}*/
 
 		return $html;
 	}
@@ -470,15 +448,14 @@ class Controller_Manager extends Manager_Abstract
 	 * @param string $action Название контроллера или контроллер и экшен
 	 * в формате "Controller/action".
 	 * @param array $args Параметры контроллера.
-	 * @param mixed $options=true Параметры вызова.
+	 * @param boolean $html_only Только результаты рендера
 	 * @return string Результат компиляции шабона.
 	 * @todo Это будет в Controller_Render
 	 * @tutorial
 	 * 		html ('Controller', array ('param'	=> 'val'));
 	 * 		html ('Controller/action')
 	 */
-	public static function htmlUncached ($action, array $args = array (),
-		$options = true)
+	public function htmlUncached ($action, array $args = array (), $html_only)
 	{
 		$a = is_array ($action) ? $action : explode ('/', $action);
 
@@ -487,7 +464,7 @@ class Controller_Manager extends Manager_Abstract
 			$a [1] = 'index';
 		}
 
-		if (class_exists ('Tracer'))
+		if (class_exists ('Tracer', false))
 		{
 			Tracer::begin (
 				__CLASS__,
@@ -498,168 +475,163 @@ class Controller_Manager extends Manager_Abstract
 			);
 		}
 
-		$iteration = self::call ($a [0], $a [1], $args);
+		$tasks = new Task_Collection;
 
-		$buffer = $iteration->getTransaction ()->buffer ();
-		$result = array (
-			'data'		=>
-				isset ($buffer ['data']) ?
-				$buffer ['data'] :
-				array (),
-			'html'		=> null
+		// Задание контроллера
+		$controller_task = new Task (
+			'Controller',
+			array (
+				'controller' => $a [0],
+				'action' => $a [1]
+			)
 		);
 
-		$tpl = $iteration->getTemplate ();
+		$p = strpos ($a [0], '\\');
+		$cname = ($p === false)
+			? $a [0]
+			: substr ($a [0], $p + 1);
 
-		if ($tpl)
-		{
-			$view = View_Render_Manager::pushViewByName ('Smarty');
+		$template =
+			'Controller/' .
+			str_replace ('_', '/', $cname . '/' . $a [1]);
 
-			try
-			{
-				$view->assign ($buffer);
-				$result ['html'] = $view->fetch ($tpl);
-			}
-			catch (Exception $e)
-			{
-				$msg =
-					'[' . $e->getFile () . '@' .
-					$e->getLine () . ':' .
-					$e->getCode () . '] ' .
-					$e->getMessage () . PHP_EOL;
+		$input = new Data_Transport;
+		$input->appendProvider(new Data_Provider_Buffer ($args));
+		$controller_task->getRequest ()->setInput ($input);
+		$controller_task->getResponse ()->setExtra (array (
+			'render' => 'Smarty',
+			'template' => $template
+		));
+		$tasks [] = $controller_task;
 
-				error_log (
-					$msg . PHP_EOL .
-					$e->getTraceAsString () . PHP_EOL,
-					E_USER_ERROR, 3
-				);
+		// Задание рендера
+		$tasks [] = new Task ('Render');
 
-				Debug::log ($msg);
+		$this->_getWorkerManager ()->letAll ($tasks);
 
-				$result ['error'] = 'Controller_Manager: Error in template.';
-			}
-
-			View_Render_Manager::popView ();
-		}
-
-		if (class_exists ('Tracer'))
+		if (class_exists ('Tracer', false))
 		{
 			Tracer::end ();
 		}
 
-		if ($options === true)
-		{
-			$options = array ('full_result' => false);
-		}
-		elseif ($options === false)
-		{
-			$options = array ('full_result' => true);
-		}
-
-		return isset ($options ['full_result']) && $options ['full_result']
-			? $result
-			: $result ['html'];
+		return $html_only
+			? $tasks->getResponse ()->getOutput ()->receive ('content')
+			: $tasks;
 	}
 
-	/**
-	 * @desc Добавление задания в текущую очередь выполнения.
-	 * @param mixed $action
-	 */
-	public static function pushTasks ($action)
-	{
-		if (
-			$action instanceof Route_Action_Collection ||
-			$action instanceof Controller_Action_Collection
-		)
-		{
-			foreach ($action as $resource)
-			{
-				self::$_tasksQueue [] =
-					new Controller_Task ($resource);
-			}
-		}
-		elseif (
-			$action instanceof Controller_Action ||
-			$action instanceof Route_Action
-		)
-		{
-			self::$_tasksQueue [] = new Controller_Task ($action);
-		}
-		elseif (is_array ($action))
-		{
-			if (isset ($action ['controller']))
-			{
-				$action = func_get_args ();
-			}
-
-			foreach ($action as $info)
-			{
-				self::pushTasks (new Controller_Action (array (
-					'controller'	=> $info ['controller'],
-					'action'		=> $info ['action']
-				)));
-			}
-		}
-		else
-		{
-			Loader::load ('Zend_Exception');
-			throw new Zend_Exception ('Illegal type.');
-		}
-	}
+//	/**
+//	 * @desc Добавление задания в текущую очередь выполнения.
+//	 * @param mixed $action
+//	 */
+//	public function pushTasks ($action)
+//	{
+//		if (
+//			$action instanceof Route_Action_Collection ||
+//			$action instanceof Controller_Action_Collection
+//		)
+//		{
+//			foreach ($action as $resource)
+//			{
+//				$this->_tasksQueue [] = new Task (
+//					'Controller',
+//					array (
+//						'controller' => $resource->controller,
+//						'action' => $resource->action,
+//						'render' => $resource->viewRender ()->name
+//					)
+//				);
+//			}
+//		}
+//		elseif ($action instanceof Route_Action)
+//		{
+//			$this->_tasksQueue [] = new Task (
+//				'Controller',
+//				array (
+//					'controller' => $action->controller,
+//					'action' => $action->action,
+//					'render' => $action->viewRender ()->name ()
+//				)
+//			);
+//		}
+//		elseif ($action instanceof Controller_Action)
+//		{
+//			$this->_tasksQueue [] = new Task (
+//				'Controller',
+//				array (
+//					'controller' => $action->controller,
+//					'action' => $action->action,
+//					'render' => View_Render_Manager::getView ()->name ()
+//				)
+//			);
+//		}
+//		elseif (is_array ($action))
+//		{
+//			if (isset ($action ['controller']))
+//			{
+//				$action = func_get_args ();
+//			}
+//
+//			foreach ($action as $info)
+//			{
+//				$this->pushTasks (new Controller_Action (array (
+//					'controller'	=> $info ['controller'],
+//					'action'		=> $info ['action']
+//				)));
+//			}
+//		}
+//		else
+//		{
+//			Loader::load ('Zend_Exception');
+//			throw new Zend_Exception ('Illegal type.');
+//		}
+//	}
 
 	/**
 	 *
-	 * @param Controller_Task|Route_Action|Controller_Action $action
-	 * @return Controller_Task
+	 * @param Task $task
+	 * @return Task
 	 */
-	public static function run ($task)
+	public function run ($task)
 	{
-		$parent_task = self::$_currentTask;
+		$parent_task = $this->_currentTask;
 
-		self::$_currentTask = $task;
+		$this->_currentTask = $task;
 
-		$action = $task->controllerAction ();
+		$this->call ($task);
 
-		$task = self::call (
-			$action->controller,
-			$action->action,
-			$task->getInput (),
-			$task
-		);
-
-		self::$_currentTask = $parent_task;
+		$this->_currentTask = $parent_task;
 
 		return $task;
 	}
 
-	/**
-	 * @desc Выполнение очереди заданий
-	 * @param array $actions
-	 * @return array
-	 */
-	public static function runTasks ($tasks)
-	{
-		self::$_tasksBuffer [] = self::$_tasksQueue;
-		self::$_tasksResultsBuffer [] = self::$_tasksResults;
-
-		self::$_tasksQueue = $tasks;
-
-		self::$_tasksResults = array ();
-
-		for ($i = 0; $i < count (self::$_tasksQueue); ++$i)
-		{
-			$task = self::run (self::$_tasksQueue [$i]);
-			if (!$task->getIgnore ())
-			{
-				self::$_tasksResults [] = $task;
-			}
-		}
-
-		$result = self::$_tasksResults;
-		self::$_tasksQueue = array_pop (self::$_tasksBuffer);
-		self::$_tasksResults = array_pop (self::$_tasksResultsBuffer);
-
-		return $result;
-	}
+//	/**
+//	 * @desc Выполнение очереди заданий
+//	 * @param array $actions
+//	 * @return array
+//	 */
+//	public function runTasks ($tasks)
+//	{
+//		$this->_tasksBuffer [] = $this->_tasksQueue;
+//		$this->_tasksResultsBuffer [] = $this->_tasksResults;
+//
+//		$this->_tasksQueue = $tasks;
+//
+//		$this->_tasksResults = array ();
+//
+//		for ($i = 0; $i < count ($this->_tasksQueue); ++$i)
+//		{
+//			$task = $this->run ($this->_tasksQueue [$i]);
+//			if (!$task->getResponse ()->getExtra ('ignore'))
+//			{
+//				$this->_tasksResults [] = $task;
+//			}
+//		}
+//
+//		$result = $this->_tasksResults;
+//		$this->_tasksQueue = array_pop ($this->_tasksBuffer);
+//		$this->_tasksResults = array_pop ($this->_tasksResultsBuffer);
+//
+//		return $result;
+//	}
 
 }

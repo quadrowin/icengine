@@ -126,14 +126,11 @@ class Request
 	 */
 	public static function isJsHttpRequest ()
 	{
-		global $JsHttpRequest_Active;
-
-		return (
+		return
 			isset ($_SERVER ['REQUEST_METHOD']) &&
 			$_SERVER ['REQUEST_METHOD'] == 'POST' &&
-			isset ($JsHttpRequest_Active) &&
-			$JsHttpRequest_Active
-		);
+			isset ($_GET ['JsHttpRequest']) &&
+			$_GET ['JsHttpRequest'];
 	}
 
 	/**
@@ -400,7 +397,7 @@ class Request
 		{
 			return session_id ();
 		}
-		
+
 		if (!class_exists ('Session_Manager'))
 		{
 			Loader::load ('Session_Manager');
@@ -425,7 +422,7 @@ class Request
 			session_start ();
 			$session_id = session_id ();
 		}
-		
+
 		return $session_id;
 	}
 

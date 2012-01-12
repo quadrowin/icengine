@@ -13,10 +13,23 @@ class Controller_Controller extends Controller_Abstract
 {
 
 	/**
+	 *
+	 * @return View_Render_Manager
+	 */
+	protected function _getViewRenderManager ()
+	{
+		return Core::di ()->getInstance ('Ice\\View_Render_Manager', $this);
+	}
+
+	/**
 	 * @desc
 	 */
 	public function ajax ()
 	{
+		$this->_task->getResponse ()->setExtra (array (
+			'render' => $this->_getViewRenderManager ()->get ('JsHttpRequest')
+		));
+
 		list (
 			$call,
 			$back,
@@ -27,15 +40,24 @@ class Controller_Controller extends Controller_Abstract
 			'params'
 		);
 
-		$result = Controller_Manager::html (
+		$tasks = $this->_getControllerManager ()->html (
 			$call,
 			$params ? $params : array (),
 			false
 		);
 
+		// Результат выполнения контроллера
+		$controller_output = $tasks [0]->getResponse ()->getOutput ();
+
+		// Результат рендеринга
+		$render_output = $tasks->getResponse ()->getOutput ();
+
 		$this->_output->send (array (
-			'back'		=> $back,
-			'result'	=> $result
+			'back' => $back,
+			'result' => array (
+				'data' => $controller_output->receive ('data'),
+				'html' => $render_output->receive ('content')
+			)
 		));
 	}
 
