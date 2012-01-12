@@ -36,6 +36,24 @@ class Bill_Payment_Type_Abstract extends Model_Factory_Delegate
 	 */
 	public function instantPayment (array $params)
 	{
+		$bill = Model_Manager::byKey('Bill', $params ['Bill__id']);
+		
+		if (!$bill)
+		{
+			return;
+		}
+
+		$payment = Model_Manager::byQuery (
+			'Bill_Payment',
+			Query::instance ()
+				->where ('Bill__id', $params ['Bill__id'])
+		);
+
+		if ($payment)
+		{
+			return;
+		}
+
 		Loader::load ('Bill_Payment');
 		$payment = new Bill_Payment (array (
 			'Bill__id'				=> 
@@ -53,7 +71,8 @@ class Bill_Payment_Type_Abstract extends Model_Factory_Delegate
 				isset ($params ['details']) ? 
 				$params ['details'] : '',
 			'beginProcessTime'		=> Helper_Date::toUnix (),
-			'endProcessTime'		=> '2000-01-01 00:00:00'
+			'endProcessTime'		=> '2000-01-01 00:00:00',
+			'User__id' => $bill->User__id
 		));
 		
 		$payment->save ();

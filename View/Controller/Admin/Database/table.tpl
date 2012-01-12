@@ -8,25 +8,25 @@
 		<h2>Записи</h2>
 	</div>
 
-	<p><a href="/cp/row/{$table}/0/">Добавить</a></p>
+	<p><a href="/cp/row/{$table}/0/{if $limitator}?limitator={$limitator}{/if}">Добавить</a></p>
 
 	{if $collection}
 
-	{if $search_fields}
+	{if $search_fields && count($search_fields)>0}
 	<form method="get" action="/cp/table/{$table}/">
-		<div style="height:250px; overflow:auto">
+		<div style="max-height:250px; overflow:auto">
 			<table cellpadding="5">
 				{foreach from=$search_fields item="sf"}
 					{assign var="sff" value=$sf->Field}
 					<tr>
-						<td valign="top" width="150" style="padding-bottom:15px">
+						<td valign="top" width="150" style="padding-bottom:5px">
 							{if !empty($sf->Comment)}
 								{$sf->Comment}
 							{else}
 								{$sf->Field}
 							{/if}
 						</td>
-						<td valign="top" style="padding-bottom:15px">
+						<td valign="top" style="padding-bottom:5px">
 							{if !empty($sf->Values)}
 								<select name="search[{$sf->Field}]" style="width:250px">
 									<option value="0">Не выбрано</option>
@@ -100,7 +100,7 @@
 					{/if}
 					{/if}
 					{if $field == $title || ($links && in_array($field,$links))}
-					<a href="/cp/row/{$table}/{$row->key()}/" style="
+					<a href="/cp/row/{$table}/{$row->key()}/{if $limitator}?limitator={$limitator}{/if}" style="
 						{if $link_styles}
 							{foreach from=$link_styles item="column" key="c"}
 								{foreach from=$column item="style" key="v"}

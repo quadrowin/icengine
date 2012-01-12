@@ -15,6 +15,7 @@ class Query {
 	const DISTINCT			= 'DISTINCT';
 	const FROM 				= 'FROM';
 	const GROUP				= 'GROUP';
+	const HAVING			= 'HAVING';
 	const INDEX				= 'INDEX';
 	const INDEXES			= 'INDEXES';
 	const INNER_JOIN		= 'INNER JOIN';
@@ -224,6 +225,17 @@ class Query {
 			$this->_parts [self::GROUP] [] = $column;
 		}
 		
+		return $this;
+	}
+	
+	/**
+	 * @desc Устанавливает условие для агрегатных функций (MAX, SUM, AVG, …).
+	 * @param string $condition условие для агрегатных функций
+	 * @return Query
+	 */
+	public function having ($condition)
+	{
+		$this->_parts [self::HAVING] = $condition;
 		return $this;
 	}
 	
