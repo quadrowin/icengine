@@ -59,4 +59,8 @@ class Component_Balance extends Model_Component
 		return $log;
 	}
 	
+	public function title() {
+		return $this->rowId;
+	}
+	
 }
