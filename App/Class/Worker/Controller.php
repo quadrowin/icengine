@@ -12,22 +12,22 @@ class Worker_Controller extends Worker_Abstract
 {
 
 	/**
-	 * @desc 
-	 * @param Task $task
-	 * @param Task_Collection $tasks
+	 * @desc
+	 * @return Controller_Manager
 	 */
-	public function let (Task $task, Task_Collection $tasks = null)
+	protected function _getControllerManager ()
 	{
-		$this->getControllerManager ()->call ($task);
+		return Core::di ()->getInstance ('Ice\\Controller_Manager', $this);
 	}
 
 	/**
 	 * @desc
-	 * @return Controller_Manager
+	 * @param Task $task
+	 * @param Task_Collection $tasks
 	 */
-	public function getControllerManager ()
+	public function let (Task $task)
 	{
-		return Core::di ()->getInstance ('Ice\\Controller_Manager', $this);
+		$this->_getControllerManager ()->call ($task);
 	}
 
 }

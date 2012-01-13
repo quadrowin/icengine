@@ -26,17 +26,17 @@ class Helper_Dir
 	{
 		if (!self::$_replaces)
 		{
-			self::$_replaces = array(
+			self::$_replaces = array (
 				'{$app}' => Core::bootstrap ()->getAppDir (),
 				'{$ice}' => rtrim (Core::path (), '\\/'),
 				'{$root}' => rtrim (Core::root (), '\\/')
 			);
 		}
 
-		$result = array();
-		foreach ($dirs as $dir)
+		$result = array ();
+		foreach ($dirs as $k => $dir)
 		{
-			$result [] = strtr ($dir, self::$_replaces);
+			$result [$k] = strtr ($dir, self::$_replaces);
 		}
 
 		return $result;
