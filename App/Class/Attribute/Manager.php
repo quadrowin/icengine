@@ -40,36 +40,52 @@ class Attribute_Manager extends Manager_Abstract
 	 * @desc Место хранения аттрибутов
 	 * @var Data_Source_Abstract
 	 */
-	protected static $_source;
+	protected $_source;
 
 	/**
 	 * @desc Провайдер для кэширования
 	 * @var Data_Provider_Abstract
 	 */
-	protected static $_provider;
+	protected $_provider;
+
+	/**
+	 * @return Data_Provider_Manager
+	 */
+	protected function _getDataProviderManager ()
+	{
+		return Core::di ()->getInstance ('Ice\\Data_Provider_Manager', $this);
+	}
+
+	/**
+	 *
+	 * @return Data_Source_Manager
+	 */
+	protected function _getDataSourceManager ()
+	{
+		return Core::di ()->getInstance ('Ice\\Data_Source_Manager', $this);
+	}
 
 	/**
 	 * @desc Инициализация
 	 */
-	public static function init ()
+	public function init ()
 	{
-		$config = static::config ();
+		$config = $this->config ();
 
 		if ($config ['source'])
 		{
-			self::$_source = Data_Source_Manager::getInstance (__CLASS__)
+			$this->_source = $this->_getDataSourceManager ()
 				->get ($config ['source']);
 		}
 		else
 		{
-			self::$_source = DDS::getDataSource ();
+			$this->_source = DDS::getDataSource ();
 		}
 
 		if ($config ['provider'])
 		{
-			self::$_provider = Data_Provider_Manager::get (
-				$config ['provider']
-			);
+			$this->_provider = $this->_getDataProviderManager ()
+				->get ($config ['provider']);
 		}
 	}
 
@@ -77,9 +93,9 @@ class Attribute_Manager extends Manager_Abstract
 	 * @desc Удаляет все атрибуты модели.
 	 * @param Model $model
 	 */
-	public static function deleteFor (Model $model)
+	public function deleteFor (Model $model)
 	{
-	    self::$_source->execute (
+	    $this->_source->execute (
 	        Query::instance ()
 				->delete ()
 				->from (self::TABLE)
@@ -87,9 +103,9 @@ class Attribute_Manager extends Manager_Abstract
 				->where ('rowId', $model->key ())
 	    );
 
-		if (self::$_provider)
+		if ($this->_provider)
 		{
-			self::$_provider->deleteByPattern (
+			$this->_provider->deleteByPattern (
 				$model->table () . '/' .
 				$model->key () . '/'
 			);
@@ -102,16 +118,16 @@ class Attribute_Manager extends Manager_Abstract
 	 * @param string $key Название атрибута.
 	 * @return mixed Значение атрибута.
 	 */
-	public static function get (Model $model, $key)
+	public function get (Model $model, $key)
 	{
 		$table = $model->table ();
 		$row = $model->key ();
 
-		if (self::$_provider)
+		if ($this->_provider)
 		{
 			$prov_key = $table . self::DELIM . $row . self::DELIM . $key;
 
-			$v = self::$_provider->get ($prov_key);
+			$v = $this->_provider->get ($prov_key);
 
 			if ($v)
 			{
@@ -120,20 +136,20 @@ class Attribute_Manager extends Manager_Abstract
 
 		}
 
-		$value = self::$_source->execute (
+		$value = $this->_source->execute (
 			Query::instance ()
-			->select ('value')
-			->from (self::TABLE)
-			->where ('`table`', $table)
-			->where ('`rowId`', $row)
-			->where ('`key`', $key)
+				->select ('value')
+				->from (self::TABLE)
+				->where ('`table`', $table)
+				->where ('`rowId`', $row)
+				->where ('`key`', $key)
 		)->getResult ()->asValue ();
 
-		if (self::$_provider)
+		if ($this->_provider)
 		{
 			$value = json_decode ($value, true);
 
-			self::$_provider->set (
+			$this->_provider->set (
 				$prov_key,
 				array (
 					't'	=> $table,
@@ -155,7 +171,7 @@ class Attribute_Manager extends Manager_Abstract
 	 * @param string|array $key Название атрибута.
 	 * @param mixed $value Значение атрибута.
 	 */
-	public static function set (Model $model, $key, $value)
+	public function set (Model $model, $key, $value)
 	{
 	    $table = $model->table ();
 	    $row = $model->key ();
@@ -178,13 +194,13 @@ class Attribute_Manager extends Manager_Abstract
             $query->where ('key', array_keys ($key));
 	    }
 
-	    self::$_source->execute ($query);
+	    $this->_source->execute ($query);
 
 		$pref = $table . self::DELIM . $row . self::DELIM;
 
 		foreach ($key as $k => $v)
 		{
-			self::$_source->execute (
+			$this->_source->execute (
 				Query::instance ()
 					->insert (self::TABLE)
 					->values (array(
@@ -195,9 +211,9 @@ class Attribute_Manager extends Manager_Abstract
 					))
 			);
 
-			if (self::$_provider)
+			if ($this->_provider)
 			{
-				self::$_provider->set (
+				$this->_provider->set (
 					$pref . $k,
 					array (
 						't'	=> $table,

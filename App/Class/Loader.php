@@ -148,7 +148,7 @@ class Loader
 
 		if (null === $namespace)
 		{
-			$p = strpos ($class, '\\');
+			$p = strrpos ($class, '\\');
 
 			if (false === $p)
 			{
@@ -211,7 +211,7 @@ class Loader
 		for ($i = count (self::$_pathes [$namespace]) - 1; $i >= 0; --$i)
 		{
 			$fn = self::$_pathes [$namespace][$i] . $file;
-
+			
 			if (file_exists ($fn))
 			{
 				self::$_required [$namespace][$file] = true;
@@ -220,18 +220,18 @@ class Loader
 			}
 		}
 
-		if (false)
+		if (true)
 		{
-			include __DIR__ . '/Loader/Exception.php';
+//			include __DIR__ . '/Loader/Exception.php';
 //			throw new Loader_Exception ("Not found: $file");
 			echo '<pre>Not found: ' . $file . "\n";
 //			echo 'Pathes: ';
 			var_dump (self::$_pathes);
-//			var_dump (self::$_pathes [$namespace]);
+			var_dump (self::$_pathes [$namespace]);
 			echo "\n\n";
 			debug_print_backtrace ();
 			echo '</pre>';
-			die();
+			//die();
 		}
 
 		return false;

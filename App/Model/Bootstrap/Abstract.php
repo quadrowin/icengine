@@ -62,6 +62,49 @@ abstract class Bootstrap_Abstract
 	}
 
 	/**
+	 *
+	 * @return Attribute_Manager
+	 */
+	protected function _getAttributeManager ()
+	{
+		return Core::di ()->getInstance ('Ice\\Attribute_Manager', $this);
+	}
+
+	/**
+	 * @return Component_Manager
+	 */
+	protected function _getComponentManager ()
+	{
+		return Core::di ()->getInstance ('Ice\\Component_Manager', $this);
+	}
+
+	/**
+	 *
+	 * @return Data_Source_Manager
+	 */
+	protected function _getDataSourceManager ()
+	{
+		return Core::di ()->getInstance ('Ice\\Data_Source_Manager', $this);
+	}
+
+	/**
+	 * @return Model_Scheme
+	 */
+	protected function _getModelScheme ()
+	{
+		return Core::di ()->getInstance ('Ice\\Model_Scheme', $this);
+	}
+
+	/**
+	 *
+	 * @return View_Render_Manager
+	 */
+	protected function _getViewRenderManager ()
+	{
+		return Core::di ()->getInstance ('Ice\\View_Render_Manager', $this);
+	}
+
+	/**
 	 * @desc Запускает загрузчик.
 	 */
 	protected function _run ()
@@ -97,7 +140,6 @@ abstract class Bootstrap_Abstract
 			'Model_Option',
 			'Model_Content',
 			'Model_Mapper_Scheme',
-			'Component',
 			'Controller_Abstract',
 			'Controller_Exception',
 			'Controller_Front',
@@ -108,6 +150,8 @@ abstract class Bootstrap_Abstract
 			'View_Helper_Abstract',
 			'Data_Transport_Manager'
 		);
+
+		$this->initComponentManager ();
 
 		$this->initMessageQueue ();
 
@@ -200,8 +244,7 @@ abstract class Bootstrap_Abstract
 	 */
 	public function initAttributeManager ()
 	{
-		Loader::load ('Attribute_Manager');
-		Attribute_Manager::init ();
+		$this->_getAttributeManager ()->init ();
 	}
 
 	/**
@@ -213,6 +256,14 @@ abstract class Bootstrap_Abstract
 			'Acl_Resource',
 			'Acl_Role'
 		);
+	}
+
+	/**
+	 * @desc Инициализация менеджера компонент
+	 */
+	public function initComponentManager ()
+	{
+		$this->_getComponentManager ()->init ();
 	}
 
 	/**
@@ -236,7 +287,7 @@ abstract class Bootstrap_Abstract
 		);
 
 		DDS::setDataSource (
-			Data_Source_Manager::getInstance ()->get ($source_name)
+			$this->_getDataSourceManager ()->get ($source_name)
 		);
 	}
 
@@ -277,8 +328,7 @@ abstract class Bootstrap_Abstract
 	 */
 	public function initModelScheme ($name)
 	{
-		Loader::load ('Model_Scheme');
-		Model_Scheme::getInstance ()->init (
+		$this->_getModelScheme ()->init (
 			Config_Manager::get ('Model_Scheme', $name)
 		);
 	}
@@ -304,8 +354,7 @@ abstract class Bootstrap_Abstract
 	 */
 	public function initView ()
 	{
-		$manager = Core::di ()->getInstance ('Ice\\View_Render_Manager', $this);
-		$view = $manager->getDefaultView ();
+		$view = $this->_getViewRenderManager ()->getDefaultView ();
 
 		$view->addTemplatesPath (array(
 			Core::path () . 'Resource/Template/',

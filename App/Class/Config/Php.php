@@ -18,16 +18,14 @@ class Config_Php extends Config_Array
 	 */
 	public function __construct ($path)
 	{
-		$config = null;
-
 		if (is_file ($path))
 		{
+			$config = null;
 			include $path;
-		}
-
-		if (isset ($config))
-		{
-			parent::__construct ($config);
+			if (isset ($config))
+			{
+				parent::__construct ($config);
+			}
 		}
 	}
 
