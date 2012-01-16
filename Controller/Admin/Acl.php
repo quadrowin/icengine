@@ -217,7 +217,6 @@ class Controller_Admin_Acl extends Controller_Abstract
 		}
 
 		$resources = $this->_input->receive ('resources');
-		echo array_length($resources);
 
 		Loader::load ('Acl_Resource');
 
@@ -243,7 +242,7 @@ class Controller_Admin_Acl extends Controller_Abstract
 
 		Loader::load ('Helper_Header');
 
-		//Helper_Header::redirect ('/cp/acl/');
+		Helper_Header::redirect ('/cp/acl/');
 	}
 
 }
