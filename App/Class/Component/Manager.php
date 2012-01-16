@@ -25,6 +25,43 @@ class Component_Manager
 	);
 
 	/**
+	 * @desc Пути до подключенных компонент
+	 * @var array of string
+	 */
+	protected $_components = array ();
+
+	/**
+	 *
+	 * @param string $namespace
+	 * @param string $dir
+	 */
+	public function addDirectory ($namespace, $dir)
+	{
+		$components = scandir ($dir);
+		foreach ($components as $component)
+		{
+			if (ctype_alpha ($component))
+			{
+				$this->addComponent ($namespace, $dir, $component);
+			}
+		}
+	}
+
+	/**
+	 *
+	 * @param string $namespace
+	 * @param string $dir
+	 * @param string $component
+	 */
+	public function addComponent ($namespace, $dir, $component)
+	{
+		$ns = $namespace . '\\' . $component;
+		$path = $dir . '/' . $component;
+		$this->_components [$ns] = $path;
+		Loader::addPath ($ns, $path . '/Class/');
+	}
+
+	/**
 	 * @desc Конфиги менеджера
 	 * @return Objective
 	 */
@@ -38,6 +75,18 @@ class Component_Manager
 			);
 		}
 		return $this->_config;
+	}
+
+	/**
+	 * @desc Возвращает путь до директории компонента
+	 * @param string $name
+	 * @return string
+	 */
+	public function get ($name)
+	{
+		return isset ($this->_components [$name])
+			? $this->_components [$name]
+			: null;
 	}
 
 	/**
@@ -57,16 +106,9 @@ class Component_Manager
 		foreach ($config ['dirs'] as $namespace => $dirs)
 		{
 			$dirs = Helper_Dir::solve ($dirs);
-			$components = scandir ($dir);
-			foreach ($components as $component)
+			foreach ($dirs as $dir)
 			{
-				if (ctype_alpha ($component))
-				{
-					Loader::addPath (
-						$namespace . '\\' . $component,
-						$dir . DIRECTORY_SEPARATOR . $component
-					);
-				}
+				$this->addDirectory ($namespace, $dir);
 			}
 		}
 	}

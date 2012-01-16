@@ -287,4 +287,24 @@ class Objective implements \ArrayAccess, \IteratorAggregate, \Countable
 		return $this->__get ($offset);
 	}
 
+	/**
+	 * @desc Дополнение данных
+	 * @param array|Objective $base
+	 * @return $this
+	 */
+	public function union ($base)
+	{
+		if (is_array ($base))
+		{
+			$base = new Objective ($base);
+		}
+
+		$this->_data = array_merge (
+			$base->asArray (),
+			$this->_data
+		);
+
+		return $this;
+	}
+
 }

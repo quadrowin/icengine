@@ -13,6 +13,14 @@ class Config_Manager
 {
 
 	/**
+	 * @desc Config
+	 * @var array|Objective
+	 */
+	protected static $_config = array (
+		'components' => array ()
+	);
+
+	/**
 	 * @desc Путь до конфигов
 	 * @var string
 	 */
@@ -25,6 +33,15 @@ class Config_Manager
 	 * @var boolean
 	 */
 	protected static $_inLoading = false;
+
+	/**
+	 *
+	 * @return Component_Manager
+	 */
+	protected static function _getComponentManager ()
+	{
+		return Core::di ()->getInstance('Ice\\Component_Manager', __CLASS__);
+	}
 
 	/**
 	 * @desc Загружает конфиг из файла и возвращает объект конфига.
@@ -58,7 +75,62 @@ class Config_Manager
 			$result = self::emptyConfig ();
 		}
 
-		return is_array ($config) ? $result->merge ($config) : $result;
+		if (is_array ($config))
+		{
+			$result = $result->union ($config);
+		}
+
+		return self::compliteConfig ($type, $result);
+	}
+
+	/**
+	 * @desc
+	 * @param string $type
+	 * @param Objective $config
+	 * @return Objective
+	 */
+	public static function compliteConfig ($type, Config_Array $config)
+	{
+		if ($type == 'Config_Manager')
+		{
+			return $config;
+		}
+
+		$cfg = self::config ();
+
+		if ($cfg ['components'] && $cfg ['components'][$type])
+		{
+			$components = $cfg ['components'][$type];
+
+			foreach ($components as $component)
+			{
+
+				$dir = self::_getComponentManager ()->get ($component);
+				$fn =
+					$dir . '/Config/' .
+					str_replace ('_', '/', $type) . '.php';
+
+				if (file_exists ($fn))
+				{
+					$config->includeFile ($fn);
+				}
+			}
+		}
+
+		return $config;
+	}
+
+	/**
+	 * @desc Возвращает конфиг
+	 * @return Objective
+	 */
+	public static function config ()
+	{
+		if (is_array (self::$_config))
+		{
+			self::$_config = self::get (__CLASS__, self::$_config);
+		}
+		return self::$_config;
 	}
 
 	/**
@@ -107,8 +179,10 @@ class Config_Manager
 	 * @desc Возвращает текущию директорию конфигов
 	 * @return string
 	 */
-	public static function getPath() {
-		if (!self::$_path) {
+	public static function getPath ()
+	{
+		if (!self::$_path)
+		{
 			self::$_path = Core::root () . 'Ice/Config/';
 		}
 		return self::$_path;

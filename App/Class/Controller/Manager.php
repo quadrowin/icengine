@@ -131,6 +131,15 @@ class Controller_Manager extends Manager_Abstract
 
 	/**
 	 *
+	 * @return Component_Manager
+	 */
+	protected function _getComponentManager ()
+	{
+		return Core::di ()->getInstance ('Ice\\Component_Manager', $this);
+	}
+
+	/**
+	 *
 	 * @return View_Render_Manager
 	 */
 	protected function _getViewRenderManager ()
@@ -144,6 +153,18 @@ class Controller_Manager extends Manager_Abstract
 	protected function _getWorkerManager ()
 	{
 		return Core::di ()->getInstance ('Ice\\Worker_Manager', $this);
+	}
+
+	/**
+	 *
+	 * @return Helper_Controller_Template
+	 */
+	protected function _helperControllerTemplate ()
+	{
+		return Core::di ()->getInstance (
+			'Ice\\Helper_Controller_Template',
+			$this
+		);
 	}
 
 	/**
@@ -309,14 +330,7 @@ class Controller_Manager extends Manager_Abstract
 				)
 			);
 
-			$p = strpos ($c, '\\');
-			$cname = (false === $p)
-				? $c
-				: substr ($c, $p + 1);
-
-			$template =
-				'Controller/' .
-				str_replace ('_', '/', $cname . '/' . $a);
+			$template = $this->_helperControllerTemplate ()->get ($c, $a);
 
 			$task->getRequest ()->setInput ($input);
 			$task->getResponse ()->setExtra (array (
@@ -455,7 +469,8 @@ class Controller_Manager extends Manager_Abstract
 	 * 		html ('Controller', array ('param'	=> 'val'));
 	 * 		html ('Controller/action')
 	 */
-	public function htmlUncached ($action, array $args = array (), $html_only)
+	public function htmlUncached ($action, array $args = array (),
+		$html_only = true)
 	{
 		$a = is_array ($action) ? $action : explode ('/', $action);
 
@@ -486,17 +501,10 @@ class Controller_Manager extends Manager_Abstract
 			)
 		);
 
-		$p = strpos ($a [0], '\\');
-		$cname = ($p === false)
-			? $a [0]
-			: substr ($a [0], $p + 1);
-
-		$template =
-			'Controller/' .
-			str_replace ('_', '/', $cname . '/' . $a [1]);
+		$template = $this->_helperControllerTemplate ()->get ($a [0], $a [1]);
 
 		$input = new Data_Transport;
-		$input->appendProvider(new Data_Provider_Buffer ($args));
+		$input->appendProvider (new Data_Provider_Buffer ($args));
 		$controller_task->getRequest ()->setInput ($input);
 		$controller_task->getResponse ()->setExtra (array (
 			'render' => 'Smarty',
