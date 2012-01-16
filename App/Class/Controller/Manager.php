@@ -216,7 +216,7 @@ class Controller_Manager extends Manager_Abstract
 				__METHOD__,
 				__LINE__,
 				$name,
-				$method
+				$action
 			);
 		}
 
@@ -248,14 +248,9 @@ class Controller_Manager extends Manager_Abstract
 				$param_value = $c_input->receive ($param->name);
 				if (null === $param_value)
 				{
-					$reflection_param = new \ReflectionParameter (
-						array ($controller, $method),
-						$param->name
-					);
-
-					if ($reflection_param && $reflection_param->isOptional ())
+					if ($param->isOptional ())
 					{
-						$param_value = $reflection_param->getDefaultValue ();
+						$param_value = $param->getDefaultValue ();
 					}
 				}
 				$param = $param_value;
