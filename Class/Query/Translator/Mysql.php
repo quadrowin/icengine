@@ -664,7 +664,7 @@ class Query_Translator_Mysql extends Query_Translator
 				{
 					break;
 				}
-				if (!isset ($value [$i]))
+				if (!is_null ($value [$i]) && !isset ($value [$i]))
 				{
 					break;
 				}
