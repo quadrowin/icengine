@@ -455,64 +455,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		return $result;
 	}
 
-
-	/**
-	 * @desc Получить массив, содержащий добавленные и удаленные модели
-	 * @param Model_Collection $collection
-	 * @return array
-	 */
-    public function diffEdit ($collection, $fields = array())
-    {
-		$model_name = $collection->modelName ();
-
-		// Коллекция добавленных элементов
-		$collection_add = Model_Collection_Manager::create ($model_name)
-			->reset ();
-
-		// Коллекция неизменненых элементов
-		$collection_no = Model_Collection_Manager::create ($model_name)
-			->reset ();
-
-		// Коллекция удаленных элементов
-		$collection_del = Model_Collection_Manager::create ($model_name)
-			->reset ();
-
-		$collection_count = $this->count ();
-
-		foreach ($collection as $model)
-		{
-			$diff_model = $this->hasByFields ($model, $fields);
-
-			if ($diff_model)
-			{
-				$collection_no->add ($diff_model);
-				$collection_count--;
-			}
-			else
-			{
-				$collection_add->add ($model);
-			}
-		}
-
-		// если $collection_count не 0, делаем вывод, что есть удаленные модели
-		if ($collection_count)
-		{
-			foreach ($this as $model)
-			{
-				if (!$collection->hasByFields ($model, $fields))
-				{
-					$collection_del->add($model);
-				}
-			}
-		}
-
-		return array(
-			self::DIFF_EDIT_ADD		=> $collection_add,
-			self::DIFF_EDIT_NO		=> $collection_no,
-			self::DIFF_EDIT_DEL		=> $collection_del
-		);
-    }
-
 	/**
 	 * @desc Исключает из коллекции элемент с указанным индексом.
 	 * @param integer $index Индекс элемента в списке.
@@ -535,8 +477,8 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function filter ($fields)
 	{
-		$collection = new $this;
-		$collection->reset ();
+		$collection = Model_Collection_Manager::create ($this->modelName ())
+			->reset ();
 
 		$first_fields = array ();
 
@@ -620,65 +562,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 
 	/**
-	 * @desc Подсчет количества моделей в коллекции, соответсвующих условию.
-	 * @param type $fields
-	 * @return integer Количество моделей, соответвующих фильтру.
-	 */
-	public function filterGetCount ($fields)
-	{
-		$count = 0;
-		foreach ($this as $item)
-		{
-			if ($item->validate ($fields))
-		 	{
-				++$count;
-			}
-		}
-		return $count;
-	}
-
-	/**
-	 * @desc Возвращает первую модель, соответсвующую фильтру.
-	 * @param array $fields
-	 * @return Model|null
-	 */
-	public function filterGetFirst ($fields)
-	{
-		foreach ($this as $item)
-		{
-			if ($item->validate ($fields))
-			{
-				return $item;
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * @desc Фильтрация. Возвращает экземпляр новой коллекции.
-	 * Проверяет существование в моделях фильтруемых полей, в случае
-	 * отсутствия ошибки не возникает.
-	 * @param string $field
-	 * @param string $value
-	 * @return Model_Collection
-	 */
-	public function filterExt ($field, $value)
-	{
-		$collection = new $this;
-		$collection->reset ();
-
-		foreach ($this as $item)
-		{
-			if ($item->hasField ($field) && $item->field ($field) == $value)
-		 	{
-				$collection->add ($item);
-			}
-		}
-
-		return $collection;
-	}
-
-	/**
 	 * @desc Возвращает первый элемент коллекции.
 	 * @return Model
 	 */
@@ -693,67 +576,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 			return null;
 		}
 		return reset ($this->_items);
-	}
-
-	/**
-	 * @desc Определить размеры шрифта по полю count модели. Шрифты записываются в data('font_size') модели.
-	 * @param integer $minSize минимальный размер шрифта.
-	 * @param integer $maxSize максимальный размер шрифта.
-	 * @param integer $sizeStep Шаг шрифта (сколько прибавляется в каждом диапазоне)
-	 * @return Model_Collection
-	 */
-	public function fontSize ($minSize = 12, $maxSize = 30, $sizeStep = 2)
-	{
-		$tags = $this;
-
-		if (!$tags)
-		{
-			return;
-		}
-
-		// Количество шагов(диапазонов)
-		$steps	= ($maxSize - $minSize) / $sizeStep;
-		$range	= 1;
-		//$range = ceil(count($tags)/$steps); // Диапазон
-
-		$size	= $minSize;
-		$start	= 1;
-
-		for($i = 0; $i <= $steps; $i++)
-		{
-			$end = $start + $range;
-
-			$sizeArray [$size] = array(
-				'start' => $start,
-				'end'   => $end
-			);
-
-			$end++;
-			$start = $end;
-			$size  = $size + $sizeStep;
-		}
-
-		foreach($tags as $tag)
-		{
-			if ($tag->count <= $sizeArray[$maxSize]['end'])
-			{
-				foreach ($sizeArray as $key => $size)
-				{
-					if (
-						$tag->count >= $size['start'] &&
-						$tag->count <= $size['end']
-					)
-					{
-						$tag->data ('font_size', $key);
-					}
-				}
-			}
-			else
-			{
-				$tag->data ('font_size', $maxSize);
-			}
-		}
-		return $tags;
 	}
 
 	/**

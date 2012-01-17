@@ -1,70 +1,76 @@
 <?php
 
 /**
- * @desc Хэлпер для облака тэгов
+ * @desc Хэлпер для облака тэгов. В память о Ромке :)
+ * @author Роман Кузнецов. Переписал: Илья Колесников
  */
 class Helper_Tag_Cloud
 {
 	/**
 	 * @desc Определить размеры шрифта по полю count модели. Шрифты записываются в data('font_size') модели.
 	 * @param Model_Collection $collection Коллекция
-	 * @param integer $minSize минимальный размер шрифта.
-	 * @param integer $maxSize максимальный размер шрифта.
-	 * @param integer $sizeStep Шаг шрифта (сколько прибавляется в каждом диапазоне)
+	 * @param integer $min_size минимальный размер шрифта.
+	 * @param integer $max_size максимальный размер шрифта.
+	 * @param integer $size_step Шаг шрифта (сколько прибавляется в каждом диапазоне)
 	 * @return Model_Collection
 	 */
-	public static function fontSize (Model_Collection $collection, $minSize = 12,
-		$maxSize = 30, $sizeStep = 2)
+	public static function fontSize (Model_Collection $collection, $min_size = 12,
+		$max_size = 30, $size_step = 2)
 	{
-		$tags = $collection;
-
-		if (!$tags)
+		if (!$collection->count ())
 		{
 			return;
 		}
 
 		// Количество шагов(диапазонов)
-		$steps	= ($maxSize - $minSize) / $sizeStep;
+		$steps	= ceil (($max_size - $min_size) / $size_step);
 		$range	= 1;
-		//$range = ceil(count($tags)/$steps); // Диапазон
 
-		$size	= $minSize;
+		$size	= $min_size;
 		$start	= 1;
 
-		for($i = 0; $i <= $steps; $i++)
+		$size_array = array ();
+
+		for ($i = 0; $i < $steps; $i++)
 		{
 			$end = $start + $range;
 
-			$sizeArray [$size] = array(
+			$size_array [$size] = array(
 				'start' => $start,
 				'end'   => $end
 			);
 
 			$end++;
 			$start = $end;
-			$size  = $size + $sizeStep;
+			$size += $size_step;
 		}
 
-		foreach($tags as $tag)
+		foreach ($collection as $item)
 		{
-			if ($tag->count <= $sizeArray[$maxSize]['end'])
+			$count = (int) ($item->data ('count')
+				? $item->data ('count')
+				: $item->sfield ('count')
+			);
+			$values = array_values ($size_array);
+			$last = array_pop ($values);
+			if ($count <= $last ['end'])
 			{
-				foreach ($sizeArray as $key => $size)
+				foreach ($size_array as $key => $size)
 				{
 					if (
-						$tag->count >= $size['start'] &&
-						$tag->count <= $size['end']
+						$count >= $size ['start'] &&
+						$count <= $size ['end']
 					)
 					{
-						$tag->data ('font_size', $key);
+						$item->data ('font_size', $key);
 					}
 				}
 			}
 			else
 			{
-				$tag->data ('font_size', $maxSize);
+				$item->data ('font_size', $max_size);
 			}
 		}
-		return $tags;
+		return $collection;
 	}
 }
