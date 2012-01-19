@@ -7,16 +7,16 @@
 	<script type="text/javascript">
 	$(function () {
 		editor ('extended');
-	}); 
+	});
 	</script>
 {/literal*}
 
 <div id="tab-data">
 
 	{if !$is_new}
-		<p><a href="/cp/row/{$table}/{$row->key()}/delete/" onclick="if(!confirm('Вы действительно хотите удалить запись?'))return false" style="color:red;font-weight:bold">Удалить</a></p>
+		<p class="control"><a href="/cp/row/{$table}/{$row->key()}/delete/" onclick="if(!confirm('Вы действительно хотите удалить запись?'))return false" style="color:red;font-weight:bold">Удалить</a></p>
 	{/if}
-		
+
 	{if $fields}
 	<form method="post" action="/cp/row/{$table}/save/">
 	<input type="hidden" name="row_id" value="{if $is_new}0{else}{$row->key()}{/if}" />
@@ -25,20 +25,20 @@
 		{assign var="field" value=$i->Field}
 		<tr style="background-color:{if $smarty.foreach.i.iteration mod 2 eq 1}#eee{else}#fff{/if}">
 		{assign var="column" value=$i->Field}
-			<td style="padding:6px" valign="top" width="150"><b>{if $i->Comment}{$i->Comment}{else}{$i->Field}{/if}:</b> </td> 
+			<td style="padding:6px" valign="top" width="150"><b>{if $i->Comment}{$i->Comment}{else}{$i->Field}{/if}:</b> </td>
 			<td style="padding:6px" valign="top">
 				{if isset($i->Values)}
 					{if isset($link_models[$field])}
 					<div style="height:180px; overflow: auto">
 						{assign var="linked_items" value=$row->$field}
-			
+
 						<input type="hidden" id="column-{$i->Field}" name="column[{$i->Field}]" value="0" />
-				
+
 						{foreach from=$i->Values item="ival"}
-							<input type="checkbox" name="column[{$i->Field}][]" value="{$ival->key()}" 
+							<input type="checkbox" name="column[{$i->Field}][]" value="{$ival->key()}"
 								{if isset($events[$field])}
 								{foreach from=$events[$field] item="method" key="event"}
-								 on{$event}="{$method}"	
+								 on{$event}="{$method}"
 								{/foreach}
 								{/if}
 								{foreach from=$row->$field item="rowval"}
@@ -53,7 +53,7 @@
 					<select id="column-{$i->Field}" name="column[{$i->Field}]"
 						{if isset($events[$field])}
 						{foreach from=$events[$field] item="method" key="event"}
-						 on{$event}="{$method}"	
+						 on{$event}="{$method}"
 						{/foreach}
 						{/if}
 					>
@@ -65,9 +65,9 @@
 							{assign var="temp" value=$j->title()}
 							{$temp|truncate:"100"}
 							</option>
-						{/foreach} 
+						{/foreach}
 						{if $row && isset($row->$column) && $row->$column && !$selected}
-						<option value="{$row->$column}">Указано значение {$row->$column}</option>	
+						<option value="{$row->$column}">Указано значение {$row->$column}</option>
 						{/if}
 					</select>
 					{/if}
@@ -76,7 +76,7 @@
 				<input id="column-{$i->Field}" type="checkbox" value="1" name="column[{$i->Field}]"{if isset($row->$column) && $row->$column} checked="checked"{/if}
 					{if isset($events[$field])}
 					{foreach from=$events[$field] item="method" key="event"}
-					 on{$event}="{$method}"	
+					 on{$event}="{$method}"
 					{/foreach}
 					{/if}
 				>
@@ -86,7 +86,7 @@
 				<textarea rows="8" cols="50" style="width: 250px;" id="textarea-{$i->Field}" name="column[{$i->Field}]"
 					{if isset($events[$field])}
 					{foreach from=$events[$field] item="method" key="event"}
-					 on{$event}="{$method}"	
+					 on{$event}="{$method}"
 					{/foreach}
 					{/if}
 				>{if isset($row->$column)}{$row->$column|htmlspecialchars}{/if}</textarea>
@@ -98,9 +98,9 @@
 				<input id="column-{$i->Field}"{if strpos($i->Type,'time')!==false || strpos($i->Type,'date')!==false} class="icadmin_datepicker"{/if} size="44" type="text" name="column[{$i->Field}]" value="{if isset($row->$column)}{$row->$column|htmlspecialchars}{/if}"
 					{if isset($events[$field])}
 					{foreach from=$events[$field] item="method" key="event"}
-					 on{$event}="javascript:{$method};"	
+					 on{$event}="javascript:{$method};"
 					{/foreach}
-					{/if}	   
+					{/if}
 				>
 				{/if}
 				{/if}
@@ -121,13 +121,13 @@
 	{/if}
 
 </div>
-	
+
 {literal}
 <script type="text/javascript">
 $(function ()
 {
 	$('input[type=text].icadmin_datepicker').datepicker ({
-		dateFormat: 'yy-mm-dd' 
+		dateFormat: 'yy-mm-dd'
 	});
 });
 </script>
