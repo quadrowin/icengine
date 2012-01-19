@@ -1,55 +1,59 @@
-<div class="infoBlockText">
-	<img src="/images_site/site/informer_left_corner.png" class="top-gray-corner-l" alt="" />
-	<img src="/images_site/site/informer_right_corner.png" class="top-gray-corner-r" alt="" />
+<p class="control"><a href="/cp/db/">&larr; База данных</a></p>
 
-	<p><a href="/cp/db/">База данных</a></p>
+<h2>Записи</h2>
 
-	<div class="title">
-		<h2>Записи</h2>
-	</div>
+<p class="control"><a class="add" href="/cp/row/{$table}/0/">+ Добавить</a></p>
 
-	<p><a href="/cp/row/{$table}/0/">Добавить</a></p>
-
-	{if $collection}
+{if $collection}
 
 	{if $search_fields}
-	<form method="get" action="/cp/table/{$table}/">
-		<div style="height:250px; overflow:auto">
-			<table cellpadding="5">
-				{foreach from=$search_fields item="sf"}
-					{assign var="sff" value=$sf->Field}
-					<tr>
-						<td valign="top" width="150" style="padding-bottom:15px">
-							{if !empty($sf->Comment)}
-								{$sf->Comment}
-							{else}
-								{$sf->Field}
-							{/if}
-						</td>
-						<td valign="top" style="padding-bottom:15px">
-							{if !empty($sf->Values)}
-								<select name="search[{$sf->Field}]" style="width:250px">
-									<option value="0">Не выбрано</option>
-									{foreach from=$sf->Values item="sfi"}
-										<option value="{$sfi->key()}"{if $search[$sff]==$sfi->key()} selected{/if}>{$sfi->title()}</option>
-									{/foreach}
-								</select>
-							{else}
-								<input value="{if !empty($search[$sff])}{$search[$sff]}{/if}" name="search[{$sf->Field}]" type="text" style="width:250px" />
-							{/if}
-						</td>
-					</tr>
-				{/foreach}
-			</table>
-		</div>
-		<p><input type="submit" value="Искать" /></p>
-	</form>
+	<div id="search" class="box white radius10">
+		<form method="get" action="/cp/table/{$table}/">
+			<div style="height:250px; overflow:auto">
+				<table cellpadding="5">
+					{foreach from=$search_fields item="sf"}
+						{assign var="sff" value=$sf->Field}
+						<tr>
+							<td valign="top" width="150" style="padding-bottom:15px">
+								{if !empty($sf->Comment)}
+									{$sf->Comment}
+								{else}
+									{$sf->Field}
+								{/if}
+							</td>
+							<td valign="top" style="padding-bottom:15px">
+								{if !empty($sf->Values)}
+									<select name="search[{$sf->Field}]" style="width:250px">
+										<option value="0">Не выбрано</option>
+										{foreach from=$sf->Values item="sfi"}
+											<option value="{$sfi->key()}"{if $search[$sff]==$sfi->key()} selected{/if}>{$sfi->title()}</option>
+										{/foreach}
+									</select>
+								{else}
+									<input value="{if !empty($search[$sff])}{$search[$sff]}{/if}" name="search[{$sf->Field}]" type="text" style="width:250px" />
+								{/if}
+							</td>
+						</tr>
+					{/foreach}
+				</table>
+			</div>
+			<p><input type="submit" value="Искать" /></p>
+		</form>
+	</div>
 	{/if}
 
+	<div id="inner" class="box white radius10 up">
 	{if !$fields}
-	<ul>
-		{foreach from=$collection item="i"}
-		<li style="
+	<ul class="element-list">
+		{foreach from=$collection item="i" name="i"}
+		<li
+		class="
+		{if $smarty.foreach.i.iteration mod 2 eq 0}
+			odd
+		{else}
+			even
+		{/if}"
+		style="
 		{if $styles}
 		{foreach from=$styles item="column" key="c"}
 		{foreach from=$column item="style" key="v"}
@@ -80,8 +84,14 @@
 			</tr>
 		</thead>
 		<tbody>
-			{foreach from=$collection item="row"}
-			<tr>
+			{foreach from=$collection item="row" name="i"}
+			<tr
+				class="
+				{if $smarty.foreach.i.iteration mod 2 eq 0}
+					odd
+				{else}
+					even
+				{/if}">
 				{foreach from=$fields item="field" name="field"}
 					{assign var="field" value=$field->Field}
 					<td style="
@@ -125,8 +135,13 @@
 	<p><a href="/cp/table/{$table}/">Все записи</a></p>
 	{/if}
 	{/if}
-	{/if}
+	</div>
+{/if}
 
-	{if isset($paginator_html)}{$paginator_html}{/if}
+{if isset($paginator_html)}
+	<div class="box white radius10 up">
+		{$paginator_html}
+	</div>
+{/if}
 
 </div>
