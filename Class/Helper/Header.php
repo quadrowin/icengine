@@ -31,7 +31,7 @@ class Helper_Header
 	 * @desc Код ошибки "страница удалена"
 	 * @var integer
 	 */
-	const E404 = 410;
+	const E410 = 410;
 
 	/**
 	 * @desc Флаг кодирования gzip
