@@ -2,15 +2,17 @@
  * @desc Базовый класс контроллера
  */
 var Controller = {
-		
+
 	_callbacks: {},
-	
+
 	_callbacksData: {},
-	
+
 	_lastback: 0,
-	
+
 	_slowTimer: null,
-	
+
+	_transports: [],
+
 	/**
 	 * @desc Вызов метода контроллера на сервере
 	 * @param controller
@@ -23,8 +25,22 @@ var Controller = {
 		var back = Controller._lastback++;
 		Controller._callbacks [back] = callback;
 		Controller._callbacksData [back] = params ['back'] ? params ['back'] : null;
-		JsHttpRequest.query (
-			'/Controller/ajax/',
+		if (!Controller._transports.length)
+		{
+			Controller._transports.push (JsHttpRequest);
+		}
+		var transport = Controller._transports [Controller._transports.length - 1];
+		var targetUrl;
+		if (!('targetUrl' in transport))
+		{
+			targetUrl = '/Controller/ajax/';
+		}
+		else
+		{
+			targetUrl = transport.targetUrl;
+		}
+		transport.query (
+			targetUrl,
 			{
 				'call': controller,
 				'params': params,
@@ -34,7 +50,7 @@ var Controller = {
 			nocache ? true : false
 		);
 	},
-	
+
 	/**
 	 * @desc Ответ сервера
 	 * @param object js
@@ -43,7 +59,7 @@ var Controller = {
 	callback: function (js, text)
 	{
 		var back = js.back;
-		
+
 		if (!js.result || js.error)
 		{
 			if (console && console.log)
@@ -53,15 +69,15 @@ var Controller = {
 			Helper_Form.stopLoading ();
 			return;
 		}
-		
+
 		var callback = Controller._callbacks [back];
-		js.result.back = 
-			Controller._callbacksData [back] ? 
+		js.result.back =
+			Controller._callbacksData [back] ?
 			Controller._callbacksData [back] : null;
-		
+
 		callback (js.result, text);
 	},
-	
+
 	removeSelected: function (item)
 	{
 		var ids = {};
@@ -73,7 +89,7 @@ var Controller = {
 				n++;
 			}
 		);
-		
+
 		function callback (result)
 		{
 			if (result.code == 200)
@@ -85,7 +101,7 @@ var Controller = {
 				alert (result.msg);
 			}
 		}
-		
+
 		if (confirm ("Будет удалено " + n + " позиций.\nПродолжить?"))
 		{
 			Controller.call (
@@ -97,7 +113,7 @@ var Controller = {
 			);
 		}
 	},
-	
+
 	/**
 	 * @desc Вызов экшена с указанной задержкой. Предотвращает
 	 * многократный вызов одного экшена.
@@ -113,7 +129,7 @@ var Controller = {
 		{
 			clearTimeout (Controller._slowTimer);
 		}
-		
+
 		Controller._slowTimer = setTimeout (
 			function ()
 			{
@@ -123,5 +139,5 @@ var Controller = {
 			delay
 		);
 	}
-		
+
 };
