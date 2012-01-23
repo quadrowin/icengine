@@ -38,6 +38,9 @@ class Worker_Manager
 			$task->getRequest ()
 				->setExtra ($last_response->getExtra ())
 				->setInput ($last_response->getOutput ());
+				
+			$task->getResponse ()
+				->setHeader ($last_response->getHeader ());
 		}
 
 		$worker = $this->get ($task->getWorker ());
