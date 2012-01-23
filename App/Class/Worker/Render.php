@@ -25,7 +25,7 @@ class Worker_Render extends Worker_Abstract
 		$render = $task->getRequest ()->getExtra ('render');
 		if (!is_object ($render))
 		{
-			$render = $this->_getViewRenderManager ()->get ($render);
+			$render = $this->_getViewRenderManager ()->byName ($render);
 		}
 		//var_dump ($task->getRequest ()->getInput ()->receiveAll ());
 		$render->render ($task);

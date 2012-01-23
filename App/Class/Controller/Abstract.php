@@ -413,7 +413,7 @@ class Controller_Abstract
 		}
 		else
 		{
-			$other = $this->_getControllerManager ()->get ($controller);
+			$other = $this->_getControllerManager ()->byName ($controller);
 		}
 
 		$this->_setTemplate (
@@ -429,7 +429,7 @@ class Controller_Abstract
 		}
 		else
 		{
-			$other = $this->_getControllerManager ()->get ($controller);
+			$other = $this->_getControllerManager ()->byName ($controller);
 			$other
 				->setTask ($this->_task)
 				->setInput ($this->_input)
