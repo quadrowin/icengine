@@ -278,7 +278,7 @@ abstract class Bootstrap_Abstract
 			'Query',
 			'Query_Options',
 			'Query_Result',
-			'Query_Translator',
+			'Query_Translator_Manager',
 
 			'DDS',
 			'Data_Mapper_Abstract',

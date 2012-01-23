@@ -65,6 +65,18 @@ class Data_Source
 	}
 
 	/**
+	 * @desc
+	 * @return Query_Translator_Manager
+	 */
+	protected function _getQueryTranslatorManager ()
+	{
+		return Core::di ()->getInstance (
+			'Ice\\Query_Translator_Manager',
+			$this
+		);
+	}
+
+	/**
 	 * @desc Проверяет доступность источника данных
 	 * @return boolean
 	 */
@@ -106,7 +118,7 @@ class Data_Source
 			$model_map->setTable ($model, $this->_mapper->getTable ($model));
 		}
 
-		$translator_result = Query_Translator::factory (
+		$translator_result = $this->_getQueryTranslatorManager ()->byName (
 			$this->_adapter->getTranslatorName ()
 		)->translate ($clone, $model_map);
 

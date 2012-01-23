@@ -9,7 +9,7 @@ namespace Ice;
  * @package Ice
  *
  */
-class Query_Translator_KeyValue extends Query_Translator
+class Query_Translator_KeyValue extends Query_Translator_Abstract
 {
 	/**
 	 * Разделитель таблицы и индкса.

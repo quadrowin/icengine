@@ -9,7 +9,7 @@ namespace Ice;
  * @package Ice
  *
  */
-class Query_Translator_Mongo extends Query_Translator
+class Query_Translator_Mongo extends Query_Translator_Abstract
 {
 
 	const SQL_WILDCARD		= '*';
@@ -129,7 +129,7 @@ class Query_Translator_Mongo extends Query_Translator
 
 		reset ($from);
 		$table = key ($from);
-		$model_name = self::$_models->getTableTable ($table);
+		$model_name = $this->_models->getTableTable ($table);
 		return $model_name ? $model_name: $table;
 	}
 
@@ -201,8 +201,8 @@ class Query_Translator_Mongo extends Query_Translator
 	public function _renderDelete (Query $query)
 	{
 		return array (
-			'collection'	=> self::_getFromCollection ($query),
-			'criteria'		=> self::_getCriteria ($query),
+			'collection'	=> $this->_getFromCollection ($query),
+			'criteria'		=> $this->_getCriteria ($query),
 			'options'		=> array ('justOne'	=> false)
 		);
 	}
@@ -215,7 +215,7 @@ class Query_Translator_Mongo extends Query_Translator
 	public function _renderInsert (Query $query)
 	{
 		$table = $query->part (Query::INSERT);
-		$model_name = self::$_models->getTable ($table);
+		$model_name = $this->_models->getTable ($table);
 		return array (
 			'collection'	=> $model_name ? $model_name : $table,
 			'a'				=> $query->part (Query::VALUES)
@@ -258,7 +258,7 @@ class Query_Translator_Mongo extends Query_Translator
 	public function _renderReplace (Query $query)
 	{
 		$table = $query->part (Query::REPLACE);
-		$model_name = self::$_models->getTable ($table);
+		$model_name = $this->_models->getTable ($table);
 		return array (
 			'method'		=> 'save',
 			'collection'	=> $model_name ? $model_name : $table,
@@ -356,10 +356,10 @@ class Query_Translator_Mongo extends Query_Translator
 		}
 
 		return array (
-			'collection'	=> self::_getFromCollection ($query),
-			'query'			=> self::_getCriteria ($query),
+			'collection'	=> $this->_getFromCollection ($query),
+			'query'			=> $this->_getCriteria ($query),
 			'fields'		=> $fields,
-			'sort'			=> self::_getSort ($query),
+			'sort'			=> $this->_getSort ($query),
 			'skip'			=> (int) $query->part (Query::LIMIT_OFFSET),
 			'limit'			=> (int) $query->part (Query::LIMIT_COUNT),
 			'find_one'		=>
@@ -392,7 +392,7 @@ class Query_Translator_Mongo extends Query_Translator
 		//foreach ($from as $alias => $from)
 		reset ($from);
 		$table = key ($from);
-		$model_name = self::$_models->getTable ($table);
+		$model_name = $this->_models->getTable ($table);
 		return array (
 			'show'			=> $query->part (Query::SHOW),
 			'collection'	=> $model_name ? $model_name : $table,
@@ -408,7 +408,7 @@ class Query_Translator_Mongo extends Query_Translator
 	public function _renderUpdate (Query $query)
 	{
 		$table = $query->part (Query::UPDATE);
-		$model_name = self::$_models->getTable ($table);
+		$model_name = $this->_models->getTable ($table);
 		return array (
 			'collection'	=> $model_name ? $model_name : $table,
 			'criteria'		=> $this->_getCriteria ($query),

@@ -9,7 +9,7 @@ namespace Ice;
  * @package Ice
  *
  */
-class Query_Translator_Mysql extends Query_Translator
+class Query_Translator_Mysql extends Query_Translator_Abstract
 {
 
 	// Для построения SQL запроса
@@ -138,8 +138,8 @@ class Query_Translator_Mysql extends Query_Translator
 
 		return
 			self::SQL_DELETE . $tables .
-			self::_renderFrom ($query, false) . ' ' .
-			self::_renderWhere ($query);
+			$this->_renderFrom ($query, false) . ' ' .
+			$this->_renderWhere ($query);
 	}
 
 	/**
@@ -190,7 +190,7 @@ class Query_Translator_Mysql extends Query_Translator
 				}
 				else
 				{
-					$table = self::$_models->getTable ($from [Query::TABLE]);
+					$table = $this->_models->getTable ($from [Query::TABLE]);
 				}
 
 				$table = $this->_escape ($table);
@@ -299,7 +299,7 @@ class Query_Translator_Mysql extends Query_Translator
 	public function _renderInsert (Query $query)
 	{
 		$table = $query->part (Query::INSERT);
-		$model_name = self::$_models->getTable ($table);
+		$model_name = $this->_models->getTable ($table);
 		$sql = 'INSERT INTO ' . ($model_name ? $model_name : $table) . ' (';
 
 		$fields = array_keys ($query->part (Query::VALUES)	);
@@ -307,8 +307,8 @@ class Query_Translator_Mysql extends Query_Translator
 
 		for ($i = 0, $icount = count ($fields); $i < $icount; $i++)
 		{
-			$fields [$i] = self::_escape ($fields [$i]);
-			$values [$i] = self::_quote ($values [$i]);
+			$fields [$i] = $this->_escape ($fields [$i]);
+			$values [$i] = $this->_quote ($values [$i]);
 		}
 
 		$fields = implode (', ', $fields);
@@ -382,7 +382,7 @@ class Query_Translator_Mysql extends Query_Translator
 	public function _renderReplace (Query $query)
 	{
 		$table = $query->part (Query::REPLACE);
-		$model_name = self::$_models->getTable ($table);
+		$model_name = $this->_models->getTable ($table);
 		$sql = 'REPLACE ' . ($model_name ? $model_name : $table) . ' (';
 
 		$fields = array_keys ($query->part (Query::VALUES));
@@ -390,8 +390,8 @@ class Query_Translator_Mysql extends Query_Translator
 
 		for ($i = 0, $icount = count ($fields); $i < $icount; $i++)
 		{
-			$fields [$i] = self::_escape ($fields [$i]);
-			$values [$i] = self::_quote ($values [$i]);
+			$fields [$i] = $this->_escape ($fields [$i]);
+			$values [$i] = $this->_quote ($values [$i]);
 		}
 
 		$fields = implode (', ', $fields);
@@ -415,8 +415,8 @@ class Query_Translator_Mysql extends Query_Translator
 		{
 			$sql =
 				'SELECT ' .
-				self::_partCalcFoundRows ($query) . ' ' .
-				self::_partDistinct ($query) . ' ';
+				$this->_partCalcFoundRows ($query) . ' ' .
+				$this->_partDistinct ($query) . ' ';
 
 			$columns = array ();
 			foreach ($parts [Query::SELECT] as $alias => $sparts)
@@ -502,12 +502,12 @@ class Query_Translator_Mysql extends Query_Translator
 		}
 
 		return $sql . implode (self::SQL_COMMA, $columns) . ' ' .
-			self::_renderFrom ($query) . ' ' .
-			self::_renderUseIndex ($query) . ' ' .
-			self::_renderWhere ($query) . ' ' .
-			self::_renderGroup ($query) . ' ' .
-			self::_renderOrder ($query) . ' ' .
-			self::_renderLimitoffset ($query);
+			$this->_renderFrom ($query) . ' ' .
+			$this->_renderUseIndex ($query) . ' ' .
+			$this->_renderWhere ($query) . ' ' .
+			$this->_renderGroup ($query) . ' ' .
+			$this->_renderOrder ($query) . ' ' .
+			$this->_renderLimitoffset ($query);
 	}
 
 	/**
@@ -522,11 +522,11 @@ class Query_Translator_Mysql extends Query_Translator
 		$sql .= $query->part (Query::SHOW);
 
 		return $sql . ' ' .
-			self::_renderFrom ($query, false) . ' ' .
-			self::_renderWhere ($query) . ' ' .
-			self::_renderOrder ($query) . ' ' .
-			self::_renderLimitoffset ($query) . ' ' .
-			self::_renderGroup ($query);
+			$this->_renderFrom ($query, false) . ' ' .
+			$this->_renderWhere ($query) . ' ' .
+			$this->_renderOrder ($query) . ' ' .
+			$this->_renderLimitoffset ($query) . ' ' .
+			$this->_renderGroup ($query);
 	}
 
 	/**
@@ -537,7 +537,7 @@ class Query_Translator_Mysql extends Query_Translator
 	public function _renderUpdate (Query $query)
 	{
 		$table = $query->part (Query::UPDATE);
-		$model_name = self::$_models->getTable ($table);
+		$model_name = $this->_models->getTable ($table);
 		$sql ='UPDATE ' . ($model_name ? $model_name : $table) . ' SET ';
 
 		$values = $query->part (Query::VALUES);
@@ -554,7 +554,7 @@ class Query_Translator_Mysql extends Query_Translator
 			}
 			else
 			{
-				$sets [] = self::_escape ($field) . '=' . $this->_quote ($value);
+				$sets [] = $this->_escape ($field) . '=' . $this->_quote ($value);
 			}
 		}
 
