@@ -11,8 +11,16 @@ namespace Ice;
 class Task_Response
 {
 
+	/**
+	 * @desc
+	 * @var array of mixed
+	 */
 	protected $_extra = array ();
 
+	/**
+	 *
+	 * @var Http_Header
+	 */
 	protected $_header;
 
 	/**
@@ -21,12 +29,21 @@ class Task_Response
 	 */
 	protected $_output;
 
-
+	/**
+	 * @desc Create and return an instance
+	 */
 	public function __construct ()
 	{
-		Loader::multiLoad ('Data_Transport', 'Data_Provider_Buffer');
+		Loader::multiLoad (
+			'Data_Transport',
+			'Data_Provider_Buffer',
+			'Http_Header'
+		);
+
 		$this->_output = new Data_Transport;
 		$this->_output->appendProvider (new Data_Provider_Buffer);
+
+		$this->_header = new Http_Header;
 	}
 
 	/**
@@ -66,6 +83,17 @@ class Task_Response
 	public function setExtra (array $data)
 	{
 		$this->_extra = array_merge ($this->_extra, $data);
+		return $this;
+	}
+
+	/**
+	 * @desc
+	 * @param Http_Header $header
+	 * @return Task_Response
+	 */
+	public function setHeader ($header)
+	{
+		$this->_header = $header;
 		return $this;
 	}
 
