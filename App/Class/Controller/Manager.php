@@ -184,6 +184,29 @@ class Controller_Manager extends Manager_Abstract
 	}
 
 	/**
+	 *
+	 * @param string $name
+	 * @return Controller_Abstract
+	 */
+	public function byName ($name)
+	{
+		$p = strrpos ($name, '\\');
+		if (false === $p)
+		{
+			$class = __NAMESPACE__ . '\\Controller_' . $name;
+		}
+		else
+		{
+			$class =
+				substr ($name, 0, $p + 1) .
+				'Controller_' .
+				substr ($name, $p + 1);
+		}
+
+		return $this->get ($class);
+	}
+
+	/**
 	 * @desc Вызов экшена контроллера.
 	 * @param Task $task Задание
 	 * @return $this
@@ -220,7 +243,7 @@ class Controller_Manager extends Manager_Abstract
 			);
 		}
 
-		$controller = $this->get ($controller);
+		$controller = $this->byName ($controller);
 
 		$temp_input = $controller->getInput ();
 		$temp_output = $controller->getOutput ();
@@ -340,50 +363,21 @@ class Controller_Manager extends Manager_Abstract
 		return $tasks;
 	}
 
-//	/**
-//	 * @desc Очистка результатов работы контроллеров.
-//	 */
-//	public function flushResults ()
-//	{
-//		$this->_tasksResults = array ();
-//	}
-
 	/**
-	 * @desc Возвращает контроллер по названию.
-	 * @param string $controller_name
+	 * @desc Возвращает контроллер по названию класса.
+	 * @param string $class
 	 * @return Controller_Abstract
 	 */
-	public static function get ($controller_name)
+	public function get ($class)
 	{
-		$p = strrpos ($controller_name, '\\');
-		if (false === $p)
+		if (isset ($this->_controllers [$class]))
 		{
-			$class_name = __NAMESPACE__ . '\\Controller_' . $controller_name;
-		}
-		else
-		{
-			$class_name =
-				substr ($controller_name, 0, $p + 1) .
-				'Controller_' .
-				substr ($controller_name, $p + 1);
+			return $this->_controllers [$class];
 		}
 
-		$controller = Resource_Manager::get (
-			'Controller',
-			$class_name
-		);
-
-		if (!($controller instanceof Controller_Abstract))
-		{
-			Loader::load ($class_name);
-			$controller = new $class_name;
-
-			Resource_Manager::set (
-				'Controller',
-				$class_name,
-				$controller
-			);
-		}
+		Loader::load ($class);
+		$controller = new $class;
+		$this->_controllers [$class] = $controller;
 		return $controller;
 	}
 

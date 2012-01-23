@@ -53,45 +53,32 @@ class View_Render_Manager extends Manager_Abstract
 	 */
 	public function byName ($name)
 	{
-		return $this->get ($name);
+		$class = Manager_Abstract::completeClassName ($name, 'View_Render');
+		return $this->get ($class);
 	}
 
 	/**
 	 * @desc Возвращает рендер по названию.
-	 * @param string $name
+	 * @param string $class
 	 * @return View_Render_Abstract
 	 */
-	public function get ($name)
+	public function get ($class)
 	{
-		$class_name = Manager_Abstract::completeClassName (
-			$name,
-			'View_Render'
-		);
-
-		if (isset ($this->_views [$class_name]))
+		if (isset ($this->_views [$class]))
 		{
-			return $this->_views [$class_name];
+			return $this->_views [$class];
 		}
 
-//		$view = Model_Manager::getInstance ()->byQuery (
-//			__NAMESPACE__ . '\\View_Render',
-//			Query::instance ()
-//				->where ('name', $name)
-//		);
+		$class_name = Loader::load ($class);
 
-		$class_name = Loader::load ($class_name);
-
-//		if (!class_exists ($class_name))
-//		{
-//			debug_print_backtrace();
-//		}
-
-		$view = new $class_name (array (
+		$view = new $class (array (
 			'id'	=> null,
 			'name'	=> $name
 		));
 
-		return $this->_views [$class_name] = $view;
+		$this->_views [$class] = $view;
+
+		return $view;
 	}
 
 	/**
