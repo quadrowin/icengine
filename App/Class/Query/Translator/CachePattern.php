@@ -2,7 +2,7 @@
 
 namespace Ice;
 
-class Query_Translator_CachePattern extends Query_Translator
+class Query_Translator_CachePattern extends Query_Translator_Abstract
 {
 
 	/**

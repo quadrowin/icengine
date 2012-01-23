@@ -7,13 +7,13 @@ namespace Ice;
  * @desc Результат работы транслятора
  * @author Илья Колесников, Юрий Шведов
  * @package Ice
- * 
+ *
  */
 class Query_Translator_Result
 {
 	/**
 	 * @desc Транслятор примененный к запросу
-	 * @var Query_Translator
+	 * @var Query_Translator_Abstract
 	 */
 	protected $_translator;
 
@@ -33,10 +33,10 @@ class Query_Translator_Result
 	 * (non-PHPDoc)
 	 * @param Query $query
 	 * @param type $translated_query
-	 * @param Query_Translator $translator
+	 * @param Query_Translator_Abstract $translator
 	 */
 	public function __construct (Query $query, $translated_query,
-		Query_Translator $translator)
+		Query_Translator_Abstract $translator)
 	{
 		$this->_query = $query;
 		$this->_translatedQuery = $translated_query;
@@ -61,7 +61,7 @@ class Query_Translator_Result
 
 	/**
 	 * @desc Получить транслятор
-	 * @return Query_Translator
+	 * @return Query_Translator_Abstract
 	 */
 	public function getTranslator ()
 	{

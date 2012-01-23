@@ -69,12 +69,9 @@ class View_Render_Manager extends Manager_Abstract
 			return $this->_views [$class];
 		}
 
-		$class_name = Loader::load ($class);
+		Loader::load ($class);
 
-		$view = new $class (array (
-			'id'	=> null,
-			'name'	=> $name
-		));
+		$view = new $class (array ('id'	=> null));
 
 		$this->_views [$class] = $view;
 

@@ -90,6 +90,17 @@ class Query {
 	}
 
 	/**
+	 * @return Query_Translator_Manager
+	 */
+	protected function _getQueryTranslatorManager ()
+	{
+		return Core::di ()->getInstance (
+			'Ice\\Query_Translator_Manager',
+			$this
+		);
+	}
+
+	/**
 	 * @desc Добавление джойна таблицы к запросу
 	 * @param string|array $table Название таблицы или
 	 * пара (table => alias) или, в случае нескольких алиасов
@@ -657,10 +668,9 @@ class Query {
 			);
 		}
 
-		return Query_Translator::factory ($translator)->translate (
-			$this,
-			$model_map
-		);
+		return $this->_getQueryTranslatorManager ()
+			->byName ($translator)
+				->translate ($this, $model_map);
 	}
 
 	/**
