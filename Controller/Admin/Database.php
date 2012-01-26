@@ -613,6 +613,7 @@ class Controller_Admin_Database extends Controller_Abstract
 
 			$config_foreign_keys = $this->config ()->foreign_keys->$class_name;
 			$is_foreign_key = $config_foreign_keys && in_array($field->Field, $config_foreign_keys->__toArray());
+			$foreign_key = $is_foreign_key ? $this->config ()->includes[$class_name][$field->Field] : null;
 			
 			// Поле - поле для связи
 			if (strpos ($field->Field, '__id') !== false || $is_foreign_key)
@@ -627,11 +628,15 @@ class Controller_Admin_Database extends Controller_Abstract
 						$field_filters = $tmp->__toArray ();
 					}
 				}
-
-				$cn = substr ($field->Field, 0, -4);
+				
+				if ($is_foreign_key && $foreign_key && $foreign_key->model)
+				{
+					$cn = $foreign_key->model;
+				}
+				else
+					$cn = substr ($field->Field, 0, -4);
 				
 				$query = Query::instance ();
-
 				if (isset ($field_filters [$field->Field]))
 				{
 					foreach ($field_filters [$field->Field] as $field_filter)
