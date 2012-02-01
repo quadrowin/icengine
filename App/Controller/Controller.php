@@ -27,7 +27,9 @@ class Controller_Controller extends Controller_Abstract
 	public function ajax ()
 	{
 		$this->_task->getResponse ()->setExtra (array (
-			'render' => $this->_getViewRenderManager ()->get ('JsHttpRequest')
+			'render' => $this->_getViewRenderManager ()->get (
+				'Ice\\View_Render_JsHttpRequest'
+			)
 		));
 
 		list (

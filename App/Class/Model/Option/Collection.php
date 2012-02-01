@@ -12,6 +12,16 @@ namespace Ice;
 class Model_Option_Collection
 {
 
+	/**
+	 * @desc Метод опции, вызываемый после выполнения запроса
+	 */
+	const METHOD_AFTER = 'after';
+
+	/**
+	 * @desc Метод опции, вызываемый перед выполнением запроса
+	 */
+	const METHOD_BEFORE = 'before';
+
     /**
      * @desc Коллекция, к которой привязаны опции.
      * Необходима для определения названий классов опций.
@@ -36,6 +46,32 @@ class Model_Option_Collection
 	}
 
 	/**
+	 * @desc Вызвать метод для всех опций
+	 * @param Query $query Запрос
+	 * @param string $method Название метода
+	 */
+	protected function _execute ($query, $method)
+	{
+		foreach ($this->_items as $option)
+		{
+			/* @var $option Model_Option */
+			if (method_exists ($option, $method))
+			{
+				$option->query = $query;
+				$reflection = new \ReflectionMethod ($option, $method);
+				$params = $reflection->getParameters ();
+				foreach ($params as &$param) {
+					$name = $param->name;
+					$param = isset ($option->params [$name])
+						? $option->params [$name]
+						: null;
+				}
+				call_user_func_array (array ($option, $method), $params);
+			}
+		}
+	}
+
+	/**
 	 * @desc Добавление опции
 	 * @param mixed $item
 	 * @return Model_Option
@@ -51,7 +87,7 @@ class Model_Option_Collection
 		if (is_array ($item))
 	    {
 			$class = Model_Option::getClassName (
-				$item ['name'],
+				isset ($item [0]) ? $item [0] : $item ['name'],
 				$this->_collection
 			);
 			// Неизвестно, старая это или новая опция.
@@ -95,33 +131,20 @@ class Model_Option_Collection
 
 	/**
 	 *
-	 * @param Model_Collection $collection
 	 * @param Query $query
-	 * @rturn mixed
 	 */
 	public function executeAfter (Query $query)
 	{
-		foreach ($this->_items as $option)
-		{
-			/* @var Model_Option $option */
-			$option->query = $query;
-			$option->after ();
-		}
+		$this->_execute ($query, self::METHOD_AFTER);
 	}
 
 	/**
 	 *
-	 * @param Model_Collection $collection
 	 * @param Query $query
 	 */
-	public function executeBefore ($query)
+	public function executeBefore (Query $query)
 	{
-		foreach ($this->_items as $option)
-		{
-			/* @var Model_Option $option */
-			$option->query = $query;
-			$option->before ();
-		}
+		$this->_execute ($query, self::METHOD_BEFORE);
 	}
 
 	/**

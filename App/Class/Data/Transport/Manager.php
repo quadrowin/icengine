@@ -80,7 +80,7 @@ class Data_Transport_Manager extends Manager_Abstract
 	 * @param string $name
 	 * @return Data_Transport
 	 */
-	public static function get ($name)
+	public function get ($name)
 	{
 		if (isset (self::$_transports [$name]))
 		{
