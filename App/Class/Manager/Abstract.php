@@ -13,16 +13,39 @@ abstract class Manager_Abstract
 {
 
 	/**
+	 * @desc Конфигурация
+	 * @var array
+	 */
+	protected static $_config;
+
+	/**
+	 * @desc Загруженнные объекты
+	 * @var array
+	 */
+	protected static $_objects = array ();
+
+	/**
+	* @desc Получить объект по имени
+	* @param string $name
+	* @return Object
+	*/
+	public function byName ($name)
+	{
+		$class = self::completeClassName ($name, $this->getName ());
+		return $this->get ($class);
+	}
+
+	/**
 	 * @desc Получение названия класса по названию экземпляра.
 	 * @param string $name
-	 * @param string $ext
+	 * @param string $ext [optional]
 	 * @return string
 	 */
 	public static function completeClassName ($name, $ext = null)
 	{
 		if (null === $ext)
 		{
-			$ext = substr (get_called_class(), 0, -strlen ('_Manager'));
+			$ext = substr (get_called_class (), 0, -strlen ('_Manager'));
 		}
 
 		$p = strrpos ($name, '\\');
@@ -45,6 +68,32 @@ abstract class Manager_Abstract
 			);
 		}
 		return static::$_config;
+	}
+
+	/**
+	 * @desc Получить имя менеджера
+	 * @return string
+	 */
+	public function getName ()
+	{
+		$class = get_class ($this);
+		return substr ($class, 0, -strlen ('_Manager'));
+	}
+
+	/**
+	 * @desc Получить объект по имени класса
+	 * @param string $class
+	 * @return Object
+	 */
+	public function get ($class)
+	{
+		if (!isset (self::$_objects [$class]))
+		{
+			Loader::load ($class);
+			self::$_objects [$class] = new $class;
+		}
+
+		return self::$_objects [$class];
 	}
 
 }

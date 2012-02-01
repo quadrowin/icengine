@@ -27,6 +27,15 @@ class Controller_Front_Task extends Task
 	);
 
 	/**
+	 *
+	 * @return Data_Transport_Manager
+	 */
+	protected function _getDataTransportManager ()
+	{
+		return Core::di ()->getInstance ('Ice\\Data_Transport_Manager', $this);
+	}
+
+	/**
 	 * @desc Создает и возвращает экземпляр
 	 */
 	public function __construct ()
@@ -43,14 +52,14 @@ class Controller_Front_Task extends Task
 		);
 
 		$this->_request->setInput (
-			Data_Transport_Manager::get ($config ['input'])
+			$this->_getDataTransportManager ()->get ($config ['input'])
 		);
 
 		$render = $config ['render'];
 
 		if ($this->_request->isJsHttpRequest ())
 		{
-			$render = 'JsHttpRequest';
+			$render = 'Ice\\View_Render_JsHttpRequest';
 		}
 
 		$this->_response->setExtra (array (

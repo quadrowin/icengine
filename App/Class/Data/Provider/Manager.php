@@ -30,7 +30,7 @@ class Data_Provider_Manager extends Manager_Abstract
 	 * @param string $name Название провайдера в конфиге.
 	 * @return Data_Provider_Abstract
 	 */
-	public static function get ($name)
+	public function get ($name)
 	{
 		if (isset (self::$_providers [$name]))
 		{

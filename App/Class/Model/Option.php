@@ -8,6 +8,9 @@ namespace Ice;
  * @author Юрий Шведов, Илья Колесников
  * @package Ice
  *
+ * @method null before Вызывается до выполения запроса.
+ * @method null after Вызывается после выполения запроса.
+ *
  */
 abstract class Model_Option
 {
@@ -55,22 +58,6 @@ abstract class Model_Option
 
 		$this->collection = $collection;
 		$this->params = $params;
-	}
-
-	/**
-	 * @desc Вызывается после выполения запроса.
-	 */
-	public function after ()
-	{
-
-	}
-
-	/**
-	 * @desc Вызывается перед выполнением запроса.
-	 */
-	public function before ()
-	{
-
 	}
 
 	/**
