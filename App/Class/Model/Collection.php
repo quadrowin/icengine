@@ -226,19 +226,13 @@ class Model_Collection implements \ArrayAccess, \IteratorAggregate, \Countable
 
 	/**
 	 * @desc Добавление нескольких опций к коллекции аналогично.
-	 * @param array|string $options
+	 * @param array|string $option Опция
 	 * @param $_
 	 * @return Model_Collection Эта коллекция
 	 */
 	public function addOptions ($options)
 	{
-		if (
-			(is_array ($options) && !empty ($options ['name'])) ||
-			!is_array ($options)
-		)
-		{
-			$options = func_get_args ();
-		}
+		$options = func_get_args ();
 
 		foreach ($options as $option)
 		{
