@@ -40,22 +40,22 @@ class Rating extends Model
 	{
 		// если гость, проверяем по сессии
 		if (User::id () == 0) {
-			$log = $this->getModelManager ()->byQuery (
-					'Rating_Log',
-					Query::instance ()
-						->where ('session', User_Session::getCurrent ()->phpSessionId)
-						->where ('table', $this->table)
-						->where ('rowId', $this->rowId)
-						->order (array ('time' => Query::DESC))
+			$log = $this->_getModelManager ()->byQuery (
+				'Rating_Log',
+				Query::instance ()
+					->where ('session', User_Session::getCurrent ()->phpSessionId)
+					->where ('table', $this->table)
+					->where ('rowId', $this->rowId)
+					->order (array ('time' => Query::DESC))
 			);
 		} else {
-			$log = $this->getModelManager ()->byQuery (
-					'Rating_Log',
-					Query::instance ()
-						->where ('User__id', User::id ())
-						->where ('table', $this->table)
-						->where ('rowId', $this->rowId)
-						->order (array ('time' => Query::DESC))
+			$log = $this->_getModelManager ()->byQuery (
+				'Rating_Log',
+				Query::instance ()
+					->where ('User__id', User::id ())
+					->where ('table', $this->table)
+					->where ('rowId', $this->rowId)
+					->order (array ('time' => Query::DESC))
 			);
 		}
 		// если пользователь голосовал

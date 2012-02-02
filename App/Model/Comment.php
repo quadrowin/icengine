@@ -18,7 +18,7 @@ class Comment extends Model_Child
 	 */
 	public function getParent ()
 	{
-		return $this->getModelManager ()
+		return $this->_getModelManager ()
 			->get ($this->modelName (), $this->parentId);
 	}
 

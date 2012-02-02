@@ -22,7 +22,7 @@ class Rating_Scheme_Abstract extends Model_Factory_Delegate
 	 */
 	public function vote ($table, $row_id, $value)
 	{
-		$rating = $this->getModelManager ()->byQuery (
+		$rating = $this->_getModelManager ()->byQuery (
 			'Rating',
 			Query::instance ()
 				->where ('table', $table)
