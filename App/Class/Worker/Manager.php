@@ -38,7 +38,7 @@ class Worker_Manager
 			$task->getRequest ()
 				->setExtra ($last_response->getExtra ())
 				->setInput ($last_response->getOutput ());
-				
+
 			$task->getResponse ()
 				->setHeader ($last_response->getHeader ());
 		}
@@ -58,7 +58,7 @@ class Worker_Manager
 	{
 		if (!isset ($this->_items [$name]))
 		{
-			$class = Manager_Abstract::completeClassName ($name, 'Worker');
+			$class = Manager_Abstract::completeClassName ($name, 'Ice\\Worker');
 			Loader::multiLoad ('Worker_Abstract', $class);
 			$this->_items [$name] = new $class;
 		}
