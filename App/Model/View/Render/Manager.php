@@ -53,7 +53,7 @@ class View_Render_Manager extends Manager_Abstract
 	 */
 	public function byName ($name)
 	{
-		$class = Manager_Abstract::completeClassName ($name, 'View_Render');
+		$class = $this->completeClassName ($name);
 		return $this->get ($class);
 	}
 

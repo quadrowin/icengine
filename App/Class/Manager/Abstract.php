@@ -49,9 +49,21 @@ abstract class Manager_Abstract
 		}
 
 		$p = strrpos ($name, '\\');
-		return (false === $p)
-			? __NAMESPACE__ . '\\' . $ext . '_' . $name
-			: substr ($name, 0, $p + 1) . $ext . '_' . substr ($name, $p + 1);
+
+		// название без неймспейса
+		if (!$p)
+		{
+			return $ext . '_' . $name;
+		}
+
+		// исключаем неймспейс менеджера
+		$p_ext = strrpos ($ext, '\\');
+		if ($p_ext)
+		{
+			$ext = substr ($ext, $p_ext + 1);
+		}
+
+		return substr ($name, 0, $p + 1) . $ext . '_' . substr ($name, $p + 1);
 	}
 
 	/**

@@ -274,7 +274,7 @@ class View_Resource_Manager extends Manager_Abstract
 		{
 			$class = self::completeClassName (
 				ucfirst ($type),
-				'View_Resource_Packer'
+				'Ice\\View_Resource_Packer'
 			);
 			Loader::load ($class);
 			self::$_packers [$type] = new $class ();

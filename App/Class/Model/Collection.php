@@ -143,6 +143,34 @@ class Model_Collection implements \ArrayAccess, \IteratorAggregate, \Countable
 	}
 
 	/**
+	 * @desc Менеджер коллекций
+	 * @return Model_Collection_Manager
+	 */
+	protected function _getModelCollectionManager ()
+	{
+		return Core::di ()
+			->getInstance ('Ice\\Model_Collection_Manager', $this);
+	}
+
+	/**
+	 * @desc Менеджер моделей
+	 * @return Model_Manager
+	 */
+	protected function _getModelManager ()
+	{
+		return Core::di ()->getInstance ('Ice\\Model_Manager', $this);
+	}
+
+	/**
+	 *
+	 * @return Model_Scheme
+	 */
+	protected function _getModelScheme ()
+	{
+		return Core::di ()->getInstance ('Ice\\Model_Scheme', $this);
+	}
+
+	/**
 	 *
 	 * @desc Добавить модель в коллекцию
 	 * @param Model|Model_Collection|array $item
@@ -169,7 +197,7 @@ class Model_Collection implements \ArrayAccess, \IteratorAggregate, \Countable
 			if (isset ($item [$key_field]))
 			{
 				// Ести ключевое поле
-				$item = $this->getModelManager ()->get (
+				$item = $this->_getModelManager ()->get (
 					$this->modelName (),
 					$item [$key_field],
 					$item
@@ -432,20 +460,20 @@ class Model_Collection implements \ArrayAccess, \IteratorAggregate, \Countable
 	public function diff (Model_Collection $collection)
 	{
 		$model_name = $this->modelName ();
-		$kf_this = Model_Scheme::getInstance ()->getKeyField ($model_name);
-		$kf_collection = Model_Scheme::getInstance ()
+		$kf_this = $this->_getModelScheme ()->getKeyField ($model_name);
+		$kf_collection = $this->_getModelScheme ()
 			->getKeyField ($collection->modelName ());
 		$array_this = $this->column ($kf_this);
 		$array_collection = $collection->column ($kf_collection);
 		$diff = array_diff ($array_this, $array_collection);
 
-		$result = $this->getModelCollectionManager ()
+		$result = $this->_getModelCollectionManager ()
 			->create ($model_name)
 			->reset ();
 
 		for ($i = 0, $icount = sizeof ($diff); $i < $icount; $i++)
 		{
-			$result->add ($this->getModelManager ()->byKey (
+			$result->add ($this->_getModelManager ()->byKey (
 				$model_name,
 				$diff [$i]
 			));
@@ -595,7 +623,7 @@ class Model_Collection implements \ArrayAccess, \IteratorAggregate, \Countable
 		foreach ($rows as $row)
 		{
 			$key = isset ($row ['id']) ? $row ['id'] : $row [$kf];
-			$this->_items [] = $this->getModelManager ()
+			$this->_items [] = $this->_getModelManager ()
 				->get ($model, $key, $row);
 		}
 		return $this;
@@ -638,25 +666,6 @@ class Model_Collection implements \ArrayAccess, \IteratorAggregate, \Countable
 	{
 		$this->items ();
 		return new \ArrayIterator ($this->_items);
-	}
-
-	/**
-	 * @desc Менеджер коллекций
-	 * @return Model_Collection_Manager
-	 */
-	public function getModelCollectionManager ()
-	{
-		return Core::di ()
-			->getInstance ('Ice\\Model_Collection_Manager', $this);
-	}
-
-	/**
-	 * @desc Менеджер моделей
-	 * @return Model_Manager
-	 */
-	public function getModelManager ()
-	{
-		return Core::di ()->getInstance ('Ice\\Model_Manager', $this);
 	}
 
 	/**
@@ -849,7 +858,7 @@ class Model_Collection implements \ArrayAccess, \IteratorAggregate, \Countable
 	 */
 	public function keyField ()
 	{
-		return Model_Scheme::getInstance ()->getKeyField ($this->modelName ());
+		return $this->_getModelScheme ()->getKeyField ($this->modelName ());
 	}
 
 	/**
@@ -917,7 +926,7 @@ class Model_Collection implements \ArrayAccess, \IteratorAggregate, \Countable
 		$this->_options->executeBefore ($query);
 		$this->_lastQuery = $query;
 
-		$this->getModelCollectionManager ()->load ($this, $query);
+		$this->_getModelCollectionManager ()->load ($this, $query);
 		$this->_options->executeAfter ($query);
 
 		if ($this->_paginator)
@@ -1308,7 +1317,7 @@ class Model_Collection implements \ArrayAccess, \IteratorAggregate, \Countable
 	public function unique ()
 	{
 		$model_name = $this->modelName ();
-		$kf = Model_Scheme::getInstance ()->getKeyField ($model_name);
+		$kf = $this->_getModelScheme ()->getKeyField ($model_name);
 		$keys = array_unique ($this->column ($kf));
 
 		$collection = new self;
@@ -1316,7 +1325,7 @@ class Model_Collection implements \ArrayAccess, \IteratorAggregate, \Countable
 
 		foreach ($keys as $key)
 		{
-			$model = $this->getModelManager ()->byKey ($model_name, $key);
+			$model = $this->_getModelManager ()->byKey ($model_name, $key);
 			if ($model)
 			{
 				$collection->add ($model);
