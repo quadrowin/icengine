@@ -77,13 +77,13 @@ class Diff_Renderer_List extends Diff_Renderer
 	
 	public function render($field)
 	{
-			if ($field->type->config()->get_list)
-			{
-				$handler = $field->type->config()->get_list;
-				$this->_list = Executor::execute($handler,array($field));
-			} 
-			else
-				$this->_list = Model_Collection_Manager::create($field->type->config()->model_class);
+		if ($field->type->config()->get_list)
+		{
+			$handler = $field->type->config()->get_list;
+			$this->_list = Executor::execute($handler,array($field));
+		} 
+		else
+			$this->_list = Model_Collection_Manager::create($field->type->config()->model_class);
 		return parent::render($field);
 	}
 	
@@ -98,9 +98,27 @@ class Diff_Renderer_ManyToMany extends Diff_Renderer_List
 
 }
 
-class Diff_Renderer_OneToMany extends Diff_Renderer
+class Diff_Renderer_OneToMany extends Diff_Renderer_List
 {
-
+	public function fieldValueIsDeleted($field,$v)
+	{
+		
+		foreach($field->edits as $edit)
+		{
+			if (in_array($v->id,$edit->value->asArray()))
+				return false;
+		}
+		return true;
+	}
+	
+	public function render($field)
+	{
+		foreach($field->value as $v)
+		{
+			$v->set('childRenderer', new Helper_Diff_Renderer($v));
+		}
+		return parent::render($field);
+	}
 }
 
 class Helper_Diff_Renderer

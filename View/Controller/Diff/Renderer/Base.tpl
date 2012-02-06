@@ -10,13 +10,14 @@
 	</li>
 	{foreach from=$field->edits item=edit key=edit_id}
 	<li>
-		<input type = "radio" name = "{$field->name}-edits" id = "address-edit-{$edit_id}" />
+		<input type = "radio" name = "{$field->name}-edits" id = "{$field->name}-edit-{$edit_id}" />
 		<label for="{$field->name}-edit-{$edit_id}">{include file=$renderer->valueTemplate() value=$edit->value}</label>
 	</li>
 	{/foreach}
 	<li>
 		<input type = "radio" name = "{$field->name}-edits" id = "{$field->name}-set" />
-		<label for="address-set">
+		<label for="{$field->name}-set">
+			Указать свой вариант:
 			{include file=$renderer->editTemplate() value=$field->value}
 		</label>
 	</li>	
