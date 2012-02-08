@@ -36,13 +36,13 @@ class Router
 
 			if ($gets)
 			{
-				$gets = (array) explode ('&', $gets);
+				$gets = explode ('&', $gets);
 
 				foreach ($gets as $get)
 				{
 					if (strpos ($get, '=') === false)
 					{
-						$_REQUEST ['get'] = $_GET ['get'] = 1;
+						$_REQUEST [$get] = $_GET [$get] = 1;
 					}
 					else
 					{
@@ -86,6 +86,13 @@ class Router
 				foreach (self::$_route->params as $param => $value)
 				{
 					Request::param ($param, $value);
+				}
+			}
+			if (isset(self::$_route->afterGetRoute))
+			{
+				$parts = explode("/",self::$_route->afterGetRoute);
+				if (count($parts)==2 && $parts[0] && $parts[1]) {
+					$task = Controller_Manager::call($parts[0], $parts[1], array('route' => self::$_route, 'url' => $url ) );
 				}
 			}
 		}

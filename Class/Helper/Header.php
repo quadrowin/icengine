@@ -34,6 +34,12 @@ class Helper_Header
 	const E410 = 410;
 
 	/**
+	 * @desc 
+	 * @var integer
+	 */
+	const E410 = 410;
+	
+	/**
 	 * @desc Флаг кодирования gzip
 	 * @var string
 	 */
@@ -59,6 +65,10 @@ class Helper_Header
 		self::E301 => array(
 			"HTTP/1.1 301 Moved Remanently",
 			"Status: 301 Moved Remanently"
+		),
+		self::E410 => array(
+			"HTTP/1.1 410 Gone",
+			"Status: 410 Gone"
 		)
 	);
 
