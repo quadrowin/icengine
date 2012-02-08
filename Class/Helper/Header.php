@@ -34,12 +34,6 @@ class Helper_Header
 	const E410 = 410;
 
 	/**
-	 * @desc 
-	 * @var integer
-	 */
-	const E410 = 410;
-	
-	/**
 	 * @desc Флаг кодирования gzip
 	 * @var string
 	 */
