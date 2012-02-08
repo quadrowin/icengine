@@ -6,7 +6,7 @@
  * @package IcEngine
  *
  */
-class Component_Balance_Log extends Model
+class Component_Balance_Log extends Model_Component
 {
 	
 	/**
