@@ -141,7 +141,6 @@ class Query_Translator_Mysql extends Query_Translator
 			{
 				if ($v [Query::JOIN] == Query::FROM)
 				{
-					$tmp = $v;
 					unset ($from [$a]);
 					$from = array_merge (array ($a=>$v), $from);
 					break;

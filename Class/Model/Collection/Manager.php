@@ -143,14 +143,16 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 			$first = end ($parents);
 			$second = prev ($parents);
 
+			$config = self::config ();
+
 			$parent =
-				$second && isset (self::$_config ['delegee'][$second]) ?
+				$second && isset ($config ['delegee'][$second]) ?
 				$second :
 				$first;
 
 			$delegee =
 				'Model_Collection_Manager_Delegee_' .
-				self::$_config ['delegee'][$parent];
+				$config ['delegee'][$parent];
 
 			Loader::load ($delegee);
 
