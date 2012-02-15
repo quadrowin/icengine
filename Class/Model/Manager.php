@@ -94,14 +94,14 @@ class Model_Manager extends Manager_Abstract
 		{
 			return ;
 		}
-       
+
 		Model_Scheme::dataSource ($object->modelName ())
-				->execute (
-					Query::instance ()
-						->delete ()
-						->from ($object->table ())
-						->where ($object->keyField (), $object->key ())
-				);
+			->execute (
+				Query::instance ()
+					->delete ()
+					->from ($object->table ())
+					->where ($object->keyField (), $object->key ())
+			);
 	}
 
 	/**
@@ -282,8 +282,33 @@ class Model_Manager extends Manager_Abstract
 				: null;
 			$row [$field] = $value;
 		}
+
 		Loader::load ($model_name);
-		return new $model_name ($row);
+
+		$parents = class_parents ($model_name);
+		$first = end ($parents);
+		$second = prev ($parents);
+
+		$config = self::config ();
+
+		$parent =
+			$second && isset ($config ['delegee'][$second]) ?
+			$second :
+			$first;
+
+		$delegee =
+			'Model_Manager_Delegee_' .
+			$config ['delegee'][$parent];
+
+		Loader::load ($delegee);
+
+		$result = call_user_func (
+			array ($delegee, 'get'),
+			$model_name, 0, $row
+		);
+
+		$result->set ($row);
+		return $result;
 	}
 
 	/**
@@ -325,14 +350,16 @@ class Model_Manager extends Manager_Abstract
 				$first = end ($parents);
 				$second = prev ($parents);
 
+				$config = self::config ();
+
 				$parent =
-					$second && isset (self::$_config ['delegee'][$second]) ?
+					$second && isset ($config ['delegee'][$second]) ?
 					$second :
 					$first;
 
 				$delegee =
 					'Model_Manager_Delegee_' .
-					self::$_config ['delegee'][$parent];
+					$config ['delegee'][$parent];
 
 				Loader::load ($delegee);
 
