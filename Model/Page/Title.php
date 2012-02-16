@@ -71,7 +71,7 @@ class Page_Title extends Model_Child
 			->order (array (
 				'rate'		=> Query::DESC,
 				'`host`=""'	=> Query::ASC,
-				'City__id=0' =>Query::ASC
+				'`City__id`=0' =>Query::ASC
 			))
 			->limit (1);
 		
