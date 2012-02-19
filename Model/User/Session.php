@@ -28,7 +28,10 @@ class User_Session extends Model
 	 */
 	public static function byPhpSessionId ($session_id, $autocreate = true)
 	{
-		$session = Model_Manager::byKey ('User_Session', $session_id);
+		$session = Model_Manager::byQuery (
+                'User_Session', Query::instance()
+                ->where('User_Session.phpSessionId = ?', $session_id)
+                );
 		
 		if (!$session && $autocreate)
 		{

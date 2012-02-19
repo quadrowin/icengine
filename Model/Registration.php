@@ -129,15 +129,12 @@ class Registration extends Model
 	public function _autoUserCreate ($data)
 	{
 		return User::create (array_merge (
-			array (
-				'email'			=> $data ['email'],
-				'password'		=> $data ['password'], 
-				'name'		=>  $data['name'],
-				'surname'		=>  $data['surname'],
-				'Sex__id'		=>  $data['Sex__id'],
-				'active'		=> $this->config ()->autoactive
-			),
-			$data
+			$data,
+                array (
+				'login'         => $data['email'],
+                'password'      => md5 ($data['password']),
+                'active'		=> $this->config ()->autoactive
+			)
 		));
 	}
 	
@@ -261,7 +258,11 @@ class Registration extends Model
 			}
 			else 
 			{
-				$user = $this->_autoUserCreate ($data);
+				if ($data instanceof Objective) {
+                    $user = $this->_autoUserCreate ($data->__toArray());
+                } else {
+                    $user = $this->_autoUserCreate ($data);
+                }
 			}
 			//Loader::load ('Message_After_Registration_Start');
 			//Message_After_Registration_Start::push ($this);
@@ -293,6 +294,11 @@ class Registration extends Model
 			};
 		}
 		
+        if ($this->config ()->auto_user)
+		{
+			$this->_autoUserActivate ();
+		}
+        
 		if ($this->config ()->sendmail)
 		{
 			Loader::load ('Mail_Message');
@@ -353,9 +359,14 @@ class Registration extends Model
 	public static function tryRegister (Objective $data)
 	{
 		$reg = new Registration ();
-		$fields = $reg->config ()->fields;
-		Helper_Form::filter ($data, $fields);
-		$result = Helper_Form::validate ($data, $fields);
+		
+        $result = array('data' => 'Controller_Registration/notConfigure');
+        
+        $fields = $reg->config ()->fields;
+        if ($data->count() && count($fields) == $data->count()) {
+        	Helper_Form::filter ($data, $fields);
+            $result =  Helper_Form::validate ($data, $fields);
+        }
 		
 		if (is_array ($result))
 		{

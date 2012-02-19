@@ -71,7 +71,12 @@ abstract class View_Render_Manager extends Manager_Abstract
 		return self::$_views [$name] = $view;
 	}
 	
-	/**
+    public static function getDefaultView() {
+        $config = self::config ();
+        return $config ['default_view'];
+    }
+
+    /**
 	 * @desc Выводит результат работы шаблонизатора в браузер.
 	 */
 	public static function display ($tpl)
@@ -89,9 +94,7 @@ abstract class View_Render_Manager extends Manager_Abstract
 		{
 			Loader::load ('View_Render');
 			
-			$config = self::config ();
-		
-			self::pushViewByName ($config ['default_view']);
+			self::pushViewByName (self::getDefaultView ());
 			//self::$_view = new View_Render (array('name' => self::$_defaultView));
 		} 
 		

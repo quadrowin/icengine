@@ -37,7 +37,7 @@ class View_Render_Front extends View_Render_Abstract
 	
 	public function fetch ($tpl)
 	{
-		throw new Exception ('хД');
+        throw new Exception ('хД');
 	}
 	 
 	/**
@@ -46,7 +46,7 @@ class View_Render_Front extends View_Render_Abstract
 	 */
 	public function render (Controller_Task $task)
 	{
-		$transaction = $task->getTransaction ();
+        $transaction = $task->getTransaction ();
 		$this->assign ($transaction->buffer ());
 		$tasks = $transaction->receive ('tasks');
 		
@@ -56,13 +56,13 @@ class View_Render_Front extends View_Render_Abstract
 			$result = $render->render ($t);
 			$this->assign ($t->getAssignVar (), $result);
 		}
-		
-		$config = $this->config ();
+
+        $config = $this->config ();
 		$render = View_Render_Manager::byName ($config ['layout_render']);
-		
-		$render->assign ($this->_vars);
-		
-		$render->display ($task->getTemplate ());
+
+        $render->assign ($this->_vars);
+
+        $render->display ($task->getTemplate ());
 	}
 	
 }
