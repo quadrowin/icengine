@@ -496,7 +496,7 @@ class Controller_Manager extends Manager_Abstract
 
 		if ($tpl)
 		{
-			$view = View_Render_Manager::pushViewByName ('Smarty');
+			$view = View_Render_Manager::pushViewByName (View_Render_Manager::getDefaultView());
 
 			try
 			{

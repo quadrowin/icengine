@@ -530,7 +530,7 @@ class Data_Provider_Abstract
 	 * @param string|array $key Параметр.
 	 * @param string $value [optional] Значение.
 	 */
-	public function setOption ($key)
+	public function setOption ($key, $value = null)
 	{
 		if (func_num_args () > 1)
 		{

@@ -559,7 +559,7 @@ class Data_Provider_FileCache extends Data_Provider_Abstract
 	 * @param mixed $value
 	 * @return boolean
 	 */
-	public function setOption ($key, $value)
+	public function setOption ($key, $value = null)
 	{
 		switch ($key)
 		{
@@ -575,5 +575,4 @@ class Data_Provider_FileCache extends Data_Provider_Abstract
 		}
 		return true;
 	}
-	
 }

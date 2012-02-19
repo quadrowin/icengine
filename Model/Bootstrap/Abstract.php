@@ -224,8 +224,8 @@ abstract class Bootstrap_Abstract
 			'User_Guest',
 			'User_Session'
 		);
-		
-		User_Guest::init ();
+
+        User_Guest::init ();
 		User::init ();
 	}
 	

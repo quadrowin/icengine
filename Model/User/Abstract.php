@@ -32,8 +32,9 @@ class User_Abstract extends Model
 	 */
 	public function authorize ()
 	{
-		User_Session::getCurrent ()->updateSession ($this->id);
-		self::$_current = $this;
+        $user_session = User_Session::getCurrent ()->updateSession ($this->id);
+		fb($user_session);
+        self::$_current = $this;
 		
 		$config = $this->config ();
 		if ($config ['login_callback'])
@@ -222,7 +223,7 @@ class User_Abstract extends Model
 	public static function init ($session_id = null)
 	{
 		$session_id = $session_id ? $session_id : Request::sessionId ();
-		User_Session::setCurrent (
+        User_Session::setCurrent (
 			User_Session::byPhpSessionId (
 				$session_id ? $session_id : 'unknown')
 		);

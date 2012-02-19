@@ -46,11 +46,10 @@ class Authorization_Login_Password extends Authorization_Abstract
 		
 		if ($user)
 		{
-			if ($user->password != $password)
+            if ($user->password != $pass_md5)
 			{
 				return 'Data_Validator_Authorization_Password/invalid';
 			}
-			
 			return $user->authorize ();
 		}
 		

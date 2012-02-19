@@ -102,25 +102,33 @@ class Controller_Registration extends Controller_Abstract
 	public function postForm ()
 	{
 		Loader::load ('Helper_Form');
-		$data = Helper_Form::receiveFields (
-			$this->_input, 
-			Config_Manager::get ('Registration')->fields
-		);
 		
-		$registration = Registration::tryRegister ($data);
-		$this->_output->send ('registration', $registration);
+        $fields = Config_Manager::get ('Registration')->fields;
+        
+        $data = new Objective();
+        
+        if ($fields) {
+            $data = Helper_Form::receiveFields (
+                $this->_input, 
+                $fields
+            );
+        }
+
+        $registration = Registration::tryRegister ($data);
 		
 		if (is_array ($registration))
 		{
 			// произошла ошибка
-			
-			$this->_task->setClassTpl (reset ($registration));
+			reset($registration);
+            $error = explode('/', current ($registration));
+
+			$this->_task->setClassTpl ($error[0], $error[1]);
 			
 			$this->_output->send (array (
 				'registration'	=> $registration,
 				'data'			=> array (
-				'field'			=> key ($registration),
-				'error'		=> current ($registration)
+                    'field'			=> key ($registration),
+                    'error'		=> current ($registration)
 				)
 			));
 			

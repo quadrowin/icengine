@@ -67,7 +67,7 @@ class Controller_Task
 		
 		if ($action instanceof Route_Action)
 		{
-			$this->_assignVar = $action->assign;
+            $this->_assignVar = $action->assign;
 			
 			$this->_viewRender = $action->Route->viewRender ();
 			

@@ -4,8 +4,8 @@
 <div class="registration_form">
 	<form action="javascript:void(0);" id="frmRegistration" method="post" onsubmit="return false;">
     	<div class="ajax_error"></div>
-    	
-    	<p>E-mail *</p>
+
+        <p>E-mail *</p>
     	<p><input name="email" type="text" value="" /></p>
     	<p>&nbsp;</p>
     	

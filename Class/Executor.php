@@ -202,7 +202,7 @@ class Executor
 	 */
 	protected static function _executeUncaching ($function, array $args)
 	{
-		return call_user_func_array ($function, $args);
+        return call_user_func_array ($function, $args);
 	}
 	
 	/**
