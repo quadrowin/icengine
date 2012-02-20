@@ -402,7 +402,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		);
 
 		if (
-			!User::getCurrent ()->isAdmin() &&
+			!$user->isAdmin() &&
 			(
 				!$resource_addContent ||
 				!$resource_addContent->userCan (User::getCurrent ())
