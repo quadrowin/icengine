@@ -22,6 +22,7 @@ class Query {
 	const INSERT			= 'INSERT';
 	const JOIN				= 'JOIN';
 	const LEFT_JOIN			= 'LEFT JOIN';
+	const RIGHT_JOIN		= 'RIGHT JOIN';
 	const ORDER				= 'ORDER';
 	const REPLACE			= 'REPLACE';
 	const SELECT			= 'SELECT';
@@ -282,6 +283,19 @@ class Query {
 	public function leftJoin ($table, $condition)
 	{
 		$this->_join ($table, self::LEFT_JOIN, $condition);
+		
+		return $this;
+	}
+	
+	/**
+	 * 
+	 * @param string|array $table
+	 * @param string $condition
+	 * @return Query
+	 */
+	public function rightJoin ($table, $condition)
+	{
+		$this->_join ($table, self::RIGHT_JOIN, $condition);
 		
 		return $this;
 	}
