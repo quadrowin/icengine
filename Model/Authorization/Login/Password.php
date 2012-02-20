@@ -66,7 +66,7 @@ class Authorization_Login_Password extends Authorization_Abstract
 			return 'Data_Validator_' . $validator . '/invalid';
 		}
 		
-		$user = $this->autoregister ($data);
+//		$user = $this->autoregister ($data);
 		
 		return $user instanceof User ? $user->authorize () : $user;
 	}
