@@ -870,7 +870,7 @@ abstract class Model implements ArrayAccess
 	public function url ()
 	{
 		$model = is_null ($this->_generic) ? $this : $this->_generic;
-		return '/' . $model->modelName . '/' . $model->key() . '/';
+		return '/' . $model->modelName() . '/' . $model->key() . '/';
 	}
 
 	/**

@@ -29,7 +29,7 @@ class Bill_Payment_Type_Abstract extends Model_Factory_Delegate
 	 * @param array $params
 	 * 		$params ['value'] integer 
 	 * 		$params ['transactionNo'] string
-	 * 		$params ['waller'] string
+	 * 		$params ['wallet'] string
 	 * 		$params ['details'] string
 	 * 		$params ['Bill__id'] integer
 	 * @return Bill_Payment
@@ -60,10 +60,11 @@ class Bill_Payment_Type_Abstract extends Model_Factory_Delegate
 				isset ($params ['Bill__id']) ?
 				(int) $params ['Bill__id'] : 0,
 			'value'					=> $params ['value'],
+			'balance'				=> $params ['balance'],
 			'Bill_Payment_Type__id'	=> $this->key (),
 			'wallet'				=> 
-				isset ($params ['waller']) ?
-				$params ['waller'] : '',
+				isset ($params ['wallet']) ?
+				$params ['wallet'] : '',
 			'transactionNo'			=> 
 				isset ($params ['transactionNo']) ?
 				$params ['transactionNo'] : '',
