@@ -1,4 +1,5 @@
 <?php
+Loader::load ('Component_Collection');
 /**
  * 
  * @desc Коллекция логов баланса.
