@@ -17,7 +17,16 @@ abstract class Diff_Field
 		$this->config = $config;
 	}
 	public abstract function isValueType();
-	public abstract function compare($a,$b);			
+	public abstract function compare($a,$b);
+	public function getNewValueFromInput($field, $input, $parent = '')
+	{
+		return $input->receive($parent.$field->name."-new-value");
+	}
+
+	public function setNewValue($model, $field, $new_value)
+	{
+		$model->set($field->name,$new_value);
+	}
 }
 
 class Diff_ValueType extends Diff_Field
@@ -30,9 +39,22 @@ class Diff_ValueType extends Diff_Field
 	{
 		return ($a==$b);
 	}
+	public function getNewValueFromInput($field, $input,$parent = '')
+	{
+		return array( parent::getNewValueFromInput($field, $input,$parent) );
+	}
+	public function setNewValue($model, $field, $new_value)
+	{
+		parent::setNewValue($model, $field, $new_value[0]);
+	}
 }
 
 class Diff_String extends Diff_ValueType
+{
+	
+}
+
+class Diff_Bool extends Diff_ValueType
 {
 	
 }
@@ -54,22 +76,27 @@ abstract class Diff_LinkList extends Diff_Field
 		if ($a instanceof Model_Collection && $b instanceof Model_Collection)
 		{
 			$diff = $a->diffEdit($b);
-			if (
-					$diff[Model_Collection::DIFF_EDIT_ADD]->count()==0 &&
-					$diff[Model_Collection::DIFF_EDIT_DEL]->count()==0
-				)
-					return true;
-			$result = true;
-
+			if ($diff[Model_Collection::DIFF_EDIT_ADD]->count()==0 &&
+				$diff[Model_Collection::DIFF_EDIT_DEL]->count()==0)
+					$result = true;
 			$modified = $diff[Model_Collection::DIFF_EDIT_NO];
+			$modified->add($diff[Model_Collection::DIFF_EDIT_ADD]);
+			$result = true;
 			foreach($modified as $model)
 			{
-				if (!$model->id || !$a->hasByFields($model))
+				if (!$model->id)
 					continue;
-
+				Helper_Diff::deleteModelEdits($model);
+				$new = $b->filterGetFirst(array( 'id' => $model->id));
+				if (!$a->hasByFields($model))
+				{
+					$orig = Model_Manager::create(get_class($model),array_keys($model->getFields() ));
+					$orig->id = $model->id;
+				} else
+					$orig = $a->filterGetFirst(array( 'id' => $model->id));
 				$model_comparer = new Helper_Diff_Comparer(
-						$a->filterGetFirst(array( 'id' => $model->id)),
-						$b->filterGetFirst(array( 'id' => $model->id)) );
+						$orig,
+						$new );
 				$compare_result = $model_comparer->compare();
 				if (is_array($compare_result) && count($compare_result)>0)
 				{
@@ -81,8 +108,7 @@ abstract class Diff_LinkList extends Diff_Field
 		}
 		if (is_array($a) && is_array($b))
 		{
-			$result = array_diff($a,$b);
-			if (count($result)==0)
+			if (count(array_diff($a,$b))==0 && count(array_diff($b,$a))==0)
 				return true;
 		}
 		return false;
@@ -99,6 +125,27 @@ class Diff_OneToMany extends Diff_LinkList
 
 class Diff_ManyToMany extends Diff_LinkList
 {
+	public function setNewValue($model, $field, $new_value)
+	{
+		parent::setNewValue($model, $field, $new_value);
+		DDS::execute(
+			Query::instance()
+				->delete()
+				->from( $this->config()->model_transient )
+				->where($this->config()->model_transient_fk1,$model->key())
+		);
+		foreach($new_value as $v)
+		{
+			$new_row = Model_Manager::create(
+				$this->config()->model_transient,
+				array(
+					$this->config()->model_transient_fk1 => $model->key(),
+					$this->config()->model_transient_fk2 => $v
+				)
+			);
+			$new_row->save();
+		}
+	}
 }
 
 class Helper_Diff_Field_Factory

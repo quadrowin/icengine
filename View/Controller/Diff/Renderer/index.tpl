@@ -3,7 +3,7 @@
 	{foreach from=$fields item=field}
 		<li>
 			<h3>{$field->type->config()->title}</h3>
-			{$field->renderer->render($field)}
+			{$field->renderer->render($field,$parent)}
 		</li>
 	{/foreach}
 	</ul>
