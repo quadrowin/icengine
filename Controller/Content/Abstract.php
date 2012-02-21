@@ -225,8 +225,17 @@ class Controller_Content_Abstract extends Controller_Abstract
 	protected function __saveUrl ($url, $referer, $title)
 	{
 		Loader::load ('Helper_Translit');
-		return rtrim ($url, '/') . '/' .
-			Helper_Translit::makeUrlLink ($title) . '.html';
+		$delim = '/';
+		if (strpos ($url, '.html') !== false)
+		{
+			$url = str_replace ('.html', '', $url);
+			$delim = '_';
+		}
+		$link = Helper_Translit::makeUrlLink ($title);
+		$link = str_replace ('.html', '', $link);
+		$link = rtrim ($url, $delim) . $delim . $link . '.html';
+
+		return $link;
 	}
 
 	/**
@@ -266,26 +275,13 @@ class Controller_Content_Abstract extends Controller_Abstract
 
 		$parent_url = rtrim ($parent->url, '/') . '.html';
 
-		$agency_link = $this->_input->receive('agency_link');
-		$agency = null;
-		if ($agency_link)
-		{
-			$agency = Model_Manager::byQuery(
-				'Agency',
-				Query::instance()
-					->where('linka', $agency_link.'.html')
-					->where('city', City::id ())
-			);
-		}
-
 		$this->_output->send (array (
 			'contents'		=> $content_collection,
 			'category'		=> $category,
 			'canEdit'		=> $this->__checkAcl ($category),
 			'parent'		=> $parent,
 			'parent_url'	=> $parent_url,
-			'referer'		=> $this->__rollReferer ($category),
-			'agency'		=> $agency
+			'referer'		=> $this->__rollReferer ($category)
 		));
 	}
 
@@ -316,25 +312,12 @@ class Controller_Content_Abstract extends Controller_Abstract
 			return $this->replaceAction ('Error', 'notFound');
 		}
 
-		$agency_link = $this->_input->receive('agency_link');
-		$agency = null;
-		if ($agency_link)
-		{
-			$agency = Model_Manager::byQuery(
-				'Agency',
-				Query::instance()
-					->where('linka', $agency_link.'.html')
-					->where('city', City::id ())
-			);
-		}
-
 		$this->_output->send (array (
 			'content'	=> $content,
 			'category'	=> $content_category,
 			'url'		=> $content_category->url,
 			'referer'	=> $this->__rollReferer ($content_category),
-			'canEdit'	=> $this->__checkAcl ($content_category),
-			'agency'	=> $agency
+			'canEdit'	=> $this->__checkAcl ($content_category)
 		));
 	}
 
@@ -642,27 +625,31 @@ class Controller_Content_Abstract extends Controller_Abstract
 			'Content_Category'
 		);
 
-		if (!$category_collection->count ())
-		{
-			return $this->replaceAction ('Error', 'accessDenied');
-		}
-
 		$category = $category_collection->first ();
 
 		$user = User::getCurrent ();
 
-		$resource_addContent = Acl_Resource::byNameCheck (
-			$this->__categoryModel (),
-			$category->key (),
-			'addContent'
-		);
+		if ($user->hasRole ('editor'))
+		{
+			$content->delete ();
+			Loader::load ('Helper_Header');
+			return Helper_Header::redirect ($url);
+		}
+		
+		$resource_addContent = null;
+
+		if ($category)
+		{
+			$resource_addContent = Acl_Resource::byNameCheck (
+				$this->__categoryModel (),
+				$category->key (),
+				'addContent'
+			);
+		}
 
 		if (
-			!User::getCurrent ()->isAdmin () &&
-			(
-				!$resource_addContent ||
-				!$resource_addContent->userCan ($user)
-			)
+			!$resource_addContent ||
+			!$resource_addContent->userCan ($user)
 		)
 		{
 			return $this->replaceAction ('Error', 'accessDenied');
@@ -763,7 +750,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		$image_id = $this->_input->receive ('image_id');
 
 		$image = Model_Manager::byKey ('Component_Image', $image_id);
-		
+
 		if (!($image && ($image->User__id == User::id () || User::getCurrent()->hasRole ('editor'))))
 		{
 			return $this->_sendError (

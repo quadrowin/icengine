@@ -860,8 +860,17 @@ abstract class Model implements ArrayAccess
 	public function title ()
 	{
 		$model = is_null ($this->_generic) ? $this : $this->_generic;
-
 		return $model->name;
+	}
+	
+	/**
+	 * @desc Возвращает url сущности
+	 * @return string
+	 */
+	public function url ()
+	{
+		$model = is_null ($this->_generic) ? $this : $this->_generic;
+		return '/' . $model->modelName() . '/' . $model->key() . '/';
 	}
 
 	/**

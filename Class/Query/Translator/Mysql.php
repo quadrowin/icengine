@@ -26,6 +26,7 @@ class Query_Translator_Mysql extends Query_Translator
 	const SQL_INSERT		= 'INSERT';
 	const SQL_INNER_JOIN	= 'INNER JOIN';
 	const SQL_LEFT_JOIN		= 'LEFT JOIN';
+	const SQL_RIGHT_JOIN	= 'RIGHT JOIN';
 	const SQL_LIMIT			= 'LIMIT';
 	const SQL_LIKE			= 'LIKE';
 	const SQL_ON			= 'ON';
@@ -678,7 +679,7 @@ class Query_Translator_Mysql extends Query_Translator
 				{
 					break;
 				}
-				if (!isset ($value [$i]))
+				if (!array_key_exists ($i, $value))
 				{
 					break;
 				}

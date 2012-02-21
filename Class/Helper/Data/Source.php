@@ -41,7 +41,10 @@ class Helper_Data_Source
 		)
 			->getResult ()
 				->asTable ();
-
+		if (!$status)
+		{
+			return;
+		}
 		return new Objective ($status);
 	}
 
@@ -61,7 +64,10 @@ class Helper_Data_Source
  		)
 			->getResult ()
 				->asRow ();
-
+		if (!$status)
+		{
+			return;
+		}
  		return new Objective ($status);
  	}
 
