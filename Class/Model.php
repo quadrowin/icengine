@@ -406,6 +406,19 @@ abstract class Model implements ArrayAccess
 	}
 
 	/**
+	 * @desc Вoзращает пустой компонент модели 
+	 * @param type  
+	 */
+	public function createComponent($type) {
+		return Model_Manager::create(
+				'Component_' . $type, array (
+					'table' => $this->modelName(),
+					'row_id' => $this->key()
+				)
+		);
+	}
+	
+	/**
 	 * @desc Возвращает коллекцию связанных компонентов или
 	 * элемент коллекции с указанным индексом.
 	 * @param string $type Тип компонентов.

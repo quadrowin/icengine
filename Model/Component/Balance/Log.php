@@ -24,6 +24,7 @@ class Component_Balance_Log extends Model_Component
 			'time'			=> Helper_Date::toUnix (),
 			'table'			=> $table,
 			'rowId'			=> $row_id,
+			'value'			=> $value,
 			'change'		=> $change,
 			'comment'		=> $comment,
 			'model'			=> $model->modelName(),
