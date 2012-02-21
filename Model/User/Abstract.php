@@ -118,6 +118,23 @@ class User_Abstract extends Model
 	}
 	
 	/**
+	 * @desc Получаем текущее значение баланса 
+	 * @return Component_Balance 
+	 */
+	public function getBalance() {
+		$balance = $this->component('Balance', 0);
+		if (!$balance) {
+			$balance = $this->createComponent('Balance');
+			$balance->update(
+				array(
+					'value' => 0
+				)
+			);
+		}
+		return $balance;
+	}
+	
+	/**
 	 * @desc Генерация пароля заданной длинны.
 	 * @param integer $length
 	 * @return string
