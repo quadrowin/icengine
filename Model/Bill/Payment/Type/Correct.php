@@ -16,15 +16,13 @@ class Bill_Payment_Type_Correct extends Bill_Payment_Type_Abstract
 	 * (non-PHPdoc)
 	 * @see Bill_Payment_Type_Abstract::assemble()
 	 */
-	public function assemble($sum, $user_id)
+	public function assemble($sum = 0, $user_id = 0)
 	{
 		$result = 0;
 
-		$client_user = Model_Manager::byKey('User', (int) $user_id);
-
 		$user = User::getCurrent();
 
-		if ($user && $user->hasRole('admin') && $user && !($sum < 1 || preg_match("/[^0-9]/", $sum)))
+		if ($user_id && $user && $user->hasRole('admin') && $user && !($sum < 1 || preg_match("/[^0-9]/", $sum)))
 		{
 			Loader::load('Helper_Date');
 			Loader::load('Bill_Payment');
@@ -34,12 +32,12 @@ class Bill_Payment_Type_Correct extends Bill_Payment_Type_Abstract
 						'value' => $sum,
 						'balance' => $sum,
 						'transactionNo' => '00000' . time(),
-						'details' => 'Корректировка баланса была роизведена пользователем с id #' . $user->key(),
+						'details' => 'Корректировка баланса была произведена администратором #' . $user->key(),
 						'Bill__id' => 0,
 						'beginProcessTime' => Helper_Date::toUnix(),
 						'endProcessTime' => '2000-01-01 00:00:00',
-						'User__id' => $client_user->User__id,
-						'Discount_Payment_Amount__id' => $discount_amount->key(),
+						'User__id' => $user_id,
+						'Discount_Payment_Amount__id' => 1,
 						'balance_time_update' => Helper_Date::toUnix()
 					));
 
@@ -47,6 +45,8 @@ class Bill_Payment_Type_Correct extends Bill_Payment_Type_Abstract
 
 			if ($payment)
 			{
+				$client_user = Model_Manager::byKey('User', (int) $user_id);
+				$client_user->getBalance()->change($payment->value, 'Корректировка баланса была произведена администратором #' . $user->key(), $client_user);
 				$payment->update(
 						array(
 							'endProcessTime' => Helper_Date::toUnix()

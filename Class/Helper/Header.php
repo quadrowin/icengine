@@ -59,10 +59,6 @@ class Helper_Header
 		self::E301 => array(
 			"HTTP/1.1 301 Moved Remanently",
 			"Status: 301 Moved Remanently"
-		),
-		self::E410 => array(
-			"HTTP/1.1 410 Gone",
-			"Status: 410 Gone"
 		)
 	);
 
@@ -72,15 +68,17 @@ class Helper_Header
 	 */
 	public static function setStatus ($status, $set_code = true)
 	{
-		foreach (self::$statuses [$status] as $text)
-		{
-			if ($set_code)
+		if (!headers_sent()) {
+			foreach (self::$statuses [$status] as $text)
 			{
-				header ($text, true, $status);
-			}
-			else
-			{
-				header ($text);
+				if ($set_code)
+				{
+					header ($text, true, $status);
+				}
+				else
+				{
+					header ($text);
+				}
 			}
 		}
 	}
