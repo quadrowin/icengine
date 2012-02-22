@@ -1151,7 +1151,9 @@ class Controller_Admin_Database extends Controller_Abstract
 		if($this->config ()->modificators)
 		{	
 			$tmp = $this->config ()->modificators->$class_name;
-			$modificators = $tmp->__toArray ();
+			if ($tmp) {
+				$modificators = $tmp->__toArray ();
+			}
 		}
 
 		$updated_fields = $column;
