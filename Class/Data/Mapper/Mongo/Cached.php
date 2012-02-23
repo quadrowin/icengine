@@ -1,20 +1,20 @@
 <?php
 Loader::load ('Data_Mapper_Mongo');
 /**
- * 
+ *
  * @desc Мэппер для работы с Mongodb, с кэшированием запросов.
  * @author Юрий Шведов
  * @package IcEngine
  *
  */
 class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
-{	   
+{
 	/**
 	 * @desc Кэшер запросов.
 	 * @var Data_Provider_Abstract
 	 */
 	protected $_cacher;
-	
+
 	/**
 	 * @desc Получение хэша запроса
 	 * @return string
@@ -23,18 +23,18 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 	{
 		return md5 (json_encode ($this->_query));
 	}
-	
+
 	/**
 	 * @desc Запрос на удаление
 	 */
-	public function _executeDelete (Query $query, Query_Options $options)
+	public function _executeDelete (Query_Abstract $query, Query_Options $options)
 	{
 		$this->_collection->remove (
 			$this->_query ['criteria'],
 			$this->_query ['options']
 		);
 		$this->_touchedRows = 1;
-		
+
 		$tags = $query->getTags ();
 
 		for ($i = 0, $count = sizeof ($tags); $i < $count; ++$i)
@@ -42,11 +42,11 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 			$this->_cacher->tagDelete ($tags [$i]);
 		}
 	}
-	
+
 	/**
 	 * @desc Запрос на вставку
 	 */
-	public function _executeInsert (Query $query, Query_Options $options)
+	public function _executeInsert (Query_Abstract $query, Query_Options $options)
 	{
 		if (isset ($this->_query ['a']['_id']))
 		{
@@ -68,7 +68,7 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 		}
 
 		$this->_touchedRows = 1;
-		
+
 		$tags = $query->getTags ();
 
 		for ($i = 0, $count = sizeof ($tags); $i < $count; ++$i)
@@ -76,53 +76,53 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 			$this->_cacher->tagDelete ($tags [$i]);
 		}
 	}
-	
+
 	/**
 	 * @desc Запрос на выбор
-	 * @param Query $query
+	 * @param Query_Abstract $query
 	 * @param Query_Option $options
 	 */
-	public function _executeSelect (Query $query, Query_Options $options)
+	public function _executeSelect (Query_Abstract $query, Query_Options $options)
 	{
 		$key = $this->_queryHash ();
-		
+
 		$expiration = $options->getExpiration ();
-		
+
 		$cache = $this->_cacher->get ($key);
-		
+
 		$use_cache = false;
-		
+
 		if ($cache)
 		{
 			if (
-	   			($cache ['a'] + $expiration > time () || $expiration == 0) && 
+	   			($cache ['a'] + $expiration > time () || $expiration == 0) &&
 				$this->_cacher->checkTags ($cache ['t'])
 			)
 			{
 	  			$use_cache = true;
 			}
-			
+
 			if (!$this->_cacher->lock ($key, 5, 1, 1))
 			{
 				$use_cache = true;
 			}
 		}
-		
+
 		if ($use_cache)
 		{
 			$this->_foundRows = $cache ['f'];
 			return $cache ['v'];
 		}
-		
+
 		if (class_exists ('Tracer'))
 		{
 			Tracer::begin (
-				__CLASS__,  
+				__CLASS__,
 				__METHOD__,
 				__LINE__
 			);
 		}
-		
+
 		if ($this->_query ['find_one'])
 		{
 			$this->_result = array (
@@ -163,16 +163,16 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 			// Так не работает, записи начинают повторяться
 			// $this->_result = $r;
 		}
-		
+
 		if (class_exists ('Tracer'))
 		{
 			Tracer::end ($this->_sql);
 		}
-		
+
 		$tags = $query->getTags ();
-		
+
 		$this->_cacher->set (
-			$key, 
+			$key,
 			array (
 				'v' => $this->_result,
 				'a' => time (),
@@ -180,18 +180,18 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 				'f'	=> $this->_foundRows
 			)
 		);
-		
+
 		if ($cache)
 		{
 			$this->_cacher->unlock ($key);
 		}
-		
+
 	}
-	
+
 	/**
 	 * @desc
 	 * @param Query $query
-	 * @param Query_Options $options 
+	 * @param Query_Options $options
 	 */
 	public function _executeShow ()
 	{
@@ -230,11 +230,11 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 			}
 		}
 	}
-	
+
 	/**
 	 * @desc Обновление
 	 */
-	public function _executeUpdate (Query $query, Query_Options $options)
+	public function _executeUpdate (Query_Abstract $query, Query_Options $options)
 	{
 		$this->_collection->update (
 			$this->_query ['criteria'],
@@ -243,7 +243,7 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 		);
 		//Mysql::update ($tags, $sql);
 		$this->_touchedRows = 1; // unknown count
-		
+
 		$tags = $query->getTags ();
 
 		for ($i = 0, $count = sizeof ($tags); $i < $count; ++$i)
@@ -251,7 +251,7 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 			$this->_cacher->tagDelete ($tags [$i]);
 		}
 	}
-	
+
 	/**
 	 * @return Data_Provider_Abstract
 	 */
@@ -259,16 +259,16 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 	{
 		return $this->_cacher;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Data_Provider_Abstract $cacher
 	 */
 	public function setCacher (Data_Provider_Abstract $cacher)
 	{
 		$this->_cacher = $cacher;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Mapper_Mysqli::setOption()
@@ -287,5 +287,5 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 		}
 		return parent::setOption ($key, $value);
 	}
-	
+
 }

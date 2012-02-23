@@ -27,13 +27,12 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 	 * @desc Возвращает коллекцию по запросу.
 	 * @author Юрий Шведов
 	 * @param string $model Модель коллекции.
-	 * @param Query $query Запрос.
+	 * @param Query_Abstract $query Запрос.
 	 * @return Model_Collection
 	 */
-	public static function byQuery ($model, Query $query)
+	public static function byQuery ($model, Query_Abstract $query)
 	{
 		$collection = self::create ($model);
-
 		$collection->setQuery ($query);
 		return $collection;
 	}
@@ -55,9 +54,9 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 	/**
 	 * @desc получить коллекцию из хранилища по запросу и опшинам
 	 * @param Model_Collection
-	 * @param Query $query
+	 * @param Query_Abstract $query
 	 */
-	public static function load (Model_Collection $collection, Query $query)
+	public static function load (Model_Collection $collection, Query_Abstract $query)
 	{
 		// Название модели
 		$model = $collection->modelName ();

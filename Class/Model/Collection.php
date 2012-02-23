@@ -94,13 +94,13 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 
 	/**
 	 * @desc Последний выполненный запрос
-	 * @var Query
+	 * @var Query_Abstract
 	 */
 	protected $_lastQuery;
 
 	/**
 	 * @desc Текущий запрос
-	 * @var Query
+	 * @var Query_Abstract
 	 */
 	protected $_query;
 
@@ -162,7 +162,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		elseif (is_array ($item))
 		{
 			$key_field = $this->keyField ();
-
+			$keys = array_keys ($item);
 			if (isset ($item [$key_field]))
 			{
 				// Ести ключевое поле
@@ -171,6 +171,13 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 					$item [$key_field],
 					$item
 				);
+			}
+			elseif (is_numeric ($keys [0]))
+			{
+				foreach ($item as $data)
+				{
+					$this->add ($data);
+				}
 			}
 			else
 			{
@@ -603,11 +610,11 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 
 	/**
 	 * @desc Создать коллекцию из запроса
-	 * @param Query $query
+	 * @param Query_Abstract $query
 	 * @param boolean $clear Очистить коллекцию, перед добавлением
 	 * @return Model_Collection
 	 */
-	public function fromQuery (Query $query, $clear = true)
+	public function fromQuery (Query_Abstract $query, $clear = true)
 	{
 		$rows = DDS::execute ($query)->getResult ()->asTable ();
 		return $this->fromArray ((array) $rows, $clear);
@@ -983,13 +990,13 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 
 	/**
 	 * @desc Возвращает текущий запрос.
-	 * @return Query
+	 * @return Query_Abstract
 	 */
 	public function query ()
 	{
 		if (!$this->_query)
 		{
-			$this->_query = Query::instance ();
+			$this->_query = Query::factory ('Select');
 		}
 		return $this->_query;
 	}
@@ -1142,10 +1149,10 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 
 	/**
 	 * @desc Подмена запроса коллекции.
-	 * @param Query $query Новый запрос
+	 * @param Query_Abstract $query Новый запрос
 	 * @return Model_Collection Эта коллекция
 	 */
-	public function setQuery (Query $query)
+	public function setQuery (Query_Abstract $query)
 	{
 		$this->_query = $query;
 	}
