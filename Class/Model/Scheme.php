@@ -112,6 +112,11 @@ abstract class Model_Scheme
 	{
 		$scheme = array ();
 
+		if (!$fields)
+		{
+			return;
+		}
+
 		foreach ($fields as $field)
 		{
 			$size = null;

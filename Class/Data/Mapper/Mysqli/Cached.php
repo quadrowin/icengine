@@ -26,11 +26,11 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 
 	/**
 	 * @desc Выполняет запрос на изменение данных.
-	 * @param Query $query
+	 * @param Query_Abstract $query
 	 * @param Query_Options $options
 	 * @return boolean
 	 */
-	protected function _executeChange (Query $query, Query_Options $options)
+	protected function _executeChange (Query_Abstract $query, Query_Options $options)
 	{
 		if (!mysql_query ($this->_sql))
 		{
@@ -56,11 +56,11 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 
 	/**
 	 * @desc Выполняет запрос на вставку данных.
-	 * @param Query $query
+	 * @param Query_Abstract $query
 	 * @param Query_Options $options
 	 * @return boolean
 	 */
-	protected function _executeInsert (Query $query, Query_Options $options)
+	protected function _executeInsert (Query_Abstract $query, Query_Options $options)
 	{
 		if (!mysql_query ($this->_sql))
 		{
@@ -87,11 +87,11 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 
 	/**
 	 * @desc Выполняет запрос на получение данных.
-	 * @param Query $query
+	 * @param Query_Abstract $query
 	 * @param Query_Options $options
 	 * @return null|array
 	 */
-	protected function _executeSelect (Query $query, Query_Options $options)
+	protected function _executeSelect (Query_Abstract $query, Query_Options $options)
 	{
 		$key = $this->_sqlHash ();
 
@@ -123,7 +123,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 			$this->_foundRows = $cache ['f'];
 			return $cache ['v'];
 		}
-	
+
 		if (class_exists ('Tracer'))
 		{
 			Tracer::begin (

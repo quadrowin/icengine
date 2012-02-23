@@ -225,10 +225,10 @@ class Model_Manager extends Manager_Abstract
 	/**
 	 * @desc Получение модели по запросу.
 	 * @param string $model Название модели.
-	 * @param Query $query Запрос.
+	 * @param Query_Abstract $query Запрос.
 	 * @return Model|null
 	 */
-	public static function byQuery ($model, Query $query)
+	public static function byQuery ($model, Query_Abstract $query)
 	{
 		$data = null;
 
@@ -275,14 +275,16 @@ class Model_Manager extends Manager_Abstract
 		$scheme_fields = $scheme ['fields'];
 		$row = array ();
 
-		foreach ($scheme_fields as $field => $data)
+		if ($scheme_fields)
 		{
-			$value = isset ($fields [$field])
-				? $fields [$field]
-				: null;
-			$row [$field] = $value;
+			foreach ($scheme_fields as $field => $data)
+			{
+				$value = isset ($fields [$field])
+					? $fields [$field]
+					: null;
+				$row [$field] = $value;
+			}
 		}
-
 		Loader::load ($model_name);
 
 		$parents = class_parents ($model_name);
