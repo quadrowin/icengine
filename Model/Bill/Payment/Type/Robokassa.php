@@ -9,7 +9,7 @@
 
 Loader::load ('Bill_Payment_Type_Abstract');
 
-class Bill_Payment_Type_A1lite extends Bill_Payment_Type_Abstract
+class Bill_Payment_Type_Robokassa extends Bill_Payment_Type_Abstract
 {
 	
 	/**
