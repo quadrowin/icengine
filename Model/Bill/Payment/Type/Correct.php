@@ -31,7 +31,7 @@ class Bill_Payment_Type_Correct extends Bill_Payment_Type_Abstract
 						'wallet' => '',
 						'value' => $sum,
 						'balance' => $sum,
-						'transactionNo' => '00000' . time(),
+						'transactionNo' => '',
 						'details' => 'Корректировка баланса была произведена администратором #' . $user->key(),
 						'Bill__id' => 0,
 						'beginProcessTime' => Helper_Date::toUnix(),

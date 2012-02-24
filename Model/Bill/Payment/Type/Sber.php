@@ -37,7 +37,7 @@ class Bill_Payment_Type_Sber extends Bill_Payment_Type_Abstract
 					array(
 						'value' => $sum,
 						'balance' => $sum,
-						'transactionNo' => '000' . time(),
+						'transactionNo' => '',
 						'details' => 'Платеж подтвердил пользователь с id #' . $user->key(),
 						'Bill__id' => $bill->key()
 					)

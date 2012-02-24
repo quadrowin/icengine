@@ -52,7 +52,7 @@ class Bill_Payment_Type_Robokassa extends Bill_Payment_Type_Abstract
 					$payment = $this->instantPayment (array (
 						'value'			=> $message ['OutSum'],
 						'balance'			=> $message ['OutSum'],
-						'transactionNo'		=> $message ['tid'],
+						'transactionNo'		=> '',
 						'details'		=> $log_message,
 						'Bill__id'		=> (int) $message ['InvId']
 					));
