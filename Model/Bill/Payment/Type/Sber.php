@@ -23,12 +23,15 @@ class Bill_Payment_Type_Sber extends Bill_Payment_Type_Abstract
 		$user = User::getCurrent();
 		$bill = Model_Manager::byKey('Bill', (int) $bill_id);
 
-		if (!$sum) {
-			$sum = $bill->totalCost;
-		}
-		
+
+
 		if ($user && $user->hasRole('admin') && $bill)
 		{
+			if (!$sum)
+			{
+				$sum = $bill->totalCost;
+			}
+
 			Loader::load('Helper_Date');
 			$payment = $this->instantPayment(
 					array(
