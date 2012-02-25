@@ -296,9 +296,8 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 	 */
 	public function translator ()
 	{
-		return Query_Translator::factory (
-			self::TRANSLATOR,
-			$this->_query->type ()
+		return Query_Translator::byName (
+			self::TRANSLATOR . '_' . $this->_query->getName ()
 		);
 	}
 
