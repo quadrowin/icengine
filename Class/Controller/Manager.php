@@ -530,6 +530,12 @@ class Controller_Manager extends Manager_Abstract
 			Tracer::end ();
 		}
 
+		if (!empty ($options ['with_buffer']))
+		{
+			$options = array ('full_result' => true);
+			$result ['buffer'] = $buffer;
+		}
+
 		if ($options === true)
 		{
 			$options = array ('full_result' => false);

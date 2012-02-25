@@ -131,11 +131,10 @@ class Model_Manager extends Manager_Abstract
 			// Вставка
 			if ($id)
 			{
-				$ds->execute (
-					Query::instance ()
-						->insert ($object->modelName ())
-						->values ($object->getFields ())
-				);
+				$query = Query::instance ()
+					->insert ($object->modelName ())
+					->values ($object->getFields ());
+				$ds->execute ($query);
 			}
 			else
 			{
@@ -274,17 +273,21 @@ class Model_Manager extends Manager_Abstract
 		$scheme = Model_Scheme::getScheme ($model_name);
 		$scheme_fields = $scheme ['fields'];
 		$row = array ();
-
 		if ($scheme_fields)
 		{
 			foreach ($scheme_fields as $field => $data)
 			{
 				$value = isset ($fields [$field])
 					? $fields [$field]
-					: null;
+					: (
+						isset ($data ['default'])
+							? $data ['default']
+							: null
+					);
 				$row [$field] = $value;
 			}
 		}
+
 		Loader::load ($model_name);
 
 		$parents = class_parents ($model_name);
