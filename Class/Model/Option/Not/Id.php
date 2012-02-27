@@ -28,7 +28,7 @@ class Model_Option_Not_Id extends Model_Option
 		{
 			$this->query->where (
 				$this->collection->modelName () . '.id != ?',
-				$params ['id']
+				array ($this->params ['id'])
 			);
 		}
 	}
