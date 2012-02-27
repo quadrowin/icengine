@@ -80,6 +80,27 @@ class Request
 		);
 	}
 
+    /**
+     * @desc проверка на SSI-запрос
+     * @author red
+     * @return boolean
+     */
+    public static function isSsi ()
+    {
+        return isset ($_SERVER ['REQUEST_METHOD']) &&
+			$_SERVER ['REQUEST_METHOD'] === 'ssi';
+    }
+    
+    public static function isNeedOnlyData ()
+    {
+        return self::isAjax() && self::isSsi();
+    }
+
+    public static function isNeedFullPage ()
+    {
+        return !self::isAjax() && !self::isSsi();
+    }
+
 	/**
 	 * @desc Проверяет, что скрипт был вызван через консоль.
 	 * @return boolean true, если скрипт был вызван из командной строки,
