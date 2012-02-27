@@ -231,24 +231,21 @@ class Model_Manager extends Manager_Abstract
 	{
 		$data = null;
 
-		if (is_null ($data))
+		if (!$query->getPart (Query::SELECT))
 		{
-			if (!$query->getPart (Query::SELECT))
-			{
-				$query->select (array ($model => '*'));
-			}
-
-			if (!$query->getPart (Query::FROM))
-			{
-				$query->from ($model, $model);
-			}
-
-			$data =
-				Model_Scheme::dataSource ($model)
-					->execute ($query)
-					->getResult ()
-						->asRow ();
+			$query->select (array ($model => '*'));
 		}
+
+		if (!$query->getPart (Query::FROM))
+		{
+			$query->from ($model, $model);
+		}
+		
+		$data =
+			Model_Scheme::dataSource ($model)
+				->execute ($query)
+				->getResult ()
+					->asRow ();
 
 		if (!$data)
 		{
