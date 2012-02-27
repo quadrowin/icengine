@@ -930,26 +930,6 @@ class Controller_Admin_Database extends Controller_Abstract
 				->__toArray ();
 		}
 
-		foreach ($search_fields as $field)
-		{
-			if (isset ($field_filters [$field->Field]))
-			{
-				foreach ($field_filters [$field->Field] as $field_filter)
-				{
-					$value = $field_filter ['value'];
-
-					if (strpos ($value, '::') !== false)
-					{
-						$value = call_user_func ($field_filter ['value']);
-					}
-
-					$field->Values = $field->Values->filter (array (
-						$field_filter ['field'] => $value
-					));
-				}
-			}
-		}
-
 		$this->_output->send (array (
 			'collection'		=> $collection,
 			'fields'			=> $fields,
