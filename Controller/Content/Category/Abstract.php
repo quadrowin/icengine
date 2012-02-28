@@ -376,8 +376,8 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 				$content_category->key (),
 				'edit'
 			);
-
-			if (!$resource_edit || !$resource_edit->userCan ($user))
+			
+			if (!(($resource_edit && $resource_edit->userCan ($user)) || $user->hasRole ('editor')))
 			{
 				return $this->replaceAction ('Error', 'accessDenied');
 			}
