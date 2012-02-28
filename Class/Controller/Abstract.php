@@ -259,19 +259,19 @@ class Controller_Abstract
 	 * взято из $text.
 	 * @param string $tpl [optional] Шаблон.
 	 */
-	protected function _sendError ($text, $method = null, $tpl = true) 
+	protected function _sendError ($text, $method = null, $tpl = true)
 	{
         /**
          * @author red
          * @desc добавляем ошибку в стек
          */
-        $this->_errors[] = array($text, $method, $tpl);
+        $this->_errors [] = array ($text, $method, $tpl);
 
 		$this->_output->send (array (
-			'error'	=> $text,
-			array (
-				'error'	=> $text
-			)
+			'error'	=> array (
+				'text'	=> $text,
+				'tpl'	=> $tpl
+			),
 		));
 
 		if (!$method)
