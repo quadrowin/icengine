@@ -1079,7 +1079,7 @@ class SphinxClient
 
 		// mbstring workaround
 		$this->_MBPop ();
-		echo $req . '<br />';
+
 		// store request to requests array
 		$this->_reqs[] = $req;
 		return count($this->_reqs)-1;
