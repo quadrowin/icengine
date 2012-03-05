@@ -625,6 +625,13 @@ class Controller_Content_Abstract extends Controller_Abstract
 			'Content_Category'
 		);
 
+		if (User::getCurrent ()->hasRole ('editor'))
+		{
+			$content->delete ();
+			$url = $this->__deleteUrl ($content, $url);
+			Helper_Header::redirect ($url);
+		}
+
 		if (!$category_collection->count ())
 		{
 			return $this->replaceAction ('Error', 'accessDenied');
