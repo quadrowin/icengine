@@ -1,7 +1,7 @@
 <?php
 Loader::load ('Authorization_Abstract');
 /**
- * 
+ *
  * @desc Авторизация по логину и паролю.
  * @author Юрий Шведов
  * @package IcEngine
@@ -9,7 +9,7 @@ Loader::load ('Authorization_Abstract');
  */
 class Authorization_Login_Password extends Authorization_Abstract
 {
-	
+
 	/**
 	 * @desc Configuration
 	 * @var array
@@ -17,11 +17,11 @@ class Authorization_Login_Password extends Authorization_Abstract
 	protected static $_config = array (
 		// Авторегистрация
 		'autoregister'			=> false,
-		
+
 		// Валидатор логина
 		'login_validator'		=> 'Email'
 	);
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Authorization_Abstract::authorize()
@@ -29,7 +29,7 @@ class Authorization_Login_Password extends Authorization_Abstract
 	public function authorize ($data)
 	{
 		$config = $this->config ();
-		
+
 		$login = $data ['login'];
 		$password = $data ['password'];
 		$pass_md5 = md5 ($password);
@@ -43,35 +43,35 @@ class Authorization_Login_Password extends Authorization_Abstract
 				'md5(`password`)="' . $pass_md5 . '"' => Query::DESC
 			))
 		);
-		
+
 		if ($user)
 		{
 			if ($user->password != $password)
 			{
 				return 'Data_Validator_Authorization_Password/invalid';
 			}
-			
+
 			return $user->authorize ();
 		}
-		
+
 		$validator = $config ['login_validator'];
 		Loader::load ('Data_Validator_Manager');
 		$login_valid = Data_Validator_Manager::validate (
 			$validator,
 			$login
 		);
-		
+
 		if (!$login_valid)
 		{
 			// Не подходящий логин
 			return 'Data_Validator_' . $validator . '/invalid';
 		}
-		
+
 		$user = $this->autoregister ($data);
-		
+
 		return $user instanceof User ? $user->authorize () : $user;
 	}
-	
+
 	/**
 	 * @desc авторегистрация
 	 */
@@ -79,18 +79,18 @@ class Authorization_Login_Password extends Authorization_Abstract
 	{
 		$login = $data ['login'];
 		$password = $data ['password'];
-		
+
 		$validator = $this->config ()->login_validator;
 		$login_valid = Data_Validator_Manager::validate (
 			$validator,
 			$login
 		);
-		
+
 		if (!$login_valid)
 		{
 			return 'Data_Validator_' . $validator . '/invalid';
 		}
-		
+
 		$valid = Data_Validator_Manager::validate (
 			'Registration_Password',
 			$password
@@ -100,7 +100,7 @@ class Authorization_Login_Password extends Authorization_Abstract
 		{
 			return 'Data_Validator_Registration_Password/bad';
 		}
-		
+
 		Loader::load ('Helper_Email');
 		$user = User::create (array (
 			'login'		=> $login,
@@ -110,10 +110,10 @@ class Authorization_Login_Password extends Authorization_Abstract
 			'phone'		=> '',
 			'active'	=> 1
 		));
-		
+
 		return $user;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Authorization_Abstract::isRegistered()
@@ -124,16 +124,16 @@ class Authorization_Login_Password extends Authorization_Abstract
 		{
 			return false;
 		}
-		
+
 		$user = Model_Manager::byQuery (
 			'User',
 			Query::instance ()
 				->where ('login', $login)
 		);
-		
+
 		return (bool) $user;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Authorization_Abstract::isValidLogin()
@@ -146,7 +146,7 @@ class Authorization_Login_Password extends Authorization_Abstract
 			$login
 		);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Authorization_Abstract::findUser()
@@ -159,5 +159,5 @@ class Authorization_Login_Password extends Authorization_Abstract
 				->where ('login', $data ['login'])
 		);
 	}
-	
+
 }

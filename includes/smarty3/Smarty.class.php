@@ -63,6 +63,14 @@ if (!defined('SMARTY_RESOURCE_DATE_FORMAT')) {
     define('SMARTY_RESOURCE_DATE_FORMAT', '%b %e, %Y');
 }
 
+function smartyAutoload($class)
+{
+	$_class = strtolower($class);
+	if (substr($_class, 0, 16) === 'smarty_internal_' || $_class == 'smarty_security') {
+		include SMARTY_SYSPLUGINS_DIR . $_class . '.php';
+	}
+}
+
 /**
  * register the class autoloader
  */
@@ -76,7 +84,7 @@ if (SMARTY_SPL_AUTOLOAD && set_include_path(get_include_path() . PATH_SEPARATOR 
         spl_autoload_register();
     }
 } else {
-    spl_autoload_register('smartyAutoload');
+	spl_autoload_register('smartyAutoload');
 }
 
 /**
@@ -787,17 +795,6 @@ class Smarty extends Smarty_Internal_Data {
         }
         throw new SmartyException("Call of unknown function '$name'.");
    }
-}
-
-/**
- * Autoloader
- */
-function smartyAutoload($class)
-{
-    $_class = strtolower($class);
-    if (substr($_class, 0, 16) === 'smarty_internal_' || $_class == 'smarty_security') {
-        include SMARTY_SYSPLUGINS_DIR . $_class . '.php';
-    }
 }
 
 /**

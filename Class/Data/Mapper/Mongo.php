@@ -14,7 +14,7 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 	 * @var Mongo
 	 */
 	protected $_connection;
-	
+
 	/**
 	 * @desc Текущая коллекция
 	 * @var MongoCollection
@@ -33,18 +33,18 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 		'charset'	=> 'utf8',
 		'options'	=> array ()
 	);
-	
+
 	/**
 	 * @desc Последний оттранслированный запрос.
 	 * @var array
 	 */
 	protected $_query = '';
-	
+
 	protected $_result = null;
 	protected $_touchedRows = 0;
 	protected $_foundRows = 0;
 	protected $_insertId = null;
-	
+
 	/**
 	 * Обработчики по видам запросов.
 	 * @var array
@@ -56,11 +56,11 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 		Query::UPDATE	=> '_executeUpdate',
 		Query::INSERT	=> '_executeInsert'
 	);
-	
+
 	/**
 	 * @desc Запрос на удаление
 	 */
-	public function _executeDelete (Query $query, Query_Options $options)
+	public function _executeDelete (Query_Abstract $query, Query_Options $options)
 	{
 		$this->_collection->remove (
 			$this->_query ['criteria'],
@@ -68,11 +68,11 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 		);
 		$this->_touchedRows = 1;
 	}
-	
+
 	/**
 	 * @desc Запрос на вставку
 	 */
-	public function _executeInsert (Query $query, Query_Options $options)
+	public function _executeInsert (Query_Abstract $query, Query_Options $options)
 	{
 		if (isset ($this->_query ['a']['_id']))
 		{
@@ -95,11 +95,11 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 
 		$this->_touchedRows = 1;
 	}
-	
+
 	/**
 	 * @desc Запрос на выбор
 	 */
-	public function _executeSelect (Query $query, Query_Options $options)
+	public function _executeSelect (Query_Abstract $query, Query_Options $options)
 	{
 		if ($this->_query ['find_one'])
 		{
@@ -142,11 +142,11 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 			// $this->_result = $r;
 		}
 	}
-	
+
 	/**
 	 * @desc
 	 * @param Query $query
-	 * @param Query_Options $options 
+	 * @param Query_Options $options
 	 */
 	public function _executeShow ()
 	{
@@ -184,11 +184,11 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 			}
 		}
 	}
-	
+
 	/**
 	 * @desc Обновление
 	 */
-	public function _executeUpdate (Query $query, Query_Options $options)
+	public function _executeUpdate (Query_Abstract $query, Query_Options $options)
 	{
 		$this->_collection->update (
 			$this->_query ['criteria'],
@@ -243,23 +243,23 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 				$this->_connectionOptions ['password'] . '@';
 		}
 		$url .= $this->_connectionOptions ['host'];
-		
+
 		$options = array (
 			'connect'	=> true
 		);
-		
+
 		if (isset ($this->_connectionOptions ['options']['replicaSet']))
 		{
 			$options ['replicaSet']	= $this->_connectionOptions ['options']['replicaSet'];
 		}
-		
+
 		$this->_connection = new Mongo ($url, $options);
 		$this->_connection->selectDB ($this->_connectionOptions ['database']);
 
 		return $this->_connection;
 	}
 
-	public function execute (Data_Source_Abstract $source, Query $query,
+	public function execute (Data_Source_Abstract $source, Query_Abstract $query,
 		$options = null)
 	{
 		if (!($query instanceof Query))
@@ -281,17 +281,17 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 			$this->_connectionOptions ['database'],
 			$this->_query ['collection']
 		);
-		
+
 		$this->_result = array ();
 		$this->_touchedRows = 0;
 		$this->_foundRows = 0;
 		$this->_insertId = null;
-		
+
 		if (!$options)
 		{
 			$options = $this->getDefaultOptions ();
 		}
-		
+
 		$m = $this->_queryMethods [$query->type ()];
 		$this->{$m} ($query, $options);
 
