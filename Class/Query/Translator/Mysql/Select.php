@@ -84,6 +84,16 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
 	 * @param Query_Abstract $query
 	 * @return string
 	 */
+	protected function _partExplain (Query_Abstract $query)
+	{
+		return $query->part (Query::EXPLAIN) ? self::SQL_EXPLAIN : '';
+	}
+	
+	/**
+	 * @desc Рендерит часть distinct
+	 * @param Query_Abstract $query
+	 * @return string
+	 */
 	protected function _partDistinct (Query_Abstract $query)
 	{
 		return $query->part (Query::DISTINCT) ? self::SQL_DISTINCT : '';
@@ -229,7 +239,7 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
 			implode (self::SQL_COMMA, $columns);
 	}
 
-	public function _renderHaving (Query $query)
+	public function _renderHaving (Query_Abstract $query)
 	{
 		$having = $query->part (Query::HAVING);
 		
@@ -329,6 +339,7 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
 		if ($parts [Query::SELECT])
 		{
 			$sql =
+				self::_partExplain ($query) . ' ' .
 				'SELECT ' .
 				self::_partCalcFoundRows ($query) . ' ' .
 				self::_partDistinct ($query) . ' ';
