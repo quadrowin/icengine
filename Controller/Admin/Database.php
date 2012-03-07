@@ -207,7 +207,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			{
 				$cn = substr ($field->Field, 0, -4);
 
-				$query = Query::instance ();
+				$query = Query::factory ('Select');
 
 				if (isset ($field_filters [$field->Field]))
 				{
@@ -510,7 +510,7 @@ class Controller_Admin_Database extends Controller_Abstract
 	{
 		Loader::load ('Table_Rate');
 
-		$rate = Table_Rate::byTable ($table)->inc ();
+		Table_Rate::byTable ($table)->inc ();
 		$fields = Helper_Data_Source::fields ('`' . $table . '`');
 		$acl_fields = $this->__aclFields ($table, $fields, $row_id != 0 ? 'edit' : 'create');
 
@@ -810,7 +810,7 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		Loader::load ('Table_Rate');
 
-		$rate = Table_Rate::byTable ($table)->inc ();
+		Table_Rate::byTable ($table)->inc ();
 
 		$acl_fields = $this->__fields ($table);
 
@@ -1066,6 +1066,16 @@ class Controller_Admin_Database extends Controller_Abstract
 		if (!empty ($this->config ()->link_styles->$class_name))
 		{
 			$link_styles = $this->config ()->link_styles->$class_name;
+		}
+
+		$field_filters = array ();
+		if (
+			isset ($this->config ()->field_filters) &&
+			isset ($this->config ()->field_filters->$class_name)
+		)
+		{
+			$field_filters = $this->config ()->field_filters->$class_name
+				->__toArray ();
 		}
 
 		$this->_output->send (array (

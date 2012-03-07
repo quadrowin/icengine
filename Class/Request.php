@@ -60,7 +60,7 @@ class Request
 	public static function ip ()
 	{
 		if (isset ($_SERVER ['HTTP_X_REAL_IP']))
-		{	
+		{
 			return $_SERVER ['HTTP_X_REAL_IP'];
 		}
 
@@ -354,8 +354,8 @@ class Request
 	 */
 	public static function referer ()
 	{
-		return isset ($_SERVER ['HTTP_REFFERER'])
-			? $_SERVER ['HTTP_REFFERER'] : '';
+		return isset ($_SERVER ['HTTP_REFERER'])
+			? $_SERVER ['HTTP_REFERER'] : '';
 	}
 
 	/**

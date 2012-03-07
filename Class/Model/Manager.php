@@ -94,14 +94,14 @@ class Model_Manager extends Manager_Abstract
 		{
 			return ;
 		}
-       
+
 		Model_Scheme::dataSource ($object->modelName ())
-				->execute (
-					Query::instance ()
-						->delete ()
-						->from ($object->table ())
-						->where ($object->keyField (), $object->key ())
-				);
+			->execute (
+				Query::instance ()
+					->delete ()
+					->from ($object->table ())
+					->where ($object->keyField (), $object->key ())
+			);
 	}
 
 	/**
@@ -131,11 +131,10 @@ class Model_Manager extends Manager_Abstract
 			// Вставка
 			if ($id)
 			{
-				$ds->execute (
-					Query::instance ()
-						->insert ($object->modelName ())
-						->values ($object->getFields ())
-				);
+				$query = Query::instance ()
+					->insert ($object->modelName ())
+					->values ($object->getFields ());
+				$ds->execute ($query);
 			}
 			else
 			{
@@ -225,31 +224,28 @@ class Model_Manager extends Manager_Abstract
 	/**
 	 * @desc Получение модели по запросу.
 	 * @param string $model Название модели.
-	 * @param Query $query Запрос.
+	 * @param Query_Abstract $query Запрос.
 	 * @return Model|null
 	 */
-	public static function byQuery ($model, Query $query)
+	public static function byQuery ($model, Query_Abstract $query)
 	{
 		$data = null;
 
-		if (is_null ($data))
+		if (!$query->getPart (Query::SELECT))
 		{
-			if (!$query->getPart (Query::SELECT))
-			{
-				$query->select (array ($model => '*'));
-			}
-
-			if (!$query->getPart (Query::FROM))
-			{
-				$query->from ($model, $model);
-			}
-
-			$data =
-				Model_Scheme::dataSource ($model)
-					->execute ($query)
-					->getResult ()
-						->asRow ();
+			$query->select (array ($model => '*'));
 		}
+
+		if (!$query->getPart (Query::FROM))
+		{
+			$query->from ($model, $model);
+		}
+		
+		$data =
+			Model_Scheme::dataSource ($model)
+				->execute ($query)
+				->getResult ()
+					->asRow ();
 
 		if (!$data)
 		{
@@ -274,16 +270,47 @@ class Model_Manager extends Manager_Abstract
 		$scheme = Model_Scheme::getScheme ($model_name);
 		$scheme_fields = $scheme ['fields'];
 		$row = array ();
-
-		foreach ($scheme_fields as $field => $data)
+		if ($scheme_fields)
 		{
-			$value = isset ($fields [$field])
-				? $fields [$field]
-				: null;
-			$row [$field] = $value;
+			foreach ($scheme_fields as $field => $data)
+			{
+				$value = isset ($fields [$field])
+					? $fields [$field]
+					: (
+						isset ($data ['default'])
+							? $data ['default']
+							: null
+					);
+				$row [$field] = $value;
+			}
 		}
+
 		Loader::load ($model_name);
-		return new $model_name ($row);
+
+		$parents = class_parents ($model_name);
+		$first = end ($parents);
+		$second = prev ($parents);
+
+		$config = self::config ();
+
+		$parent =
+			$second && isset ($config ['delegee'][$second]) ?
+			$second :
+			$first;
+
+		$delegee =
+			'Model_Manager_Delegee_' .
+			$config ['delegee'][$parent];
+
+		Loader::load ($delegee);
+
+		$result = call_user_func (
+			array ($delegee, 'get'),
+			$model_name, 0, $row
+		);
+
+		$result->set ($row);
+		return $result;
 	}
 
 	/**
@@ -325,14 +352,16 @@ class Model_Manager extends Manager_Abstract
 				$first = end ($parents);
 				$second = prev ($parents);
 
+				$config = self::config ();
+
 				$parent =
-					$second && isset (self::$_config ['delegee'][$second]) ?
+					$second && isset ($config ['delegee'][$second]) ?
 					$second :
 					$first;
 
 				$delegee =
 					'Model_Manager_Delegee_' .
-					self::$_config ['delegee'][$parent];
+					$config ['delegee'][$parent];
 
 				Loader::load ($delegee);
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Абстрактный класс сорса
  * @author Юрий Шведов
  * @package IcEngine
@@ -8,37 +8,37 @@
  */
 class Data_Source_Abstract
 {
-	
+
 	/**
 	 * @desc Текущий запрос
 	 * @var Query
 	 */
 	private $_query;
-	
+
 	/**
-	 * 
+	 *
 	 * @var Data_Mapper_Abstract
 	 */
 	protected $_mapper;
-	
+
 	/**
 	 * @desc Результат выполнения запроса
 	 * @var Query_Result
 	 */
 	private $_result;
-	
+
 	/**
 	 * @desc
 	 * @var integer
 	 */
 	protected static $_objCount = 0;
-	
+
 	/**
 	 * @desc
 	 * @var integer
 	 */
 	protected $_objIndex = null;
-	
+
 	/**
 	 * @desc Проверяет доступность источника данных
 	 * @return boolean
@@ -47,10 +47,10 @@ class Data_Source_Abstract
 	{
 		return is_object ($this->_mapper);
 	}
-	
+
 	/**
-	 * 
-	 * @param Query $query
+	 *
+	 * @param Query_Abstract $query
 	 * @param Query_Options $options
 	 * @return Data_Source_Abstract $this
 	 */
@@ -60,7 +60,7 @@ class Data_Source_Abstract
 		$this->setResult ($this->_mapper->execute ($this, $this->_query, $options));
 		return $this;
 	}
-	
+
 	/**
 	 * @return Data_Mapper_Abstract
 	 */
@@ -68,7 +68,7 @@ class Data_Source_Abstract
 	{
 		return $this->_mapper;
 	}
-	
+
 	/**
 	 * @return integer
 	 */
@@ -80,7 +80,7 @@ class Data_Source_Abstract
 		}
 		return $this->_objIndex;
 	}
-	
+
 	/**
 	 * @desc Возвращает запрос
 	 * @params null|string $translator
@@ -96,7 +96,7 @@ class Data_Source_Abstract
 			$this->_query->translate ($translator) :
 			$this->_query;
 	}
-	
+
 	/**
 	 * @return Query_Result
 	 */
@@ -104,9 +104,9 @@ class Data_Source_Abstract
 	{
 		return $this->_result;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Data_Source_Collection $sources
 	 * @return Data_Source_Abstract $this
 	 */
@@ -115,7 +115,7 @@ class Data_Source_Abstract
 		$this->_indexSources = $sources;
 		return $this;
 	}
-	
+
 	/**
 	 * @desc Устанавливает результат запроса.
 	 * @param Query_Result $result
@@ -126,18 +126,18 @@ class Data_Source_Abstract
 		$this->_result = $result;
 		return $this;
 	}
-	
+
 	/**
 	 * @desc Устанавливает запрос.
-	 * @param Query $query
+	 * @param Query_Abstract $query
 	 * @return Data_Source_Abstract
 	 */
-	public function setQuery (Query $query)
+	public function setQuery (Query_Abstract $query)
 	{
 		$this->_query = $query;
 		return $this;
 	}
-	
+
 	/**
 	 * @desc Устанавливает мэппер.
 	 * @param Data_Mapper_Abstract $mapper
@@ -147,7 +147,7 @@ class Data_Source_Abstract
 		$this->_mapper = $mapper;
 		return $this;
 	}
-	
+
 	/**
 	 * @desc Проверяет, что последний запрос выполнен успешно.
 	 * @return boolean
@@ -160,5 +160,5 @@ class Data_Source_Abstract
 		}
 		return false;
 	}
-	
+
 }
