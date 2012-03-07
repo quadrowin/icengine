@@ -7,7 +7,7 @@
 		<li class="{if $deleted_edit}row-deleted{/if}">
 			{if $deleted_edit}
 				{$v->childRenderer->renderModel()}
-				<span>-{$deleted_edit->edit->id}-Была удалена&nbsp;<sup>Правка <a href="/cp/row/ice_user/{$deleted_edit->edit->User__id}/">пользователя #{$deleted_edit->edit->User__id}</a></sup></span>
+				<span>Была удалена&nbsp;<sup>Правка <a href="/cp/row/ice_user/{$deleted_edit->edit->User__id}/">пользователя #{$deleted_edit->edit->User__id}</a></sup></span>
 				<ul>
 					<li>
 						<input type = "radio" name = "{$f->name}[{$v->id}][delete-edits]" id = "{$f->name}-{$v->id}-skip" checked value="skip"/>
@@ -22,7 +22,7 @@
 						<label for="{$f->name}-{$v->id}-accept-delete">Подтвердить удаление</label>
 					</li>	
 				</ul>
-			{else}
+			{elseif $v instanceof Model}
 				{if $v->childRenderer->getModelEdits()->count()>0}
 					<input type = "hidden" name = "{$f->name}[{$v->id}][edits]" value="edits"/>
 					{$v->childRenderer->renderModel()}

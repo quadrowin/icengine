@@ -85,7 +85,7 @@ var Helper_Form = {
                         data[_name] = [];
                     }
                     if( typeof (value) == 'object' ) {
-						console.log(_name);
+						console.log(_name+' '+_isArray+' '+value);
                         for (i in value) { data[_name].push (value[i]); }
                     } else {
                         data[_name].push (value);
