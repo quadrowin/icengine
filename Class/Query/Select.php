@@ -13,12 +13,14 @@ class Query_Select extends Query_Abstract
 	public static $_defaults = array (
 		Query::CALC_FOUND_ROWS	=> false,
 		Query::DISTINCT			=> false,
+		Query::EXPLAIN			=> false,
 		Query::JOIN				=> false,
 		Query::FROM				=> array(),
 		Query::SELECT			=> array(),
 		Query::SHOW				=> array(),
 		Query::WHERE				=> array(),
 		Query::GROUP				=> array(),
+		Query::HAVING			=> null,
 		Query::ORDER				=> array(),
 		Query::LIMIT_COUNT		=> null,
 		Query::LIMIT_OFFSET		=> 0,
@@ -79,7 +81,26 @@ class Query_Select extends Query_Abstract
 		$this->_parts [Query::DISTINCT] = (bool) $value;
 		return $this;
 	}
+	
+	/**
+	 * @desc Устанавливает значение флага EXPLAIN
+	 * @param boolean $value
+	 * @return Query
+	 */
+	public function explain ($value)
+	{
+		$this->_parts [Query::EXPLAIN] = (bool) $value;
+		return $this;
+	}
 
+
+	public function having ($condition)
+	{
+		$this->_parts [Query::HAVING] = $condition;
+		return $this;
+	}
+		
+	
 	/**
 	 * @desc Часть запроса from
 	 * @param string|array $table Имя таблицы или array('table' => 'alias')
@@ -172,6 +193,19 @@ class Query_Select extends Query_Abstract
 	{
 		$this->_join ($table, Query::LEFT_JOIN, $condition);
 
+		return $this;
+	}
+
+ 	/**
+	 * 
+	 * @param string|array $table
+	 * @param string $condition
+	 * @return Query
+	 */
+	public function rightJoin ($table, $condition)
+	{
+		$this->_join ($table, Query::RIGHT_JOIN, $condition);
+		
 		return $this;
 	}
 

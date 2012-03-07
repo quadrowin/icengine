@@ -26,13 +26,16 @@ class Query
 	const SET				= 'SET';
 	const DESC				= 'DESC';
 	const DISTINCT			= 'DISTINCT';
+	const EXPLAIN			= 'EXPLAIN';
 	const FROM 				= 'FROM';
 	const GROUP				= 'GROUP';
+	const HAVING			= 'HAVING';
 	const INDEX				= 'INDEX';
 	const INDEXES			= 'INDEXES';
 	const INNER_JOIN		= 'INNER JOIN';
 	const JOIN				= 'JOIN';
 	const LEFT_JOIN			= 'LEFT JOIN';
+	const RIGHT_JOIN		= 'RIGHT JOIN';
 	const ORDER				= 'ORDER';
 	const SELECT			= 'SELECT';
 	const TABLE				= 'TABLE';

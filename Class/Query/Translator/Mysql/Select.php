@@ -18,15 +18,18 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
 	const SQL_DELETE		= 'DELETE';
 	const SQL_DESC			= 'DESC';
 	const SQL_DISTINCT		= 'DISTINCT';
+	const SQL_EXPLAIN		= 'EXPLAIN';
 	const SQL_DOT			= '.';
 	const SQL_EQUAL			= '=';
 	const SQL_ESCAPE		= '`';
 	const SQL_FROM			= 'FROM';
 	const SQL_GROUP_BY		= 'GROUP BY';
+	const SQL_HAVING		= 'HAVING';
 	const SQL_IN			= 'IN';
 	const SQL_INSERT		= 'INSERT';
 	const SQL_INNER_JOIN	= 'INNER JOIN';
 	const SQL_LEFT_JOIN		= 'LEFT JOIN';
+	const SQL_RIGHT_JOIN	= 'RIGHT JOIN';
 	const SQL_LIMIT			= 'LIMIT';
 	const SQL_LIKE			= 'LIKE';
 	const SQL_ON			= 'ON';
@@ -226,6 +229,18 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
 			implode (self::SQL_COMMA, $columns);
 	}
 
+	public function _renderHaving (Query $query)
+	{
+		$having = $query->part (Query::HAVING);
+
+		if (empty ($having))
+		{
+			return '';
+		}
+		return
+		self::SQL_HAVING . ' ' . $having;
+	}
+	
 	/**
 	 * @desc Рендерит mysql терм если он массив
 	 * @param array $value
@@ -406,6 +421,7 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
 			self::_renderUseIndex ($query) . ' ' .
 			self::_renderWhere ($query) . ' ' .
 			self::_renderGroup ($query) . ' ' .
+			self::_renderHaving ($query) . ' ' .
 			self::_renderOrder ($query) . ' ' .
 			self::_renderLimitoffset ($query);
 	}
