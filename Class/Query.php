@@ -36,6 +36,7 @@ class Query
 	const JOIN				= 'JOIN';
 	const LEFT_JOIN			= 'LEFT JOIN';
 	const RIGHT_JOIN		= 'RIGHT JOIN';
+	const EXPLAIN			= 'EXPLAIN';
 	const ORDER				= 'ORDER';
 	const SELECT			= 'SELECT';
 	const TABLE				= 'TABLE';
@@ -68,7 +69,7 @@ class Query
 			$params
 		);
 	}
-
+	
 	/**
 	 * @desc Создает и возвращает новый запрос.
 	 * Аналогично "new Query()".

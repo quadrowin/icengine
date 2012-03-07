@@ -402,7 +402,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		);
 
 		if (
-			!$user->isAdmin() &&
+			!User::getCurrent ()->isAdmin() &&
 			(
 				!$resource_addContent ||
 				!$resource_addContent->userCan (User::getCurrent ())
@@ -625,34 +625,31 @@ class Controller_Content_Abstract extends Controller_Abstract
 			'Content_Category'
 		);
 
-		if (User::getCurrent ()->hasRole ('editor'))
-		{
-			$content->delete ();
-			$url = $this->__deleteUrl ($content, $url);
-			Helper_Header::redirect ($url);
-		}
-
-		if (!$category_collection->count ())
-		{
-			return $this->replaceAction ('Error', 'accessDenied');
-		}
-
 		$category = $category_collection->first ();
 
 		$user = User::getCurrent ();
 
-		$resource_addContent = Acl_Resource::byNameCheck (
-			$this->__categoryModel (),
-			$category->key (),
-			'addContent'
-		);
+		if ($user->hasRole ('editor'))
+		{
+			$content->delete ();
+			Loader::load ('Helper_Header');
+			return Helper_Header::redirect ($url);
+		}
+		
+		$resource_addContent = null;
+
+		if ($category)
+		{
+			$resource_addContent = Acl_Resource::byNameCheck (
+				$this->__categoryModel (),
+				$category->key (),
+				'addContent'
+			);
+		}
 
 		if (
-			!User::getCurrent ()->hasRole ('editor') &&
-			(
-				!$resource_addContent ||
-				!$resource_addContent->userCan ($user)
-			)
+			!$resource_addContent ||
+			!$resource_addContent->userCan ($user)
 		)
 		{
 			return $this->replaceAction ('Error', 'accessDenied');
