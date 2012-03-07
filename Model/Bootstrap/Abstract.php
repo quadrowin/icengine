@@ -154,11 +154,14 @@ abstract class Bootstrap_Abstract
 			'Data_Provider_Abstract',
 			'Data_Provider_Manager',
 			
+			'Helper_Mysql',
 			'Query',
+			'Query_Abstract',
 			'Query_Options',
 			'Query_Result',
 			'Query_Translator',
-			
+			'Query_Translator_Abstract',
+		
 			'DDS',
 			'Data_Mapper_Abstract',
 			'Data_Source_Abstract',
