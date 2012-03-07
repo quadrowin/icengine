@@ -28,11 +28,14 @@ class Query
 	const DISTINCT			= 'DISTINCT';
 	const FROM 				= 'FROM';
 	const GROUP				= 'GROUP';
+	const HAVING			= 'HAVING';
 	const INDEX				= 'INDEX';
 	const INDEXES			= 'INDEXES';
 	const INNER_JOIN		= 'INNER JOIN';
 	const JOIN				= 'JOIN';
 	const LEFT_JOIN			= 'LEFT JOIN';
+	const RIGHT_JOIN		= 'RIGHT JOIN';
+	const EXPLAIN			= 'EXPLAIN';
 	const ORDER				= 'ORDER';
 	const SELECT			= 'SELECT';
 	const TABLE				= 'TABLE';
@@ -65,7 +68,7 @@ class Query
 			$params
 		);
 	}
-
+	
 	/**
 	 * @desc Создает и возвращает новый запрос.
 	 * Аналогично "new Query()".
