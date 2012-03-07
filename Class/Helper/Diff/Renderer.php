@@ -175,9 +175,12 @@ class Diff_Renderer_OneToMany extends Diff_Renderer_List
 	
 	public function render($field,$parent = null)
 	{
-		foreach($field->value as $v)
+		if ($field->value instanceof Model_Collection)
 		{
-			$v->set('childRenderer', new Helper_Diff_Renderer($v));
+			foreach($field->value as $v)
+			{
+				$v->set('childRenderer', new Helper_Diff_Renderer($v));
+			}
 		}
 		foreach($field->edits as $edit)
 		{
@@ -238,16 +241,27 @@ class Diff_Renderer_OneToMany extends Diff_Renderer_List
 					}
 					break;
 				case "add":
-					$child_model = Model_Manager::create($field->type->config()->model_class,array('id' => $id,$field->type->config()->model_fk => $model->key()));
+					$child_model_fields = array('id' => $id,$field->type->config()->model_fk => $model->key());
+					if ($field->type->config()->model_fk_component_field)
+					{
+						$child_model_fields[ $field->type->config()->model_fk_component_field ] = $model->modelName();
+					}
+					$child_model = Model_Manager::create($field->type->config()->model_class,$child_model_fields);
+					
 					switch($subaction) 
 					{
 						case "accept":
 							$diffRenderer = new Helper_Diff_Renderer($child_model);
 							$child_model = $diffRenderer->setModelChangesFromEdits();
+							$new_id = $child_model->id;
 							$field->value->add($child_model);
 							$child_model->id = $id;
 							Helper_Diff::deleteModelEdits($child_model);
-							Helper_Diff::deleteFieldValue($field,$id);
+							if ($id<0)
+							{
+								Helper_Diff::deleteFieldValue($field,$id);
+								Helper_Diff::addFieldValue($field,$new_id);
+							}
 							$child_model->id = 0;
 							break;
 						case "cancel":
@@ -380,7 +394,21 @@ class Helper_Diff_Renderer
 	public function setModelChangesFromEdits()
 	{
 		$fields = $this->getFields();
-		$this->model()->id = 0;
+		if ($this->model()->id<=0)
+			$this->model()->id = 0;
+		else {
+			$model = Model_Manager::byKey($this->model()->modelName(), $this->model()->key());
+			if ($model) {
+				$arr_model = $this->model()->__toArray();
+				foreach($arr_model['fields'] as $f => $v)
+				{
+					if (!$v)
+						continue;
+					$model->set($f,$v);										
+				}
+				$this->model= $model;
+			}
+		}
 		foreach($fields as $field)
 		{
 			$input = $field->renderer->makeInput(array_keys($field->edits->__toArray()),$field);

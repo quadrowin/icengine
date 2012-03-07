@@ -69,31 +69,85 @@ abstract class Diff_LinkList extends Diff_Field
 	{
 		return false;
 	}
+	
+	public function diffEdit ($a,$b, $fields = array())
+	{
+		$model_name = $b->modelName ();
+	
+		// Коллекция добавленных элементов
+		$collection_add = Model_Collection_Manager::create ($model_name)
+		->reset ();
+	
+		// Коллекция неизменненых элементов
+		$collection_no = Model_Collection_Manager::create ($model_name)
+		->reset ();
+	
+		// Коллекция удаленных элементов
+		$collection_del = Model_Collection_Manager::create ($model_name)
+		->reset ();
+	
+		$collection_count = $a->count ();
+	
+		foreach ($b as $model)
+		{
+			$diff_model = $a->hasByFields ($model, $fields);
+	
+			if ($diff_model)
+			{
+				$collection_no->add ($diff_model);
+				$collection_count--;
+			}
+			else
+			{
+				$collection_add->add ($model);
+			}
+		}
+	
+		// если $collection_count не 0, делаем вывод, что есть удаленные модели
+		if ($collection_count)
+		{
+			foreach ($a as $model)
+			{
+				if (!$b->hasByFields ($model, $fields))
+				{
+					$collection_del->add($model);
+				}
+			}
+		}
+	
+		return array(
+			'added'		=> $collection_add,
+			'no'		=> $collection_no,
+			'deleted'	=> $collection_del
+		);
+	}
+	
+	
 	protected function compareLists($a,$b)
 	{
 		if (!$a && !$b)
 			return true;
 		if ($a instanceof Model_Collection && $b instanceof Model_Collection)
 		{
-			$diff = $a->diffEdit($b);
-			if ($diff[Model_Collection::DIFF_EDIT_ADD]->count()==0 &&
-				$diff[Model_Collection::DIFF_EDIT_DEL]->count()==0)
+			$diff = $this->diffEdit($a,$b);
+			if ($diff['added']->count()==0 &&
+				$diff['deleted']->count()==0)
 					$result = true;
-			$modified = $diff[Model_Collection::DIFF_EDIT_NO];
-			$modified->add($diff[Model_Collection::DIFF_EDIT_ADD]);
+			$modified = $diff['no'];
+			$modified->add($diff['added']);
 			$result = true;
 			foreach($modified as $model)
 			{
 				if (!$model->id)
 					continue;
 				Helper_Diff::deleteModelEdits($model);
-				$new = $b->filterGetFirst(array( 'id' => $model->id));
+				$new = $b->filter(array( 'id' => $model->id))->first();
 				if (!$a->hasByFields($model))
 				{
 					$orig = Model_Manager::create(get_class($model),array_keys($model->getFields() ));
 					$orig->id = $model->id;
 				} else
-					$orig = $a->filterGetFirst(array( 'id' => $model->id));
+					$orig = $a->filter(array( 'id' => $model->id))->first();
 				$model_comparer = new Helper_Diff_Comparer(
 						$orig,
 						$new );
@@ -120,6 +174,10 @@ abstract class Diff_LinkList extends Diff_Field
 }
 
 class Diff_OneToMany extends Diff_LinkList
+{
+}
+
+class Diff_OneToManyIds extends Diff_LinkList
 {
 }
 
