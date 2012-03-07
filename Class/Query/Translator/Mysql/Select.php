@@ -79,13 +79,8 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
 		return self::SQL_CALC_FOUND_ROWS;
 	}
 
-	protected function _partExplain (Query_Abstract $query)
-	{
-		return $query->part (Query::EXPLAIN) ? self::SQL_EXPLAIN : '';
-	}
-	
 	/**
-	 * @desc Рендерит часть distinct
+	 * @desc Рендерит часть explain
 	 * @param Query_Abstract $query
 	 * @return string
 	 */
