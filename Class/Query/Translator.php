@@ -1,25 +1,25 @@
 <?php
 /**
- * 
+ *
  * @desc Транслятор запросов.
- * @author Юрий Шведов
+ * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
  *
  */
 class Query_Translator
-{	
+{
 	/**
 	 * @desc Подключенные трансляторы.
 	 * @var array
 	 */
 	protected static $_translators = array ();
-	
+
 	/**
 	 * @desc Возвращает объект транслятора по имени.
 	 * @param string $name Название транслятора.
 	 * @return Query_Translator
 	 */
-	public static function factory ($name)
+	public static function byName ($name)
 	{
 		if (!isset (self::$_translators [$name]))
 		{
@@ -27,26 +27,33 @@ class Query_Translator
 			Loader::load ($class_name);
 			self::$_translators [$name] = new $class_name ();
 		}
-		
+
 		return self::$_translators [$name];
 	}
-	
+
 	/**
-	 * @desc Транслирует запрос.
-	 * @param Query $query Запрос.
-	 * @return mixed Результат трансляции.
+	 * @desc Возвращает объект транслятора по имени и типу.
+	 * @param string $name Название транслятора.
+	 * @param string $type Тип запроса
+	 * @return Query_Translator
 	 */
-	public function translate (Query $query)
+	public static function factory ($name, $type)
 	{
-		$type = $query->type ();
-		$type = 
-			strtoupper (substr ($type, 0, 1)) . 
-			strtolower (substr ($type, 1));
-		
-		return call_user_func (
-			array ($this, '_render' . $type),
-			$query
-		);
+		$parts = explode (' ', $type);
+		foreach ($parts as &$part)
+		{
+			$part = strtoupper (substr ($part, 0, 1)) .
+				strtolower (substr ($part, 1));
+		}
+		$type = implode ('_', $parts);
+		$name .= '_' . $type;
+		if (!isset (self::$_translators [$name]))
+		{
+			$class_name = 'Query_Translator_' . $name;
+			Loader::load ($class_name);
+			self::$_translators [$name] = new $class_name ();
+		}
+
+		return self::$_translators [$name];
 	}
-	
 }
