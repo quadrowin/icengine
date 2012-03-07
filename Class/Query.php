@@ -35,6 +35,7 @@ class Query
 	const JOIN				= 'JOIN';
 	const LEFT_JOIN			= 'LEFT JOIN';
 	const RIGHT_JOIN		= 'RIGHT JOIN';
+	const EXPLAIN			= 'EXPLAIN';
 	const ORDER				= 'ORDER';
 	const SELECT			= 'SELECT';
 	const TABLE				= 'TABLE';
@@ -67,17 +68,6 @@ class Query
 			$params
 		);
 	}
-
-	/**
-	 * @desc Устанавливает условие для агрегатных функций (MAX, SUM, AVG, …).
-	 * @param string $condition условие для агрегатных функций
-	 * @return Query
-	 */
-	public function having ($condition)
-	{
-		$this->_parts [self::HAVING] = $condition;
-		return $this;
-	}
 	
 	/**
 	 * @desc Создает и возвращает новый запрос.
@@ -93,19 +83,6 @@ class Query
 	 * @desc Создать запрос по типу
 	 * @param array $name
 	 * @return Query_Abstract
-		
-		return $this;
-	}
-	
-	/**
-	 * 
-	 * @param string|array $table
-	 * @param string $condition
-	 * @return Query
-	 */
-	public function rightJoin ($table, $condition)
-	{
-		$this->_join ($table, self::RIGHT_JOIN, $condition);
 	 */
 	public static function factory ($name)
 	{
