@@ -57,6 +57,56 @@ class Controller_Controller extends Controller_Abstract
 		return $this->replaceAction ($controller, $action);
 	}
 
+	public function create ($name, $action, $author, $comment)
+	{
+		$filename = IcEngine::root () . 'Ice/Controller/' .
+			str_replace ('_', '/', $name) . '.php';
+		if (file_exists ($filename))
+		{
+			return;
+		}
+		$dir = dirname ($filename);
+		if (!is_dir ($dir))
+		{
+			mkdir ($dir, 0750, true);
+		}
+		$action = explode (',', $action);
+		foreach ($action as &$a)
+		{
+			$a = trim ($a);
+		}
+		Loader::load ('Helper_Code_Generator');
+		$output = Helper_Code_Generator::fromTemplate (
+			'controller',
+			array (
+				'name'		=> $name,
+				'actions'	=> $action,
+				'comment'	=> $comment,
+				'author'	=> $author,
+				'package'	=> 'Vipgeo',
+				'date'		=> Helper_Date::toUnix ()
+			)
+		);
+		echo 'File: ' . $filename . PHP_EOL;
+		file_put_contents ($filename, $output);
+		$dir = IcEngine::root () . 'Ice/View/Controller/' .
+			str_replace ('_', '/', $name) . '/';
+		if (!is_dir ($dir))
+		{
+			mkdir ($dir, 0750, true);
+		}
+		foreach ($action as $a)
+		{
+			$filename = $dir . $a . '.tpl';
+			if (file_exists ($filename))
+			{
+				continue;
+			}
+			echo 'View: ' . $filename . PHP_EOL;
+			file_put_contents ($filename, '');
+		}
+	}
+
 	/**
 	 *
 	 * @param boolean $with_actions
