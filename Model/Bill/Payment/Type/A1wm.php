@@ -50,6 +50,7 @@ class Bill_Payment_Type_A1wm extends Bill_Payment_Type_Abstract
 				{
 					$payment = $this->instantPayment (array (
 						'value'					=> $message ['system_income'],
+						'balance'					=> $message ['system_income'],
 						'transactionNo'			=> $message ['transaction_id'],
 						'details'				=> $log_message
 					));

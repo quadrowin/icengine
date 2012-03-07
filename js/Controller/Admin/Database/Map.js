@@ -11,13 +11,15 @@ var layers =
 			new YMaps.GeoPoint (longitude, latitude), 
 			zoom, 
 			YMaps.MapType.MAP
-		);
+			);
 
 		this.map.addControl (new YMaps.Zoom ());
 		this.map.addControl (new YMaps.ToolBar ());
 		this.map.addControl (new YMaps.ScaleLine ());
 
-		this.map.enableScrollZoom ({smooth:true});
+		this.map.enableScrollZoom ({
+			smooth:true
+		});
 
 		this.map.enableHotKeys ();
 
@@ -34,8 +36,8 @@ var layers =
 			new YMaps.ControlPosition (
 				YMaps.ControlPosition.TOP_RIGHT, 
 				new YMaps.Point (0, 0)
-			)
-		);
+				)
+			);
 
 		// layers:
 		this.layersDivId = layersDivId;
@@ -52,7 +54,7 @@ var layers =
 
 		var form = YMaps.jQuery ('<form action="javascript:return false;"' +
 			'onsubmit="return false;"/>'
-		);
+			);
 
 		form.appendTo (elm);
 
@@ -105,7 +107,7 @@ var layers =
 				points [i] = new YMaps.GeoPoint (
 					points [i].lng, 
 					points [i].lat
-				);
+					);
 			}
 		} 
 		else 
@@ -113,7 +115,7 @@ var layers =
 			points = new YMaps.GeoPoint (
 				points.lng, 
 				points.lat
-			);
+				);
 		}
 
 		if (points.length == 0)
@@ -122,8 +124,8 @@ var layers =
 		}
 
 		var allowObjects = ['Placemark', 'Polyline', 'Polygon'],
-			index = YMaps.jQuery.inArray (objectDesc.type, allowObjects),
-			constructor = allowObjects [(index == -1) ? 0 : index];
+		index = YMaps.jQuery.inArray (objectDesc.type, allowObjects),
+		constructor = allowObjects [(index == -1) ? 0 : index];
 
 		var description = objectDesc.description || "";
 
@@ -135,7 +137,7 @@ var layers =
 				hasBalloon : !!description, 
 				hasHint: !!objectDesc.name
 			}
-		);
+			);
 
 		object.description = description;
 
@@ -149,7 +151,8 @@ var layers =
 	{
 		var layer = {
 			name: layerDesc.name, 
-			center: layerDesc.center, content: []
+			center: layerDesc.center, 
+			content: []
 		};
 		
 		var i;
@@ -160,7 +163,7 @@ var layers =
 			YMaps.Styles.add (
 				layerDesc.styles [i].name, 
 				layerDesc.styles [i].style
-			);
+				);
 		}
 
 		// import objects
@@ -211,7 +214,7 @@ var layers =
 		var point = new YMaps.GeoPoint (
 			layer.center.lng, 
 			layer.center.lat
-		);
+			);
 
 		this.map.setZoom 
 		(
@@ -221,7 +224,7 @@ var layers =
 				position:point, 
 				centering:true
 			}
-		);
+			);
 	},
 
 	// hide layer with name
@@ -246,8 +249,8 @@ var layers =
 function encodePoints (points) 
 {
 	var array = [],                     // Временный массив для точек
-		prev = new YMaps.Point (0, 0),    // Предыдущая точка
-		coef = 1000000;                 // Коэффициент
+	prev = new YMaps.Point (0, 0),    // Предыдущая точка
+	coef = 1000000;                 // Коэффициент
 
 	// Обработка точек
 	for (var i = 0, geoVector, currentPoint; i < points.length; i++) 
@@ -261,7 +264,7 @@ function encodePoints (points)
 		array = array.concat (
 			Base64.encode4bytes (geoVector.getX () * coef), 
 			Base64.encode4bytes (geoVector.getY() * coef)
-		);
+			);
 
 		prev = currentPoint;
 	}
@@ -276,7 +279,7 @@ $(document).ready (function ()
 	{
 		var geo_layers = editor.getObjectDescriptions ();
 
-		alert (geo_layers);
+		alert ('Объект/ы сохранены!');
 
 		if (geo_layers.length > 0)
 		{
@@ -292,7 +295,7 @@ $(document).ready (function ()
 					
 				},
 				false
-			);
+				);
 		}
 	});
 });
