@@ -54,6 +54,11 @@ class Diff_String extends Diff_ValueType
 	
 }
 
+class Diff_Int extends Diff_ValueType
+{
+	
+}
+
 class Diff_Bool extends Diff_ValueType
 {
 	

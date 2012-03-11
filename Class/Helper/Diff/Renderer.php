@@ -78,19 +78,20 @@ abstract class Diff_Renderer
 		}
 	}
 	
+	public function mergeInput($model, $field)
+	{
+            $edit = $field->edits->getIterator()->current();
+            $diff = $edit->edit->data('diff');
+            $new_value = $diff->{$field->name}->value;
+            $field->type->setNewValue($model, $field, $new_value);
+	}
+	
 	public function getActionFromInput($field,$input,$parent = '')
 	{
 		$action = $input->receive($parent.$field->name.'-edits');
 		return $action;
 	}
 	
-	public function makeInput($edit_ids,$field, $parent = '')
-	{
-		if (is_array($edit_ids) && count($edit_ids)>0)
-			return array(
-				$parent.$field->name.'-edits' => 'change-'.$edit_ids[0]
-			);
-	}
 }
 
 class Model_Renderer extends Diff_Renderer
@@ -112,6 +113,10 @@ abstract class Diff_Renderer_ValueType extends Diff_Renderer
 }
 
 class Diff_Renderer_String extends Diff_Renderer_ValueType
+{
+	
+}
+class Diff_Renderer_Int extends Diff_Renderer_ValueType
 {
 	
 }
@@ -201,6 +206,8 @@ class Diff_Renderer_OneToMany extends Diff_Renderer_List
 	public function updateFromInput($model, $field, $input, $parent = '')
 	{
 		$vals = $input->receive( $field->name );
+                if (!$vals)
+                    return;
 		foreach($vals as $id => $v)
 		{
 			if (!is_array($v))
@@ -283,7 +290,7 @@ class Diff_Renderer_OneToMany extends Diff_Renderer_List
 			 
 		}
 		$field->type->setNewValue($model,$field,$field->value);
-	}
+	}        
 }
 
 class Helper_Diff_Renderer
@@ -390,6 +397,31 @@ class Helper_Diff_Renderer
 			)
 		);
 	}
+        
+        public function mergeModelWithEdits()
+        {
+            $fields = $this->getFields();
+            if ($this->model()->id<=0)
+                    $this->model()->id = 0;
+            else {
+                    $model = Model_Manager::byKey($this->model()->modelName(), $this->model()->key());
+                    if ($model) {
+                            $arr_model = $this->model()->__toArray();
+                            foreach($arr_model['fields'] as $f => $v)
+                            {
+                                    if (!$v)
+                                            continue;
+                                    $model->set($f,$v);										
+                            }
+                            $this->model= $model;
+                    }
+            }
+            foreach($fields as $field)
+            {
+                    $field->renderer->mergeInput($this->model(), $field);
+            }
+            return $this->model();	
+        }
 	
 	public function setModelChangesFromEdits()
 	{
@@ -418,7 +450,7 @@ class Helper_Diff_Renderer
 			$t->commit();
 			$field->renderer->updateFromInput($this->model(), $field, $dt);
 		}
-		$this->model()->saveCarefully();
+                $this->model()->saveCarefully();
 		return $this->model();	
 	}
 	public function setModelChangesFromInput($input,$parent = '')
