@@ -91,7 +91,14 @@ abstract class Diff_Renderer
 		$action = $input->receive($parent.$field->name.'-edits');
 		return $action;
 	}
-	
+        
+	public function makeInput($edit_ids,$field, $parent = '')
+	{
+		if (is_array($edit_ids) && count($edit_ids)>0)
+			return array(
+				$parent.$field->name.'-edits' => 'change-'.$edit_ids[0]
+			);
+	}	
 }
 
 class Model_Renderer extends Diff_Renderer
@@ -291,6 +298,38 @@ class Diff_Renderer_OneToMany extends Diff_Renderer_List
 		}
 		$field->type->setNewValue($model,$field,$field->value);
 	}        
+	
+	public function mergeInput($model, $field)
+	{
+            $edit = $field->edits->getIterator()->current();
+            $diff = $edit->edit->data('diff');
+            $ids = $diff->{$field->name}->value;
+            $new_value = Model_Collection_Manager::create($field->type->config()->model_class);
+            $new_value->reset();
+            foreach($ids as $id)
+            {
+                if ($id>0)
+                {
+                    $child_model = Model_Manager::byKey($field->type->config()->model_class, (int)$id);
+                }
+                else
+                {
+                    $child_model_fields = array('id' => $id,$field->type->config()->model_fk => $model->key());
+                    if ($field->type->config()->model_fk_component_field)
+                    {
+                            $child_model_fields[ $field->type->config()->model_fk_component_field ] = $model->modelName();
+                    }
+                    $child_model = Model_Manager::create($field->type->config()->model_class,$child_model_fields);
+                }
+                $diffRenderer = new Helper_Diff_Renderer($child_model);
+                $child_model = $diffRenderer->mergeModelWithEdits();
+                $child_model->id = $id;
+                $new_value->add($child_model);
+            }
+            $field->type->setNewValue($model, $field, $new_value);
+	}
+        
+        
 }
 
 class Helper_Diff_Renderer

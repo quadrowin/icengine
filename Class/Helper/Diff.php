@@ -119,8 +119,10 @@ class Helper_Diff
 		DDS::execute(
 			Query::instance()
 			->insert("Edit_Value")
-			->set('Edit_Field__id',$edit_field_id)
-			->set('value',$value)
+			->values(array (
+                                            'Edit_Field__id' => $edit_field_id,
+                                            'value' => $value
+                           ))
 		);
 	}
 	public static function packEdits()
