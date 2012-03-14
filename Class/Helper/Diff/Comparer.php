@@ -23,7 +23,7 @@ abstract class Diff_Field
 		return $input->receive($parent.$field->name."-new-value");
 	}
 
-	public function setNewValue($model, $field, $new_value)
+	public function setNewValue($model, $field, $new_value, $ignore_update = false)
 	{
 		$model->set($field->name,$new_value);
 	}
@@ -43,9 +43,9 @@ class Diff_ValueType extends Diff_Field
 	{
 		return array( parent::getNewValueFromInput($field, $input,$parent) );
 	}
-	public function setNewValue($model, $field, $new_value)
+	public function setNewValue($model, $field, $new_value, $ignore_update = false)
 	{
-		parent::setNewValue($model, $field, $new_value[0]);
+		parent::setNewValue($model, $field, $new_value[0], $ignore_update);
 	}
 }
 
@@ -135,9 +135,6 @@ abstract class Diff_LinkList extends Diff_Field
 		if ($a instanceof Model_Collection && $b instanceof Model_Collection)
 		{
 			$diff = $this->diffEdit($a,$b);
-			if ($diff['added']->count()==0 &&
-				$diff['deleted']->count()==0)
-					$result = true;
 			$modified = $diff['no'];
 			$modified->add($diff['added']);
 			$result = true;
@@ -162,6 +159,9 @@ abstract class Diff_LinkList extends Diff_Field
 					$result = false;
 				} 
 			}
+			if ($diff['added']->count()>0 ||
+				$diff['deleted']->count()>0)
+					$result = false;
 			return $result;
 			
 		}
@@ -188,9 +188,11 @@ class Diff_OneToManyIds extends Diff_LinkList
 
 class Diff_ManyToMany extends Diff_LinkList
 {
-	public function setNewValue($model, $field, $new_value)
+	public function setNewValue($model, $field, $new_value, $ignore_update = false)
 	{
-		parent::setNewValue($model, $field, $new_value);
+		parent::setNewValue($model, $field, $new_value, $ignore_update);
+                if ($ignore_update)
+                    return;
 		DDS::execute(
 			Query::instance()
 				->delete()

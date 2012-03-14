@@ -83,7 +83,7 @@ abstract class Diff_Renderer
             $edit = $field->edits->getIterator()->current();
             $diff = $edit->edit->data('diff');
             $new_value = $diff->{$field->name}->value;
-            $field->type->setNewValue($model, $field, $new_value);
+            $field->type->setNewValue($model, $field, $new_value, true);
 	}
 	
 	public function getActionFromInput($field,$input,$parent = '')
@@ -326,7 +326,7 @@ class Diff_Renderer_OneToMany extends Diff_Renderer_List
                 $child_model->id = $id;
                 $new_value->add($child_model);
             }
-            $field->type->setNewValue($model, $field, $new_value);
+            $field->type->setNewValue($model, $field, $new_value, true);
 	}
         
         
@@ -445,10 +445,10 @@ class Helper_Diff_Renderer
             else {
                     $model = Model_Manager::byKey($this->model()->modelName(), $this->model()->key());
                     if ($model) {
-                            $arr_model = $this->model()->__toArray();
-                            foreach($arr_model['fields'] as $f => $v)
+                            $arr_model = $this->model();
+                            foreach($arr_model->getFields() as $f => $v)
                             {
-                                    if (!$v)
+                                    if (!is_array($v) && !is_object($v) && !$v)
                                             continue;
                                     $model->set($f,$v);										
                             }
