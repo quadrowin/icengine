@@ -636,7 +636,7 @@ class Controller_Admin_Database extends Controller_Abstract
 				else
 					$cn = substr ($field->Field, 0, -4);
 				
-				$query = Query::instance ();
+				$query = Query::factory ("Select");
 				if (isset ($field_filters [$field->Field]))
 				{
 					foreach ($field_filters [$field->Field] as $field_filter)
