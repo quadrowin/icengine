@@ -127,8 +127,6 @@ class IcEngine
 
 		self::initLoader ();
 
-		Loader::load ('Config_Manager');
-
 		if ($bootstap)
 		{
 			self::initBootstrap ($bootstap);
