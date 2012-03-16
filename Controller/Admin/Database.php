@@ -7,7 +7,13 @@
  */
 class Controller_Admin_Database extends Controller_Abstract
 {
-
+	
+	protected function config2 ($class_name) 
+	{
+		$config = Config_Manager::get ('Model_Mapper_' . $class_name);
+		return $config ['admin_panel'];
+	}
+	
 	/**
 	 * @desc Config
 	 * @var array|Objective
@@ -112,7 +118,7 @@ class Controller_Admin_Database extends Controller_Abstract
 	private function _getValues ($row, $class_name, $fields)
 	{
 		$field_filters = array ();
-		$tmp = $this->config ()->field_filters->$class_name;
+		$tmp = $this->config2 ($class_name)->field_filters;
 
 		if ($tmp)
 		{
@@ -417,9 +423,9 @@ class Controller_Admin_Database extends Controller_Abstract
 	{
 		$filters = null;
 
-		if (!empty ($this->config ()->filters))
+		if (!empty ($this->config2 ($class_name)->filters))
 		{
-			$filters = $this->config ()->filters->$class_name;
+			$filters = $this->config2 ($class_name)->filters;
 		}
 
 		if ($filters)
@@ -511,9 +517,9 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		$auto_select = array ();
 
-		if (!empty ($this->config ()->auto_select))
+		if (!empty ($this->config2 ($class_name)->auto_select))
 		{
-			$auto_select = $this->config ()->auto_select->$class_name;
+			$auto_select = $this->config2 ($class_name)->auto_select;
 		}
 
 		if ($auto_select)
@@ -560,11 +566,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		$fields = $this->_getValues ($row, $class_name, $fields);
 		$modificators = array ();
 
-		$tmp = $this->config ()->modificators;
-		if ($tmp)
-		{
-			$tmp = $tmp->$class_name;
-		}
+		$tmp = $this->config2 ($class_name)->modificators;
 
 		if ($tmp)
 		{
@@ -616,9 +618,9 @@ class Controller_Admin_Database extends Controller_Abstract
 		// Получаем эвенты
 		$events  = array ();
 
-		if (!empty ($this->config ()->events))
+		if (!empty ($this->config2 ($class_name)->events))
 		{
-			$events = $this->config ()->events->$class_name;
+			$events = $this->config2 ($class_name)->events;
 		}
 
 		if ($events)
@@ -629,9 +631,9 @@ class Controller_Admin_Database extends Controller_Abstract
 		// Получаем плагины
 		$plugins = array ();
 
-		if (!empty ($this->config ()->plugins))
+		if (!empty ($this->config2 ($class_name)->plugins))
 		{
-			$plugins = $this->config ()->plugins->$class_name;
+			$plugins = $this->config2 ($class_name)->plugins;
 		}
 
 		if ($plugins)
@@ -695,9 +697,9 @@ class Controller_Admin_Database extends Controller_Abstract
 		// Сортируем коллекцию, если есть конфиг для сортировки
 		$sort = null;
 
-		if (!empty ($this->config ()->sort))
+		if (!empty ($this->config2 ($class_name)->sort))
 		{
-			$sort = $this->config ()->sort->$class_name;
+			$sort = $this->config2 ($class_name)->sort;
 		}
 
 		if ($sort)
@@ -717,9 +719,9 @@ class Controller_Admin_Database extends Controller_Abstract
 
 			$limit = $this->config ()->default_limit;
 
-			if (!empty ($this->config ()->limit))
+			if (!empty ($this->config2 ($class_name)->limits))
 			{
-				$limit = $this->config ()->limits->$class_name;
+				$limit = $this->config2 ($class_name)->limits;
 			}
 
 			if ($limit)
@@ -775,9 +777,9 @@ class Controller_Admin_Database extends Controller_Abstract
 		$acl_fields = array ();
 		$class_fields = array ();
 
-		if (!empty ($this->config ()->fields))
+		if (!empty ($this->config2 ($class_name)->fields))
 		{
-			$class_fields = $this->config ()->fields->$class_name;
+			$class_fields = $this->config2 ($class_name)->fields;
 		}
 
 		$fields = null;
@@ -798,21 +800,17 @@ class Controller_Admin_Database extends Controller_Abstract
 		}
 
 		$search_fields = $this->_getValues (null, $class_name, clone $fields);
-		$config_search_fields = $this->config ()->search_fields;
+		$config_search_fields = $this->config2 ($class_name)->search_fields;
 		if ($config_search_fields)
 		{
-			$config_search_fields = $config_search_fields->$class_name;
-			if ($config_search_fields)
+			$config_search_fields = $config_search_fields->__toArray ();
+			foreach ($search_fields as $i=>$v)
 			{
-				$config_search_fields = $config_search_fields->__toArray ();
-				foreach ($search_fields as $i=>$v)
+				if (!in_array ($v->Field, $config_search_fields))
 				{
-					if (!in_array ($v->Field, $config_search_fields))
-					{
-						unset ($search_fields [$i]);
-					}
+					unset ($search_fields [$i]);
 				}
-			}
+				}
 		}
 
 		if ($class_fields)
@@ -835,16 +833,16 @@ class Controller_Admin_Database extends Controller_Abstract
 		$sfields = array_unique ($sfields);
 		$title = null;
 
-		if (!empty ($this->config ()->titles))
+		if (!empty ($this->config2 ($class_name)->titles))
 		{
-			$title = $this->config ()->titles->$class_name;
+			$title = $this->config2 ($class_name)->titles;
 		}
 
 		$links = array ();
 
-		if (!empty ($this->config ()->links))
+		if (!empty ($this->config2 ($class_name)->links))
 		{
-			$links = $this->config ()->links->$class_name;
+			$links = $this->config2 ($class_name)->links;
 		}
 
 		if ($links)
@@ -854,16 +852,16 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		$includes = array ();
 
-		if (!empty ($this->config ()->includes))
+		if (!empty ($this->config2 ($class_name)->includes))
 		{
-			$includes = $this->config ()->includes->$class_name;
+			$includes = $this->config2 ($class_name)->includes;
 		}
 
 		$limitators = array ();
 
-		if (!empty ($this->config ()->limitators))
+		if (!empty ($this->config2 ($class_name)->limitators))
 		{
-			$limitators = $this->config ()->limitators->$class_name;
+			$limitators = $this->config2 ($class_name)->limitators;
 		}
 
 		if ($limitators)
@@ -908,25 +906,24 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		$styles = array ();
 
-		if (!empty ($this->config ()->styles->$class_name))
+		if (!empty ($this->config2 ($class_name)->styles))
 		{
-			$styles = $this->config ()->styles->$class_name;
+			$styles = $this->config2 ($class_name)->styles;
 		}
 
 		$link_styles = array ();
 
-		if (!empty ($this->config ()->link_styles->$class_name))
+		if (!empty ($this->config2 ($class_name)->link_styles))
 		{
-			$link_styles = $this->config ()->link_styles->$class_name;
+			$link_styles = $this->config2 ($class_name)->link_styles;
 		}
 
 		$field_filters = array ();
 		if (
-			isset ($this->config ()->field_filters) &&
-			isset ($this->config ()->field_filters->$class_name)
+			isset ($this->config2 ($class_name)->field_filters)
 		)
 		{
-			$field_filters = $this->config ()->field_filters->$class_name
+			$field_filters = $this->config2 ($class_name)->field_filters
 				->__toArray ();
 		}
 
@@ -1008,11 +1005,7 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		$modificators = array ();
 
-		$tmp = $this->config ()->modificators;
-		if ($tmp)
-		{
-			$tmp = $tmp->$class_name;
-		}
+		$tmp = $this->config2 ($class_name)->modificators;
 
 		if ($tmp)
 		{
@@ -1094,7 +1087,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			$updated_fields
 		);
 
-		$after_save = $this->config ()->afterSave->$class_name;
+		$after_save = $this->config2 ($class_name)->afterSave;
 
 		if ($after_save)
 		{
