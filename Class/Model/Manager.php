@@ -438,6 +438,6 @@ class Model_Manager extends Manager_Abstract
 			$updated = array_diff ($updated, $old->getFields ());
 		}
 		Resource_Manager::set ('Model', $object->resourceKey (), $object);
-		Resource_Manager::setUpdated ('Model', $object, $updated);
+		Resource_Manager::setUpdated ('Model', $object->resourceKey (), $updated);
 	}
 }
