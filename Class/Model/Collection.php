@@ -1315,7 +1315,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		$kf = Model_Scheme::keyField ($model_name);
 		$keys = array_unique ($this->column ($kf));
 
-		$collection = new self;
+		$collection = $this->assign ($this);
 		$collection->reset ();
 
 		foreach ($keys as $key)
