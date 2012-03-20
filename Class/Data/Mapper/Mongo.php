@@ -266,7 +266,7 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 		{
 			return new Query_Result (null);
 		}
-
+		
 		$start = microtime (true);
 
 		$clone = clone $query;
@@ -276,6 +276,8 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 		$clone->setPart (Query::WHERE, $where);
 
 		$this->_query = $clone->translate ('Mongo');
+		
+		//echo $this->_connectionOptions ['database'] . ' ' . $this->_query ['collection'] . PHP_EOL;
 
 		$this->_collection = $this->connect ()->selectCollection (
 			$this->_connectionOptions ['database'],
@@ -294,7 +296,7 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 
 		$m = $this->_queryMethods [$query->type ()];
 		$this->{$m} ($query, $options);
-
+		//echo $m . PHP_EOL;
 		$finish = microtime (true);
 
 		return new Query_Result (array (
