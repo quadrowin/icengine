@@ -127,6 +127,12 @@ class Diff_Renderer_Int extends Diff_Renderer_ValueType
 {
 	
 }
+
+class Diff_Renderer_Geopoint extends Diff_Renderer_ValueType
+{
+	
+}
+
 class Diff_Renderer_List extends Diff_Renderer 
 {
 	private $_list;

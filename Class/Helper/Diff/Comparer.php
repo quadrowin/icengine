@@ -59,6 +59,11 @@ class Diff_Int extends Diff_ValueType
 	
 }
 
+class Diff_Geopoint extends Diff_ValueType
+{
+	
+}
+
 class Diff_Bool extends Diff_ValueType
 {
 	
