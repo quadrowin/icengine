@@ -3,7 +3,7 @@
  * 
  * @desc Платеж по Robokassa
  * @author Гурус, dp
- * @package Ice_Forguest
+ * @package Ice_GdeKvartira
  *
  */
 
