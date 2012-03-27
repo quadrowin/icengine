@@ -11,7 +11,7 @@
 	{foreach from=$field->edits item=edit key=edit_id}
 	<li>
 		<input type = "radio" name = "{$parent}{$field->name}-edits" id = "{$field->name}-edit-{$edit_id}" value="change-{$edit_id}" />
-		<label for="{$field->name}-edit-{$edit_id}">Правка <a href="#">пользователя #{$edit->edit->User__id}</a>:
+		<label for="{$field->name}-edit-{$edit_id}">Правка <a href="/cp/row/ice_user/{$edit->edit->User__id}/">пользователя {$edit->edit->User->login}</a>:
 			{include file=$renderer->valueTemplate() value=$edit->value}
 			
 		</label>

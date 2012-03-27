@@ -284,7 +284,7 @@ class Helper_Diff_Comparer
 			'model_class'	=> get_class($this->a),
 			'model_id'		=> $this->a->id,
 			'edit_time'		=> Helper_Date::toUnix(),
-			'User__id'		=> 0
+			'User__id'		=> User::getCurrent()->id
 		));
 		$modelEdit->save();
 		foreach($this->result as $diff_row)
