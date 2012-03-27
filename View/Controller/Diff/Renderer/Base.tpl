@@ -19,16 +19,18 @@
 	{/foreach}
 	<li>
 		<input type = "radio" name = "{$parent}{$field->name}-edits" id = "{$field->name}-set" value="set-own" />
-		<label for="{$field->name}-set">
+		<label>
 			Указать свой вариант:
 			{include file=$renderer->editTemplate() value=$field->value}
 		</label>
 	</li>	
 </ul>
 {if $field->type instanceof Diff_Geopoint}
-    <a href="#" class="show-geopoints">Посмотреть на карте</a>
-    <div class="map" style="position:absolute;width:500px;height:350px;top:0;left:0;display:none;padding:25px 15px 15px;background-color:#1a1a1a;">
-        <div class="close_map" style="position:absolute;right:15px;top:0;color:#fff;cursor:pointer;">X</div>
-        <div class="inner" style="position:relative;width:100%;height:100%;"></div>
+    <div style="position:relative;">
+        <a href="#" class="show-geopoints">Посмотреть на карте</a>
+        <div class="map" style="position:absolute;width:500px;height:350px;top:0;left:0;display:none;padding:25px 15px 15px;background-color:#1a1a1a;">
+            <div class="close_map" style="position:absolute;right:15px;top:0;color:#fff;cursor:pointer;">X</div>
+            <div class="inner" style="position:relative;width:100%;height:100%;"></div>
+        </div>
     </div>
 {/if}
