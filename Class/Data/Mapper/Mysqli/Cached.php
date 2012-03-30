@@ -185,6 +185,87 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	}
 
 	/**
+	 * (non-PHPdoc)
+	 * @see Data_Mapper_Abstract::execute()
+	 */
+	public function execute (Data_Source_Abstract $source, Query_Abstract $query, $options = null)
+	{
+		if (!($query instanceof Query_Abstract))
+		{
+			return new Query_Result (null);
+		}
+		$this->connect ();
+
+		$start = microtime (true);
+
+		$clone = clone $query;
+
+		$where = $clone->getPart (Query::WHERE);
+		$this->_filters->apply ($where, Query::VALUE);
+		$clone->setPart (Query::WHERE, $where);
+
+		$query_key = 'query_' . md5 (json_encode ($query->parts ()));
+		$this->_sql = $this->_cacher->get ($query_key);
+		if (!$this->_sql)
+		{
+			$this->_sql = $clone->translate ('Mysql');
+			$this->_cacher->set ($query_key, $this->_sql);
+		}
+		$result = null;
+		$this->_errno = 0;
+		$this->_error = '';
+		$this->_affectedRows = 0;
+		$this->_foundRows = 0;
+		$this->_numRows = 0;
+		$this->_insertId = null;
+
+		if (!$options)
+		{
+			$options = $this->getDefaultOptions ();
+		}
+
+		$m = $this->_queryMethods [$query->type ()];
+		$result = $this->{$m} ($query, $options);
+
+		if ($this->_errno)
+		{
+			Loader::load ('Data_Mapper_Mysqli_Exception');
+			if (class_exists ('Debug'))
+			{
+				Debug::errorHandler (
+					E_USER_ERROR, $this->_sql . '; ' . $this->_error,
+					__FILE__, __LINE__
+				);
+			}
+			throw new Data_Mapper_Mysqli_Exception (
+				$this->_error . "\n" . $this->_sql,
+				$this->_errno
+			);
+		}
+
+		if (!$this->_errno && is_null ($result))
+		{
+			$result = array ();
+		}
+
+		$finish = microtime (true);
+
+		return new Query_Result (array (
+			'error'			=> $this->_error,
+			'errno'			=> $this->_errno,
+			'query'			=> $clone,
+			'startAt'		=> $start,
+			'finishedAt'	=> $finish,
+			'foundRows'		=> $this->_foundRows,
+			'result'		=> $result,
+			'touchedRows'	=> $this->_numRows + $this->_affectedRows,
+			'insertKey'		=> $this->_insertId,
+			'currency'		=> $this->_isCurrency ($result, $options),
+			'source'		=> $source
+		));
+	}
+
+	/**
 	 * @return Data_Provider_Abstract
 	 */
 	public function getCacher ()
