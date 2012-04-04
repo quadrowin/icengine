@@ -179,7 +179,6 @@ class Diff_Renderer_OneToMany extends Diff_Renderer_List
 {
 	public function fieldValueIsDeleted($field,$v)
 	{
-		
 		foreach($field->edits as $edit)
 		{
 			$coll = new Model_Collection();
@@ -382,9 +381,9 @@ class Helper_Diff_Renderer
 	{
 		$rows = DDS::Execute(
 				Query::instance()
-					->select("Edit_Field.name","Edit_Value.value")
-					->from("Edit_Value")
-					->innerJoin("Edit_Field","Edit_Field.id=Edit_Value.Edit_Field__id")
+					->select("Edit_Field.name","Edit_Value.value","Edit_Value.id")
+					->from("Edit_Field")
+					->leftJoin("Edit_Value","Edit_Field.id=Edit_Value.Edit_Field__id")
 					->where('Edit_Field.Edit__id',$edit->id)
 		)->getResult()->asTable();
 		$values = array();
@@ -399,7 +398,8 @@ class Helper_Diff_Renderer
 				$values[$name] = new Objective();
 				$values[$name]->value = array();
 			}
-			$values[$name]->value[] = $row['value'];
+            if ($row['id'])
+                $values[$name]->value[] = $row['value'];
 		}
 		return new Objective($values);
 	}
@@ -417,7 +417,7 @@ class Helper_Diff_Renderer
 			{
 				$diff = $edit->data('diff');
 				if ($diff->$fieldName)
-				$diff_values[$edit->id] = array( 'edit' => $edit, 'value' => $diff->$fieldName->value );
+                    $diff_values[$edit->id] = array( 'edit' => $edit, 'value' => $diff->$fieldName->value );
 			}
 			if (count($diff_values)>0)
 				$fields[] = new Objective(array(
