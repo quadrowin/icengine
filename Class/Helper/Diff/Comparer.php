@@ -137,7 +137,7 @@ abstract class Diff_LinkList extends Diff_Field
 	{
 		if (!$a && !$b)
 			return true;
-		if ($a instanceof Model_Collection && $b instanceof Model_Collection)
+        if ($a instanceof Model_Collection && $b instanceof Model_Collection)
 		{
 			$diff = $this->diffEdit($a,$b);
 			$modified = $diff['no'];
