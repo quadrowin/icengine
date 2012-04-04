@@ -2,6 +2,7 @@
 
 Loader::load("Helper_Diff");
 
+
 abstract class Diff_Renderer
 {
 	protected function renderTemplate($field,$parent = null)
