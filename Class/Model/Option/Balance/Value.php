@@ -15,8 +15,8 @@ class Model_Option_Balance_Value extends Model_Option
 	 */
 	public function before ()
 	{
-		$model = $collection->modelName ();
-		$kf = $collection->keyField ();
+		$model = $this->collection->modelName ();
+		$kf = $this->collection->keyField ();
 
 		$this->query
 			->select ('Component_Balance.value AS balance_value')
