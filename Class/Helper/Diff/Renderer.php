@@ -327,6 +327,9 @@ class Diff_Renderer_OneToMany extends Diff_Renderer_List
                     }
                     $child_model = Model_Manager::create($field->type->config()->model_class,$child_model_fields);
                 }
+                if (!$child_model) {
+                    continue;
+                }
                 $diffRenderer = new Helper_Diff_Renderer($child_model);
                 $child_model = $diffRenderer->mergeModelWithEdits();
                 $child_model->id = $id;
