@@ -19,10 +19,8 @@
 	{/foreach}
 	<li>
 		<input type = "radio" name = "{$parent}{$field->name}-edits" id = "{$field->name}-set" value="set-own" />
-		<label>
-			Указать свой вариант:
+			<label for="{$field->name}-set">Указать свой вариант:</label>
 			{include file=$renderer->editTemplate() value=$field->value}
-		</label>
 	</li>	
 </ul>
 {if $field->type instanceof Diff_Geopoint}
