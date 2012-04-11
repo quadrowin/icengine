@@ -32,7 +32,7 @@ class Controller_Front extends Controller_Abstract
 			$actions = Controller_Dispatcher::loop (
 				$route->actions ()
 			);
-			
+
 			/**
 			 * @desc Создаем задания для выполнения.
 			 * В них отдает входные данные.

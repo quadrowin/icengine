@@ -898,7 +898,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 			$query->limit (
 				$this->_paginator->pageLimit,
 				$this->_paginator->offset ());
-		}
+		}      
 
 		$scheme_options = Model_Scheme::modelOptions ($this->modelName ());
 		if ($scheme_options)
