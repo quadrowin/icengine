@@ -123,13 +123,13 @@ class User_Abstract extends Model
 	 */
 	public function getBalance() {
 		$balance = $this->component('Balance', 0);
-		if (!$balance) {
-			$balance = $this->createComponent('Balance');
+		if (!isset($balance->value)) {
 			$balance->update(
 				array(
 					'value' => 0
 				)
 			);
+    		$balance = $this->component('Balance', 0);
 		}
 		return $balance;
 	}
