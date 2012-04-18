@@ -392,7 +392,7 @@ class JsHttpRequest
         // In XMLHttpRequest mode we must return text/plain - damned stupid Opera 8.0. :(
         $ctype = !empty($this->_contentTypes[$this->LOADER])? $this->_contentTypes[$this->LOADER] : $this->_contentTypes[''];
         header("Content-type: $ctype; charset=$encoding");
-
+	$GLOBALS ['_RESULT_TEXT'] = $text;
         return $text;
     }
 
