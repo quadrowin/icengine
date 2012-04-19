@@ -403,17 +403,6 @@ class Controller_Manager extends Manager_Abstract
 
 		$cache_config = self::_cacheConfig ($a [0], $a [1]);
 
-		//$start_time = microtime (true);
-
-		/*if ($options === true)
-		{
-			$options = array ('full_result' => false);
-		}
-		elseif ($options === false)
-		{
-			$options = array ('full_result' => true);
-		}*/
-
 		if (is_bool ($options))
 		{
 			$options = array ('full_result' => !$options);
@@ -424,23 +413,6 @@ class Controller_Manager extends Manager_Abstract
 			array ($a, $args, $options),
 			$cache_config
 		);
-
-		//$dt = microtime (true) - $start_time;
-
-
-		/*if ($dt > 1)
-		{
-			$f = fopen (IcEngine::root () . 'log/contrlog.txt', 'a');
-			fwrite (
-				$f,
-				date ('m-d H:i:s') . ' ' .
-				$a [0] . '/' . $a [1] . '/' .
-				$dt . '/' .
-				var_export ($cache_config, true) .
-				"\r\n"
-			);
-			fclose ($f);
-		}*/
 
 		return $html;
 	}
@@ -483,6 +455,7 @@ class Controller_Manager extends Manager_Abstract
 
 		$buffer = $iteration->getTransaction ()->buffer ();
 		$result = array (
+			'error'		=> isset ($buffer ['error']) ? $buffer ['error'] : '',
 			'data'		=>
 				isset ($buffer ['data']) ?
 				$buffer ['data'] :
@@ -514,6 +487,8 @@ class Controller_Manager extends Manager_Abstract
 					$e->getTraceAsString () . PHP_EOL,
 					E_USER_ERROR, 3
 				);
+
+				Debug::log ($msg);
 
 				$result ['error'] = 'Controller_Manager: Error in template.';
 			}

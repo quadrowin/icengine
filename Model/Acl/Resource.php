@@ -121,7 +121,7 @@ class Acl_Resource extends Model
 	 */
 	public function userCan (User $user)
 	{
-		return $user->isAdmin () || $this->roles ()->userAttached ($user);
+		return $user->hasRole ('editor') || $this->roles ()->userAttached ($user);
 	}
 	
 }

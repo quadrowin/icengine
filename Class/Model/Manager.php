@@ -116,6 +116,8 @@ class Model_Manager extends Manager_Abstract
 		$kf = $object->keyField ();
 		$id = $object->key ();
 
+		//echo $kf . ' ' . $id . PHP_EOL;
+
 		if ($id && !$hard_insert)
 		{
 			// Обновление данных
@@ -231,24 +233,21 @@ class Model_Manager extends Manager_Abstract
 	{
 		$data = null;
 
-		if (is_null ($data))
+		if (!$query->getPart (Query::SELECT))
 		{
-			if (!$query->getPart (Query::SELECT))
-			{
-				$query->select (array ($model => '*'));
-			}
-
-			if (!$query->getPart (Query::FROM))
-			{
-				$query->from ($model, $model);
-			}
-
-			$data =
-				Model_Scheme::dataSource ($model)
-					->execute ($query)
-					->getResult ()
-						->asRow ();
+			$query->select (array ($model => '*'));
 		}
+
+		if (!$query->getPart (Query::FROM))
+		{
+			$query->from ($model, $model);
+		}
+
+		$data =
+			Model_Scheme::dataSource ($model)
+				->execute ($query)
+				->getResult ()
+					->asRow ();
 
 		if (!$data)
 		{
@@ -432,7 +431,13 @@ class Model_Manager extends Manager_Abstract
 	public static function set (Model $object, $hard_insert = false)
 	{
 		self::_write ($object, $hard_insert);
-
+		$updated = $object->getFields ();
+		$old = Resource_Manager::get ('Model', $object->resourceKey ());
+		if ($old)
+		{
+			$updated = array_diff ($updated, $old->getFields ());
+		}
 		Resource_Manager::set ('Model', $object->resourceKey (), $object);
+		Resource_Manager::setUpdated ('Model', $object->resourceKey (), $updated);
 	}
 }

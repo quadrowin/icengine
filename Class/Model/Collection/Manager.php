@@ -8,7 +8,6 @@
  */
 abstract class Model_Collection_Manager extends Manager_Abstract
 {
-
 	/**
 	 * @desc Конфиг
 	 * @var array

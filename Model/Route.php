@@ -137,7 +137,8 @@ class Route extends Model_Child
 		 * Это позволяет привести все запросы с переменными к одному,
 		 * который будет закеширован. 
 		 */ 
-		$pattern = self::pattern ($url);
+		$pattern = preg_replace ('#/[0-9]{1,}/#i', '/?/', $url);
+		$pattern = preg_replace ('#/[0-9]{1,}/#i', '/?/', $pattern);
 //		fb ($pattern);
 		$router = Resource_Manager::get ('Route_Cache', $pattern);
 		
@@ -444,12 +445,5 @@ class Route extends Model_Child
 		
 		return $render;
 	}
-    
-    public static function pattern ($url)
-    {
-        $pattern = preg_replace ('#/[0-9]{1,}/#i', '/?/', $url);
-		$pattern = preg_replace ('#/[0-9]{1,}/#i', '/?/', $pattern);
-        return $pattern;
-    }
-	
+
 }

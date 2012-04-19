@@ -377,7 +377,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 				'edit'
 			);
 
-			if (!$resource_edit || !$resource_edit->userCan ($user))
+			if (!(($resource_edit && $resource_edit->userCan ($user)) || $user->hasRole ('editor')))
 			{
 				return $this->replaceAction ('Error', 'accessDenied');
 			}
@@ -392,6 +392,14 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 				'active'					=> (int) !empty ($active),
 				'parentId'					=> $parent->key (),
 				'controller'				=> $parent->controller
+			));
+
+			$this->__saveAfter (array (
+				$referer,
+				$resource_edit,
+				null,
+				null,
+				$content_category
 			));
 		}
 		else
