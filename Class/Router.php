@@ -14,12 +14,18 @@ class Router
 	 */
 	private static $_route;
 
+    private static $_urls = array ();
+    
 	/**
 	 * @desc Обнулить текущий роут
 	 */
 	public static function clearRoute ()
 	{
 		self::$_route = null;
+        foreach (self::$_urls as $url)
+        {
+            Resource_Manager::set ('Route_Cache', $url, null);
+        }
 	}
 
 	/**
@@ -31,6 +37,9 @@ class Router
 		if (is_null (self::$_route))
 		{
 			$url = Request::uri ();
+            Loader::load ('Route');
+            
+            self::$_urls [] = Route::pattern ('/' . trim ($url, '/') . '/');
 
 			$gets = Request::stringGet ();
 
@@ -56,7 +65,7 @@ class Router
 
 			$route = (array) explode ('/', trim ($url, '/'));
 
-			Loader::load ('Route');
+			
 			self::$_route = Route::byUrl ($url);
 
 			if (!self::$_route)
