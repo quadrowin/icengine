@@ -445,5 +445,13 @@ class Route extends Model_Child
 		
 		return $render;
 	}
+    
+    /**
+     * @desc ересь какая-то, проверить удалить
+     * @return boolean 
+     */
+    public static function pattern (){
+        return false;
+    }
 
 }
