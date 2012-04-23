@@ -272,6 +272,8 @@ function encodePoints (points)
 
 $(document).ready (function ()
 {
+    if (typeof $('#saveGeoObject').live !== 'undefined')
+    {
 	$('#saveGeoObject').live ('click', function ()
 	{
 		var geo_layers = editor.getObjectDescriptions ();
@@ -295,4 +297,5 @@ $(document).ready (function ()
 			);
 		}
 	});
+    }
 });
