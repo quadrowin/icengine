@@ -142,12 +142,13 @@ class IcEngine
 	public static function initBootstrap ($path)
 	{
 		Loader::multiLoad (
+			'Config_Manager',
 			'Bootstrap_Abstract',
 			'Bootstrap_Manager'
 		);
 
 		require $path;
-
+	
 		$name = basename ($path, '.php');
 		self::$_bootstrap = Bootstrap_Manager::get ($name, $path);
 	}
