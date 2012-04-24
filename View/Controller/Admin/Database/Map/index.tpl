@@ -76,17 +76,17 @@
 
 	$(function ()
  	{
-+		var mapTimer = setInterval (
+		var mapTimer = setInterval (
  			function ()
  			{
-+				if ($('li.ui-state-active a[href="#tab-geo"]').length)
-+				{
-+					$('#editor').prependTo ($('#tab-geo'));
-+					ShowMap ('editor', '{{$table}}', {{$row_id}});
-+					clearInterval (mapTimer);
-+				}
+				if ($('li.ui-state-active a[href="#tab-geo"]').length)
+				{
+					$('#editor').prependTo ($('#tab-geo'));
+					ShowMap ('editor', '{{$table}}', {{$row_id}});
+					clearInterval (mapTimer);
+				}
  			},
-+			300
+			300
  		);
  	});
 </script>
