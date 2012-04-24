@@ -108,9 +108,9 @@
 						<tr>
 							<td width="120" align="left" valign="top">
 								Имя
-							</td> 
+							</td>
 							<td align="left" valign="top">
-								<input type="text" name="name" class="overlayName" size="30" style="width:185px;" />
+								<input type="text" name="name" class="overlayName" style="width:100%" />
 							</td>
 						</tr>
 						<tr>
@@ -118,7 +118,7 @@
 								Описание
 							</td>
 							<td align="left" valign="top">
-								<textarea name="desc" class="overlayDescription mceNoEditor" rows="2" cols="30" style="width:185px;"></textarea>
+								<textarea name="desc" class="overlayDescription mceNoEditor" style="width:100%; height:100px"></textarea>
 							</td>
 
 						</tr>
