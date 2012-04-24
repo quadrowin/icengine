@@ -92,20 +92,40 @@
 <div id="editor" style="height:600px"></div>
 
 <div id="tab-geo">
-	<p>Редактирование объекта:</p>
+	<p style="margin-top:10px">Редактирование объекта:</p>
 
-	<div id="toolsBox" style="background-color:#f3f3f3;">
+	<div id="toolsBox" style="background-color:#f3f3f3; padding:10px; border:solid 1px #333">
         <form action="javascript:return false;" onsubmit="return false;">
             <div id="tools" style="padding:2pt;">
-                <div class="layer" style="background-color:#f3f3f3;margin:0;/*padding:5px;*/">
+                <div class="layer" style="display:none; background-color:#f3f3f3;margin:0;/*padding:5px;*/">
                     <input class="save" type="hidden" value="Сохранить слой" style="width:185px;" />
-                    <p><span id = "saveGeoObject" class = "pseudo-link">Cохранить геоданные</span></p>
+
                     <input type="text" name="layerName" class="layerName" size="30" style="width:185px;" />
                     <input type="text" name="layerContent" class="layerContent" />
                 </div>
                 <div class="baloon">
-                    <p>Имя <input type="text" name="name" class="overlayName" size="30" style="width:185px;" /></p>
-					<p>Описание <textarea name="desc" class="overlayDescription mceNoEditor" rows="2" cols="30" style="width:185px;"></textarea></p>
+					<table border="0" cellpadding="5" cellspacing="0" width="100%">
+						<tr>
+							<td width="120" align="left" valign="top">
+								Имя
+							</td> 
+							<td align="left" valign="top">
+								<input type="text" name="name" class="overlayName" size="30" style="width:185px;" />
+							</td>
+						</tr>
+						<tr>
+							<td width="120" align="left" valign="top">
+								Описание
+							</td>
+							<td align="left" valign="top">
+								<textarea name="desc" class="overlayDescription mceNoEditor" rows="2" cols="30" style="width:185px;"></textarea>
+							</td>
+
+						</tr>
+					</table>
+
+
+					<p style="margin:10px 0"><span id = "saveGeoObject" class = "pseudo-link" style="border:dashed 1px; color:#aaa">Cохранить геоданные</span></p>
 
 				</div>
                 <table style="width:185px;" class="remover">
