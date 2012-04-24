@@ -79,7 +79,6 @@
 +		var mapTimer = setInterval (
  			function ()
  			{
--				$('#editor').prependTo ($('#tab-geo'));
 +				if ($('li.ui-state-active a[href="#tab-geo"]').length)
 +				{
 +					$('#editor').prependTo ($('#tab-geo'));
