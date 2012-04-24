@@ -125,7 +125,7 @@
 					</table>
 
 
-					<p style="margin:10px 0"><span id = "saveGeoObject" class = "pseudo-link" style="border:dashed 1px; color:#aaa">Cохранить геоданные</span></p>
+					<p style="margin:10px 0"><span id = "saveGeoObject" class = "pseudo-link" style="border-bottom:dashed 1px; color:#aaa">Cохранить геоданные</span></p>
 
 				</div>
                 <table style="width:185px;" class="remover">
