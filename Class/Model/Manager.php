@@ -116,8 +116,6 @@ class Model_Manager extends Manager_Abstract
 		$kf = $object->keyField ();
 		$id = $object->key ();
 
-		//echo $kf . ' ' . $id . PHP_EOL;
-
 		if ($id && !$hard_insert)
 		{
 			// Обновление данных
