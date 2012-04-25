@@ -142,7 +142,6 @@ class IcEngine
 	public static function initBootstrap ($path)
 	{
 		Loader::multiLoad (
-			'Config_Manager',
 			'Bootstrap_Abstract',
 			'Bootstrap_Manager'
 		);
