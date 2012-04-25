@@ -141,6 +141,11 @@ class IcEngine
 	 */
 	public static function initBootstrap ($path)
 	{
+		//для мобильной версии, конфиг не грузим
+        if(substr($path, -10, 10) != 'Mobile.php'){
+            Loader::load('Config_Manager');
+        }
+        
 		Loader::multiLoad (
 			'Bootstrap_Abstract',
 			'Bootstrap_Manager'
