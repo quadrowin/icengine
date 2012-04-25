@@ -5,7 +5,7 @@
  * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
  *
- */
+ */ 
 class IcEngine
 {
 	/**
