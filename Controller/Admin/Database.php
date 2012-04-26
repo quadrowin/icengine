@@ -674,7 +674,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			'table',
 			'limitator'
 		);
-
+		
 		Loader::load ('Table_Rate');
 
 		$rate = Table_Rate::byTable ($table)->inc ();
@@ -711,8 +711,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		Loader::load ('Paginator');
 
 		$search = array ();
-		if (!$limitator)
-		{
+	
 			// Накладываем лимиты
 
 			$limit = $this->config ()->default_limit;
@@ -728,19 +727,16 @@ class Controller_Admin_Database extends Controller_Abstract
 			}
 
 			$search = Request::get ('search');
+			
 			if ($search)
 			{
 				foreach ($search as $f=>$v)
 				{
-					if (!$v)
-					{
-						continue;
-					}
 					if (is_numeric ($v))
 					{
 						$collection->where ($f, $v);
 					}
-					else
+					else if (!empty ($v) && $v != 'null')
 					{
 						$collection->where ($f . ' LIKE ?', '%' . $v . '%');
 					}
@@ -749,8 +745,8 @@ class Controller_Admin_Database extends Controller_Abstract
 
 			$paginator = Paginator::fromGet ();
 			$collection->setPaginator ($paginator);
-			$collection->load ();
-
+			echo $collection->load()->lastQuery()->translate ();
+			
 			$paginator_html = Controller_Manager::html (
 				'Paginator/index',
 				array (
@@ -762,15 +758,15 @@ class Controller_Admin_Database extends Controller_Abstract
 			$this->_output->send (array (
 				'paginator_html'	=> $paginator_html
 			));
-		}
-		else
-		{
+	
+	
+	
 			list ($field, $value) = explode ('/', $limitator);
 
 			$collection = $collection->filter (array (
 				$field => $value
 			));
-		}
+	
 
 		$acl_fields = array ();
 		$class_fields = array ();
