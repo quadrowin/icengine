@@ -4,8 +4,8 @@
  * @desc Класс необходимый для инициализации фреймворка.
  * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
- *
- */ 
+ * 
+ */
 class IcEngine
 {
 	/**
@@ -145,7 +145,7 @@ class IcEngine
         if(substr($path, -10, 10) != 'Mobile.php'){
             Loader::load('Config_Manager');
         }
-        
+		
 		Loader::multiLoad (
 			'Bootstrap_Abstract',
 			'Bootstrap_Manager'
