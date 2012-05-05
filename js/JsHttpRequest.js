@@ -8,7 +8,6 @@
  */
 function JsHttpRequest(){
 var t=this;
-t.ssi = 0;
 t.onreadystatechange=null;
 t.readyState=0;
 t.responseText=null;
@@ -290,15 +289,7 @@ if(req.readyState==4){
 _36(req.responseJS,req.responseText);
 }
 };
-if ('ssi' in _35)
-{
-        url += '?ssi=1';
-        req.ssi = 1;
-	req.url += '?ssi=1';
-}
-
 req.open(null,url,true);
-
 req.send(_35);
 };
 JsHttpRequest.dataReady=function(d){
@@ -372,10 +363,6 @@ return ["xml_no_headers"];
 }
 }
 this.url+=(this.url.indexOf("?")>=0?"&":"?")+"JsHttpRequest="+(req.caching?"0":this.id)+"-xml";
-if (this.ssi)
-{
-	this.url += '&ssi=1';
-}
 var id=this.id;
 xr.onreadystatechange=function(){
 if(xr.readyState!=4){
