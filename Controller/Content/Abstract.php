@@ -275,7 +275,7 @@ class Controller_Content_Abstract extends Controller_Abstract
         
         $user = User::getCurrent();
         
-        if(!($user && $user->hasRole('admin'))){
+        if(!($user && $user->hasRole('editor'))){
             $content_collection->where('active', 1);
         }
 
