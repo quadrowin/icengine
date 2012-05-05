@@ -272,6 +272,12 @@ class Controller_Content_Abstract extends Controller_Abstract
 			$category,
 			$this->__contentModel ()
 		);
+        
+        $user = User::getCurrent();
+        
+        if(!($user && $user->hasRole('editor'))){
+            $content_collection->where('active', 1);
+        }
 
 		$parent_url = rtrim ($parent->url, '/') . '.html';
 
