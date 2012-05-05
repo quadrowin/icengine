@@ -376,8 +376,18 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 				$content_category->key (),
 				'edit'
 			);
+            
+            $agency = Agency::byUser();
+            
+            $agency_url = str_replace('/agency/', '', $parent->url);
+            
+            $_agency = Model_Manager::byQuery('Agency', 
+                Query::instance()
+                    ->where('linka', $agency_url . '.html')
+            );
 
-			if (!(($resource_edit && $resource_edit->userCan ($user)) || $user->hasRole ('editor')))
+			//if (!(($resource_edit && $resource_edit->userCan ($user)) || $user->hasRole ('editor')))
+			if (!(($agency->key() == $_agency->key()) || $user->hasRole ('editor')))
 			{
 				return $this->replaceAction ('Error', 'accessDenied');
 			}
