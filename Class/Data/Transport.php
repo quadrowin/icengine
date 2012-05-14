@@ -337,11 +337,13 @@ class Data_Transport
 		
 		foreach ($key as $k => $v)
 		{
-			$this->_inputFilters->apply ($v);
-			for ($i = 0, $count = sizeof ($this->_providers); $i < $count; $i++)
-			{
-				$this->_providers [$i]->set ($k, $v);
-			}
+            if($v){
+                $this->_inputFilters->apply ($v);
+                for ($i = 0, $count = sizeof ($this->_providers); $i < $count; $i++)
+                {
+                    $this->_providers [$i]->set ($k, $v);
+                }
+            }
 		}
 		
 		return $this;
