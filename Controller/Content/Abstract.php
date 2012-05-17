@@ -807,7 +807,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 				!$resource_addContent->userCan (User::getCurrent())
 			)
 		)
-		{        print_r($resource_addContent);die;
+		{       
 			return $this->_sendError (
 				'not_found',
 				__METHOD__,
