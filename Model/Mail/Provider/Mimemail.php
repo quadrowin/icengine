@@ -130,6 +130,7 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 		$mail = $this->_mailer ();
 		
 		$mail->ClearAddresses ();
+		$mail->ClearReplyTos ();
 		
 		foreach ((array) $addresses as $to_name => $address)
 		{
@@ -227,6 +228,8 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 				iconv ($base_charset, $send_charset, $body) :
 				$body;
 		
+		//var_dump ($mail);
+
 		try
 		{
 			$result = $mail->Send ();
