@@ -227,8 +227,6 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 			$recoding ? 
 				iconv ($base_charset, $send_charset, $body) :
 				$body;
-		
-		//var_dump ($mail);
 
 		try
 		{
