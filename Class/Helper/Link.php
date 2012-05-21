@@ -215,6 +215,7 @@ class Helper_Link
 					->query ()
 						->from ('Link')
 						->where ('Link.fromTable', $linked_model_name)
+						->where ("Link.fromRowId=`$linked_model_name`.`$key_field_2`")
 						->where ('Link.toTable', $model->modelName ())
 						->where ('Link.toRowId', $model->key ());
 			}
@@ -225,7 +226,8 @@ class Helper_Link
 						->from ('Link')
 						->where ('Link.fromTable', $model->modelName ())
 						->where ('Link.fromRowId', $model->key ())
-						->where ('Link.toTable', $linked_model_name);
+						->where ('Link.toTable', $linked_model_name)
+						->where ("Link.toRowId=`$linked_model_name`.`$key_field_2`");
 			}
 		}
 		else
