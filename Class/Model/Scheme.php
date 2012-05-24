@@ -373,7 +373,10 @@ abstract class Model_Scheme
 
 				$table = self::table ($model_name);
 
-				$fields = Helper_Data_Source::fields ('`' . $table . '`');
+				$fields = Helper_Data_Source::fields (
+                    '`' . $table . '`',
+                    self::dataSource($model_name)
+                );
 
 				$fields = self::_makeScheme ($fields);
 
