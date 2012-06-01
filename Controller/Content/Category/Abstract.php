@@ -342,7 +342,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 
 		if ($parent->controller) {
 			return $this->replaceAction(
-				$parent->controller, 'save'
+				$parent->controller . '_Category', 'save'
 			);
 		}
 
