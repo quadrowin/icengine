@@ -210,7 +210,7 @@ class Debug
 				FILE_APPEND
 			);
 			header('HTTP/1.0 500 Internal Server Error');
-			die;
+			die; 
 		}
 
 		if (self::$config ['print_backtrace'])
