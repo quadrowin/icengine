@@ -203,7 +203,7 @@ class Debug
 
 		if ($errno == E_ERROR || $errno == E_USER_ERROR) {
 			header('HTTP/1.0 500 Internal Server Error');
-			$filename = IcEngine::root () . 'log/error.log';
+			$filename = rtrim(IcEngine::root (), '/') . '/log/error.log';
 			file_put_contents(
 				$filename,
 				time() . ' ' . date('Y-m-d H:i:s') . ': ' .
