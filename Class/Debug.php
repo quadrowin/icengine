@@ -247,8 +247,11 @@ class Debug
 					'tUUm3vW3Zkrqa7JgggNAFxXFeVUPOmpo',
 					false
 				);
+				Loader::load('Helper_Site_Location');
 				foreach ($pnos as $pno) {
-					$text = date('Y-m-d H:i:s') . PHP_EOL .
+					$text =
+						Helper_Site_Location::getLocation() . PHP_EOL .
+						date('Y-m-d H:i:s') . PHP_EOL .
 						$errfile . ' ' . $errline;
 					$client->sendSMS (
 						$pno,
