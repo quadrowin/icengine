@@ -229,6 +229,7 @@ class Debug
 			if (strpos($errstr, 'smarty') !== false) {
 				$validError = false;
 			}
+			$validError = false;
 
 			if ($validError && ($needLog || !$exists)) {
 				file_put_contents(
