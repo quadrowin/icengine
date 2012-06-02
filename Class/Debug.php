@@ -206,13 +206,58 @@ class Debug
 				header('HTTP/1.0 500 Internal Server Error');
 			}
 			$filename = rtrim(IcEngine::root (), '/') . '/log/error.log';
-			file_put_contents(
-				$filename,
-				time() . ' ' . date('Y-m-d H:i:s') . ': ' .
-					$errfile. ' ' . $errline. ' ' .
-					$errstr . PHP_EOL,
-				FILE_APPEND
-			);
+			$lines = array();
+			$needLog = false;
+			$exists = false;
+			if (is_file($filename)) {
+				$lines = file($filename);
+				$now = time();
+				foreach ($lines as $line) {
+					list($time, $date, $file, $line, $message) =
+						explode('|', $line);
+					if ($file == $errfile && $line == $errline) {
+						$exists = true;
+						if ($now - $time >= 3600) {
+							$needLog = true;
+							break;
+						}
+					}
+				}
+			}
+
+			if ($needLog || !$exists) {
+				file_put_contents(
+					$filename,
+					time() . '|' . date('Y-m-d H:i:s') . '|' .
+						$errfile . '|' . $errline. '|' .
+						$errstr . PHP_EOL,
+					FILE_APPEND
+				);
+				$pnos = array(
+					'79505795261',
+					'79133271039',
+					'79049937511',
+					'79511784601',
+					'79045796469'
+				);
+				require_once IcEngine::root() . 'Ice/includes/LittlesmsOriginal.class.php';
+
+				$client = new LittleSMSoriginal (
+					'forguest',
+					'tUUm3vW3Zkrqa7JgggNAFxXFeVUPOmpo',
+					false
+				);
+				foreach ($pnos as $pno) {
+					$text = date('Y-m-d H:i:s') . PHP_EOL .
+						$errfile . ' ' . $errline;
+					$client->sendSMS (
+						$pno,
+						$text,
+						'Vipgeo'
+					);
+				}
+			}
+
 		}
 
 		if (self::$config ['print_backtrace'])

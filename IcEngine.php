@@ -293,14 +293,6 @@ class IcEngine
 				if (!headers_sent ()) {
 					header('HTTP/1.0 500 Internal Server Error');
 				}
-				$filename = rtrim(IcEngine::root (), '/') . '/log/error.log';
-				file_put_contents(
-					$filename,
-					time() . ' ' . date('Y-m-d H:i:s') . ': ' .
-						$error['file'] . ' ' . $error['line']. ' ' .
-						$error['message'] . PHP_EOL,
-					FILE_APPEND
-				);
 			}
 		}
 	}
