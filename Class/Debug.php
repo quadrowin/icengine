@@ -225,7 +225,12 @@ class Debug
 				}
 			}
 
-			if ($needLog || !$exists) {
+			$validError = true;
+			if (strpos($errstr, 'smarty') !== false) {
+				$validError = false;
+			}
+
+			if ($validError && ($needLog || !$exists)) {
 				file_put_contents(
 					$filename,
 					time() . '|' . date('Y-m-d H:i:s') . '|' .
