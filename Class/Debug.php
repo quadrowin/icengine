@@ -202,7 +202,6 @@ class Debug
 		}
 
 		if ($errno == E_ERROR || $errno == E_USER_ERROR) {
-			header('HTTP/1.0 500 Internal Server Error');
 			$filename = rtrim(IcEngine::root (), '/') . '/log/error.log';
 			file_put_contents(
 				$filename,
@@ -210,6 +209,8 @@ class Debug
 					$errno . ' ' . $errfile . ' ' . $errline. ' ' . $errstr . PHP_EOL,
 				FILE_APPEND
 			);
+			header('HTTP/1.0 500 Internal Server Error');
+			die;
 		}
 
 		if (self::$config ['print_backtrace'])
