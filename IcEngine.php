@@ -286,7 +286,7 @@ class IcEngine
 		$error = error_get_last();
 		if (!$error)
 		{
-			Resource_Manager::save (перех);
+			Resource_Manager::save ();
 		} else {
 			$errno = $error['type'];
 			if ($errno == E_ERROR || $errno == E_USER_ERROR) {
