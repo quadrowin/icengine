@@ -202,7 +202,7 @@ class Helper_Link
 		);
 
 		if (!$scheme)
-		{
+		{   
 			Loader::load ($collection_class);
 
 			$result = new $collection_class ();
@@ -292,7 +292,6 @@ class Helper_Link
 	public static function linkedKeys (Model $model1, $linked_model_name)
 	{
 		$collection = self::linkedItems ($model1, $linked_model_name);
-
 		return $collection->column (Model_Scheme::keyField ($linked_model_name));
 	}
 

@@ -32,14 +32,14 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	 */
 	protected function _executeChange (Query_Abstract $query, Query_Options $options)
 	{
-		if (!mysql_query ($this->_sql))
+		if (!mysql_query ($this->_sql, $this->_linkIdentifier))
 		{
-			$this->_errno = mysql_errno ();
-			$this->_error = mysql_error ();
+			$this->_errno = mysql_errno ($this->_linkIdentifier);
+			$this->_error = mysql_error ($this->_linkIdentifier);
 			return false;
 		}
 
-		$this->_affectedRows = mysql_affected_rows ();
+		$this->_affectedRows = mysql_affected_rows ($this->_linkIdentifier);
 
 		if ($this->_affectedRows > 0)
 		{
@@ -62,15 +62,15 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	 */
 	protected function _executeInsert (Query_Abstract $query, Query_Options $options)
 	{
-		if (!mysql_query ($this->_sql))
+		if (!mysql_query ($this->_sql, $this->_linkIdentifier))
 		{
-			$this->_errno = mysql_errno ();
-			$this->_error = mysql_error ();
+			$this->_errno = mysql_errno ($this->_linkIdentifier);
+			$this->_error = mysql_error ($this->_linkIdentifier);
 			return false;
 		}
 
-		$this->_affectedRows = mysql_affected_rows ();
-		$this->_insertId = mysql_insert_id ();
+		$this->_affectedRows = mysql_affected_rows ($this->_linkIdentifier);
+		$this->_insertId = mysql_insert_id ($this->_linkIdentifier);
 
 		if ($this->_affectedRows > 0)
 		{
@@ -133,7 +133,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 			);
 		}
 
-		$result = mysql_query ($this->_sql);
+		$result = mysql_query ($this->_sql, $this->_linkIdentifier);
 
 		if (class_exists ('Tracer'))
 		{
@@ -142,8 +142,8 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 
 		if (!is_resource ($result))
 		{
-			$this->_errno = mysql_errno ();
-			$this->_error = mysql_error ();
+			$this->_errno = mysql_errno ($this->_linkIdentifier);
+			$this->_error = mysql_error ($this->_linkIdentifier);
 			return;
 		}
 
@@ -158,7 +158,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 
 		if ($query->part (Query::CALC_FOUND_ROWS))
 		{
-			$result = mysql_query (self::SELECT_FOUND_ROWS_QUERY);
+			$result = mysql_query (self::SELECT_FOUND_ROWS_QUERY, $this->_linkIdentifier);
 			$row = mysql_fetch_row ($result);
 			$this->_foundRows = reset ($row);
 			mysql_free_result ($result);

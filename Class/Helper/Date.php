@@ -138,7 +138,15 @@ class Helper_Date
     	return 31 - (($month - 1) % 7 % 2) - (($month == 2) << !!($year % 4));
     }
 	
-	public static function datetime ($string, $showYear = false)
+    /**
+     * format = 1 : 15 мая 2012 года 10:40
+     * 
+     * @param type $string
+     * @param type $showYear
+     * @param type $format
+     * @return type 
+     */
+	public static function datetime ($string, $showYear = false, $format = 0)
 	{
 		$year = strtok($string, "-");
 		$month = strtok("-");
@@ -170,7 +178,17 @@ class Helper_Date
 			case "12": $month = "декабря";
 				break;
 		}
-		return intval($day) . "&nbsp;" . $month . (($year != date("Y") || $showYear) ? ("&nbsp;" . $year . "&nbsp;г.") : "");
+
+        if(!$format){
+            return intval($day) . "&nbsp;" . $month . (($year != date("Y") || $showYear) ? ("&nbsp;" . $year . "&nbsp;г.") : "");
+        }elseif ($format == 1) {
+            $return = intval($day) . "&nbsp;" . $month . (($year != date("Y") || $showYear) ? ("&nbsp;" . $year . "&nbsp;года") : "");
+            $_date = explode(' ', $string);
+            $hour = strtok($_date[1], ':');
+            $minute = strtok(':');
+            $return .= ' ' . $hour . ':' . $minute;
+            return $return;
+        }
 	}
     
 	/**
