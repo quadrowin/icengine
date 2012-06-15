@@ -367,17 +367,19 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 
 	/**
 	 * @desc Получить значение поля для всех моделей коллеции
-	 * @param string $name
+	 * @param string|array $name
 	 * @return array
 	 */
 	public function column ($name)
 	{
-		$result = $this->items ();
-		foreach ($result as &$item)
-		{
-			$item = $item->field ($name);
+		$columns = (array) $name;
+		$result = array();
+		foreach ($this->items() as $item) {
+			foreach ($columns as $column) {
+				$result[$column] = $item->field($column);
+			}
 		}
-		return $result;
+		return count(array_keys($result)) == 1 ? reset($result) : $result;
 	}
 
 	/**
