@@ -22,7 +22,7 @@ class Bill_Payment_Type_Correct extends Bill_Payment_Type_Abstract
 
 		$user = User::getCurrent();
 
-		if ($user_id && $user && $user->hasRole('admin') && $user && !($sum < 1 || preg_match("/[^0-9]/", $sum)))
+		if ($user_id && (($user && $user->hasRole('admin')) || User::id ()==-1) && !($sum < 1 || preg_match("/[^0-9]/", $sum)))
 		{
 			Loader::load('Helper_Date');
 			Loader::load('Bill_Payment');
