@@ -125,7 +125,10 @@ class Route extends Model_Child
 	 */
 	public static function byUrl ($url)
 	{
-		$url = '/' . trim ($url, '/') . '/';
+		$url = '/' . trim ($url, '/') ;
+		if (strpos($url, '.') === false) {
+			$url .= '/';
+		}
 		
 		/*
 		 * Заменяем /12345678/ на /?/.
@@ -159,7 +162,9 @@ class Route extends Model_Child
 		if ($config ['use_config_source'])
 		{
 			foreach ($config ['routes'] as $id => $route)
-			{								
+			{			
+				//echo preg_match ('#' . $route ['pattern'] . '#', $pattern) . ' ' . $pattern . ' ' . $route['pattern'] . '<br />';
+					
 				if (
 					preg_match ('#' . $route ['pattern'] . '#', $pattern) &&
 					(
