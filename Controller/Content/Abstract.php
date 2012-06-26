@@ -302,7 +302,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 	public function view ()
 	{
 		$content = $this->_getInputContent ();
-
+		
 		if (!$content)
 		{
 			return $this->replaceAction ('Error', 'notFound');
