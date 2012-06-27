@@ -398,7 +398,6 @@ class Helper_Image
 			$i++;
 		}
 
-		//$image->attr ($attributes);
 		$image->update($attributes);
 
 		return $image;
