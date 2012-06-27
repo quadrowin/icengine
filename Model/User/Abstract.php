@@ -121,9 +121,25 @@ class User_Abstract extends Model
 	 * @desc Получаем текущее значение баланса 
 	 * @return Component_Balance 
 	 */
-	public function getBalance() {
+	public function getBalance() 
+	{
 		$balance = $this->component('Balance', 0);
-		if (!isset($balance->value)) {
+		if (!$balance)
+		{
+			Loader::load('Helper_Date');
+			Loader::load('Component_Balance');
+			$balance = new Component_Balance(array(
+				'table' => 'User',
+				'rowId'	=> $this->key (),
+				'vaue'	=> 0,
+				'lstUpdateTime' => Helper_Date::toUnix ()
+			));
+			$balance->save();
+			return $balance;
+		}
+		
+		if (!isset($balance->value)) 
+		{
 			$balance->update(
 				array(
 					'value' => 0

@@ -40,6 +40,7 @@ class Bill_Payment_Acceptor_Balance_Increment extends Bill_Payment_Acceptor_Abst
 				) : $balance_collection->item(0);
 
 		$balance->change($payment->value, $config ['increment_comment'], $user);
+		User::tryReturnServs($user->key());
 	}
 
 }
