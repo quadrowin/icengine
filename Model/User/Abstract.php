@@ -132,7 +132,7 @@ class User_Abstract extends Model
 				'table' => 'User',
 				'rowId'	=> $this->key (),
 				'vaue'	=> 0,
-				'lstUpdateTime' => Helper_Date::toUnix ()
+				'lastUpdateTime' => Helper_Date::toUnix ()
 			));
 			$balance->save();
 			return $balance;
