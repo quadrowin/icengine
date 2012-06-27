@@ -373,6 +373,7 @@ class Helper_Image
 			}
 		}
 
+
 		$sizing ['sizes'] [self::ORIGINAL] = array (
 			'width'		=> $info [0],
 			'height'	=> $info [1]
@@ -386,7 +387,8 @@ class Helper_Image
 			$tmp = array (
 				$key . 'Url'	=> str_replace (
 					self::$config ['upload_path'],
-					$host . self::$config ['upload_url'],
+					//$host . self::$config ['upload_url'],
+					self::$config ['upload_url'],
 					$filenames [$key]
 				),
 				$key . 'Width'	=> $size ['width'],
@@ -396,7 +398,8 @@ class Helper_Image
 			$i++;
 		}
 
-		$image->attr ($attributes);
+		//$image->attr ($attributes);
+		$image->update($attributes);
 
 		return $image;
 	}
