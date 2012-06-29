@@ -90,7 +90,8 @@ class Router
 				if (!isset($tmp[1])) {
 					$tmp[1] = 1;
 				}
-				$_REQUEST [$tmp [0]] = $_GET [$tmp [0]] = $tmp[1];
+				$_REQUEST [$tmp[0]] = $_GET [$tmp[0]] = $tmp[1];
+				Request::param($tmp[0], $tmp[1]);
 			}
 		}
 	}
