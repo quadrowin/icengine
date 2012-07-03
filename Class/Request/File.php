@@ -114,6 +114,8 @@ class Request_File
 			$fn .= '.' . $extension;
 		}
 
+		$this->name = $fn;
+
 		if ($this->save ($path . $fn))
 		{
 			return $fn;

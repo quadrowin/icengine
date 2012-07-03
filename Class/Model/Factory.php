@@ -40,7 +40,7 @@ class Model_Factory extends Model
 	 */
 	public function table ()
 	{
-		return get_class ($this);
+		return get_class($this);
 	}
 
 }
