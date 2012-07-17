@@ -926,6 +926,8 @@ class Controller_Admin_Database extends Controller_Abstract
 			$field_filters = $this->getAdminConfig ($class_name)->field_filters
 				->__toArray ();
 		}
+		
+		echo $collection->lastQuery()->translate();
 
 		$this->_output->send (array (
 			'collection'		=> $collection,

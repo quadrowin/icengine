@@ -37,9 +37,9 @@ class Router
 		if (is_null (self::$_route))
 		{
 			$url = Request::uri ();
-            Loader::load ('Route');
+            		Loader::load ('Route');
             
-            self::$_urls [] = Route::pattern ('/' . trim ($url, '/') . '/');
+            		self::$_urls [] = Route::pattern ('/' . trim ($url, '/') . '/');
 
 			$gets = Request::stringGet ();
 
