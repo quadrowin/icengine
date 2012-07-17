@@ -126,8 +126,18 @@ class Route extends Model_Child
 	public static function byUrl ($url)
 	{
 		$url = '/' . trim ($url, '/') ;
-		if (strpos($url, '.html') === false) {
+
+		$urlLength = strlen($url);
+		if (($pos = strrpos($url, '.') &&
+				$pos !== false &&
+				($urlLength - $pos == 4 ||
+				$urlLength - $pos == 5))) {
+			//nothing
+		}
+		else
+		{
 			$url .= '/';
+
 		}
 		
 		/*
@@ -455,8 +465,11 @@ class Route extends Model_Child
      * @desc ересь какая-то, проверить удалить
      * @return boolean 
      */
-    public static function pattern (){
-        return false;
+    public static function pattern ($url)
+    {
+        $pattern = preg_replace ('#/[0-9]{1,}/#i', '/?/', $url);
+		$pattern = preg_replace ('#/[0-9]{1,}/#i', '/?/', $pattern);
+        return $pattern;
     }
 
 }

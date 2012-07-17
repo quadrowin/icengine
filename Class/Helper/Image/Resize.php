@@ -4,10 +4,10 @@ class Helper_Image_Resize
 {
 	
 	/**
-	 * Качество сохранения JPEG изображений (от 1 до 100).
+	 * Качество сохранения изображений (от 1 до 100).
 	 * @var integer
 	 */
-	public static $jpegQuality = 90;
+	public static $quality = 90;
 	
 	/**
 	 * Изменение размера изображения
@@ -227,10 +227,10 @@ class Helper_Image_Resize
 				imagegif ($image_resized, $output);
 				break;
 			case IMAGETYPE_JPEG:
-				imagejpeg ($image_resized, $output, self::$jpegQuality);
+				imagejpeg ($image_resized, $output, self::$quality);
 				break;
 			case IMAGETYPE_PNG:
-				imagepng ($image_resized, $output);
+				imagepng ($image_resized, $output, self::$quality);
 				break;
 			default:
 				return false;
