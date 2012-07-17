@@ -927,8 +927,6 @@ class Controller_Admin_Database extends Controller_Abstract
 				->__toArray ();
 		}
 		
-		echo $collection->lastQuery()->translate();
-
 		$this->_output->send (array (
 			'collection'		=> $collection,
 			'fields'			=> $fields,
