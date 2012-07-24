@@ -128,8 +128,8 @@ class Route extends Model_Child
 		$url = '/' . trim ($url, '/') ;
 
 		$urlLength = strlen($url);
-		if (($pos = strrpos($url, '.') &&
-				$pos !== false &&
+		$pos = strrpos($url, '.');
+		if (($pos !== false &&
 				($urlLength - $pos == 4 ||
 				$urlLength - $pos == 5))) {
 			//nothing
