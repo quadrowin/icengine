@@ -325,4 +325,9 @@ class User_Abstract extends Model
 		return $this->login . ' ' . $this->name;
 	}
 
+	public static function setCurrent($user)
+	{
+		self::$_current = $user;
+	}
+
 }

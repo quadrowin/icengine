@@ -62,32 +62,74 @@ var Helper_Form = {
 		$fields.each (function () {
 
             /**
-             * для корректной обработки select:multiple и параметров с именем "param[]"
-             * @author red
+             * для корректной обработки select:multiple и
+			 * параметров с именем "param[]"
+             *
+			 * @author red
              */
-            function _setValue (name, value) {
+            function _setValue (name, value, lastObject, attrName) {
                 var _name = name;
                 var _isArray = false;
+				var _isObject = false;
+				var i;
 
-                if (name.slice (-2) == '[]') {
-                    _name = name.slice (0, -2);
+                if (name.slice(-2) == '[]') {
+                    _name = name.slice(0, -2);
                     _isArray = true;
-                }
-                if (typeof (value) == 'object') {
+                } else if (typeof value == 'object') {
                     _isArray = true;
-                }
+                } else if (/\[([^\]]+)\]/.test(name)) {
+					_isObject = true;
+				} else if (lastObject) {
+					_isObject = true;
+				}
 
                 if (_isArray) {
-                    if (! (_name in data)) {
+                    if (!(_name in data)) {
                         data[_name] = [];
                     }
-                    if( typeof (value) == 'object' ) {
-                        for (i in value) { data[_name].push (value[i]); }
+                    if (typeof value == 'object' ) {
+                        for (i in value) {
+							data[_name].push (value[i]);
+						}
                     } else {
                         data[_name].push (value);
                     }
-                }
-                else {
+                } else if (_isObject) {
+					var pos;
+					if (!lastObject) {
+						pos = name.indexOf('[');
+						_name = name.substr(0, pos);
+						name = name.substr(pos);
+						if (!(_name in data)) {
+							data[_name] = {};
+						}
+						_setValue(name, value, data[_name]);
+					} else {
+						if (name) {
+							pos = name.indexOf('[');
+							var endPos = name.indexOf(']');
+							_name = name.substr(pos + 1, endPos - pos - 1);
+							attrName = null;
+							if (endPos + 1 < name.length) {
+								name = name.substr(endPos + 1);
+							} else {
+								name = '';
+								attrName = _name;
+							}
+							if (!(_name in lastObject)) {
+								lastObject[_name] = {};
+							}
+							if (!attrName) {
+								_setValue(name, value, lastObject[_name]);
+							} else {
+								_setValue(name, value, lastObject, _name);
+							}
+						} else {
+							lastObject[attrName] = value;
+						}
+					}
+				} else {
                     data[_name] = value;
                 }
             }
