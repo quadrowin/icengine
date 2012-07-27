@@ -974,7 +974,7 @@ abstract class Model implements ArrayAccess
 	 * @param array $data Массив пар (поле => значение).
 	 * @return Model Эта модель.
 	 */
-	public function update (array $data)
+	public function update (array $data, $hard = false)
 	{
 		if ($this->_generic)
 		{
@@ -1011,7 +1011,7 @@ abstract class Model implements ArrayAccess
 
 		$this->set ($data);
 
-		return $this->save ();
+		return $this->save ($hard);
 	}
 
 	/**
