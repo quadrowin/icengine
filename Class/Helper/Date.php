@@ -635,6 +635,9 @@ class Helper_Date
 			return date (self::UNIX_FORMAT);
 		}
 		$date = self::parseDateTime ($date);
+		if (!$date) {
+			return null;
+		}
 		return $date->format (self::UNIX_FORMAT);
 	}
 
