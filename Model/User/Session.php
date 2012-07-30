@@ -95,7 +95,8 @@ class User_Session extends Model
 		{
 			$upd = array (
 				'User__id'		=> $new_user_id,
-				'lastActive'	=> $now
+				'lastActive'	=> $now,
+				'eraHourNum'	=> Helper_Date::eraHourNum()
 			);
 		}
 		else
@@ -108,7 +109,8 @@ class User_Session extends Model
 			}
 
 			$upd = array (
-				'lastActive'	=> $now
+				'lastActive'	=> $now,
+				'eraHourNum'	=> Helper_Date::eraHourNum()
 			);
 		}
 
