@@ -51,6 +51,7 @@ class Bill_Payment_Type_A1lite extends Bill_Payment_Type_Abstract
 					
 					$payment = $this->instantPayment (array (
 						'value'			=> $message ['system_income'],
+						'balance'			=> $message ['system_income'],
 						'transactionNo'		=> $message ['tid'],
 						'details'		=> $log_message,
 						'Bill__id'		=> (int) $message ['order_id']

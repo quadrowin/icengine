@@ -93,6 +93,11 @@ class IcEngine
 	 */
 	public static function flush ()
 	{
+		if (self::$frontTemplate)
+		{
+			self::$_task->setTemplate (self::$frontTemplate);
+		}
+
 		Controller_Manager::call (
 			'Render', 'index',
 			array (
@@ -264,11 +269,6 @@ class IcEngine
 		self::$_task->setViewRender (
 			View_Render_Manager::byName (self::$frontRender)
 		);
-
-		if (self::$frontTemplate)
-		{
-			self::$_task->setTemplate (self::$frontTemplate);
-		}
 
 		Controller_Manager::call (
 			self::$frontController,

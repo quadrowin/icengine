@@ -59,6 +59,11 @@ class Request
 	 */
 	public static function ip ()
 	{
+		if (isset ($_SERVER ['HTTP_X_REAL_IP']))
+		{	
+			return $_SERVER ['HTTP_X_REAL_IP'];
+		}
+
 		return isset ($_SERVER ['REMOTE_ADDR']) ?
 			$_SERVER ['REMOTE_ADDR'] : self::NONE_IP;
 	}

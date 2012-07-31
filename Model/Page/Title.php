@@ -74,7 +74,8 @@ class Page_Title extends Model_Child
 			->where ('? RLIKE `pattern`', $page)
 			->order (array (
 				'rate'		=> Query::DESC,
-				'`host`=""'	=> Query::ASC
+				'`host`=""'	=> Query::ASC,
+				'`City__id`=0' =>Query::ASC
 			))
 			->limit (1);
 		

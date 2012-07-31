@@ -40,7 +40,7 @@
 		if(!this.is(':password')) {
 	
 			if(this.val()==caption) {
-				var new_input = $('<input type="password" name="' + this.attr('name') + '" value="" />');
+				var new_input = $('<input type="password" name="' + this.attr('name') + '" value="" id="' + this.attr('id') +'"  />');
 				var events = this.data ('original_events');
 				if (!events || (events.length == 1 && events.focus.length == 1))
 				{
@@ -85,7 +85,7 @@
 	
 			if(this.val()=="") {
 				
-				var new_input = $('<input type="text" name="' + this.attr('name') + '" value="' + caption + '" />');
+				var new_input = $('<input type="input" name="' + this.attr('name') + '" value="' + caption + '" id="' + this.attr('id') +'" />');
 				var events = this.data ('original_events');
 				if (!events || (events.length == 1 && events.blur.length == 1))
 				{

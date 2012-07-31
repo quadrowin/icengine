@@ -60,15 +60,17 @@ class Content extends Model_Factory
 		{
 			return null;
 		}
-		
+
 		$extending = Model_Manager::byKey ($this->extending, $this->id);
 
 		if (!$extending && $this->extending && $this->id)
 		{
 			// Расширение не создано
-			$extending = Model_Manager::get (
+			$extending = Model_Manager::create (
 				$this->extending,
-				$this->id
+				array (
+					'id'	=> $this->id
+				)
 			)->firstSave ();
 		}
 

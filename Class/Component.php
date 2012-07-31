@@ -6,7 +6,7 @@
  * @package IcEngine
  *
  */
-class Component
+class Component extends Model
 {
 	
 	/**

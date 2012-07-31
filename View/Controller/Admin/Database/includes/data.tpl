@@ -14,11 +14,11 @@ editor ('extended');
 <div id="tab-data">
 
 	{if !$is_new}
-		<p><a href="/cp/row/{$table}/{$row->key()}/delete/{if $limitator}?limitator={$limitator}{/if}" onclick="if(!confirm('Вы действительно хотите удалить запись?'))return false" style="color:red;font-weight:bold">Удалить</a></p>
+		<p><a href="/cp/row/{$table}/{$row->key()}/delete/{if isset($limitator)}?limitator={$limitator}{/if}" onclick="if(!confirm('Вы действительно хотите удалить запись?'))return false" style="color:red;font-weight:bold">Удалить</a></p>
 	{/if}
 
 	{if $fields}
-	<form method="post" action="/cp/row/{$table}/save/{if $limitator}?limitator={$limitator}{/if}">
+	<form method="post" action="/cp/row/{$table}/save/{if isset($limitator)}?limitator={$limitator}{/if}">
 			<input type="hidden" name="row_id" value="{if $is_new}0{else}{$row->key()}{/if}" />
 			<table width="100%">
 				{foreach from=$fields item="i" name="i"}
