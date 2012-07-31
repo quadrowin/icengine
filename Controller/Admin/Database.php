@@ -879,7 +879,7 @@ class Controller_Admin_Database extends Controller_Abstract
 					{
 						$collection->where ($f, $v);
 					}
-					elseif (preg_match('/^\s*(<|>|<=|>=|<>)\s*([+-]?\d+)\s*$/', $v, $op))
+					elseif (preg_match('/^\s*(<|>|<=|>=|<>|=)\s*([+-]?\d+)\s*$/', $v, $op))
                     {
                         $collection->where ($f.' '.$op[1]. ' ?', $op[2]);
                     }
