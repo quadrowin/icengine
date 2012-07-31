@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Базовая схема рейтинга.
  * @author Юрий
  * @package IcEngine
@@ -8,7 +8,7 @@
  */
 class Component_Rating_Scheme_Abstract extends Model_Factory_Delegate
 {
-	
+
 	/**
 	 * @desc Изменение рейтинга
 	 * @param string $table Модель
@@ -25,8 +25,21 @@ class Component_Rating_Scheme_Abstract extends Model_Factory_Delegate
 			->where ('table', $table)
 			->where ('rowId', $row_id)
 		);
-		
+		if (!$rating)
+		{
+			$rating = Model_Manager::create (
+				'Component_Rating',
+				array (
+					'table'	=> $table,
+					'rowId'	=> $row_id,
+					'votes'	=> 0,
+					'value'	=> 0,
+					'changeTime'	=> Helper_Date::NULL_DATE
+				)
+			);
+		}
+
 		return $rating->increment ($value);
 	}
-	
+
 }
