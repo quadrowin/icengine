@@ -257,11 +257,15 @@ var Helper_Form = {
 	 * @param jQuery $form Форма или элемент формы.
 	 * @param string action Название контроллера и экшена.
 	 */
-	defaultSubmit: function ($form, action)
+	defaultSubmit: function ($form, action, defaultSubmitCallback)
 	{
 		$form = $form.closest ('form');
 		function callback (result)
 		{
+			if (typeof defaultSubmitCallback == 'function') {
+				defaultSubmitCallback();
+			}
+			
 			Helper_Form.defaultCallback ($form, result);
 //			if (result && result.html)
 //			{
