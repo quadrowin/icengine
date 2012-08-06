@@ -56,9 +56,9 @@ class Mail_Template extends Model_Child
 		$tpl_name = 'Mail/Template/' . $this->name . '.tpl';
 		if($smarty->templateExists($tpl_name))
 		{
-			FB::log($tpl_name . ' exist');
+			file_put_contents('/home/www/vipgeo.ru/test.txt', $tpl_name . ' exist');
 			$body = $smarty->fetch ($tpl_name);
-			FB::log($body);
+			file_put_contents('/home/www/vipgeo.ru/test1.txt', $body);
 		}
 		else
 		{
