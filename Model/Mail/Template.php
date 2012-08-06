@@ -56,7 +56,9 @@ class Mail_Template extends Model_Child
 		$tpl_name = 'Mail/Template/' . $this->name . '.tpl';
 		if($smarty->templateExists($tpl_name))
 		{
+			FB::log($tpl_name . ' exist');
 			$body = $smarty->fetch ($tpl_name);
+			FB::log($body);
 		}
 		else
 		{
