@@ -395,8 +395,7 @@ class Helper_Image
 			$attributes = array_merge ($attributes, $tmp);
 			$i++;
 		}
-
-		$image->attr ($attributes);
+		$image->update ($attributes);
 
 		return $image;
 	}
