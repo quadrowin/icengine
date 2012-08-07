@@ -268,9 +268,7 @@ class Helper_Image
 	{
 		//$this->_log ('test');
 		$file = Request::fileByIndex (0);
-		
-		file_put_contents('/home/markov/er/file.txt', print_r($file, true));
-
+	
 		$host = Helper_Site_Location::getLocation ();
 		if ($host == 'localhost')
 		{
