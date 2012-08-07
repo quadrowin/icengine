@@ -253,46 +253,41 @@ var Helper_Form = {
 	},
 
 	/**
-	 * @desc Отправка формы по умолчанию
-	 * @param jQuery $form Форма или элемент формы.
-	 * @param string action Название контроллера и экшена.
+	 * Отправка формы по умолчанию
+	 *
+	 * @param $form jQuery Форма или элемент формы.
+	 * @param action string Название контроллера и экшена.
 	 */
-	defaultSubmit: function ($form, action)
-	{
-		$form = $form.closest ('form');
-		function callback (result)
-		{
-			Helper_Form.defaultCallback ($form, result);
-//			if (result && result.html)
-//			{
-//				$form.find ('.result-msg').html (result.html);
-//				$form.find ('.result-msg').show ();
-//			}
-//			if (result && result.redirect)
-//			{
-//				window.location.href = result.redirect;
-//			}
+	defaultSubmit: function($form, action) {
+		var $e = $form;
+		$form = $form.closest('form');
+		var data = {};
+		var callback = function(result) {
+			Helper_Form.defaultCallback($form, result);
+		};
+		var p1;
+		if ($form.length) {
+			data = Helper_Form.asArray($form);
+			if (!action) {
+				action = $form.attr('onsubmit');
+				p1 = action.indexOf('(');
+				var p2 = action.indexOf(' ');
+				action = action.substring (
+					"Controller_".length,
+					(0 < p2 && p2 < p1) ? p2 : p1
+				);
+				action = action.replace(".", "/");
+			}
+		} else {
+			var funcName = $e.attr('onclick');
+			p1 = funcName.indexOf('(');
+			action = funcName.substring("Controller_".length, p1);
+			action = action.replace('.', '/');
+			callback = function(result) {
+
+			};
 		}
-
-		if (!action)
-		{
-			action = $form.attr ('onsubmit');
-
-			var p1 = action.indexOf ('(');
-			var p2 = action.indexOf (' ');
-
-			action = action.substring (
-				"Controller_".length,
-				(0 < p2 && p2 < p1) ? p2 : p1
-			);
-			action = action.replace (".", "/");
-		}
-
-		Controller.call (
-			action,
-			Helper_Form.asArray ($form),
-			callback, true
-		);
+		Controller.call(action, data, callback, true);
 	},
 
 	/**
