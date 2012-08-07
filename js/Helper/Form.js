@@ -186,17 +186,6 @@ var Helper_Form = {
 						_setValue (this.name, $(this).val ());
 					}
 				}
-				else
-				{
-					if ($(this).attr ('placeholder') == $(this).val ())
-					{
-						_setValue (this.name, '');
-					}
-					else
-					{
-						_setValue (this.name, $(this).val ());
-					}
-				}
 			}
 			else
 			{
