@@ -1,59 +1,55 @@
-<p class="control"><a href="/cp/db/">&larr; База данных</a></p>
+<div class="infoBlockText">
+	<img src="/images_site/site/informer_left_corner.png" class="top-gray-corner-l" alt="" />
+	<img src="/images_site/site/informer_right_corner.png" class="top-gray-corner-r" alt="" />
 
-<h2>Записи</h2>
+	<p><a href="/cp/db/">База данных</a></p>
 
-<p class="control"><a class="add" href="/cp/row/{$table}/0/">+ Добавить</a></p>
-
-{if $collection}
-
-	{if $search_fields}
-	<div id="search" class="box white radius10">
-		<form method="get" action="/cp/table/{$table}/">
-			<div style="height:250px; overflow:auto">
-				<table cellpadding="5">
-					{foreach from=$search_fields item="sf"}
-						{assign var="sff" value=$sf->Field}
-						<tr>
-							<td valign="top" width="150" style="padding-bottom:15px">
-								{if !empty($sf->Comment)}
-									{$sf->Comment}
-								{else}
-									{$sf->Field}
-								{/if}
-							</td>
-							<td valign="top" style="padding-bottom:15px">
-								{if !empty($sf->Values)}
-									<select name="search[{$sf->Field}]" style="width:250px">
-										<option value="0">Не выбрано</option>
-										{foreach from=$sf->Values item="sfi"}
-											<option value="{$sfi->key()}"{if $search[$sff]==$sfi->key()} selected{/if}>{$sfi->title()}</option>
-										{/foreach}
-									</select>
-								{else}
-									<input value="{if !empty($search[$sff])}{$search[$sff]}{/if}" name="search[{$sf->Field}]" type="text" style="width:250px" />
-								{/if}
-							</td>
-						</tr>
-					{/foreach}
-				</table>
-			</div>
-			<p><input type="submit" value="Искать" /></p>
-		</form>
+	<div class="title">
+		<h2>Записи</h2>
 	</div>
+
+	<p><a href="/cp/row/{$table}/0/{if $limitator}?limitator={$limitator}{/if}">Добавить</a></p>
+
+	{if $collection}
+
+	{if $search_fields && count($search_fields)>0}
+	<form method="get" action="/cp/table/{$table}/">
+		<div style="max-height:250px; overflow:auto">
+			<table cellpadding="5">
+				{foreach from=$search_fields item="sf"}
+					{assign var="sff" value=$sf->Field}
+					<tr>
+						<td valign="top" width="150" style="padding-bottom:5px">
+							{if !empty($sf->Comment)}
+								{$sf->Comment}
+							{else}
+								{$sf->Field}
+							{/if}
+						</td>
+						<td valign="top" style="padding-bottom:5px">
+							{if !empty($sf->Values)}
+								<select name="search[{$sf->Field}]" style="width:250px">
+									<option value="0">Не выбрано</option>
+									{foreach from=$sf->Values item="sfi"}
+										<option value="{$sfi->key()}"{if $search[$sff]==$sfi->key()} selected{/if}>{$sfi->title()}</option>
+									{/foreach}
+								</select>
+							{else}
+								<input value="{if !empty($search[$sff])}{$search[$sff]}{/if}" name="search[{$sf->Field}]" type="text" style="width:250px" />
+							{/if}
+						</td>
+					</tr>
+				{/foreach}
+			</table>
+		</div>
+		<p><input type="submit" value="Искать" /></p>
+	</form>
 	{/if}
 
-	<div id="inner" class="box white radius10 up">
 	{if !$fields}
-	<ul class="element-list">
-		{foreach from=$collection item="i" name="i"}
-		<li
-		class="
-		{if $smarty.foreach.i.iteration mod 2 eq 0}
-			odd
-		{else}
-			even
-		{/if}"
-		style="
+	<ul>
+		{foreach from=$collection item="i"}
+		<li style="
 		{if $styles}
 		{foreach from=$styles item="column" key="c"}
 		{foreach from=$column item="style" key="v"}
@@ -84,14 +80,8 @@
 			</tr>
 		</thead>
 		<tbody>
-			{foreach from=$collection item="row" name="i"}
-			<tr
-				class="
-				{if $smarty.foreach.i.iteration mod 2 eq 0}
-					odd
-				{else}
-					even
-				{/if}">
+			{foreach from=$collection item="row"}
+			<tr>
 				{foreach from=$fields item="field" name="field"}
 					{assign var="field" value=$field->Field}
 					<td style="
@@ -110,7 +100,7 @@
 					{/if}
 					{/if}
 					{if $field == $title || ($links && in_array($field,$links))}
-					<a href="/cp/row/{$table}/{$row->key()}/" style="
+					<a href="/cp/row/{$table}/{$row->key()}/{if $limitator}?limitator={$limitator}{/if}" style="
 						{if $link_styles}
 							{foreach from=$link_styles item="column" key="c"}
 								{foreach from=$column item="style" key="v"}
@@ -135,13 +125,8 @@
 	<p><a href="/cp/table/{$table}/">Все записи</a></p>
 	{/if}
 	{/if}
-	</div>
-{/if}
+	{/if}
 
-{if isset($paginator_html)}
-	<div class="box white radius10 up">
-		{$paginator_html}
-	</div>
-{/if}
+	{if isset($paginator_html)}{$paginator_html}{/if}
 
 </div>

@@ -52,13 +52,13 @@ class Helper_Header
 			"HTTP/1.0 404 Not Found",
 			"Status: 404 Not Found"
 		),
-		self::E410 => array (
-			"HTTP/1.0 410 Gone",
-			"Status: 410 Gone"
-		),
 		self::E301 => array(
 			"HTTP/1.1 301 Moved Remanently",
 			"Status: 301 Moved Remanently"
+		),
+		self::E410 => array(
+			"HTTP/1.1 410 Gone",
+			"Status: 410 Gone"
 		)
 	);
 
