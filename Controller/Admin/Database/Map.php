@@ -34,13 +34,11 @@ class Controller_Admin_Database_Map extends Controller_Abstract
 		
 		if (!$row)
 		{
-			return;
-		/*	return $this->replaceAction (
+			return $this->replaceAction (
 				'Error',
 				'notFound'
-			); */
+			);
 		}
-		
 		
 		$geo_points = $row->component ('Geo_Point');
 		
@@ -194,6 +192,9 @@ class Controller_Admin_Database_Map extends Controller_Abstract
 					Query::instance ()
 						->where ('name', $point ['style'])
 				);
+				if (!$style) {
+					$style = Model_Manager::byKey('Geo_Point_Style', 1);
+				}
 			}
 			
 			if (!$style)

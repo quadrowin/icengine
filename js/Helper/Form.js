@@ -68,7 +68,10 @@ var Helper_Form = {
             function _setValue (name, value) {
                 var _name = name;
                 var _isArray = false;
-
+				if (!name)
+				{
+					return;
+				}	
                 if (name.slice (-2) == '[]') {
                     _name = name.slice (0, -2);
                     _isArray = true;
@@ -82,6 +85,7 @@ var Helper_Form = {
                         data[_name] = [];
                     }
                     if( typeof (value) == 'object' ) {
+						console.log(_name);
                         for (i in value) { data[_name].push (value[i]); }
                     } else {
                         data[_name].push (value);
@@ -296,8 +300,8 @@ var Helper_Form = {
 		$owner.bind ('mousemove', function (event) {
 			var $input = $(event.currentTarget).data ('input_file_upload');
 
-			var y = event.pageY - $owner.offset ().top - 5 + 'px';
-			var x = event.pageX - $owner.offset ().left - 170 + 'px';
+			var y = event.pageY - $owner.offset ().top - ($input.height() / 2) + 'px';
+			var x = event.pageX - $owner.offset ().left - ($input.width() / 1.2)-15 + 'px';
 
 			$input.css ({left: x, top: y});
 		});

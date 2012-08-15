@@ -150,9 +150,14 @@ class Route extends Model_Child
 		 * Это позволяет привести все запросы с переменными к одному,
 		 * который будет закеширован. 
 		 */ 
-		$pattern = preg_replace ('#/[0-9]{1,}/#i', '/?/', $url);
-		$pattern = preg_replace ('#/[0-9]{1,}/#i', '/?/', $pattern);
-//		fb ($pattern);
+		  
+		$pattern = $url;
+		if (preg_match ('#/.+/[0-9]{1,}/#', $url))
+		{
+		    $pattern = preg_replace ('#/[0-9]{1,}/#i', '/?/', $pattern);
+		    $pattern = preg_replace ('#/[0-9]{1,}/#i', '/?/', $pattern);
+		}
+		//		fb ($pattern)
 		$router = Resource_Manager::get ('Route_Cache', $pattern);
 		
 		if ($router !== null)
@@ -192,12 +197,12 @@ class Route extends Model_Child
 				}
 			}
 		}
-//		fb($row);
+
 		if (!$row && $config ['use_default_source'])
 		{
 			$select = Query::instance ()
 				->select (array (
-					'Route' => array ('id', 'route', 'View_Render__id')
+					'Route' => array ('id', 'route', 'View_Render__id', 'template' => 'pattern')
 				))
 				->select (array (
 					'View_Render' => array ('name' => 'viewRenderName')
@@ -212,8 +217,8 @@ class Route extends Model_Child
 		
 			$row = DDS::execute ($select)->getResult ()->asRow ();
 		}
+
 //		fb($row);
-//		var_dump(DDS::getDataSource()->getQuery('Mysql'), $row);
 		if (!$row)
 		{
 			Resource_Manager::set ('Route_Cache', $pattern, false);
