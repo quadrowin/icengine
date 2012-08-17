@@ -679,7 +679,7 @@ class Query_Translator_Mysql extends Query_Translator
 				{
 					break;
 				}
-				if (!isset ($value [$i]))
+				if (!array_key_exists ($i, $value))
 				{
 					break;
 				}

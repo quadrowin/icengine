@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Хелпер управления заголовоками
  * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
@@ -9,36 +9,36 @@
 class Helper_Header
 {
 	/**
-	 * 
+	 *
 	 * @desc Код ошибки "ресурс перемещен постоянно"
 	 * @var integer
 	 */
 	const E301 = 301;
-	
+
 	/**
 	 * @desc Код ошибки "доступ закрыт"
 	 * @var integer
 	 */
 	const E403 = 403;
-	
+
 	/**
 	 * @desc Код ошибки "страница не найдена"
 	 * @var integer
 	 */
 	const E404 = 404;
-	
+
 	/**
-	 * @desc 
+	 * @desc Код ошибки "страница удалена"
 	 * @var integer
 	 */
 	const E410 = 410;
-	
+
 	/**
 	 * @desc Флаг кодирования gzip
 	 * @var string
 	 */
 	const CONTENT_ENCODING_GZIP = 'gzip';
-	
+
 	/**
 	 * @desc Сообщения с ошибками
 	 * @var array
@@ -52,6 +52,10 @@ class Helper_Header
 			"HTTP/1.0 404 Not Found",
 			"Status: 404 Not Found"
 		),
+		self::E410 => array (
+			"HTTP/1.0 410 Gone",
+			"Status: 410 Gone"
+		),
 		self::E301 => array(
 			"HTTP/1.1 301 Moved Remanently",
 			"Status: 301 Moved Remanently"
@@ -61,7 +65,7 @@ class Helper_Header
 			"Status: 410 Gone"
 		)
 	);
-	
+
 	/**
 	 * @desc Отправить статус в заголовке ответа
 	 * @param integer $status Статус.
@@ -80,7 +84,7 @@ class Helper_Header
 			}
 		}
 	}
-	
+
 	/**
 	 * @desc Редирект по указанному адресу.
 	 * К переданному $uri при необходимости будет добавлено имя сервера
@@ -91,11 +95,11 @@ class Helper_Header
 	 */
 	public static function redirect ($uri, $code = null)
 	{
-		$full_uri = 
+		$full_uri =
 			substr ($uri, 0, 7) == 'http://' ?
 			$uri :
 			('http://' . Request::host () . $uri);
-		
+
 		if (!headers_sent ())
 		{
 			if ($code)
@@ -112,17 +116,17 @@ class Helper_Header
 			self::jsRedirect ($uri);
 		}
 	}
-	
+
 	/**
 	 * @desc Редирект через javascript.
 	 * @param string $uri Адрес для редиректа
 	 */
 	public static function jsRedirect ($uri)
 	{
-		echo 
-			'<script type="text/javascript">window.location.href="' . 
+		echo
+			'<script type="text/javascript">window.location.href="' .
 			$uri .
 			'"</script>';
 	}
-	
+
 }
