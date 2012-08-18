@@ -2,7 +2,7 @@
 /**
  *
  * @desc Класс необходимый для инициализации фреймворка.
- * @author Юрий Шведов, Илья Колесников
+ * @author Юрий Шведов, �?лья Колесников
  * @package IcEngine
  *
  */
@@ -107,7 +107,7 @@ class IcEngine
 	}
 
 	/**
-	 * @desc Инициализация лоадера.
+	 * @desc �?нициализация лоадера.
 	 * @param string $root Путь до корня сайта.
 	 * @param string $bootstap Путь до загрузчика.
 	 */
@@ -173,7 +173,7 @@ class IcEngine
 	}
 
 	/**
-	 * @desc Инициализация лоадера.
+	 * @desc �?нициализация лоадера.
 	 */
 	public static function initLoader ()
 	{
@@ -273,6 +273,7 @@ class IcEngine
 			View_Render_Manager::byName (self::$frontRender)
 		);
 
+		Loader::Load ('Resource_Manager');
 		Controller_Manager::call (
 			self::$frontController,
 			self::$frontAction,
@@ -283,6 +284,7 @@ class IcEngine
 
 	public static function shutdownHandler ()
 	{
+		Loader::Load ('Resource_Manager');
 		$error = error_get_last();
 		if (!$error)
 		{
