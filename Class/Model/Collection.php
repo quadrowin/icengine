@@ -1240,9 +1240,10 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 * @desc Упорядочивание списка для вывода дерева по полю parentId
 	 * @param boolean $include_unparented Оставить элементы без предка.
 	 * Если false, элементы будут исключены из списка.
+	 *
 	 * @return Model_Collection
 	 */
-	public function sortByParent ($include_unparented = true)
+	public function sortByParent ($include_unparented = false)
 	{
 		$list = &$this->items ();
 
@@ -1251,7 +1252,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 			// Список пуст
 			return $this;
 		}
-
+		$firstIDS = $this->column('id');
 		$parents = array ();
 		$child_of = $list [0]->parentRootKey ();
 		$result = array ();
@@ -1319,9 +1320,50 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 				$finish = false;
 			}
 		} while (!$finish);
-
+		/**
+		 * чтобы не портить сортировку, если таковая есть у
+		 * коллекции, с использованием элементов без родителей
+		 *
+		 * сортируем по level 0, докидываем дочерних
+		 */
+		if ($include_unparented) {
+			//out досортированный
+			$newResult = array();
+			//без родителей, неотсортированные
+			$listIDS = array();
+			//отсортированные родители: level = 0
+			$resultIDS = array();
+			//отсортированные дочерние: level > 0
+			$resultSubIDS = array();
+			for ($i = 0; $i < count($list); $i++){
+				$listIDS[$list[$i]->key()] = $i;
+			}
+			for ($i = 0; $i < count($result); $i++)
+			{
+				if ($result[$i]->parentId == 0)
+				{
+					$parentId = $result[$i]->key();
+					$resultIDS[$result[$i]->key()] = $i;
+				} else {
+					$resultSubIDS[$parentId][$result[$i]->key()] = $i;
+				}
+			}
+			for ($i = 0; $i < count($firstIDS); $i++){
+				if (isset($resultIDS[$firstIDS[$i]])) {
+					$newResult[] = $result[$resultIDS[$firstIDS[$i]]];
+					if (isset($resultSubIDS[$firstIDS[$i]])) {
+						foreach ($resultSubIDS[$firstIDS[$i]] as $index)
+						{
+							$newResult[] = $result[$index];
+						}
+					}
+				} elseif (isset($listIDS[$firstIDS[$i]])) {
+					$newResult[] = $list[$listIDS[$firstIDS[$i]]];
+				}
+			}
+			$result = $newResult;
+		}
 		$this->_items = $result;
-
 		return $this;
 	}
 
