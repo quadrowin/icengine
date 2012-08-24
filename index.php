@@ -7,4 +7,5 @@
 	<p>thx to googlecode project.</p>
 	<p><?=date('Y-m-d')?></p>
 </body>
+
 </html>
