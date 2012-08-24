@@ -174,7 +174,7 @@ var Helper_Form = {
 							$(this).removeClass('errorRequired');
 						}
 						//if (!('errorRequired' in data)) {
-							data['errorRequired'] = errorRequired;
+							//data['errorRequired'] = errorRequired;
 						//}
 					}
 					if ($(this).attr ('placeholder') == $(this).val ())
@@ -193,6 +193,7 @@ var Helper_Form = {
 						if ($(this).is(':visible')) {
 							if ($(this).val() == '') {
 								$(this).addClass('errorRequired');
+								errorRequired = true;
 							} else {
 								$(this).removeClass('errorRequired');
 							}
@@ -202,12 +203,14 @@ var Helper_Form = {
 									if (Controller_TinyMce.getVal({'id': $(this).attr('id')}) == '') {
 										$('#' + $(this).attr('id') + '_tbl')
 											.addClass('errorRequired');
+										errorRequired = true;
 									} else {
 										$('#' + $(this).attr('id') + '_tbl')
 											.removeClass('errorRequired');
 									}
 								}
 						}
+
 					}
 				}
 				if ($(this).attr ('placeholder') == $(this).val ())
@@ -220,7 +223,7 @@ var Helper_Form = {
 				}
 			}
 		});
-
+		data['errorRequired'] = errorRequired;
 		return data;
 	},
 
