@@ -44,9 +44,10 @@ var Helper_Form = {
 	 * @desc Все поля формы как поля объекта
 	 * @param jQuery $form Форма.
 	 * @param string filter jQuery selector.
+	 * @param boolean check проверять ли required
 	 * @returns object Объект, содержащий данные с формы.
 	 */
-	asArray: function ($form, filter)
+	asArray: function ($form, filter, check)
 	{
 		$fields =
 			$form.find ('input,select,textarea')
@@ -56,7 +57,9 @@ var Helper_Form = {
 		{
 			$fields.filter (filter);
 		}
-
+		if (!check) {
+			check = false;
+		}
 		var data = {}, placeholder, value,
 			errorRequired = false;
 
@@ -159,7 +162,7 @@ var Helper_Form = {
 				// обычные input[name=text]
 				else
 				{
-					if($(this).attr('required'))
+					if(check && $(this).attr('required'))
 					{
 						value = $(this).val();
 						placeholder = $(this).attr('placeholder');
@@ -173,9 +176,6 @@ var Helper_Form = {
 						{
 							$(this).removeClass('errorRequired');
 						}
-						//if (!('errorRequired' in data)) {
-							//data['errorRequired'] = errorRequired;
-						//}
 					}
 					if ($(this).attr ('placeholder') == $(this).val ())
 					{
@@ -188,7 +188,7 @@ var Helper_Form = {
 				}
 			} else {
 				//можно на наследование переделать всё это, вверху input ещё
-				if (this.tagName.toLowerCase () == 'textarea') {
+				if (check && this.tagName.toLowerCase () == 'textarea') {
 					if ($(this).attr('required')) {
 						if ($(this).is(':visible')) {
 							if ($(this).val() == '') {
@@ -235,7 +235,7 @@ var Helper_Form = {
 	asArrayWCheck: function ($form, filter)
 	{
 		var result;
-		result = this.asArray ($form, filter);
+		result = this.asArray ($form, filter, true);
 		return !result['errorRequired'] ? result : false;
 	},
 
