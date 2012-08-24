@@ -186,9 +186,30 @@ var Helper_Form = {
 						_setValue (this.name, $(this).val ());
 					}
 				}
-			}
-			else
-			{
+			} else {
+				//можно на наследование переделать всё это, вверху input ещё
+				if (this.tagName.toLowerCase () == 'textarea') {
+					if ($(this).attr('required')) {
+						if ($(this).is(':visible')) {
+							if ($(this).val() == '') {
+								$(this).addClass('errorRequired');
+							} else {
+								$(this).removeClass('errorRequired');
+							}
+						} else {
+							if ($(this).attr('id') &&
+								$('#' + $(this).attr('id') + '_tbl').length) {
+									if (Controller_TinyMce.getVal({'id': $(this).attr('id')}) == '') {
+										$('#' + $(this).attr('id') + '_tbl')
+											.addClass('errorRequired');
+									} else {
+										$('#' + $(this).attr('id') + '_tbl')
+											.removeClass('errorRequired');
+									}
+								}
+						}
+					}
+				}
 				if ($(this).attr ('placeholder') == $(this).val ())
 				{
 					_setValue (this.name, '');
