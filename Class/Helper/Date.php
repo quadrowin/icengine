@@ -203,6 +203,20 @@ class Helper_Date
 	{
 		return (int) (self::eraDayNum ($date) / 7);
 	}
+
+	/**
+	 * @desc Возвращает номер минуты от начала эры
+	 * @param integer $date Дата.
+	 * @return intger Номер недели.
+	 */
+	public static function eraMinNum($delta, $date = false)
+	{
+		if ($date === null) {
+			$date = time();
+		}
+		return ((self::eraDayNum ($date) * 24 + (int) date('H', $date)) * 60 +
+			(int) date('i', $date)) * ((int) (60 / $delta));
+	}
 	
 	/**
 	 * @desc Получение времени с точностью до микросекунд
