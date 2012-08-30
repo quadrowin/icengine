@@ -162,7 +162,7 @@ var Helper_Form = {
 				// обычные input[name=text]
 				else
 				{
-					if(check && $(this).attr('required'))
+					if(check && $(this).attr('required') && $(this).is(':visible'))
 					{
 						value = $(this).val();
 						placeholder = $(this).attr('placeholder');
@@ -199,7 +199,8 @@ var Helper_Form = {
 							}
 						} else {
 							if ($(this).attr('id') &&
-								$('#' + $(this).attr('id') + '_tbl').length) {
+								$('#' + $(this).attr('id') + '_tbl').length &&
+								$('#' + $(this).attr('id') + '_tbl').is(':visible')) {
 									if (Controller_TinyMce.getVal({'id': $(this).attr('id')}) == '') {
 										$('#' + $(this).attr('id') + '_tbl')
 											.addClass('errorRequired');
