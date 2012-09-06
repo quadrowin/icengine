@@ -301,7 +301,7 @@ class Helper_String
 	 * 		Ориентировочно ожидаемая длина превью.
 	 * @return string
 	 */
-	public static function smartPreview ($text, $length = 100)
+	public static function smartPreview ($text, $length = 150)
 	{
 		$text =  stripslashes ($text) . ' ';
 
