@@ -216,8 +216,8 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 			$style = str_replace ('  ', ' ', $style); 
 		} while (strlen ($style) != $length);
 		
-		$fname = IcEngine::root () . '/log/css.log';
-		file_put_contents ($fname, time (). PHP_EOL, FILE_APPEND);
+//		$fname = IcEngine::root () . '/log/css.log';
+//		file_put_contents ($fname, time (). PHP_EOL, FILE_APPEND);
 
 		return $prefix . $style . $this->config ()->item_postfix;
 	}
