@@ -571,9 +571,23 @@ class Helper_String
 
 		return $text;
 	}
+
+
+	public static function stripAllTags($text)
+	{
+		// strip html tags
+		$text = strip_tags($text);
+		
+		// strip bb codes
+		$text = preg_replace("/[[\/\!]*?(b|i|u|s|center|ul|ol|li||table|tr|th|td|youtube|url|quote|code|img|color|size)[^\[\]]*?]/si", "", $text);
+		
+		// strip plain http links
+		$text = preg_replace('~((http|https|ftp|file)://([-\w]+\.[-\w\.]+)+\w(:\d+)?(/([-\w/_\.]*(\?\S+)?)?)*)~',"",$text);
+
+		return $text;
+	}
+
 }
-
-
 /**
  * Для PHP < 5.3
  */
