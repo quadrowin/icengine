@@ -311,6 +311,9 @@ class Helper_String
 		}
 
 		$space_pos = strpos ($text, ' ', $length);
+		if (!$space_pos) {
+			$space_pos = $length;
+		}
 		$result = substr ($text, 0, $space_pos);
 		return $result;
 	}
