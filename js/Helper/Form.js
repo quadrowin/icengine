@@ -135,7 +135,6 @@ var Helper_Form = {
                 }
             }
 
-
 			if (this.tagName.toLowerCase () == 'input')
 			{
 				if (this.type == "file")
@@ -189,14 +188,23 @@ var Helper_Form = {
 			}
 			else
 			{
-				if ($(this).attr ('placeholder') == $(this).val ())
-				{
-					_setValue (this.name, '');
+				if (this.tagName.toLowerCase() == 'select') {
+					if($(this).attr('required')) {
+						value = $(this).val();
+						if (!value || value == 0) {
+							$(this).addClass('errorRequired');
+							errorRequired = true;
+						} else {
+							$(this).removeClass('errorRequired');
+						}
+					}
 				}
-				else
-				{
+				if ($(this).attr ('placeholder') == $(this).val ()) {
+					_setValue (this.name, '');
+				} else {
 					_setValue (this.name, $(this).val ());
 				}
+				data['errorRequired'] = errorRequired;
 			}
 		});
 
