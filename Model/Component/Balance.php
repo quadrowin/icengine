@@ -41,7 +41,7 @@ class Component_Balance extends Model_Component
 	 * @param string $comment [optional]
 	 * @return Component_Balance_Log
 	 */
-	public function change ($change, $comment = '')
+	public function change ($change, $comment, $model, $service = '', $discount = '')
 	{
 		Loader::load ('Component_Balance_Log');
 		$log = Component_Balance_Log::addLog (
@@ -49,7 +49,10 @@ class Component_Balance extends Model_Component
 			$this->rowId,
 			$this->value,
 			$change,
-			$comment
+			$comment,
+			$model,
+			$service,
+			$discount
 		);
 		
 		$this->update (array (
@@ -57,6 +60,10 @@ class Component_Balance extends Model_Component
 		));
 		
 		return $log;
+	}
+	
+	public function title() {
+		return $this->rowId;
 	}
 	
 }
