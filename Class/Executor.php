@@ -103,11 +103,10 @@ class Executor
 		Objective $options)
 	{
 		$key = self::_getCacheKey ($function, $args);
-
 		$expiration = (int) $options->expiration;
 
 		$cache = self::getCacher ()->get ($key);
-
+	
 		$tag_valid = true;
 
 		if (
@@ -240,6 +239,7 @@ class Executor
 
 		// опции заданы в конфиге
 		$fn = self::_functionName ($function);
+		
 		if (self::config ()->functions && self::$config->functions [$fn])
 		{
 			return self::executeCaching (

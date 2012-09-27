@@ -276,7 +276,6 @@ class Helper_Link
 					->where (Model_Scheme::keyField ($linked_model_name), $ids)
 			);
 		}
-
 	    return $result;
 	}
 
