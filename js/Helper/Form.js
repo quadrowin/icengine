@@ -214,7 +214,6 @@ var Helper_Form = {
 
 					}
 				}
-
 				if (this.tagName.toLowerCase() == 'select') {
 					if($(this).attr('required')) {
 						value = $(this).val();
@@ -226,13 +225,9 @@ var Helper_Form = {
 						}
 					}
 				}
-
-				if ($(this).attr ('placeholder') == $(this).val ())
-				{
+				if ($(this).attr ('placeholder') == $(this).val ()) {
 					_setValue (this.name, '');
-				}
-				else
-				{
+				} else {
 					_setValue (this.name, $(this).val ());
 				}
 			}
