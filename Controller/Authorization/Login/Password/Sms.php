@@ -142,7 +142,6 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 			self::SMS_CODE_ATTR			=> ''
 		));
 
-		Loader::load ('Helper_Uri');
 		$redirect = Helper_Uri::validRedirect ($redirect);
 		$this->_output->send (array (
 			'redirect'		=> $redirect,

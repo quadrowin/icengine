@@ -1,5 +1,5 @@
 <?php
-Loader::load ('Data_Mapper_Mysqli');
+
 /**
  *
  * @desc Мэппер для работы с mysql, с кэшированием запросов.
@@ -272,7 +272,6 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 
 		if ($this->_errno)
 		{
-			Loader::load ('Data_Mapper_Mysqli_Exception');
 			if (class_exists ('Debug'))
 			{
 				Debug::errorHandler (
@@ -334,7 +333,6 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 		switch ($key)
 		{
 			case 'cache_provider':
-				Loader::load ('Data_Provider_Manager');
 				$this->setCacher (Data_Provider_Manager::get ($value));
 				return;
 			case 'expiration':

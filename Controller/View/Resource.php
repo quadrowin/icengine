@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Контроллер для компновки ресурсов представления.
  * Предназначен для сбора js, css файлов в один.
  * @author Юрий
@@ -28,7 +28,7 @@ class Controller_View_Resource extends Controller_Abstract
 		);
 
 		$vars = array ();
-		
+
 		if ($params)
 		{
 			foreach ($params as $k => $v)
@@ -36,21 +36,20 @@ class Controller_View_Resource extends Controller_Abstract
 				$vars ['{$' . $k . '}'] = $v;
 			}
 		}
-		
+
 		$reses = array ();
 		//var_dump($type . __FILE__);die;
-		Loader::load ('View_Resource_Manager');
-		
+
 		foreach ($config->targets as $name => $target)
 		{
 			if (
-				($type && $type != $target->type) || 
+				($type && $type != $target->type) ||
 				($name_filter && $name_filter != $name)
 			)
 			{
 				continue;
 			}
-			
+
 			$res = array ();
 
 			foreach ($target->sources as $source)
@@ -83,7 +82,7 @@ class Controller_View_Resource extends Controller_Abstract
 					);
 				}
 			}
-			
+
 			$packer = View_Resource_Manager::packer ($target->type);
 			$packer_config = $target->packer_config;
 
@@ -94,13 +93,13 @@ class Controller_View_Resource extends Controller_Abstract
 					$vars
 				);
 			}
-			
+
 			$dst_file = strtr ($target->file, $vars);
 			$packer->pushConfig ($packer_config);
-            
+
 			$packer->pack ($res, $dst_file, $packer_config);
 			$packer->popConfig ();
-			
+
 			$reses [$name] = array (
 				'type'	=> $target->type,
 				'url'	=> strtr ($target->url, $vars),
@@ -110,5 +109,5 @@ class Controller_View_Resource extends Controller_Abstract
 
 		$this->_output->send ('reses', $reses);
 	}
-	
+
 }

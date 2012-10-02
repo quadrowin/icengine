@@ -30,16 +30,6 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 	}
 
 	/**
-	 * @desc Создает и возвращает контроллер
-	 */
-	public function __construct ()
-	{
-		Loader::load ('Helper_Header');
-		Loader::load ('Helper_Link');
-		Loader::load ('Acl_Resource');
-	}
-
-	/**
 	 * @desc Фабрик метод для получения реферера при удалении
 	 * @param Model $category
 	 * @param string $referer
@@ -134,7 +124,6 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 	 */
 	protected function __saveClass ($params)
 	{
-		Loader::load ('Helper_Translit');
 		$title = $params ['title'];
 		return Helper_Translit::makeUrlLink ($title, 'en');
 	}
@@ -164,7 +153,6 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 	protected function __saveUrl ($params, $category_id)
 	{
 		$parent = $params ['parent'];
-		Loader::load ('Helper_String');
 		$url =
 			Helper_String::end ($parent->url, '.html') ?
 				substr ($parent->url, 0, -5) :
@@ -412,9 +400,6 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 		}
 		else
 		{
-			Loader::load ('Content_Category');
-			Loader::load ('Acl_Role_Type_Personal');
-
 			$resource_addContent = Acl_Resource::byNameCheck (
 				$this->__categoryModel (),
 				$parent->key (),

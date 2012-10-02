@@ -116,9 +116,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function __construct ()
 	{
-		Loader::load ('Model_Option_Collection');
 		$this->_options = new Model_Option_Collection ($this);
-		Loader::load ($this->modelName ());
 	}
 
 	/**
@@ -205,8 +203,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function addFilters (Data_Transport $data, $filter)
 	{
-		Loader::load ('Model_Collection_Filter_Manager');
-
 		$arg_count = func_num_args ();
 		for ($i = 1; $i < $arg_count; ++$i)
 		{
@@ -793,7 +789,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function isJoinedSome (Model $model)
 	{
-		Loader::load ('Helper_Link');
 		foreach ($this as $item)
 		{
 			if (Helper_Link::wereLinked ($item, $model))
@@ -812,7 +807,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function isJoinedAll (Model $model)
 	{
-		Loader::load ('Helper_Link');
 		foreach ($this as $item)
 		{
 			if (!Helper_Link::wereLinked ($item, $model))
@@ -831,7 +825,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function join (Model $model)
 	{
-		Loader::load ('Helper_Link');
 		foreach ($this as $item)
 		{
 			Helper_Link::link ($item, $model);
@@ -1228,7 +1221,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	public function sort ($fields)
 	{
 		$items = &$this->items ();
-		Loader::load ('Helper_Array');
 		Helper_Array::mosort (
 			$items,
 			implode (',', func_get_args ())

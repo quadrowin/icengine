@@ -143,7 +143,6 @@ class Content_Abstract extends Model_Factory_Delegate
 
 		if (!$extending && $this->extending && $this->id)
 		{
-			Loader::load ('Content');
 			// Расширение не создано
 			$extending = new $this->extending (array (
 				Model_Scheme::keyField ($this->extending)	=> $this->id

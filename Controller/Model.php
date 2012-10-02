@@ -61,8 +61,6 @@ class Controller_Model extends Controller_Abstract
 
 		if (!is_file ($filename))
 		{
-			Loader::load ('Helper_Code_Generator');
-
 			$properties = array ();
 			if ($config->fields)
 			{
@@ -119,8 +117,6 @@ class Controller_Model extends Controller_Abstract
 
 			if (!is_file ($filename))
 			{
-				Loader::load ('Helper_Code_Generator');
-
 				$output = Helper_Code_Generator::fromTemplate (
 					'model',
 					array (
@@ -183,7 +179,6 @@ class Controller_Model extends Controller_Abstract
 	public function createOption ($model_name, $name, $author)
 	{
 		$this->_task->setTemplate (null);
-		Loader::load ('Helper_Code_Generator');
 		$dir = IcEngine::root () . 'Ice/Model/' .
 			str_replace ('_', '/', $model_name) .
 			'/Option/';
@@ -221,8 +216,6 @@ class Controller_Model extends Controller_Abstract
 
 	public function createTable ($name, $id)
 	{
-		Loader::load ('Model_Mapper');
-		Loader::load ('Model_Proxy');
 		$model = new Model_Proxy (
 			$name,
 			array (
@@ -230,7 +223,6 @@ class Controller_Model extends Controller_Abstract
 			)
 		);
 		$scheme = Model_Mapper::scheme ($model);
-		Loader::load ('Model_Mapper_Scheme_Render_View');
 		$view = Model_Mapper_Scheme_Render_View::byName ('Mysql');
 		$query = $view->render ($scheme);
 		DDS::execute ($query);
@@ -241,8 +233,6 @@ class Controller_Model extends Controller_Abstract
 	public function fromTable ($name, $author, $comment, $missing = 0)
 	{
 		$this->_task->setTemplate (null);
-
-		Loader::load ('Helper_Data_Source');
 
 		if (!$missing)
 		{
@@ -410,7 +400,6 @@ class Controller_Model extends Controller_Abstract
 				$comment = $info ['Comment'];
 			}
 
-			Loader::load ('Helper_Code_Generator');
 			$output = Helper_Code_Generator::fromTemplate (
 				'scheme',
 				array (
@@ -428,7 +417,6 @@ class Controller_Model extends Controller_Abstract
 
 	public function missing ()
 	{
-		Loader::load ('Helper_Data_Source');
 		$tables = Helper_Data_Source::tables ();
 		$exists_models = array ();
 		foreach ($tables as $table)
@@ -539,7 +527,6 @@ class Controller_Model extends Controller_Abstract
 			)
 		);
 
-		Loader::load ('Helper_Code_Generator');
 			$output = Helper_Code_Generator::fromTemplate (
 				'scheme',
 				array (

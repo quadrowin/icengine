@@ -1,7 +1,5 @@
 <?php
 
-Loader::load ('Model_Child');
-
 /**
  *
  * @desc Базовая модель категории контента

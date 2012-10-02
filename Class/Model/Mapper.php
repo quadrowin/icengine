@@ -23,8 +23,6 @@ class Model_Mapper
 	 */
 	public static function __callStatic ($method, $params)
 	{
-		Loader::load ('Model_Mapper_Method');
-
 		$method = Model_Mapper_Method::normalizaName ($method);
 		$method = Model_Mapper_Method::byName ($method);
 		$method->setParams ($params);
@@ -64,10 +62,8 @@ class Model_Mapper
 			{
 				$scheme_name = $config->scheme;
 			}
-			Loader::load ('Model_Mapper_Scheme');
 			$scheme = Model_Mapper_Scheme::byName ($scheme_name);
 			$scheme->setModel ($model);
-			Loader::load ('Model_Mapper_Scheme_Part');
 			foreach ($config as $name => $values)
 			{
 				if ($values)

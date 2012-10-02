@@ -42,8 +42,6 @@ class User_Abstract extends Model
 				'::',
 				$config ['login_callback']
 			);
-
-			Loader::load ($class);
 			call_user_func (
 				array ($class, $method),
 				$this
@@ -203,7 +201,6 @@ class User_Abstract extends Model
 	 */
 	public function hasRoleWithType ($type_id)
 	{
-		Loader::load ('Helper_Link');
 		$collection = Helper_Link::linkedItems (
 			$this,
 			'Acl_Role'
@@ -246,7 +243,6 @@ class User_Abstract extends Model
 				$config ['logout_callback']
 			);
 
-			Loader::load ($class);
 			call_user_func (
 				array ($class, $method),
 				$this
@@ -260,8 +256,6 @@ class User_Abstract extends Model
 	 */
 	public function personalRole ()
 	{
-		Loader::load ('Acl_Role_Type_Personal');
-
 		$role_name = 'User' . $this->id . 'Personal';
 
 		$role = Acl_Role::byTypeNName (
@@ -291,7 +285,6 @@ class User_Abstract extends Model
 	 */
 	public function role ($role_type_id, $autocreate = false)
 	{
-		Loader::load ('Helper_Link');
 		$role = Helper_Link::linkedItems (
 			$this,
 			'Acl_Role'

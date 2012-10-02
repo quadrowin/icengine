@@ -6,8 +6,6 @@
  * @package IcEngine
  *
  */
-Loader::load ('View_Resource_Packer_Abstract');
-
 class View_Resource_Packer_Js extends View_Resource_Packer_Abstract
 {
 	/**

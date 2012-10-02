@@ -1,31 +1,30 @@
 <?php
 /**
- * 
- * @desc Опция, подключающая старые опции - потомки 
+ *
+ * @desc Опция, подключающая старые опции - потомки
  * от Model_Collection_Option_Abstract.
  * @author Юрий Шведов
- * 
+ *
  */
 class Model_Option_Old extends Model_Option
 {
-	
+
 	/**
 	 * @desc Опция, которая будет применяться к коллекции.
 	 * @var Model_Collection_Option_Abstract
 	 */
 	public $option;
-	
+
 	/**
 	 *
 	 * @param Model_Collection $collection
-	 * @param array $params 
+	 * @param array $params
 	 */
 	public function __construct (Model_Collection $collection, array $params)
 	{
-		Loader::load ('Model_Collection_Option');
 		parent::__construct ($collection, $params);
 	}
-	
+
 	/**
 	 * @desc После выполнения запроса.
 	 */
@@ -37,7 +36,7 @@ class Model_Option_Old extends Model_Option
 			$this->params
 		);
 	}
-	
+
 	/**
 	 * @desc До выполнения запроса
 	 */
@@ -49,7 +48,7 @@ class Model_Option_Old extends Model_Option
 			$this->params
 		);
 	}
-	
+
 	/**
 	 * @desc Возвращает объект старой опции.
 	 * @return Model_Collection_Option_Abstract
@@ -66,7 +65,6 @@ class Model_Option_Old extends Model_Option
 			else
 			{
 				// Должно быть передано имя
-				Loader::load ('Model_Collection_Option_Manager');
 				$this->option = Model_Collection_Option_Manager::get (
 					$this->params ['name'],
 					$this->collection
@@ -75,5 +73,5 @@ class Model_Option_Old extends Model_Option
 		}
 		return $this->option;
 	}
-	
+
 }

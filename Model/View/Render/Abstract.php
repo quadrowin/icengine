@@ -74,7 +74,6 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 		}
 		elseif (empty ($key))
 		{
-			Loader::load ('View_Render_Exception');
 			throw new View_Render_Exception ('Empty key field.');
 		}
 		else

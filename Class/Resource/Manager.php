@@ -54,8 +54,6 @@ class Resource_Manager
 	 */
 	protected static function _initTransport (Objective $conf)
 	{
-		Loader::load ('Data_Transport');
-
 		$transport = new Data_Transport ();
 
 		$providers = $conf->providers;
@@ -67,15 +65,12 @@ class Resource_Manager
 				$providers = array ($providers);
 			}
 
-			Loader::load ('Data_Provider_Manager');
 			foreach ($providers as $name)
 			{
 				$transport->appendProvider (
 					Data_Provider_Manager::get ($name)
 				);
 			}
-
-			Loader::load ('Filter_Manager');
 
 			// Входные фильтры
 			if ($conf->inputFilters)
