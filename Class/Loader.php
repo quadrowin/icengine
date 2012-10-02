@@ -127,6 +127,9 @@ class Loader
 			{
 				self::$_required [$type][$file] = true;
 				require_once $fn;
+				if (class_exists('Tracer') && Tracer::$enabled) {
+					Tracer::incLoadedClassCount();
+				}
 				return true;
 			}
 		}

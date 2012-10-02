@@ -24,6 +24,10 @@ class Controller_Front extends Controller_Abstract
 
 		try
 		{
+			if (Tracer::$enabled) {
+				$startTime = microtime(true);
+			}
+
 			/**
 			 * @desc Начинаем цикл диспетчеризации и получаем список
 			 * выполняемых руот экшинов.
@@ -42,6 +46,11 @@ class Controller_Front extends Controller_Abstract
 				$actions,
 				$this->getInput ()
 			);
+
+			if (Tracer::$enabled) {
+				$endTime = microtime(true);
+				Tracer::setDispatcherTime($endTime - $startTime);
+			}
 
 			/**
 			 * @desc Выполненяем задания.
