@@ -144,7 +144,7 @@ class IcEngine
 		require $path;
 
 		$name = basename ($path, '.php');
-		require_once __DIR__ . '/Class/Bootstrap/Manager.php';
+		require_once __DIR__ . '/Model/Bootstrap/Manager.php';
 		self::$_bootstrap = Bootstrap_Manager::get ($name, $path);
 	}
 
