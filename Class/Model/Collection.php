@@ -189,7 +189,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		else
 		{
 			//var_dump ($item);
-			Loader::load ('Model_Exception');
 			throw new Model_Exception ('Model add error');
 		}
 		return $this;
