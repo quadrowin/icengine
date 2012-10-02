@@ -210,6 +210,13 @@ class Tracer
 	protected static $cachedSelectQueryCount = 0;
 
 	/**
+	 * Общее время работы приложения
+	 *
+	 * @var decimal
+	 */
+	protected static $totalTime;
+
+	/**
 	 * @desc Состояние трейсера.
 	 * @var boolean
 	 */
@@ -250,6 +257,26 @@ class Tracer
 	public static function getSessions()
 	{
 		return self::$sessions;
+	}
+
+	/**
+	 * Изменить общее время работы приложения
+	 *
+	 * @param decimal $time
+	 */
+	public static function setTotalTime($time)
+	{
+		self::$totalTime = $time;
+	}
+
+	/**
+	 * Получить общее время работы приложения
+	 *
+	 * @return decimal
+	 */
+	public static function getTotalTime()
+	{
+		return self::$totalTime;
 	}
 
 	/**
