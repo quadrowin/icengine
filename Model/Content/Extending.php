@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * @desc Базовая модель для расширений контента.
@@ -7,9 +8,6 @@
  * @package IcEngine
  *
  */
-
-Loader::load ('Content_Abstract');
-
 class Content_Extending extends Content_Abstract
 {
 

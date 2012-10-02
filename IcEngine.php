@@ -141,16 +141,6 @@ class IcEngine
 	 */
 	public static function initBootstrap ($path)
 	{
-		//для мобильной версии, конфиг не грузим
-        if(substr($path, -10, 10) != 'Mobile.php'){
-            Loader::load('Config_Manager');
-        }
-
-		Loader::multiLoad (
-			'Bootstrap_Abstract',
-			'Bootstrap_Manager'
-		);
-
 		require $path;
 
 		$name = basename ($path, '.php');
@@ -214,7 +204,6 @@ class IcEngine
 	{
 		if (!isset (self::$_managers [$name]))
 		{
-			Loader::load ($name . '_Manager');
 			self::$_managers [$name] = new $name . '_Manager';
 		}
 		return self::$_managers [$name];
@@ -254,13 +243,6 @@ class IcEngine
 	public static function run ()
 	{
 		self::$_bootstrap->run ();
-
-		Loader::multiLoad (
-			'Data_Transport_Manager',
-			'Controller_Task',
-			'Controller_Action'
-		);
-
 		self::$_task = new Controller_Task (
 			new Controller_Action (array (
 				'id'			=> null,

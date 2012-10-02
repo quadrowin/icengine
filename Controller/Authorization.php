@@ -35,7 +35,6 @@ class Controller_Authorization extends Controller_Abstract
 	protected function _redirect ()
 	{
 		$redirect = $this->_input->receive ('redirect');
-		Loader::load ('Helper_Uri');
 		return Helper_Uri::validRedirect (
 			$redirect ?
 				$redirect :
@@ -129,7 +128,6 @@ class Controller_Authorization extends Controller_Abstract
 
 		if ($this->config ()->sms_auth_enable)
 		{
-			Loader::load ('Helper_Phone');
 			$phone = Helper_Phone::parseMobile ($login);
 			if ($phone)
 			{
@@ -138,7 +136,6 @@ class Controller_Authorization extends Controller_Abstract
 		}
 
 		$password = $this->_input->receive ('password');
-		Loader::load ('Authorization');
 
 		$user = Model_Manager::byQuery (
 			'User',
@@ -207,7 +204,6 @@ class Controller_Authorization extends Controller_Abstract
 			$redirect = Request::referer ();
 		}
 
-		Loader::load ('Helper_Uri');
 		$redirect = Helper_Uri::validRedirect (
 			$redirect ? $redirect : self::DEFAULT_REDIRECT
 		);

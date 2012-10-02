@@ -16,7 +16,6 @@ class Model_Mapper_Scheme_Accessor
 		$class_name = 'Model_Mapper_Scheme_Accessor_' . $name;
 		if (!Loader::load ($class_name))
 		{
-			echo 1;
 			throw new Model_Mapper_Scheme_Accessor_Exception ('Index had not found');
 		}
 		return new $class_name;

@@ -77,7 +77,6 @@ class Controller_Abstract
 	 */
 	public function _inputTempContent ()
 	{
-		Loader::load ('Temp_Content');
 		$tc = Temp_Content::byUtcode ($this->_input->receive ('utcode'));
 
 		if (!$tc)
@@ -102,12 +101,9 @@ class Controller_Abstract
 	 */
 	public function _inputFormData ($scheme, $use_tc = null, $by_parts = true)
 	{
-		Loader::load ('Helper_Form');
-
 		// временный контент
 		if ($use_tc)
 		{
-			Loader::load ('Temp_Content');
 			if (!($use_tc instanceof Temp_Content))
 			{
 				$use_tc = Temp_Content::byUtcode (
@@ -173,7 +169,6 @@ class Controller_Abstract
 	public function _savePostModel (Temp_Content $tc, $scheme,
 		$model_class = null)
 	{
-		Loader::load ('Helper_Form');
 		$data = Helper_Form::receiveFields ($this->_input, $scheme);
 
 		Helper_Form::filter ($data, $scheme);

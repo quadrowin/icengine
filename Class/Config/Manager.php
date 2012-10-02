@@ -45,7 +45,6 @@ class Config_Manager
 			{
 				$ext = ucfirst (strtolower (substr (strrchr ($filename, '.'), 1)));
 				$class = 'Config_' . $ext;
-				Loader::load ($class);
 
 				if (is_null ($result))
 				{
@@ -83,7 +82,6 @@ class Config_Manager
 	 */
 	public static function emptyConfig ()
 	{
-		Loader::load ('Config_Array');
 		return new Config_Array (array ());
 	}
 
@@ -103,8 +101,6 @@ class Config_Manager
 		{
 			return self::_load ($type, $config);
 		}
-
-		Loader::load ('Resource_Manager');
 
 		self::$_inLoading = true;
 		$cfg = Resource_Manager::get ('Config', $rname);

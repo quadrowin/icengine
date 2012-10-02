@@ -13,9 +13,6 @@ class Controller_Front extends Controller_Abstract
 	 */
 	public function index ()
 	{
-		Loader::load ('Router');
-		Loader::load ('Controller_Dispatcher');
-
 		/**
 		 * @desc Начинаем роутинг.
 		 * @var route
@@ -62,7 +59,6 @@ class Controller_Front extends Controller_Abstract
 		}
 		catch (Zend_Exception $e)
 		{
-			Loader::load ('Error');
 			Error::render ($e);
 		}
 	}

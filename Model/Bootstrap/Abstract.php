@@ -47,41 +47,7 @@ abstract class Bootstrap_Abstract
 	protected function _run ()
 	{
 		$this->addLoaderPathes ();
-
-		Loader::multiLoad (
-			'Manager_Abstract',
-			'Config_Manager',
-			'Zend_Exception'
-		);
-
 		$this->initFirePhp ();
-
-		Loader::multiLoad (
-			'Registry',
-			'Request',
-			'Executor',
-			'Helper_Action',
-			'Helper_Date',
-			'Helper_Link',
-			'Model',
-			'Model_Child',
-			'Model_Content',
-			'Model_Component',
-			'Model_Collection',
-			'Model_Factory',
-			'Model_Factory_Delegate',
-			'Model_Option',
-			'Component',
-			'Controller_Abstract',
-			'Controller_Front',
-			'Controller_Manager',
-			'Page_Title',
-			'View_Render',
-			'View_Render_Manager',
-			'View_Helper_Abstract',
-			'Data_Transport_Manager'
-		);
-
 		$this->initMessageQueue ();
 
 		$this->initDds ();
@@ -165,8 +131,6 @@ abstract class Bootstrap_Abstract
 	 */
 	public function initMessageQueue ()
 	{
-		Loader::load ('Message_Queue');
-
 		Message_Queue::flush ();
 	}
 

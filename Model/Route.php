@@ -14,7 +14,6 @@ class Route extends Model_Child
 	 */
 	public function actions()
 	{
-		Loader::load('Route_Action');
 		$i = 0;
 		$actionCollection = Model_Collection_Manager::create (
 			'Route_Action'

@@ -36,7 +36,6 @@ class Controller_Migration extends Controller_Abstract
 			$base = $args ['base'];
 			unset ($args ['base']);
 		}
-		Loader::load ('Helper_Migration');
 		$migration = Helper_Migration::byName ($name);
 		if (!$migration)
 		{
@@ -83,7 +82,6 @@ class Controller_Migration extends Controller_Abstract
 				$seq = $buffer ['seq'];
 			}
 		}
-		Loader::load ('Helper_Code_Generator');
 		$output = Helper_Code_Generator::fromTemplate (
 			'migration',
 			array (
@@ -110,8 +108,6 @@ class Controller_Migration extends Controller_Abstract
 			echo 'Access denied' . PHP_EOL;
 			return;
 		}
-
-		Loader::load ('Helper_Migration');
 		$last_data = Helper_Migration::getLastData ();
 		print_r ($last_data);
 	}
@@ -140,7 +136,6 @@ class Controller_Migration extends Controller_Abstract
 			$base = $args ['base'];
 			unset ($args ['base']);
 		}
-		Loader::load ('Helper_Migration');
 		Helper_Migration::migration ($to, 0, $args, $base);
 	}
 
@@ -150,7 +145,6 @@ class Controller_Migration extends Controller_Abstract
 	 */
 	public function queue ($base = 'default')
 	{
-		Loader::load ('Helper_Migration');
 		print_r (Helper_Migration::getQueue ($base));
 	}
 
@@ -160,7 +154,6 @@ class Controller_Migration extends Controller_Abstract
 	 */
 	public function roll ($base = 'default')
 	{
-		Loader::load ('Helper_Migration');
 		$queue = Helper_Migration::getQueue ($base);
 		print_r ($queue);
 	}
@@ -171,7 +164,6 @@ class Controller_Migration extends Controller_Abstract
 	 */
 	public function restore ($name)
 	{
-		Loader::load ('Helper_Migration');
 		Helper_Migration::restore ($name);
 	}
 
@@ -235,7 +227,6 @@ class Controller_Migration extends Controller_Abstract
 			$base = $args ['base'];
 			unset ($args ['base']);
 		}
-		Loader::load ('Helper_Migration');
 		Helper_Migration::migration ($to, 1, $args, $base);
 	}
 }

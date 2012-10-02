@@ -101,7 +101,6 @@ class Controller_Manager extends Manager_Abstract
 		if (isset ($cfg ['cache_config']))
 		{
 			list ($class_name, $method) = explode ('::', $cfg ['cache_config']);
-			Loader::load ($class_name);
 			return call_user_func_array (
 				array ($class_name, $method),
 				array ($cfg)
@@ -168,12 +167,6 @@ class Controller_Manager extends Manager_Abstract
 	public static function callUncached ($name, $method, $input, $task = null,
 		$notLog = false)
 	{
-		Loader::multiLoad (
-			'Controller_Action',
-			'Controller_Task',
-			'Route_Action'
-		);
-
 		if (Tracer::$enabled && !$notLog) {
 			Tracer::resetDeltaModelCount();
 			Tracer::resetDeltaQueryCount();
@@ -203,7 +196,6 @@ class Controller_Manager extends Manager_Abstract
 		}
 		elseif (is_array ($input))
 		{
-			Loader::load ('Data_Transport');
 			$tmp = new Data_Transport ();
 			$tmp->beginTransaction ()->send ($input);
 			$controller->setInput ($tmp);
@@ -292,8 +284,6 @@ class Controller_Manager extends Manager_Abstract
 	{
 		$tasks = array ();
 
-		Loader::load ('Controller_Task');
-
 		foreach ($actions as $action)
 		{
 			$task = new Controller_Task ($action);
@@ -332,7 +322,6 @@ class Controller_Manager extends Manager_Abstract
 
 			if (!Loader::requireOnce ($file, 'Controller'))
 			{
-				Loader::load ('Controller_Exception');
 				throw new Controller_Exception ("Controller $class_name not found.");
 			}
 
@@ -354,7 +343,6 @@ class Controller_Manager extends Manager_Abstract
 	{
 		if (!self::$_input)
 		{
-			Loader::load ('Data_Transport');
 			self::$_input  = new Data_Transport ();
 		}
 		return self::$_input;
@@ -368,15 +356,11 @@ class Controller_Manager extends Manager_Abstract
 	{
 		if (!self::$_output)
 		{
-			Loader::load ('Data_Transport');
-			Loader::load ('Data_Provider_Router');
-
 			self::$_output = new Data_Transport ();
 
 			foreach (self::config ()->output_filters as $filter)
 			{
 				$filter_class = 'Filter_' . $filter;
-				Loader::load ($filter_class);
 				$filter = new $filter_class ();
 				self::$_output->outputFilters ()->append ($filter);
 			}
@@ -572,7 +556,6 @@ class Controller_Manager extends Manager_Abstract
 		}
 		else
 		{
-			Loader::load ('Zend_Exception');
 			throw new Zend_Exception ('Illegal type.');
 		}
 	}

@@ -44,9 +44,6 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 	public static function create ($model)
 	{
 		$class_collection = $model . '_Collection';
-
-		Loader::multiLoad ($model, $class_collection);
-
 		return new $class_collection ();
 	}
 
@@ -151,8 +148,6 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 			$delegee =
 				'Model_Collection_Manager_Delegee_' .
 				$config ['delegee'][$parent];
-
-			Loader::load ($delegee);
 
 			$pack = call_user_func (
 				array ($delegee, 'load'),

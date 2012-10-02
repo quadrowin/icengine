@@ -276,7 +276,6 @@ class Executor
 			}
 			else
 			{
-				Loader::load ('Data_Provider_Buffer');
 				self::$_cacher = new Data_Provider_Buffer ();
 			}
 		}

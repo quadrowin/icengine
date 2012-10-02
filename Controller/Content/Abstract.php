@@ -6,19 +6,6 @@
  */
 class Controller_Content_Abstract extends Controller_Abstract
 {
-
-	/**
-	 * @desc Создает и возвращает контроллер.
-	 * Загружает используемые классы.
-	 */
-	public function __construct ()
-	{
-		Loader::load ('Helper_Header');
-		Loader::load ('Content');
-		Loader::load ('Temp_Content');
-		Loader::load ('Content_Collection');
-	}
-
 	/**
 	 * @desc После успешного начала создания.
 	 * @override
@@ -153,8 +140,6 @@ class Controller_Content_Abstract extends Controller_Abstract
 
 		if ($user->id ())
 		{
-			Loader::load ('Acl_Resource');
-
 			$resource_addContent = Acl_Resource::byNameCheck (
 				$this->__categoryModel (),
 				$content_category->key (),
@@ -224,7 +209,6 @@ class Controller_Content_Abstract extends Controller_Abstract
 	 */
 	protected function __saveUrl ($url, $referer, $title)
 	{
-		Loader::load ('Helper_Translit');
 		$delim = '/';
 		if (strpos ($url, '.html') !== false)
 		{
@@ -272,9 +256,9 @@ class Controller_Content_Abstract extends Controller_Abstract
 			$category,
 			$this->__contentModel ()
 		);
-        
+
         $user = User::getCurrent();
-        
+
         if(!($user && $user->hasRole('editor'))){
             $content_collection->where('active', 1);
         }
@@ -398,8 +382,6 @@ class Controller_Content_Abstract extends Controller_Abstract
 		{
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
-
-		Loader::load ('Acl_Resource');
 
 		$resource_addContent = Acl_Resource::byNameCheck (
 			$this->__categoryModel (),
@@ -557,8 +539,6 @@ class Controller_Content_Abstract extends Controller_Abstract
 			// Если это контент с расширением, создаем расширение
 			// $content->extending ();
 
-			Loader::load ('Helper_Link');
-
 			if (!$content_category)
 			{
 				return $this->replaceAction ('Error', 'notFound');
@@ -623,8 +603,6 @@ class Controller_Content_Abstract extends Controller_Abstract
 		{
 			return $this->replaceAction ('Error', 'notFound');
 		}
-
-		Loader::load ('Helper_Link');
 
 		$category_collection = Helper_Link::linkedItems (
 			$content,
@@ -692,11 +670,9 @@ class Controller_Content_Abstract extends Controller_Abstract
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
 
-		Loader::load ('Temp_Content');
 	    $utcode = $this->_input->receive('utcode');
 	    $tc = Temp_Content::byUtcode ($utcode);
 
-	    Loader::load ('Helper_Image');
 	    $image = Helper_Image::uploadSimple (
 		    $tc->modelName(),
 		    $tc->key (),
@@ -741,7 +717,6 @@ class Controller_Content_Abstract extends Controller_Abstract
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
 
-		Loader::load ('Page_Error');
 		$error = new Page_Error (array (
 			'pe_url'			=> $content->base ()->url,
 			'pe_http_code'		=> '410 Gone',
@@ -768,7 +743,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 				'/not_found'
 			);
 		}
-    
+
 		$content = Model_Manager::byKey (
 			$image->table,
 			$image->rowId
@@ -807,7 +782,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 				!$resource_addContent->userCan (User::getCurrent())
 			)
 		)
-		{       
+		{
 			return $this->_sendError (
 				'not_found',
 				__METHOD__,
