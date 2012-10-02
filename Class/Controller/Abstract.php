@@ -69,29 +69,6 @@ class Controller_Abstract
         return (bool) count ($this->_errors);
     }
 
-	/**
-	 * @desc Метод выполняется после вызова метода $action из диспетчера
-	 * @param string $action Вызываемый метод.
-	 */
-	public function _afterAction ($action)
-	{
-		Message_Queue::push (
-			'after::' . get_class ($this) . '::' . $action
-		);
-	}
-
-	/**
-	 * @desc Метод выполняется перед вызовом метода $action из диспетчера
-	 * @param string $action Вызываемый метод.
-	 */
-	public function _beforeAction ($action)
-	{
-		$this->_currentAction = get_class ($this) . '::' . $action;
-		Message_Queue::push (
-			'before::' . $this->_currentAction
-		);
-	}
-
 	public function _helperReturn () {}
 
 	/**
