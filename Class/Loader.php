@@ -181,7 +181,7 @@ class Loader
 	 */
 	public static function tryLoad ($class, $type = 'Class')
 	{
-		if (class_exists ($class))
+		if (class_exists ($class, false))
 		{
 			return true;
 		}
@@ -211,7 +211,7 @@ class Loader
 	 */
 	public static function load ($class, $type = 'Class')
 	{
-		if (class_exists ($class))
+		if (class_exists ($class, false))
 		{
 			return true;
 		}
@@ -230,7 +230,7 @@ class Loader
 	{
 		foreach (func_get_args () as $class)
 		{
-			if (!class_exists ($class))
+			if (!class_exists ($class, false))
 			{
 				self::requireOnce (
 					str_replace ('_', '/', $class) . '.php',
