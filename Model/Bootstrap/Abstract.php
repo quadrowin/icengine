@@ -130,7 +130,6 @@ abstract class Bootstrap_Abstract
 	 */
 	public function initAttributeManager ()
 	{
-		Loader::load ('Attribute_Manager');
 		Attribute_Manager::init ();
 	}
 
@@ -139,10 +138,7 @@ abstract class Bootstrap_Abstract
 	 */
 	public function initAcl ()
 	{
-		Loader::multiLoad (
-			'Acl_Resource',
-			'Acl_Role'
-		);
+
 	}
 
 	/**
@@ -150,21 +146,6 @@ abstract class Bootstrap_Abstract
 	 */
 	public function initDds ($source_name = 'default')
 	{
-		Loader::multiLoad (
-			'Data_Provider_Abstract',
-			'Data_Provider_Manager',
-
-			'Query',
-			'Query_Options',
-			'Query_Result',
-			'Query_Translator',
-
-			'DDS',
-			'Data_Mapper_Abstract',
-			'Data_Source_Abstract',
-			'Data_Source_Manager'
-		);
-
 		DDS::setDataSource (Data_Source_Manager::get ($source_name));
 	}
 
@@ -194,10 +175,7 @@ abstract class Bootstrap_Abstract
 	 */
 	public function initModelManager ()
 	{
-		Loader::multiLoad (
-			'Model_Manager',
-			'Model_Collection_Manager'
-		);
+
 	}
 
 	/**
@@ -206,8 +184,6 @@ abstract class Bootstrap_Abstract
 	 */
 	public function initModelScheme ($config)
 	{
-		Loader::load ('Model_Scheme');
-
 		Model_Scheme::init (
 			Config_Manager::get ('Model_Scheme', $config)
 		);
@@ -218,13 +194,6 @@ abstract class Bootstrap_Abstract
 	 */
 	public function initUser ()
 	{
-		Loader::multiLoad (
-			'User_Abstract',
-			'User',
-			'User_Guest',
-			'User_Session'
-		);
-
 		User_Guest::init ();
 		User::init ();
 	}
