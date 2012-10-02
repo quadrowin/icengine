@@ -219,7 +219,7 @@ class Controller_Manager extends Manager_Abstract
 
 		$controller->getOutput ()->beginTransaction ();
 
-		$controller->_beforeAction ($method);
+		//$controller->_beforeAction ($method);
 
 		// _beforeAction не генерировал ошибки, можно продолжать
         if (!$controller->hasErrors ())
@@ -260,7 +260,7 @@ class Controller_Manager extends Manager_Abstract
 				$params ? $params : array ()
 			);
 
-			$controller->_afterAction ($method);
+			//$controller->_afterAction ($method);
 		}
 
 		$task->setTransaction ($controller->getOutput ()->endTransaction ());
