@@ -312,7 +312,7 @@ class Tracer
 	 */
 	public static function setBootstapInitDbTime($time)
 	{
-		self::$boostrapInitDbTime = $time;
+		self::$bootstrapInitDbTime = $time;
 	}
 
 	/**
@@ -1019,7 +1019,7 @@ class Tracer
 	 */
 	public static function setBootstrapTime($time)
 	{
-		self::$boosttraperTime = $time;
+		self::$bootstraperTime = $time;
 	}
 
 	/**
