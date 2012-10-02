@@ -81,7 +81,7 @@ class Tracer
 	 *
 	 * @var decimal
 	 */
-	protected static $boostraperTime;
+	protected static $bootstraperTime;
 
 	/**
 	 * Время диспетчеризации
@@ -702,7 +702,7 @@ class Tracer
 	 */
 	public static function getBootstrapTime()
 	{
-		return self::$boostraperTime;
+		return self::$bootstraperTime;
 	}
 
 	/**
@@ -1019,7 +1019,7 @@ class Tracer
 	 */
 	public static function setBootstrapTime($time)
 	{
-		self::$boostraperTime = $time;
+		self::$boosttraperTime = $time;
 	}
 
 	/**
