@@ -32,11 +32,28 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	 */
 	protected function _executeChange (Query_Abstract $query, Query_Options $options)
 	{
+		if (Tracer::$enabled) {
+			$startTime = microtime(true);
+		}
+
 		if (!mysql_query ($this->_sql, $this->_linkIdentifier))
 		{
 			$this->_errno = mysql_errno ($this->_linkIdentifier);
 			$this->_error = mysql_error ($this->_linkIdentifier);
 			return false;
+		}
+
+		if (Tracer::$enabled) {
+			$endTime = microtime(true);
+			$delta = $endTime - $startTime;
+			if ($query instanceof Query_Delete) {
+				Tracer::incDeleteQueryCount();
+				Tracer::incDeleteQueryTime($delta);
+			} else {
+				Tracer::incUpdateQueryCount();
+				Tracer::incUpdateQueryTime($delta);
+			}
+			Tracer::incDeltaQueryCount();
 		}
 
 		$this->_affectedRows = mysql_affected_rows ($this->_linkIdentifier);
@@ -62,11 +79,23 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	 */
 	protected function _executeInsert (Query_Abstract $query, Query_Options $options)
 	{
+		if (Tracer::$enabled) {
+			$startTime = microtime(true);
+		}
+
 		if (!mysql_query ($this->_sql, $this->_linkIdentifier))
 		{
 			$this->_errno = mysql_errno ($this->_linkIdentifier);
 			$this->_error = mysql_error ($this->_linkIdentifier);
 			return false;
+		}
+
+		if (Tracer::$enabled) {
+			$endTime = microtime(true);
+			$delta = $endTime - $startTime;
+			Tracer::incUpdateQueryCount();
+			Tracer::incUpdateQueryTime($delta);
+			Tracer::incDeltaQueryCount();
 		}
 
 		$this->_affectedRows = mysql_affected_rows ($this->_linkIdentifier);
@@ -93,6 +122,10 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	 */
 	protected function _executeSelect (Query_Abstract $query, Query_Options $options)
 	{
+		if (Tracer::$enabled) {
+			Tracer::incSelectQueryCount();
+		}
+
 		$key = $this->_sqlHash ();
 
 		$expiration = $options->getExpiration ();
@@ -121,24 +154,32 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 		{
 			$this->_numRows = count ($cache ['v']);
 			$this->_foundRows = $cache ['f'];
+			if (Tracer::$enabled) {
+				Tracer::incCachedSelectQueryCount();
+			}
 			return $cache ['v'];
 		}
 
-		if (class_exists ('Tracer'))
-		{
-			Tracer::begin (
-				__CLASS__,
-				__METHOD__,
-				__LINE__
-			);
+		if (Tracer::$enabled) {
+			$startTime = microtime(true);
+			Tracer::begin(__CLASS__, __METHOD__, __LINE__);
 		}
 
 		$result = mysql_query ($this->_sql, $this->_linkIdentifier);
 
-		if (class_exists ('Tracer'))
-		{
-			Tracer::end ($this->_sql);
+		if (Tracer::$enabled) {
+			$endTime = microtime(true);
+			$delta = $endTime - $startTime;
+			if ($delta >= Tracer::LOW_QUERY_TIME) {
+				Tracer::addLowQuery($this->_sql, $delta);
+			} else {
+				Tracer::incSelectQueryTime($delta);
+			}
+			Tracer::end($this->_sql, count(mysql_num_rows($result)),
+				memory_get_usage());
+			Tracer::incDeltaQueryCount();
 		}
+
 
 		if (!is_resource ($result))
 		{

@@ -169,6 +169,15 @@ class Resource_Manager
 	public static function set ($type, $name, $resource)
 	{
 		self::$_updatedResources [$type][$name] = true;
+
+		if (Tracer::$enabled) {
+			if ($type == 'Model') {
+				if (!isset(self::$_resources[$type][$name])) {
+					Tracer::incDeltaModelCount();
+					Tracer::incTotalModelCount();
+				}
+			}
+		}
 		self::$_resources [$type][$name] = $resource;
 	}
 
