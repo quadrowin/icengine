@@ -14,6 +14,62 @@ class Tracer
 	const LOW_QUERY_TIME = 0.01;
 
 	/**
+	 * Время на инициализацию БД
+	 *
+	 * @var decimal
+	 */
+	protected static $bootstrapInitDbTime;
+
+	/**
+	 * Время инициализация менеджера атрибутов
+	 *
+	 * @var decimal
+	 */
+	protected static $bootstrapInitAttributeManagerTime;
+
+	/**
+	 * Время инициализации схемы моделей
+	 *
+	 * @var decimal
+	 */
+	protected static $bootstrapInitModelSchemeTime;
+
+	/**
+	 * Время инициализации менеджера моделей
+	 *
+	 * @var decimal
+	 */
+	protected static $bootstrapInitModelManagerTime;
+
+	/**
+	 * Время инициализация АКЛ
+	 *
+	 * @var decimal
+	 */
+	protected static $bootstrapInitAclTime;
+
+	/**
+	 * Время инициализации пользователя
+	 *
+	 * @var decimal
+	 */
+	protected static $bootstrapInitUserTime;
+
+	/**
+	 * Время роутинга
+	 *
+	 * @var decimal
+	 */
+	protected static $routingTime;
+
+	/**
+	 * Время инициализации сессии пользователя
+	 *
+	 * @var decimal
+	 */
+	protected static $bootstrapInitUserSessionTime;
+
+	/**
 	 * Количество загруженных классов
 	 *
 	 * @var integer
@@ -248,6 +304,166 @@ class Tracer
 	 * @var array
 	 */
 	public static $stack = array();
+
+	/**
+	 * Изменить время инициализации БД
+	 *
+	 * @param decimal $time
+	 */
+	public static function setBootstapInitDbTime($time)
+	{
+		self::$boostrapInitDbTime = $time;
+	}
+
+	/**
+	 * Получить время инициализации БД
+	 *
+	 * @return decimal
+	 */
+	public static function getBootstrapInitDbTime()
+	{
+		return self::$bootstrapInitDbTime;
+	}
+
+	/**
+	 * Изменить время инициализации менеджера атрибутов
+	 *
+	 * @param decimal $time
+	 */
+	public static function setBootstapInitAttributeManagerTime($time)
+	{
+		self::$bootstrapInitAttributeManagerTime = $time;
+	}
+
+	/**
+	 * Получить время инициализации менеджера атрибутов
+	 *
+	 * @return decimal
+	 */
+	public static function getBootstrapInitAttributeManagerTime()
+	{
+		return self::$bootstrapInitAttributeManagerTime;
+	}
+
+	/**
+	 * Изменить время инициализации схемы моделей
+	 *
+	 * @param decimal $time
+	 */
+	public static function setBootstapInitModelSchemeTime($time)
+	{
+		self::$bootstrapInitModelSchemeTime = $time;
+	}
+
+	/**
+	 * Получить время инициализации схемы моделей
+	 *
+	 * @return decimal
+	 */
+	public static function getBootstrapInitModelSchemeTime()
+	{
+		return self::$bootstrapInitModelSchemeTime;
+	}
+
+	/**
+	 * Изменить время инициализации менеджера моделей
+	 *
+	 * @param decimal $time
+	 */
+	public static function setBootstapInitModelManagerTime($time)
+	{
+		self::$bootstrapInitModelManagerTime = $time;
+	}
+
+	/**
+	 * Получить время инициализации менеджера моделей
+	 *
+	 * @return decimal
+	 */
+	public static function getBootstrapInitModelManagerTime()
+	{
+		return self::$bootstrapInitModelManagerTime;
+	}
+
+	/**
+	 * Изменить время инициализации ACL
+	 *
+	 * @param decimal $time
+	 */
+	public static function setBootstapInitAclTime($time)
+	{
+		self::$bootstrapInitAclTime = $time;
+	}
+
+	/**
+	 * Получить время инициализации ACL
+	 *
+	 * @return decimal
+	 */
+	public static function getBootstrapInitAclTime()
+	{
+		return self::$bootstrapInitAclTime;
+	}
+
+	/**
+	 * Изменить время инициализации пользователя
+	 *
+	 * @param decimal $time
+	 */
+	public static function setBootstapInitUserTime($time)
+	{
+		self::$bootstrapInitUserTime = $time;
+	}
+
+	/**
+	 * Получить время инициализации пользователя
+	 *
+	 * @return decimal
+	 */
+	public static function getBootstrapInitUserTime()
+	{
+		return self::$bootstrapInitUserTime;
+	}
+
+	/**
+	 * Изменить время инициализации сессии пользователя
+	 *
+	 * @param decimal $time
+	 */
+	public static function setBootstapInitUserSessionTime($time)
+	{
+		self::$bootstrapInitUserSessionTime = $time;
+	}
+
+	/**
+	 * Получить время инициализации сессии пользователя
+	 *
+	 * @return decimal
+	 */
+	public static function getBootstrapInitUserSessionTime()
+	{
+		return self::$bootstrapInitUserSessionTime;
+	}
+
+	/**
+	 * Изменить время роутинга
+	 *
+	 * @param decimal $time
+	 */
+	public static function setRoutingTime($time)
+	{
+		self::$routingTime = $time;
+	}
+
+	/**
+	 * Получить время роутинга
+	 *
+	 * @return decimal
+	 */
+	public static function getRoutingTime()
+	{
+		return self::$routingTime;
+	}
 
 	/**
 	 * Получить лог
