@@ -875,6 +875,9 @@ class Controller_Admin_Database extends Controller_Abstract
 					{
 						continue;
 					}
+                    
+                    $f = '`' . $f . '`';
+                    
 					if (is_numeric ($v))
 					{
 						$collection->where ($f, $v);
