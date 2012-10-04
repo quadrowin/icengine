@@ -134,12 +134,10 @@ class Loader
 			}
 		}
 
-		if (true)
-		{
+		$autoloaders = spl_autoload_functions();
+		if (!$autoloaders || (count($autoloaders) == 1 &&
+			$autoloaders[0][0] == 'Loader')) {
 			echo '<pre>Not found: ' . $file . "\n";
-//			echo 'Pathes: ';
-//			var_dump (self::$_pathes);
-//			var_dump (self::$_pathes [$type]);
 			echo "\n\n";
 			debug_print_backtrace ();
 			echo '</pre>';
