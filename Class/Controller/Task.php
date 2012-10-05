@@ -77,20 +77,18 @@ class Controller_Task
 		}
 
 		$this->_controllerAction = $action;
-		$routerConfig = Config_Manager::byPath('Router');
-		$modules = $routerConfig['modules']->__toArray();
-		array_unshift($modules, 'Ice');
+		$moduleCollection = Model_Collection_Manager::create(
+			'Module'
+		);
 		if ($action)
 		{
-			if ($modules) {
-				foreach ($modules as $module) {
-					$filename = $module . '/View/Controller/' .
-						str_replace ('_', '/', $action->controller) . '/' .
-						$action->action;
-					$this->_template = $filename;
-					if (file_exists ($filename . '.tpl')) {
-						break;
-					}
+			foreach ($moduleCollection->items() as $module) {
+				$filename = $module->name . '/View/Controller/' .
+					str_replace ('_', '/', $action->controller) . '/' .
+					$action->action;
+				$this->_template = $filename;
+				if (file_exists ($filename . '.tpl')) {
+					break;
 				}
 			}
 		}
