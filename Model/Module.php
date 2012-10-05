@@ -14,12 +14,18 @@ class Module extends Model_Defined
 		array(
 			'id'		=> 1,
 			'name'		=> 'Ice',
-			'isMain'	=> true
+			'isMain'	=> true,
+			'hasResource'	=> array(
+				'css', 'js'
+			)
 		),
 		array(
 			'id'		=> 2,
 			'name'		=> 'Admin',
-			'isMain'	=> false
+			'isMain'	=> false,
+			'hasResource'	=> array(
+				'css', 'js'
+			)
 		)
 	);
 }

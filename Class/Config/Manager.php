@@ -81,12 +81,18 @@ class Config_Manager
 	 */
 	public static function byPath($path)
 	{
+		$first = $path;
+		$path = str_replace('_', '/', $path);
 		$filename =
-				IcEngine::root () . (strstr($path, '__') ?
-					str_replace('__', '/Config/', $path) : self::$_pathToConfig[0] . $path) .
+				IcEngine::root() . (strstr($first, '__') ?
+					str_replace(
+						'_',
+						'/',
+						str_replace('__', '/Config/', $first)
+					) : self::$_pathToConfig[0] . $path) .
 				'.php';
-		if (is_file ($filename)) {
-			$ext = ucfirst (strtolower (substr (strrchr ($filename, '.'), 1)));
+		if (is_file($filename)) {
+			$ext = ucfirst(strtolower(substr(strrchr($filename, '.'), 1)));
 			$class = 'Config_' . $ext;
 
 			$result = new $class ($filename);
