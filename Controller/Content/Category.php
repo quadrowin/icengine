@@ -51,7 +51,8 @@ class Controller_Content_Category extends Controller_Abstrtact
 	/**
 	 * Сохранение категории
 	 */
-	public function save($parentId, $categoryId, $title, $sort, $active)
+	public function save($parentId, $categoryId, $title, $sort, $active,
+		$url, $class)
 	{
 		$this->_task->setTemplate(null);
 		$parent = Model_Manager::byKey('Content_Category', $parentId);
@@ -68,7 +69,11 @@ class Controller_Content_Category extends Controller_Abstrtact
 			'title'		=> $title,
 			'sort'		=> $sort,
 			'User__id'	=> $user->key(),
-			'active'	=> $active
+			'active'	=> $active,
+			'url'		=> $url,
+			'class'		=> $class,
+			'name'			=> $parent->name,
+			'controller'	=> $parent->controller
 		));
 		$category->save();
 	}
