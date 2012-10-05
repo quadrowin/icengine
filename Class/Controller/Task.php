@@ -77,13 +77,22 @@ class Controller_Task
 		}
 
 		$this->_controllerAction = $action;
-
+		$routerConfig = Config_Manager::byPath('Router');
+		$modules = $routerConfig['modules']->__toArray();
+		array_unshift($modules, 'Ice');
 		if ($action)
 		{
-			$this->_template =
-				'Controller/' .
-				str_replace ('_', '/', $action->controller) . '/' .
-				$action->action;
+			if ($modules) {
+				foreach ($modules as $module) {
+					$filename = $module . '/View/Controller/' .
+						str_replace ('_', '/', $action->controller) . '/' .
+						$action->action;
+					$this->_template = $filename;
+					if (file_exists ($filename . '.tpl')) {
+						break;
+					}
+				}
+			}
 		}
 	}
 

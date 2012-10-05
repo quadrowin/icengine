@@ -197,7 +197,6 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 					->where ('`password`', $passwordAES)
 			);
 		}
-
 		if (!$user)
 		{
 			return $this->_sendError (

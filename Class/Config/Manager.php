@@ -83,9 +83,8 @@ class Config_Manager
 	{
 		$filename =
 				IcEngine::root () . (strstr($path, '__') ?
-					str_replace('__', '/Config/', $path) : 'Config/') .
+					str_replace('__', '/Config/', $path) : self::$_pathToConfig[0] . $path) .
 				'.php';
-
 		if (is_file ($filename)) {
 			$ext = ucfirst (strtolower (substr (strrchr ($filename, '.'), 1)));
 			$class = 'Config_' . $ext;
