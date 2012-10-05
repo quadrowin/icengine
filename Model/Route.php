@@ -130,12 +130,17 @@ class Route extends Model_Child
 			$routerConfig = Config_Manager::get('Router');
 			$modules = $routerConfig['modules']->__toArray();
 			if ($modules) {
+				$currentRoutes = array();
+				foreach (self::$list as $route) {
+					$currentRoutes[$route['route']] = 1;
+				}
 				foreach ($modules as $module) {
 					$moduleConfig = Config_Manager::byPath($module . '__Route');
-					self::$list = array_merge(
-						self::$list,
-						$moduleConfig['routes']->__toArray()
-					);
+					foreach ($moduleConfig['routes']->__toArray() as $route) {
+						if (!isset($currentRoutes[$route['route']])) {
+							self::$list[] = $route;
+						}
+					}
 				}
 			}
 		}
