@@ -142,6 +142,7 @@ class Route extends Model_Child
 					$moduleConfig = Config_Manager::byPath($module->name . '__Route');
 					foreach ($moduleConfig['routes']->__toArray() as $route) {
 						if (!isset($currentRoutes[$route['route']])) {
+							$route['params']['module'] = $module->name;
 							self::$list[] = $route;
 						}
 					}
