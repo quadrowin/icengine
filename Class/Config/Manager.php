@@ -77,6 +77,26 @@ class Config_Manager
 	}
 
 	/**
+	 * Получить конфиг по пути, результат не кешируется
+	 */
+	public static function byPath($path)
+	{
+		$filename =
+				IcEngine::root () . (strstr($path, '__') ?
+					str_replace('__', '/Config/', $path) : 'Config/') .
+				'.php';
+
+		if (is_file ($filename)) {
+			$ext = ucfirst (strtolower (substr (strrchr ($filename, '.'), 1)));
+			$class = 'Config_' . $ext;
+
+			$result = new $class ($filename);
+			return $result;
+		}
+		return array();
+	}
+
+	/**
 	 * @desc Пустой конфиг.
 	 * @return Config_Array
 	 */

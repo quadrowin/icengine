@@ -127,6 +127,17 @@ class Route extends Model_Child
 			$config = Config_Manager::get(__CLASS__);
 			self::$list = $config['routes']->__toArray();
 			self::$fromConfigLoaded = true;
+			$routerConfig = Config_Manager::get('Router');
+			$modules = $routerConfig['modules']->__toArray();
+			if ($modules) {
+				foreach ($modules as $module) {
+					$moduleConfig = Config_Manager::byPath($module . '__Route');
+					self::$list = array_merge(
+						self::$list,
+						$moduleConfig['routes']->__toArray()
+					);
+				}
+			}
 		}
 		return self::$list;
 	}
