@@ -67,6 +67,7 @@ class Controller_Content_Category extends Controller_Abstrtact
 			'parentId'	=> $parent->key(),
 			'title'		=> $title,
 			'sort'		=> $sort,
+			'User__id'	=> $user->key(),
 			'active'	=> $active
 		));
 		$category->save();
