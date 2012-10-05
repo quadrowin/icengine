@@ -12,7 +12,7 @@ class Route extends Model_Child
 	 *
 	 * @var boolean
 	 */
-	protected $fromConfigLoaded = false;
+	protected static $fromConfigLoaded = false;
 
 	/**
 	 * Лист роутов
@@ -108,7 +108,7 @@ class Route extends Model_Child
 			if (preg_match($pattern, $url) && (
 				!$row || (int) $route['weight'] > (int) $row['weight']
 			)) {
-				$row = array_merge($emptyRoute, $route->__toArray());
+				$row = array_merge($emptyRoute, $route);
 				$row['pattern'] = $pattern;
 			}
 		}
@@ -123,9 +123,9 @@ class Route extends Model_Child
 	 */
 	public static function getList()
 	{
-		if (!self::fromConfigLoaded) {
+		if (!self::$fromConfigLoaded) {
 			$config = Config_Manager::get(__CLASS__);
-			self::$list = $config['route']->__toArray();
+			self::$list = $config['routes']->__toArray();
 			self::$fromConfigLoaded = true;
 		}
 		return self::$list;
