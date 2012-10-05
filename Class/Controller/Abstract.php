@@ -362,14 +362,13 @@ class Controller_Abstract
 			$other->setInput ($this->_input);
 			$other->setOutput ($this->_output);
 			$other->setTask ($this->_task);
-
-            $other->_beforeAction ($action);
+           // $other->_beforeAction ($action);
 
             // _beforeAction не генерировал ошибки, можно продолжать
             if (! $other->hasErrors ())
             {
                 $other->$action ();
-                $other->_afterAction ($action);
+                //$other->_afterAction ($action);
             }
 		}
 	}
