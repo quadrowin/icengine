@@ -78,7 +78,6 @@ abstract class Bootstrap_Abstract
 
 		Loader::addPath ('Controller', IcEngine::path () . 'Controller/');
 		Loader::addPath ('Controller', $path . 'Controller/');
-		Loader::addPath ('Controller', IcEngine::root() . 'Admin/Controller/');
 
 		Loader::addPath ('includes', $path . 'includes/');
 	}
