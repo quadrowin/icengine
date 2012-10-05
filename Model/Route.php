@@ -8,6 +8,20 @@
 class Route extends Model_Child
 {
 	/**
+	 * Загружены ли роуты из конфига
+	 *
+	 * @var boolean
+	 */
+	protected $fromConfigLoaded = false;
+
+	/**
+	 * Лист роутов
+	 *
+	 * @var array
+	 */
+	protected static $list;
+
+	/**
 	 * Сформировать роут экшины, привязаннык роуту
 	 *
 	 * @return Route_Action_Collection
@@ -50,12 +64,22 @@ class Route extends Model_Child
 	}
 
 	/**
+	 * Добавить роут
+	 *
+	 * @param array $route
+	 */
+	public static function addRoute($route)
+	{
+		self::$list[] = $route;
+	}
+
+	/**
 	 * Получить роут по урлу
 	 *
 	 * @param string $url
 	 * @return Route
 	 */
-	public static function byUrl ($url)
+	public static function byUrl($url)
 	{
 		$url = '/' . ltrim($url, '/');
 		$route = Resource_Manager::get('Route_Cache', $url);
@@ -64,8 +88,9 @@ class Route extends Model_Child
 		}
 		$config = Config_Manager::get(__CLASS__);
 		$emptyRoute = $config['empty_route']->__toArray();
+		$routes = self::getList();
 		$row = null;
-		foreach ($config['routes'] as $route) {
+		foreach ($routes as $route) {
 			if (empty($route['route'])) {
 				continue;
 			}
@@ -87,8 +112,23 @@ class Route extends Model_Child
 				$row['pattern'] = $pattern;
 			}
 		}
-		Resource_Manager::set('Route_Cache', $pattern, $row);
+		Resource_Manager::set('Route_Cache', $url, $row);
 		return $row ? new self($row) : null;
+	}
+
+	/**
+	 * Получить список роутов
+	 *
+	 * @return array
+	 */
+	public static function getList()
+	{
+		if (!self::fromConfigLoaded) {
+			$config = Config_Manager::get(__CLASS__);
+			self::$list = $config['route']->__toArray();
+			self::$fromConfigLoaded = true;
+		}
+		return self::$list;
 	}
 
 	/**
