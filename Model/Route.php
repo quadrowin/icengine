@@ -140,6 +140,9 @@ class Route extends Model_Child
 				}
 				foreach ($moduleCollection as $module) {
 					$moduleConfig = Config_Manager::byPath($module->name . '__Route');
+					if (!$moduleConfig) {
+						continue;
+					}
 					foreach ($moduleConfig['routes']->__toArray() as $route) {
 						if (!isset($currentRoutes[$route['route']])) {
 							$route['params']['module'] = $module->name;
