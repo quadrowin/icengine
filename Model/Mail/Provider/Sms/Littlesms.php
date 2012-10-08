@@ -35,14 +35,14 @@ class Mail_Provider_Sms_Littlesms extends Mail_Provider_Abstract
 	 * (non-PHPdoc)
 	 * @see Model::_afterConstruct()
 	 */
-	protected function _afterConstruct ()
+	protected function _afterConstruct()
 	{
-		$config = $this->config ();
-		Loader::requireOnce ($config ['original_path'], 'includes');
-
-		$this->_client = new LittleSMSoriginal (
-			$config ['service_login'],
-			$config ['service_password'],
+		$config = $this->config();
+		Loader::requireOnce($config['original_path'], 'includes');
+		Loader::load('LittleSMSoriginal', 'includes');
+		$this->_client = new LittleSMSoriginal(
+			$config['service_login'],
+			$config['service_password'],
 			false
 		);
 	}
