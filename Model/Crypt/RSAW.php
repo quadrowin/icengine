@@ -1,7 +1,7 @@
 <?php
 
 Loader::load('Debug');
-require_once "Crypt/RSA.php";
+Loader::load('RSA', 'includes');
 
 /**
  * Класс для работы с шифрованием RSA

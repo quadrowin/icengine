@@ -27,7 +27,7 @@
 /**
  * RSA error handling facilities
  */
-require_once 'Crypt/RSA/ErrorHandler.php';
+Loader::load('RSA_ErrorHandler', 'includes');
 
 /**
  * Crypt_RSA_MathLoader class.
@@ -39,13 +39,13 @@ require_once 'Crypt/RSA/ErrorHandler.php';
  * Example usage:
  *    // load BigInt wrapper
  *    $big_int_wrapper = &Crypt_RSA_MathLoader::loadWrapper('BigInt');
- * 
+ *
  *    // load BCMath wrapper
  *    $bcmath_wrapper = &Crypt_RSA_MathLoader::loadWrapper('BCMath');
- * 
+ *
  *    // load the most suitable wrapper
  *    $bcmath_wrapper = &Crypt_RSA_MathLoader::loadWrapper();
- * 
+ *
  * @category   Encryption
  * @package    Crypt_RSA
  * @author     Alexander Valyalkin <valyala@gmail.com>
@@ -76,7 +76,7 @@ class Crypt_RSA_MathLoader
      *
      * @access public
      */
-    function &loadWrapper($wrapper_name = 'default')
+    public static function loadWrapper($wrapper_name = 'default')
     {
         static $math_objects = array();
         // ordered by performance. GMP is the fastest math library, BCMath - the slowest.
@@ -94,7 +94,7 @@ class Crypt_RSA_MathLoader
             // try to load the most suitable wrapper
             $n = sizeof($math_wrappers);
             for ($i = 0; $i < $n; $i++) {
-                $obj = &Crypt_RSA_MathLoader::loadWrapper($math_wrappers[$i]);
+                $obj = Crypt_RSA_MathLoader::loadWrapper($math_wrappers[$i]);
                 if (!PEAR::isError($obj)) {
                     // wrapper for $math_wrappers[$i] successfully loaded
                     // register it as default wrapper and return reference to it
@@ -117,7 +117,7 @@ class Crypt_RSA_MathLoader
         }
 
         // create and return wrapper object on success or PEAR_Error object on error
-        $obj = &new $class_name;
+        $obj = new $class_name;
         if ($obj->errstr) {
             // cannot load required extension for math wrapper
             $obj = PEAR::raiseError($obj->errstr, CRYPT_RSA_ERROR_NO_EXT);

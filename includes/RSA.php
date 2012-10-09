@@ -27,22 +27,22 @@
 /**
  * RSA error handling facilities
  */
-require_once 'Crypt/RSA/ErrorHandler.php';
+Loader::load('RSA_ErrorHandler', 'includes');
 
 /**
  * loader for math wrappers
  */
-require_once 'Crypt/RSA/MathLoader.php';
+Loader::load('RSA_MathLoader', 'includes');
 
 /**
  * helper class for mange single key
  */
-require_once 'Crypt/RSA/Key.php';
+Loader::load('RSA_Key', 'includes');
 
 /**
  * helper class for manage key pair
  */
-require_once 'Crypt/RSA/KeyPair.php';
+Loader::load('RSA_KeyPair', 'includes');
 
 /**
  * Crypt_RSA class, derived from Crypt_RSA_ErrorHandler
@@ -192,7 +192,7 @@ class Crypt_RSA extends Crypt_RSA_ErrorHandler
         // set error handler
         $this->setErrorHandler($error_handler);
         // try to load math wrapper
-        $obj = &Crypt_RSA_MathLoader::loadWrapper($wrapper_name);
+        $obj = Crypt_RSA_MathLoader::loadWrapper($wrapper_name);
         if (PEAR::isError($obj)) {
             // error during loading of math wrapper
             // Crypt_RSA object is partially constructed.
@@ -229,7 +229,7 @@ class Crypt_RSA extends Crypt_RSA_ErrorHandler
      */
     function &factory($params = null, $wrapper_name = 'default')
     {
-        $obj = &new Crypt_RSA($params, $wrapper_name);
+        $obj = Crypt_RSA($params, $wrapper_name);
         if ($obj->isError()) {
             // error during creating a new object. Retrurn PEAR_Error object
             return $obj->getLastError();
