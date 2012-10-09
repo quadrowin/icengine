@@ -27,12 +27,12 @@
 /**
  * RSA error handling facilities
  */
-require_once 'Crypt/RSA/ErrorHandler.php';
+Loader::load('RSA_ErrorHandler', 'includes');
 
 /**
  * loader for RSA math wrappers
  */
-require_once 'Crypt/RSA/MathLoader.php';
+Loader::load('RSA_MathLoader', 'includes');
 
 /**
  * Crypt_RSA_Key class, derived from Crypt_RSA_ErrorHandler
@@ -49,7 +49,7 @@ require_once 'Crypt/RSA/MathLoader.php';
  * Example usage:
  *    // create new 1024-bit key pair
  *    $key_pair = new Crypt_RSA_KeyPair(1024);
- * 
+ *
  *    // get public key (its class is Crypt_RSA_Key)
  *    $key = $key_pair->getPublicKey();
  *
@@ -159,7 +159,7 @@ class Crypt_RSA_Key extends Crypt_RSA_ErrorHandler
         // set error handler
         $this->setErrorHandler($error_handler);
         // try to load math wrapper $wrapper_name
-        $obj = &Crypt_RSA_MathLoader::loadWrapper($wrapper_name);
+        $obj = Crypt_RSA_MathLoader::loadWrapper($wrapper_name);
         if (PEAR::isError($obj)) {
             // error during loading of math wrapper
             $this->pushError($obj); // push error object into error list
@@ -208,7 +208,7 @@ class Crypt_RSA_Key extends Crypt_RSA_ErrorHandler
      */
     function &factory($modulus, $exp, $key_type, $wrapper_name = 'default')
     {
-        $obj = &new Crypt_RSA_Key($modulus, $exp, $key_type, $wrapper_name);
+        $obj = newCrypt_RSA_Key($modulus, $exp, $key_type, $wrapper_name);
         if ($obj->isError()) {
             // error during creating a new object. Retrurn PEAR_Error object
             return $obj->getLastError();
@@ -295,10 +295,10 @@ class Crypt_RSA_Key extends Crypt_RSA_ErrorHandler
      * @return object        key as Crypt_RSA_Key object
      * @access public
      */
-    function &fromString($key_str, $wrapper_name = 'default')
+    public static function fromString($key_str, $wrapper_name = 'default')
     {
         list($modulus, $exponent, $key_type) = unserialize(base64_decode($key_str));
-        $obj = &new Crypt_RSA_Key($modulus, $exponent, $key_type, $wrapper_name);
+        $obj = new Crypt_RSA_Key($modulus, $exponent, $key_type, $wrapper_name);
         return $obj;
     }
 
@@ -313,7 +313,7 @@ class Crypt_RSA_Key extends Crypt_RSA_ErrorHandler
      * @return bool        true if $key is valid, else false
      * @access public
      */
-    function isValid($key)
+    public static function isValid($key)
     {
         return (is_object($key) && strtolower(get_class($key)) === strtolower(__CLASS__));
     }

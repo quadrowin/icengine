@@ -27,17 +27,17 @@
 /**
  * RSA error handling facilities
  */
-require_once 'Crypt/RSA/ErrorHandler.php';
+Loader::load('RSA_ErrorHandler', 'includes');
 
 /**
  * loader for RSA math wrappers
  */
-require_once 'Crypt/RSA/MathLoader.php';
+Loader::load('RSA_MathLoader', 'includes');
 
 /**
  * helper class for single key managing
  */
-require_once 'Crypt/RSA/Key.php';
+Loader::load('RSA_Key', 'includes');
 
 /**
  * Crypt_RSA_KeyPair class, derived from Crypt_RSA_ErrorHandler
@@ -62,10 +62,10 @@ require_once 'Crypt/RSA/Key.php';
  *
  *    // get public key
  *    $public_key = $key_pair->getPublicKey();
- * 
+ *
  *    // get private key
  *    $private_key = $key_pair->getPrivateKey();
- * 
+ *
  *    // generate new 512-bit key pair
  *    $key_pair->generate(512);
  *
@@ -204,7 +204,7 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
      */
     function &factory($key_len, $wrapper_name = 'default')
     {
-        $obj = &new Crypt_RSA_KeyPair($key_len, $wrapper_name);
+        $obj = newCrypt_RSA_KeyPair($key_len, $wrapper_name);
         if ($obj->isError()) {
             // error during creating a new object. Retrurn PEAR_Error object
             return $obj->getLastError();
@@ -276,7 +276,7 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
         $private_exp = $this->_math_obj->int2bin($d);
 
         // try to create public key object
-        $obj = &new Crypt_RSA_Key(
+        $obj = newCrypt_RSA_Key(
             $modulus,
             $public_exp,
             'public',
@@ -291,7 +291,7 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
         $this->_public_key = &$obj;
 
         // try to create private key object
-        $obj = &new Crypt_RSA_Key(
+        $obj = newCrypt_RSA_Key(
             $modulus,
             $private_exp,
             'private',

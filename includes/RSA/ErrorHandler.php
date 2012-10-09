@@ -27,7 +27,7 @@
 /**
  * uses PEAR's error handling
  */
-require_once 'PEAR.php';
+Loader::load('PEAR', 'includes');
 
 /**
  * cannot load required extension for math wrapper
