@@ -43,7 +43,7 @@ class Controller_View_Resource extends Controller_Abstract
 			'Module'
 		);
 		foreach ($moduleCollection as $module) {
-			$config = Config_Manager::byPath($module->name . '__' . __CLASS__);
+			$config = Config_Manager::byPath(__CLASS__, $module->name);
 			if (empty($module['hasResource'])) {
 				continue;
 			}
