@@ -82,7 +82,7 @@ class Controller_Task
 		);
 		if ($action)
 		{
-			foreach ($moduleCollection->items() as $module) {
+			foreach ($moduleCollection as $module) {
 				$filename = $module->name . '/View/Controller/' .
 					str_replace ('_', '/', $action->controller) . '/' .
 					$action->action;
@@ -91,6 +91,8 @@ class Controller_Task
 					break;
 				}
 			}
+			/*Debug::log('Not found: ' .
+				$action->controller . '/' . $action->action . '.tpl');*/
 		}
 	}
 
