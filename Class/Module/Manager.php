@@ -21,5 +21,17 @@ class Module_Manager extends Manager_Abstract
 		Config_Manager::addPath ($module_dir . 'Config/');
 		$view = View_Render_Manager::getView ();
 		$view->addTemplatesPath ($module_dir . 'View');
+
+	}
+
+	public static function init()
+	{
+		$moduleCollection = Model_Collection_Manager::create(
+			'Module'
+		);
+		$moduleCollection->sort('id DESC');
+		foreach ($moduleCollection as $module) {
+			self::addModule($module->name);
+		}
 	}
 }
