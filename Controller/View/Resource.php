@@ -37,7 +37,6 @@ class Controller_View_Resource extends Controller_Abstract
 			}
 		}
 
-
 		//var_dump($type . __FILE__);die;
 		$moduleCollection = Model_Collection_Manager::create(
 			'Module'
@@ -47,6 +46,8 @@ class Controller_View_Resource extends Controller_Abstract
 			if (empty($module['hasResource'])) {
 				continue;
 			}
+			$vars['{$moduleName}'] = $module->name;
+			$vars['{$modulePath}'] = $module->path();
 			if (!$config) {
 				return;
 			}
@@ -60,7 +61,6 @@ class Controller_View_Resource extends Controller_Abstract
 				}
 
 				$res = array ();
-
 				foreach ($target->sources as $source)
 				{
 					if (is_string ($source))
@@ -71,7 +71,6 @@ class Controller_View_Resource extends Controller_Abstract
 					else
 					{
 						$src_dir = strtr ($source->dir, $vars);
-
 						$src_files = is_scalar ($source->file)
 							? array ($source->file)
 							: $source->file->__toArray ();

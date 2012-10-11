@@ -39,4 +39,14 @@ class Module extends Model_Defined
 		}
 		return $out;
 	}
+
+	/**
+	 * Получить путь модуля
+
+	 * @return string
+	 */
+	public function path()
+	{
+		return $this->name . '/';
+	}
 }
