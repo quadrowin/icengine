@@ -28,4 +28,15 @@ class Module extends Model_Defined
 			)
 		)
 	);
+
+	public static function notMain()
+	{
+		$out = array();
+		foreach (self::$rows as $row) {
+			if (!$row['isMain']) {
+				$out[] = $row;
+			}
+		}
+		return $out;
+	}
 }
