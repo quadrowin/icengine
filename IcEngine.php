@@ -251,7 +251,6 @@ class IcEngine
 				'action'		=> self::$frontAction
 			))
 		);
-
 		self::$_task->setViewRender (
 			View_Render_Manager::byName (self::$frontRender)
 		);

@@ -70,19 +70,14 @@ class Controller_Task
 			$this->_viewRender = $action->Route->viewRender ();
 
 			$action = $action->Controller_Action;
-		}
-		else
-		{
+		} else {
 			$this->_viewRender = View_Render_Manager::getView ();
 		}
-
 		$this->_controllerAction = $action;
-
-		if ($action)
-		{
+		if ($action) {
 			$this->_template =
 				'Controller/' .
-				str_replace ('_', '/', $action->controller) . '/' .
+				str_replace('_', '/', $action->controller) . '/' .
 				$action->action;
 		}
 	}

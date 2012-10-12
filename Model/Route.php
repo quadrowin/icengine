@@ -127,17 +127,25 @@ class Route extends Model_Child
 			$config = Config_Manager::get(__CLASS__);
 			self::$list = $config['routes']->__toArray();
 			self::$fromConfigLoaded = true;
-			$routerConfig = Config_Manager::get('Router');
-			$modules = $routerConfig['modules']->__toArray();
-			if ($modules) {
+			$moduleCollection = Model_Collection_Manager::create(
+				'Module'
+			)->addOptions(array(
+				'name'	=> 'Main',
+				'value'	=> false
+			));
+			if ($moduleCollection) {
 				$currentRoutes = array();
 				foreach (self::$list as $route) {
 					$currentRoutes[$route['route']] = 1;
 				}
-				foreach ($modules as $module) {
-					$moduleConfig = Config_Manager::byPath($module . '__Route');
+				foreach ($moduleCollection as $module) {
+					$moduleConfig = Config_Manager::byPath('Route', $module->name);
+					if (!$moduleConfig) {
+						continue;
+					}
 					foreach ($moduleConfig['routes']->__toArray() as $route) {
 						if (!isset($currentRoutes[$route['route']])) {
+							$route['params']['module'] = $module->name;
 							self::$list[] = $route;
 						}
 					}

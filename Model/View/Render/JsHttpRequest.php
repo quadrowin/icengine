@@ -21,6 +21,7 @@ class View_Render_JsHttpRequest extends View_Render_Abstract
 	 */
 	protected function _afterConstruct ()
 	{
+		Loader::load('JsHttpRequest', 'includes');
 		$this->_request = new JsHttpRequest ('UTF-8');
 	}
 

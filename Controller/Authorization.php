@@ -35,6 +35,7 @@ class Controller_Authorization extends Controller_Abstract
 	protected function _redirect ()
 	{
 		$redirect = $this->_input->receive ('redirect');
+		Loader::load ('Helper_Uri');
 		return Helper_Uri::validRedirect (
 			$redirect ?
 				$redirect :
@@ -128,6 +129,7 @@ class Controller_Authorization extends Controller_Abstract
 
 		if ($this->config ()->sms_auth_enable)
 		{
+			Loader::load ('Helper_Phone');
 			$phone = Helper_Phone::parseMobile ($login);
 			if ($phone)
 			{
@@ -136,6 +138,7 @@ class Controller_Authorization extends Controller_Abstract
 		}
 
 		$password = $this->_input->receive ('password');
+		Loader::load ('Authorization');
 
 		$user = Model_Manager::byQuery (
 			'User',
@@ -191,36 +194,33 @@ class Controller_Authorization extends Controller_Abstract
 	}
 
 	/**
-	 * @desc Выход.
+	 * Выход
 	 */
-	public function logout ()
+	public function logout()
 	{
-		User::getCurrent ()->logout ();
-		User_Session::getCurrent ()->delete ();
-		$redirect = $this->_input->receive ('redirect');
-
-		if (!$redirect)
-		{
-			$redirect = Request::referer ();
+		$this->_task->setTemplate(null);
+		User::getCurrent()->logout();
+		User_Session::getCurrent()->delete();
+		$redirect = $this->_input->receive('redirect');
+		if (!$redirect) {
+			$redirect = Request::referer();
 		}
-
-		$redirect = Helper_Uri::validRedirect (
+		Loader::load('Helper_Uri');
+		$redirect = Helper_Uri::validRedirect(
 			$redirect ? $redirect : self::DEFAULT_REDIRECT
 		);
-
-		$this->_output->send ('data', array (
+		$this->_output->send('data', array(
 			'redirect'	=> $redirect
 		));
 	}
 
 	/**
-	 * @desc Базовая авторизация - нажата кнопка авторизации.
+	 * Базовая авторизация - нажата кнопка авторизации.
 	 */
-	public function submit ()
+	public function submit()
 	{
-		$type = $this->_input->receive ('type');
-
-		$this->replaceAction (
+		$type = $this->_input->receive('type');
+		$this->replaceAction(
 			'Authorization_' . $type,
 			'authorize'
 		);
