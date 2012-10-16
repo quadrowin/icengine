@@ -328,9 +328,8 @@ class View_Resource_Manager extends Manager_Abstract
 
 			$files = array ();
 
-			for ($dir = reset ($list); $dir !== false; $dir = next ($list))
-			{
-				$subdirs = scandir ($base_dir . $dir);
+			for ($dir = reset($list); $dir !== false; $dir = next($list)) {
+				$subdirs = scandir($base_dir . $dir);
 				$path = $dir ? $dir . '/' : '';
 
 				for ($j = 0, $count = sizeof ($subdirs); $j < $count; $j++)
