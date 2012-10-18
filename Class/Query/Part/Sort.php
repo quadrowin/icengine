@@ -12,18 +12,18 @@ class Query_Part_Sort extends Query_Part
 	public function query()
 	{
 		if (
-			isset ($this->params ['order']) &&
-			strtoupper ($this->params ['order']) == 'DESC'
+			isset ($this->params['order']) &&
+			strtoupper ($this->params['order']) == 'DESC'
 		)
 		{
 			$this->query->order (
-				'`' . $this->collection->modelName () . '`.`sort` DESC'
+				'`' . $this->modelName . '`.`sort` DESC'
 			);
 		}
 		else
 		{
 			$this->query->order (
-				'`' . $this->collection->modelName () . '`.`sort`'
+				'`' . $this->modelName . '`.`sort`'
 			);
 		}
 	}
