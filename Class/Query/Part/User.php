@@ -11,7 +11,7 @@ class Query_Part_User extends Query_Part
 	 */
 	public function query()
 	{
-		$this->query
-			->where('User__id', User::getCurrent()->key());
+		$this->query->where($this->modelName . '.User__id',
+			$this->params['id']);
 	}
 }
