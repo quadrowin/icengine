@@ -340,7 +340,12 @@ class View_Resource_Manager extends Manager_Abstract
 
 			for ($dir = reset($list); $dir !== false; $dir = next($list)) {
 				if (!is_dir($base_dir . $dir)) {
-					fb('failed to open dir: No such file or directory ('. $base_dir . $dir . ')');
+					$msg = 'failed to open dir: No such file or directory ('. $base_dir . $dir . ')';
+					if(isset ($_SERVER ['argv'])) {
+						echo $msg.PHP_EOL;
+					} else {
+						fb('failed to open dir: No such file or directory ('. $base_dir . $dir . ')');
+					}
 					break;
 				}
 
