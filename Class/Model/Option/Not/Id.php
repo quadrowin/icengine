@@ -13,5 +13,5 @@ class Model_Option_Not_Id extends Model_Option
 	/**
 	 * @inheritdoc
 	 */
-	protected $queryName = 'Not__Id';
+	protected $queryName = 'Not_Id';
 }
