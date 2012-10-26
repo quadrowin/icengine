@@ -214,6 +214,7 @@ abstract class Model implements ArrayAccess
 		if (!$this->_loaded)
 		{
 			$this->load ();
+			//Unit_Of_Work::load($this);
 			if (
 				$this->_fields &&
 				!array_key_exists ($field, $this->_fields) &&
