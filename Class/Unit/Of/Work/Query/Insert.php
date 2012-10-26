@@ -2,9 +2,10 @@
 
 /**
  * По сути mysql всё
+ *
+ * @author neon
  */
-
-class UOW_Query_Insert extends UOW_Query_Abstract
+class Unit_Of_Work_Query_Insert extends Unit_Of_Work_Query_Abstract
 {
 	/**
 	 * @inheritdoc
@@ -16,26 +17,29 @@ class UOW_Query_Insert extends UOW_Query_Abstract
 	{
 		$dataValues = $data[0]['values'];
 		$part = explode('@', $key);
-		$table = $part[0];
-		$fields = array_keys($dataValues);
+		$modelName = $part[0];
 		/**
 		 * Пока так
 		 */
 		$values = array();
 		foreach ($data as $key=>$dataValues) {
-			foreach ($dataValues['values'] as $value) {
-				$values[$key][] = '"' . mysql_escape_string($value) . '"';
+			foreach ($dataValues['values'] as $valueKey=>$value) {
+				$values[$key][$valueKey] = $value;
 			}
 		}
 		$valuesQuery = array();
 		foreach ($values as $v) {
 			$valuesQuery[] = '(' . implode(',', $v) . ')';
 		}
-		$table = 'ice_' . strtolower($table);
-		$query = 'INSERT INTO ' . $table . ' ';
-		$query .= '(' . implode(',', $fields) . ') ';
-		$query .= 'VALUES' . implode(',', $valuesQuery);
-		return $query;
+		$query = Query::instance()
+			->insert($modelName);
+		foreach ($values as $valuesPart) {
+			$query->values($valuesPart, true);
+		}
+		return array(
+			'modelName'	=> $modelName,
+			'query'		=> $query
+		);
 	}
 
 	private function prepare()
@@ -47,12 +51,12 @@ class UOW_Query_Insert extends UOW_Query_Abstract
 	 * @inheritdoc
 	 * @param Query_Abstract $query
 	 */
-	public function push(Query_Abstract $query)
+	public function push(Query_Abstract $query, $object = null, $loaderName = null)
 	{
-		$table = $query->getPart('INSERT');
+		$table = $query->getPart(QUERY::INSERT);
 		$tableScheme = Config_Manager::get('Model_Mapper_' . $table);
 		$tableFields = array_keys($tableScheme->fields->asArray());
-		$values = $query->getPart('VALUES');
+		$values = $query->getPart(QUERY::VALUES);
 		$resultFields = array();
 		foreach ($values as $key=>$value) {
 			if (in_array($key, $tableFields)) {
@@ -61,7 +65,7 @@ class UOW_Query_Insert extends UOW_Query_Abstract
 		}
 		$dataFields = array_keys($resultFields);
 		$uniqName = $table . '@' . md5(implode('', $dataFields));
-		UOW::pushRaw('INSERT', $uniqName, array(
+		Unit_Of_Work::pushRaw(QUERY::INSERT, $uniqName, array(
 			'values'	=> $resultFields
 		));
 	}
