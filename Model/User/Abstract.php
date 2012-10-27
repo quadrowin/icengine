@@ -32,7 +32,7 @@ class User_Abstract extends Model
 	 */
 	public function authorize ()
 	{
-		User_Session::getCurrent ()->updateSession ($this->id);
+		User_Session::getCurrent ()->updateSession ($this->key());
 		self::$_current = $this;
 
 		$config = $this->config ();
