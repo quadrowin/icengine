@@ -26,8 +26,14 @@ class Unit_Of_Work_Query_Select extends Unit_Of_Work_Query_Abstract
 		list($modelName, $keyField) = explode('@', $key);
 		$query = Query::instance()
 			->select('*')
-			->from($modelName)
-			->where($keyField, $wheres);
+			->from($modelName);
+		if (count($wheres) == 1) {
+			foreach ($wheres as $where) {
+				$query->where($keyField, $where);
+			}
+		} else {
+			$query->where($keyField, $wheres);
+		}
 		return array(
 			'modelName'	=> $modelName,
 			'query'		=> $query,
