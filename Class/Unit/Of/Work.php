@@ -101,9 +101,10 @@ class Unit_Of_Work
 	private static function _execute($key)
 	{
 		$query = self::$queries[$key];
+		//echo $key . ' ' . $query['query']->translate() . '<br />';
 		$result = Model_Scheme::dataSource($query['modelName'])
 			->execute($query['query']);
-		print_r($result);die;
+		//print_r($result);die;
 		self::$rawCount--;
 		if (isset($query['loader'])) {
 			$loader = Unit_Of_Work_Loader_Manager::get($query['loader']);
@@ -142,7 +143,7 @@ class Unit_Of_Work
 	{
 		$uniqName = get_class($object) . '@' .
 			implode(':', array_keys($object->getFields()));
-		echo $uniqName . '<br />';
+		//echo $uniqName . '<br />';
 		self::buildOne($uniqName);
 		self::_execute($uniqName);
 		//self::reset();
