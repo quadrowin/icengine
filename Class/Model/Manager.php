@@ -256,31 +256,49 @@ class Model_Manager extends Manager_Abstract
 	 */
 	public static function byQuery($model, Query_Abstract $query)
 	{
-
-
-
+		$parents = class_parents($model);
+		$first = end($parents);
+		$second = prev($parents);
+		$config = self::config();
+		$parent = $second && isset($config['delegee'][$second]) ?
+			$second :
+			$first;
+		if ($parent != 'Model_Defined') {
+			return self::uowByQuery($model, $query);
+		}
 		$data = null;
-		if (!$query->getPart (Query::SELECT))
-		{
-			$query->select (array ($model => '*'));
+		if (!$query->getPart(Query::SELECT)) {
+			$query->select(array($model => '*'));
 		}
+		if (!$query->getPart(Query::FROM)) {
+			$query->from($model, $model);
+		}
+		$data = Model_Scheme::dataSource($model)
+			->execute($query)
+			->getResult()
+			->asRow();
+		if (!$data) {
+			return null;
+		}
+		return self::get(
+			$model,
+			$data[Model_Scheme::keyField($model)],
+			$data
+		);
+	}
 
-		if (!$query->getPart (Query::FROM))
-		{
-			$query->from ($model, $model);
-		}
-		//echo $query->translate();die;
-		//echo 'byQuery' . $model . '<br />';
-		$data =
-			Model_Scheme::dataSource ($model)
-				->execute ($query)
-				->getResult ()
-					->asRow ();
-/**
- * if (!$query->getPart(Query::SELECT)) {
+	/**
+	 * byQuery с использованием Unit of work
+	 *
+	 * @param string $modelName
+	 * @param Query_Abstract $query
+	 * @return Model
+	 */
+	public static function uowByQuery($modelName, Query_Abstract $query)
+	{
+		if (!$query->getPart(Query::SELECT)) {
 			$query->select(array($modelName => '*'));
 		}
-
 		if (!$query->getPart(Query::FROM)) {
 			$query->from($modelName, $modelName);
 		}
@@ -299,22 +317,6 @@ class Model_Manager extends Manager_Abstract
 		$model = self::getModel($modelName, $whereFields);
 		Unit_Of_Work::push($query, $model, 'Simple');
 		return $model;
- */
-		if (!$data)
-		{
-			return null;
-		}
-		/*print_r($data);die;
-		print_r(self::get (
-			$model,
-			$data [Model_Scheme::keyField ($model)],
-			$data
-		));die;*/
-		return self::get (
-			$model,
-			$data [Model_Scheme::keyField ($model)],
-			$data
-		);
 	}
 
 	/**
