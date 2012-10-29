@@ -329,7 +329,7 @@ class Model_Manager extends Manager_Abstract
 	{
 		$scheme = Model_Scheme::getScheme ($model_name);
 		$scheme_fields = $scheme ['fields'];
-		$row = array ();
+		$row = array();
 		if ($scheme_fields)
 		{
 			foreach ($scheme_fields as $field => $data)
