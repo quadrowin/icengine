@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Опция коллекции.
  * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
@@ -8,25 +8,25 @@
  */
 class Model_Collection_Option
 {
-	
+
 	/**
 	 * @desc Название опции
 	 * @var string
 	 */
 	protected $_name;
-	
+
 	/**
 	 * @desc Параметры
 	 * @var array
 	 */
 	protected $_params;
-	
+
 	/**
 	 * @desc Опция
 	 * @var Model_Collection_Option_Abstract
 	 */
 	protected $_option;
-	
+
 	/**
 	 * @desc Создает и возвращает опцию
 	 * @param string $name Название опции.
@@ -37,15 +37,15 @@ class Model_Collection_Option
 		$this->_name = $name;
 		$this->_params = $params;
 	}
-	
+
 	/**
 	 * @desc Наложение опции.
 	 * @param string $type "before" or "after"
 	 * @param Model_Collection $collection
-	 * @param Query $query
+	 * @param Query_Abstract $query
 	 * @return mixed Результат наложения.
 	 */
-	public function execute ($type, $collection, Query $query)
+	public function execute ($type, $collection, Query_Abstract $query)
 	{
 		if (!$this->_option)
 		{
@@ -54,15 +54,13 @@ class Model_Collection_Option
 				$collection
 			);
 		}
-		
-		Loader::load ('Executor');
-		
+
 		return Executor::execute (
 			array ($this->_option, $type),
 			array ($collection, $query, $this->_params)
 		);
 	}
-	
+
 	/**
 	 * @desc Получить имя опшина
 	 * @return string
@@ -71,7 +69,7 @@ class Model_Collection_Option
 	{
 		return $this->_name;
 	}
-	
+
 	/**
 	 * @desc Возвращает параметры опции.
 	 * @return array
@@ -80,8 +78,5 @@ class Model_Collection_Option
 	{
 		return $this->_params;
 	}
-	
-}
 
-Loader::load ('Model_Collection_Option_Manager');
-Loader::load ('Model_Collection_Option_Abstract');
+}

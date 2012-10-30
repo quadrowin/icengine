@@ -1,71 +1,67 @@
 <?php
 /**
- * 
- * @desc Абстрактный класс опции коллекции.
- * @author Юрий Шведов, Илья Колесников
+ *
+ * @desc Менеджер опций.
+ * @author Юрий Шведов
  * @package IcEngine
  *
  */
-abstract class Model_Collection_Option_Abstract
+class Model_Collection_Option_Manager
 {
-	
+
 	/**
-	 * @desc Название опции
-	 * @var string
+	 * @desc Опции.
+	 * @var array <Model_Collection_Option_Abstract>
 	 */
-	private $_name;
-	
+	protected static $_options = array ();
+
 	/**
-	 * @desc Создает и возвращает опцию
-	 */
-	public function __construct ()
-	{
-		$class = get_class ($this);
-		$delim = '_Collection_Option_';
-		$pos = strrpos ($class, $delim);
-		
-		$this->_name = substr (
-			$class,
-			$pos + strlen ($delim)
-		);
-	}
-	
-	/**
-	 * @desc Вызывается после выполения запроса.
-	 * @param Model_Collection $collection
-	 * @param Query $query
-	 * @param array $params
-	 */
-	public function after (Model_Collection $collection, 
-		Query $query, array $params)
-	{
-		
-	}
-		
-	/**
-	 * @desc Вызывается перед выполнением запроса.
-	 * Переменная <i>$query</i> отличается от запроса, возвращаемого методом
-	 * <i>$colleciton->query()</i>. По умолчанию эта переменная - клон
-	 * изначального запроса коллекции, на который наложены опции.
-	 * @param Model_Collection $collection
-	 * @param Query $query
-	 * @param array $params
-	 */
-	public function before (Model_Collection $collection, 
-		Query $query, array $params)
-	{
-		
-	}
-	
-	/**
-	 * @desc Возвращает название опции
+	 * @desc Возвращает название класса опции для коллекции.
+	 * @param string $option Название опции
+	 * @param Model_Collection $collection Коллекция.
 	 * @return string
 	 */
-	public function getName ()
+	protected static function getClassName ($option, $collection)
 	{
-		return $this->_name;
+		$p = strpos ($option, '::');
+		if ($p === false)
+		{
+			return
+				$collection->modelName () .
+				'_Collection_Option_' .
+				$option;
+		}
+		elseif ($p === 0)
+		{
+			return 'Model_Collection_Option_' . substr ($option, $p + 2);
+		}
+		else
+		{
+			return
+				substr ($option, 0, $p) .
+				'_Collection_Option_' .
+				substr ($option, $p + 2);
+		}
 	}
-	
-	
-	
+
+	/**
+	 * @desc Создание новой опции.
+	 * @param string $name Название опции. Может содержать название модели.
+	 * Active - Опция Active текущей коллекции.
+	 * Car::Active - Car_Collection_Option_Active
+	 * ::Active - Model_Collection_Option_Active
+	 * @param array $params
+	 * @param Model_Collection $collection
+	 * @return Model_Collection_Option_Abstract
+	 */
+	public static function get ($name, $collection)
+	{
+		$class = self::getClassName ($name, $collection);
+		if (!isset (self::$_options [$class]))
+		{
+			self::$_options [$class] = new $class ();
+		}
+		return self::$_options [$class];
+	}
+
 }

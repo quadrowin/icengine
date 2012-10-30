@@ -60,7 +60,7 @@ class Request
 	public static function ip ()
 	{
 		if (isset ($_SERVER ['HTTP_X_REAL_IP']))
-		{	
+		{
 			return $_SERVER ['HTTP_X_REAL_IP'];
 		}
 
@@ -105,7 +105,10 @@ class Request
 	 */
 	public static function isGet ()
 	{
-		return !empty ($_GET);
+		return !empty ($_GET) || (
+			isset ($_SERVER ['REQUEST_METHOD']) &&
+			$_SERVER ['REQUEST_METHOD'] == 'GET'
+		) ;
 	}
 
 	/**
@@ -134,6 +137,15 @@ class Request
 			isset ($_SERVER ['REQUEST_METHOD']) &&
 			$_SERVER ['REQUEST_METHOD'] == 'POST'
 		);
+	}
+
+	public static function isSsi ()
+	{
+		return (
+                        isset ($_SERVER ['REQUEST_METHOD']) &&
+                        $_SERVER ['REQUEST_METHOD'] == 'ssi'
+                );
+
 	}
 
 	/**
@@ -227,7 +239,6 @@ class Request
 	{
 		if (isset($_FILES [$name]) && !empty($_FILES [$name]['name']))
 		{
-			Loader::load ('Request_File');
 			return new Request_File($_FILES [$name]);
 		}
 		else
@@ -244,7 +255,6 @@ class Request
 	 */
 	public static function fileByIndex ($index)
 	{
-		Loader::load ('Request_File');
 		$files = array_values ($_FILES);
 
 		if (!isset ($files [$index]))
@@ -252,13 +262,11 @@ class Request
 			$f = '@file:' . $index;
 			if (isset ($_POST [$f]))
 			{
-				Loader::load ('Request_File_Test');
 				return new Request_File_Test ($_POST [$f]);
 			}
 
 			if (isset ($_POST ['params'], $_POST ['params'][$f]))
 			{
-				Loader::load ('Request_File_Test');
 				return new Request_File_Test ($_POST ['params'][$f]);
 			}
 
@@ -285,7 +293,6 @@ class Request
 	 */
 	public static function files ()
 	{
-		Loader::load ('Request_File');
 		$result = array();
 		foreach ($_FILES as $name => $file)
 		{
@@ -354,8 +361,8 @@ class Request
 	 */
 	public static function referer ()
 	{
-		return isset ($_SERVER ['HTTP_REFFERER'])
-			? $_SERVER ['HTTP_REFFERER'] : '';
+		return isset ($_SERVER ['HTTP_REFERER'])
+			? $_SERVER ['HTTP_REFERER'] : '';
 	}
 
 	/**
@@ -385,7 +392,6 @@ class Request
 	{
 		if (!class_exists ('Session_Manager'))
 		{
-			Loader::load ('Session_Manager');
 			Session_Manager::init ();
 		}
 
@@ -398,9 +404,25 @@ class Request
 			session_id ($_GET ['PHPSESSID']);
 		}
 
+		if (!isset ($_COOKIE))
+		{
+			$_COOKIE = array ();
+		}
+
 		if (!isset ($_SESSION))
 		{
 			session_start ();
+			//$_SESSION ['session_start'] = time ();
+			//setcookie ('PHPSESSID', session_id (), 3600, '.vipgeo.ru', '/');
+			//$_COOKIE ['PHPSESSID'] = session_id ();
+			//print_r ($_SESSION); print_r ($_COOKIE);
+		}
+
+		if (!isset ($_COOKIE ['PHPSESSID']))
+		{
+			setcookie ('PHPSESSID', session_id (), 3600);
+                        $_COOKIE ['PHPSESSID'] = session_id ();
+
 		}
 
 		return session_id ();

@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Фронт контроллер.
  * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
@@ -13,17 +13,18 @@ class Controller_Front extends Controller_Abstract
 	 */
 	public function index ()
 	{
-		Loader::load ('Router');
-		Loader::load ('Controller_Dispatcher');
-		
 		/**
 		 * @desc Начинаем роутинг.
 		 * @var route
 		 */
 		$route = Router::getRoute ();
-		
-		try 
+
+		try
 		{
+			if (Tracer::$enabled) {
+				$startTime = microtime(true);
+			}
+
 			/**
 			 * @desc Начинаем цикл диспетчеризации и получаем список
 			 * выполняемых руот экшинов.
@@ -32,7 +33,7 @@ class Controller_Front extends Controller_Abstract
 			$actions = Controller_Dispatcher::loop (
 				$route->actions ()
 			);
-			
+
 			/**
 			 * @desc Создаем задания для выполнения.
 			 * В них отдает входные данные.
@@ -42,20 +43,24 @@ class Controller_Front extends Controller_Abstract
 				$actions,
 				$this->getInput ()
 			);
-			
+
+			if (Tracer::$enabled) {
+				$endTime = microtime(true);
+				Tracer::setDispatcherTime($endTime - $startTime);
+			}
+
 			/**
 			 * @desc Выполненяем задания.
 			 * @var array <Controller_Task>
 			 */
 			$tasks = Controller_Manager::runTasks ($tasks);
-			
+
 			$this->_output->send ('tasks', $tasks);
 		}
 		catch (Zend_Exception $e)
 		{
-			Loader::load ('Error');
 			Error::render ($e);
 		}
 	}
-	
+
 }

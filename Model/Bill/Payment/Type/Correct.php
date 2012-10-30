@@ -1,60 +1,72 @@
 <?php
-
 /**
- * 
- * @desc Платеж - корректировка баланса
+ *
+ * @desc Платеж по A1Lite
+ * @author Гурус
  * @package IcEngine
- * @author dp
  *
  */
-Loader::load('Bill_Payment_Type_Abstract');
-
-class Bill_Payment_Type_Correct extends Bill_Payment_Type_Abstract
+class Bill_Payment_Type_A1lite extends Bill_Payment_Type_Abstract
 {
 
 	/**
 	 * (non-PHPdoc)
 	 * @see Bill_Payment_Type_Abstract::assemble()
 	 */
-	public function assemble($sum, $user_id)
+	public function assemble ()
 	{
 		$result = 0;
 
-		$client_user = Model_Manager::byKey('User', (int) $user_id);
+		$path = IcEngine::root () . 'a1lite/success_new/';
+		$files = scandir ($path);
 
-		$user = User::getCurrent();
-
-		if ($user && $user->hasRole('admin') && $user && !($sum < 1 || preg_match("/[^0-9]/", $sum)))
+		foreach ($files as $file)
 		{
-			Loader::load('Helper_Date');
-			Loader::load('Bill_Payment');
-			$payment = new Bill_Payment(array(
-						'Bill_Payment_Type__id' => $this->key(),
-						'wallet' => '',
-						'value' => $sum,
-						'balance' => $sum,
-						'transactionNo' => '00000' . time(),
-						'details' => 'Корректировка баланса была роизведена пользователем с id #' . $user->key(),
-						'Bill__id' => 0,
-						'beginProcessTime' => Helper_Date::toUnix(),
-						'endProcessTime' => '2000-01-01 00:00:00',
-						'User__id' => $client_user->User__id,
-						'Discount_Payment_Amount__id' => $discount_amount->key(),
-						'balance_time_update' => Helper_Date::toUnix()
+			if ($file == '.' || $file == '..')
+			{
+				continue;
+			}
+
+			$f = fopen ($path . $file, "r+");
+			if (!$f)
+			{
+				continue;
+			}
+
+			if (!flock ($f, LOCK_EX | LOCK_NB))
+			{
+				fclose ($f);
+				continue;
+			}
+
+			$log_message = fread ($f, filesize ($path . $file));
+			if ($log_message)
+			{
+				$message = json_decode ($log_message, true);
+				if ($message)
+				{
+					$payment = $this->instantPayment (array (
+						'value'					=> $message ['system_income'],
+						'transactionNo'			=> $message ['tid'],
+						'details'				=> $log_message,
+						'Bill__id'				=> (int) $message ['order_id']
 					));
 
-			$payment->save();
+					fseek ($f, 0, SEEK_SET);
+					ftruncate ($f, 0);
 
-			if ($payment)
-			{
-				$payment->update(
-						array(
-							'endProcessTime' => Helper_Date::toUnix()
-						)
-				);
-				++$result;
+					$payment->update (array (
+						'endProcessTime' => Helper_Date::toUnix ()
+					));
+					++$result;
+				}
 			}
+
+			flock ($f, LOCK_UN);
+			fclose ($f);
+			unlink ($path . $file);
 		}
+
 		return $result;
 	}
 

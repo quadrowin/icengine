@@ -142,7 +142,6 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 			self::SMS_CODE_ATTR			=> ''
 		));
 
-		Loader::load ('Helper_Uri');
 		$redirect = Helper_Uri::validRedirect ($redirect);
 		$this->_output->send (array (
 			'redirect'		=> $redirect,
@@ -157,55 +156,58 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 	 */
 	public function sendSmsCode ()
 	{
-		list (
+		list(
 			$provider,
 			$login,
 			$password,
 			$send
-		) = $this->_input->receive (
+		) = $this->_input->receive(
 			'provider',
 			'name',
 			'pass',
 			'send'
 		);
-
-		$user = Model_Manager::byQuery (
+		$user = Model_Manager::byOptions(
 			'User',
-			Query::instance ()
-				->where ('login', $login)
-				->where ('password', $password)
-				->where ('md5(`password`) = md5(?)', $password)
+			array(
+				'name'	=> 'Login',
+				'value'	=> $login
+			),
+			array(
+				'name'	=> 'Password',
+				'value'	=> $password
+			)
 		);
-
-		if (!$user)
-		{
-			$user = Model_Manager::byQuery (
+		if (!$user) {
+			$user = Model_Manager::byOptions (
 				'User',
-				Query::instance ()
-					->where ('login', $login)
-					->where ('`password`', md5 ($password))
+				array(
+					'name'	=> 'Login',
+					'value'	=> $login
+				),
+				array(
+					'name'	=> 'Password',
+					'type'	=> 'RSA',
+					'value'	=> $password
+				)
 			);
 		}
-
-		if (!$user)
-		{
-			return $this->_sendError (
+		if (!$user) {
+			return $this->_sendError(
 				'password incorrect',
 				'Data_Validator_Authorization_Password/invalid'
 			);
 		}
 
-		if (!$user->active)
-		{
-			return $this->_sendError (
+		if (!$user->active) {
+			return $this->_sendError(
 				'user unactive',
 				'Data_Validator_Authorization_User/unactive'
 			);
 		}
 
-		if (!$user->phone)
-		{
-			return $this->_sendError ('noPhone');
+		if (!$user->phone) {
+			return $this->_sendError('noPhone');
 		}
 
 		$count = $user->attr (self::SMS_SEND_COUNTER_ATTR);
@@ -230,6 +232,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 		$activation = $this->_authorization ()->sendActivationSms (array (
 			'login'		=> $login,
 			'password'	=> $password,
+//			'passwordAES'	=> $passwordAES,
 			'phone'		=> $user->phone,
 			'user'		=> $user,
 			'provider'	=> $provider,

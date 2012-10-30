@@ -126,9 +126,6 @@ class IcEngine
 			self::_getRoot ();
 
 		self::initLoader ();
-
-		Loader::load ('Config_Manager');
-
 		if ($bootstap)
 		{
 			self::initBootstrap ($bootstap);
@@ -143,14 +140,10 @@ class IcEngine
 	 */
 	public static function initBootstrap ($path)
 	{
-		Loader::multiLoad (
-			'Bootstrap_Abstract',
-			'Bootstrap_Manager'
-		);
-
 		require $path;
 
 		$name = basename ($path, '.php');
+		require_once __DIR__ . '/Model/Bootstrap/Manager.php';
 		self::$_bootstrap = Bootstrap_Manager::get ($name, $path);
 	}
 
@@ -211,7 +204,6 @@ class IcEngine
 	{
 		if (!isset (self::$_managers [$name]))
 		{
-			Loader::load ($name . '_Manager');
 			self::$_managers [$name] = new $name . '_Manager';
 		}
 		return self::$_managers [$name];
@@ -251,13 +243,6 @@ class IcEngine
 	public static function run ()
 	{
 		self::$_bootstrap->run ();
-
-		Loader::multiLoad (
-			'Data_Transport_Manager',
-			'Controller_Task',
-			'Controller_Action'
-		);
-
 		self::$_task = new Controller_Task (
 			new Controller_Action (array (
 				'id'			=> null,
@@ -265,7 +250,6 @@ class IcEngine
 				'action'		=> self::$frontAction
 			))
 		);
-
 		self::$_task->setViewRender (
 			View_Render_Manager::byName (self::$frontRender)
 		);
@@ -280,9 +264,17 @@ class IcEngine
 
 	public static function shutdownHandler ()
 	{
-		if (!error_get_last ())
+		$error = error_get_last();
+		if (!$error)
 		{
 			Resource_Manager::save ();
+		} else {
+			$errno = $error['type'];
+			if ($errno == E_ERROR || $errno == E_USER_ERROR) {
+				if (!headers_sent ()) {
+					header('HTTP/1.0 500 Internal Server Error');
+				}
+			}
 		}
 	}
 
