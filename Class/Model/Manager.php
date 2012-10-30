@@ -180,22 +180,34 @@ class Model_Manager extends Manager_Abstract
 	 * @param integer $key Значение первичного ключа.
 	 * @return Model|null
 	 */
-	public static function byKey($modelName, $key)
+	public static function byKey($modelName, $key, $lazy = false)
 	{
-		//echo $modelName . ' ' . $key .  '<br />';
-		$result = Resource_Manager::get('Model', $modelName . '__' . $key);
-		if ($result) {
-			return $result;
+		if ($lazy) {
+			$result = Resource_Manager::get('Model', $modelName . '__' . $key);
+			if ($result) {
+				return $result;
+			}
+			$keyField = Model_Scheme::keyField($modelName);
+			$model = self::getModel($modelName, array(
+				$keyField	=> $key
+			));
+			$query = Query::instance()
+				->select(array($modelName => '*'))
+				->where(Model_Scheme::keyField($modelName), $key);
+			Unit_Of_Work::push($query, $model, 'Simple');
+			$model->setLazy(true);
+			return $model;
+		} else {
+			$result = Resource_Manager::get('Model', $modelName . '__' . $key);
+			if ($result) {
+				return $result;
+			}
+			return self::byQuery(
+				$modelName,
+				Query::instance()
+					->where(Model_Scheme::keyField($modelName), $key)
+			);
 		}
-		$keyField = Model_Scheme::keyField($modelName);
-		$model = self::getModel($modelName, array(
-			$keyField	=> $key
-		));
-		$query = Query::instance()
-			->select(array($modelName => '*'))
-			->where(Model_Scheme::keyField($modelName), $key);
-		Unit_Of_Work::push($query, $model, 'Simple');
-		return $model;
 	}
 
 	/**
@@ -254,38 +266,63 @@ class Model_Manager extends Manager_Abstract
 	 * @param Query_Abstract $query Запрос.
 	 * @return Model|null
 	 */
-	public static function byQuery($model, Query_Abstract $query)
+	public static function byQuery($model, Query_Abstract $query, $lazy = false)
 	{
-		$parents = class_parents($model);
-		$first = end($parents);
-		$second = prev($parents);
-		$config = self::config();
-		$parent = $second && isset($config['delegee'][$second]) ?
-			$second :
-			$first;
-		//echo $parent . '<br />';
-		if ($parent != 'Model_Defined' && $parent != 'Model_Factory') {
-			return self::uowByQuery($model, $query);
+		if ($lazy) {
+			$parents = class_parents($model);
+			$first = end($parents);
+			$second = prev($parents);
+			$config = self::config();
+			$parent = $second && isset($config['delegee'][$second]) ?
+				$second :
+				$first;
+			//echo $parent . '<br />';
+			if ($parent != 'Model_Defined' && $parent != 'Model_Factory') {
+				return self::uowByQuery($model, $query);
+			}
+			$data = null;
+			if (!$query->getPart(Query::SELECT)) {
+				$query->select(array($model => '*'));
+			}
+			if (!$query->getPart(Query::FROM)) {
+				$query->from($model, $model);
+			}
+			$data = Model_Scheme::dataSource($model)
+				->execute($query)
+				->getResult()
+				->asRow();
+			if (!$data) {
+				return null;
+			}
+			$object = self::get(
+				$model,
+				$data[Model_Scheme::keyField($model)],
+				$data
+			);
+			$object->setLazy(true);
+			return $object;
+		} else {
+			$data = null;
+			if (!$query->getPart(Query::SELECT)) {
+				$query->select(array($model => '*'));
+			}
+			if (!$query->getPart(Query::FROM)) {
+				$query->from($model, $model);
+			}
+			$data = Model_Scheme::dataSource($model)
+				->execute($query)
+				->getResult()
+				->asRow();
+
+			if (!$data) {
+				return null;
+			}
+			return self::get(
+				$model,
+				$data[Model_Scheme::keyField($model)],
+				$data
+			);
 		}
-		$data = null;
-		if (!$query->getPart(Query::SELECT)) {
-			$query->select(array($model => '*'));
-		}
-		if (!$query->getPart(Query::FROM)) {
-			$query->from($model, $model);
-		}
-		$data = Model_Scheme::dataSource($model)
-			->execute($query)
-			->getResult()
-			->asRow();
-		if (!$data) {
-			return null;
-		}
-		return self::get(
-			$model,
-			$data[Model_Scheme::keyField($model)],
-			$data
-		);
 	}
 
 	/**
