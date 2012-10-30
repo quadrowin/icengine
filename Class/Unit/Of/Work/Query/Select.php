@@ -16,6 +16,7 @@ class Unit_Of_Work_Query_Select extends Unit_Of_Work_Query_Abstract
 	{
 		$wheres = array();
 		$loaderName = null;
+		list($modelName, $keyField) = explode('@', $key);
 		foreach ($data as $loaderName=>$raws) {
 			foreach ($raws as $raw) {
 				foreach ($raw['wheres'] as $keyValue=>$value) {
@@ -27,7 +28,6 @@ class Unit_Of_Work_Query_Select extends Unit_Of_Work_Query_Abstract
 				}
 			}
 		}
-		list($modelName, $keyField) = explode('@', $key);
 		/*echo '---' . $modelName;
 		if ($modelName == 'Activation') {
 			print_r($wheres);die;
@@ -70,8 +70,18 @@ class Unit_Of_Work_Query_Select extends Unit_Of_Work_Query_Abstract
 				$wheres[$value[QUERY::WHERE]] = $value[QUERY::VALUE];
 			}
 		}
+
+		$wheresPrepared = array();
+		foreach ($wheres as $key=>$value) {
+			$fieldName = trim(strtr($key, array(
+				'?'	=> '',
+				'<'	=> '',
+				'>'	=> ''
+			)));
+			$wheresPrepared[$fieldName] = $value;
+		}
 		$uniqName = $object->modelName() . '@' .
-			implode(':', array_keys($wheres));
+			implode(':', array_keys($wheresPrepared));
 		$data = array(
 			'object'	=> &$object,
 			'wheres'	=> $wheres
