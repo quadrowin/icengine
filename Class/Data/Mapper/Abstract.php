@@ -2,30 +2,30 @@
 
 abstract class Data_Mapper_Abstract
 {
-	
+
 	/**
 	 * Префикс источников индексов
 	 * @var string
 	 */
-	const INDEX_PREFIX = 'index_'; 
-	
+	const INDEX_PREFIX = 'index_';
+
 	/**
-	 * 
+	 *
 	 * @var Query_Options
 	 */
 	protected $_defaultOptions;
-	
+
 	/**
-	 * 
+	 *
 	 * @var Filter_Collection
 	 */
 	protected $_filters;
-	
+
 	public function __construct ()
 	{
 		$this->initFilters ();
 	}
-	
+
 	/**
 	 * @desc Создание индексов для записи
 	 * @param string $source
@@ -39,11 +39,11 @@ abstract class Data_Mapper_Abstract
 		foreach ($indexes as $index)
 		{
 			$index_source = $prefix . $index['id'];
-			
+
 			$data = array(
 				'id'	=> $record['id']
 			);
-			
+
 			$fields = json_decode ($index['fields'], true);
 			foreach ($fields as $field => $info)
 			{
@@ -56,28 +56,28 @@ abstract class Data_Mapper_Abstract
 					break 2;
 				}
 			}
-			
-			
+
+
 			$query->reset ();
 			$query
 				->insert ($index_source)
 				->values ($data);
-				
+
 			$this->_execute ($query);
 		}
 	}
-	
+
 	/**
-	 * 
-	 * @param Query $query
+	 *
+	 * @param Query_Abstract $query
 	 * @param Query_Options $options
 	 * @return mixed
 	 */
-	public function _execute(Query $query, $options = null)
+	public function _execute(Query_Abstract $query, $options = null)
 	{
 		return null;
 	}
-	
+
 	/**
 	 * @desc Обновление данных сущности
 	 * @param string $id Первичный ключ
@@ -88,25 +88,25 @@ abstract class Data_Mapper_Abstract
 	{
 		$record = $this->getRecord ($id, $source);
 		$this->_removeIndexes ($source, $record);
-		
+
 		$record = array_merge ($record, $data);
-		
+
 		$this->_setRecord ($id, $source);
 		$this->_createIndexes ($source, $record);
 	}
-	
+
 	protected function _getIndexes ($source)
 	{
 		$query = new Query ();
 		$query
 			->select ('id', 'name')
 			->from ($source);
-		
+
 		return $this->_execute ($query)->result();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param mixed $result
 	 * @param Query_Options $options
 	 * @return boolean
@@ -119,10 +119,10 @@ abstract class Data_Mapper_Abstract
 		}
 		return $options->getNotEmpty () && empty ($result) ? false : true;
 	}
-	
+
 	/**
 	 * @desc Удаление индексов для записи
-	 * @param string $source 
+	 * @param string $source
 	 * @param array $record
 	 */
 	protected function _removeIndexes ($source, array $record)
@@ -133,16 +133,16 @@ abstract class Data_Mapper_Abstract
 		foreach ($indexes as $index)
 		{
 			$index_source = $prefix . $index['id'];
-			
+
 			$query->reset ();
-			
+
 			$query
 				->delete ()
 				->from ($index_source)
 				->where ('id', $record['id']);
 		}
 	}
-	
+
 	/**
 	 * @desc Перезапись данных
 	 * @param string $id
@@ -153,16 +153,16 @@ abstract class Data_Mapper_Abstract
 	{
 		assert (!empty($id) || $id === 0 || $id === '0');
 		$query = new Query();
-		
+
 		$query->delete ()->from ($source)->where ('id', $id);
 		$this->_execute($query);
-		
+
 		$query->reset ()->insert ($source)->values ($data);
 		$this->_execute ($query);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param mixed $value
 	 * @param string $type
 	 */
@@ -175,27 +175,27 @@ abstract class Data_Mapper_Abstract
 		settype ($value, $type);
 		return $value;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Data_Source_Abstract $source
-	 * @param Query $query
+	 * @param Query_Abstract $query
 	 * @param Query_Options $options
 	 * @return Query_Result
 	 */
-	public function execute (Data_Source_Abstract $source, Query $query, $options = null)
+	public function execute (Data_Source_Abstract $source, Query_Abstract $query, $options = null)
 	{
 		if (!($query instanceof Query))
 		{
 			return new Query_Result (null);
 		}
-		
+
 		$start = microtime (true);
-		
+
 		$result = $this->_execute ($query, $options);
-		
+
 		$finish = microtime (true);
-		
+
 		$result = new Query_Result (array (
 			'query'			=> $query,
 			'startAt'		=> $start,
@@ -206,10 +206,10 @@ abstract class Data_Mapper_Abstract
 			'finishedAt'	=> $finish,
 			'source'		=> $source
 		));
-		
+
 		return $result;
 	}
-	
+
 	/**
 	 * @return Query_Options
 	 */
@@ -221,7 +221,7 @@ abstract class Data_Mapper_Abstract
 		}
 		return $this->_defaultOptions;
 	}
-	
+
 	/**
 	 * @return Filter_Collection
 	 */
@@ -229,16 +229,14 @@ abstract class Data_Mapper_Abstract
 	{
 		return $this->_filters;
 	}
-	
+
 	public function initFilters ()
 	{
-		Loader::load ('Filter_Collection');
-		
 		$this->_filters = new Filter_Collection ();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Query_Options $options
 	 * @return Data_Mapper_Abstract
 	 */
@@ -247,7 +245,7 @@ abstract class Data_Mapper_Abstract
 		$this->_defaultOptions = $options;
 		return $this;
 	}
-	
+
 	/**
 	 * @desc Установка параметров
 	 * @param string|Objective $key Параметр.
@@ -258,5 +256,5 @@ abstract class Data_Mapper_Abstract
 	{
 		return false;
 	}
-	
+
 }

@@ -8,7 +8,6 @@
  */
 abstract class Model_Collection_Manager extends Manager_Abstract
 {
-
 	/**
 	 * @desc Конфиг
 	 * @var array
@@ -27,13 +26,12 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 	 * @desc Возвращает коллекцию по запросу.
 	 * @author Юрий Шведов
 	 * @param string $model Модель коллекции.
-	 * @param Query $query Запрос.
+	 * @param Query_Abstract $query Запрос.
 	 * @return Model_Collection
 	 */
-	public static function byQuery ($model, Query $query)
+	public static function byQuery ($model, Query_Abstract $query)
 	{
 		$collection = self::create ($model);
-
 		$collection->setQuery ($query);
 		return $collection;
 	}
@@ -46,18 +44,15 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 	public static function create ($model)
 	{
 		$class_collection = $model . '_Collection';
-
-		Loader::multiLoad ($model, $class_collection);
-
 		return new $class_collection ();
 	}
 
 	/**
 	 * @desc получить коллекцию из хранилища по запросу и опшинам
 	 * @param Model_Collection
-	 * @param Query $query
+	 * @param Query_Abstract $query
 	 */
-	public static function load (Model_Collection $collection, Query $query)
+	public static function load (Model_Collection $collection, Query_Abstract $query)
 	{
 		// Название модели
 		$model = $collection->modelName ();
@@ -143,16 +138,16 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 			$first = end ($parents);
 			$second = prev ($parents);
 
+			$config = self::config ();
+
 			$parent =
-				$second && isset (self::$_config ['delegee'][$second]) ?
+				$second && isset ($config ['delegee'][$second]) ?
 				$second :
 				$first;
 
 			$delegee =
 				'Model_Collection_Manager_Delegee_' .
-				self::$_config ['delegee'][$parent];
-
-			Loader::load ($delegee);
+				$config ['delegee'][$parent];
 
 			$pack = call_user_func (
 				array ($delegee, 'load'),
@@ -162,6 +157,12 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 			$collection->data ('t', $tags);
 
 			$addicts = $collection->data ('addicts');
+		}
+
+		$iterator = $collection->currentIterator();
+		if ($iterator) {
+			$iterator->setData($pack['items']);
+			return;
 		}
 
 		static $key_fields = array ();
@@ -205,7 +206,6 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 				$pack ['items'][$i]->set ($addicts [$i]);
 			}
 		}
-
 		$collection->setItems ($pack ['items']);
 
 		// В менеджере ресурсов сохраняем клона коллеции

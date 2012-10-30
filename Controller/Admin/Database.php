@@ -8,6 +8,12 @@
 class Controller_Admin_Database extends Controller_Abstract
 {
 
+	protected function getAdminConfig ($class_name)
+	{
+		$config = Config_Manager::get ('Model_Mapper_' . $class_name);
+		return $config ['admin_panel'];
+	}
+
 	/**
 	 * @desc Config
 	 * @var array|Objective
@@ -28,13 +34,8 @@ class Controller_Admin_Database extends Controller_Abstract
 	private function __aclFields ($table, $fields, $type = null)
 	{
 		$acl_fields = $this->__fields ($table, $type);
-
-		Loader::load ('Helper_Array');
-
 		$tmp_fields = Helper_Array::column ($fields->__toArray (), 'Field');
-
 		$acl_fields = array_intersect ($acl_fields, $tmp_fields);
-
 		return $acl_fields;
 	}
 
@@ -47,11 +48,7 @@ class Controller_Admin_Database extends Controller_Abstract
 	private function __aclTables ($tables)
 	{
 		$acl_tables = $this->__tables ();
-
-		Loader::load ('Helper_Array');
-
 		$table_names = Helper_Array::column ($tables, 'Name');
-
 		return array_intersect ($table_names, $acl_tables);
 	}
 
@@ -64,7 +61,6 @@ class Controller_Admin_Database extends Controller_Abstract
 	private function __className ($table, $prefix)
 	{
 		$class_name = Model_Scheme::tableToModel ($table);
-
 		$prefix = ucfirst ($prefix);
 
 		if (strpos ($class_name, $prefix) === 0)
@@ -76,14 +72,6 @@ class Controller_Admin_Database extends Controller_Abstract
 	}
 
 	/**
-	 * (non-PHPDoc)
-	 */
-	public function __construct ()
-	{
-		Loader::load ('Helper_Data_Source');
-	}
-
-	/**
 	 * @desc Получить ACL разрешенные поля таблицы
 	 * @param string $table
 	 * @return array <string>
@@ -91,11 +79,8 @@ class Controller_Admin_Database extends Controller_Abstract
 	private function __fields ($table, $type = null)
 	{
 		$resources = $this->__resources (null, $type);
-
 		$result = array ();
-
 		$name = 'Table/' . $table . '/';
-
 		$len = strlen ($name);
 
 		foreach ($resources as $r)
@@ -123,8 +108,7 @@ class Controller_Admin_Database extends Controller_Abstract
 	private function _getValues ($row, $class_name, $fields)
 	{
 		$field_filters = array ();
-
-		$tmp = $this->config ()->field_filters->$class_name;
+		$tmp = $this->getAdminConfig ($class_name)->field_filters;
 
 		if ($tmp)
 		{
@@ -164,8 +148,6 @@ class Controller_Admin_Database extends Controller_Abstract
 				$collection = Model_Collection_Manager::create (
 					'Dummy'
 				)->reset ();
-
-				Loader::load ('Model_Proxy');
 				foreach ($values as $v)
 				{
 					$v = trim ($v, "' ");
@@ -207,7 +189,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			{
 				$cn = substr ($field->Field, 0, -4);
 
-				$query = Query::instance ();
+				$query = Query::factory ('Select');
 
 				if (isset ($field_filters [$field->Field]))
 				{
@@ -250,8 +232,6 @@ class Controller_Admin_Database extends Controller_Abstract
 	 */
 	private function __log ($action, $table, $row_id, $fields)
 	{
-		Loader::load ('Admin_Log');
-
 		foreach ((array) $fields as $field => $value)
 		{
 			$log = new Admin_Log (array (
@@ -327,7 +307,6 @@ class Controller_Admin_Database extends Controller_Abstract
 	private function __tables ()
 	{
 		$resources = $this->__resources ();
-
 		$result = array ();
 
 		foreach ($resources as $r)
@@ -383,20 +362,15 @@ class Controller_Admin_Database extends Controller_Abstract
 	{
 		list (
 			$table,
-			$row_id,
-			$limitator
+			$row_id
 		) = $this->_input->receive (
 			'table',
-			'row_id',
-			'limitator'
+			'row_id'
 		);
 
 		$prefix = Model_Scheme::$default ['prefix'];
-
 		$class_name = $this->__className ($table, $prefix);
-
 		$fields = Helper_Data_Source::fields ('`' . $table . '`');
-
 		$acl_fields = $this->__aclFields ($table, $fields);
 
 		if (!$acl_fields || !User::id ())
@@ -426,17 +400,16 @@ class Controller_Admin_Database extends Controller_Abstract
 			);
 		}
 
-		Loader::load ('Helper_Header');
-
-		Helper_Header::redirect ('/cp/table/' . $table . '/'. ($limitator ? "?limitator=$limitator" : ''));
+		Helper_Header::redirect ('/cp/table/' . $table . '/');
 	}
 
-	private function filters($collection, $class_name) {
+	private function filters ($collection, $class_name)
+	{
 		$filters = null;
 
-		if (!empty ($this->config ()->filters))
+		if (!empty ($this->getAdminConfig ($class_name)->filters))
 		{
-			$filters = $this->config ()->filters->$class_name;
+			$filters = $this->getAdminConfig ($class_name)->filters;
 		}
 
 		if ($filters)
@@ -470,7 +443,6 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		$result = array ();
 
-		Loader::load ('Table_Rate');
 		foreach ($tables as $table)
 		{
 			$table ['Rate'] = 0;
@@ -508,9 +480,7 @@ class Controller_Admin_Database extends Controller_Abstract
 	 */
 	public function row ($table, $row_id)
 	{
-		Loader::load ('Table_Rate');
-
-		$rate = Table_Rate::byTable ($table)->inc ();
+		Table_Rate::byTable ($table)->inc ();
 		$fields = Helper_Data_Source::fields ('`' . $table . '`');
 		$acl_fields = $this->__aclFields ($table, $fields, $row_id != 0 ? 'edit' : 'create');
 
@@ -528,9 +498,9 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		$auto_select = array ();
 
-		if (!empty ($this->config ()->auto_select))
+		if (!empty ($this->getAdminConfig ($class_name)->auto_select))
 		{
-			$auto_select = $this->config ()->auto_select->$class_name;
+			$auto_select = $this->getAdminConfig ($class_name)->auto_select;
 		}
 
 		if ($auto_select)
@@ -538,154 +508,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			$auto_select = $auto_select->__toArray ();
 		}
 
-		foreach ($fields as $i => $field)
-		{
-			// На поле нет разрешения
-			if (!in_array ($field ['Field'], $acl_fields))
-			{
-				unset ($fields [$i]);
-				continue;
-			}
-
-			if (!$row->key () && $field ['Field'] != $row->keyField ())
-			{
-				$row->set ($field ['Field'], $field ['Default']);
-			}
-
-                        // Тип поля - enum
-			if (strpos ($field->Type, 'enum(') === 0)
-			{
-				$values = substr ($field->Type, 6, -1);
-				$values = explode (',', $values);
-
-				$collection = Model_Collection_Manager::create (
-					$class_name
-				)
-					->reset ();
-
-				Loader::load ('Model_Proxy');
-				foreach ($values as $v)
-				{
-					$v = trim ($v, "' ");
-
-					$collection->add (new Model_Proxy (
-						'Dummy',
-						array (
-							'id'	=> $v,
-							'name'	=> $v
-						)
-					));
-				}
-
-				$field->Values = $collection;
-			}
-
-			$text_value = Model_Manager::byQuery (
-				'Text_Value',
-				Query::instance ()
-					->where ('tv_field_table', $table)
-					->where ('tv_field_name', $field->Field)
-			);
-
-			//echo DDS::getDataSource ()->getQuery ()->translate () . '<br />';
-
-			// Есть запись для поля таблицы в таблице подстановок
-			if ($text_value && $text_value->tv_text_field)
-			{
-				$field_filters = array ();
-
-				if (!empty ($this->config ()->field_filters))
-				{
-					$field_filters = $this->config ()->field_filters->$class_name;
-				}
-
-				if ($field_filters)
-				{
-					$field_filters = $field_filters->__toArray ();
-				}
-				
-				$collection = $text_value->replace (
-					$row, $table, $fields, $field, $field_filters, $class_name
-				);
-
-				$field->Values = $collection;
-			}
-
-			$config_foreign_keys = $this->config ()->foreign_keys->$class_name;
-			$is_foreign_key = $config_foreign_keys && in_array($field->Field, $config_foreign_keys->__toArray());
-			$foreign_key = $is_foreign_key ? $this->config ()->includes[$class_name][$field->Field] : null;
-			
-			// Поле - поле для связи
-			if (strpos ($field->Field, '__id') !== false || $is_foreign_key)
-			{
-				$field_filters = array ();
-
-				$tmp = $this->config ()->field_filters;
-				if ($tmp->count())
-				{
-					$tmp = $tmp->$class_name;
-					if ($tmp) {
-						$field_filters = $tmp->__toArray ();
-					}
-				}
-				
-				if ($is_foreign_key && $foreign_key && $foreign_key->model)
-				{
-					$cn = $foreign_key->model;
-				}
-				else
-					$cn = substr ($field->Field, 0, -4);
-				
-				$query = Query::instance ();
-				if (isset ($field_filters [$field->Field]))
-				{
-					foreach ($field_filters [$field->Field] as $field_filter)
-					{
-						if ($is_foreign_key) {
-							$cn = $field_filter ['model'];
-						}
-						$value = $field_filter ['value'];
-
-						if (strpos ($value, '::') !== false)
-						{
-							$value = call_user_func ($field_filter ['value']);
-						}
-						$query->where ($field_filter ['field'], $value);
-					}
-				}
-
-				$field->Values = Model_Collection_Manager::byQuery (
-					$cn,
-					$query
-				);
-			}
-
-			// Ссылка на родителя
-			if ($field->Field == 'parentId')
-			{
-				$field->Values = Model_Collection_Manager::create (
-					$class_name
-				);
-			}
-
-
-                        // Автовыбор
-			if (isset ($auto_select [$field ['Field']]) && !$row->key ())
-			{
-				$value = $auto_select [$field ['Field']];
-
-				if (strpos ($value, '::') !== false)
-				{
-					$value = call_user_func ($value);
-				}
-
-				$row->set ($field ['Field'], $value);
-			}
-
-		}
-
 		$exists_links = Model_Scheme::links ($class_name);
-
 		$link_models = array ();
 
 		if ($exists_links)
@@ -722,9 +545,26 @@ class Controller_Admin_Database extends Controller_Abstract
 		}
 
 		$fields = $this->_getValues ($row, $class_name, $fields);
+		$modificators = array ();
 
-		foreach ($fields as $field)
+		$tmp = $this->getAdminConfig ($class_name)->modificators;
+
+		if ($tmp)
 		{
+			$modificators = $tmp->__toArray ();
+		}
+
+		foreach ($fields as $i=> $field)
+		{
+			if (
+				!isset ($exists_links [$field ['Field']]) &&
+				!in_array ($field ['Field'], $acl_fields)
+			)
+			{
+				unset ($fields [$i]);
+				continue;
+			}
+
 			if (!$row->key () && $field ['Field'] != $row->keyField ())
 			{
 				$row->set ($field ['Field'], $field ['Default']);
@@ -742,15 +582,26 @@ class Controller_Admin_Database extends Controller_Abstract
 
 				$row->set ($field ['Field'], $value);
 			}
-		}
 
+			// Модификатор
+			if (isset ($modificators [$field ['Field']]))
+			{
+				$tmp = $modificators [$field ['Field']];
+				if (strpos ($tmp, '::'))
+				{
+					$tmp = explode ('::', $tmp);
+				}
+				$value = call_user_func ($tmp, $row->sfield ($field ['Field']));
+				$row->set ($field ['Field'], $value);
+			}
+		}
 
 		// Получаем эвенты
 		$events  = array ();
 
-		if (!empty ($this->config ()->events))
+		if (!empty ($this->getAdminConfig ($class_name)->events))
 		{
-			$events = $this->config ()->events->$class_name;
+			$events = $this->getAdminConfig ($class_name)->events;
 		}
 
 		if ($events)
@@ -761,9 +612,9 @@ class Controller_Admin_Database extends Controller_Abstract
 		// Получаем плагины
 		$plugins = array ();
 
-		if (!empty ($this->config ()->plugins))
+		if (!empty ($this->getAdminConfig ($class_name)->plugins))
 		{
-			$plugins = $this->config ()->plugins->$class_name;
+			$plugins = $this->getAdminConfig ($class_name)->plugins;
 		}
 
 		if ($plugins)
@@ -778,12 +629,9 @@ class Controller_Admin_Database extends Controller_Abstract
 		{
 			$tabs = $this->config ()->tabs->__toArray ();
 		}
-		
-		$limitator = $this->_input->receive('limitator');
 
 		$this->_output->send (array (
 			'row'			=> $row,
-			'limitator'		=> $limitator,
 			'fields'		=> $fields,
 			'link_models'	=> $link_models,
 			'table'			=> $table,
@@ -800,7 +648,6 @@ class Controller_Admin_Database extends Controller_Abstract
 	public function table ()
 	{
 		$tables = Helper_Data_Source::tables ();
-
 		$tmp_tables = $this->__aclTables ($tables->__toArray ());
 
 		list (
@@ -811,10 +658,7 @@ class Controller_Admin_Database extends Controller_Abstract
 			'limitator'
 		);
 
-		Loader::load ('Table_Rate');
-
-		$rate = Table_Rate::byTable ($table)->inc ();
-
+		Table_Rate::byTable ($table)->inc ();
 		$acl_fields = $this->__fields ($table);
 
 		if (!in_array ($table, $tmp_tables) || !$acl_fields || !User::id ())
@@ -823,9 +667,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		}
 
 		$prefix = Model_Scheme::$default ['prefix'];
-
 		$class_name = $this->__className ($table, $prefix);
-
 		$collection = Model_Collection_Manager::create ($class_name);
 
 		// Получаем фильтры
@@ -834,9 +676,9 @@ class Controller_Admin_Database extends Controller_Abstract
 		// Сортируем коллекцию, если есть конфиг для сортировки
 		$sort = null;
 
-		if (!empty ($this->config ()->sort))
+		if (!empty ($this->getAdminConfig ($class_name)->sort))
 		{
-			$sort = $this->config ()->sort->$class_name;
+			$sort = $this->getAdminConfig ($class_name)->sort;
 		}
 
 		if ($sort)
@@ -847,8 +689,6 @@ class Controller_Admin_Database extends Controller_Abstract
 			));
 		}
 
-		Loader::load ('Paginator');
-
 		$search = array ();
 		if (!$limitator)
 		{
@@ -856,9 +696,9 @@ class Controller_Admin_Database extends Controller_Abstract
 
 			$limit = $this->config ()->default_limit;
 
-			if (!empty ($this->config ()->limit))
+			if (!empty ($this->getAdminConfig ($class_name)->limits))
 			{
-				$limit = $this->config ()->limits->$class_name;
+				$limit = $this->getAdminConfig ($class_name)->limits;
 			}
 
 			if ($limit)
@@ -882,10 +722,6 @@ class Controller_Admin_Database extends Controller_Abstract
 					{
 						$collection->where ($f, $v);
 					}
-					elseif (preg_match('/^\s*(<|>|<=|>=|<>|=)\s*([+-]?\d+)\s*$/', $v, $op))
-                    {
-                        $collection->where ($f.' '.$op[1]. ' ?', $op[2]);
-                    }
 					else
 					{
 						$collection->where ($f . ' LIKE ?', '%' . $v . '%');
@@ -919,12 +755,11 @@ class Controller_Admin_Database extends Controller_Abstract
 		}
 
 		$acl_fields = array ();
-
 		$class_fields = array ();
 
-		if (!empty ($this->config ()->fields))
+		if (!empty ($this->getAdminConfig ($class_name)->fields))
 		{
-			$class_fields = $this->config ()->fields->$class_name;
+			$class_fields = $this->getAdminConfig ($class_name)->fields;
 		}
 
 		$fields = null;
@@ -945,21 +780,17 @@ class Controller_Admin_Database extends Controller_Abstract
 		}
 
 		$search_fields = $this->_getValues (null, $class_name, clone $fields);
-		$config_search_fields = $this->config ()->search_fields;
+		$config_search_fields = $this->getAdminConfig ($class_name)->search_fields;
 		if ($config_search_fields)
 		{
-			$config_search_fields = $config_search_fields->$class_name;
-			if ($config_search_fields)
+			$config_search_fields = $config_search_fields->__toArray ();
+			foreach ($search_fields as $i=>$v)
 			{
-				$config_search_fields = $config_search_fields->__toArray ();
-				foreach ($search_fields as $i=>$v)
+				if (!in_array ($v->Field, $config_search_fields))
 				{
-					if (!in_array ($v->Field, $config_search_fields))
-					{
-						unset ($search_fields [$i]);
-					}
+					unset ($search_fields [$i]);
 				}
-			}
+				}
 		}
 
 		if ($class_fields)
@@ -980,19 +811,18 @@ class Controller_Admin_Database extends Controller_Abstract
 		}
 
 		$sfields = array_unique ($sfields);
-
 		$title = null;
 
-		if (!empty ($this->config ()->titles))
+		if (!empty ($this->getAdminConfig ($class_name)->titles))
 		{
-			$title = $this->config ()->titles->$class_name;
+			$title = $this->getAdminConfig ($class_name)->titles;
 		}
 
 		$links = array ();
 
-		if (!empty ($this->config ()->links))
+		if (!empty ($this->getAdminConfig ($class_name)->links))
 		{
-			$links = $this->config ()->links->$class_name;
+			$links = $this->getAdminConfig ($class_name)->links;
 		}
 
 		if ($links)
@@ -1002,16 +832,16 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		$includes = array ();
 
-		if (!empty ($this->config ()->includes))
+		if (!empty ($this->getAdminConfig ($class_name)->includes))
 		{
-			$includes = $this->config ()->includes->$class_name;
+			$includes = $this->getAdminConfig ($class_name)->includes;
 		}
 
 		$limitators = array ();
 
-		if (!empty ($this->config ()->limitators))
+		if (!empty ($this->getAdminConfig ($class_name)->limitators))
 		{
-			$limitators = $this->config ()->limitators->$class_name;
+			$limitators = $this->getAdminConfig ($class_name)->limitators;
 		}
 
 		if ($limitators)
@@ -1027,13 +857,6 @@ class Controller_Admin_Database extends Controller_Abstract
 
 				foreach ($includes as $field => $model)
 				{
-					if (is_object($model))
-					{
-						$field_options = $model;
-						$model = $model->model;
-					} else
-						$field_options = null;
-					
 					$ffield = Model_Scheme::keyField ($model);
 
 					if (strpos ($model, '/') !== false)
@@ -1051,9 +874,6 @@ class Controller_Admin_Database extends Controller_Abstract
 					{
 						$old [$field] = $item->$field;
 						$item->$field = $model->title ();
-					} else if ($field_options && $field_options->null_title) {
-						$old [$field] = $item->$field;
-						$item->$field = $field_options->null_title;
 					}
 				}
 
@@ -1066,16 +886,25 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		$styles = array ();
 
-		if (!empty ($this->config ()->styles->$class_name))
+		if (!empty ($this->getAdminConfig ($class_name)->styles))
 		{
-			$styles = $this->config ()->styles->$class_name;
+			$styles = $this->getAdminConfig ($class_name)->styles;
 		}
 
 		$link_styles = array ();
 
-		if (!empty ($this->config ()->link_styles->$class_name))
+		if (!empty ($this->getAdminConfig ($class_name)->link_styles))
 		{
-			$link_styles = $this->config ()->link_styles->$class_name;
+			$link_styles = $this->getAdminConfig ($class_name)->link_styles;
+		}
+
+		$field_filters = array ();
+		if (
+			isset ($this->getAdminConfig ($class_name)->field_filters)
+		)
+		{
+			$field_filters = $this->getAdminConfig ($class_name)->field_filters
+				->__toArray ();
 		}
 
 		$this->_output->send (array (
@@ -1104,23 +933,18 @@ class Controller_Admin_Database extends Controller_Abstract
 		list (
 			$table,
 			$row_id,
-			$column,
-			$limitator
+			$column
 		) = $this->_input->receive (
 			'table',
 			'row_id',
-			'column',
-			'limitator'
+			'column'
 		);
 
 //		print_r ($_POST);
 
 		$prefix = Model_Scheme::$default ['prefix'];
-
 		$class_name = $this->__className ($table, $prefix);
-
-		$fields = Helper_Data_Source::fields ('`'. $table. '`');
-
+		$fields = Helper_Data_Source::fields ('`' . $table . '`');
 		$acl_fields = $this->__aclFields ($table, $fields);
 
 		if (!$acl_fields || !User::id ())
@@ -1136,11 +960,12 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		$exists_links = Model_Scheme::links ($class_name);
 		$links_to_save = array ();
-		
+
 		if (!is_array ($column))
 		{
 			return;
 		}
+
 		foreach ($column as $field => $value)
 		{
 			if (isset ($exists_links [$field]))
@@ -1149,7 +974,7 @@ class Controller_Admin_Database extends Controller_Abstract
 				unset ($column [$field]);
 			}
 		}
-		
+
 		foreach ($column as $field => $value)
 		{
 			if (!in_array ($field, $acl_fields))
@@ -1157,15 +982,17 @@ class Controller_Admin_Database extends Controller_Abstract
 				unset ($column [$field]);
 			}
 		}
+
 		$modificators = array ();
-		if($this->config ()->modificators)
-		{	
-			$tmp = $this->config ()->modificators->$class_name;
+
+		$tmp = $this->getAdminConfig ($class_name)->modificators;
+
+		if ($tmp)
+		{
 			$modificators = $tmp->__toArray ();
 		}
 
 		$updated_fields = $column;
-		
 
 		foreach ($updated_fields as $field => $value)
 		{
@@ -1180,6 +1007,7 @@ class Controller_Admin_Database extends Controller_Abstract
 				$updated_fields [$field] = $value;
 			}
 		}
+
 		if ($row->key ())
 		{
 			foreach ($column as $field => $value)
@@ -1189,13 +1017,12 @@ class Controller_Admin_Database extends Controller_Abstract
 					unset ($updated_fields [$field]);
 				}
 			}
+
 			if ($updated_fields)
 			{
 				$row->update ($updated_fields);
 //				print_r ($updated_fields);
 //				echo DDS::getDataSource ()->getQuery ()->translate ();
-				var_dump($updated_fields);
-			
 			}
 		}
 		else
@@ -1239,11 +1066,10 @@ class Controller_Admin_Database extends Controller_Abstract
 			$row_id,
 			$updated_fields
 		);
-		if ($this->config ()->afterSave)
-		{		
-			$after_save = $this->config ()->afterSave->$class_name;
-		}
-		if (!empty($after_save) && count($after_save))
+
+		$after_save = $this->getAdminConfig ($class_name)->afterSave;
+
+		if ($after_save)
 		{
 			foreach ($after_save as $action)
 			{
@@ -1259,12 +1085,9 @@ class Controller_Admin_Database extends Controller_Abstract
 				);
 			}
 		}
-
-		Loader::load ('Helper_Header');
 //		print_r ($updated_fields);
 //		echo DDS::getDataSource ()->getQuery ()->translate ();
 
-		Helper_Header::redirect ('/cp/table/' . $table . '/'. ($limitator ? "?limitator=$limitator" : ''));
+		Helper_Header::redirect ('/cp/table/' . $table . '/');
 	}
-
 }

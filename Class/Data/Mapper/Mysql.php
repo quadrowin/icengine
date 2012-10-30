@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Мэппер для работы с мускулем через Серегин Mysql
  * @author Юрий Шведов
  * @package IcEngine
@@ -8,13 +8,13 @@
  */
 class Data_Mapper_Mysql extends Data_Mapper_Abstract
 {
-	
+
 	/**
 	 * @desc Соединение с mysql.
 	 * @var resource
 	 */
 	protected $_linkIdentifier = null;
-	
+
 	/**
 	 * @desc Параметры соединения
 	 * @var array
@@ -26,39 +26,39 @@ class Data_Mapper_Mysql extends Data_Mapper_Abstract
 		'database'	=> 'unknown',
 		'charset'	=> 'utf8'
 	);
-	
+
 	/**
-	 * 
+	 *
 	 * @param Query $query
 	 * @return array
 	 */
-	public function _getTags (Query $query)
+	public function _getTags (Query_Abstract $query)
 	{
 		$tags = array ();
-		
+
 		$from = $query->getPart (Query::FROM);
 		foreach ($from as $info)
 		{
 			$tags [] = Model_Scheme::table ($info [Query::TABLE]);
 		}
-		
+
 		$insert = $query->getPart (QUERY::INSERT);
 		if ($insert)
 		{
 	   		$tags [] = Model_Scheme::table ($insert);
 		}
-	   	
+
 		$update = $query->getPart (QUERY::UPDATE);
 		if ($update)
 		{
 			$tags [] = Model_Scheme::table ($update);
 		}
-		
+
 		return array_unique ($tags);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param mixed $result
 	 * @param mixed $options
 	 * @return boolean
@@ -72,7 +72,7 @@ class Data_Mapper_Mysql extends Data_Mapper_Abstract
 
 		return $options->getNotEmpty () && empty ($result) ? false : true;
 	}
-	
+
 	/**
 	 * @desc Подключение к БД
 	 * @param Objective|array $config [optional]
@@ -83,23 +83,23 @@ class Data_Mapper_Mysql extends Data_Mapper_Abstract
 		{
 			return ;
 		}
-		
+
 		if ($config)
 		{
 			$this->setOption ($config);
 		}
-		
+
 		$this->_linkIdentifier = mysql_connect (
 			$this->_connectionOptions ['host'],
 			$this->_connectionOptions ['username'],
 			$this->_connectionOptions ['password']
 		);
-		
+
 		mysql_select_db (
 			$this->_connectionOptions ['database'],
 			$this->_linkIdentifier
 		);
-		
+
 		if ($this->_connectionOptions ['charset'])
 		{
 			mysql_query (
@@ -108,24 +108,24 @@ class Data_Mapper_Mysql extends Data_Mapper_Abstract
 			);
 		}
 	}
-	
-	public function execute (Data_Source_Abstract $source, Query $query, $options = null)
+
+	public function execute (Data_Source_Abstract $source, Query_Abstract $query, $options = null)
 	{
 		if (!($query instanceof Query))
 		{
 			return new Query_Result (null);
 		}
-		
+
 		$start = microtime (true);
-		
+
 		$clone = clone $query;
-		
+
 		$where = $clone->getPart (Query::WHERE);
 		$this->_filters->apply ($where, Query::VALUE);
 		$clone->setPart (Query::WHERE, $where);
-		
+
 		$sql = $clone->translate ('Mysql');
-		
+
 		$result = null;
 		$insert_id = null;
 		$tags = implode ('.', $this->_getTags ($clone));
@@ -148,22 +148,21 @@ class Data_Mapper_Mysql extends Data_Mapper_Abstract
 				$touched_rows = Mysql::affectedRows ();
 				break;
 		}
-		$errno = mysql_errno ();
-		$error = mysql_error ();
-		
+		$errno = mysql_errno ($this->_linkIdentifier);
+		$error = mysql_error ($this->_linkIdentifier);
+
 		if (!empty ($errno))
 		{
-			Loader::load ('Data_Mapper_Mysql_Exception');
 			throw new Data_Mapper_Mysql_Exception ($error . "\n$sql", $errno);
 		}
-		
+
 		if (empty ($errno) && is_null ($result))
 		{
 			$result = array ();
 		}
-		
+
 		$finish = microtime (true);
-		
+
 		$found_rows = 0;
 		if (
 			$query->part (Query::CALC_FOUND_ROWS) &&
@@ -172,7 +171,7 @@ class Data_Mapper_Mysql extends Data_Mapper_Abstract
 		{
 			$found_rows = Mysql::foundRows ();
 		}
-		
+
 		return new Query_Result (array (
 			'error'			=> $error,
 			'errno'			=> $errno,
@@ -187,7 +186,7 @@ class Data_Mapper_Mysql extends Data_Mapper_Abstract
 			'source'		=> $source
 		));
 	}
-	
+
 	/**
 	 * @desc Возвращает ресурс соединения с mysql.
 	 * @return resource
@@ -197,7 +196,7 @@ class Data_Mapper_Mysql extends Data_Mapper_Abstract
 		$this->connect ();
 		return $this->_linkIdentifier;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Mapper_Abstract::setOption()
@@ -212,14 +211,13 @@ class Data_Mapper_Mysql extends Data_Mapper_Abstract
 			}
 			return;
 		}
-		
+
 		if (isset ($this->_connectionOptions [$key]))
 		{
-			Loader::load ('Crypt_Manager');
 			$this->_connectionOptions [$key] = Crypt_Manager::autoDecode ($value);
 			return;
 		}
 		return parent::setOption ($key, $value);
 	}
-	
+
 }

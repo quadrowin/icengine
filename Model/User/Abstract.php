@@ -1,14 +1,14 @@
 <?php
 /**
- * 
+ *
  * @desc Абстрактная модель пользователя.
  * @author Юрий Шведов
  * @package IcEngine
- * 
+ *
  */
 class User_Abstract extends Model
 {
-	
+
 	/**
 	 * @desc Конфиг
 	 * @var array
@@ -19,13 +19,13 @@ class User_Abstract extends Model
 		// функция, вызываемая при логауте.
 		'logout_callback'	=> null
 	);
-	
+
 	/**
 	 * @desc Текущий пользователь.
 	 * @var User
 	 */
 	protected static $_current	= false;
-	
+
 	/**
 	 * @desc Авторизоваться этим пользователем.
 	 * @return User
@@ -34,22 +34,20 @@ class User_Abstract extends Model
 	{
 		User_Session::getCurrent ()->updateSession ($this->id);
 		self::$_current = $this;
-		
+
 		$config = $this->config ();
 		if ($config ['login_callback'])
 		{
 			list ($class, $method) = explode (
-				'::', 
+				'::',
 				$config ['login_callback']
 			);
-			
-			Loader::load ($class);
 			call_user_func (
 				array ($class, $method),
 				$this
 			);
 		}
-		
+
 		return $this;
 	}
 
@@ -61,7 +59,7 @@ class User_Abstract extends Model
 	{
 		return (bool) self::id ();
 	}
-	
+
 	/**
 	 * @desc Проверяет, имеет ли пользователь доступ.
 	 * @param string|integer $alias
@@ -82,15 +80,15 @@ class User_Abstract extends Model
 					->where ('alias', $alias)
 			);
 		}
-		
+
 		if (!$resource)
 		{
 			return false;
 		}
-		
+
 		return $resource->userCan ($this);
 	}
-	
+
 	/**
 	 * @desc Создание пользователя.
 	 * @param array|Objective $data Данные пользователя.
@@ -106,17 +104,17 @@ class User_Abstract extends Model
 		{
 			$data = $data->__toArray ();
 		}
-		
+
 		if (!isset ($data ['ip']))
 		{
 			$data ['ip'] = Request::ip ();
 		}
-		
+
 		$user = new User ($data);
-		
+
 		return $user->save ();
 	}
-	
+
 	/**
 	 * @desc Генерация пароля заданной длинны.
 	 * @param integer $length
@@ -126,7 +124,7 @@ class User_Abstract extends Model
 	{
 		$result = substr (md5 (time), 0, $length);
 	}
-	
+
 	/**
 	 * @desc Возвращает модель текущего пользователя.
 	 * Если пользователь не авторизован, будет возвращает экземпляр User_Guest.
@@ -136,7 +134,7 @@ class User_Abstract extends Model
 	{
 		return self::$_current;
 	}
-	
+
 	/**
 	 * @desc Возвращает id текущего пользователя.
 	 * @return integer id текущего пользователя.
@@ -147,10 +145,10 @@ class User_Abstract extends Model
 		{
 			return 0;
 		}
-		
+
 		return self::$_current->id;
 	}
-	
+
 	/**
 	 * @desc Проверяет, имеет ли пользователь роль админа.
 	 * @return boolean true, если имеет, иначе false.
@@ -159,7 +157,7 @@ class User_Abstract extends Model
 	{
 		return $this->hasRole (Acl_Role::byName ('admin'));
 	}
-	
+
 	/**
 	 * @desc Проверяет, является ли этот пользователем текущим.
 	 * Т.е. авторизован от имени этого пользователя.
@@ -168,6 +166,22 @@ class User_Abstract extends Model
 	public function isCurrent ()
 	{
 		return self::authorized () && (self::id () == $this->key ());
+	}
+
+	/**
+	 * Проверяет есть ли у юзера доступ к содержимому, админских блоков и т д
+	 * @return boolean
+	 */
+	public function accessToAdmin()
+	{
+		if (self::id() > 0) {
+			$user = self::getCurrent();
+			if ($user->hasRole('editor') ||
+				$user->hasRole('admin')) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -186,24 +200,23 @@ class User_Abstract extends Model
 				{
 					$role = Acl_Role::byName ($role);
 				}
-				
+
 				if ($role && Helper_Link::wereLinked ($this, $role))
 				{
 					return true;
 				}
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * @desc Проверяет имеет ли пользователь роль с указаным типом
 	 * @param integer $type_id
 	 */
 	public function hasRoleWithType ($type_id)
 	{
-		Loader::load ('Helper_Link');
 		$collection = Helper_Link::linkedItems (
 			$this,
 			'Acl_Role'
@@ -212,7 +225,7 @@ class User_Abstract extends Model
 			->where ('Acl_Role_Type__id=?', $type_id);
 		return !$collection->isEmpty ();
 	}
-	
+
 	/**
 	 * @desc Инициализация пользователя.
 	 * Создание моделей сессии и пользователя.
@@ -226,13 +239,13 @@ class User_Abstract extends Model
 			User_Session::byPhpSessionId (
 				$session_id ? $session_id : 'unknown')
 		);
-		
+
 		self::$_current = User_Session::getCurrent ()->User;
 		User_Session::getCurrent ()->updateSession ();
-		
+
 		return self::$_current;
 	}
-	
+
 	/**
 	 * @desc Логаут. Удаление сессии.
 	 */
@@ -242,11 +255,10 @@ class User_Abstract extends Model
 		if ($config ['logout_callback'])
 		{
 			list ($class, $method) = explode (
-				'::', 
+				'::',
 				$config ['logout_callback']
 			);
-			
-			Loader::load ($class);
+
 			call_user_func (
 				array ($class, $method),
 				$this
@@ -254,21 +266,19 @@ class User_Abstract extends Model
 		}
 		User_Session::getCurrent ()->delete ();
 	}
-	
+
 	/**
 	 * @return Acl_Role
 	 */
 	public function personalRole ()
 	{
-		Loader::load ('Acl_Role_Type_Personal');
-		
 		$role_name = 'User' . $this->id . 'Personal';
-		
+
 		$role = Acl_Role::byTypeNName (
 			Acl_Role_Type_Personal::ID,
 			$role_name
 		);
-		
+
 		if (!$role)
 		{
 			$role = new Acl_Role (array (
@@ -277,10 +287,10 @@ class User_Abstract extends Model
 			));
 			$role->save ();
 		}
-		
+
 		return $role;
 	}
-	
+
 	/**
 	 * @desc Получение роли указанного типа, которую имеет пользователь.
 	 * Если пользователь не имеет роли указанного типа и $autocreate,
@@ -291,12 +301,11 @@ class User_Abstract extends Model
 	 */
 	public function role ($role_type_id, $autocreate = false)
 	{
-		Loader::load ('Helper_Link');
 		$role = Helper_Link::linkedItems (
 			$this,
 			'Acl_Role'
 		);
-		
+
 		if ($role)
 		{
 			$role
@@ -306,7 +315,7 @@ class User_Abstract extends Model
 				));
 			$role = $role->first ();
 		}
-		
+
 		if (!$role && $autocreate)
 		{
 			$role = new Acl_Role (array (
@@ -316,13 +325,18 @@ class User_Abstract extends Model
 			$role->save ();
 			Helper_Link::link ($role, $this);
 		}
-		
+
 		return $role;
 	}
-	
+
 	public function title ()
 	{
 		return $this->login . ' (' . $this->name . ')';
 	}
-	
+
+	public static function setCurrent($user)
+	{
+		self::$_current = $user;
+	}
+
 }

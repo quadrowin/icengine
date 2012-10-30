@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Контроллер авторизации
  * @author Юрий
  * @package IcEngine
@@ -8,13 +8,13 @@
  */
 class Controller_Authorization extends Controller_Abstract
 {
-	
+
 	/**
 	 * @desc Редирект по умолчанию после авторизация/логаута.
 	 * @var string
 	 */
 	const DEFAULT_REDIRECT = '/';
-	
+
 	/**
 	 * @desc Конфиг
 	 * @var array
@@ -27,7 +27,7 @@ class Controller_Authorization extends Controller_Abstract
 		// Возможно авторизация через СМС.
 		'sms_auth_enable'			=> false
 	);
-	
+
 	/**
 	 * @desc Возвращает адрес для редиректа
 	 * @return string
@@ -37,12 +37,12 @@ class Controller_Authorization extends Controller_Abstract
 		$redirect = $this->_input->receive ('redirect');
 		Loader::load ('Helper_Uri');
 		return Helper_Uri::validRedirect (
-			$redirect ? 
-				$redirect : 
+			$redirect ?
+				$redirect :
 				self::DEFAULT_REDIRECT
 		);
 	}
-	
+
 	/**
 	 * @desc Досутп закрыт для текущего пользователя
 	 */
@@ -56,7 +56,7 @@ class Controller_Authorization extends Controller_Abstract
 			)
 		));
 	}
-	
+
 	/**
 	 * @desc Проверка на существования пользователя с таким Email.
 	 * Используется в диалоге входа/регистрации.
@@ -64,22 +64,22 @@ class Controller_Authorization extends Controller_Abstract
 	public function checkEmail ()
 	{
 		$email = $this->_input->receive ('email');
-		
+
 		$exists = DDS::execute (
 			Query::instance ()
 			->select ('id')
 			->from ('User')
 			->where ('email', $email)
 		)->getResult ()->asValue ();
-		
+
 		$this->_output->send ('data', array (
 			'email'		=> $email,
 			'exists'	=> (bool) $exists
 		));
-		
+
 		$this->_task->setTemplate (null);
 	}
-	
+
 	/**
 	 * @desc Определение типа авторизации по данным формы
 	 * @param string $auth_login
@@ -89,9 +89,9 @@ class Controller_Authorization extends Controller_Abstract
 		$login = $this->_input->receive (
 			$this->config ()->fields_prefix . 'login'
 		);
-		
+
 		$authes = explode (',', $this->config ()->available);
-		
+
 		/**
 		 * @var Authorization_Abstract $auth
 		 */
@@ -116,7 +116,7 @@ class Controller_Authorization extends Controller_Abstract
 			}
 		}
 	}
-	
+
 	/**
 	 * @desc Авторизация.
 	 * @param string login Логин.
@@ -126,7 +126,7 @@ class Controller_Authorization extends Controller_Abstract
 	public function login ()
 	{
 		$login = $this->_input->receive ('login');
-		
+
 		if ($this->config ()->sms_auth_enable)
 		{
 			Loader::load ('Helper_Phone');
@@ -136,10 +136,10 @@ class Controller_Authorization extends Controller_Abstract
 				return $this->replaceAction ('Authorization_Sms', 'login');
 			}
 		}
-		
+
 		$password = $this->_input->receive ('password');
 		Loader::load ('Authorization');
-		
+
 		$user = Model_Manager::byQuery (
 			'User',
 			Query::instance ()
@@ -148,7 +148,7 @@ class Controller_Authorization extends Controller_Abstract
 				->where ('md5(`password`)=md5(?)', $password)
 		);
 		//Authorization::authorize ($login, $password);
-		
+
 		if (!$user)
 		{
 			$this->_sendError (
@@ -159,7 +159,7 @@ class Controller_Authorization extends Controller_Abstract
 			return ;
 		}
 		$user->authorize ();
-		
+
 		$this->_output->send ('data', array (
 			'user'	=> array (
 				'id'	=> $user->id,
@@ -168,21 +168,21 @@ class Controller_Authorization extends Controller_Abstract
 			'redirect'	=> $this->_redirect ()
 		));
 	}
-	
+
 	/**
 	 * @desc Авторизация или регистрация.
 	 */
 	public function loginOrReg ()
 	{
 		$login = $this->_input->receive ('login');
-		
+
 		$login_exists = DDS::execute (
 			Query::instance ()
 			->select ('id')
 			->from ('User')
 			->where ('email', $login)
 		)->getResult ()->asValue ();
-		
+
 		if ($login_exists)
 		{
 			// Авторизация
@@ -192,37 +192,38 @@ class Controller_Authorization extends Controller_Abstract
 		// Регистрация
 		return $this->replaceAction ('Registration', 'postForm');
 	}
-	
+
 	/**
-	 * @desc Выход.
+	 * Выход
 	 */
-	public function logout ()
+	public function logout()
 	{
-		User::getCurrent ()->logout ();
-		User_Session::getCurrent ()->delete ();
-		$redirect = $this->_input->receive ('redirect');
-		
-		Loader::load ('Helper_Uri');
-		$redirect = Helper_Uri::validRedirect (
+		$this->_task->setTemplate(null);
+		User::getCurrent()->logout();
+		User_Session::getCurrent()->delete();
+		$redirect = $this->_input->receive('redirect');
+		if (!$redirect) {
+			$redirect = Request::referer();
+		}
+		Loader::load('Helper_Uri');
+		$redirect = Helper_Uri::validRedirect(
 			$redirect ? $redirect : self::DEFAULT_REDIRECT
 		);
-		
-		$this->_output->send ('data', array (
+		$this->_output->send('data', array(
 			'redirect'	=> $redirect
 		));
 	}
-	
+
 	/**
-	 * @desc Базовая авторизация - нажата кнопка авторизации.
+	 * Базовая авторизация - нажата кнопка авторизации.
 	 */
-	public function submit ()
+	public function submit()
 	{
-		$type = $this->_input->receive ('type');
-		
-		$this->replaceAction (
+		$type = $this->_input->receive('type');
+		$this->replaceAction(
 			'Authorization_' . $type,
 			'authorize'
 		);
 	}
-	
+
 }

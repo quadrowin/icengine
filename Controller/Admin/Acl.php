@@ -22,11 +22,6 @@ class Controller_Admin_Acl extends Controller_Abstract
 		'control_roles'	=> array ('admin')
 	);
 
-	public function __construct ()
-	{
-		Loader::load ('Helper_Data_Source');
-	}
-
 	/**
 	 * @desc Получить ресурсы Aсl и префиксом Table/
 	 * @param null|Acl_Role $role
@@ -152,7 +147,7 @@ class Controller_Admin_Acl extends Controller_Abstract
 
 		$this->_output->send (array (
 			'tables'	=> $result,
-			'role_id'	=> $role->key ()
+			'role'		=> $role
 		));
 	}
 
@@ -218,8 +213,6 @@ class Controller_Admin_Acl extends Controller_Abstract
 
 		$resources = $this->_input->receive ('resources');
 
-		Loader::load ('Acl_Resource');
-
 		foreach ($resources as $resource_name)
 		{
 			$resource = Model_Manager::byQuery (
@@ -240,9 +233,58 @@ class Controller_Admin_Acl extends Controller_Abstract
 			Helper_Link::link ($role, $resource);
 		}
 
-		Loader::load ('Helper_Header');
-
 		Helper_Header::redirect ('/cp/acl/');
+	}
+
+	/**
+	 * @desc Сохраняем права на один определенный ресурс
+	 */
+	public function saveOneResource ($resource_name, $checked, $role_id)
+	{
+		$this->_task->setTemplate (null);
+
+		set_time_limit (0);
+
+		if (!$this->_checkAccess ())
+		{
+			return $this->replaceAction ('Error', 'accessDenied');
+		}
+
+		$role_id = $this->_input->receive ('role_id');
+
+		$role = Model_Manager::byKey (
+			'Acl_Role',
+			$role_id
+		);
+
+		if (!$role)
+		{
+			return;
+		}
+
+		$resource = Model_Manager::byQuery (
+			'Acl_Resource',
+			Query::instance ()
+				->where ('name', $resource_name)
+		);
+
+		if (!$resource)
+		{
+			$resource = new Acl_Resource (array (
+				'name'	=> $resource_name
+			));
+
+			$resource->save ();
+		}
+
+		if ($checked)
+		{
+			Helper_Link::link ($role, $resource);
+		}
+		else {
+			Helper_Link::unlink ($role, $resource);
+		}
+
 	}
 
 }

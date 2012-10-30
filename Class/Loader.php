@@ -90,8 +90,7 @@ class Loader
 	 */
 	public static function getPathes ($type)
 	{
-		return
-			isset (self::$_pathes [$type]) ?
+		return  isset (self::$_pathes [$type]) ?
 			self::$_pathes [$type] :
 			array ();
 	}
@@ -123,21 +122,21 @@ class Loader
 		for ($i = count (self::$_pathes [$type]) - 1; $i >= 0; --$i)
 		{
 			$fn = self::$_pathes [$type][$i] . $file;
-
 			if (file_exists ($fn))
 			{
 				self::$_required [$type][$file] = true;
 				require_once $fn;
+				if (class_exists('Tracer') && Tracer::$enabled) {
+					Tracer::incLoadedClassCount();
+				}
 				return true;
 			}
 		}
 
-		if (true)
-		{
+		$autoloaders = spl_autoload_functions();
+		if (!$autoloaders || (count($autoloaders) == 1 &&
+			$autoloaders[0][0] == 'Loader')) {
 			echo '<pre>Not found: ' . $file . "\n";
-//			echo 'Pathes: ';
-//			var_dump (self::$_pathes);
-//			var_dump (self::$_pathes [$type]);
 			echo "\n\n";
 			debug_print_backtrace ();
 			echo '</pre>';
@@ -179,7 +178,7 @@ class Loader
 	 */
 	public static function tryLoad ($class, $type = 'Class')
 	{
-		if (class_exists ($class))
+		if (class_exists ($class, false))
 		{
 			return true;
 		}
@@ -209,7 +208,7 @@ class Loader
 	 */
 	public static function load ($class, $type = 'Class')
 	{
-		if (class_exists ($class))
+		if (class_exists ($class, false))
 		{
 			return true;
 		}
@@ -228,7 +227,7 @@ class Loader
 	{
 		foreach (func_get_args () as $class)
 		{
-			if (!class_exists ($class))
+			if (!class_exists ($class, false))
 			{
 				self::requireOnce (
 					str_replace ('_', '/', $class) . '.php',

@@ -1,54 +1,70 @@
 <?php
-
 /**
- * 
- * @desc Платеж через сбербанк
+ *
+ * @desc Платеж по A1Lite
+ * @author Гурус
  * @package IcEngine
- * @author dp
  *
  */
-Loader::load('Bill_Payment_Type_Abstract');
-
-class Bill_Payment_Type_Sber extends Bill_Payment_Type_Abstract
+class Bill_Payment_Type_A1lite extends Bill_Payment_Type_Abstract
 {
 
 	/**
 	 * (non-PHPdoc)
 	 * @see Bill_Payment_Type_Abstract::assemble()
 	 */
-	public function assemble($bill_id = null, $sum = 0)
+	public function assemble ()
 	{
 		$result = 0;
 
-		$user = User::getCurrent();
-		$bill = Model_Manager::byKey('Bill', (int) $bill_id);
+		$path = IcEngine::root () . 'a1lite/success_new/';
+		$files = scandir ($path);
 
-		if (!$sum) {
-			$sum = $bill->totalCost;
-		}
-		
-		if ($user && $user->hasRole('admin') && $bill)
+		foreach ($files as $file)
 		{
-			Loader::load('Helper_Date');
-			$payment = $this->instantPayment(
-					array(
-						'value' => $sum,
-						'balance' => $sum,
-						'transactionNo' => '000' . time(),
-						'details' => 'Платеж подтвердил пользователь с id #' . $user->key(),
-						'Bill__id' => $bill->key()
-					)
-			);
-
-			if ($payment)
+			if ($file == '.' || $file == '..')
 			{
-				$payment->update(
-						array(
-							'endProcessTime' => Helper_Date::toUnix()
-						)
-				);
-				++$result;
+				continue;
 			}
+
+			$f = fopen ($path . $file, "r+");
+			if (!$f)
+			{
+				continue;
+			}
+
+			if (!flock ($f, LOCK_EX | LOCK_NB))
+			{
+				fclose ($f);
+				continue;
+			}
+
+			$log_message = fread ($f, filesize ($path . $file));
+			if ($log_message)
+			{
+				$message = json_decode ($log_message, true);
+				if ($message)
+				{
+					$payment = $this->instantPayment (array (
+						'value'					=> $message ['system_income'],
+						'transactionNo'			=> $message ['tid'],
+						'details'				=> $log_message,
+						'Bill__id'				=> (int) $message ['order_id']
+					));
+
+					fseek ($f, 0, SEEK_SET);
+					ftruncate ($f, 0);
+
+					$payment->update (array (
+						'endProcessTime' => Helper_Date::toUnix ()
+					));
+					++$result;
+				}
+			}
+
+			flock ($f, LOCK_UN);
+			fclose ($f);
+			unlink ($path . $file);
 		}
 
 		return $result;
