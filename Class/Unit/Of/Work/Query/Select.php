@@ -18,12 +18,20 @@ class Unit_Of_Work_Query_Select extends Unit_Of_Work_Query_Abstract
 		$loaderName = null;
 		foreach ($data as $loaderName=>$raws) {
 			foreach ($raws as $raw) {
-				foreach ($raw['wheres'] as $value) {
-					$wheres[] = $value;
+				foreach ($raw['wheres'] as $keyValue=>$value) {
+					if (strstr($keyValue, '?')) {
+						$keyValue = str_replace('?', '"' . $value . '"', $keyValue);
+						$value = null;
+					}
+					$wheres[$keyValue] = $value;
 				}
 			}
 		}
 		list($modelName, $keyField) = explode('@', $key);
+		/*echo '---' . $modelName;
+		if ($modelName == 'Activation') {
+			print_r($wheres);die;
+		}*/
 		$query = Query::instance()
 			->select('*')
 			->from($modelName);
@@ -32,7 +40,13 @@ class Unit_Of_Work_Query_Select extends Unit_Of_Work_Query_Abstract
 				$query->where($keyField, $where);
 			}
 		} else {
-			$query->where($keyField, $wheres);
+			foreach ($wheres as $keyQhere=>$where) {
+				if (is_null($where)) {
+					$query->where($keyQhere);
+				} else {
+					$query->where($keyQhere, $where);
+				}
+			}
 		}
 		return array(
 			'modelName'	=> $modelName,
