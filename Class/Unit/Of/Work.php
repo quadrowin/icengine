@@ -101,6 +101,7 @@ class Unit_Of_Work
 	private static function _execute($key)
 	{
 		$query = self::$queries[$key];
+		//FB::log(self::getRaw());
 		//echo $key . ' ' . $query['query']->translate() . '<br />';
 		$result = Model_Scheme::dataSource($query['modelName'])
 			->execute($query['query']);

@@ -263,7 +263,8 @@ class Model_Manager extends Manager_Abstract
 		$parent = $second && isset($config['delegee'][$second]) ?
 			$second :
 			$first;
-		if ($parent != 'Model_Defined') {
+		//echo $parent . '<br />';
+		if ($parent != 'Model_Defined' && $parent != 'Model_Factory') {
 			return self::uowByQuery($model, $query);
 		}
 		$data = null;
@@ -314,7 +315,16 @@ class Model_Manager extends Manager_Abstract
 		if ($result) {
 			return $result;
 		}
-		$model = self::getModel($modelName, $whereFields);
+		$whereFieldsPrepared = array();
+		foreach($whereFields as $key=>$whereField) {
+			$fieldName = trim(strtr($key, array(
+				'?'	=> '',
+				'<'	=> '',
+				'>'	=> ''
+			)));
+			$whereFieldsPrepared[$fieldName] = $whereField;
+		}
+		$model = self::getModel($modelName, $whereFieldsPrepared);
 		Unit_Of_Work::push($query, $model, 'Simple');
 		return $model;
 	}
