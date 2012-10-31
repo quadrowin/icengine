@@ -67,6 +67,12 @@ abstract class Model implements ArrayAccess
 	protected	$_loaded;
 
 	/**
+	 * Означает, что модель отложенная для true
+	 * @var bool
+	 */
+	protected $_lazy;
+
+	/**
 	 * @desc Плагины
 	 * @var array
 	 */
@@ -202,8 +208,11 @@ abstract class Model implements ArrayAccess
 		}
 
 		if (!$this->_loaded) {
-			//$this->load ();
-			Unit_Of_Work::load($this);
+			if ($this->_lazy) {
+				Unit_Of_Work::load($this);
+			} else {
+				$this->load ();
+			}
 			if (
 				$this->_fields &&
 				!array_key_exists ($field, $this->_fields) &&
@@ -217,6 +226,21 @@ abstract class Model implements ArrayAccess
 		return $this->_fields [$field];
 	}
 
+	/**
+	 * Установить флаг отложенной модели, через Unit Of Work
+	 *
+	 * @param bool $value
+	 */
+	public function setLazy($value)
+	{
+		$this->_lazy = $value;
+	}
+
+	/**
+	 * Установить флаг загруженной модели
+	 *
+	 * @param bool $value
+	 */
 	public function setLoaded($value)
 	{
 		$this->_loaded = $value;
@@ -971,6 +995,10 @@ abstract class Model implements ArrayAccess
 	 */
 	public function update (array $data, $hard = false)
 	{
+		if ($this->_lazy && !$this->_loaded) {
+			Unit_Of_Work::load($this);
+		}
+
 		if ($this->_generic)
 		{
 			if (!$this->_generic->isLoaded ())
