@@ -36,16 +36,21 @@ class Controller_Password_Recovery extends Controller_Abstract
 	public function change ()
 	{
 		$password = $this->_input->receive ('password');
-		if (strlen ($password) < 3)
-		{
-			$this->_output->send ('data', array (
+        
+        Loader::load('Data_Validator_Password');
+        $data_validator_password = new Data_Validator_Registration_Password();
+        $check_password = $data_validator_password->validate($password);
+        
+        if (!$check_password)
+        {
+            $this->_output->send ('data', array (
 				'error'	=> true
 			));
-
-			$this->_task->setClassTpl (__METHOD__, 'error_short_password');
-
-			return ;
-		}
+            
+            $this->_task->setClassTpl (__METHOD__, 'error_password_bad');
+            
+            return;
+        }
 
 		$recovery = Password_Recovery::fromSession ();
 
@@ -66,7 +71,7 @@ class Controller_Password_Recovery extends Controller_Abstract
 		));
 
 		$recovery->User->update (array (
-			'password'	=> $password
+			'password'	=> md5($password)
 		));
 
 		$this->_output->send ('data', array (
