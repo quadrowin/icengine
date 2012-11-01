@@ -550,9 +550,14 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 			->reset();
         $result = Helper_Array::filter($this->items(), $fields);
 		if ($result) {
-            foreach ($result as $row) {
-                $model = Model_Manager::byKey($modelName, $row[$keyField]);
-                $collection->add($model);
+            $ids = Helper_Array::column($result, $keyField);
+            foreach ($ids as $id) {
+                foreach ($this->_items as $model) {
+                    if ($id != $model->key()) {
+                        continue;
+                    }
+                    $collection->add($model);
+                }
             }
         }
         return $collection;
@@ -1028,7 +1033,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
             }
             $result = Helper_Array::column($this->_items, $columns);
         }
-        return $result;
+        return (array) $result;
     }
 
 	/**
