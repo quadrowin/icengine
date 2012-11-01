@@ -19,10 +19,16 @@ class Helper_Array
             return $input;
         }
 		$result = array();
+        $count = count($columns);
 		foreach ($input as $row) {
             $current = array();
             foreach ((array) $columns as $column) {
-                $current[$column] = isset($row[$column]) ? $row[$column] : null;
+                $value = isset($row[$column]) ? $row[$column] : null;
+                if ($count > 1) {
+                    $current[$column] = $value;
+                } else {
+                    $current = $value;
+                }
             }
 			$result[] = $current;
 		}
