@@ -10,14 +10,21 @@ class Helper_Array
 	 * Возвращает массив
      *
 	 * @param array $input Двумерный массив.
-	 * @param string $column Название колонки.
+	 * @param string $columns Название колонки.
 	 * @return array Колонка $column исходного массива
 	 */
-	public static function column($input, $column)
+	public static function column($input, $columns)
 	{
+        if (!$columns) {
+            return $input;
+        }
 		$result = array();
 		foreach ($input as $row) {
-			$result[] = $row[$column];
+            $current = array();
+            foreach ((array) $columns as $column) {
+                $current[$column] = isset($row[$column]) ? $row[$column] : null;
+            }
+			$result[] = $current;
 		}
 		return $result;
 	}

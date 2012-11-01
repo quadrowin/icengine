@@ -1003,36 +1003,42 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
      */
     public function raw($columns = array())
     {
+        $result = array();
         if ($this->_items) {
             if (is_array($this->_items[0])) {
-                return $this->_items;
+                $result = Helper_Array::column($this->_items, $columns);
+            } else {
+                $fullResult = array();
+                foreach ($this->_items as $item) {
+                    $fullResult[] = $item->asRow();
+                }
+                $result = Helper_Array::column($fullResult, $columns);
             }
-            $result = array();
-            foreach ($this->_items as $item) {
-                $result[] = $item->asRow();
+        } else {
+            $this->beforeLoad($columns);
+            $pack = Model_Collection_Manager::callDelegee(
+                $this, $this->_lastQuery
+            );
+            if ($pack) {
+                $this->_items = $pack['items'];
             }
-            return $result;
+            $this->_options->executeAfter($this->_lastQuery);
+            if ($this->_paginator) {
+                $this->_paginator->fullCount = $this->data('foundRows');
+            }
+            $result = Helper_Array::column($this->_items, $columns);
         }
-        $this->beforeLoad($columns);
-        $pack = Model_Collection_Manager::callDelegee($this, $this->_lastQuery);
-        if ($pack) {
-            $this->_items = $pack['items'];
-        }
-        $this->_options->executeAfter($this->_lastQuery);
-		if ($this->_paginator) {
-			$this->_paginator->fullCount = $this->data('foundRows');
-		}
-        return $this->_items;
+        return $result;
     }
 
 	/**
-	 *
-	 * @desc Удаляет опшин по имени
+	 * Удаляет опшин по имени
+     *
 	 * @param string $name
 	 */
-	public function removeOption ($name)
+	public function removeOption($name)
 	{
-		$this->_options->remove ($name);
+		$this->_options->remove($name);
 	}
 
 	/**
