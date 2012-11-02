@@ -50,7 +50,7 @@ class Helper_View_Resource
 	 */
 	protected static $files = array(
 		self::CSS	=> array(),
-		self::JS		=> array()
+		self::JS	=> array()
 	);
 
 	/**
@@ -102,7 +102,7 @@ class Helper_View_Resource
 	 *
 	 * @param string $type
 	 */
-	public static function createPackFile($type)
+	public static function createPackFile($type, $fileName = null)
 	{
 		if (empty(self::$files[$type])) {
 			return;
@@ -110,10 +110,12 @@ class Helper_View_Resource
 		$config = self::config();
 		$key = self::resourceKey();
 		$root = IcEngine::root();
-		$filename = $root . ltrim($config->path) .
-			$key . (isset($config->packGroups[$type]) ?
-			$config->packGroups[$type] : '');
-		/*if (is_file($filename)) {
+		if (!$fileName) {
+			$fileName = $root . ltrim($config->path) .
+				$key . (isset($config->packGroups[$type]) ?
+				$config->packGroups[$type] : '');
+		}
+		/*if (is_file($fileName)) {
 			return true;
 		}*/
 		$content = '';
@@ -125,7 +127,7 @@ class Helper_View_Resource
 			$content .= self::pack($type, $currentFilename, $fileContent);
 		}
 		$content = str_replace('$jsEmbedKey', $key, $content);
-		file_put_contents($filename, $content);
+		file_put_contents($fileName, $content);
 		return true;
 	}
 
@@ -135,7 +137,7 @@ class Helper_View_Resource
 	 * @param string $type
 	 * @return string
 	 */
-	public static function embed($type)
+	public static function embed($type, $compiledName = null)
 	{
 		$config = self::config();
 		$key = self::resourceKey();
@@ -145,7 +147,7 @@ class Helper_View_Resource
 			$lastPackedAt = time();
 			$provider->set($key, $lastPackedAt);
 		}
-		if (self::createPackFile($type)) {
+		if (self::createPackFile($type, $compiledName)) {
 			$filename = rtrim($config->cdn[$type], '/') . '/' .
 				ltrim($config->path) . $key .
 				(isset($config->packGroups[$type]) ?
@@ -175,9 +177,32 @@ class Helper_View_Resource
 	public static function embedJs()
 	{
 		$config = Config_Manager::get('Controller_Resource');
-		$call = Router::getRoute()->actions[0];
+		$route = Router::getRoute();
+		$call = $route->actions[0];
 		$rules = $config->js->rules;
 		$path = $config->js->defaultPath;
+		$out = '';
+		$ruleParams = $config->js->params->asArray();
+		$routeParams = array_keys($route->params);
+		foreach ($routeParams as $routeParam) {
+			if (isset($ruleParams[$routeParam])) {
+				$ruleParam = $ruleParams[$routeParam];
+				if (isset($ruleParam['path'])) {
+					$path = $ruleParam['path'];
+				}
+				self::appendJs($path . 'Controller/JSstack.js');
+				foreach ($rule['sources'] as $source) {
+					if (strstr($source, '_')) {
+						$source = str_replace('_', '/', $source) . '.js';
+					}
+					self::appendJs($path . $source);
+				}
+			}
+		}
+		echo '1';
+		print_r($ruleParams);die;
+
+		print_r($routeParams);die;
 		if (isset($rules[$call])) {
 			$rule = $rules[$call];
 			if (isset($rule['path'])) {
@@ -191,7 +216,8 @@ class Helper_View_Resource
 				self::appendJs($path . $source);
 			}
 		}
-		return self::embed(self::JS);
+		$out .= self::embed(self::JS);
+		return $out;
 	}
 
 	/**
@@ -230,5 +256,10 @@ class Helper_View_Resource
 			return $route->params['resourceGroup'];
 		}
 		return md5($route->route);
+	}
+
+	public static function resetJs()
+	{
+		self::$files[self::JS] = array();
 	}
 }
