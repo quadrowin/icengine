@@ -113,18 +113,18 @@ class Helper_View_Resource
 		$filename = $root . ltrim($config->path) .
 			$key . (isset($config->packGroups[$type]) ?
 			$config->packGroups[$type] : '');
-		if (is_file($filename)) {
+		/*if (is_file($filename)) {
 			return true;
-		}
+		}*/
 		$content = '';
 		foreach (self::$files[$type] as $currentFilename) {
-			$currentFilename = $root . ltrim($currentFilename, '/');
 			if (!is_file($currentFilename)) {
 				continue;
 			}
 			$fileContent = file_get_contents($currentFilename);
 			$content .= self::pack($type, $currentFilename, $fileContent);
 		}
+		$content = str_replace('$jsEmbedKey', $key, $content);
 		file_put_contents($filename, $content);
 		return true;
 	}
@@ -174,6 +174,23 @@ class Helper_View_Resource
 	 */
 	public static function embedJs()
 	{
+		$config = Config_Manager::get('Controller_Resource');
+		$call = Router::getRoute()->actions[0];
+		$rules = $config->js->rules;
+		$path = $config->js->defaultPath;
+		if (isset($rules[$call])) {
+			$rule = $rules[$call];
+			if (isset($rule['path'])) {
+				$path = $rule['path'];
+			}
+			self::appendJs($path . 'Controller/JSstack.js');
+			foreach ($rule['sources'] as $source) {
+				if (strstr($source, '_')) {
+					$source = str_replace('_', '/', $source) . '.js';
+				}
+				self::appendJs($path . $source);
+			}
+		}
 		return self::embed(self::JS);
 	}
 
