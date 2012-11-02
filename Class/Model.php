@@ -93,7 +93,11 @@ abstract class Model implements ArrayAccess
 	 * @var array <boolean>
 	 */
 	protected	$_updatedFields = array ();
-
+	
+	public function getUpdatedFields() 
+	{
+		return $this->_updatedFields;
+	}
 	/**
 	 * @param string $method
 	 * @param mixed $params
