@@ -102,13 +102,12 @@ class Helper_View_Resource
 	 *
 	 * @param string $type
 	 */
-	public static function createPackFile($type, $fileName = null)
+	public static function createPackFile($type, $key, $fileName = null)
 	{
 		if (empty(self::$files[$type])) {
 			return;
 		}
 		$config = self::config();
-		$key = self::resourceKey();
 		$root = IcEngine::root();
 		if (!$fileName) {
 			$fileName = $root . ltrim($config->path) .
@@ -137,17 +136,16 @@ class Helper_View_Resource
 	 * @param string $type
 	 * @return string
 	 */
-	public static function embed($type, $compiledName = null)
+	public static function embed($type, $key, $compiledName = null)
 	{
 		$config = self::config();
-		$key = self::resourceKey();
 		$provider = Data_Provider_Manager::get($config->provider);
 		$lastPackedAt = $provider->get($key);
 		if (!$lastPackedAt) {
 			$lastPackedAt = time();
 			$provider->set($key, $lastPackedAt);
 		}
-		if (self::createPackFile($type, $compiledName)) {
+		if (self::createPackFile($type, $key, $compiledName)) {
 			$filename = rtrim($config->cdn[$type], '/') . '/' .
 				ltrim($config->path) . $key .
 				(isset($config->packGroups[$type]) ?
@@ -191,18 +189,16 @@ class Helper_View_Resource
 					$path = $ruleParam['path'];
 				}
 				self::appendJs($path . 'Controller/JSstack.js');
-				foreach ($rule['sources'] as $source) {
+				foreach ($ruleParam['sources'] as $source) {
 					if (strstr($source, '_')) {
 						$source = str_replace('_', '/', $source) . '.js';
 					}
 					self::appendJs($path . $source);
 				}
+				$out .= self::embed(self::JS, $routeParam);
+				self::resetJs();
 			}
 		}
-		echo '1';
-		print_r($ruleParams);die;
-
-		print_r($routeParams);die;
 		if (isset($rules[$call])) {
 			$rule = $rules[$call];
 			if (isset($rule['path'])) {
@@ -216,8 +212,29 @@ class Helper_View_Resource
 				self::appendJs($path . $source);
 			}
 		}
-		$out .= self::embed(self::JS);
+		$key = self::resourceKey();
+		$out .= self::embed(self::JS, $key);
 		return $out;
+	}
+
+	public static function embedJsKeys()
+	{
+		$config = Config_Manager::get('Controller_Resource');
+		$route = Router::getRoute();
+		$call = $route->actions[0];
+		$rules = $config->js->rules;
+		$keys = array();
+		$ruleParams = $config->js->params->asArray();
+		$routeParams = array_keys($route->params);
+		foreach ($routeParams as $routeParam) {
+			if (isset($ruleParams[$routeParam])) {
+				$keys[] = $routeParam;
+			}
+		}
+		if (isset($rules[$call])) {
+			$keys[] = self::resourceKey();
+		}
+		return $keys;
 	}
 
 	/**
