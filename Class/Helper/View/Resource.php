@@ -300,8 +300,7 @@ class Helper_View_Resource
 				$content
 			);
 		}
-		return '/**' . PHP_EOL . ' * ' . $filename . PHP_EOL . ' */' . PHP_EOL .
-			$content . PHP_EOL;
+		return $content . PHP_EOL;
 	}
 
 	/**
