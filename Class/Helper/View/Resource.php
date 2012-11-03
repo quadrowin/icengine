@@ -85,6 +85,43 @@ class Helper_View_Resource
 	}
 
 	/**
+	 * Добавить файлы js по шаблону
+	 *
+	 * @param string $path базовый путь
+	 * @param string $source
+	 */
+	public static function appendJsMultiple($path, $source)
+	{
+		$slashRight = strrpos($source, '/');
+		$directory = substr($source, 0, $slashRight);
+		$regExp = substr($source, $slashRight + 1);
+		$regExp = str_replace('**', '.*', $regExp);
+		$directoryIterator = new RecursiveDirectoryIterator(
+			$path . $directory
+		);
+		$iterator = new RecursiveIteratorIterator($directoryIterator);
+		$sources = array();
+
+		foreach ($iterator as $item) {
+			$fileName = $item->getFilename();
+			if (preg_match('#' . $regExp . '#si', $fileName)) {
+				$sources[] = $item->getPathname();
+			}
+		}
+		function abstractUp($a, $b) {
+			if (strstr($a, 'Abstract') &&
+				!strstr($b, 'Abstract')) {
+				return -1;
+			}
+			return 1;
+		}
+		usort($sources, 'abstractUp');
+		foreach ($sources as $source) {
+			self::appendJs($source);
+		}
+	}
+
+	/**
 	 * Получить конфигурацию
 	 *
 	 * @return Config_Abstract
@@ -192,6 +229,9 @@ class Helper_View_Resource
 				foreach ($ruleParam['sources'] as $source) {
 					if (strstr($source, '_')) {
 						$source = str_replace('_', '/', $source) . '.js';
+					} elseif (strstr($source, '**')) {
+						self::appendJsMultiple($path, $source);
+						continue;
 					}
 					self::appendJs($path . $source);
 				}
@@ -209,30 +249,7 @@ class Helper_View_Resource
 				if (strstr($source, '_')) {
 					$source = str_replace('_', '/', $source) . '.js';
 				} elseif (strstr($source, '**')) {
-					list($directory, $regExp) = explode('/', $source);
-					$regExp = str_replace('**', '.*', $regExp);
-					$directoryIterator = new RecursiveDirectoryIterator(
-						$path . $directory
-					);
-					$iterator = new RecursiveIteratorIterator($directoryIterator);
-					$sources = array();
-					foreach ($iterator as $item) {
-						$fileName = $item->getFilename();
-						if (preg_match('#' . $regExp . '#si', $fileName)) {
-							$sources[] = $item->getPathname();
-						}
-					}
-					function abstractUp($a, $b) {
-						if (strstr($a, 'Abstract') &&
-							!strstr($b, 'Abstract')) {
-							return -1;
-						}
-						return 1;
-					}
-					usort($sources, 'abstractUp');
-					foreach ($sources as $source) {
-						self::appendJs($source);
-					}
+					self::appendJsMultiple($path, $source);
 					continue;
 				}
 				self::appendJs($path . $source);
