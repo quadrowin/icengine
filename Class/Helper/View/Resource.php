@@ -114,9 +114,9 @@ class Helper_View_Resource
 				$key . (isset($config->packGroups[$type]) ?
 				$config->packGroups[$type] : '');
 		}
-		/*if (is_file($fileName)) {
+		if (is_file($fileName)) {
 			return true;
-		}*/
+		}
 		$content = '';
 		foreach (self::$files[$type] as $currentFilename) {
 			if (!is_file($currentFilename)) {
@@ -208,6 +208,32 @@ class Helper_View_Resource
 			foreach ($rule['sources'] as $source) {
 				if (strstr($source, '_')) {
 					$source = str_replace('_', '/', $source) . '.js';
+				} elseif (strstr($source, '**')) {
+					list($directory, $regExp) = explode('/', $source);
+					$regExp = str_replace('**', '.*', $regExp);
+					$directoryIterator = new RecursiveDirectoryIterator(
+						$path . $directory
+					);
+					$iterator = new RecursiveIteratorIterator($directoryIterator);
+					$sources = array();
+					foreach ($iterator as $item) {
+						$fileName = $item->getFilename();
+						if (preg_match('#' . $regExp . '#si', $fileName)) {
+							$sources[] = $item->getPathname();
+						}
+					}
+					function abstractUp($a, $b) {
+						if (strstr($a, 'Abstract') &&
+							!strstr($b, 'Abstract')) {
+							return -1;
+						}
+						return 1;
+					}
+					usort($sources, 'abstractUp');
+					foreach ($sources as $source) {
+						self::appendJs($source);
+					}
+					continue;
 				}
 				self::appendJs($path . $source);
 			}
