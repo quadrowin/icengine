@@ -32,7 +32,7 @@ class User_Abstract extends Model
 	 */
 	public function authorize ()
 	{
-		User_Session::getCurrent ()->updateSession ($this->id);
+		User_Session::getCurrent ()->updateSession ($this->key());
 		self::$_current = $this;
 
 		$config = $this->config ();
@@ -115,6 +115,39 @@ class User_Abstract extends Model
 		return $user->save ();
 	}
 
+	/**
+	 * @desc Получаем текущее значение баланса 
+	 * @return Component_Balance 
+	 */
+	public function getBalance() 
+	{
+		$balance = $this->component('Balance', 0);
+		if (!$balance)
+		{
+			Loader::load('Helper_Date');
+			Loader::load('Component_Balance');
+			$balance = new Component_Balance(array(
+				'table' => 'User',
+				'rowId'	=> $this->key (),
+				'vaue'	=> 0,
+				'lastUpdateTime' => Helper_Date::toUnix ()
+			));
+			$balance->save();
+			return $balance;
+		}
+		
+		if (!isset($balance->value)) 
+		{
+			$balance->update(
+				array(
+					'value' => 0
+				)
+			);
+    		$balance = $this->component('Balance', 0);
+		}
+		return $balance;
+	}
+	
 	/**
 	 * @desc Генерация пароля заданной длинны.
 	 * @param integer $length
@@ -331,7 +364,7 @@ class User_Abstract extends Model
 
 	public function title ()
 	{
-		return $this->login . ' ' . $this->name;
+		return $this->login . ' (' . $this->name . ')';
 	}
 
 	public static function setCurrent($user)
