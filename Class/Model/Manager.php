@@ -175,11 +175,9 @@ class Model_Manager extends Manager_Abstract
 	}
 
 	/**
-	 * Получение модели по первичному ключу.
-	 *
+	 * @desc Получение модели по первичному ключу.
 	 * @param string $model Имя класса модели.
 	 * @param integer $key Значение первичного ключа.
-	 * @param bool $lazy через Unit of work
 	 * @return Model|null
 	 */
 	public static function byKey($modelName, $key, $lazy = false)
@@ -263,11 +261,9 @@ class Model_Manager extends Manager_Abstract
 	}
 
 	/**
-	 * Получение модели по запросу.
-	 *
-	 * @param string $model Название модели
-	 * @param Query_Abstract $query Запрос
-	 * @param bool $lazy через Unit of work
+	 * @desc Получение модели по запросу.
+	 * @param string $model Название модели.
+	 * @param Query_Abstract $query Запрос.
 	 * @return Model|null
 	 */
 	public static function byQuery($model, Query_Abstract $query, $lazy = false)

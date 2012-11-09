@@ -67,16 +67,16 @@ abstract class Model implements ArrayAccess
 	protected	$_loaded;
 
 	/**
+	 * Означает, что модель отложенная для true
+	 * @var bool
+	 */
+	protected $_lazy;
+
+	/**
 	 * @desc Плагины
 	 * @var array
 	 */
 	protected	$_plugins;
-
-	/**
-	 * Параметр означает что модель отложенная
-	 * @var bool
-	 */
-	protected	$_lazy;
 
 	/**
 	 * @desc Схема модели
@@ -93,7 +93,11 @@ abstract class Model implements ArrayAccess
 	 * @var array <boolean>
 	 */
 	protected	$_updatedFields = array ();
-
+	
+	public function getUpdatedFields() 
+	{
+		return $this->_updatedFields;
+	}
 	/**
 	 * @param string $method
 	 * @param mixed $params
@@ -226,6 +230,21 @@ abstract class Model implements ArrayAccess
 		return $this->_fields [$field];
 	}
 
+	/**
+	 * Установить флаг отложенной модели, через Unit Of Work
+	 *
+	 * @param bool $value
+	 */
+	public function setLazy($value)
+	{
+		$this->_lazy = $value;
+	}
+
+	/**
+	 * Установить флаг загруженной модели
+	 *
+	 * @param bool $value
+	 */
 	public function setLoaded($value)
 	{
 		$this->_loaded = $value;
@@ -980,6 +999,10 @@ abstract class Model implements ArrayAccess
 	 */
 	public function update (array $data, $hard = false)
 	{
+		if ($this->_lazy && !$this->_loaded) {
+			Unit_Of_Work::load($this);
+		}
+
 		if ($this->_generic)
 		{
 			if (!$this->_generic->isLoaded ())
