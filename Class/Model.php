@@ -73,6 +73,12 @@ abstract class Model implements ArrayAccess
 	protected	$_plugins;
 
 	/**
+	 * Параметр означает что модель отложенная
+	 * @var bool
+	 */
+	protected	$_lazy;
+
+	/**
 	 * @desc Схема модели
 	 * @var array
 	 */
@@ -202,8 +208,11 @@ abstract class Model implements ArrayAccess
 		}
 
 		if (!$this->_loaded) {
-			//$this->load ();
-			Unit_Of_Work::load($this);
+			if ($this->_lazy) {
+				Unit_Of_Work::load($this);
+			} else {
+				$this->load ();
+			}
 			if (
 				$this->_fields &&
 				!array_key_exists ($field, $this->_fields) &&
