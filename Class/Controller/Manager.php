@@ -451,7 +451,6 @@ class Controller_Manager extends Manager_Abstract
 		if ($tpl)
 		{
 			$view = View_Render_Manager::pushViewByName ('Smarty');
-
 			try
 			{
 				$view->assign ($buffer);
@@ -470,7 +469,7 @@ class Controller_Manager extends Manager_Abstract
 					$e->getLine () . ':' .
 					$e->getCode () . '] ' .
 					$e->getMessage () . PHP_EOL;
-
+ 
 				error_log (
 					$msg . PHP_EOL .
 					$e->getTraceAsString () . PHP_EOL,
@@ -483,17 +482,17 @@ class Controller_Manager extends Manager_Abstract
 			}
 
 			View_Render_Manager::popView ();
-		}
-
-		if (Tracer::$enabled) {
-			$deltaModelCount = Tracer::getDeltaModelCount();
-			$deltaQueryCount = Tracer::getDeltaQueryCount();
-			$delta = $endTime - $startTime;
-			Tracer::incRenderTime($delta);
-			Tracer::incControllerCount();
-			Tracer::end($deltaModelCount, $deltaQueryCount, memory_get_usage(),
-				$delta);
-		}
+		
+            if (Tracer::$enabled) {
+                $deltaModelCount = Tracer::getDeltaModelCount();
+                $deltaQueryCount = Tracer::getDeltaQueryCount();
+                $delta = $endTime - $startTime;
+                Tracer::incRenderTime($delta);
+                Tracer::incControllerCount();
+                Tracer::end($deltaModelCount, $deltaQueryCount, memory_get_usage(),
+                    $delta);
+            }
+        } 
 
 		if (!empty ($options ['with_buffer']))
 		{
