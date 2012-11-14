@@ -1,28 +1,29 @@
 <?php
+
 /**
+ * Абстрактный класс опций модели.
  *
- * @desc Абстрактный класс опций модели.
- * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
- *
+ * @author goorus, morph
  */
 abstract class Model_Option
 {
-
 	/**
-	 * @desc Коллекция, на которую наложен опшн
+	 * Коллекция, на которую наложен опшн
+     *
 	 * @var Model_Collection
 	 */
 	public $collection;
 
 	/**
-	 * @desc Название опции
+	 * Название опции
+     *
 	 * @var string
 	 */
 	public $name;
 
 	/**
-	 * @desc Опции
+	 * Опции
+     *
 	 * @var array
 	 */
 	public $params;
@@ -35,7 +36,8 @@ abstract class Model_Option
 	protected $queryName;
 
 	/**
-	 * @desc Запрос, выполняемый коллекцией.
+	 * Запрос, выполняемый коллекцией
+     *
 	 * Переменная $query отличается от запроса, возвращаемого методом
 	 * <i>$colleciton->query()</i>. По умолчанию эта переменная - клон
 	 * изначального запроса коллекции, на который наложены опции.
@@ -44,35 +46,30 @@ abstract class Model_Option
 	public $query;
 
 	/**
-	 * @desc Создает и возвращает опцию
+	 * Создает и возвращает опцию
 	 */
-	public function __construct (Model_Collection $collection, array $params)
+	public function __construct(Model_Collection $collection, $params)
 	{
-		$class = get_class ($this);
+		$class = get_class($this);
 		$delim = '_Model_Option_';
-		$pos = strrpos ($class, $delim);
-
-		$this->name = substr (
-			$class,
-			$pos + strlen ($delim)
-		);
-
+		$pos = strrpos($class, $delim);
+		$this->name = substr($class, $pos + strlen ($delim));
 		$this->collection = $collection;
 		$this->params = $params;
 	}
 
 	/**
-	 * @desc Вызывается после выполения запроса.
+	 * Вызывается после выполения запроса.
 	 */
-	public function after ()
+	public function after()
 	{
 
 	}
 
 	/**
-	 * @desc Вызывается перед выполнением запроса.
+	 * Вызывается перед выполнением запроса.
 	 */
-	public function before ()
+	public function before()
 	{
 		if ($this->queryName) {
 			$className = 'Query_Part_' . $this->queryName;
@@ -83,46 +80,36 @@ abstract class Model_Option
 	}
 
 	/**
-	 * @desc Создание опции.
+	 * Создание опции
+     *
 	 * @param string $name
 	 * @param Model_Collection $collection
 	 * @param array $params
 	 */
-	public static function create ($name, Model_Collection $collection,
-		array $params)
+	public static function create($name, Model_Collection $collection, $params)
 	{
-		$class = self::getClassName ($name, $collection);
-		return new $class ($collection, $params);
+		$class = self::getClassName($name, $collection);
+		return new $class($collection, $params);
 	}
 
 	/**
-	 * @desc Возвращает название класса опции.
+	 * Возвращает название класса опции
+     *
 	 * @param string $option Название опции
 	 * @param Model_Collection $collection Коллекция.
 	 * @return string
 	 */
-	public static function getClassName ($option, $collection)
+	public static function getClassName($option, $collection)
 	{
-		$p = strpos ($option, '::');
-		if ($p === false)
-		{
+		$p = strpos($option, '::');
+		if ($p === false) {
 			// Опция этой модели
-			return
-				$collection->modelName () .
-				'_Option_' .
-				$option;
-		}
-		elseif ($p === 0)
-		{
+			return $collection->table() . '_Option_' . $option;
+		} elseif ($p === 0) {
 			// Базовые опции всех моделей, например '::Limit'
-			return 'Model_Option_' . substr ($option, $p + 2);
+			return 'Model_Option_' . substr($option, $p + 2);
 		}
-
 		// Опция другой модели
-		return
-			substr ($option, 0, $p) .
-			'_Option_' .
-			substr ($option, $p + 2);
+		return substr($option, 0, $p) . '_Option_' . substr($option, $p + 2);
 	}
-
 }
