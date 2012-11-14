@@ -16,7 +16,8 @@ class Helper_Collection
 	 *
 	 * @return Model_Collection
 	 */
-	public static function sortByParent($collection, $include_unparented = false)
+	public static function sortByParent($collection,
+		$include_unparented = false)
 	{
 		$list = &$collection->items();
 		if (empty($list)) {
