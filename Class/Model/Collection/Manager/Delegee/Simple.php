@@ -26,9 +26,9 @@ class Model_Collection_Manager_Delegee_Simple
 			$collection->data ('foundRows', $query_result->foundRows ());
 		}
 
-		$scheme = Model_Scheme::getScheme ($model);
+		$scheme = Model_Scheme::scheme($model);
 
-		$fields = array_keys ($scheme ['fields']);
+		$fields = array_keys ($scheme ['fields']->__toArray());
 
 		$table = $query_result->asTable ();
 
