@@ -50,32 +50,6 @@ class Helper_Link
 	}
 
 	/**
-	 * Проверяет, связаны ли модели
-	 *
-	 * @param Model $model1
-	 * @param Model $model2
-	 * @return boolean
-	 */
-	public static function wereLinked(Model $model1, Model $model2)
-	{
-		if (strcmp($model1->table(), $model2->table()) > 0) {
-	        $tmp = $model1;
-	        $model1 = $model2;
-	        $model2 = $tmp;
-	    }
-		$scheme = Model_Scheme::linkScheme($model1->table(), $model2->table());
-		if (!$scheme) {
-			$link = self::_link(
-				$model1->table(), $model1->key(),
-				$model2->table(), $model2->key()
-			);
-		} else {
-			$link = self::_schemeLink($scheme, $model1->key(), $model2->key());
-		}
-	    return (bool) $link;
-	}
-
-	/**
 	 * Связывает модели
 	 *
 	 * @param Model $model1
@@ -89,7 +63,7 @@ class Helper_Link
 	        $model1 = $model2;
 	        $model2 = $tmp;
 	    }
-	    $scheme = Model_Scheme::linkScheme($model1->table(), $model2->table());
+	    $scheme = self::linkScheme($model1->table(), $model2->table());
 	    if (!$scheme) {
 			$link = self::_link(
 				$model1->table(), $model1->key(),
@@ -142,7 +116,7 @@ class Helper_Link
 			$table1 = $table2;
 			$table2 = $tmp;
 		}
-		$scheme = Model_Scheme::linkScheme($table1, $table2);
+		$scheme = self::linkScheme($table1, $table2);
 		$ids = array();
 		if (!$scheme) {
 			$dir = strcmp($model1->modelName(), $model2) > 0
@@ -207,6 +181,20 @@ class Helper_Link
 		return $collection->column(Model_Scheme::keyField($linked_model_name));
 	}
 
+    /**
+	 * Возвращает схему связи
+     *
+	 * @param string $model1
+	 * @param string $model2
+	 * @return array
+	 */
+    public static function linkScheme($model1, $model2)
+	{
+        $links = Model_Scheme::links($model1);
+        return isset($links[$model2]) ? $links[$model2] : array();
+		$model1 = strtolower ($model1);
+	}
+
 	/**
 	 * Удаляет связь моделей
 	 *
@@ -220,7 +208,7 @@ class Helper_Link
 			$model1 = $model2;
 			$model2 = $tmp;
 	    }
-		$scheme = Model_Scheme::linkScheme($model1->table(), $model2->table());
+		$scheme = self::linkScheme($model1->table(), $model2->table());
 	    if (!$scheme) {
 			$link = self::_link(
 				$model1->table(), $model1->key(),
@@ -249,7 +237,7 @@ class Helper_Link
 			$table1 = $table2;
 			$table2 = $tmp;
 		}
-		$scheme = Model_Scheme::linkScheme($table1, $table2);
+		$scheme = self::linkScheme($table1, $table2);
 		if (!$scheme) {
 			$query = Query::instance ()
 				->delete ()
@@ -283,5 +271,31 @@ class Helper_Link
 			}
 			DDS::execute($query);
 		}
+	}
+
+    /**
+	 * Проверяет, связаны ли модели
+	 *
+	 * @param Model $model1
+	 * @param Model $model2
+	 * @return boolean
+	 */
+	public static function wereLinked(Model $model1, Model $model2)
+	{
+		if (strcmp($model1->table(), $model2->table()) > 0) {
+	        $tmp = $model1;
+	        $model1 = $model2;
+	        $model2 = $tmp;
+	    }
+		$scheme = self::linkScheme($model1->table(), $model2->table());
+		if (!$scheme) {
+			$link = self::_link(
+				$model1->table(), $model1->key(),
+				$model2->table(), $model2->key()
+			);
+		} else {
+			$link = self::_schemeLink($scheme, $model1->key(), $model2->key());
+		}
+	    return (bool) $link;
 	}
 }
