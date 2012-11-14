@@ -116,6 +116,15 @@ class User_Abstract extends Model
 	}
 
 	/**
+	 * Перекрытие
+	 * @return Model
+	 */
+	public static function current()
+	{
+		return self::getCurrent();
+	}
+
+	/**
 	 * @desc Генерация пароля заданной длинны.
 	 * @param integer $length
 	 * @return string
