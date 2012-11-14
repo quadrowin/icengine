@@ -22,9 +22,9 @@ class Background_Agent_Session extends Model
 	protected function _afterConstruct ()
 	{
 		$this->_params = json_decode ($this->params, true);
-		if (!isset ($this->_fields ['id']))
+		if (!isset ($this->fields ['id']))
 		{
-			$this->_fields ['key'] = time () . rand (10000, 99999);
+			$this->fields ['key'] = time () . rand (10000, 99999);
 		}
 	}
 

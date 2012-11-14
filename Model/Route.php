@@ -32,9 +32,9 @@ class Route extends Model_Child
 		$actionCollection = Model_Collection_Manager::create (
 			'Route_Action'
 		)->reset ();
-		$actions = is_object($this->_fields['actions'])
-			? $this->_fields['actions']->__toArray()
-			: (array) $this->_fields['actions'];
+		$actions = is_object($this->fields['actions'])
+			? $this->fields['actions']->__toArray()
+			: (array) $this->fields['actions'];
 		foreach ($actions as $action => $assign) {
 			if (is_numeric($action)) {
 				if (is_scalar($assign)) {
