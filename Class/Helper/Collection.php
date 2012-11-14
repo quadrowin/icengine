@@ -111,7 +111,7 @@ class Helper_Collection
 			}
 			$result = $newResult;
 		}
-		$collection->_items = $result;
+		$collection->setItems($result);
 		return $collection;
 	}
 }
