@@ -1346,25 +1346,22 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 			$resultIDS = array();
 			//отсортированные дочерние: level > 0
 			$resultSubIDS = array();
-			for ($i = 0; $i < count($list); $i++){
+			for ($i = 0; $i < count($list); $i++) {
 				$listIDS[$list[$i]->key()] = $i;
 			}
-			for ($i = 0; $i < count($result); $i++)
-			{
-				if ($result[$i]->parentId == 0)
-				{
+			for ($i = 0; $i < count($result); $i++) {
+				if ($result[$i]->parentId == 0) {
 					$parentId = $result[$i]->key();
 					$resultIDS[$result[$i]->key()] = $i;
 				} else {
 					$resultSubIDS[$parentId][$result[$i]->key()] = $i;
 				}
 			}
-			for ($i = 0; $i < count($firstIDS); $i++){
+			for ($i = 0; $i < count($firstIDS); $i++) {
 				if (isset($resultIDS[$firstIDS[$i]])) {
 					$newResult[] = $result[$resultIDS[$firstIDS[$i]]];
 					if (isset($resultSubIDS[$firstIDS[$i]])) {
-						foreach ($resultSubIDS[$firstIDS[$i]] as $index)
-						{
+						foreach ($resultSubIDS[$firstIDS[$i]] as $index) {
 							$newResult[] = $result[$index];
 						}
 					}
