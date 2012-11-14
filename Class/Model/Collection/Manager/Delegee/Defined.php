@@ -8,7 +8,11 @@
 class Model_Collection_Manager_Delegee_Defined
 {
     /**
-     * @inheritdoc
+     * Загружает коллекцию
+     *
+     * @param Model_Collection $collection
+     * @param Query_Abstract $query
+     * @return array
      */
 	public static function load(Model_Collection $collection,
         Query_Abstract $query)

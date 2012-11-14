@@ -253,13 +253,13 @@ abstract class Model implements ArrayAccess
 	 */
 	public function data($key, $value = null)
 	{
-		if (func_num_args  == 1) {
+		if (func_num_args()  == 1) {
 			if (is_scalar($key)) {
 				return isset($this->data[$key]) ? $this->data[$key] : null;
 			}
 			$this->data = array_merge($this->data, $key);
 		} else {
-			$this->_data[$key] = $value;
+			$this->data[$key] = $value;
 		}
 	}
 
