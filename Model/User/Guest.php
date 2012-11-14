@@ -35,15 +35,6 @@ class User_Guest extends User
 	protected static $_instance;
 
 	/**
-	 * (non-PHPdoc)
-	 * @see Model::_afterConstruct()
-	 */
-	protected function _afterConstruct ()
-	{
-		$this->_loaded = true;
-	}
-
-	/**
 	 * @desc Создает и возвращает экземпляр модели гостя.
 	 * @return User_Guest
 	 */
@@ -72,7 +63,7 @@ class User_Guest extends User
 	 * (non-PHPdoc)
 	 * @see Model::modelName()
 	 */
-	public function modelName ()
+	public function table()
 	{
 		return 'User';
 	}

@@ -1,361 +1,134 @@
 <?php
+
 /**
+ * Базовый класс коллекции моделей
  *
- * @desc Базовый класс коллекции моделей
- * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
+ * @author goorus, morph
  *
  */
 class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 {
 	/**
-	 * @desc Клонировать дату
-	 * @var integer
-	 */
-	const ASSIGN_DATA 		= 'Data';
-
-	/**
-	 * @desc Клонировать фильтры
-	 * @var integer
-	 */
-	const ASSIGN_FILTERS 	= 'Filters';
-
-	/**
-	 * @desc Клонировать модели
-	 * @var integer
-	 */
-	const ASSIGN_MODELS 	= 'Models';
-
-	/**
-	 * @desc Клонировать опшинсы
-	 * @var integer
-	 */
-	const ASSIGN_OPTIONS 	= 'Options';
-
-	/**
-	 * @desc Клонировать пагинатор
-	 * @var integer
-	 */
-	const ASSIGN_PAGINATOR 	= 'Paginator';
-
-	/**
-	 * @desc Клонировать запрос
-	 * @var integer
-	 */
-	const ASSIGN_QUERY 		= 'Query';
-
-	/**
-	 * @desc Добавленные элементы
-	 * @var string
-	 */
-	const DIFF_EDIT_ADD		= 'added';
-
-	/**
-	 * @desc Неизмененные элементы
-	 * @var string
-	 */
-	const DIFF_EDIT_NO		= 'not_changed';
-
-	/**
-	 * @desc Удаленные элементы
-	 * @var string
-	 */
-	const DIFF_EDIT_DEL		= 'removed';
-
-	/**
-	 * @desc Для создаваемых моделей включен autojoin.
-	 * @var boolean
-	 */
-	protected $_autojoin	= true;
-
-	/**
-	 * @desc Связанные данные
+	 * Связанные данные
+     *
 	 * @var array
 	 */
-	protected $_data		= array ();
+	protected $data = array ();
 
 	/**
-	 * @desc Элементы коллекции
+	 * Элементы коллекции
+     *
 	 * @var array
 	 */
-	protected $_items;
+	protected $items;
 
-	/**
-	 * @desc Опции
-	 * @var Model_Collection_Option_Collection
-	 */
-	protected $_options;
-
-	/**
-	 * @desc Текущий паджинатор
-	 * @var Paginator
-	 */
-	protected $_paginator;
-
-	/**
-	 * @desc Последний выполненный запрос
-	 * @var Query_Abstract
-	 */
-	protected $_lastQuery;
-
-	/**
-	 * @desc Текущий запрос
-	 * @var Query_Abstract
-	 */
-	protected $_query;
-
-	/**
-	 * @desc Результат последнего выполненного запроса
-	 * @var Query_Result
-	 */
-	protected $_queryResult;
-
-	/**
+    /**
 	 * Итератор коллекции
 	 *
 	 * @var Model_Collection_Iterator
 	 */
 	protected $iterator;
 
-	/**
-	 * @desc Создает и возвращает коллекцию моделей.
-	 * Так же подключает связанный класс модели.
+    /**
+	 * Последний выполненный запрос
+     *
+	 * @var Query_Abstract
 	 */
-	public function __construct ()
-	{
-		$this->_options = new Model_Option_Collection ($this);
-	}
+	protected $lastQuery;
 
 	/**
-	 * @desc Преобразование коллекции к массиву
+	 * Опции
+     *
+	 * @var Model_Collection_Option_Collection
+	 */
+	protected $options;
+
+	/**
+	 * Текущий паджинатор
+     *
+	 * @var Paginator
+	 */
+	protected $paginator;
+
+	/**
+	 * Текущий запрос
+     *
+	 * @var Query_Abstract
+	 */
+	protected $query;
+
+	/**
+	 * Результат последнего выполненного запроса
+     *
+	 * @var Query_Result
+	 */
+	protected $queryResult;
+
+	/**
+	 * Преобразование коллекции к массиву
+     *
 	 * @return array
 	 */
-	public function __toArray ()
+	public function __toArray()
 	{
-		$result = array (
-			'class'	=> get_class ($this),
-			'items'	=> array (),
-			'data'	=> $this->_data
+		$result = array(
+			'class'	=> get_class($this),
+			'items'	=> array(),
+			'data'	=> $this->data
 		);
-		foreach ($this as $item)
-		{
-			$result ['items'][] = $item->__toArray ();
+		foreach ($this as $item) {
+			$result['items'][] = $item->__toArray();
 		}
 		return $result;
 	}
 
 	/**
-	 *
-	 * @desc Добавить модель в коллекцию
+	 * Добавить модель в коллекцию
+     *
 	 * @param Model|Model_Collection|array $item
 	 * @return Model_Collection
 	 * @throws Zend_Exception
 	 */
-	public function add ($item)
+	public function add($item)
 	{
-		if ($item instanceof Model)
-		{
-			$this->_items [] = $item;
-		}
-		elseif ($item instanceof Model_Collection)
-		{
-			foreach ($item as $model)
-			{
-				$this->_items [] = $model;
+		if ($item instanceof Model) {
+			$this->items[] = $item;
+		} elseif ($item instanceof Model_Collection) {
+			foreach ($item as $model) {
+				$this->items[] = $model;
 			}
-		}
-		elseif (is_array ($item))
-		{
-			$key_field = $this->keyField ();
-			$keys = array_keys ($item);
-			if (isset ($item [$key_field]))
-			{
-				// Ести ключевое поле
-				$item = Model_Manager::get (
-					$this->modelName (),
-					$item [$key_field],
-					$item
-				);
-			}
-			elseif (is_numeric ($keys [0]))
-			{
-				foreach ($item as $data)
-				{
-					$this->add ($data);
-				}
-			}
-			else
-			{
-				// Ключевое поле не задано
-				$class = $this->modelName ();
-				$item = new $class ($item);
-			}
-
-			$this->_items [] = $item;
-		}
-		else
-		{
-			//var_dump ($item);
-			throw new Model_Exception ('Model add error');
+		} else {
+			throw new Model_Exception('Model add error');
 		}
 		return $this;
 	}
 
 	/**
-	 * @desc Добавление одного или нескольких фильтров.
-	 * @param Data_Transport $data Транспорт входных данных контроллера.
-	 * @param string $filter Название фильтра.
-	 * @return Model_Collection
-	 */
-	public function addFilters (Data_Transport $data, $filter)
-	{
-		$arg_count = func_num_args ();
-		for ($i = 1; $i < $arg_count; ++$i)
-		{
-			$filter = func_get_arg ($i);
-			$p = strpos ($filter, '::');
-			$filter = $p
-				?
-					substr ($filter, 0, $p) .
-					'_Collection_Filter_' .
-					substr ($filter, $p + 2)
-				:
-					$this->modelName () .
-					'_Collection_Filter_' .
-					$filter;
-
-			Model_Collection_Filter_Manager::get ($filter)
-				->filter ($this, $data);
-		}
-		return $this;
-	}
-
-	/**
-	 * @desc Добавление нескольких опций к коллекции аналогично.
-	 * @param array|string $options
+	 * Добавление нескольких опций к коллекции аналогично
+     *
 	 * @param $_
 	 * @return Model_Collection Эта коллекция
 	 */
-	public function addOptions ($options)
+	public function addOptions()
 	{
-		if (
-			(is_array ($options) && !empty ($options ['name'])) ||
-			!is_array ($options)
-		)
-		{
-			$options = func_get_args ();
+		$options = func_get_args();
+		foreach ($options as $option) {
+			$this->options[] = $option;
 		}
-
-		foreach ($options as $option)
-		{
-			$this->_options->add ($option);
-		}
-
 		return $this;
 	}
 
 	/**
-	 * @desc Клонировать модель
+	 * Клонировать модель
+     *
 	 * @param Model_Collection $source
-	 * @param array $flags
 	 * @return Model_Collection
 	 */
-	public function assign (Model_Collection $source, array $flags = array ())
-	{
-		if (!$flags)
-		{
-			$flags = array (
-				self::ASSIGN_DATA,
-				self::ASSIGN_FILTERS,
-				self::ASSIGN_MODELS,
-				self::ASSIGN_OPTIONS,
-				self::ASSIGN_PAGINATOR,
-				self::ASSIGN_QUERY
-			);
-		}
-
-		for ($i = 0, $icount = sizeof ($flags); $i < $icount; $i++)
-		{
-			$method_name = 'assign' . $flags [$i];
-
-			if (is_callable (array ($this, $method_name)))
-			{
-				$this->$method_name ($source);
-			}
-		}
-
+	public function assign(Model_Collection $source)
+    {
+		$this->data($source->data());
+        $this->setItems($source->items());
 		return $this;
-	}
-
-	/**
-	 * @desc Клонировать дату коллекции
-	 * @param Model_Collection $source
-	 */
-	public function assignData (Model_Collection $source)
-	{
-		$this->data ($source->data ());
-	}
-
-	/**
-	 * @desc Клонировать фильтры
-	 * @param Model_Collection $source
-	 */
-	public function assignFilters (Model_Collection $source)
-	{
-		// TODO
-	}
-
-	/**
-	 * @desc Клонировать модели
-	 * @param Model_Collection $source
-	 */
-	public function assignModels (Model_Collection $source)
-	{
-		$this->setItems ($source->items ());
-	}
-
-	/**
-	 * @desc Клонировать опшины
-	 * @param Model_Collection $source
-	 */
-	public function assignOptions (Model_Collection $source)
-	{
-		$this
-			->getOptions ()
-			->setItems (
-				$source
-					->getOptions ()
-					->getItems ()
-			);
-	}
-
-	/**
-	 * @desc Клонировать пагинатор
-	 * @param Model_Collection $source
-	 */
-	public function assignPaginator (Model_Collection $source)
-	{
-		$paginator = $source->getPaginator ();
-		if ($paginator)
-		{
-			$this
-				->setPaginator (
-					clone $paginator
-				);
-		}
-	}
-
-	/**
-	 * @desc Клонировать запрос
-	 * @param Model_Collection $source
-	 */
-	public function assignQuery (Model_Collection $source)
-	{
-		$query = $source->query ();
-		$this
-			->setQuery (
-				clone $query
-			);
 	}
 
     /**
@@ -364,7 +137,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
     public function beforeLoad()
     {
         $keyField = $this->keyField();
-		$query = clone $this->query();
+		$query = $this->query();
         $args = func_get_args();
 		$modelName = $this->table();
         if (!$args || (count($args) == 1 && empty($args[0]))) {
@@ -379,59 +152,50 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
             }
 		}
 		$query->from($modelName);
-		if ($this->_paginator) {
+		if ($this->paginator) {
 			$query->calcFoundRows();
 			$query->limit(
-				$this->_paginator->pageLimit,
-				$this->_paginator->offset()
+				$this->paginator->pageLimit,
+				$this->paginator->offset()
             );
 		}
 		$schemeOptions = Model_Scheme::modelOptions($modelName);
 		if ($schemeOptions) {
 			$this->addOptions($schemeOptions);
 		}
-		$this->_options->executeBefore($query);
-		$this->_lastQuery = $query;
+        Model_Collection_Option_Manager::executeBefore($this, $this->options);
+		$this->lastQuery = $query;
     }
 
 	/**
-	 * @desc Имя базового класса (без суффикса "_Collection")
+	 * Имя базового класса (без суффикса "_Collection")
+     *
 	 * @return string
 	 */
-	public function className ()
+	public function className()
 	{
-		return substr (get_class ($this), 0, -11);
+		return substr(get_class($this), 0, -strlen('_Collection'));
 	}
 
 	/**
-	 * @desc Получить значение поля для всех моделей коллеции
+	 * Получить значение поля для всех моделей коллеции
+     *
 	 * @param string|array $name
 	 * @return array
 	 */
-	public function column ($name)
+	public function column($name)
 	{
-		$columns = (array) $name;
-		$result = array();
-		$columnCount = count($columns);
-		foreach ($this->items() as $i => $item) {
-			foreach ($columns as $column) {
-				if ($columnCount > 1) {
-					$result[$i][$column] = $item->field($column);
-				} else {
-					$result[$i] = $item->field($column);
-				}
-			}
-		}
-		return $result;
+        return Helper_Array::column($this->items(), $name);
 	}
 
 	/**
-	 * @desc Количество моделей коллеции
+	 * Количество моделей коллеции
+     *
 	 * @return integer
 	 */
-	public function count ()
+	public function count()
 	{
-		return count ($this->items ());
+		return count($this->items());
 	}
 
 	/**
@@ -445,89 +209,61 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 
 	/**
-	 * @desc Устанавливает или получает связанные данные объекта
-	 * @param string $key [optional] Ключ
+	 * Устанавливает или получает связанные данные объекта
+	 *
+     * @param string $key [optional] Ключ
 	 * @param mixed $value [optional]
 	 * 		Значение (не обязательно)
 	 * @return mixed
 	 * 		Текущее значение
 	 */
-	public function data ($key = null)
+	public function data($key = null, $value = null)
 	{
-		if (func_num_args () == 0 || $key === null)
-		{
-			return $this->_data;
-		}
-
-		if (func_num_args () == 1)
-		{
-			if (is_array ($key))
-			{
-				$this->_data = array_merge (
-					$this->_data,
-					$key
-				);
-				return;
-			}
-
-			return isset ($this->_data [$key]) ? $this->_data [$key] : null;
-		}
-
-		$this->_data [$key] = func_get_arg (1);
+        $numArgs = func_num_args();
+        if (!$numArgs) {
+            return $this->data;
+        } elseif ($numArgs == 1) {
+            if (is_array($key)) {
+                $this->data = array_merge($this->data, $key);
+            } else {
+                return isset($this->data[$key]) ? $this->data[$key] : null;
+            }
+        } else {
+            $this->data[$key] = $value;
+        }
 	}
 
 	/**
 	 * @desc Удаление всех объектов коллекции
 	 */
-	public function delete ()
+	public function delete()
 	{
-		$items = &$this->items ();
-		foreach ($items as $item)
-		{
-			$item->delete ();
+		$items = &$this->items();
+		foreach ($items as $item) {
+            $query = Query::instance()
+                ->delete()
+                ->from($item->table())
+                ->where($item->keyField(), $item->key());
+            Unit_Of_Work::push($query);
 		}
-		$this->_items = array ();
+        Unit_Of_Work::flush();
+		$this->items = array();
 	}
 
 	/**
-	 * @desc Получить различные элементы двух коллекцийю
-	 * @param Model_Collection $collection
-	 * @return Model_Collection
-	 */
-	public function diff (Model_Collection $collection)
-	{
-		$model_name = $this->modelName ();
-		$kf_this = Model_Scheme::keyField ($model_name);
-		$kf_collection = Model_Scheme::keyField ($collection->modelName ());
-		$array_this = $this->column ($kf_this);
-		$array_collection = $collection->column ($kf_collection);
-		$diff = array_diff ($array_this, $array_collection);
-
-		$result = Model_Collection_Manager::create ($model_name)
-			->reset ();
-
-		for ($i = 0, $icount = sizeof ($diff); $i < $icount; $i++)
-		{
-			$result->add (Model_Manager::byKey (
-				$model_name,
-				$diff [$i]
-			));
-		}
-
-		return $result;
-	}
-
-	/**
-	 * @desc Исключает из коллекции элемент с указанным индексом.
+	 * Исключает из коллекции элемент с указанным индексом
+     *
 	 * @param integer $index Индекс элемента в списке.
 	 * @return Model_Collection
 	 */
-	public function exclude ($index)
+	public function exclude($index)
 	{
-		if (is_array ($this->_items) && isset ($this->_items [$index]))
-		{
-			unset ($this->_items [$index]);
-		}
+        if (!is_array($this->items)) {
+            $this->items();
+        }
+        if (isset($this->items[$index])) {
+            unset($this->items[$index]);
+        }
 		return $this;
 	}
 
@@ -547,7 +283,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		if ($result) {
             $ids = Helper_Array::column($result, $keyField);
             foreach ($ids as $id) {
-                foreach ($this->_items as $model) {
+                foreach ($this->items as $model) {
                     if ($id != $model->key()) {
                         continue;
                     }
@@ -559,197 +295,88 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 
 	/**
-	 * @desc Возвращает первый элемент коллекции.
+	 * Возвращает первый элемент коллекции
+     *
 	 * @return Model
 	 */
-	public function first ()
+	public function first()
 	{
-		if (!is_array ($this->_items))
-		{
-			$this->load();
-		}
-		if (empty ($this->_items))
-		{
-			return null;
-		}
-		return reset ($this->_items);
+        $items = $this->items();
+        if (!$items) {
+            return null;
+        }
+        return reset($items);
 	}
 
 	/**
-	 * @desc Создать коллекцию из массива с данными моделей.
-	 * @param array $rows Массив моделей.
-	 * @param boolean $clear Очистить коллекцию перед добавлением.
-	 * @return Model_Collection
+	 * Получить коллекцию опшинов
+     *
+	 * @return array
 	 */
-	public function fromArray (array $rows, $clear = true)
+	public function getOptions()
 	{
-		$model = $this->modelName ();
-		if ($clear)
-		{
-			$this->_items = array ();
-		}
-
-		$kf = $this->keyField ();
-		foreach ($rows as $row)
-		{
-			$key = isset ($row ['id']) ? $row ['id'] : $row [$kf];
-			$this->_items [] = Model_Manager::get ($model, $key, $row);
-		}
-		return $this;
+		return $this->options;
 	}
 
 	/**
-	 * @desc Создать коллекцию из запроса
-	 * @param Query_Abstract $query
-	 * @param boolean $clear Очистить коллекцию, перед добавлением
-	 * @return Model_Collection
+	 * Возвращает элементы коллекции, не загружая ее
+     *
+     * @return array
 	 */
-	public function fromQuery (Query_Abstract $query, $clear = true)
+	public function getItems()
 	{
-		$rows = DDS::execute ($query)->getResult ()->asTable ();
-		return $this->fromArray ((array) $rows, $clear);
-	}
-
-	/**
-	 * @desc Включен ли автоджоин
-	 * @return boolean
-	 */
-	public function getAutojoin ()
-	{
-		return $this->_autojoin;
-	}
-
-	/**
-	 *
-	 * @desc Получить коллекцию опшинов
-	 * @return Model_Collection_Option_Collection
-	 */
-	public function getOptions ()
-	{
-		return $this->_options;
-	}
-
-	/**
-	 * @see items
-	 */
-	public function getItems ()
-	{
-		return $this->_items;
+		return $this->items;
 	}
 
 	/**
 	 * (non-PHPdoc)
 	 * @see IteratorAggregate::getIterator()
 	 */
-	public function getIterator ()
+	public function getIterator()
 	{
-		$this->items ();
-		return new ArrayIterator ($this->_items);
+		$this->items();
+		return new ArrayIterator($this->items);
 	}
 
 	/**
-	 * @desc Вернуть текущий пагинатор
+	 * Вернуть текущий пагинатор
+     *
 	 * @return Paginator
 	 */
-	public function getPaginator ()
+	public function getPaginator()
 	{
-		return $this->_paginator;
+		return $this->paginator;
 	}
 
 	/**
-	 *
-	 * @desc Ищет в коллекции эквивалентную заданой модель, и,
-	 * если находит, то возвращает ее
-	 * @param Model $item
-	 * @return null|Model
-	 */
-	public function has (Model $item)
-	{
-		foreach ($this as $i)
-		{
-			if ($i === $item)
-			{
-				return $i;
-			}
-		}
-	}
-
-    /**
+	 * Возвращает модель из коллекции
      *
-     * @desc Ищет в коллекции эквивалентную по полям (если $fields пустой массив - по совпадению
-     *  первичных ключей) заданой модель, и, если находит, то возвращает ее (из коллекции в которой ищется)
-     * @param Model $item
-     * @param array $fields
-     * @return null|Model
-     */
-    public function hasByFields (Model $item, $fields = array())
-    {
-		$model = null;
-
-		foreach ($this as $i)
-		{
-			if (empty ($fields))
-			{
-				if (
-					$i->modelName () == $item->modelName () &&
-					$i->key () == $item->key ()
-				)
-				{
-					$model = $i;
-				}
-			}
-			else
-			{
-				$model = $i;
-
-				foreach ($fields as $field)
-				{
-					if ($i->sfield ($field) != $item->sfield ($field))
-					{
-						$model = null;
-						break;
-					}
-				}
-			}
-			if ($model)
-			{
-				break;
-			}
-		}
-		return $model;
-    }
-
-	/**
-	 * @desc Возвращает модель из коллекции
 	 * @param integer $index Индекс
 	 * @return Model|null
 	 */
-	public function item ($index)
+	public function item($index)
 	{
-		if (!is_array ($this->_items))
-		{
-			$this->load ();
+		if (!is_array($this->items)) {
+			$this->items();
 		}
-
-		if ($index < 0)
-		{
-			$index += count ($this->_items);
+		if ($index < 0) {
+			$index += count($this->items);
 		}
-
-		return isset ($this->_items [$index]) ? $this->_items [$index] : null;
+		return isset($this->items[$index]) ? $this->items[$index] : null;
 	}
 
 	/**
-	 * @desc Получить элементы модели
-	 * @return array <Model>
+	 * Получить элементы модели
+     *
+	 * @return array
 	 */
-	public function &items ()
+	public function &items()
 	{
-		if (!is_array ($this->_items))
+		if (!is_array($this->items))
 		{
-			$this->load ();
+			$this->load();
 		}
-		return $this->_items;
+		return $this->items;
 	}
 
 	/**
@@ -771,167 +398,96 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 
 	/**
-	 * @desc Пустая ли коллекция
-	 * @return boolean
-	 */
-	public function isEmpty ()
-	{
-		if (!is_array ($this->_items))
-		{
-			$this->load ();
-		}
-		return empty ($this->_items);
-	}
-
-	/**
-	 * @desc Проверяет, чтобы модель была приджойнен хотя бы к одному элементу
-	 * коллекции.
-	 * @param Model $model Модель.
-	 * @return boolean
-	 */
-	public function isJoinedSome (Model $model)
-	{
-		foreach ($this as $item)
-		{
-			if (Helper_Link::wereLinked ($item, $model))
-			{
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * @desc Проверяет, чтобы модель была приджойнена ко всем элеметам коллекции.
-	 * @param Model $model Модель.
-	 * @return boolean
-	 */
-	public function isJoinedAll (Model $model)
-	{
-		foreach ($this as $item)
-		{
-			if (!Helper_Link::wereLinked ($item, $model))
-			{
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	/**
-	 * @desc Приджойнить модель ко всем элементам коллекции
-	 * @param Model $model
-	 * @return Model_Collection
-	 */
-	public function join (Model $model)
-	{
-		foreach ($this as $item)
-		{
-			Helper_Link::link ($item, $model);
-		}
-		return $this;
-	}
-
-	/**
-	 * @desc Имя ключевого поля.
+	 * Имя ключевого поля
+     *
 	 * @return string
 	 */
-	public function keyField ()
+	public function keyField()
 	{
-		return Model_Scheme::keyField ($this->modelName ());
+		return Model_Scheme::keyField($this->modelName());
 	}
 
 	/**
-	 * @desc Получить последнюю модель коллекции.
+	 * Получить последнюю модель коллекции
+     *
 	 * @return Model
 	 */
-	public function last ()
+	public function last()
 	{
-		if (!is_array ($this->_items))
-		{
-			$this->load ();
-		}
-		if (empty ($this->_items))
-		{
-			return null;
-		}
-		return end ($this->_items);
+		$items = $this->items();
+        if (!$items) {
+            return null;
+        }
+        return end($items);
 	}
 
 	/**
-	 * @desc Последний выполенный запрос коллекции.
+	 * Последний выполенный запрос коллекции.
 	 * Если запрос еще не сформирован, запрос будет сформирован и коллекция
 	 * будет загружена.
+     *
 	 * @return Query Зарос коллекции.
 	 */
-	public function lastQuery ()
+	public function lastQuery()
 	{
-		if (!$this->_lastQuery)
-		{
-			$this->load ();
+		if (!$this->lastQuery) {
+			$this->load();
 		}
-		return $this->_lastQuery;
+		return $this->lastQuery;
 	}
 
 	/**
-	 * @desc Загрузка данных
+	 * Загрузка данных
+     *
 	 * @return Model_Collection
 	 */
-	public function load ($columns = array ())
+	public function load($columns = array())
 	{
 		$this->beforeLoad($columns);
-        $query = $this->_lastQuery;
-		Model_Collection_Manager::load ($this, $query);
-		$this->_options->executeAfter ($query);
-
-		if ($this->_paginator)
-		{
-			$this->_paginator->fullCount = $this->_data ['foundRows'];
+        $query = $this->lastQuery;
+		Model_Collection_Manager::load($this, $query);
+        Model_Collection_Option_Manager::executeAfter($this, $this->options);
+		if ($this->paginator) {
+			$this->paginator->fullCount = $this->data['foundRows'];
 		}
-
 		return $this;
 	}
 
 	/**
-	 * @desc Для каждого объекта коллекции будет вызвана функция $function
+	 * Для каждого объекта коллекции будет вызвана функция $function
 	 * и результат выполнения записан в данные объекта под именем $data
 	 *
 	 * @param function $function
 	 * @param string $data
 	 */
-	public function mapToData ($function, $data)
+	public function mapToData($function, $data)
 	{
 		$items = &$this->items();
-		foreach ($items as $item)
-		{
-			$item->data ($data, call_user_func ($function, $item));
+		foreach ($items as $item) {
+			$item->data($data, call_user_func($function, $item));
 		}
 	}
 
 	/**
-	 * @desc Название модели (без суффикса "_Collection")
+	 * Название модели (без суффикса "_Collection")
+     *
 	 * @return string
 	 */
-	public function modelName ()
+	public function modelName()
 	{
-		return substr (get_class ($this), 0, -11);
+		return $this->table();
 	}
 
 	/**
 	 * (non-PHPdoc)
 	 * @see ArrayAccess::offsetSet()
 	 */
-	public function offsetSet ($offset, $value)
+	public function offsetSet($offset, $value)
 	{
-		if (is_null ($offset))
-		{
-			$this->_items [] = $value;
-		}
-		else
-		{
-			$this->_items [$offset] = $value;
+		if (is_null($offset)) {
+			$this->items[] = $value;
+		} else {
+			$this->items[$offset] = $value;
 		}
 	}
 
@@ -939,59 +495,56 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 * (non-PHPdoc)
 	 * @see ArrayAccess::offsetExists()
 	 */
-	public function offsetExists ($offset)
+	public function offsetExists($offset)
 	{
-		return isset ($this->_items [$offset]);
+		return isset($this->items[$offset]);
 	}
 
 	/**
 	 * (non-PHPdoc)
 	 * @see ArrayAccess::offsetUnset()
 	 */
-	public function offsetUnset ($offset)
+	public function offsetUnset($offset)
 	{
-		unset ($this->_items [$offset]);
+		unset($this->items[$offset]);
 	}
 
 	/**
 	 * @param offset
 	 * @return Model
 	 */
-	public function offsetGet ($offset)
+	public function offsetGet($offset)
 	{
-		return $this->item ($offset);
+		return $this->item($offset);
 	}
 
 	/**
-	 * @desc Возвращает текущий запрос.
+	 * Возвращает текущий запрос
+     *
 	 * @return Query_Abstract
 	 */
-	public function query ()
+	public function query()
 	{
-		if (!$this->_query)
-		{
-			$this->_query = Query::factory ('Select');
+		if (!$this->query) {
+			$this->query = Query::factory('Select');
 		}
-		return $this->_query;
+		return $this->query;
 	}
 
 	/**
-	 * @desc Получить результат запроса коллекции
+	 * Получить результат запроса коллекции
+     *
 	 * @return Query_Result
 	 */
-	public function queryResult ($result = null)
+	public function queryResult($result = null)
 	{
-		if ($result)
-		{
-			$this->_queryResult = $result;
-		}
-		else
-		{
-			if (!$this->_queryResult)
-			{
-				$this->load ();
+		if ($result) {
+			$this->queryResult = $result;
+		} else {
+			if (!$this->queryResult) {
+				$this->load();
 			}
-			return $this->_queryResult;
+			return $this->queryResult;
 		}
 	}
 
@@ -1004,12 +557,12 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
     public function raw($columns = array())
     {
         $result = array();
-        if ($this->_items) {
-            if (is_array($this->_items[0])) {
-                $result = Helper_Array::column($this->_items, $columns);
+        if ($this->items) {
+            if (is_array($this->items[0])) {
+                $result = Helper_Array::column($this->items, $columns);
             } else {
                 $fullResult = array();
-                foreach ($this->_items as $item) {
+                foreach ($this->items as $item) {
                     $fullResult[] = $item->asRow();
                 }
                 $result = Helper_Array::column($fullResult, $columns);
@@ -1021,37 +574,28 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
                 $this->beforeLoad(array());
             }
             $pack = Model_Collection_Manager::callDelegee(
-                $this, $this->_lastQuery
+                $this, $this->lastQuery
             );
             if ($pack) {
-                $this->_items = $pack['items'];
+                $this->items = $pack['items'];
             }
-            $this->_options->executeAfter($this->_lastQuery);
-            if ($this->_paginator) {
-                $this->_paginator->fullCount = $this->data('foundRows');
+            Model_Collection_Option_Manager::executeAfter($this, $this->options);
+            if ($this->paginator) {
+                $this->paginator->fullCount = $this->data('foundRows');
             }
-            $result = Helper_Array::column($this->_items, $columns);
+            $result = Helper_Array::column($this->items, $columns);
         }
         return (array) $result;
     }
 
 	/**
-	 * Удаляет опшин по имени
+	 * Очищает коллекцию
      *
-	 * @param string $name
-	 */
-	public function removeOption($name)
-	{
-		$this->_options->remove($name);
-	}
-
-	/**
-	 * @desc Очищает коллекцию.
 	 * @return Model_Collection Эта коллекция.
 	 */
-	public function reset ()
+	public function reset()
 	{
-		$this->_items = array ();
+		$this->items = array();
 		return $this;
 	}
 
@@ -1064,254 +608,171 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 
 	/**
-	 * @desc Реверсировать последовательность моделей коллекции
+	 * Реверсировать последовательность моделей коллекции
+     *
 	 * @return Model_Collection
 	 */
-	public function reverse ()
+	public function reverse()
 	{
-		$this->_items = array_reverse ($this->_items);
-		return $this;
+		return array_reverse($this->items());;
 	}
 
 	/**
-	 * @desc Сохраняет модели коллекции
-	 * @return Model_Collection
-	 */
-	public function save ()
-	{
-		foreach ($this as $item)
-		{
-			$item->save ();
-		}
-		return $this;
-	}
-
-	/**
-	 * Возращает индекс первого вхождения модели в коллекцию
-	 *
-	 * @param Model $model
-	 * @param integer $offset Смещение поиска от начала коллекции
-	 * @return integer - если модель найдена, false - в противном случае
-	 */
-	public function search($model, $offset = 0)
-	{
-		foreach ($this->items() as $i => $item) {
-			if ($item === $model && $i >= $offset) {
-				return $i;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * @desc Установить select-часть запроса коллекции
-	 * @param string|array $columns
-	 * @return Model_Collection
-	 */
-	public function select ($columns)
-	{
-		call_user_func_array (
-			array ($this->query (), 'select'),
-			func_get_args ()
-		);
-
-		return $this;
-	}
-
-	/**
-	 * @desc Меняет поля модели
+	 * Меняет поля модели
+     *
 	 * @param mixed (string,sting|array<string>) $fields
 	 * @return Model_Collection
 	 */
-	public function set ($fields)
+	public function set()
 	{
-		$args = func_get_args ();
-		if (count ($args) == 2)
-		{
-			$args = array ($args [0] => $args [1]);
+		$args = func_get_args();
+		if (count($args) == 2) {
+			$args = array($args[0] => $args[1]);
 		}
-		foreach ($this as $item)
-		{
-			foreach ((array) $args as $field => $value)
-			{
-				$item->field ($field, $value);
+		foreach ($this as $item) {
+			foreach ((array) $args as $field => $value) {
+				$item->field($field, $value);
 			}
 		}
 		return $this;
 	}
 
 	/**
-	 * @desc Устанавливает автоджойн моделей для создаваемых объектов.
-	 *
-	 * @param boolean $value
-	 * @return Model_Collection
-	 */
-	public function setAutojoin ($value)
-	{
-		$this->_autojoin = $value;
-		return $this;
-	}
-
-	/**
-	 * @desc Заменить модели коллекции.
+	 * Заменить модели коллекции
+     *
 	 * @param array<Model> $items
 	 * @return Model_Collection
 	 */
-	public function setItems ($items)
+	public function setItems($items)
 	{
-		$this->_items = $items;
+		$this->items = $items;
 		return $this;
 	}
 
 	/**
-	 *
-	 * @desc Изменить опшин
-	 * @param unknown_type $option
-	 */
-	public function setOption ($option)
-	{
-		//$this->_options->setOption ($option);
-	}
-
-	/**
-	 * @desc Изменить паджинатор коллекции
+	 * Изменить паджинатор коллекции
+     *
 	 * @param Paginator $paginator
 	 */
-	public function setPaginator ($paginator)
+	public function setPaginator($paginator)
 	{
-		$this->_paginator = $paginator;
+		$this->paginator = $paginator;
 		if ($paginator) {
-			$this->_paginator->fullCount =
-				is_array($this->_items) ?
-					count ($this->_items) :
-					0;
+			$this->_paginator->fullCount = is_array($this->items)
+                ? count ($this->items) : 0;
 		}
 	}
 
 	/**
-	 * @desc Подмена запроса коллекции.
+	 * Подмена запроса коллекции
+     *
 	 * @param Query_Abstract $query Новый запрос
 	 * @return Model_Collection Эта коллекция
 	 */
-	public function setQuery (Query_Abstract $query)
+	public function setQuery(Query_Abstract $query)
 	{
-		$this->_query = $query;
+		$this->query = $query;
 	}
 
 	/**
-	 * @desc Вернуть первый элемент коллекции, удалив его из коллекции.
+	 * Вернуть первый элемент коллекции, удалив его из коллекции
+     *
 	 * @return Model|null
 	 */
-	public function shift ()
+	public function shift()
 	{
-		return array_shift ($this->_items);
+		return array_shift($this->items);
 	}
 
 	/**
-	 * @desc Перемешивает элементы коллекции в случайном порядке.
+	 * Перемешивает элементы коллекции в случайном порядке
+     *
 	 * @return Model_Collection
 	 */
-	public function shuffle ()
+	public function shuffle()
 	{
-		$this->items ();
-		shuffle ($this->_items);
+		$this->items();
+		shuffle($this->items);
 		return $this;
 	}
 
 	/**
-	 * @desc Оставить часть элементов коллекции.
+	 * Оставить часть элементов коллекции
+     *
 	 * @param integer $offset
 	 * @param integer $length
 	 * @return Model_Collection Эта коллекция.
 	 */
-	public function slice ($offset, $length)
+	public function slice($offset, $length)
 	{
-		$this->items ();
-		$this->_items = array_slice ($this->_items, $offset, $length);
+		$this->items();
+		$this->items = array_slice($this->items, $offset, $length);
 		return $this;
 	}
 
 	/**
-	 * @desc Сортировка коллекции.
+	 * Сортировка коллекции
+     *
 	 * @param string $fields Список полей для сортировки.
 	 * Например: "id", "id DESC", "id, rating DESC".
 	 * @return Model_Collection
 	 */
-	public function sort ($fields)
+	public function sort()
 	{
-		$items = &$this->items ();
-		Helper_Array::mosort (
-			$items,
-			implode (',', func_get_args ())
-		);
+		$items = &$this->items();
+		Helper_Array::mosort($items, implode (',', func_get_args()));
 		return $this;
 	}
 
 	/**
-	 * @desc Имя таблицы по умолчанию для коллекции
+	 * Имя таблицы по умолчанию для коллекции
+     *
 	 * @return string
 	 */
 	public function table ()
 	{
-		return $this->modelName ();
+		return substr(get_class($this), 0, -strlen('_Collection'));
 	}
 
 	/**
-	 * @desc Получить колекцию уникальный элементов
+	 * Получить колекцию уникальный элементов
+     *
 	 * @return Model_Collection
 	 */
-	public function unique ()
+	public function unique()
 	{
-		$model_name = $this->modelName ();
-		$kf = Model_Scheme::keyField ($model_name);
-		$keys = array_unique ($this->column ($kf));
-
-		$collection = $this->assign ($this);
-		$collection->reset ();
-
-		foreach ($keys as $key)
-		{
-			$model = Model_Manager::byKey (
-				$model_name,
-				$key
-			);
-			if ($model)
-			{
-				$collection->add ($model);
-			}
-		}
-
-		$collection->data ($this->data ());
-
-		return $collection;
+		$modelName = $this->modelName();
+		$keyField = $this->keyField();
+		$keys = array_unique($this->column($keyField));
+		$collection = Model_Collection_Manager::create($modelName)
+			->reset();
+        $existsKeys = array();
+        foreach ($this->items() as $model) {
+            foreach ($keys as $key) {
+                if ($key == $model->key() && !in_array($key, $existsKeys)) {
+                    $collection->add($model);
+                    $existsKeys[] = $key;
+                }
+            }
+        }
+        return $collection;
 	}
 
 	/**
-	 * @desc Обновление всех элементов коллекции
+	 * Обновление всех элементов коллекции
+     *
 	 * @param array $data
 	 */
-	public function update (array $data)
+	public function update(array $data)
 	{
-		$items = &$this->items ();
-		foreach ($items as $item)
-		{
-			$item->update ($data);
+		$items = &$this->items();
+		foreach ($items as $item) {
+			$query = Query::instance()
+                ->update($item->table())
+                ->values($data)
+                ->where($item->keyField(), $item->key());
+            Unit_Of_Work::push($query);
 		}
-	}
-
-	/**
-	 * @desc Добавление условия отбора.
-	 * @param string $condition
-	 * @param string $value [optional]
-	 * @return Model_Collection Эта коллекция
-	 */
-	public function where ($condition)
-	{
-		call_user_func_array (
-			array ($this->query (), 'where'),
-			func_get_args ()
-		);
-
-		return $this;
+        Unit_Of_Work::flush();
 	}
 }

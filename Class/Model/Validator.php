@@ -1,10 +1,20 @@
 <?php
 
 /**
+ * Валидатор модели
  *
+ * @author morph
  */
 class Model_Validator
 {
+    /**
+     * Валидация модели
+     *
+     * @param Model $model
+     * @param array $scheme Схема валидации
+     * @param array|Data_Transport $input Входные параметры для валидации
+     * @return boolean|array
+     */
 	public static function validate ($model, $scheme, $input)
 	{
 		$validate = array ();

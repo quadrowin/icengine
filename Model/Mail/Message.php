@@ -19,7 +19,7 @@ class Mail_Message extends Model
 	 */
 	public function cloneTo ($address = null, $to_name = null)
 	{
-		$fields = $this->_fields;
+		$fields = $this->fields;
 
 		if (array_key_exists ('id', $fields))
 		{

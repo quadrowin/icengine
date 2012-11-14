@@ -1,67 +1,76 @@
 <?php
+
 /**
+ * Менеджер опций
  *
- * @desc Менеджер опций.
- * @author Юрий Шведов
- * @package IcEngine
- *
+ * @author morph, goorus
  */
 class Model_Collection_Option_Manager
 {
+    /**
+     * Выполняет опции коллекции
+     *
+     * @param Model_Collection $collection
+     * @param Query_Abstract $query
+     * @param array $options
+     */
+	protected static function execute($method, $collection, $options)
+    {
+        foreach ($options as $option) {
+            $data = self::normalize($option);
+            if (!$data) {
+                continue;
+            }
+            $option = Model_Option::create($data[0], $collection, $data[1]);
+            $option->query = $collection->query();
+            call_user_func(array($option, $method));
+        }
+    }
 
-	/**
-	 * @desc Опции.
-	 * @var array <Model_Collection_Option_Abstract>
-	 */
-	protected static $_options = array ();
+    /**
+     * Выполняет часть опций after
+     *
+     * @param Model_Collection $collection
+     * @param array $options
+     */
+    public static function executeAfter($collection, $options)
+    {
+        self::execute('after', $collection, $options);
+    }
 
-	/**
-	 * @desc Возвращает название класса опции для коллекции.
-	 * @param string $option Название опции
-	 * @param Model_Collection $collection Коллекция.
-	 * @return string
-	 */
-	protected static function getClassName ($option, $collection)
-	{
-		$p = strpos ($option, '::');
-		if ($p === false)
-		{
-			return
-				$collection->modelName () .
-				'_Collection_Option_' .
-				$option;
-		}
-		elseif ($p === 0)
-		{
-			return 'Model_Collection_Option_' . substr ($option, $p + 2);
-		}
-		else
-		{
-			return
-				substr ($option, 0, $p) .
-				'_Collection_Option_' .
-				substr ($option, $p + 2);
-		}
-	}
+    /**
+     * Выполняет часть опций before
+     *
+     * @param Model_Collection $collection
+     * @param array $options
+     */
+    public static function executeBefore($collection, $options)
+    {
+        self::execute('before', $collection, $options);
+    }
 
-	/**
-	 * @desc Создание новой опции.
-	 * @param string $name Название опции. Может содержать название модели.
-	 * Active - Опция Active текущей коллекции.
-	 * Car::Active - Car_Collection_Option_Active
-	 * ::Active - Model_Collection_Option_Active
-	 * @param array $params
-	 * @param Model_Collection $collection
-	 * @return Model_Collection_Option_Abstract
-	 */
-	public static function get ($name, $collection)
-	{
-		$class = self::getClassName ($name, $collection);
-		if (!isset (self::$_options [$class]))
-		{
-			self::$_options [$class] = new $class ();
-		}
-		return self::$_options [$class];
-	}
-
+    /**
+     * Приводит опцию к стандартной форме
+     *
+     * @param mixed $option
+     * @return array
+     */
+    protected static function normalize($option)
+    {
+        if (is_string($option)) {
+            return array($option, null);
+        }
+        if (is_array($option)) {
+            if (isset($option['name'])) {
+                $name = $option['name'];
+                unset($option['name']);
+                return array($name, $option);
+            }
+            if (isset($option[0]) && is_string($option[0])) {
+                return array(
+                    $option[0], isset($option[1]) ? $option[1] : null
+                );
+            }
+        }
+    }
 }

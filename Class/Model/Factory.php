@@ -1,46 +1,42 @@
 <?php
+
 /**
- *
- * @desc Модель, необходимая для организации фабрик.
+ * Модель, необходимая для организации фабрик.
  * Используется в случаях, когда модели могут быть реализованы
  * разными классами.
- * @author Юрий Шведов
- * @package IcEngine
  *
+ * @author goorus, morph
  */
 class Model_Factory extends Model
 {
-
 	/**
-	 * @desc Возвращает название класса, который будет использоваться
+	 * Возвращает название класса, который будет использоваться
 	 * в качестве модели.
-	 * @param string $model Название модели.
+     *
+	 * @param string $modelName Название модели.
 	 * @param string $key Первичный ключ.
-	 * @param array $object Имеющиеся данные об объекте.
+	 * @param array $source Имеющиеся данные об объекте.
 	 * @return string Название класса модели.
 	 */
-	public function delegateClass ($model, $key, $object)
+	public function delegateClass($modelName, $key, $source)
 	{
-	    if (is_array ($object) && isset ($object ['name']))
-	    {
-		    return $model . '_' . $object ['name'];
+	    if (is_array($source) && isset($source['name'])) {
+		    return $modelName . '_' . $source['name'];
 	    }
-		$query =  Query::instance ()
-			->select ('name')
-			->from ($this->table())
-			->where ('id', $key);
-	    $delegateName = DDS::execute ($query)->getResult ()->asValue();
-		$delegateName = $delegateName ?: 'Abstract';
-		return $model . '_' . $delegateName;
+        $keyField = Model_Scheme::keyField($modelName);
+		$query = Query::instance()
+			->select('name')
+			->from($modelName)
+			->where($keyField, $key);
+	    $delegateName = DDS::execute($query)->getResult ()->asValue();
+		return $modelName . '_' . ($delegateName ?: 'Abstrtact');
 	}
 
 	/**
-	 * @desc Возвращает таблицу
-	 * @return string
+	 * @inheritdoc
 	 */
-	public function table ()
+	public function table()
 	{
 		return get_class($this);
 	}
-
 }

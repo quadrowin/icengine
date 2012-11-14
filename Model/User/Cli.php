@@ -94,7 +94,7 @@ class User_Cli extends User_Abstract
 	 * (non-PHPdoc)
 	 * @see Model::modelName()
 	 */
-	public function modelName ()
+	public function table ()
 	{
 		return 'User';
 	}
