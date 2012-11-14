@@ -14,8 +14,8 @@ class SiteMap
 			where ('viewRenderId=1');
 
 		$routes->items ();
-
-		return $routes->sortByParent ();
+		$routes = Helper_Collection::sortByParent($routes);
+		return $routes;
 	}
 
 }
