@@ -34,9 +34,9 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	 */
 	protected function _afterConstruct ()
 	{
-		if (!isset ($this->_fields ['id']))
+		if (!isset ($this->fields ['id']))
 		{
-			$this->_fields ['id'] = 1;
+			$this->fields['id'] = 1;
 		}
 	}
 

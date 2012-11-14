@@ -1,64 +1,44 @@
 <?php
+
 /**
+ * Базовый загрузчик для менеджера коллекций
  *
- * @desc Базовый загрузчик для менеджера коллекций.
- *
+ * @author morph
  */
 class Model_Collection_Manager_Delegee_Simple
 {
-
-	public static function load (Model_Collection $collection, Query_Abstract $query)
+    /**
+     * Загружает коллекцию
+     *
+     * @param Model_Collection $collection
+     * @param Query_Abstract $query
+     * @return array
+     */
+	public static function load(Model_Collection $collection,
+        Query_Abstract $query)
 	{
-		$model = $collection->modelName ();
-
-		// Выполняем запрос, получаем элементы коллеции
-		$query_result =
-			Model_Scheme::dataSource ($model)
-				->execute ($query)
-					->getResult ();
-
-		$collection->queryResult ($query_result);
-
+        // Выполняем запрос, получаем элементы коллеции
+		$modelName = $collection->modelName();
+        $dataSource = Model_Scheme::dataSource($modelName);
+        $queryResult = $dataSource->execute($query)->getResult();
+		$collection->queryResult($queryResult);
 		// Если установлен флаг CALC_FOUND_ROWS,
 		// то назначаем ему значение
-		if ($query->getPart (Query::CALC_FOUND_ROWS))
-		{
-			$collection->data ('foundRows', $query_result->foundRows ());
+		if ($query->getPart(Query::CALC_FOUND_ROWS)) {
+			$collection->data('foundRows', $queryResult->foundRows());
 		}
-
-		$scheme = Model_Scheme::getScheme ($model);
-
-		$fields = array_keys ($scheme ['fields']);
-
-		$table = $query_result->asTable ();
-
-		$items = array ();
-		$addicts = array ();
-
-		foreach ($table as $i => $item)
-		{
-			foreach ($item as $field => $value)
-			{
-				if (!in_array ($field, $fields))
-				{
-					$addicts [$i][$field] = $value;
-				}
-				else
-				{
-					if (!isset ($items [$i]))
-					{
-						$items [$i] = array ();
-					}
-					$items [$i][$field] = $value;
-				}
-			}
-		}
-
-		$collection->data ('addicts', $addicts);
-
-		return array (
-			'items'	=> $items,
-		);
+		$scheme = Model_Scheme::scheme($modelName);
+		$schemeFields = array_keys($scheme['fields']->__toArray());
+		$rows = $queryResult->asTable();
+        if (!$rows) {
+            return array('items' => array());
+        }
+        $currentFields = array_keys($rows[0]);
+        $needleFields = array_intersect($schemeFields, $currentFields);
+        $addictFields = array_intersect($currentFields, $schemeFields);
+        $items = Helper_Array::column($rows, $needleFields);
+        $addicts = Helper_Array::column($rows, $addictFields);
+		$collection->data('addicts', $addicts);
+		return array('items' => $items);
 	}
-
 }

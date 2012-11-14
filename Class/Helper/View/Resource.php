@@ -226,8 +226,12 @@ class Helper_View_Resource
 		$config = Config_Manager::get('Controller_Resource');
 		$route = Router::getRoute();
 		$call = $route->actions[0];
-		$rules = $config->js->rules;
-		$path = $config->js->defaultPath;
+        $rules = array();
+        $path = '';
+        if ($config->js) {
+            $rules = $config->js->rules;
+            $path = $config->js->defaultPath;
+        }
 		$out = '';
         $ruleParams = array();
         if ($config->js) {
