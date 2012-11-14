@@ -489,7 +489,7 @@ abstract class Model implements ArrayAccess
 	 */
 	public function setLazy($value)
 	{
-		$this->_lazy = $value;
+		$this->lazy = $value;
 	}
 
 	/**
