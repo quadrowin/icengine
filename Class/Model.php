@@ -225,7 +225,7 @@ abstract class Model implements ArrayAccess
                     'table' => $this->table()
                 ),
                 array(
-                    'name'  => 'Row',
+                    'name'  => '::Row',
                     'id'    => $this->key()
                 )
             );
