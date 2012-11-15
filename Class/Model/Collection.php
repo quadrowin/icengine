@@ -614,7 +614,8 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function reverse()
 	{
-		return array_reverse($this->items());;
+		$this->items = array_reverse($this->items());
+        return $this;
 	}
 
 	/**
