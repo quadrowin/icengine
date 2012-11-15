@@ -40,7 +40,7 @@ class User_Cli extends User_Abstract
 	 */
 	protected function _afterConstruct ()
 	{
-		$this->_loaded = true;
+
 	}
 
 	/**
