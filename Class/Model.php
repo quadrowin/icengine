@@ -388,7 +388,7 @@ abstract class Model implements ArrayAccess
 	 */
 	public function modelName()
 	{
-		return get_class($this);
+		return $this->table();
 	}
 
 	/**
