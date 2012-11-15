@@ -134,7 +134,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
     /**
      * Действия до загрузки коллекции
      */
-    public function beforeLoad()
+    protected function beforeLoad()
     {
         $keyField = $this->keyField();
 		$query = $this->query();
@@ -284,7 +284,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
             $ids = Helper_Array::column($result, $keyField);
             foreach ($ids as $id) {
                 foreach ($this->items as $model) {
-                    if ($id != $model->key()) {
+                    if ($id != $model[$keyField]) {
                         continue;
                     }
                     $collection->add($model);
@@ -299,7 +299,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
      *
 	 * @return Model
 	 */
-	public function first()
+	public function &first()
 	{
         $items = $this->items();
         if (!$items) {
@@ -354,7 +354,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 * @param integer $index Индекс
 	 * @return Model|null
 	 */
-	public function item($index)
+	public function &item($index)
 	{
 		if (!is_array($this->items)) {
 			$this->items();

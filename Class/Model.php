@@ -125,6 +125,9 @@ abstract class Model implements ArrayAccess
         if (!$this->fields) {
             $this->load();
         }
+        if ($field == 'data') {
+            return $this->data($field, $value);
+        }
         $fields = $this->scheme()->fields;
 		if (isset($fields[$field])) {
 			$this->fields[$field] = $value;
@@ -215,7 +218,7 @@ abstract class Model implements ArrayAccess
 	 */
 	public function component($type, $index = null)
 	{
-		$collection = Model_Collection_Manager::create($type)
+		$collection = Model_Collection_Manager::create('Component_' . $type)
             ->addOptions(
                 array(
                     'name'  => '::Table',
