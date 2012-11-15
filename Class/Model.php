@@ -484,9 +484,12 @@ abstract class Model implements ArrayAccess
 		$fields = is_array($field) ? $field : array($field => $value);
 		$scheme = $this->scheme();
         $data = array();
-        $schemeFields = array_keys($scheme->fields->__toArray());
+        $schemeFields = array();
+        if ($scheme->fields) {
+            $schemeFields = array_keys($scheme->fields->__toArray());
+        }
         foreach ($fields as $field => $value) {
-            if (in_array($field, $schemeFields)) {
+            if (!$schemeFields || in_array($field, $schemeFields)) {
                 $this->fields[$field] = $value;
             } else {
                 $data[$field] = $value;
