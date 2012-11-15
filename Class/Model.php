@@ -482,7 +482,19 @@ abstract class Model implements ArrayAccess
 	public function set($field, $value = null)
 	{
 		$fields = is_array($field) ? $field : array($field => $value);
-		$this->fields = array_merge($this->fields, $fields);
+		$scheme = $this->scheme();
+        $data = array();
+        $schemeFields = array_keys($scheme->fields->__toArray());
+        foreach ($fields as $field => $value) {
+            if (in_array($field, $schemeFields)) {
+                $this->fields[$field] = $value;
+            } else {
+                $data[$field] = $value;
+            }
+        }
+        if ($data) {
+            $this->data($data);
+        }
 	}
 
     /**
@@ -535,7 +547,7 @@ abstract class Model implements ArrayAccess
 	 */
 	public function load()
 	{
-        if ($this->laze) {
+        if ($this->lazy) {
             Unit_Of_Work::load($this);
         } else {
             Model_Manager::get($this->table(), $this->key(), $this);
