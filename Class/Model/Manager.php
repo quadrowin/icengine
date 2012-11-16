@@ -289,7 +289,10 @@ class Model_Manager extends Manager_Abstract
 	{
         $resourceKey = $model->resourceKey();
         $updatedFields = $model->getUpdatedFields();
-        if ($updatedFields || $hardInsert || !$model->key()) {
+        if (!$model->key()) {
+            $updatedFields = $model->getFields();
+        }
+        if ($updatedFields) {
             self::write($model, $hardInsert);
         }
 		Resource_Manager::set('Model', $resourceKey, $model);
