@@ -391,7 +391,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		if (!$this->iterator) {
 			$this->iterator = new Model_Collection_Iterator($this, $isFactory);
 		}
-		if (!is_array($this->_items))
+		if (!is_array($this->items))
 		{
 			$this->load();
 		}
@@ -413,13 +413,14 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
      *
 	 * @return Model
 	 */
-	public function last()
+	public function &last()
 	{
-		$items = $this->items();
+		$items = &$this->items();
         if (!$items) {
             return null;
         }
-        return end($items);
+        $last = end($items);
+        return $last;
 	}
 
 	/**
