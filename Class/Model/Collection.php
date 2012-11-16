@@ -301,11 +301,12 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function &first()
 	{
-        $items = $this->items();
+        $items = &$this->items();
         if (!$items) {
             return null;
         }
-        return reset($items);
+        $first = reset($items);
+        return $first;
 	}
 
 	/**
