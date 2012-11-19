@@ -287,16 +287,10 @@ class Model_Manager extends Manager_Abstract
 	 */
 	public static function set(Model $model, $hardInsert = false)
 	{
-		$currentFields = $model->getFields();
         $resourceKey = $model->resourceKey();
-		$lastModel = Resource_Manager::get('Model', $resourceKey);
-        $updatedFields = array();
-		if ($lastModel) {
-			$updatedFields = array_diff(
-                $currentFields, $lastModel->getFields()
-            );
-		} else {
-            $updatedFields = $currentFields;
+        $updatedFields = $model->getUpdatedFields();
+        if (!$model->key()) {
+            $updatedFields = $model->getFields();
         }
         if ($updatedFields) {
             self::write($model, $hardInsert);
