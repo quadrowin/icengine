@@ -49,7 +49,6 @@ class Helper_Site_Location
 		{
 			list ($location, $param) = explode ('::', $param);
 		}
-
 		return self::$_config [$location][$param];
 	}
 
