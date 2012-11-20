@@ -47,10 +47,8 @@ class Model_Manager_Delegee_Factory
 	public static function get ($model, $key, $object)
 	{
 		$factory_name = $model;
-		if (!isset (self::$_factories [$factory_name]))
-		{
-			self::$_factories [$factory_name] = new $model ();
-
+		if (!isset(self::$_factories[$factory_name])) {
+			self::$_factories[$factory_name] = new $model();
 		}
 
 		$dmodel = self::$_factories [$factory_name]
