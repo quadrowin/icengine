@@ -428,7 +428,6 @@ class Model_Manager extends Manager_Abstract
 	{
 		$cached = $object != null;
 		$result = null;
-
 		if ($object instanceof Model) {
 			$cached = true;
 			$result = $object;
@@ -452,7 +451,6 @@ class Model_Manager extends Manager_Abstract
 					$second && isset ($config ['delegee'][$second]) ?
 					$second :
 					$first;
-
 				$delegee =
 					'Model_Manager_Delegee_' .
 					$config ['delegee'][$parent];
@@ -461,7 +459,6 @@ class Model_Manager extends Manager_Abstract
 					array ($delegee, 'get'),
 					$model, $key, $object
 				);
-
 				$result->set ($result->keyField (), $key);
 
 				Resource_Manager::set (
