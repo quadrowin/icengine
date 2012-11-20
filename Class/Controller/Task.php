@@ -1,228 +1,257 @@
 <?php
+
 /**
+ * Задание на выполнение контроллер
  *
- * @desc Задание на выполнение контроллера.
- * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
- *
+ * @author goorus, morph
  */
 class Controller_Task
 {
 	/**
-	 * @desc Переменная, куда попадет результат
-	 * работы контролера
+	 * Переменная, куда попадет результат работы контролера
+     *
 	 * @var string
 	 */
-	protected $_assignVar = 'content';
+	protected $assignVar = 'content';
 
 	/**
-	 * @desc Экшин
+	 * Действие контроллера
+     *
 	 * @var Controller_Action
 	 */
-	protected $_controllerAction;
+	protected $controllerAction;
 
 	/**
-	 * @desc Игнорировать текущее задание
-	 * @var boolean
+	 * Игнорировать текущее задание
+	 *
+     * @var boolean
 	 */
-	protected $_ignore = false;
+	protected $ignore = false;
 
 	/**
-	 * @desc
+	 * Индекс текущего задания
+     *
 	 * @var integer
 	 */
-	protected $_index;
+	protected $index;
 
 	/**
-	 * @desc Входные данные
+	 * Входные данные
+     *
 	 * @var Data_Transport
 	 */
-	protected $_input;
+	protected $input;
 
 	/**
-	 * @desc Название шаблона
-	 * @var string
-	 */
-	protected $_template;
-
-	/**
-	 * @desc Результат выполнения экшена
-	 * @var Data_Transport_Transaction
-	 */
-	protected $_transaction;
-
-	/**
-	 * @desc Рендера
-	 * @var View_Render_Abstract
-	 */
-	protected $_viewRender;
-
-	/**
+	 * Название шаблона
 	 *
-	 * @param Route_Action|Controller_Action $action
+     * @var string
 	 */
-	public function __construct ($action)
+	protected $template;
+
+	/**
+	 * Результат выполнения действия контроллера
+	 *
+     * @var Data_Transport_Transaction
+	 */
+	protected $transaction;
+
+	/**
+	 * Рендера
+	 *
+     * @var View_Render_Abstract
+	 */
+	protected $viewRender;
+
+	/**
+	 * Конструктор
+     *
+	 * @param Controller_Action $action
+	 */
+	public function __construct($action)
 	{
-		if ($action instanceof Route_Action)
-		{
-			$this->_assignVar = $action->assign;
-
-			$this->_viewRender = $action->Route->viewRender ();
-
-			$action = $action->Controller_Action;
-		} else {
-			$this->_viewRender = View_Render_Manager::getView ();
-		}
-		$this->_controllerAction = $action;
-		if ($action) {
-			$this->_template =
-				'Controller/' .
-				str_replace('_', '/', $action->controller) . '/' .
-				$action->action;
-		}
+        if ($action['assign']) {
+            $this->assignVar = $action['assign'];
+        }
+        $this->index = $action['sort'];
+        $this->ignore = false;
+        $route = Router::getRoute();
+        if ($route->params && $route->params['View_Render__id']) {
+            $this->viewRender = $route->viewRender();
+        } else {
+            $this->viewRender = View_Render_Manager::getView();
+        }
+        $this->controllerAction = array(
+            'controller'    => $action['controller'],
+            'action'        => $action['action']
+        );
+        $this->template = self::getTemplateName($action);
 	}
 
 	/**
-	 * @desc Получить экшин
+	 * Получить экшин
+     *
 	 * @return Controller_Action
 	 */
-	public function controllerAction ()
+	public function controllerAction()
 	{
-		return $this->_controllerAction;
+		return $this->controllerAction;
 	}
 
 	/**
-	 * @desc Возвращает название переменной, в которую будет присвоено
+	 * Возвращает название переменной, в которую будет присвоено
 	 * результат рендера.
+     *
 	 * @return string
 	 */
-	public function getAssignVar ()
+	public function getAssignVar()
 	{
-		return $this->_assignVar;
+		return $this->assignVar;
 	}
 
 	/**
-	 * @desc Узнать игнорируется ли текущая задача
+	 * Узнать игнорируется ли текущая задача
+     *
 	 * @return boolean
 	 */
-	public function getIgnore ()
+	public function getIgnore()
 	{
-		return $this->_ignore;
+		return $this->ignore;
 	}
 
 	/**
-	 * @desc Получить порядковый номер задания
-	 * в очереди заданий
+	 * Получить порядковый номер задания в очереди заданий
+     *
 	 * @return integer
 	 */
-	public function getIndex ()
+	public function getIndex()
 	{
-		return $this->_index;
+		return $this->index;
 	}
 
 	/**
-	 * @desc Получить транспорт входных данных
+	 * Получить транспорт входных данных
+     *
 	 * @return Data_Transport
 	 */
-	public function getInput ()
+	public function getInput()
 	{
-		return $this->_input;
+		return $this->input;
 	}
 
 	/**
-	 * @desc Возвращает имя шаблона.
+	 * Возвращает имя шаблона
+     *
 	 * @return string
 	 */
-	public function getTemplate ()
+	public function getTemplate()
 	{
-		return $this->_template;
+		return $this->template;
 	}
 
+    /**
+     * Сформировать имя шаблона для задания
+     *
+     * @param array $action
+     * @return string
+     */
+    public static function getTemplateName($action)
+    {
+        return 'Controller/' . str_replace('_', '/', $action['controller']) .
+            '/' . $action['action'];
+    }
+
 	/**
-	 * @desc Получить транзакцию экшина
+	 * Получить транзакцию экшина
+     *
 	 * @return Data_Transport_Transaction
 	 */
-	public function getTransaction ()
+	public function getTransaction()
 	{
-		return $this->_transaction;
+		return $this->transaction;
 	}
 
 	/**
-	 * @desc Получить рендер
+	 * Получить рендер
+     *
 	 * @return View_Render_Abstract
 	 */
-	public function getViewRender ()
+	public function getViewRender()
 	{
-		return $this->_viewRender;
+		return $this->viewRender;
 	}
 
 	/**
-	 * @desc Задать шаблон на основе названия класса
+     * Задать шаблон на основе названия класса
+     *
 	 * @param string $class Класс или метод (контроллера).
 	 * @param string $template Шаблон.
 	 */
-	public function setClassTpl ($class, $template = '')
+	public function setClassTpl($class, $template = '')
 	{
-		$template = $template ? ('/' . ltrim ($template, '/')) : '';
-
-		$this->setTemplate (
-			str_replace (array ('_', '::'), '/', $class) . $template
+		$template = $template ? ('/' . ltrim($template, '/')) : '';
+		$this->setTemplate(
+			str_replace(array ('_', '::'), '/', $class) . $template
 		);
 	}
 
 	/**
-	 * @desc Установить флаг игнорирования текущего задания
+	 * Установить флаг игнорирования текущего задания
+     *
 	 * @param boolean $value
 	 */
-	public function setIgnore ($value)
+	public function setIgnore($value)
 	{
-		$this->_ignore = (bool) $value;
+		$this->ignore = (bool) $value;
 	}
 
 	/**
-	 * @desc Установить порядковый номер заания
-	 * в очереди заданий
+	 * Установить порядковый номер заания в очереди заданий
 	 * @param integer $value
 	 */
-	public function setIndex ($value)
+	public function setIndex($value)
 	{
-		$this->_index = $value;
+		$this->index = $value;
 	}
 
 	/**
-	 * @desc Установить транспорт для входных данных
+	 * Установить транспорт для входных данных
+     *
 	 * @param Data_Transport $input
 	 */
-	public function setInput (Data_Transport $input)
+	public function setInput(Data_Transport $input)
 	{
-		$this->_input = $input;
+		$this->input = $input;
 	}
 
 	/**
-	 * @desc Установка шаблона для рендера.
+	 * Установка шаблона для рендера
+     *
 	 * @param string $value
 	 */
-	public function setTemplate ($value)
+	public function setTemplate($value)
 	{
-		$this->_template = $value;
+		$this->template = $value;
 	}
 
 	/**
-	 * @desc Изменить транзакцию текущего экшина
+	 * Изменить транзакцию текущего экшина
+     *
 	 * @param Data_Transport_Transaction $value
 	 */
-	public function setTransaction (Data_Transport_Transaction $value)
+	public function setTransaction(Data_Transport_Transaction $value)
 	{
-		$this->_transaction = $value;
+		$this->transaction = $value;
 	}
 
 	/**
-	 * @desc Изменить рендер
+	 * Изменить рендер
+     *
 	 * @param View_Render_Abstract $viewRender
 	 */
-	public function setViewRender (View_Render_Abstract $viewRender)
+	public function setViewRender(View_Render_Abstract $viewRender)
 	{
-		$this->_viewRender = $viewRender;
+		$this->viewRender = $viewRender;
 	}
 
 }

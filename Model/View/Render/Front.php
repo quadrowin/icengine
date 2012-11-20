@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Редер фронт контроллера
  * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
@@ -8,7 +8,7 @@
  */
 class View_Render_Front extends View_Render_Abstract
 {
-	
+
 	/**
 	 * @desc Конфиг
 	 * @var array
@@ -17,7 +17,7 @@ class View_Render_Front extends View_Render_Abstract
 		// Render for layout
 		'layout_render'	=> 'Smarty'
 	);
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::addHelper()
@@ -25,7 +25,7 @@ class View_Render_Front extends View_Render_Abstract
 	public function addHelper ($helper, $method)
 	{
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::display()
@@ -34,12 +34,12 @@ class View_Render_Front extends View_Render_Abstract
 	{
 		$this->fetch ($tpl);
 	}
-	
+
 	public function fetch ($tpl)
 	{
 		throw new Exception ('хД');
 	}
-	 
+
 	/**
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::fetch()
@@ -49,20 +49,20 @@ class View_Render_Front extends View_Render_Abstract
 		$transaction = $task->getTransaction ();
 		$this->assign ($transaction->buffer ());
 		$tasks = $transaction->receive ('tasks');
-		
 		foreach ($tasks as $t)
 		{
 			$render = $t->getViewRender ();
 			$result = $render->render ($t);
 			$this->assign ($t->getAssignVar (), $result);
 		}
-		
 		$config = $this->config ();
-		$render = View_Render_Manager::byName ($config ['layout_render']);
-		
-		$render->assign ($this->_vars);
-		
-		$render->display ($task->getTemplate ());
+		$render = View_Render_Manager::byName($config['layout_render']);
+		$vars = $this->_vars;
+        if (isset($vars['tasks'])) {
+            unset($vars['tasks']);
+        }
+        $render->assign($vars);
+		$render->display($task->getTemplate());
 	}
-	
+
 }

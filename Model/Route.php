@@ -24,17 +24,13 @@ class Route extends Model_Child
 	/**
 	 * Сформировать роут экшины, привязаннык роуту
 	 *
-	 * @return Route_Action_Collection
+	 * @return array
 	 */
 	public function actions()
 	{
 		$i = 0;
-		$actionCollection = Model_Collection_Manager::create (
-			'Route_Action'
-		)->reset ();
-		$actions = is_object($this->fields['actions'])
-			? $this->fields['actions']->__toArray()
-			: (array) $this->fields['actions'];
+        $resultActions = array();
+		$actions = $this->fields['actions'];
 		foreach ($actions as $action => $assign) {
 			if (is_numeric($action)) {
 				if (is_scalar($assign)) {
@@ -47,20 +43,17 @@ class Route extends Model_Child
 			}
 			$tmp = explode('/', $action);
 			$controller = $tmp[0];
-			$controllerAction = !empty($tmp[1]) ? $tmp[1] : 'index';
-			$action = new Route_Action(array(
-				'Controller_Action'	=> new Controller_Action(array(
-					'controller'	=> $controller,
-					'action'		=> $controllerAction
-				)),
-				'Route'				=> $this,
-				'sort'				=> ++$i,
-				'assign'			=> $assign
-			));
-
-			$actionCollection->add($action);
+			$controllerAction = !empty($tmp[1])
+                ? $tmp[1] : Controller_Manager::DEFAULT_ACTION;
+			$action = array(
+                'controller'	=> $controller,
+                'action'		=> $controllerAction,
+				'sort'			=> ++$i,
+				'assign'		=> $assign
+			);
+			$resultActions[] = $action;
 		}
-		return $actionCollection;
+		return $resultActions;
 	}
 
 	/**
@@ -190,13 +183,13 @@ class Route extends Model_Child
 	 */
 	public function viewRender()
 	{
+        $render = null;
 		if (!empty($this->params['View_Render__id'])) {
 			$viewRenderId = $this->params['View_Render__id'];
+            $render = Model_Manager::byKey('View_Render', $viewRenderId);
 		} else {
-			$config = Config_Manager::get(__CLASS__);
-			$viewRenderId = $config['empty_route']->params['View_Render__id'];
+			$render = View_Render_Manager::getView();
 		}
-		$render = Model_Manager::byKey('View_Render', $viewRenderId);
 		return $render;
 	}
 }

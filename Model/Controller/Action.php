@@ -1,29 +1,29 @@
 <?php
+
 /**
- * 
- * @desc Действие контроллера.
- * @author Юрий Шведов
- * @package IcEngine
+ * Действие контроллера
  *
+ * @author goorus, morph
  */
 class Controller_Action extends Model
 {
 	/**
-	 * @desc Флаг игнорирования
-	 * @var string
+	 * Флаг игнорирования
 	 */
 	const IGNORE_FLAG = 'ignore';
-	
+
 	/**
-	 * @desc Транспорт входной
-	 * @var string
+	 * Транспорт входной
+     *
+	 * @var Data_Transport
 	 */
-	public $_input;
-	
+	public $input;
+
 	/**
-	 * @desc Транспорт выходной
-	 * @var string
+	 * Транспорт выходной
+     *
+	 * @var Data_Transport
 	 */
-	public $_output;
+	public $output;
 
 }

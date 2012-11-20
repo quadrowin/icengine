@@ -299,14 +299,13 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
      *
 	 * @return Model
 	 */
-	public function &first()
+	public function first()
 	{
         $items = &$this->items();
-        if (!$items) {
-            return null;
+        if ($items) {
+            $first = reset($items);
+            return $first;
         }
-        $first = reset($items);
-        return $first;
 	}
 
 	/**

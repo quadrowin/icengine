@@ -173,8 +173,9 @@ class View_Render_Smarty extends View_Render_Abstract
 	 */
 	public function popVars ()
 	{
-		$this->_smarty->clearAllAssign ();
-		$this->_smarty->assign (array_pop ($this->_varsStack));
+		$this->_smarty->clearAllAssign();
+		$vars = array_pop ($this->_varsStack);
+        $this->_smarty->assign($vars);
 	}
 
 	/**
