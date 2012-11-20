@@ -14,8 +14,11 @@ class Model_Collection_Option_Manager
      * @param Query_Abstract $query
      * @param array $options
      */
-	protected static function execute($method, $collection, $options)
+	protected static function execute($method, $collection, $options = array())
     {
+        if (!$options) {
+            return;
+        }
         foreach ($options as $option) {
             $data = self::normalize($option);
             if (!$data) {
