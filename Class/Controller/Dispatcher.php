@@ -1,45 +1,43 @@
 <?php
+
 /**
+ * Диспетчер контроллеров
  *
- * @desc Диспетчер контроллеров.
- * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
- *
+ * @author goorus, morph
  */
 class Controller_Dispatcher
 {
 	/**
-	 * @desc Ищет соответствие имени файла и метода
+	 * Ищет соответствие имени файла и метода
+     *
 	 * @param string $controller
 	 * @param string $action
 	 * @return array<controller,action>
 	 */
-	public static function dispatch ($controller, $action)
+	public static function dispatch($controller, $action)
 	{
-		return array (
+		return array(
 			'controller'	=> $controller,
 			'action'		=> $action
 		);
 	}
-	
+
 	/**
-	 * @desc Запускает цикл диспетчеризации.
-	 * Находит соответствиие имени файла и метода
+	 * Запускает цикл диспетчеризации. Находит соответствиие имени файла и
+     * метода
+     *
 	 * @param Route_Action_Collection $actions
 	 * @return Route_Action_Collection
 	 */
-	public static function loop ($actions)
+	public static function loop($actions)
 	{
-		foreach ($actions as $action)
-		{
-			$controllerAction = $action->Controller_Action;
-
-			$controllerAction->set (self::dispatch (
-				$controllerAction->controller,
-				$controllerAction->action
-			));
+		foreach ($actions as &$action) {
+			$dispacthResult = self::dispatch(
+                $action['controller'], $action['action']
+            );
+            $action['controller'] = $dispacthResult['controller'];
+            $action['action'] = $dispacthResult['action'];
 		}
-		
 		return $actions;
 	}
 }

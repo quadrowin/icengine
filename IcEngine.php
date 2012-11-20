@@ -97,7 +97,6 @@ class IcEngine
 		{
 			self::$_task->setTemplate (self::$frontTemplate);
 		}
-
 		Controller_Manager::call (
 			'Render', 'index',
 			array (
