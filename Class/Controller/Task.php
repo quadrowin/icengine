@@ -70,10 +70,10 @@ class Controller_Task
 	 */
 	public function __construct($action)
 	{
-        if ($action['assign']) {
+        if (!empty($action['assign'])) {
             $this->assignVar = $action['assign'];
         }
-        $this->index = $action['sort'];
+        $this->index = !empty($action['sort']) ? $action['sort'] : 0;
         $this->ignore = false;
         $route = Router::getRoute();
         if ($route->params && $route->params['View_Render__id']) {
@@ -191,7 +191,7 @@ class Controller_Task
 	{
 		$template = $template ? ('/' . ltrim($template, '/')) : '';
 		$this->setTemplate(
-			str_replace(array ('_', '::'), '/', $class) . $template
+			str_replace(array('_', '::'), '/', $class) . $template
 		);
 	}
 
@@ -252,6 +252,5 @@ class Controller_Task
 	public function setViewRender(View_Render_Abstract $viewRender)
 	{
 		$this->viewRender = $viewRender;
-	}
-
+    }
 }
