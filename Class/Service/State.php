@@ -88,4 +88,24 @@ class Service_State
         }
         return call_user_func_array(array($this->className, $method), $args);
     }
+
+    /**
+     * Получить класс объекта
+     *
+     * @return string
+     */
+    public function __class()
+    {
+        return $this->className;
+    }
+
+    /**
+     * Получить объект состояния
+     *
+     * @return mixed
+     */
+    public function __object()
+    {
+        return $this->object;
+    }
 }
