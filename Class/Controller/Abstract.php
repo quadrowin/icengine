@@ -16,6 +16,13 @@ class Controller_Abstract
 	 */
 	protected $currentAction;
 
+    /**
+     * Локатор сервисов
+     *
+     * @var Service_Locator
+     */
+    protected $serviceLocator;
+
 	/**
 	 * Текущая задача
      *
@@ -94,17 +101,7 @@ class Controller_Abstract
 		return $this->_config;
 	}
 
-	/**
-	 * Возвращает текущую задачу контролера
-     *
-	 * @return Controller_Task
-	 */
-	public function getTask()
-	{
-		return $this->_task;
-	}
-
-	/**
+    /**
      * Получить текущий входной транспорт
      *
 	 * @return Data_Transport
@@ -114,7 +111,7 @@ class Controller_Abstract
 		return $this->_input;
 	}
 
-	/**
+    /**
      * Получить текущий выходной транспорт
      *
 	 * @return Data_Transport
@@ -122,6 +119,30 @@ class Controller_Abstract
 	public function getOutput()
 	{
 		return $this->_output;
+	}
+
+    /**
+     * Получить услугу по имени
+     *
+     * @param string $serviceName
+     * @return mixed
+     */
+    public function getService($serviceName)
+    {
+        if (!$this->serviceLocator) {
+            $this->serviceLocator = new Service_Locator;
+        }
+        return $this->serviceLocator->getService($serviceName);
+    }
+
+	/**
+	 * Возвращает текущую задачу контролера
+     *
+	 * @return Controller_Task
+	 */
+	public function getTask()
+	{
+		return $this->_task;
 	}
 
 	/**
