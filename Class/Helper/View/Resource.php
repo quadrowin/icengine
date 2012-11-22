@@ -63,18 +63,34 @@ class Helper_View_Resource
 	 * @param string $type
 	 * @param string $filename
 	 */
-	public static function append($type, $filename, $pathName)
+	public static function append($type, $filename = null, $pathName = null)
 	{
-        if ($pathName) {
-            $config = self::config();
-            $paths = $config->defaultPaths;
-            if ($paths) {
-                $paths = $paths[$type];
-                $filename = IcEngine::root() . trim($paths[$pathName], '/') .
-                    '/' . ltrim($filename, '/');
+        $config = self::config();
+        $args = func_get_args();
+        $type = $args[0];
+        if (!is_array($args[1][0])) {
+            $tmpArgs = array($args[1][0], $args[1][1]);
+            if (isset($args[1][2])) {
+                $tmpArgs[2] = $args[1][2];
             }
+            $args = array($tmpArgs);
+        } else {
+            array_shift($args);
+            $args = reset($args);
         }
-		array_push(self::$files[$type], $filename);
+        foreach ($args as $argsData) {
+            $pathName = isset($argsData[1]) ? $argsData[1] : null;
+            $filename = $argsData[0];
+            if ($pathName) {
+                $paths = $config->defaultPaths;
+                if ($paths) {
+                    $paths = $paths[$type];
+                    $filename = IcEngine::root() . trim($paths[$pathName], '/') .
+                        '/' . ltrim($filename, '/');
+                }
+            }
+            array_push(self::$files[$type], $filename);
+        }
 	}
 
 	/**
@@ -84,7 +100,7 @@ class Helper_View_Resource
 	 */
 	public static function appendCss($filename, $pathName = null)
 	{
-		self::append(self::CSS, $filename, $pathName);
+		self::append(self::CSS, func_get_args());
 	}
 
 	/**
@@ -94,7 +110,7 @@ class Helper_View_Resource
 	 */
 	public static function appendJs($filename, $pathName = null)
 	{
-		self::append(self::JS, $filename, $pathName);
+		self::append(self::JS, func_get_args());
 	}
 
 	/**
