@@ -54,6 +54,13 @@ abstract class Model implements ArrayAccess
 	 */
 	protected $scheme;
 
+    /**
+     * Локатор сервисов
+     *
+     * @var Service_Locator
+     */
+    protected $serviceLocator;
+
 	/**
 	 * Обновленные поля
      *
@@ -332,6 +339,20 @@ abstract class Model implements ArrayAccess
     public function getLazy()
     {
         return $this->lazy;
+    }
+
+    /**
+     * Получить услугу по имени
+     *
+     * @param string $serviceName
+     * @return mixed
+     */
+    public function getService($serviceName)
+    {
+        if (!$this->serviceLocator) {
+            $this->serviceLocator = new Service_Locator;
+        }
+        return $this->serviceLocator->getService($serviceName);
     }
 
     /**
