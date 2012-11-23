@@ -23,7 +23,7 @@ class Model_Manager extends Manager_Abstract
 	/**
 	 * Получение модели по первичному ключу
      *
-	 * @param string $model Имя класса модели.
+	 * @param string $modelName Имя класса модели.
 	 * @param integer $key Значение первичного ключа.
      * @param boolean $lazy Добавить ли загрузку модели в очередь отложенных
      * загрузок
@@ -68,6 +68,11 @@ class Model_Manager extends Manager_Abstract
         $args = func_get_args();
         $count = count($args);
         if ($count > 1) {
+            if ($count == 2 && is_array($args[1])) {
+                $args = $args[1];
+                array_unshift($args, null);
+                $count = count($args);
+            }
             for ($i = 1; $i < $count; $i++) {
                 $collection->addOptions($args[$i]);
             }
