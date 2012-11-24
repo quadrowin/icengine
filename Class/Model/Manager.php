@@ -68,7 +68,7 @@ class Model_Manager extends Manager_Abstract
         $args = func_get_args();
         $count = count($args);
         if ($count > 1) {
-            if ($count == 2 && is_array($args[1])) {
+            if ($count == 2 && is_array($args[1]) && !empty($args[1][0])) {
                 $args = $args[1];
                 array_unshift($args, null);
                 $count = count($args);
