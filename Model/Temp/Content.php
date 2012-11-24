@@ -32,11 +32,11 @@ class Temp_Content extends Model
 	 * @param string $key
 	 * @param string $value
 	 */
-	protected function _setAttr ($key, $value)
+	protected function _setAttr($key, $value)
 	{
 		$this->_data[$key] = $value;
 		$this->update(array(
-			'data' => json_encode ($this->_data)
+			'json' => json_encode($this->_data)
 		));
 	}
 
@@ -45,23 +45,21 @@ class Temp_Content extends Model
 	 *
 	 * @return type
 	 */
-	public function attr ($key)
+	public function attr($key, $value = null)
 	{
-		if (is_null ($this->_data)) {
-			$this->_data = json_decode ($this->data, true);
+		if (is_null($this->_data)) {
+			$this->_data = json_decode($this->json, true);
 		}
-
-		$args = func_get_args ();
-
-		if (count ($args) == 1 && !is_array ($args[0])) {
+		$args = func_get_args();
+		if (count($args) == 1 && !is_array($args[0])) {
 			return isset($this->_data[$args[0]])
 					? $this->_data[$args[0]] : null;
-		} elseif (is_array ($args[0])) {
+		} elseif (is_array($args[0])) {
 			foreach ($args[0] as $key => $value) {
-				$this->_setAttr ($key, $value);
+				$this->_setAttr($key, $value);
 			}
-		} elseif (count ($args) == 2) {
-			$this->_setAttr ($args[0], $args[1]);
+		} elseif (count($args) == 2) {
+			$this->_setAttr($args[0], $args[1]);
 		}
 	}
 
@@ -93,7 +91,7 @@ class Temp_Content extends Model
 		$tc = new Temp_Content (array (
 			'time'			=> Helper_Date::toUnix (),
 			'utcode'		=> $utcode,
-			'data'			=> json_encode($data),
+			'json'			=> json_encode($data),
 			'ip'			=> Request::ip (),
 			'controller'	=>
 				$controller instanceof Controller_Abstract ?

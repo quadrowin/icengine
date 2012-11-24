@@ -70,7 +70,7 @@ class Query_Translator_Mysql_Insert extends Query_Translator_Mysql_Select
 		if (($onDuplicateKey = $query->getFlag('onDuplicateKey'))) {
 			$duplicateArray = array();
 			foreach ($onDuplicateKey as $field) {
-				$duplicateArray[] = $field . ' = VALUES(' . $field . ')';
+				$duplicateArray[] = '`' . $field . '` = VALUES(`' . $field . '`)';
 			}
 			$sql .= ' ON DUPLICATE KEY UPDATE ' .
 				implode(', ', $duplicateArray);
