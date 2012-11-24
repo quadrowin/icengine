@@ -68,6 +68,13 @@ class IcEngine
 	 */
 	protected static $_managers = array ();
 
+    /**
+     * Сервис локатор
+     *
+     * @var Service_Locator
+     */
+    protected static $serviceLocator;
+
 	/**
 	 * @desc Возвращает путь до корня сайта.
 	 * @return string
@@ -260,6 +267,20 @@ class IcEngine
 			self::$_task
 		);
 	}
+
+    /**
+     *
+     * Получить локатор сервисов
+     *
+     * @return Service_Locator
+     */
+    public static function serviceLocator()
+    {
+        if (!self::$serviceLocator) {
+            self::$serviceLocator = new Service_Locator;
+        }
+        return self::$serviceLocator;
+    }
 
 	public static function shutdownHandler ()
 	{
