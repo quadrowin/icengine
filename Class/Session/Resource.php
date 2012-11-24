@@ -1,10 +1,9 @@
 <?php
+
 /**
+ * Ресурс для хранения в сессии
  *
- * @desc Ресурс для хранения в сессии.
- * @author Юрий Шведов
- * @package IcEngine
- *
+ * @author goorus, morph
  */
 class Session_Resource extends Objective
 {
@@ -16,20 +15,29 @@ class Session_Resource extends Objective
 	protected $name;
 
 	/**
-	 * @desc Создает и возвращает ресурс сесии.
-	 * @param string $name Название ресурса в сессии.
+	 * Конструктор
+     *
+	 * @param string $name Название ресурса в сессии
+     * @param boolean $autoCreate Будет ли автоматически создан ресурс сессии
 	 */
-	public function __construct ($name)
+	public function __construct($name, $autoCreate = true)
 	{
 		$this->name = $name;
-
-		if (!isset ($_SESSION [$name]) || !is_array ($_SESSION [$name]))
-		{
-			$_SESSION [$name] = array ();
-		}
-
-		$this->_data = &$_SESSION [$name];
+        if (isset($_SESSION[$name])) {
+            $this->_data = &$_SESSION[$name];
+        } elseif ($autoCreate) {
+            $_SESSION[$name] = array();
+            $this->_data = &$_SESSION[$name];
+        }
 	}
+
+    /**
+     * Проверяет существует ли ресурс сессии
+     */
+    public function exists()
+    {
+        return isset($_SESSION[$this->name]);
+    }
 
 	/**
 	 * Получить имя ресурса
