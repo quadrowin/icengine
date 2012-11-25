@@ -2,28 +2,28 @@
 
 /**
  * Мэппер для работы с MongoDB
- * 
+ *
  * @author goorus, morph
  */
 class Data_Mapper_Mongo extends Data_Mapper_Abstract
 {
 	/**
 	 * Соединение с монго
-     * 
+     *
 	 * @var Mongo
 	 */
 	protected $connection;
 
 	/**
 	 * Текущая коллекция
-     * 
+     *
 	 * @var MongoCollection
 	 */
 	protected $collection;
 
 	/**
 	 * Параметры соединения
-     * 
+     *
 	 * @var array
 	 */
 	public $connectionOptions = array(
@@ -37,42 +37,42 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 
 	/**
 	 * Последний оттранслированный запрос
-     * 
+     *
 	 * @var array
 	 */
 	protected $query;
 
     /**
      * Результат выполнения последнего запроса
-     * 
+     *
      * @var Query_Result
      */
 	protected $result = null;
-    
+
     /**
      * Количество затронутых документов
-     * 
+     *
      * @var integer
      */
 	protected $touchedRows = 0;
-    
+
     /**
      * Количество документов в полученной коллекции
-     * 
+     *
      * @var integer
      */
 	protected $foundRows = 0;
-    
+
     /**
      * Id последнего созданного документа
-     *  
+     *
      * @var integer
      */
 	protected $insertId = null;
 
 	/**
 	 * Обработчики по видам запросов
-     * 
+     *
 	 * @var array
 	 */
 	protected $_queryMethods = array (
@@ -122,10 +122,13 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 	 */
 	public function _executeSelect(Query_Abstract $query, Query_Options $options)
 	{
+		//print_r($this->query['query']);
 		if ($this->query['find_one']) {
-			$this->result = array(
-				$this->collection->findOne($this->query['query'])
-			);
+			$row = $this->collection->findOne($this->query['query']);
+			$this->result = array();
+			if ($row) {
+				$this->result[] = $row;
+			}
 		} else {
 			$r = $this->collection->find($this->query['query']);
 			if ($this->query[Query::CALC_FOUND_ROWS]) {
@@ -150,7 +153,7 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 
 	/**
 	 * Служебный тип запроса
-     * 
+     *
 	 * @param Query $query
 	 * @param Query_Options $options
 	 */
@@ -185,16 +188,16 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 	public function _executeUpdate(Query_Abstract $query, Query_Options $options)
 	{
 		$this->collection->update(
-            $this->query['criteria'], 
-            $this->query['newobj'], 
+            $this->query['criteria'],
+            $this->query['newobj'],
             $this->query['options']
 		);
-		$this->touchedRows = 1; 
+		$this->touchedRows = 1;
 	}
 
 	/**
 	 * Подключение к БД
-     * 
+     *
 	 * @param Objective|array $config [optional]
 	 * @return Mongo
 	 */
@@ -216,7 +219,7 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 		$url .= $this->connectionOptions['host'];
 		$options = array('connect'	=> true);
 		if (isset($this->connectionOptions['options']['replicaSet'])) {
-			$options['replicaSet'] = 
+			$options['replicaSet'] =
                 $this->connectionOptions['options']['replicaSet'];
 		}
 		$this->connection = new Mongo($url, $options);
@@ -266,7 +269,7 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 
 	/**
 	 * Возвращает ресурс соединения с mongo
-     * 
+     *
 	 * @return resource
 	 */
 	public function linkIdentifier()
