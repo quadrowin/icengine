@@ -34,9 +34,9 @@ class Session_Resource extends Objective
     /**
      * Проверяет существует ли ресурс сессии
      */
-    public function exists()
+    public function exists($key)
     {
-        return isset($_SESSION[$this->name]);
+        return parent::exists($this->name);
     }
 
 	/**

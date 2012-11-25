@@ -11,7 +11,7 @@ class Query_Translator_Mongo_Insert extends Query_Translator_Mongo_Select
 	 * @param Query $query Запрос.
 	 * @return string Сформированный SQL запрос.
 	 */
-	public function _renderInsert (Query $query)
+	public function _renderInsert (Query_Abstract $query)
 	{
 		$table = $query->part (Query::INSERT);
 		return array (
