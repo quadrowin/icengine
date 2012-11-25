@@ -10,7 +10,7 @@ class Query_Translator_Mongo_Show extends Query_Translator_Mongo_Select
 	 * @desc Рендеринг SHOW запроса
 	 * @param Query $query
 	 */
-	public function _renderShow (Query $query)
+	public function _renderShow (Query_Abstract $query)
 	{
 		$from = $query->part (Query::FROM);
 
