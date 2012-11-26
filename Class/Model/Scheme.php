@@ -236,7 +236,7 @@ abstract class Model_Scheme
 	{
 		$prefix = self::$default['prefix'];
 		foreach (self::$models as $name => $model) {
-			if ($model['table'] == $table) {
+			if (!empty($model['table']) && $model['table'] == $table) {
 				$parts = explode('_', $name);
                 $mappedParts = array_map('ucfirst', $parts);
 				return implode('_', $mappedParts);
