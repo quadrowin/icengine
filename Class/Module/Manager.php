@@ -170,6 +170,9 @@ class Module_Manager extends Manager_Abstract
     public static function loadByNames($names)
     {
         foreach ($names as $name) {
+			if (empty($name)) {
+				continue;
+			}
 			self::addModule($name);
 		}
     }

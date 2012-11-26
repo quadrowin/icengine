@@ -88,6 +88,7 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 	 */
 	public function _executeDelete(Query_Abstract $query, Query_Options $options)
 	{
+		$this->query['criteria'] = $this->normalizeId($this->query['criteria']);
 		$this->collection->remove(
             $this->query['criteria'], $this->query['options']
 		);
@@ -124,7 +125,6 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 	{
         $modelScheme = IcEngine::serviceLocator()->getService('modelScheme');
         $modelName = Model_Scheme::tableToModel($this->query['collection']);
-        $keyField = $modelScheme->keyField($modelName);
 		if ($this->query['find_one']) {
 			$row = $this->collection->findOne($this->query['query']);
 			$this->result = array();
@@ -151,12 +151,6 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 				$this->result[] = $tr;
 			}
 		}
-        if ($this->result) {
-            foreach ($this->result as $i => $row) {
-                $id = $row['_id']['$id'];
-                $this->result[$i][$keyField] = $id;
-            }
-        }
 	}
 
 	/**
@@ -192,9 +186,18 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 
 	/**
 	 * Запрос на обновление
+	 *
+	 * @param Query_Abstract $query
+	 * @param Query_Options $options
+	 * @return void
 	 */
 	public function _executeUpdate(Query_Abstract $query, Query_Options $options)
 	{
+		//print_r($this->query);die;
+		$this->query['criteria'] = $this->normalizeId(
+			$this->query['criteria']
+		);
+		print_r($this->query['criteria']);
 		$this->collection->update(
             $this->query['criteria'],
             $this->query['newobj'],
@@ -284,6 +287,21 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 	{
 		$this->connect();
 		return $this->connection;
+	}
+
+	/**
+	 * Преобразует входящий ключ
+	 *
+	 * @param mixed $value
+	 * @return MongoId
+	 */
+	public function normalizeId($data)
+	{
+		if (is_array($data) && isset($data['$id'])) {
+			$id = (string) $data['$id'];
+			return new MongoId($id);
+		}
+		return $data;
 	}
 
 	/**

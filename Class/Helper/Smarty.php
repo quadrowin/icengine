@@ -61,7 +61,7 @@ class Helper_Smarty
 				IcSocialnet_Implementator::path () . 'includes/smarty_plugins/'
 			);
 		}
-		
+
 		Helper_Smarty_Filter_Dblbracer::register ($smarty);
 
 		return $smarty;
