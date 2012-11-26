@@ -17,7 +17,7 @@ class Model_Manager_Delegee_Defined
 	 */
 	public static function get($modelName, $key, $object)
 	{
-		$rows = $model::$rows;
+		$rows = $modelName::$rows;
         $params = is_array($object) ? $object : array();
 		foreach ($rows as $row){
 			if ($row['id'] != $key) {
