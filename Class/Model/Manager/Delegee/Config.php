@@ -1,10 +1,9 @@
 <?php
+
 /**
+ * Для получения данных модели из конфига
  * 
- * @desc Для получения данных модели из конфига
- * @author Юрий Шведов
- * @package IcEngine
- *
+ * @author goorus
  */
 class Model_Manager_Delegee_Config
 {
