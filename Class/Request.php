@@ -405,7 +405,9 @@ class Request
 	{
 		if (!class_exists ('Session_Manager'))
 		{
-			Session_Manager::init ();
+            $serviceLocator = IcEngine::serviceLocator();
+            $sessionManager = $serviceLocator->getService('serviceManager');
+			$sessionManager->init();
 		}
 
 		if (isset ($_COOKIE ['PHPSESSID']))

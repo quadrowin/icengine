@@ -75,17 +75,21 @@ class Controller_Task
         }
         $this->index = !empty($action['sort']) ? $action['sort'] : 0;
         $this->ignore = false;
-        $route = Router::getRoute();
+        $serviceLocator = IcEngine::serviceLocator();
+        $route = $serviceLocator->getService('router')->getRoute();
         if ($route->params && $route->params['View_Render__id']) {
             $this->viewRender = $route->viewRender();
         } else {
-            $this->viewRender = View_Render_Manager::getView();
+            $viewRenderManager = $serviceLocator->getService(
+                'viewRenderManager'
+            );
+            $this->viewRender = $viewRenderManager->getView();
         }
         $this->controllerAction = array(
             'controller'    => $action['controller'],
             'action'        => $action['action']
         );
-        $this->template = self::getTemplateName($action);
+        $this->template = $this->getTemplateName($action);
 	}
 
 	/**
@@ -155,7 +159,7 @@ class Controller_Task
      * @param array $action
      * @return string
      */
-    public static function getTemplateName($action)
+    public function getTemplateName($action)
     {
         return 'Controller/' . str_replace('_', '/', $action['controller']) .
             '/' . $action['action'];

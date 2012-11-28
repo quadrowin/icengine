@@ -142,7 +142,7 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 		if (!$options) {
 			$options = $this->getDefaultOptions();
 		}
-		$m = $this->_queryMethods[$query->type()];
+		$m = $this->queryMethods[$query->type()];
 		$this->{$m}($query, $options);
 		$finish = microtime (true);
 		return new Query_Result(array(
@@ -187,7 +187,11 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 	{
 		switch ($key) {
 			case 'cache_provider':
-				$this->setCacher(Data_Provider_Manager::get($value));
+                $serviceLocator = IcEngine::serviceLocator();
+                $dataProviderManager = $serviceLocator->getService(
+                    'dataProviderManager'
+                );
+				$this->setCacher($dataProviderManager->get($value));
 				return;
 			case 'expiration':
 				$this->getDefaultOptions()->setExpiration($value);

@@ -63,6 +63,13 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 * @var Query_Result
 	 */
 	protected $queryResult;
+    
+    /**
+     * Локатор сервисов
+     * 
+     * @var Service_Locator
+     */
+    protected static $serviceLocator;
 
 	/**
 	 * Преобразование коллекции к массиву
@@ -159,11 +166,13 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 				$this->paginator->offset()
             );
 		}
-		$schemeOptions = Model_Scheme::modelOptions($modelName);
+        $modelScheme = $this->getService('modelScheme');
+		$schemeOptions = $modelScheme->modelOptions($modelName);
 		if ($schemeOptions) {
 			$this->addOptions($schemeOptions);
 		}
-        Model_Collection_Option_Manager::executeBefore($this, $this->options);
+        $optionManager = $this->getService('collectionOptionManager');
+        $optionManager->executeBefore($this, $this->options);
 		$this->lastQuery = $query;
     }
 
@@ -185,7 +194,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function column($name)
 	{
-        return Helper_Array::column($this->items(), $name);
+        return $this->getService('helperArray')->column($this->items(), $name);
 	}
 
 	/**
@@ -239,14 +248,16 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	public function delete()
 	{
 		$items = &$this->items();
+        $queryBuilder = $this->getService('query');
+        $unitOfWork = $this->getService('unitOfWork');
 		foreach ($items as $item) {
-            $query = Query::instance()
+            $query = $queryBuilder
                 ->delete()
                 ->from($item->table())
                 ->where($item->keyField(), $item->key());
-            Unit_Of_Work::push($query);
+            $unitOfWork->push($query);
 		}
-        Unit_Of_Work::flush();
+        $unitOfWork->flush();
 		$this->items = array();
 	}
 
@@ -348,6 +359,30 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		return $this->paginator;
 	}
 
+    /**
+     * Получить сервис
+     * 
+     * @param string $name
+     * @return mixed
+     */
+    public function getService($name)
+    {
+        if (!self::$serviceLocator) {
+            self::$serviceLocator = new Service_Locator;
+        }
+        return self::$serviceLocator->getService($name);
+    }
+    
+    /**
+     * Получить текущий сеовис локатор
+     * 
+     * @return Service_Locator
+     */
+    public function getServiceLocator()
+    {
+        return self::$serviceLocator;
+    }
+    
 	/**
 	 * Возвращает модель из коллекции
      *
@@ -386,7 +421,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function iterator($isFactory = false)
 	{
-		Loader::load('Model_Collection_Iterator');
 		if (!$this->iterator) {
 			$this->iterator = new Model_Collection_Iterator($this, $isFactory);
 		}
@@ -404,7 +438,8 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function keyField()
 	{
-		return Model_Scheme::keyField($this->modelName());
+        $modelScheme = $this->getService('modelScheme');
+		return $modelScheme->keyField($this->modelName());
 	}
 
 	/**
@@ -446,8 +481,10 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	{
 		$this->beforeLoad($columns);
         $query = $this->lastQuery;
-		Model_Collection_Manager::load($this, $query);
-        Model_Collection_Option_Manager::executeAfter($this, $this->options);
+        $collectionManager = $this->getService('collectionManager');
+        $optionManager = $this->getService('collectionOptionManager');
+		$collectionManager->load($this, $query);
+        $optionManager->executeAfter($this, $this->options);
 		if ($this->paginator) {
 			$this->paginator->fullCount = $this->data['foundRows'];
 		}
@@ -527,7 +564,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	public function query()
 	{
 		if (!$this->query) {
-			$this->query = Query::factory('Select');
+			$this->query = $this->getService('query')->factory('Select');
 		}
 		return $this->query;
 	}
@@ -557,16 +594,17 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
      */
     public function raw($columns = array())
     {
+        $helperArray = $this->getService('helperArray');
         $result = array();
         if ($this->items) {
             if (is_array($this->items[0])) {
-                $result = Helper_Array::column($this->items, $columns);
+                $result = $helperArray->column($this->items, $columns);
             } else {
                 $fullResult = array();
                 foreach ($this->items as $item) {
                     $fullResult[] = $item->asRow();
                 }
-                $result = Helper_Array::column($fullResult, $columns);
+                $result = $helperArray->column($fullResult, $columns);
             }
         } else {
             if ($columns) {
@@ -574,17 +612,19 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
             } else {
                 $this->beforeLoad(array());
             }
-            $pack = Model_Collection_Manager::callDelegee(
+            $collectionManager = $this->getService('collectionManager');
+            $optionManager = $this->getService('collectionOptionManager');
+            $pack = $collectionManager->callDelegee(
                 $this, $this->lastQuery
             );
             if ($pack) {
                 $this->items = $pack['items'];
             }
-            Model_Collection_Option_Manager::executeAfter($this, $this->options);
+            $optionManager->executeAfter($this, $this->options);
             if ($this->paginator) {
                 $this->paginator->fullCount = $this->data('foundRows');
             }
-            $result = Helper_Array::column($this->items, $columns);
+            $result = $helperArray->column($this->items, $columns);
         }
         return (array) $result;
     }
@@ -676,6 +716,16 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		$this->query = $query;
 	}
 
+    /**
+     * Изменить локатор сервисов
+     * 
+     * @param Service_Locator $serviceLocator
+     */
+    public function setServiceLocator($serviceLocator)
+    {
+        self::$serviceLocator = $serviceLocator;
+    }
+    
 	/**
 	 * Вернуть первый элемент коллекции, удалив его из коллекции
      *
@@ -722,7 +772,8 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	public function sort()
 	{
 		$items = &$this->items();
-		Helper_Array::mosort($items, implode (',', func_get_args()));
+        $helperArray = $this->getService('helperArray');
+		$helperArray->mosort($items, implode (',', func_get_args()));
 		return $this;
 	}
 
@@ -746,7 +797,8 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		$modelName = $this->modelName();
 		$keyField = $this->keyField();
 		$keys = array_unique($this->column($keyField));
-		$collection = Model_Collection_Manager::create($modelName)
+        $collectionManager = $this->getService('collectionManager');
+		$collection = $collectionManager->create($modelName)
 			->reset();
         $existsKeys = array();
         foreach ($this->items() as $model) {
@@ -768,13 +820,15 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	public function update(array $data)
 	{
 		$items = &$this->items();
+        $queryBuilder = $this->getService('query');
+        $unitOfWork = $this->getService('unitOfWork');
 		foreach ($items as $item) {
-			$query = Query::instance()
+			$query = $queryBuilder
                 ->update($item->table())
                 ->values($data)
                 ->where($item->keyField(), $item->key());
-            Unit_Of_Work::push($query);
+            $unitOfWork->push($query);
 		}
-        Unit_Of_Work::flush();
+        $unitOfWork->flush();
 	}
 }

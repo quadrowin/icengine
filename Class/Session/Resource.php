@@ -24,10 +24,10 @@ class Session_Resource extends Objective
 	{
 		$this->name = $name;
         if (isset($_SESSION[$name])) {
-            $this->_data = &$_SESSION[$name];
+            $this->data = &$_SESSION[$name];
         } elseif ($autoCreate) {
             $_SESSION[$name] = array();
-            $this->_data = &$_SESSION[$name];
+            $this->data = &$_SESSION[$name];
         }
 	}
 

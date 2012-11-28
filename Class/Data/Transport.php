@@ -1,356 +1,304 @@
 <?php
+
 /**
- *
- * @desc Транспорт данных
- * @author Юрий
- * @package IcEngine
- *
+ * Транспорт данных
+ * 
+ * @author goorus, morph
  */
 class Data_Transport
 {
+	/**
+	 * Фильтры применяемые только на вход транспорта.
+	 * 
+     * @var Filter_Collection
+	 */
+	protected $inputFilters;
 
 	/**
-	 * @desc Фильтры применяемые только на вход транспорта.
-	 * @var Filter_Collection
+	 * Фильтры применяемые только на выход транспорта.
+	 * 
+     * @var Filter_Collection
 	 */
-	protected $_inputFilters;
-
-	/**
-	 * @desc Фильтры применяемые только на выход транспорта.
-	 * @var Filter_Collection
-	 */
-	protected $_outputFilters;
+	protected $outputFilters;
 
     /**
-     * @desc Поставщики данных.
+     * Поставщики данных.
+     * 
      * @var array <Data_Provider_Abstract>
      */
-	protected $_providers = array ();
+	protected $providers = array();
 
     /**
-     * @desc Валидаторы выхода.
+     * Валидаторы выхода.
+     * 
      * @var Data_Validator_Collection
      */
-	protected $_validators;
+	protected $validators;
 
 	/**
 	 * Стек начатых транзакций
-	 * @var array
+	 * 
+     * @var array
 	 */
-	protected $_transactions = array ();
+	protected $transactions = array();
 
 	/**
-	 * @desc Возвращает экземпляр коллекции фильтров
+	 * Возвращает экземпляр коллекции фильтров
 	 */
-	public function __construct ()
+	public function __construct()
 	{
-		$this->resetFilters ();
-		$this->resetValidators ();
+		$this->resetFilters();
+		$this->resetValidators();
 	}
 
     /**
+     * Добавить провайдер 
+     * 
      * @param Data_Provider_Abstract $provider
      * @return Data_Transport
      */
-	public function appendProvider (Data_Provider_Abstract $provider)
+	public function appendProvider(Data_Provider_Abstract $provider)
 	{
-		$this->_providers [] = $provider;
+		$this->providers[] = $provider;
 		return $this;
 	}
 
 	/**
 	 * Начинает новую транзакцию
+     * 
 	 * @return Data_Transport_Transaction
 	 * 		Созданная транзакция
 	 */
-	public function beginTransaction ()
+	public function beginTransaction()
 	{
-	    $transaction = new Data_Transport_Transaction ($this);
-	    $this->_transactions [] = $transaction;
-
+	    $transaction = new Data_Transport_Transaction($this);
+	    $this->transactions[] = $transaction;
 	    return $transaction;
 	}
 
 	/**
+     * Получить текущую транзакцию
+     * 
 	 * @return Data_Transport_Transaction
 	 * 		Текущая транзакция
 	 */
-	public function currentTransaction ()
+	public function currentTransaction()
 	{
-	    return end ($this->_transactions);
+	    return end($this->transactions);
 	}
 
 	/**
 	 * Заканчивает текущую транзакцию
+     * 
 	 * @return Data_Transport_Transaction
 	 * 		Законченная транзакция
 	 */
-	public function endTransaction ()
+	public function endTransaction()
 	{
-	    return array_pop ($this->_transactions);
-	}
-
-    /**
-     * @desc Входные фильтры.
-     * @return Filter_Collection
-     */
-	public function inputFilters ()
-	{
-		return $this->_inputFilters;
+	    return array_pop($this->transactions);
 	}
 
 	/**
-	 *
+	 * Получить провайдер по индексу
+     * 
 	 * @param integer $index
 	 * @return Data_Provider_Abstract
 	 */
-	public function getProvider ($index)
+	public function getProvider($index)
 	{
-		return isset($this->_providers [$index])
-			? $this->_providers [$index] : null;
+		return isset($this->providers[$index]) ? $this->providers[$index] : null;
 	}
 
     /**
-     *
+     * Получить весь пул провайдеров
+     * 
      * @return array
      */
-	public function getProviders ()
+	public function getProviders()
 	{
-		return $this->_providers;
+		return $this->providers;
 	}
 
     /**
-     *
+     * Получить коллекцию валидаторов
+     * 
      * @return array
      */
-	public function getValidators ()
+	public function getValidators()
 	{
-		return $this->_validators;
+		return $this->validators;
+	}
+    
+    /**
+     * Входные фильтры
+     * 
+     * @return Filter_Collection
+     */
+	public function inputFilters()
+	{
+		return $this->inputFilters;
 	}
 
 	/**
-	 * @desc Композит на массив провайдеров
-	 * @return Composite
+	 * Композит на массив провайдеров
+	 * 
+     * @return Composite
 	 */
-	public function providers ()
+	public function providers()
 	{
-		return new Composite ($this->_providers);
+		return new Composite($this->providers);
 	}
 
 	/**
-	 * @desc Инициализация или сброс фильтров.
+	 * Инициализация или сброс фильтров.
 	 */
-	public function resetFilters ()
+	public function resetFilters()
 	{
-		$this->_inputFilters = new Filter_Collection ();
-		$this->_outputFilters = new Filter_Collection ();
+		$this->inputFilters = new Filter_Collection();
+		$this->outputFilters = new Filter_Collection();
 	}
 
 	/**
-	 * @desc Инициализация или сброс валидаторов.
+	 * Инициализация или сброс валидаторов.
 	 */
-	public function resetValidators ()
+	public function resetValidators()
 	{
-		$this->_validators = new Data_Validator_Collection ();
+		$this->validators = new Data_Validator_Collection();
 	}
 
 	/**
-	 * @desc Выходные фильтры
+	 * Выходные фильтры
 	 */
-	public function outputFilters ()
+	public function outputFilters()
 	{
-		return $this->_outputFilters;
+		return $this->outputFilters;
 	}
 
     /**
-     * @desc Получение данных.
+     * Получение данных.
+     * 
      * @param mixed $_
      * @return mixed
      */
-	public function receive ()
+	public function receive()
 	{
-		$keys = func_get_args ();
+		$keys = func_get_args();
 		$results = array ();
-
-		if ($this->_transactions)
-		{
-			$buffer = end ($this->_transactions)->buffer ();
-			foreach ($keys as $key)
-			{
+		if ($this->transactions) {
+			$buffer = end($this->transactions)->buffer();
+			foreach ($keys as $key) {
 				$data = null;
-				$chunk = isset ($buffer [$key]) ? $buffer [$key] : null;
-				$this->_outputFilters->apply ($chunk);
-				if (!is_null ($chunk) && $this->_validators->validate ($chunk))
-				{
+				$chunk = isset($buffer[$key]) ? $buffer[$key] : null;
+				$this->outputFilters->apply($chunk);
+				if (!is_null($chunk) && $this->validators->validate($chunk)) {
 					$data = $chunk;
 				}
-				$results [] = $data;
+				$results[] = $data;
 			}
-		}
-		else
-		{
-			for ($i = 0, $icount = count ($keys); $i < $icount; $i++)
-			{
+		} else {
+            $jcount = count($this->providers);
+			for ($i = 0, $icount = count($keys); $i < $icount; $i++) {
 				$data = null;
-				for ($j = 0, $jcount = count ($this->_providers); $j < $jcount; ++$j)
-				{
-				    /*
-				     * @var Data_Provider_Abstract $provider
-				     */
-					$provider = $this->_providers [$j];
-					$chunk = $provider->get ($keys [$i]);
-					$this->_outputFilters->apply ($chunk);
-					if (!is_null ($chunk) && $this->_validators->validate ($chunk))
-					{
+				for ($j = 0; $j < $jcount; ++$j) {
+					$provider = $this->providers[$j];
+					$chunk = $provider->get($keys[$i]);
+					$this->outputFilters->apply($chunk);
+					if (!is_null($chunk) && 
+                        $this->validators->validate($chunk)) {
 						$data = $chunk;
 					}
 				}
-				$results [] = $data;
+				$results[] = $data;
 			}
 		}
-
-		return count ($results) == 1 ? $results [0] : $results;
+		return count($results) == 1 ? $results[0] : $results;
 	}
 
 	/**
-	 * @desc Получает все значения из всех провайдеров.
+	 * Получает все значения из всех провайдеров.
 	 * Не рекомендуется использовать.
+     * 
 	 * @return array Массив пар (ключ => значение)
 	 */
 	public function receiveAll ()
 	{
-		if ($this->_transactions)
-		{
-			return end ($this->_transactions)->buffer ();
+		if ($this->transactions) {
+			return end($this->transactions)->buffer();
 		}
-
 		$result = array ();
-		foreach ($this->_providers as $provider)
-		{
-			$result = array_merge (
+		foreach ($this->providers as $provider){
+			$result = array_merge(
 				$result,
-				$provider->getAll ()
+				$provider->getAll()
 			);
 		}
 		return $result;
 	}
 
-
-    /**
-     * @desc получает модель, заполненную входными данными. Входные данные должны иметь имена
-     *      ModelName[field1], ModelName[field2], ..., ModelName[fieldN]
-     * @author red
-     * @param string $model_name наименование модели
-     * @return Model
-     */
-    public function receiveModel ($model_name)
-    {
-        $fields = Model_Scheme::fieldsNames ($model_name);
-        $values = $this->receive($model_name);
-
-        $model_data = array();
-        foreach ($fields as $field)
-        {
-            $model_data[$field] = $values[$field];
-        }
-
-        $model = Model_Manager::create ($model_name, $model_data);
-        return $model;
-    }
-
-
 	/**
-	 * @desc Возвращает массив пар "ключ - значение"
-	 * @param string $_ Название переменной
-	 * @return array
-	 */
-	public function receiveArray ()
-	{
-		if (func_num_args () == 1)
-		{
-			return array (
-				func_get_arg (0) => $this->receive (func_get_arg (0))
-			);
-		}
-
-		return array_combine (
-			func_get_args (),
-			call_user_func_array (
-				array ($this, 'receive'),
-				func_get_args ()
-			)
-		);
-	}
-
-	/**
-	 * @desc Очистка данных всех провайдеров и сброс транзаций.
-	 * @return Data_Transport
+	 * Очистка данных всех провайдеров и сброс транзаций.
+	 * 
+     * @return Data_Transport
 	 */
 	public function reset ()
 	{
-		$this->_transactions = array ();
-		for ($i = 0, $count = sizeof ($this->_providers); $i < $count; ++$i)
-		{
-			$this->_providers [$i]->clear ();
+		$this->transactions = array ();
+		for ($i = 0, $count = sizeof($this->providers); $i < $count; ++$i) {
+			$this->providers[$i]->clear();
 		}
 		return $this;
 	}
 
     /**
-     *
+     * Отправить данные в транспорт или в буффер транзации, если она начата
+     * 
      * @param string|array $key
      * @param mixed $data
      * @return Data_Transport
      */
-	public function send ($key, $data = null)
+	public function send($key, $data = null)
 	{
-		if ($this->_transactions)
-		{
-			$this->currentTransaction ()->send ($key, $data);
-		}
-		else
-		{
-			$this->sendForce ($key, $data);
+		if ($this->transactions) {
+			$this->currentTransaction()->send ($key, $data);
+		} else {
+			$this->sendForce($key, $data);
 		}
 		return $this;
 	}
 
 	/**
-	 *
+	 * Отправить данные в транспорт
+     * 
 	 * @param string|array $key
 	 * @param mixed $data
 	 * @return Data_Transport
 	 */
-	public function sendForce ($key, $data = null)
+	public function sendForce($key, $data = null)
 	{
-		if (!is_array ($key))
-		{
-			$key = array ($key => $data);
+		if (!is_array($key)) {
+			$key = array($key => $data);
 		}
-
-		foreach ($key as $k => $v)
-		{
+        $count = $count = sizeof($this->providers);
+		foreach ($key as $k => $v) {
             if($v){
-                $this->_inputFilters->apply ($v);
-                for ($i = 0, $count = sizeof ($this->_providers); $i < $count; $i++)
-                {
-                    $this->_providers [$i]->set ($k, $v);
+                $this->inputFilters->apply($v);
+                for ($i = 0; $i < $count; $i++){
+                    $this->providers[$i]->set($k, $v);
                 }
             }
 		}
-
 		return $this;
 	}
 
     /**
-     *
+     * Изменить пул провайдеров
+     * 
      * @param array|Data_Provider_Abstract $providers
      * @return Data_Transport
      */
-	public function setProviders ($providers)
+	public function setProviders($providers)
 	{
-		$this->_providers = array_merge ($this->_providers, (array) $providers);
+		$this->providers = $providers;
 		return $this;
 	}
-
 }

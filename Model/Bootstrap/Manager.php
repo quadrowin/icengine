@@ -1,55 +1,63 @@
 <?php
+
 /**
- *
- * @desc Менеджер загрузчиков
- * @author Юрий Шведов
- * @package IcEngine
- *
+ * Менеджер загрузчиков
+ * 
+ * @author goorus, morph
  */
 class Bootstrap_Manager
 {
-
 	/**
-	 * @desc Загрузчики
-	 * @var array <Bootstrap_Abstract>
+	 * Загрузчики
+	 * 
+     * @var array <Bootstrap_Abstract>
 	 */
-	protected static $_items;
+	protected $bootstraps;
 
 	/**
-	 * @desc Текущий загрузчик
-	 * @var Bootstrab_Abstract
+	 * Текущий загрузчик
+	 * 
+     * @var Bootstrab_Abstract
 	 */
-	protected static $_current;
+	protected $current;
 
+    /**
+	 * Возвращает текущий загрузчик.
+	 * 
+     * @return Bootstrap_Abstract
+	 */
+	public function current()
+	{
+		return $this->current;
+	}
+    
 	/**
-	 * @desc Создает и возвращает загрузчик.
-	 * @param string $name Название загрузчика.
+	 * Создает и возвращает загрузчик.
+	 * 
+     * @param string $name Название загрузчика.
 	 * @param string $path [optional] Путь до загрузчика.
 	 * @return Bootstrap_Abstract Экземпляр загрузчика.
 	 */
-	public static function get ($name, $path = null)
+	public function get($name, $path = null)
 	{
-		if (!isset (self::$_items [$name]))
-		{
-			$class = 'Bootstrap_' . $name;
-			self::$_items [$name] = new $class ($path);
+		if (!isset($this->bootstraps[$name])) {
+			$className = 'Bootstrap_' . $name;
+            $bootstrap = new $className($path);
+			$this->bootstraps[$name] = $bootstrap;
 		}
-
-		if (!self::$_current)
-		{
-			self::$_current = self::$_items [$name];
+		if (!$this->current) {
+			$this->current = $this->bootstraps[$name];
 		}
-
-		return self::$_items [$name];
+		return $this->bootstraps[$name];
 	}
-
-	/**
-	 * @desc Возвращает текущий загрузчик.
-	 * @return Bootstrap_Abstract
-	 */
-	public static function current ()
-	{
-		return self::$_current;
-	}
-
+    
+    /**
+     * Изменить текущий загрузчик
+     * 
+     * @param Bootstrap_Abstract $bootstrap
+     */
+    public function setCurrent($bootstrap)
+    {
+        $this->current = $bootstrap;
+    }
 }

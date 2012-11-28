@@ -128,7 +128,7 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
 		}
 
 		$froms = $from;
-
+        $modelScheme = IcEngine::serviceLocator()->getService('modelScheme');
 		foreach ($froms as $alias => $from)
 		{
 			if ($from [Query::TABLE] instanceof Query_Select)
@@ -142,7 +142,7 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
 				$table =
 					strpos ($from [Query::TABLE], self::SQL_ESCAPE) !== false
 					? $from [Query::TABLE]
-					: Model_Scheme::table ($from [Query::TABLE]);
+					: $modelScheme->table ($from [Query::TABLE]);
 
 				$table = $this->_escape ($table);
 			}

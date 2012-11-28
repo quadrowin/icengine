@@ -1,24 +1,22 @@
 <?php
-/**
- *
- * @desc Модель гостя (незарегистрированного посетителя сайта).
- * @author Юрий
- * @package IcEngine
- *
- */
-class User_Guest extends User
-{
 
+/**
+ * Модель гостя (незарегистрированного посетителя сайта).
+ * 
+ * @author goorus, morph
+ */
+class User_Guest extends User_Cli
+{
 	/**
 	 * @desc Конфиг
 	 * @var array
 	 */
-	protected static $_config = array (
+	protected static $config = array(
 		/**
 		 * @desc Конфиг пользователя
 		 * @var array
 		 */
-		'data'	=> array (
+		'fields'	=> array(
 			'id'		=> 0,
 			'active'	=> 1,
 			'login'		=> '',
@@ -27,45 +25,4 @@ class User_Guest extends User
 			'password'	=> ''
 		)
 	);
-
-	/**
-	 * @desc Экзмепляр модели гостя
-	 * @var Model
-	 */
-	protected static $_instance;
-
-	/**
-	 * @desc Создает и возвращает экземпляр модели гостя.
-	 * @return User_Guest
-	 */
-	public static function getInstance ()
-	{
-		if (!self::$_instance)
-		{
-			self::$_instance = new self (static::config ()->data->__toArray ());
-		}
-		return self::$_instance;
-	}
-
-	/**
-	 * @desc Инициализирует модель гостя.
-	 * Модель будет добавлена в менеджер ресурсов.
-	 * @param mixed $session_id Идентификатор сессии. Не имеет значения,
-	 * параметр необходим для совместимости с User::init ().
-	 */
-	public static function init ($session_id = null)
-	{
-		$instance = self::getInstance ();
-		Resource_Manager::set ('Model', $instance->resourceKey (), $instance);
-	}
-
-	/**
-	 * (non-PHPdoc)
-	 * @see Model::modelName()
-	 */
-	public function table()
-	{
-		return 'User';
-	}
-
 }

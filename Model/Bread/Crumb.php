@@ -12,7 +12,7 @@ class Bread_Crumb
 	 *
 	 * @var array
 	 */
-	protected static $list = array();
+	protected $list = array();
 
 	/**
 	 * Добавить хлебную крошку
@@ -20,9 +20,9 @@ class Bread_Crumb
 	 * @param string $title Текст ссылки
 	 * @param string $url Href ссылки
 	 */
-	public static function append($title, $url)
+	public function append($title, $url)
 	{
-		self::$list[] = array(
+		$this->list[] = array(
 			'url'	=> $url,
 			'title'	=> $title
 		);
@@ -31,9 +31,9 @@ class Bread_Crumb
 	/**
 	 * Очистить хлебные крошки
 	 */
-	public static function clear()
+	public function clear()
 	{
-		self::$list = array();
+		$this->list = array();
 	}
 
 	/**
@@ -41,9 +41,9 @@ class Bread_Crumb
 	 *
 	 * @return array
 	 */
-	public static function getList()
+	public function getList()
 	{
-		return self::$list;
+		return $this->list;
 	}
 
 	/**
@@ -51,8 +51,8 @@ class Bread_Crumb
 	 *
 	 * @return boolean
 	 */
-	public static function isEmpty()
+	public function isEmpty()
 	{
-		return empty(self::$list);
+		return empty($this->list);
 	}
 }

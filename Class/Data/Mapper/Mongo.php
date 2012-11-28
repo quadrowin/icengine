@@ -75,7 +75,7 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
      *
 	 * @var array
 	 */
-	protected $_queryMethods = array (
+	protected $queryMethods = array (
 		Query::SELECT	=> '_executeSelect',
 		Query::SHOW		=> '_executeShow',
 		Query::DELETE	=> '_executeDelete',
@@ -260,7 +260,7 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 		if (!$options) {
 			$options = $this->getDefaultOptions();
 		}
-		$m = $this->_queryMethods[$query->type()];
+		$m = $this->queryMethods[$query->type()];
 		$this->{$m}($query, $options);
 		$finish = microtime (true);
 		return new Query_Result(array(
