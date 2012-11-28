@@ -88,7 +88,9 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 	 */
 	public function _executeDelete(Query_Abstract $query, Query_Options $options)
 	{
-		$this->query['criteria'] = $this->normalizeId($this->query['criteria']);
+		$this->query['criteria']['_id'] = $this->normalizeId(
+			$this->query['criteria']['_id']
+		);
 		$this->collection->remove(
             $this->query['criteria'], $this->query['options']
 		);
@@ -193,11 +195,17 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 	 */
 	public function _executeUpdate(Query_Abstract $query, Query_Options $options)
 	{
-		//print_r($this->query);die;
-		$this->query['criteria'] = $this->normalizeId(
-			$this->query['criteria']
+		$this->query['criteria']['_id'] = $this->normalizeId(
+			$this->query['criteria']['_id']
 		);
-		print_r($this->query['criteria']);
+		$content = file_get_contents('/var/www/ab/info.txt');
+		$content .= strlen(print_r($this->query, true)) . "\n";
+		$content .= print_r($this->query, true);
+		//ob_start();
+		//var_dump($this->query);
+		//$content .= ob_get_contents();
+		//ob_end_clean();
+		file_put_contents('/var/www/ab/info.txt', $content);
 		$this->collection->update(
             $this->query['criteria'],
             $this->query['newobj'],
