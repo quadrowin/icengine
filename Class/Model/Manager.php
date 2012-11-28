@@ -82,7 +82,8 @@ class Model_Manager extends Manager_Abstract
                 $collection->addOptions($args[$i]);
             }
         }
-        return $collection->first();
+        $model = $collection->first();
+        return $model;
 	}
 
 	/**
