@@ -69,26 +69,10 @@ abstract class Component_Collection extends Model_Collection
 	 */
 	public function rejoin (Model $model)
 	{
-	    $this->_model->component ($this->type (), null);
-        $this->_model = $model;
-	    
-	    $items = &$this->items ();
-	    
-	    foreach ($items as $item)
-	    {
-	        /* @var $item Model_Component */
-	        $item->rejoin ($this->_model);
-//	        update (array (
-//	            'table'	=> $this->_model->table (),
-//	            'rowId'	=> $this->_model->key ()
-//	        ));
-	    }
-	    
-	    if ($this->_model)
-	    {
-	    	$this->_model->component ($this->type (), $this);
-	    }
-	    
+        $items = $this->items();
+	    foreach ($items as $item) {
+            $item->rejoin($model);
+        }
 	    return $this;
 	}
 	
