@@ -1,0 +1,253 @@
+<?php
+
+/**
+ * Мэппер для работы с mysql, с кэшированием запросов.
+ * 
+ * @author goorus, morph
+ */
+class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
+{
+	/**
+	 * Кэшер запросов.
+	 * 
+     * @var Data_Provider_Abstract
+	 */
+	protected $cacher;
+
+	/**
+	 * Получение хэша запроса
+	 * 
+     * @return string
+	 */
+	protected function sqlHash()
+	{
+		return md5($this->sql);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	protected function _executeChange(Query_Abstract $query, 
+        Query_Options $options)
+	{
+		if (!$this->linkIdentifier) {
+			$this->connect();
+		}
+		if (Tracer::$enabled) {
+			$startTime = microtime(true);
+		}
+        $result = parent::_executeChange($query, $options);
+        if (!$result) {
+            return false;
+        }
+		if (Tracer::$enabled) {
+			$endTime = microtime(true);
+			$delta = $endTime - $startTime;
+			if ($query instanceof Query_Delete) {
+				Tracer::incDeleteQueryCount();
+				Tracer::incDeleteQueryTime($delta);
+			} else {
+				Tracer::incUpdateQueryCount();
+				Tracer::incUpdateQueryTime($delta);
+			}
+			Tracer::incDeltaQueryCount();
+		}
+		if ($this->affectedRows > 0) {
+			$tags = $query->getTags();
+			for ($i = 0, $count = sizeof($tags); $i < $count; ++$i) {
+				$this->cacher->tagDelete($tags[$i]);
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	protected function _executeInsert (Query_Abstract $query, 
+        Query_Options $options)
+	{
+		if (!$this->linkIdentifier) {
+			$this->connect();
+		}
+		if (Tracer::$enabled) {
+			$startTime = microtime(true);
+		}
+		$result = parent::_executeInsert($query, $options);
+        if (!$result) {
+            return false;
+        }
+		if (Tracer::$enabled) {
+			$endTime = microtime(true);
+			$delta = $endTime - $startTime;
+			Tracer::incUpdateQueryCount();
+			Tracer::incUpdateQueryTime($delta);
+			Tracer::incDeltaQueryCount();
+		}
+		if ($this->affectedRows > 0) {
+			$tags = $query->getTags();
+			for ($i = 0, $count = sizeof($tags); $i < $count; $i++) {
+				$this->cacher->tagDelete($tags [$i]);
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * @desc Выполняет запрос на получение данных.
+	 * @param Query_Abstract $query
+	 * @param Query_Options $options
+	 * @return null|array
+	 */
+	protected function _executeSelect(Query_Abstract $query, 
+        Query_Options $options)
+	{
+		if (Tracer::$enabled) {
+			Tracer::incSelectQueryCount();
+		}
+		$key = $this->sqlHash();
+		$expiration = $options->getExpiration();
+		$cache = $this->cacher->get($key);
+		$cacheValid = false;
+		if ($cache) {
+            $tagsValid = $this->cacher->checkTags($cache['t']);
+            $expiresValid = $cache['a'] + $expiration > time() || 
+                $expiration = 0;
+			$cacheValid = $expiresValid && $tagsValid;
+			if (!$this->cacher->lock($key, 5, 1, 1)) {
+				$cacheValid = true;
+			}
+		}
+		if ($cacheValid) {
+			$this->numRows = count($cache['v']);
+			$this->foundRows = $cache['f'];
+			if (Tracer::$enabled) {
+				Tracer::incCachedSelectQueryCount();
+			}
+			return $cache['v'];
+		}
+		if (!$this->linkIdentifier) {
+			$this->connect();
+		}
+		if (Tracer::$enabled) {
+			$startTime = microtime(true);
+			Tracer::begin(__CLASS__, __METHOD__, __LINE__);
+		}
+		$rows = parent::_executeSelect($query, $options);
+		if (Tracer::$enabled) {
+			$endTime = microtime(true);
+			$delta = $endTime - $startTime;
+			if ($delta >= Tracer::LOW_QUERY_TIME) {
+				Tracer::addLowQuery($this->sql, $delta);
+			} else {
+				Tracer::incSelectQueryTime($delta);
+			}
+			Tracer::end(
+                $this->sql,
+                $this->numRows(),
+				memory_get_usage()
+            );
+			Tracer::incDeltaQueryCount();
+		}
+		$tags = $query->getTags();
+		$this->cacher->set($key, array (
+            'v' => $rows,
+            'a' => time(),
+            't' => $this->cacher->getTags($tags),
+            'f'	=> $this->foundRows
+        ));
+		if ($cache) {
+			$this->cacher->unlock($key);
+		}
+		return $rows;
+	}
+
+	/**
+	 * (non-PHPdoc)
+	 * @see Data_Mapper_Abstract::execute()
+	 */
+	public function execute(Data_Source_Abstract $source, Query_Abstract $query, 
+        $options = null)
+	{
+		if (!($query instanceof Query_Abstract)) {
+			return new Query_Result(null);
+		}
+		$start = microtime(true);
+		$this->sql = $query->translate('Mysql');
+		$this->errno = 0;
+		$this->error = '';
+		$this->affectedRows = 0;
+		$this->foundRows = 0;
+		$this->numRows = 0;
+		$this->insertId = null;
+		if (!$options) {
+			$options = $this->getDefaultOptions();
+		}
+		$m = $this->queryMethods[$query->type()];
+		$result = $this->{$m}($query, $options);
+		if ($this->errno) {
+			throw new Exception(
+				$this->error . "\n" . $this->sql,
+				$this->errno
+			);
+		}
+		if (!$this->errno && is_null($result)) {
+			$result = array();
+		}
+		$finish = microtime (true);
+		return new Query_Result(array(
+			'error'			=> $this->error,
+			'errno'			=> $this->errno,
+			'query'			=> $query,
+			'startAt'		=> $start,
+			'finishedAt'	=> $finish,
+			'foundRows'		=> $this->foundRows,
+			'result'		=> $result,
+			'touchedRows'	=> $this->numRows + $this->affectedRows,
+			'insertKey'		=> $this->insertId,
+			'source'		=> $source
+		));
+	}
+
+	/**
+     * Получить текущего кэшера
+     * 
+	 * @return Data_Provider_Abstract
+	 */
+	public function getCacher()
+	{
+		return $this->cacher;
+	}
+
+	/**
+	 * Изменить текущего кэшера
+     * 
+	 * @param Data_Provider_Abstract $cacher
+	 */
+	public function setCacher(Data_Provider_Abstract $cacher)
+	{
+		$this->cacher = $cacher;
+	}
+
+	/**
+	 * (non-PHPdoc)
+	 * @see Data_Mapper_Mysqli::setOption()
+	 */
+	public function setOption($key, $value = null)
+	{
+		switch ($key) {
+			case 'cache_provider':
+                $serviceLocator = IcEngine::serviceLocator();
+                $dataProviderManager = $serviceLocator->getService(
+                    'dataProviderManager'
+                );
+                $provider = $dataProviderManager->get($value);
+				$this->setCacher($provider);
+				return;
+			case 'expiration':
+				$this->getDefaultOptions()->setExpiration($value);
+				return;
+		}
+		return parent::setOption($key, $value);
+	}
+}
