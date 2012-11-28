@@ -174,7 +174,10 @@ class Module_Manager extends Manager_Abstract
     public function loadByNames($names)
     {
         foreach ($names as $name) {
-			$this->addModule($name);
+			if (empty($name)) {
+				continue;
+			}
+			self::addModule($name);
 		}
     }
 

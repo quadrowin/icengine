@@ -28,16 +28,16 @@ class Model_Factory_Delegate extends Model
 	}
 
 	/**
-	 * @inheritdoc
+	 * (non-PHPdoc)
+	 * @see Model::modelName()
 	 */
-	public function modelName()
+	public function modelName ()
 	{
 		return get_class($this->modelFactory);
 	}
 
 	/**
-	 * Задает фабрику
-     * 
+	 * @desc Задает фабрику.
 	 * @param Model_Factory $factory Экземпляр фабрики.
 	 */
 	public function setModelFactory(Model_Factory $factory)
@@ -46,10 +46,12 @@ class Model_Factory_Delegate extends Model
 	}
 
 	/**
-	 * @inheritdoc
+	 * (non-PHPdoc)
+	 * @see Model::table()
 	 */
 	public function table()
 	{
 		return $this->modelFactory->table();
 	}
+
 }

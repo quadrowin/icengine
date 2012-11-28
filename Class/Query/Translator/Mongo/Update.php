@@ -11,8 +11,9 @@ class Query_Translator_Mongo_Update extends Query_Translator_Mongo_Select
 	 * @param Query $query Запрос.
 	 * @return array
 	 */
-	public function _renderUpdate (Query $query)
+	public function _renderUpdate (Query_Abstract $query)
 	{
+		//print_r($query->part (Query::LIMIT_COUNT));die;
 		$table = $query->part (Query::UPDATE);
 		return array (
 			'collection'	=> strtolower (Model_Scheme::table ($table)),

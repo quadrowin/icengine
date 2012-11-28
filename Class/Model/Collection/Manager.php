@@ -116,6 +116,8 @@ class Model_Collection_Manager extends Manager_Abstract
 		$key = md5($modelName . $query->translate('Mysql') .
             json_encode($collection->getOptions())
 		);
+		//echo $key . '<br />';
+		//echo $modelName . $query->translate('Mysql') . json_encode($collection->getOptions()) . '<br />';
 		// Получаем коллецию из менеджера ресурсов
 		$data = $resourceManager->get('Model_Collection', $key);
 		// Если коллекцию уже использовалась в текущем сценарии,
@@ -173,3 +175,16 @@ class Model_Collection_Manager extends Manager_Abstract
 		$resourceManager->set('Model_Collection', $key, $collection);
 	}
 }
+
+
+
+/**
+ *
+ *
+Language_Item SELECT `Language_Item`.*,`Language_Item`._id AS `_id` FROM `ice_language_item` AS `Language_Item` WHERE `const`="TMPL_FORM_CURRENCY_CHANGE" AND `Language__id`="2" LIMIT 0,1[{"name":"::Limit","count":1},{"name":"Const","value":"TMPL_FORM_CURRENCY_CHANGE"},{"name":"Language","key":"2"}]
+d62b7c63500ec54798d2dca1e3258b02345
+
+
+Language_Item SELECT `Language_Item`.*,`Language_Item`._id AS `_id` FROM `ice_language_item` AS `Language_Item` WHERE `const`="TMPL_FORM_CURRENCY_CHANGE" AND `Language__id`="2" LIMIT 0,1[{"name":"::Limit","count":1},{"name":"Const","value":"TMPL_FORM_CURRENCY_CHANGE"},{"name":"Language","key":"2"}]<br />8eaa3b107ad9b4bd6287d7719cd0c311"
+ *
+ */
