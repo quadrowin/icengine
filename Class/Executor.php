@@ -1,34 +1,32 @@
 <?php
 
 /**
- *
- * @desc Исполнитель.
+ * Исполнитель всякого. Необходим для того, чтобы исполнять всякое. (с) morph
  * Предназначени для запуска функций/методов и кэширования результатов
  * их работы.
- * @author Юрий
- * @package IcEngine
- *
+ * 
+ * @author goorus, morph
  */
-class Executor
+class Executor extends Manager_Abstract
 {
-
 	/**
-	 * @desc Разделитель частей при формировании ключа для кэширования.
+	 * Разделитель частей при формировании ключа для кэширования
+     * 
 	 * @var string
 	 */
 	const DELIM = '/';
 
 	/**
-	 * @desc Кэшер
+	 * Кэшер
+     * 
 	 * @var Data_Provider_Abstract
 	 */
-	protected static $_cacher;
+	protected $cacher;
 
 	/**
-	 * @desc Конфиг.
-	 * @var array
+	 * @inheritdoc
 	 */
-	public static $config = array (
+	protected $config = array(
 		/**
 		 * @desc Провайдер данных, используемый для кэширования по умолчанию
 		 * (Data_Provider).
@@ -41,254 +39,263 @@ class Executor
 		 */
 		'functions'			=> array (
 		),
+        /**
+         * Объекты для логирования
+         */
+        'forLog'    => array(
+            'Controller_Manager'
+        ),
+        'logProvider'   => 'ControllerLog',
 		/**
 		 * @desc Провайдер поставки тэгов
 		 */
 		'tag_provider'		=> null,
-
-		'tags'				=> array ()
+		'tags'				=> array()
 	);
 
-	/**
-	 * @desc Возвращает название функции.
-	 * @param function $function Функция.
-	 * @return string
-	 */
-	protected static function _functionName ($function)
-	{
-		if (is_array ($function))
-		{
-			if (is_object ($function [0]))
-			{
-				return get_class ($function [0]) . self::DELIM . $function [1];
-			}
-
-			return $function [0] . self::DELIM . $function [1];
-		}
-
-		if (is_string ($function))
-		{
-			return $function;
-		}
-
-		return md5 ($function);
-	}
-
-	/**
-	 * @desc Возвращает ключ для кэширования
-	 * @param function $function Кэшируемая функция.
+    /**
+	 * Возвращает ключ для кэширования
+	 * 
+     * @param function $function Кэшируемая функция.
 	 * @param array $args Аргкументы функции.
 	 * @return string Ключ кэша.
 	 */
-	protected static function _getCacheKey ($function, array $args)
+	protected function getCacheKey($function, array $args)
 	{
-		$key = self::_functionName ($function) . self::DELIM;
-
-		if ($args)
-		{
-			$key .= md5 (json_encode ($args));
+		$key = $this->getFunctionName($function) . self::DELIM;
+		if ($args) {
+			$key .= md5(json_encode($args));
 		}
-
 		return $key;
 	}
-
+    
 	/**
-	 * @desc Выполнение функции подлежащей кэшированию.
-	 * @param function $function Функция.
-	 * @param array $args Аргументы функции.
-	 * @param Objective $options Опции кэширования.
-	 * @return mixed Результат выполнения функции.
+	 * Возвращает название функции
+     * 
+	 * @param string $function Функция
+	 * @return string
 	 */
-	public static function executeCaching ($function, array $args,
-		Objective $options)
+	protected function getFunctionName($function)
 	{
-		$key = self::_getCacheKey ($function, $args);
-		$expiration = (int) $options->expiration;
-
-		$cache = self::getCacher ()->get ($key);
-
-		$tag_valid = true;
-
-		if (
-			$options->current_tags &&
-			(
-				!isset ($cache ['t']) ||
-				array_diff ($options->current_tags->__toArray (), $cache ['t'])
-			)
-		)
-		{
-			$tag_valid = false;
-		}
-
-		$validInput = true;
-		if ($options->inputArgs) {
-			$input = Data_Transport_Manager::get('default_input');
-			foreach ($options->inputArgs as $arg) {
-				if (!is_null($input->receive($arg))) {
-					$validInput = false;
-					break;
-				}
-			}
-		}
-		if ($cache && !$options->forceRecache && $validInput)
-		{
-			if (
-				(
-					$cache ['a'] + $expiration > time () ||
-					$expiration == 0
-				) &&
-				$tag_valid
-			)
-			{
-				if (Tracer::$enabled) {
-					if ($function[0] == 'Controller_Manager') {
-						Tracer::incCachedControllerCount();
-					}
-				}
-
-				return $cache ['v'];
-			}
-
-			if (!self::$_cacher->lock ($key, 5, 1, 1))
-			{
-				// ключ уже заблокирова параллельным процессом
-				return $cache ['v'];
-			}
-		}
-
-		$start = microtime(true);
-		$value = self::executeUncaching($function, $args);
-		$end = microtime(true);
-		$delta = $end - $start;
-		if ($function[0] == 'Controller_Manager') {
-			$provider = Data_Provider_Manager::get('ControllerLog');
-			$logKey = 'log_' . uniqid();
-			$provider->set($logKey, array(
-				'function'	=> $function,
-				'args'		=> $args,
-				'delta'		=> $delta,
-				'last'		=> time()
-			));
-		}
-
-		$cache_value = array (
-			'v' => $value,
-			'a' => time ()
-		);
-
-		$tags = array ();
-
-		if ($options->current_tags)
-		{
-			foreach ($options->current_tags as $tag => $e)
-			{
-				$tags [$tag] = $e;
-			}
-		}
-
-		if ($tags)
-		{
-			$cache_value ['t'] = $tags;
-		}
-
-		self::$_cacher->set (
-			$key,
-			$cache_value
-		);
-
-		if ($cache)
-		{
-			self::$_cacher->unlock ($key);
-		}
-
-		return $value;
+		if (is_array($function)) {
+            $first = $function[0];
+			if (is_object ($function[0])) {
+                $first = get_class($first);
+            }
+			return $first . self::DELIM . $function[1];
+		} 
+        return $function;
 	}
-
-	/**
-	 * @desc Выполнение функции без кэширования.
-	 * @param function $function Функция.
-	 * @param array $args Аргументы функции.
-	 * @return mixed Результат выполнения функции.
-	 */
-	public static function executeUncaching ($function, array $args)
-	{
-		return call_user_func_array ($function, $args);
-	}
-
-	/**
-	 * @desc Возвращает конфиг. Загружет, если он не был загружен ранее.
-	 * @return Objective
-	 */
-	public static function config ()
-	{
-		if (is_array (self::$config))
-		{
-			self::$config = Config_Manager::get (__CLASS__, self::$config);
-		}
-		return self::$config;
-	}
-
-	/**
-	 * @desc Выполняет переданную функцию.
-	 * @param function $function Функция.
+    
+    /**
+	 * Выполняет переданную функцию.
+	 * 
+     * @param function $function Функция.
 	 * @param array $args Аргументы функции.
 	 * @param Objective $options [optional] Опции кэширования.
 	 * 		Если не переданы, будут использованы настройки из конфига.
 	 * @return mixed Результат выполнения функции.
 	 */
-	public static function execute ($function, array $args = array (),
-		$options = null)
+	public function execute($function, array $args = array(), $options = null)
 	{
-		// Переданы опции
-		if ($options)
-		{
-			return self::executeCaching ($function, $args, $options);
+		$functionName = $this->getFunctionName($function);
+        $config = $this->config();
+		if ($options) {
+			return $this->executeCaching($function, $args, $options);
+		} elseif ($config->functions[$functionName]) {
+			$functionOption = $config->functions[$functionName];
+            return $this->executeCaching($function, $args, $functionOption);
 		}
-
-		// опции заданы в конфиге
-		$fn = self::_functionName ($function);
-
-		if (self::config ()->functions && self::$config->functions [$fn])
-		{
-			return self::executeCaching (
-				$function, $args,
-				self::$config->functions [$fn]
-			);
-		}
-
-		// без кэширования
-		return self::executeUncaching ($function, $args);
+		return $this->executeUncaching($function, $args);
 	}
 
 	/**
-	 * @desc Возвращает текущий кэшер.
-	 * @return Data_Provider_Abstract|null
+	 * Выполнение функции подлежащей кэшированию.
+	 * 
+     * @param function $function Функция.
+	 * @param array $args Аргументы функции.
+	 * @param Objective $options Опции кэширования.
+	 * @return mixed Результат выполнения функции.
 	 */
-	public static function getCacher ()
+	public function executeCaching($function, array $args, $options)
 	{
-		if (!self::$_cacher)
+        $cache = array();
+        $tagValid = true;
+        $expiresValid = true;
+        if ($this->cacher) {
+            $key = $this->getCacheKey($function, $args);
+            $cache = $this->getCacher()->get($key);
+            $tagValid = $this->isTagValid($cache, $options);
+            $expiresValid = $this->isNotExpires($cache, $options);
+        }
+		$inputValid = $this->isInputValid($options);
+        $functionName = is_object($function[0]) 
+            ? get_class($function[0]) : $function[0];
+		if ($cache && !$options->forceRecache && $inputValid)
 		{
-			if (self::config ()->cache_provider)
-			{
-				self::$_cacher = Data_Provider_Manager::get (
-					self::config ()->cache_provider
-				);
-			}
-			else
-			{
-				self::$_cacher = new Data_Provider_Buffer ();
+            if ($tagValid && $expiresValid) {
+                if (Tracer::$enabled) {
+					if ($functionName == 'Controller_Manager') {
+						Tracer::incCachedControllerCount();
+					}
+				}
+				return $cache['v'];
+            }
+			if (!$this->cacher->lock($key, 5, 1, 1)) {
+				// ключ уже заблокирова параллельным процессом
+				return $cache['v'];
 			}
 		}
-		return self::$_cacher;
+		$start = microtime(true);
+		$value = $this->executeUncaching($function, $args);
+		$end = microtime(true);
+		$delta = $end - $start;
+        $config = $this->config();
+        $forLog = $config->forLog->__toArray();
+		if (in_array($functionName, $forLog)) {
+            $this->logFunction($function, $delta, $args);
+		}
+        if ($this->cacher) {
+            $cacheValue = array(
+                'v' => $value,
+                'a' => time()
+            );
+            $tags = array();
+            if ($options->current_tags) {
+                $tags = $options->current_tags->__toArray();
+            }
+            if ($tags) {
+                $cacheValue['t'] = $tags;
+            }
+            $this->cacher->set($key, $cacheValue);
+            if ($cache) {
+                $this->cacher->unlock($key);
+            }
+        }
+		return $value;
 	}
 
 	/**
-	 * @desc Устаналвивает кэшер.
+	 * Выполнение функции без кэширования.
+	 * 
+     * @param function $function Функция.
+	 * @param array $args Аргументы функции.
+	 * @return mixed Результат выполнения функции.
+	 */
+	public function executeUncaching($function, array $args)
+	{
+		return call_user_func_array($function, $args);
+	}
+
+	/**
+	 * Возвращает текущий кэшер.
+	 * 
+     * @return Data_Provider_Abstract|null
+	 */
+	public function getCacher()
+	{
+		if ($this->cacher) {
+            return $this->cacher;
+        }
+        $config = $this->config();
+        if ($config->cache_provider) {
+            $this->cacher = $this->getService('providerManager')->get(
+                $config->cache_provider
+            );
+        } else {
+            $this->cacher = new Data_Provider_Buffer();
+        }
+		return $this->cacher;
+	}
+
+    /**
+     * Проверяет валидны ли данные входного транспорта
+     * 
+     * @param Objective $options
+     * @return boolean
+     */
+    protected function isInputValid($options)
+    {
+        $inputValid = true;
+		if (!$options->inputArgs) {
+            return $inputValid;
+        }
+        $input = Data_Transport_Manager::get('default_input');
+        foreach ($options->inputArgs as $arg) {
+            if (!is_null($input->receive($arg))) {
+                $inputValid = false;
+                break;
+            }
+        }
+        return $inputValid;
+    }
+    
+    /**
+     * Не вышел ли срок валидности кэша
+     * 
+     * @param array $cache
+     * @param Objective $options
+     * @return boolean
+     */
+    protected function isNotExpires($cache, $options)
+    {
+        $expiration = (int) $options->expiration;
+        return ($cache['a'] + $expiration > time()) || $expiration == 0;
+    }
+    
+    /**
+     * Проверяет валидны ли текущие тэги кэша
+     * 
+     * @param array $cache
+     * @param Objective $options
+     * @return boolean
+     */
+    protected function isTagValid($cache, $options)
+    {
+        $tagValid = true;
+        if (empty($cache['t'])) {
+            $tagValid = false;
+        } elseif ($options->current_tags) {
+            $currentTags = $options->current_tags->__toArray();
+            if (array_diff($currentTags, $cache['t'])) {
+                $tagValid = false;
+            }
+        }
+        return $tagValid;
+    }
+    
+    /**
+     * Логирует вызов функции
+     * 
+     * @param array $function
+     * @param string $delta
+     * @param array $args
+     */
+    protected function logFunction($function, $delta, $args)
+    {
+        $config = $this->config();
+        if (is_object($function[0])) {
+            $function[0] = get_class($function[0]);
+        }
+        $provider = $this->getService('dataProviderManager')->get(
+            $config->logProvider
+        );
+        $logKey = 'log_' . uniqid();
+        $provider->set($logKey, array(
+            'function'	=> $function,
+            'args'		=> $args,
+            'delta'		=> $delta,
+            'last'		=> time()
+        ));
+    }
+    
+	/**
+	 * Устаналвивает кэшер
+     * 
 	 * @param Data_Provider_Abstract $cacher
 	 */
-	public static function setCacher ($cacher)
+	public function setCacher($cacher)
 	{
-		self::$_cacher = $cacher;
-	}
-
+		$this->cacher = $cacher;
+	} 
 }

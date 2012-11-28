@@ -19,6 +19,7 @@ class Model_Manager_Delegee_Defined
 	{
 		$rows = $modelName::$rows;
         $params = is_array($object) ? $object : array();
+        $loader = IcEngine::serviceLocator()->getService('loader');
 		foreach ($rows as $row){
 			if ($row['id'] != $key) {
                 continue;
@@ -27,7 +28,7 @@ class Model_Manager_Delegee_Defined
                 continue;
             }
             $delegeeName = $modelName . '_' . $row['name'];
-            if (Loader::tryLoad($delegeeName)) {
+            if ($loader->tryLoad($delegeeName)) { 
                 $modelName = $delegeeName;
             }
             break;

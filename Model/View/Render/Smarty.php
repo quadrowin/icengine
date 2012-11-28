@@ -19,7 +19,7 @@ class View_Render_Smarty extends View_Render_Abstract
 	 * @desc Конфиг
 	 * @var array
 	 */
-	protected static $_config = array (
+	protected static $config = array (
 		/**
 		 * @desc Директория для скопилированных шаблонов Smarty
 		 * @var string
@@ -52,8 +52,8 @@ class View_Render_Smarty extends View_Render_Abstract
 	protected function _afterConstruct ()
 	{
 		$config = $this->config ();
-		Loader::requireOnce ($config ['smarty_path'], 'includes');
-
+        $loader = $this->getService('loader');
+		$loader->requireOnce ($config ['smarty_path'], 'includes');
 		$this->_smarty = new Smarty ();
 
 		$this->_smarty->compile_dir = $config ['compile_path'];

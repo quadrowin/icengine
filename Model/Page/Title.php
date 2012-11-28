@@ -1,143 +1,158 @@
 <?php
 
 /**
- *
- * @desc Модель для формирования заголовка страницы.
- * @package Ice_Vipgeo
- *
- * @property string $keywords Ключевые слова.
- * @property string $description Описание.
- *
+ * @desc Текст страницы
+ * Created at: 2012-10-04 09:57:43
+ * @author 
+ * @property integer $id 
+ * @property integer $active Активность
+ * @property integer $weight Порядок примения (обратный порядок)
+ * @property integer $City__id Город
+ * @property string $controllerAction Обработчик
+ * @property string $keywords Обработчик
+ * @property string $description Обработчик
+ * @property string $pageTitle Заголовок страницы
+ * @property string $pattern Паттерн урла страницы
+ * @property string $siteTitle Заголовок сайта
+ * @property string $pageText Текст страницы
+ * @package Vipgeo
+ * @category Models
+ * @copyright i-complex.ru
  */
-class Page_Title extends Model_Child
+class Page_Title extends Model
 {
-
 	/**
-	 * @desc Переменные для подстановки в заголовок
-	 * @var array
+	 * Получить тайтл по городу и урлу
+	 *
+	 * @param string $cityId
+	 * @param string $uri
 	 */
-	protected static $_variables = array ();
-
-	/**
-	 * @desc Компиляция заголовка.
-	 * @param string $field
-	 * @return string
-	 */
-	protected function _compile ($field = 'title')
+	public function byAddress($cityId, $uri)
 	{
-		if ($this->sfield ($field . 'Action'))
-		{
-			$a = explode ('/', $this->field ($field . 'Action'));
-			$task = Controller_Manager::call (
-				$a [0],
-				isset ($a [1]) ? $a [1] : 'index',
-				Request::params ()
+        $modelManager = $this->getService('modelManager');
+		$page = $modelManager->byOptions(
+			'Page_Title',
+			'::Active',
+			array(
+				'name'	=> '::City',
+				'id'	=> array(0, $cityId)
+			),
+			array(
+				'name'	=> 'Pattern',
+				'value'	=> $uri
+			),
+			array(
+				'name'	=> '::Order_Desc',
+				'field'	=> 'City__id'
+			),
+			array(
+				'name'	=> '::Order_Desc',
+				'field'	=> 'weight'
+			)
+		);
+		if (!$page || !$page->siteTitle) {
+			if (!$page) {
+				$page = $this->createEmpty();
+			}
+			if (!$page->siteTitle || !$page->pageTitle) {
+                $route = $this->getService('router')->getRoute();
+				if (isset($route->params) && !empty($route->params['title'])) {
+					$data = $route->params['title'];
+					static $keys = array('siteTitle', 'pageTitle',
+						'controllerAction');
+					foreach ($keys as $key) {
+						if (!empty($data[$key])) {
+							$page->set($key, $data[$key]);
+						}
+					}
+				}
+			}
+		}
+		return $page ? $page->compile() : null;
+	}
+
+	/**
+	 * По шаблону
+	 *
+	 * @param string $pattern
+	 */
+	public function byPattern($pattern)
+	{
+		if (!$pattern) {
+			return;
+		}
+		$pageTitle = $this->getService('modelManager')->byOptions(
+			'Page_Title',
+			array(
+				'name'	=>	'Pattern',
+				'value'	=>	$pattern
+			)
+		);
+		if ($pageTitle) {
+			return $pageTitle;
+		}
+	}
+
+	/**
+	 * Компилирует тайтл
+	 *
+	 * @return Page_Title
+	 */
+	public function compile()
+	{
+		if ($this->controllerAction &&
+			strpos($this->controllerAction, '/') !== false) {
+            $dataTransportManager = $this->getService('dataTransportManager');
+			$transport = $dataTransportManager->get('default_input');
+			list($controller, $action) = explode('/', $this->controllerAction);
+            $controllerManager = $this->getService('controllerManager');
+			$task = $controllerManager->call(
+				$controller, $action,
+				$transport->receiveAll()
 			);
-
-			$this->variable ($task->getTransaction ()->buffer ());
+			if ($task) {
+				$transaction = $task->getTransaction();
+				if ($transaction) {
+					$buffer = $transaction->buffer();
+					if ($buffer) {
+						$fields = $this->getFields();
+						foreach ($fields as $field => $data) {
+							if (strpos($data, '{') === false) {
+								continue;
+							}
+							foreach ($buffer as $key => $value) {
+								if (!is_scalar($value)) {
+									continue;
+								}
+								$data = str_replace(
+									'{' . $key . '}', $value, $data);
+							}
+							$this->set($field, $data);
+						}
+					}
+				}
+			}
 		}
+		return $this;
+	}
 
-		$keys = array_keys (self::$_variables);
-		$vals = array_values (self::$_variables);
-
-		foreach ($keys as &$key)
-		{
-			$key = '{$' . $key . '}';
-		}
-
-		return str_replace (
-			$keys,
-			$vals,
-			$this->$field
+	/**
+	 * Создать пустую инфо о странице
+	 *
+	 * @return Site_Page
+	 */
+	public function createEmpty()
+	{
+		return $this->getService('modelManager')->create(
+			'Page_Title',
+			array(
+				'pageTitle'			=> '',
+				'siteTitle'			=> '',
+				'controllerAction'	=> '',
+				'pageText'			=> '',
+				'keywords'			=> '',
+				'description'		=> ''
+			)
 		);
 	}
-
-	/**
-	 * @desc Данные для страницы по хосту и адресу.
-	 * @param string $host
-	 * @param string $page
-	 * @return Page_Title
-	 */
-	public static function byAddress ($host, $page)
-	{
-		$query = Query::instance ()
-			->where ('(? RLIKE `host` OR `host`="")', $host)
-			->where ('? RLIKE `pattern`', $page)
-			->order (array (
-				'rate'		=> Query::DESC,
-				'`host`=""'	=> Query::ASC
-			))
-			->limit (1);
-
-		return Model_Manager::byQuery ('Page_Title', $query);
-	}
-
-	/**
-	 * @desc Получение заголовка по ссылке на страницу
-	 * @param string $uri
-	 * @return Page_Title
-	 */
-	public static function byUri ($uri)
-	{
-		$row = DDS::execute (
-			Query::instance ()
-			->select ('*')
-			->from ('Page_Title')
-			->where ('? RLIKE `pattern`', $uri)
-			->limit (1)
-		)->getResult ()->asRow ();
-
-		return
-			$row ?
-			Model_Manager::get ('Page_Title', $row ['id'], $row) :
-			null;
-	}
-
-	/**
-	 * @desc Получене результирующего заголовка.
-	 * @param string $field Поле
-	 * @return string
-	 */
-	public function compile ($field = 'title')
-	{
-		$parent = $this->getParent ();
-		return
-			($parent ? $parent->compile ($field) : '') .
-			$this->_compile ($field);
-	}
-
-	/**
-	 * @desc Тайтл модели для универсальной админки.
-	 * @return string
-	 */
-	public function title ()
-	{
-		return $this->pattern . ' ' . $this->title;
-	}
-
-	/**
-	 * @desc Получение или установка значения.
-	 * @param string|array $key Ключ или массв пар ключ-значение.
-	 * @param mixed $value [optional] Значение.
-	 * @return mixed Если передан только ключ, возвращает значение, иначе null.
-	 */
-	public static function variable ($key)
-	{
-		if (func_num_args () > 1)
-		{
-			self::$_variables [$key] = func_get_arg (1);
-		}
-		elseif (is_array ($key))
-		{
-			self::$_variables = array_merge (
-				self::$_variables,
-				$key
-			);
-		}
-		else
-		{
-			return self::$_variables [$key];
-		}
-	}
-
 }

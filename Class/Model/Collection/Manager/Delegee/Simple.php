@@ -19,7 +19,9 @@ class Model_Collection_Manager_Delegee_Simple
 	{
         // Выполняем запрос, получаем элементы коллеции
 		$modelName = $collection->modelName();
-        $dataSource = Model_Scheme::dataSource($modelName);
+        $serviceLocator = IcEngine::serviceLocator();
+        $modelScheme = $serviceLocator->getService('modelScheme');
+        $dataSource = $modelScheme->dataSource($modelName);
         $queryResult = $dataSource->execute($query)->getResult();
 		$collection->queryResult($queryResult);
 		// Если установлен флаг CALC_FOUND_ROWS,
@@ -27,7 +29,7 @@ class Model_Collection_Manager_Delegee_Simple
 		if ($query->getPart(Query::CALC_FOUND_ROWS)) {
 			$collection->data('foundRows', $queryResult->foundRows());
 		}
-		$scheme = Model_Scheme::scheme($modelName);
+		$scheme = $modelScheme->scheme($modelName);
 		$schemeFields = array_keys($scheme['fields']->__toArray());
 		$rows = $queryResult->asTable();
         if (!$rows) {
@@ -36,8 +38,9 @@ class Model_Collection_Manager_Delegee_Simple
         $currentFields = array_keys($rows[0]);
         $needleFields = array_intersect($schemeFields, $currentFields);
         $addictFields = array_intersect($currentFields, $schemeFields);
-        $items = Helper_Array::column($rows, $needleFields);
-        $addicts = Helper_Array::column($rows, $addictFields);
+        $helperArray = $serviceLocator->getService('helperArray');
+        $items = $helperArray->column($rows, $needleFields);
+        $addicts = $helperArray->column($rows, $addictFields);
 		$collection->data('addicts', $addicts);
 		return array('items' => $items);
 	}

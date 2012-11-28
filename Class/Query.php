@@ -1,8 +1,10 @@
 <?php
 
 /**
- * @desc Фабрика запросов
+ * Фабрика запросов
+ * 
  * @author morph, goorus
+ * 
  * @method Query_Select select() select(array|string $colums) Добавить в запрос SELECT часть
  * @method Query_Insert insert() insert(string $table) Запрос преобразуется в запрос на вставку
  * @method Query_Update update() update(string $table) Преобразует запрос к запросу на обновление
@@ -51,63 +53,63 @@ class Query
 	const CALC_FOUND_ROWS   = 'CALC_FOUND_ROWS';
 
 	/**
-	 * @desc Уже созданные запросы
-	 * @var array
+	 * Уже созданные запросы
+	 * 
+     * @var array
 	 */
-	protected static $_queries;
+	protected $queries;
 
 	/**
 	 * @return Query_Abstract
 	 */
-	public function __call ($method, $params)
+	public function __call($method, $params)
 	{
-		$name = $this->normalizaName ($method);
-		$query = self::factory ($name);
-		return call_user_func_array (
-			array ($query, $method),
-			$params
-		);
+		$name = $this->normalizaName($method);
+		$query = $this->factory($name);
+		return call_user_func_array(array($query, $method), $params);
 	}
 
 	/**
-	 * @desc Создает и возвращает новый запрос.
-	 * Аналогично "new Query()".
+	 * Создает и возвращает новый запрос.
+	 * 
+     * Аналогично "new Query()".
 	 * @return Query Новый запрос.
 	 */
-	public static function instance ()
+	public function instance()
 	{
-		return new self ();
+		return new self();
 	}
 
 	/**
-	 * @desc Создать запрос по типу
-	 * @param array $name
+	 * Создать запрос по типу
+	 * 
+     * @param array $name
 	 * @return Query_Abstract
 	 */
-	public static function factory ($name)
+	public function factory($name)
 	{
-		$class_name = 'Query_' . $name;
-		if (!Loader::tryLoad ($class_name))
-		{
-			$class_name = 'Query_Select';
+		$className = 'Query_' . $name;
+        $loader = IcEngine::serviceLocator()->getService('loader');
+		if (!$loader->tryLoad($className)) {
+			$className = 'Query_Select';
 		}
-		$query = new $class_name;
-		return $query->reset ();
+		$query = new $className;
+		return $query->reset();
 	}
 
 	/**
-	 * @desc Привести имя метод из вида methodName к виду Method_Name
-	 * @param string $name
+	 * Привести имя метод из вида methodName к виду Method_Name
+	 * 
+     * @param string $name
 	 */
-	public static function normalizaName ($name)
+	public function normalizaName($name)
 	{
-		$matches = array ();
+		$matches = array();
 		$reg_exp = '#([A-Z]*[a-z]+)#';
-		preg_match_all ($reg_exp, $name, $matches);
-		if (empty ($matches [1][0]))
-		{
+		preg_match_all($reg_exp, $name, $matches);
+		if (empty($matches[1][0])) {
 			return $name;
 		}
-		return implode ('_', array_map ('ucfirst', $matches [1]));
+		return implode('_', array_map('ucfirst', $matches[1]));
 	}
 }

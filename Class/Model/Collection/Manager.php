@@ -3,14 +3,14 @@
 /**
  * Менеджер коллекций
  *
- * @author goorus, morph
+ * @author morph, goorus
  */
-abstract class Model_Collection_Manager extends Manager_Abstract
+class Model_Collection_Manager extends Manager_Abstract
 {
 	/**
      * @inheritdoc
 	 */
-	protected static $_config = array(
+	protected $config = array(
 		'cache_provider'	=> 'mysqli_cache',
 		'delegee'			=> array(
 			'Model'				=> 'Simple',
@@ -28,9 +28,9 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 	 * @param Query_Abstract $query Запрос.
 	 * @return Model_Collection
 	 */
-	public static function byQuery($modelName, Query_Abstract $query)
+	public function byQuery($modelName, Query_Abstract $query)
 	{
-		$collection = self::create($modelName);
+		$collection = $this->create($modelName);
 		$collection->setQuery($query);
 		return $collection;
 	}
@@ -42,7 +42,7 @@ abstract class Model_Collection_Manager extends Manager_Abstract
      * @param Query_Abstract $query
      * @return array
      */
-    public static function callDelegee($collection, $query)
+    public function callDelegee($collection, $query)
     {
         $modelName = $collection->modelName();
         // Делегируемый класс определяем по первому или нулевому
@@ -50,7 +50,7 @@ abstract class Model_Collection_Manager extends Manager_Abstract
         $parents = class_parents($modelName);
         $first = end($parents);
         $second = prev($parents);
-        $config = self::config();
+        $config = $this->config();
         $parent = $second && isset($config['delegee'][$second])
             ? $second : $first;
         $delegee = 'Model_Collection_Manager_Delegee_' .
@@ -65,11 +65,37 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 	 * @param string $modelName Модель колекции.
 	 * @return Model_Collection Коллекция.
 	 */
-	public static function create($modelName)
+	public function create($modelName)
 	{
 		$className = $modelName . '_Collection';
 		return new $className;
 	}
+    
+    /**
+     * Получить тэги по запросу
+     * 
+     * @param Query_Abstract $query
+     * @return array
+     */
+    protected function getTags($query)
+    {
+        $tags = array();
+        $from = $query->getPart(Query::FROM);
+        if ($from) {
+            $tables = array();
+			$provider = $this->getService('dataProviderManager')->get(
+				$this->config()->cache_provider
+			);
+			if ($provider) {
+                $modelScheme = $this->getService('modelScheme');
+				foreach ($from as $fromPart) {
+					$tables[] = $modelScheme->table($fromPart[Query::TABLE]);
+				}
+				$tags = $provider->getTags($tables);
+			}
+        }
+        return $tags;
+    }
 
 	/**
 	 * Получить коллекцию из хранилища по запросу и опшинам
@@ -77,34 +103,21 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 	 * @param Model_Collection
 	 * @param Query_Abstract $query
 	 */
-	public static function load(Model_Collection $collection,
-        Query_Abstract $query)
+	public function load(Model_Collection $collection, Query_Abstract $query)
 	{
 		$modelName = $collection->modelName();
         $keyField = $collection->keyField();
-		$from = $query->getPart(Query::FROM);
 		$collectionTags = array ();
-		$tags = array();
+		$tags = $this->getTags($query);
         $addicts = array();
 		$isTagsValid = true;
-		if ($from) {
-			$tables = array();
-			$provider = Data_Provider_Manager::get(
-				self::config()->cache_provider
-			);
-			if ($provider) {
-				foreach ($from as $fromPart) {
-					$tables[] = Model_Scheme::table($fromPart[Query::TABLE]);
-				}
-				$tags = $provider->getTags($tables);
-			}
-		}
+        $resourceManager = $this->getService('resourceManager');
 		// Генерируем ключ коллекции
 		$key = md5($modelName . $query->translate('Mysql') .
             json_encode($collection->getOptions())
 		);
 		// Получаем коллецию из менеджера ресурсов
-		$data = Resource_Manager::get('Model_Collection', $key);
+		$data = $resourceManager->get('Model_Collection', $key);
 		// Если коллекцию уже использовалась в текущем сценарии,
 		// то в менеджере ресурсов она будет уже инициализированная
 		if ($data instanceof Model_Collection) {
@@ -121,7 +134,9 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 				$addicts[] = $item['addicts'];
 			}
 			$collectionTags = $data['t'];
-            $isTagsValid = $collectionTags && array_diff($tags, $collectionTags);
+            $isTagsValid = $collectionTags && array_diff(
+                $tags, $collectionTags
+            );
             $data['items']	= $keys;
 			$collection->data('addicts', $addicts);
 		}
@@ -134,13 +149,14 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 		if ($iterator) {
 			return $iterator->setData($data['items']);
 		}
+        $modelManager = $this->getService('modelManager');
 		// Инициализируем модели коллекции
 		foreach ($data['items'] as $i => $item) {
 			if (!is_array($item)) {
-				$data['items'][$i] = Model_Manager::get($modelName, $item);
+				$data['items'][$i] = $modelManager->get($modelName, $item);
 			} else {
 				if (isset($item[$keyField])) {
-					$data['items'][$i] = Model_Manager::get(
+					$data['items'][$i] = $modelManager->get(
 						$modelName, $item[$keyField], $item
 					);
 				} else {
@@ -154,6 +170,6 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 		}
 		$collection->setItems($data['items']);
 		// В менеджере ресурсов сохраняем клона коллеции
-		Resource_Manager::set('Model_Collection', $key, $collection);
+		$resourceManager->set('Model_Collection', $key, $collection);
 	}
 }

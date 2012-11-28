@@ -1,32 +1,76 @@
 <?php
+
 /**
- *
- * @desc Абстрактный класс менеджера
- * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
- *
+ * Абстрактный класс менеджера
+ * 
+ * @author morph, goorus
  */
 abstract class Manager_Abstract
 {
 	/**
+     * Конфигурация
+     * 
 	 * @var array
 	 */
-	protected static $_config;
+	protected $config = array();
+    
+    /**
+     * Локатор сервисов
+     *
+     * @var Service_Locator
+     */
+    protected $serviceLocator;
 
 	/**
-	 * @desc Конфиги менеджера
-	 * @return Objective
+	 * Получить конфигурация
+	 * 
+     * @return Objective
 	 */
-	public static function config ()
+	public function config()
 	{
-		if (is_array (static::$_config))
-		{
-			static::$_config = Config_Manager::get (
-				get_called_class (),
-				static::$_config
-			);
+		if (is_array($this->config)) {
+            $configManager = $this->getService('configManager'); 
+			$config = $configManager->get(get_class($this), $this->config);
+            if ($config) {
+                $this->config = $config;
+            } else {
+                $this->config = new Objective(array());
+            }
 		}
-		return static::$_config;
+		return $this->config;
 	}
-
+    
+    /**
+     * Получить услугу по имени
+     *
+     * @param string $serviceName
+     * @return mixed
+     */
+    public function getService($serviceName)
+    {
+        if (!$this->serviceLocator) {
+            $this->serviceLocator = new Service_Locator;
+        }
+        return $this->serviceLocator->getService($serviceName);
+    }
+    
+    /**
+     * Получить текущий локатор сервисов
+     * 
+     * @return Service_Locator
+     */
+    public function getServiceLocator()
+    {
+        return $this->serviceLocator;
+    }
+    
+    /**
+     * Изменить текущий локатор сервисов
+     * 
+     * @param Service_Locator $serviceLocator
+     */
+    public function setServiceLocator($serviceLocator)
+    {   
+        $this->serviceLocator = $serviceLocator;
+    }
 }

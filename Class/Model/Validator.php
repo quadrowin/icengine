@@ -5,7 +5,7 @@
  *
  * @author morph
  */
-class Model_Validator
+class Model_Validator extends Manager_Abstract
 {
     /**
      * Валидация модели
@@ -15,43 +15,33 @@ class Model_Validator
      * @param array|Data_Transport $input Входные параметры для валидации
      * @return boolean|array
      */
-	public static function validate ($model, $scheme, $input)
+	public function validate($model, $scheme, $input)
 	{
-		$validate = array ();
+		$validate = array();
 		$error = false;
-
-		foreach ($scheme as $field=>$attributes)
-		{
-			$current = array (
+        $validatorAttribute = $this->getService('modelValidatorAttribute');
+		foreach ($scheme as $field => $attributes) {
+			$current = array(
 				'valid'		=> true,
-				'errors'	=> array ()
+				'errors'	=> array()
 			);
-
-			foreach ($attributes as $attribute => $value)
-			{
-				if (is_numeric ($attribute))
-				{
+			foreach ($attributes as $attribute => $value) {
+				if (is_numeric($attribute)) {
 					$attribute = $value;
 					$value = true;
 				}
-
-				$result = Model_Validator_Attribute::validate (
+				$result = $validatorAttribute->validate(
 					$attribute, $model, $field, $value, $input
 				);
-
-				$current ['valid'] &= $result;
-				if (!$result)
-				{
+				$current['valid'] &= $result;
+				if (!$result) {
 					$error = true;
-					$current ['errors'][$attribute] = 1;
+					$current['errors'][$attribute] = 1;
 				}
 			}
-
-			$validate [$field] = $current;
+			$validate[$field] = $current;
 		}
-
-		if (!$error)
-		{
+		if (!$error) {
 			return true;
 		}
 		return $validate;

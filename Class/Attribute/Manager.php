@@ -1,228 +1,232 @@
 <?php
+
 /**
- *
- * @desc Менеджер атрибутов.
- * Получает и устанавливает значения атрибутов модели.
- * @author Yury Shvedov
- * @package IcEngine
- *
+ * Менеджер атрибутов. Получает и устанавливает значения атрибутов модели
+ * 
+ * @author goorus, morph
  */
 class Attribute_Manager extends Manager_Abstract
 {
-
 	/**
-	 * @desc разделитель для формирования ключа.
-	 * @var string
+	 * Разделитель для формирования ключа.
+	 * 
+     * @var string
 	 */
 	const DELIM = '/';
 
 	/**
-	 * @desc Таблица аттрибутов
-	 * @var string
+	 * Таблица аттрибутов
+	 * 
+     * @var string
 	 */
     const TABLE = 'Attribute';
 
 	/**
-	 * @desc Config
-	 * @var array
+	 * @inheritdoc
 	 */
-	protected static $_config = array (
+	protected $config = array(
 		// Источник
 		'source'		=> null,
 		// Провайдер, используемый для кэширования
-		'provider'		=> null
+		'provider'		=> null,
+        // Таблица атрибутов
+        'tables'        => array()
 	);
 
 	/**
-	 * @desc Место хранения аттрибутов
-	 * @var Data_Source_Abstract
+	 * Провайдер для кэширования
+	 * 
+     * @var Data_Provider_Abstract
 	 */
-	protected static $_source;
+	protected $provider;
 
-	/**
-	 * @desc Провайдер для кэширования
-	 * @var Data_Provider_Abstract
+    /**
+	 * Место хранения аттрибутов
+	 * 
+     * @var Data_Source_Abstract
 	 */
-	protected static $_provider;
-
+	protected $source;
+    
 	/**
-	 * @desc Инициализация
+	 * Инициализация
 	 */
-	public static function init ()
+	public function init()
 	{
-		$config = static::config ();
-
-		if ($config ['source'])
-		{
-			self::$_source = Data_Source_Manager::get ($config ['source']);
+		$config = $this->config();
+		if ($config['source']) {
+			$this->source = $this->getService('dataSourceManager')->get(
+                $config['source']
+            );
+		} else {
+			$this->source = $this->getService('dds')->getDataSource();
 		}
-		else
-		{
-			self::$_source = DDS::getDataSource ();
-		}
-
-		if ($config ['provider'])
-		{
-			self::$_provider = Data_Provider_Manager::get (
-				$config ['provider']
+		if ($config ['provider']) {
+			$this->provider = $this->getService('dataProviderManager')->get(
+				$config['provider']
 			);
 		}
 	}
 
 	/**
-	 * @desc Удаляет все атрибуты модели.
-	 * @param Model $model
+	 * Удаляет все атрибуты модели
+	 * 
+     * @param Model $model
 	 */
-	public static function deleteFor (Model $model)
+	public function deleteFor(Model $model)
 	{
-		$source = self::getSource($model->table());
-	    $source->execute (
-	        Query::instance ()
-				->delete ()
-				->from (self::TABLE)
-				->where ('table', $model->table ())
-				->where ('rowId', $model->key ())
-	    );
-
-		if (self::$_provider)
-		{
-			self::$_provider->deleteByPattern (
-				$model->table () . '/' .
-				$model->key () . '/'
-			);
-		}
+        $modelName = $model->table();
+		$source = $this->getSource($modelName);
+        $queryBulder = $this->getService('query');
+        $table = $this->getTable($modelName);
+        $deleteQuery = $queryBulder
+            ->delete()
+            ->from($table)
+            ->where('table', $modelName)
+            ->where('rowId', $model->key());
+        $source->execute($deleteQuery);
+        if ($this->provider) {
+            $this->provider->deleteByPattern($this->getPattern($model));
+        }
 	}
 
 	/**
-	 * @desc Получение значения атрибута.
-	 * @param Model $model Модель.
+	 * Получение значения атрибута.
+	 * 
+     * @param Model $model Модель.
 	 * @param string $key Название атрибута.
 	 * @return mixed Значение атрибута.
 	 */
-	public static function get (Model $model, $key)
+	public function get(Model $model, $key)
 	{
-		$table = $model->table ();
-		$row = $model->key ();
-
-		if (self::$_provider)
-		{
-			$prov_key = $table . self::DELIM . $row . self::DELIM . $key;
-
-			$v = self::$_provider->get ($prov_key);
-
-			if ($v)
-			{
-				return $v ['v'];
+		$modelName = $model->table();
+		$id = $model->key();
+		if ($this->provider) {
+			$providerKey = $this->getPattern($model) . $key;
+			$value = $this->provider->get($providerKey);
+			if ($value) {
+				return !empty($value['v']) ? $value['v'] : null;
 			}
-
 		}
-
-		$source = self::getSource($model->table());
-		$value = $source->execute (
-			Query::instance ()
-			->select ('value')
-			->from (self::TABLE)
-			->where ('table', $table)
-			->where ('rowId', $row)
-			->where ('key', $key)
-		)->getResult ()->asValue ();
-
-		if (self::$_provider)
-		{
-			$value = json_decode ($value, true);
-
-			self::$_provider->set (
-				$prov_key,
-				array (
-					't'	=> $table,
-					'r'	=> $row,
-					'k'	=> $key,
-					'v'	=> $value
-				)
-			);
-
-			return $value;
-		}
-
-		return json_decode ($value, true);
+		$source = $this->getSource($modelName);
+        $queryBuilder = $this->getQuery('query');
+        $table = $this->getTable($modelName);
+        $selectQuery = $queryBuilder
+			->select('value')
+			->from($table)
+			->where('table', $modelName)
+			->where('rowId', $id)
+			->where('key', $key);
+        $value = $source->execute($selectQuery)->getResult()->asValue();
+        if ($value) {
+            $value = json_decode(urlencode($value));
+        }
+        if ($this->provider) {
+            $this->storeValue($model, $key, $value);
+        }
+		return $value;
 	}
+    
+    /**
+     * Получить паттерн для провайдера по модели
+     * 
+     * @param Model $model
+     * @return string
+     */
+    protected function getPattern($model)
+    {
+        return $model->table () . self::DELIM . $model->key () . self::DELIM;
+    }
+    
+    /**
+     * Получить имя модели атрибутов по имени модели-владельца
+     * 
+     * @param string $modelName
+     * @return string
+     */
+    protected function getTable($modelName)
+    {
+        $config = $this->config();
+        if ($config->tables && $config->tables[$modelName]) {
+            return $config->tables[$modelName];
+        }
+        return self::TABLE;
+    }
 
 	/**
+     * Получить дата сорс по имени модели
+     * 
 	 * @param string $modelName
 	 */
-	protected static function getSource($modelName)
+	protected function getSource($modelName)
 	{
-		$config = static::config();
+		$config = $this->config();
 		$sources = $config->sources;
-		if ($sources[$modelName]) {
-			$source = Data_Source_Manager::get($sources[$modelName]);
+		if ($sources && $sources[$modelName]) {
+			$source = $this->getService('dataSourceManager')->get(
+                $sources[$modelName]
+            );
 		} else {
-			$source = self::$_source;
+			$source = $this->source;
 		}
 		return $source;
 	}
 
 	/**
-	 * @desc Задание значения атрибуту.
-	 * @param Model $model Модель.
+	 * Задание значения атрибуту
+	 * 
+     * @param Model $model Модель.
 	 * @param string|array $key Название атрибута.
 	 * @param mixed $value Значение атрибута.
 	 */
-	public static function set (Model $model, $key, $value)
+	public static function set(Model $model, $key, $value)
 	{
-	    $table = $model->table ();
-	    $row = $model->key ();
-
-	    $query = Query::instance ()
-			->delete ()
-			->from (self::TABLE)
-			->where ('table', $table)
-			->where ('rowId', $row);
-
-	    if (!is_array ($key))
-	    {
-	        $query->where ('key', $key);
-	   		$key = array (
-	   			$key => $value
-	   		);
-	    }
-	    else
-	    {
-            $query->where ('key', array_keys ($key));
-	    }
-
-		$source = self::getSource($model->table());
-	    $source->execute ($query);
-
-		$pref = $table . self::DELIM . $row . self::DELIM;
-
-		foreach ($key as $k => $v)
-		{
-			$source->execute (
-				Query::instance ()
-					->insert (self::TABLE)
-					->values (array(
-						'table'	=> $table,
-						'rowId'	=> $row,
-						'key'	=> $k,
-						'value'	=> json_encode ($v)
-					))
-			);
-
-			if (self::$_provider)
-			{
-				self::$_provider->set (
-					$pref . $k,
-					array (
-						't'	=> $table,
-						'r'	=> $row,
-						'k'	=> $k,
-						'v'	=> $v
-					)
-				);
-			}
-	    }
-
+	    $modelName = $model->table();
+	    $id = $model->key();
+        $queryBuilder = $this->getService('query');
+        $table = $this->getTable($modelName);
+        $deleteQuery = $queryBuilder
+            ->delete()
+            ->from($table)
+            ->where('table', $modelName)
+            ->where('rowId', $id);
+        if (!is_array($key)) {
+            $deleteQuery->where('key', $key);
+            $key = array($key => $value);
+        } else {
+            $deleteQuery->where('key', array_keys($key));
+        }
+		$source = $this->getSource($modelName);
+	    $source->execute($deleteQuery);
+        $values = array(
+            'table' => $modelName,
+            'rowId' => $id
+        );
+		foreach ($key as $keyName => $keyValue) {
+            $values['key'] = $keyName;
+            $values['value'] = urlencode(url_encode($keyValue));
+            $insertQuery = $queryBuilder
+                ->insert($table)
+                ->values($values);
+            $source->insert($insertQuery);
+            $this->storeValue($model, $keyName, $keyValue);
+        }
 	}
-
+    
+    /**
+     * Сохраняет полученное значение в провайдер
+     * 
+     * @param Model $model
+     * @param string $key
+     * @param array $value
+     */
+    protected function storeValue($model, $key, $value)
+    {
+        $providerKey = $this->getPattern($model) . $key;
+        $this->provider->set($providerKey, array(
+            't' => $model->table(),
+            'r' => $model->key(),
+            'k' => $key,
+            'v' => $value
+        ));
+    }
 }

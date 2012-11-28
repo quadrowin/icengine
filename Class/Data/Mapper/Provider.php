@@ -1,302 +1,285 @@
 <?php
 
 /**
- * @desc Мэппер данных через провайдер.
- * @author Юрий
- * @package IcEngine
- *
+ * Мэппер данных через провайдер.
+ * 
+ * @author goorus, morph
  */
 class Data_Mapper_Provider extends Data_Mapper_Abstract
 {
-
 	/**
-	 * @desc Используемый транслятор
-	 * @var string
+	 * Используемый транслятор
+	 * 
+     * @var string
 	 */
 	const TRANSLATOR = 'KeyValue';
 
-    protected $_errno = 0;
-    protected $_error = '';
-
-    protected $_affectedRows = 0;
-    protected $_foundRows = 0;
-    protected $_insertId = null;
+    /**
+     * Код ошибки
+     * 
+     * @var integer 
+     */
+    protected $errno = 0;
+    
+    /**
+     * Сообщение об ошибке
+     *  
+     * @var string
+     */
+    protected $error = '';
 
     /**
-     *
+     * Количество затронутых рядов
+     * 
+     * @var integer 
+     */
+    protected $affectedRows = 0;
+    
+    /**
+     * Количество найденных рядов
+     * 
+     * @var integer
+     */
+    protected $foundRows = 0;
+    
+    /**
+     * id последней созданной сущности
+     *  
+     * @var mixed
+     */
+    protected $insertId = null;
+
+    /**
+     * Оттранслированный запрос
+     * 
      * @var array
      */
-    protected $_translated;
+    protected $translated;
 
     /**
-     *
+     * Провайдер, через которого буду получаться данные
+     * 
      * @var Data_Provider_Abstract
      */
-    protected $_provider;
+    protected $provider;
 
-    protected $_queryMethods = array (
+    /**
+     * Методы, через которые будут выполнены операции
+     *  
+     * @var array
+     */
+    protected $queryMethods = array(
         Query::SELECT    => '_executeSelect',
-//        Query::SHOW      => '_executeSelect',
         Query::DELETE    => '_executeDelete',
         Query::UPDATE    => '_executeUpdate',
         Query::INSERT    => '_executeInsert'
     );
 
-	protected $_query;
+    /**
+     * Текущий запрос
+     * 
+     * @var mixed
+     */
+	protected $query;
 
     /**
-     * @desc Удаление
-     * @param Query_Abstract $query
-     * @param Query_Options $options
+     * @inheritdoc
      */
-	protected function _executeDelete (Query_Abstract $query, Query_Options $options)
+	protected function _executeDelete(Query_Abstract $query, 
+        Query_Options $options)
 	{
-		$this->_query = $query;
-
-		$this->_affectedRows = $this->_fullDeleteByPatterns (
-			$this->translator ()->extractTable ($query),
-			$this->_translated
+		$this->affectedRows = $this->fullDeleteByPatterns(
+			$this->translator()->extractTable($query),
+			$this->translated
 		);
-
 		return true;
 	}
 
 	/**
-	 * @desc Выполнения запроса на вставку
-	 * @param Query_Abstract $query
-	 * @param Query_Options $options
+	 * @inheritdoc
 	 */
-    protected function _executeInsert (Query_Abstract $query, Query_Options $options)
+    protected function _executeInsert(Query_Abstract $query, 
+        Query_Options $options)
     {
-		$this->_query = $query;
-
-        foreach ($this->_translated [0] as $key)
-        {
-        	$this->_provider->set ($key, $this->_translated [1]);
+        foreach ($this->translated[0] as $key) {
+        	$this->provider->set($key, $this->translated[1]);
         }
-
-		$this->_affectedRows = count ($this->_translated [0]);
-
+		$this->affectedRows = count($this->translated [0]);
 		return true;
 	}
 
 	/**
-	 *
-	 *
-	 * @param Query_Abstract $query
-	 * @param Query_Options $options
-	 * @return array
+	 * @inheritdoc
 	 */
-    protected function _executeSelect (Query_Abstract $query, Query_Options $options)
+    protected function _executeSelect(Query_Abstract $query, 
+        Query_Options $options)
     {
-		$this->_query = $query;
-
-		$translator = $this->translator ();
-
-		$ids = array ();
-		$rows = array ();
+		$translator = $this->translator();
+		$ids = array();
+		$rows = array();
 
 		// Выбираем ID всех записей, подходящих под условие
-		foreach ($this->_translated as $pattern)
-		{
-			$keys =
-				(strpos ($pattern, '*') === false) ?
-					array ($pattern) :
-					$this->_provider->keys ($pattern);
-
-			foreach ($keys as $key)
-			{
-				$id = $translator->extractId ($key);
-
-				if (!isset ($ids [$id]))
-				{
-					$ids [$id] = $id;
-					$row = $this->_provider->get ($key);
-					if ($row)
-					{
+		foreach ($this->translated as $pattern) {
+			if (strpos($pattern, '*') == false) {
+                $keys = array($pattern);
+            } else {
+                $keys = $this->provider->keys($pattern);
+            }
+			foreach ($keys as $key) {
+				$id = $translator->extractId($key);
+				if (!isset($ids[$id])) {
+					$ids[$id] = $id;
+					$row = $this->provider->get($key);
+					if ($row) {
 						$rows [] = $row;
 					}
 				}
 			}
 		}
-
         return $rows;
     }
 
     /**
-     *
-     * @param Query_Abstract $query
-     * @param Query_Options $options
-     * @return boolean
+     * @inheritdoc
      */
-    protected function _executeUpdate (Query_Abstract $query, Query_Options $options)
+    protected function _executeUpdate(Query_Abstract $query, Query_Options $options)
     {
-		$this->_query = $query;
-
     	// Удаление ненужных индексов
-		$this->_fullDeleteByPatterns (
-			$this->translator ()->extractTable ($query),
-			$this->_translated [0]
+		$this->fullDeleteByPatterns(
+			$this->translator()->extractTable($query),
+			$this->translated[0]
 		);
-
 		// Установка новых значений
-		foreach ($this->_translated [1] as $key)
-		{
-			$this->_provider->set ($key, $this->_translated [2]);
+		foreach ($this->translated[1] as $key) {
+			$this->provider->set($key, $this->translated[2]);
 		}
-
 		return true;
 	}
 
 	/**
-	 * @desc Полный список ключей по маскам.
-	 * @param string $table
+	 * Полный список ключей по маскам.
+	 * 
+     * @param string $table
 	 * @param array $patterns
 	 * @return integer Количество удаленных первичных ключей.
 	 */
-	protected function _fullDeleteByPatterns ($table, array $patterns)
+	protected function fullDeleteByPatterns ($table, array $patterns)
 	{
-		$translator = $this->translator ();
-
-		$ids = array ();
-
+		$translator = $this->translator();
+		$ids = array();
 		// Выбираем ID всех записей, подходящих под условие
-		foreach ($patterns as $pattern)
-		{
-			$keys = $this->_provider->keys ($pattern);
-			foreach ($keys as $key)
-			{
-				$id = $translator->extractId ($key);
-				$ids [$id] = $id;
+		foreach ($patterns as $pattern) {
+			$keys = $this->provider->keys($pattern);
+			foreach ($keys as $key) {
+				$id = $translator->extractId($key);
+				$ids[$id] = $id;
 			}
 		}
-
 		// Для каждого ID выбираем запись,
 		// строим ключи согласно индексам и удаляем их.
-		foreach ($ids as $id)
-		{
-			$key =
-				$table . $translator->tableIndexDelim .
-				'k' . $translator->indexKeyDelim .
-				$id;
-
-			$keys = $translator->_compileKeys (
-				$table,
-				$this->_provider->get ($key)
-			);
-
-			$this->_provider->delete ($keys);
+		foreach ($ids as $id) {
+			$key = $table . $translator->tableIndexDelim . 'k' . 
+                $translator->indexKeyDelim . $id;
+            $row = $this->provider->get($key);
+			$keys = $translator->_compileKeys($table, $row);
+			$this->provider->delete($keys);
 		}
-
-		return count ($ids);
+		return count($ids);
 	}
 
     /**
      * (non-PHPdoc)
      * @see Data_Mapper_Abstract::execute()
      */
-	public function execute (Data_Source_Abstract $source, Query_Abstract $query, $options = null)
+	public function execute(Data_Source_Abstract $source, Query_Abstract $query, 
+        $options = null)
 	{
-		$clone = clone $query;
-
-		$where = $clone->getPart (Query::WHERE);
-		$this->_filters->apply ($where, Query::VALUE);
-		$clone->setPart (Query::WHERE, $where);
-
-		$this->_translated = $clone->translate (self::TRANSLATOR);
-
-		$result = null;
-		$this->_errno = 0;
-		$this->_error = '';
-		$this->_affectedRows = 0;
-		$this->_foundRows = 0;
-		$this->_numRows = 0;
-		$this->_insertId = null;
-
-		if (!$options)
-		{
-		    $options = $this->getDefaultOptions ();
+		$this->query = $query;
+		$this->translated = $query->translate(self::TRANSLATOR);
+		$this->errno = 0;
+		$this->error = '';
+		$this->affectedRows = 0;
+		$this->foundRows = 0;
+		$this->numRows = 0;
+		$this->insertId = null;
+		if (!$options) {
+		    $options = $this->getDefaultOptions();
 		}
-
-		$m = $this->_queryMethods [$query->type ()];
-		$result = $this->{$m} ($query, $options);
-
-		if ($this->_errno)
-		{
-			throw new Data_Mapper_Mysqli_Exception (
-			    $this->_error . "\n" . $this->_sql,
-			    $this->_errno
+		$m = $this->queryMethods[$query->type()];
+		$result = $this->{$m}($query, $options);
+		if ($this->errno) {
+			throw new Data_Mapper_Mysqli_Exception(
+			    $this->error . "\n" . $this->query->translate('Mysql'),
+			    $this->errno
 			);
 		}
-
-		if (!$this->_errno && is_null ($result))
-		{
-			$result = array ();
+		if (!$this->errno && is_null($result)) {
+			$result = array();
 		}
-
-		return new Query_Result (array (
-			'error'			=> $this->_error,
-			'errno'			=> $this->_errno,
-			'query'			=> $clone,
-		    'foundRows'		=> $this->_foundRows,
+		return new Query_Result(array(
+			'error'			=> $this->error,
+			'errno'			=> $this->errno,
+			'query'			=> $query,
+		    'foundRows'		=> $this->foundRows,
 			'result'		=> $result,
-			'touchedRows'	=> $this->_numRows + $this->_affectedRows,
-			'insertKey'		=> $this->_insertId,
-			'currency'		=> $this->_isCurrency ($result, $options),
+			'touchedRows'	=> $this->numRows + $this->affectedRows,
+			'insertKey'		=> $this->insertId,
 			'source'		=> $source
 		));
 	}
 
 	/**
+     * Получить текущего провайдера
+     * 
 	 * @return Data_Provider_Abstract
 	 */
-	public function getProvider ()
+	public function getProvider()
 	{
-		return $this->_provider;
-	}
-
-	/**
-	 * (non-PHPdoc)
-	 * @see Data_Mapper_Abstract::saveResult()
-	 */
-	public function saveResult (Query_Abstract $query, $options, Query_Result $result)
-	{
-
+		return $this->provider;
 	}
 
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Mapper_Abstract::setOption()
 	 */
-	public function setOption ($key, $value = null)
+	public function setOption($key, $value = null)
 	{
-		switch ($key)
-		{
+		switch ($key) {
 			case 'provider':
-				$this->setProvider (Data_Provider_Manager::get ($value));
+                $serviceLocator = IcEngine::serviceLocator();
+                $dataProviderManager = $serviceLocator->getService(
+                    'dataProviderManager'
+                );
+                $provider = $dataProviderManager->get($value);
+				$this->setProvider($provider);
 				return true;
 		}
 		return false;
 	}
 
 	/**
-	 *
+	 * Изменить текущего провайдера
+     * 
 	 * @param Data_Provider_Abstract $provider
 	 * @return Data_Mapper_Provider
 	 */
-	public function setProvider (Data_Provider_Abstract $provider)
+	public function setProvider(Data_Provider_Abstract $provider)
 	{
-		$this->_provider = $provider;
+		$this->provider = $provider;
 		return $this;
 	}
 
 	/**
+     * Получить трансплятор запросов
+     * 
 	 * @return Query_Translator_KeyValue
 	 */
 	public function translator ()
 	{
-		return Query_Translator::byName (
-			self::TRANSLATOR . '_' . $this->_query->getName ()
+        $serviceLocator = IcEngine::serviceLocator();
+        $translator = $serviceLocator->getService('queryTranslator');
+		return $translator->byName(
+			self::TRANSLATOR . '_' . $this->query->getName()
 		);
 	}
 

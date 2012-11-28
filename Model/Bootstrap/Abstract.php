@@ -1,191 +1,164 @@
 <?php
+
 /**
- *
- * @desc Абстрактный класс загрузчика
- * @author Юрий Шведов
- * @package IcEngine
- *
+ * Абстрактный класс загрузчика
+ * 
+ * @author goorus, morph
  */
 abstract class Bootstrap_Abstract
 {
+	/**
+	 * Путь до начала структуры Ice.
+	 * 
+     * @var string
+	 */
+	protected $basePath;
 
 	/**
-	 * @desc Путь до начала структуры Ice.
-	 * @var string
+	 * Название бутстрапа
+	 * 
+     * @var string
 	 */
-	protected $_basePath;
+	protected $name;
 
 	/**
-	 * @desc Название бутстрапа
-	 * @var string
+	 * Флаг выполненного бутстрапа.
+	 * 
+     * @var boolean
 	 */
-	protected $_name;
+	protected $runned = false;
 
 	/**
-	 * @desc Флаг выполненного бутстрапа.
-	 * @var boolean
+	 * Возвращает загрузчик.
+	 * 
+     * @param string $path путь до этого загрузчика
 	 */
-	protected $_runned = false;
-
-	/**
-	 * @desc Возвращает загрузчик.
-	 * @param string $path путь до этого загрузчика
-	 */
-	public function __construct ($path)
+	public function __construct($path)
 	{
-		$this->_basePath = substr (
-			$path,
-			0,
-			- strlen ('Model_' . get_class ($this) . '.php')
+		$this->basePath = substr($path, 0,
+			- strlen('Model_' . get_class($this) . '.php')
 		);
-		$this->_name = substr (get_class ($this), strlen ('Bootstrap_'));
+		$this->name = substr(get_class($this), strlen('Bootstrap_'));
 	}
 
 	/**
-	 * @desc Запускает загрузчик.
+	 * Добавление путей в лоадер
 	 */
-	protected function _run ()
+	public function addLoaderPathes()
 	{
-		$this->addLoaderPathes ();
-		$this->initFirePhp ();
-		$this->initMessageQueue ();
+		$path = $this->basePath();
+        $loader = IcEngine::getLoader();
+		$loader->addPath('Class', $path . 'Class/');
+		$loader->addPath('Class', $path . 'Model/');
+		$loader->addPath('Class', $path);
+		$loader->addPath('Controller', $path . 'Controller/');
+		$loader->addPath('includes', $path . 'includes/');
+	}
 
-		$this->initDds ();
+	/**
+	 * Возвращает путь до начала структуры Ice.
+	 * 
+     * @return string.
+	 */
+	public function basePath()
+	{
+		return $this->basePath;
+	}
 
+    /**
+	 * Запускает загрузчик.
+	 */
+	protected function bootstrapRun()
+	{
+		$this->addLoaderPathes();
+		$this->initDds();
 		$this->initAttributeManager ();
-
-		$this->initModelScheme ($this->name ());
-
-		$this->initModelManager ();
-
-		$this->initView ();
-
-		$this->initUser ();
-
-		$this->initAcl ();
+		$this->initModelScheme($this->name());
+		$this->initModelManager();
+		$this->initView();
+		$this->initUser();
 	}
-
+    
 	/**
-	 * @desc Добавление путей в лоадер
+	 * Инициализация менеджера атрибутов.
 	 */
-	public function addLoaderPathes ()
+	public function initAttributeManager()
 	{
-		$path = $this->basePath ();
-
-		Loader::addPath ('Class', $path . 'Class/');
-		Loader::addPath ('Class', $path . 'Model/');
-		Loader::addPath ('Class', $path);
-		Loader::addPath('Controller', $path . 'Controller/');
-		Loader::addPath ('includes', $path . 'includes/');
+        $serviceLocator = IcEngine::serviceLocator();
+        $serviceLocator->getService('attributeManager')->init();
 	}
 
 	/**
-	 * @desc Возвращает путь до начала структуры Ice.
-	 * @return string.
+	 * Инициализация источника данных по умолчанию.
 	 */
-	public function basePath ()
+	public function initDds($sourceName = 'default')
 	{
-		return $this->_basePath;
+        $serviceLocator = IcEngine::serviceLocator();
+        $dataSourceManager = $serviceLocator->getService('dataSourceManager');
+        $dds = $serviceLocator->getService('dds');
+        $dataSource = $dataSourceManager->get($sourceName);
+        $dds->setDataSource($dataSource);
 	}
 
 	/**
-	 * @desc Инициализация менеджера атрибутов.
+	 * Инициализация менеджера моделей и менеджера коллекций.
 	 */
-	public function initAttributeManager ()
-	{
-		Attribute_Manager::init ();
-	}
-
-	/**
-	 * @desc Подключение контроля доступа
-	 */
-	public function initAcl ()
+	public function initModelManager()
 	{
 
 	}
 
 	/**
-	 * @desc Инициализация источника данных по умолчанию.
+	 * Инициализация схемы моделей.
+	 * 
+     * @param string $config
 	 */
-	public function initDds ($source_name = 'default')
+	public function initModelScheme($name)
 	{
-		DDS::setDataSource (Data_Source_Manager::get ($source_name));
+        $serviceLocator = IcEngine::serviceLocator();
+        $modelScheme = $serviceLocator->getService('modelScheme');
+        $configManager = $serviceLocator->getService('configManager');
+        $config = $configManager->get('Model_Scheme', $name);
+        $modelScheme->init($config);
 	}
 
 	/**
-	 * @desc Подключение FirePHP
-	 */
-	public function initFirePhp ()
-	{
-		if (!function_exists ('fb'))
-		{
-			Loader::requireOnce ('FirePHPCore/fb.php', 'includes');
-		}
-	}
-
-	/**
-	 * @desc Инициализация очереди событий.
-	 */
-	public function initMessageQueue ()
-	{
-
-	}
-
-	/**
-	 * @desc Инициализация менеджера моделей и менеджера коллекций.
-	 */
-	public function initModelManager ()
-	{
-
-	}
-
-	/**
-	 * @desc Инициализация схемы моделей.
-	 * @param string $config
-	 */
-	public function initModelScheme ($config)
-	{
-		Model_Scheme::init (
-			Config_Manager::get ('Model_Scheme', $config)
-		);
-	}
-
-	/**
-	 * @desc Инициализация пользователя и сессии.
+	 * Инициализация пользователя и сессии.
 	 */
 	public function initUser ()
 	{
-		User_Guest::init ();
-		User::init ();
+        $serviceLocator = IcEngine::serviceLocator();
+        $serviceLocator->getService('userGuest')->init();
+        $serviceLocator->getService('user')->init();
 	}
 
 	/**
-	 * @desc Инициализация рендера.
+	 * Инициализация рендера.
 	 */
 	public function initView ()
 	{
-		View_Render_Manager::getView ();
+        $serviceLocator = IcEngine::serviceLocator();
+		$serviceLocator->getService('viewRenderManager')->getView();
 	}
 
 	/**
-	 * @desc Возвращает название загрузчика.
-	 * @return string
+	 * Возвращает название загрузчика.
+	 * 
+     * @return string
 	 */
-	public function name ()
+	public function name()
 	{
-		return $this->_name;
+		return $this->name;
 	}
 
 	/**
-	 * @desc Запускает загрузчик, если этого не было сделано ранее.
+	 * Запускает загрузчик, если этого не было сделано ранее.
 	 */
-	public function run ()
+	public function run()
 	{
-		if (!$this->_runned)
-		{
-			$this->_runned = true;
-			$this->_run ();
+		if (!$this->runned) {
+			$this->runned = true;
+			$this->bootstrapRun();
 		}
 	}
-
 }

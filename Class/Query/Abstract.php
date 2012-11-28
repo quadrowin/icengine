@@ -208,8 +208,10 @@ class Query_Abstract
 	 */
 	public function translate ($translator = 'Mysql')
 	{
-		return Query_Translator::byName ($translator . '_' . $this->getName ())
-			->translate ($this);
+        $serviceLocator = IcEngine::serviceLocator();
+        $queryTranslator = $serviceLocator->getService('queryTranslator');
+		return $queryTranslator->byName($translator . '_' . $this->getName())
+			->translate($this);
 	}
 
 	/**
