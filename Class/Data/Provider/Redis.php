@@ -14,6 +14,13 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	 */
 	protected $connections = array();
 
+    /**
+     * Уже полученные ключи
+     * 
+     * @var array
+     */
+    public static $keys = array();
+    
 	/**
 	 * @inheritdoc
 	 */
@@ -33,7 +40,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 				foreach ($value as $server) {
                     $redis = new Redis();
                     $this->connections[$server['host']] = $redis;
-                    $redis->connect(
+                    $redis->pconnect(
                         $server['host'], 
                         isset($server['port']) ? $server['post'] : null
                     );
@@ -119,6 +126,9 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	 */
 	public function get($key, $plain = false)
 	{
+        if (isset(self::$keys[$key])) {
+            return self::$keys[$key];
+        }
 		if (Tracer::$enabled) {
 			$startTime = microtime(true);
 		}
@@ -129,7 +139,9 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 			Tracer::incRedisGetCount();
 			Tracer::incRedisGetTime($endTime - $startTime);
 		}
-		return $this->valueDecode($result);
+		$value = $this->valueDecode($result);
+        self::$keys[$key] = $value;
+        return $value;
 	}
 
 	/**
@@ -154,6 +166,14 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	 */
 	public function getMulti(array $keys, $numeric_index = false)
 	{
+        if (count($keys) == 1) {
+            $key = $this->keyEncode($keys[0]);
+            $value = $this->get($keys[0]);
+            if ($numeric_index) {
+                return array($value);
+            }
+            return array($key => $value);
+        }
         $result = array();
         $keys = array_map(array($this, 'keyEncode'), $keys);
         foreach ($this->connections as $i => $connection) {

@@ -483,7 +483,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
         $query = $this->lastQuery;
         $collectionManager = $this->getService('collectionManager');
         $optionManager = $this->getService('collectionOptionManager');
-		$collectionManager->load($this, $query);
+        $collectionManager->load($this, $query);
         $optionManager->executeAfter($this, $this->options);
 		if ($this->paginator) {
 			$this->paginator->fullCount = $this->data['foundRows'];

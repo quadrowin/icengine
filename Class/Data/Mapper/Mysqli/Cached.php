@@ -13,6 +13,20 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
      * @var Data_Provider_Abstract
 	 */
 	protected $cacher;
+    
+    /**
+     * Кэши, уже полученные из провайдера
+     * 
+     * @var array
+     */
+    protected static $caches = array();
+    
+    /**
+     * Валидны ли тэги
+     * 
+     * @var array
+     */
+    protected static $tagsValid = array();
 
 	/**
 	 * Получение хэша запроса
@@ -107,10 +121,14 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 		}
 		$key = $this->sqlHash();
 		$expiration = $options->getExpiration();
-		$cache = $this->cacher->get($key);
+        if (!isset(self::$caches[$key])) {
+            $cache = $this->cacher->get($key);
+        } else {
+            $cache = self::$caches[$key];
+        }
 		$cacheValid = false;
 		if ($cache) {
-            $tagsValid = $this->cacher->checkTags($cache['t']);
+            $tagsValid = $this->isTagsValid($cache['t']); 
             $expiresValid = $cache['a'] + $expiration > time() || 
                 $expiration = 0;
 			$cacheValid = $expiresValid && $tagsValid;
@@ -119,6 +137,9 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 			}
 		}
 		if ($cacheValid) {
+            if (!isset(self::$caches[$key])) {
+                self::$caches[$key] = $cache;
+            }
 			$this->numRows = count($cache['v']);
 			$this->foundRows = $cache['f'];
 			if (Tracer::$enabled) {
@@ -144,18 +165,24 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 			}
 			Tracer::end(
                 $this->sql,
-                $this->numRows(),
+                $this->numRows,
 				memory_get_usage()
             );
 			Tracer::incDeltaQueryCount();
 		}
 		$tags = $query->getTags();
-		$this->cacher->set($key, array (
+        $providerTags = $this->cacher->getTags($tags);
+        foreach ($tags as $tag) {
+            self::$tagsValid[$tag] = true;
+        }
+        $cache = array (
             'v' => $rows,
             'a' => time(),
-            't' => $this->cacher->getTags($tags),
+            't' => $providerTags,
             'f'	=> $this->foundRows
-        ));
+        );
+        self::$caches[$key] = $cache;
+		$this->cacher->set($key, $cache);
 		if ($cache) {
 			$this->cacher->unlock($key);
 		}
@@ -219,6 +246,33 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 		return $this->cacher;
 	}
 
+    /**
+     * Проверяет валидны ли тэги
+     * 
+     * @param array $tags
+     * @return boolean
+     */
+    protected function isTagsValid($tags)
+    {
+        $isValid = true;
+        foreach ($tags as $tag) {
+            if (empty(self::$tagsValid[$tag])) {
+                $isValid = false;
+                break;
+            }
+        }
+        if ($isValid) {
+            return true;
+        }
+        $validTags = $this->cacher->checkTags($tags);
+        if ($validTags) {
+            foreach ($tags as $tag) {
+                self::$tagsValid[$tag] = true;
+            }
+        }
+        return $validTags;
+    }
+    
 	/**
 	 * Изменить текущего кэшера
      * 
