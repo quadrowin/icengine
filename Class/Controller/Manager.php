@@ -46,7 +46,8 @@ class Controller_Manager extends Manager_Abstract
             'queryBuilder'  => 'query',
             'modelManager'  => 'modelManager',
             'dds'               => 'dds',
-            'collectionManager' => 'collectionManager'
+            'collectionManager' => 'collectionManager',
+            'controllerManager' => 'controllerManager'
         )
 	);
     
@@ -196,8 +197,9 @@ class Controller_Manager extends Manager_Abstract
             ->setOutput($output)
             ->setTask($task);
 		$output->beginTransaction();
+        $reflectionMethod = new ReflectionMethod($controller, $actionName);
         $params = $this->sendToTransportFromActionArgs(
-            $controller, $actionName
+            $controller, $reflectionMethod
         );
         $defaultContext = $this->config->context;
         if ($defaultContext) {
@@ -659,12 +661,11 @@ class Controller_Manager extends Manager_Abstract
      * из заголовка метода
      *
      * @param Controller_Abstract $controller
-     * @param string $actionName
+     * @param ReflectionMethod $reflection
      * @return array
      */
-    public function sendToTransportFromActionArgs($controller, $actionName)
+    public function sendToTransportFromActionArgs($controller, $reflection)
     {
-        $reflection = new ReflectionMethod($controller, $actionName);
 		$params = $reflection->getParameters();
         $currentInput = $controller->getInput();
         $provider = $currentInput->getProvider(0);
@@ -673,6 +674,9 @@ class Controller_Manager extends Manager_Abstract
             return array();
         }
         foreach ($params as $param) {
+            if ($param->name == 'context') {
+                $controller->setHasInjections(true);
+            }
             $value = $currentInput->receive($param->name);
             if (!$value && $param->isOptional()) {
                 $value = $param->getDefaultValue();

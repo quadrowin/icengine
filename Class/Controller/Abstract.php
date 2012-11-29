@@ -235,6 +235,16 @@ class Controller_Abstract
 		return $this;
 	}
 
+    /**
+     * Изменить факт инъекции в экшин
+     * 
+     * @param boolean $value
+     */
+    public function setHasInjections($value)
+    {
+        $this->hasInjections = $value;
+    }
+    
 	/**
 	 * Устанавливает транспорт выходных данных
      *
