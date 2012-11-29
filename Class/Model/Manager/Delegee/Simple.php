@@ -14,7 +14,7 @@ class Model_Manager_Delegee_Simple
 	 * @param string $key
 	 * @param mixed $object
 	 */
-	public static function get($modelName, $key, $object)
+	public function get($modelName, $key, $object)
 	{
         $params = is_array($object) ? $object : array();
         $model = new $modelName($params);

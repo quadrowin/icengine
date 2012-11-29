@@ -20,7 +20,7 @@ class Model_Manager_Delegee_Factory
 	 * @param Model $model Модель.
 	 * @return Model_Factory Фабрика.
 	 */
-	public static function factory($model)
+	public function factory($model)
 	{
 		$parents = class_parents($model);
 		foreach ($parents as $parent) {
@@ -42,7 +42,7 @@ class Model_Manager_Delegee_Factory
 	 * @param Model|array $object Объект или данные
 	 * @return Model В случае успеха объект, иначе null.
 	 */
-	public static function get($modelName, $key, $object)
+	public function get($modelName, $key, $object)
 	{
 		$factoryName = $modelName;
 		if (!isset(self::$factories[$factoryName])) {

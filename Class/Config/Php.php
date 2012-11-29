@@ -1,31 +1,25 @@
 <?php
 
-if (!class_exists ('Config_Array'))
-{
-	include dirname (__FILE__) . '/Array.php';
-}
-
+/**
+ * Конфигурация, загружаемая из php файла
+ * 
+ * @author morph
+ */
 class Config_Php extends Config_Array
 {
-	
 	/**
-	 * 
+	 * Конструктор
+     * 
 	 * @param string $path
-	 * 		Путь до файла конфига.
-	 * 		В файле должен быть определен массив $config.
 	 */
-	public function __construct ($path)
+	public function __construct($path)
 	{
 		$config = null;
-		
-		if (is_file ($path))
-		{
-			include $path;
+		if (is_file($path)) {
+			$config = include($path);
 		}
-		if (isset ($config))
-		{
-			parent::__construct ($config);
+		if ($config) {
+			parent::__construct($config);
 		}
 	}
-	
 }

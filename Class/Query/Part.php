@@ -43,7 +43,9 @@ class Query_Part
 	 */
 	public function __construct($modelName, $params)
 	{
-		$this->query = Query::factory('Select');
+        $serviceLocator = IcEngine::serviceLocator();
+        $query = $serviceLocator->getService('query');
+		$this->query = $query->factory('Select');
 		$this->modelName = $modelName;
 		$this->params = $params;
 	}

@@ -1,27 +1,30 @@
 <?php
+
 /**
- *
- * @desc Мэппер для соеденения с mysql
- * @author Гурус
- * @package IcEngine
- *
+ * Мэппер для соеденения с mysql
+ * 
+ * @author goorus, morph
  */
 class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 {
-
+    /**
+     * Запрос на получение числа кортежей
+     */
 	const SELECT_FOUND_ROWS_QUERY = 'SELECT FOUND_ROWS()';
 
 	/**
-	 * @desc Соединение с mysql.
-	 * @var resource
+	 * Соединение с mysql
+	 * 
+     * @var resource
 	 */
-	protected $_linkIdentifier = null;
+	protected $linkIdentifier = null;
 
 	/**
-	 * @desc Параметры соединения
-	 * @var array
+	 * Параметры соединения
+	 * 
+     * @var array
 	 */
-	public $_connectionOptions = array (
+	public $connectionOptions = array(
 		'host'		=> 'localhost',
 		'username'	=> '',
 		'password'	=> '',
@@ -30,26 +33,67 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 	);
 
 	/**
-	 * @desc Последний оттранслированный запрос.
-	 * @var string
+	 * Последний оттранслированный запрос.
+	 * 
+     * @var string
 	 */
-	protected $_sql = '';
+	protected $sql = '';
 
-	protected $_errno = 0;
-	protected $_error = '';
+    /**
+     * Код ошибки
+     * 
+     * @var integer 
+     */
+	protected $errno = 0;
+	
+    /**
+     * Сообщение об ошибке
+     *  
+     * @var string
+     */
+    protected $error = '';
 
-	protected $_affectedRows = 0;
-	protected $_foundRows = 0;
-	protected $_numRows = 0;
-	protected $_insertId = null;
+    /**
+     * Количество затронутых последним запросом кортежей
+     * 
+     * @var integer
+     */
+	protected $affectedRows = 0;
+    
+    /**
+     * Количество полученных рядов (игнорируя лимит)
+     * 
+     * @var integer 
+     */
+	protected $foundRows = 0;
+    
+    /**
+     * Количество полученных рядов
+     * 
+     * @var integer 
+     */
+	protected $numRows = 0;
+    
+    /**
+     * id последней добавленной сущности
+     *  
+     * @var mixed 
+     */
+	protected $insertId = null;
 
+    /**
+     * Опции маппера
+     *  
+     * @var array
+     */
 	protected $options;
 
 	/**
-	 * @desc Обработчики по видам запросов.
-	 * @var array
+	 * Обработчики по видам запросов.
+	 * 
+     * @var array
 	 */
-	protected $_queryMethods = array (
+	protected $queryMethods = array(
 		Query::SELECT	=> '_executeSelect',
 		Query::SHOW		=> '_executeSelect',
 		Query::DELETE	=> '_executeChange',
@@ -58,135 +102,105 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 	);
 
 	/**
-	 * @desc Запрос на изменение данных (Update или Delete).
-	 * @param Query_Abstract $query Запрос
+	 * Запрос на изменение данных (Update или Delete).
+	 * 
+     * @param Query_Abstract $query Запрос
 	 * @param Query_Options $options Параметры запроса.
 	 * @return boolean
 	 */
-	protected function _executeChange (Query_Abstract $query, Query_Options $options)
+	protected function _executeChange(Query_Abstract $query, 
+        Query_Options $options)
 	{
-		if (!mysql_query ($this->_sql, $this->_linkIdentifier))
-		{
-			$this->_errno = mysql_errno ($this->_linkIdentifier);
-			$this->_error = mysql_error ($this->_linkIdentifier);
+		if (!mysql_query($this->sql, $this->linkIdentifier)) {
+			$this->errno = mysql_errno($this->linkIdentifier);
+			$this->error = mysql_error($this->linkIdentifier);
 			return false;
 		}
+		$this->affectedRows = mysql_affected_rows($this->linkIdentifier);
+		return true;
+	}
 
-		$this->_affectedRows = mysql_affected_rows ($this->_linkIdentifier);
+	/**
+	 * Запрос на вставку.
+	 * 
+     * @param Query_Abstract $query Запрос.
+	 * @param Query_Options $options Параметры запроса.
+	 * @return boolean
+	 */
+	protected function _executeInsert(Query_Abstract $query, 
+        Query_Options $options)
+	{
+		if (!mysql_query($this->sql, $this->linkIdentifier)) {
+			$this->errno = mysql_errno($this->linkIdentifier);
+			$this->error = mysql_error($this->linkIdentifier);
+			return false;
+		}
+		$this->affectedRows = mysql_affected_rows($this->linkIdentifier);
+		$this->insertId = mysql_insert_id($this->linkIdentifier);
 
 		return true;
 	}
 
 	/**
-	 * @desc Запрос на вставку.
-	 * @param Query_Abstract $query Запрос.
-	 * @param Query_Options $options Параметры запроса.
-	 * @return boolean
-	 */
-	protected function _executeInsert (Query_Abstract $query, Query_Options $options)
-	{
-		if (!mysql_query ($this->_sql, $this->_linkIdentifier))
-		{
-			$this->_errno = mysql_errno ($this->_linkIdentifier);
-			$this->_error = mysql_error ($this->_linkIdentifier);
-			return false;
-		}
-
-		$this->_affectedRows = mysql_affected_rows ($this->_linkIdentifier);
-
-		$this->_insertId = mysql_insert_id ($this->_linkIdentifier);
-
-		return true;
-	}
-
-	/**
-	 * @desc Запрос на выборку.
-	 * @param Query_Abstract $query Запрос.
+	 * Запрос на выборку.
+	 * 
+     * @param Query_Abstract $query Запрос.
 	 * @param Query_Options $options Параметры запроса.
 	 * @return array|null
 	 */
-	protected function _executeSelect (Query_Abstract $query, Query_Options $options)
+	protected function _executeSelect(Query_Abstract $query, 
+        Query_Options $options)
 	{
-		$result = mysql_query ($this->_sql, $this->_linkIdentifier);
-
-		if (!$result)
-		{
-			$this->_errno = mysql_errno ($this->_linkIdentifier);
-			$this->_error = mysql_error ($this->_linkIdentifier);
+		$result = mysql_query($this->sql, $this->linkIdentifier);
+		if (!$result) {
+			$this->errno = mysql_errno($this->linkIdentifier);
+			$this->error = mysql_error($this->linkIdentifier);
 			return null;
 		}
-
-		$rows = array ();
-		while (false != ($row = mysql_fetch_assoc ($result)))
-		{
-			$rows [] = $row;
+		$rows = array();
+		while (false != ($row = mysql_fetch_assoc($result))) {
+			$rows[] = $row;
 		}
-		mysql_free_result ($result);
-
-		$this->_numRows = count ($rows);
-
-		if ($query->part (Query::CALC_FOUND_ROWS))
-		{
-			$result = mysql_query (
+		mysql_free_result($result);
+		$this->numRows = count($rows);
+		if ($query->part(Query::CALC_FOUND_ROWS)) {
+			$result = mysql_query(
 				self::SELECT_FOUND_ROWS_QUERY,
-				$this->_linkIdentifier
+				$this->linkIdentifier
 			);
-			$row = mysql_fetch_row ($result);
-			$this->_foundRows = reset ($row);
-			mysql_free_result ($result);
+			$row = mysql_fetch_row($result);
+			$this->foundRows = reset($row);
+			mysql_free_result($result);
 		}
-
 		return $rows;
 	}
-
+    
 	/**
-	 *
-	 * @param mixed $result
-	 * @param mixed $options
-	 * @return boolean
+	 * Подключение к БД
+	 * 
+     * @param Objective|array $config [optional]
 	 */
-	protected function _isCurrency ($result, $options)
+	public function connect($config = null)
 	{
-		if (!$options)
-		{
-			return true;
+		if ($this->linkIdentifier) {
+			return;
 		}
-
-		return $options->getNotEmpty () && empty ($result) ? false : true;
-	}
-
-	/**
-	 * @desc Подключение к БД
-	 * @param Objective|array $config [optional]
-	 */
-	public function connect ($config = null)
-	{
-		if ($this->_linkIdentifier)
-		{
-			return ;
-		}
-
-		if ($config)
-		{
+		if ($config) {
 			$this->setOption($config);
 		}
-
-		$this->_linkIdentifier = mysql_connect (
-			$this->_connectionOptions ['host'],
-			$this->_connectionOptions ['username'],
-			$this->_connectionOptions ['password']
+		$this->linkIdentifier = mysql_connect(
+			$this->connectionOptions['host'],
+			$this->connectionOptions['username'],
+			$this->connectionOptions['password']
 		);
-
-		mysql_select_db (
-			$this->_connectionOptions ['database'],
-			$this->_linkIdentifier
+		mysql_select_db(
+			$this->connectionOptions['database'],
+			$this->linkIdentifier
 		);
-
-		if ($this->_connectionOptions ['charset'])
-		{
-			mysql_query (
-				'SET NAMES ' . $this->_connectionOptions ['charset'],
-				$this->_linkIdentifier
+		if (!empty($this->connectionOptions['charset'])) {
+			mysql_query(
+				'SET NAMES ' . $this->connectionOptions['charset'],
+				$this->linkIdentifier
 			);
 		}
 	}
@@ -195,111 +209,84 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 	 * (non-PHPdoc)
 	 * @see Data_Mapper_Abstract::execute()
 	 */
-	public function execute (Data_Source_Abstract $source, Query_Abstract $query, $options = null)
+	public function execute(Data_Source_Abstract $source, Query_Abstract $query, 
+        $options = null)
 	{
-		if (!($query instanceof Query_Abstract))
-		{
-			return new Query_Result (null);
+		if (!($query instanceof Query_Abstract)) {
+			return new Query_Result(null);
 		}
-		if (!$this->_linkIdentifier) {
+		if (!$this->linkIdentifier) {
 			$this->connect();
 		}
-		$this->connect ();
-
-		$start = microtime (true);
-
-		$clone = clone $query;
-
-		$where = $clone->getPart (Query::WHERE);
-		$this->_filters->apply ($where, Query::VALUE);
-		$clone->setPart (Query::WHERE, $where);
-
-		$this->_sql = $clone->translate ('Mysql');
-
-		$result = null;
-		$this->_errno = 0;
-		$this->_error = '';
-		$this->_affectedRows = 0;
-		$this->_foundRows = 0;
-		$this->_numRows = 0;
-		$this->_insertId = null;
-
-		if (!$options)
-		{
-			$options = $this->getDefaultOptions ();
+		$start = microtime(true);
+		$this->sql = $query->translate('Mysql');
+		$this->errno = 0;
+		$this->error = '';
+		$this->affectedRows = 0;
+		$this->foundRows = 0;
+		$this->numRows = 0;
+		$this->insertId = null;
+		if (!$options) {
+			$options = $this->getDefaultOptions();
 		}
-
-		$m = $this->_queryMethods [$query->type ()];
-		$result = $this->{$m} ($query, $options);
-
-		if ($this->_errno)
-		{
-			if (class_exists ('Debug'))
-			{
-				Debug::errorHandler (
-					E_USER_ERROR, $this->_sql . '; ' . $this->_error,
-					__FILE__, __LINE__
-				);
-			}
-			throw new Data_Mapper_Mysqli_Exception (
-				$this->_error . "\n" . $this->_sql,
-				$this->_errno
+		$m = $this->queryMethods[$query->type()];
+		$result = $this->{$m}($query, $options);
+		if ($this->_errno) {
+			throw new Exception(
+				$this->error . "\n" . $this->sql,
+				$this->errno
 			);
 		}
-
-		if (!$this->_errno && is_null ($result))
-		{
-			$result = array ();
+		if (!$this->_errno && is_null($result)) {
+			$result = array();
 		}
-
 		$finish = microtime (true);
-
-		return new Query_Result (array (
-			'error'			=> $this->_error,
-			'errno'			=> $this->_errno,
-			'query'			=> $clone,
+		return new Query_Result(array (
+			'error'			=> $this->error,
+			'errno'			=> $this->errno,
+			'query'			=> $query,
 			'startAt'		=> $start,
 			'finishedAt'	=> $finish,
-			'foundRows'		=> $this->_foundRows,
+			'foundRows'		=> $this->foundRows,
 			'result'		=> $result,
-			'touchedRows'	=> $this->_numRows + $this->_affectedRows,
-			'insertKey'		=> $this->_insertId,
-			'currency'		=> $this->_isCurrency ($result, $options),
+			'touchedRows'	=> $this->numRows + $this->affectedRows,
+			'insertKey'		=> $this->insertId,
 			'source'		=> $source
 		));
 	}
 
 	/**
-	 * @desc Возвращает ресурс соединения с mysql.
-	 * @return resource
+	 * Возвращает ресурс соединения с mysql.
+	 * 
+     * @return resource
 	 */
-	public function linkIdentifier ()
+	public function linkIdentifier()
 	{
-		$this->connect ();
-		return $this->_linkIdentifier;
+        if (!$this->linkIdentifier) {
+            $this->connect();
+        }
+		return $this->linkIdentifier;
 	}
 
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Mapper_Abstract::setOption()
 	 */
-	public function setOption ($key, $value = null)
+	public function setOption($key, $value = null)
 	{
-		if (is_array ($key) || !is_scalar ($key))
-		{
-			foreach ($key as $k => $v)
-			{
-				$this->setOption ($k, $v);
+		if (!is_scalar($key)) {
+			foreach ($key as $optionName => $optionValue) {
+				$this->setOption($optionName, $optionValue);
 			}
 			return;
 		}
-
-		if (isset ($this->_connectionOptions [$key]))
-		{
-			$this->_connectionOptions [$key] = Crypt_Manager::autoDecode ($value);
+		if (isset($this->connectionOptions[$key])) {
+            $serviceLocator = IcEngine::serviceLocator();
+            $cryptManager = $serviceLocator->getService('cryptManager');
+			$this->connectionOptions[$key] = $cryptManager->autoDecode($value);
 			return;
 		}
-		return parent::setOption ($key, $value);
+		return parent::setOption($key, $value);
 	}
 
 }
