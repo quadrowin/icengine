@@ -76,6 +76,8 @@ class Model_Collection_Iterator implements Iterator
 	 */
 	public function current()
 	{
+		$modelManager = $this->getService('modelManager');
+		$resourceManager = $this->getService('resourceManager');
 		$index = $this->index;
 		$fields = $this->data[$index];
 		if (!$this->isFactory) {
@@ -83,9 +85,9 @@ class Model_Collection_Iterator implements Iterator
 			return $this->current;
 		}
 		$key = $this->modelName . '__' . $fields[$this->keyField];
-		$this->current = Resource_Manager::get('Model', $key);
+		$this->current = $resourceManager->get('Model', $key);
 		if (!$this->current) {
-			$this->current = Model_Manager::create($this->modelName, $fields);
+			$this->current = $modelManager->create($this->modelName, $fields);
 		}
 		return $this->current;
 	}

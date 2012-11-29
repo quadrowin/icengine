@@ -23,11 +23,12 @@ class Test_Mail_Provider_Sms_DcnkTest extends PHPUnit_Framework_TestCase
 	protected function setUp ()
 	{
 		parent::setUp ();
-
-		$this->Mail_Provider_Sms_Dcnk = Model_Manager::byQuery (
+		$locator = IcEngine::serviceLocator();
+		$modelManager = $locator->getService('modelManager');
+		$query = $locator->getService('query');
+		$this->Mail_Provider_Sms_Dcnk = $modelManager->byQuery(
 			'Mail_Provider',
-			Query::instance ()
-			->where ('name', 'Sms_Dcnk')
+			$query->where('name', 'Sms_Dcnk')
 		);
 	}
 
