@@ -169,15 +169,15 @@ abstract class Subscribe_Abstract extends Model_Factory_Delegate
 	public function subscriberJoin (Subscribe_Subscriber $subscriber,
 	    $autocreate = false)
 	{
-	    $join = Model_Manager::byQuery (
+		$locator = IcEngine::serviceLocator();
+	    $join = $locator->getService('modelManager')->byQuery(
 	        'Subscribe_Subscriber_Join',
 	        Query::instance ()
 		        ->where ('Subscribe__id', $this->id)
 		        ->where ('Subscribe_Subscriber__id', $subscriber->id)
 	    );
 
-	    if (!$join && $autocreate)
-	    {
+	    if (!$join && $autocreate) {
 	        $join = new Subscribe_Subscriber_Join (array (
 	            'Subscribe__id'               => $this->id,
 	            'Subscribe_Subscriber__id'    => $subscriber->id,
@@ -187,7 +187,7 @@ abstract class Subscribe_Abstract extends Model_Factory_Delegate
 	        ));
 	        $join->save ();
 	    }
-	    
+
 	    return $join;
 	}
 

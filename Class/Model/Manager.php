@@ -21,10 +21,10 @@ class Model_Manager extends Manager_Abstract
             'Model_Factory', 'Model_Defined'
         )
 	);
-    
+
     /**
      * Созданные делегаты
-     * 
+     *
      * @var array
      */
     protected $delegees;
@@ -40,14 +40,15 @@ class Model_Manager extends Manager_Abstract
 	 */
 	public function byKey($modelName, $key, $lazy = false)
 	{
-        $resourceManager = $this->getService('resourceManager');
+		$locator = IcEngine::serviceLocator();
+        $resourceManager = $locator->getService('resourceManager');
         $result = $resourceManager->get('Model', $modelName . '__' . $key);
         if ($result) {
             return $result;
         }
-        $modelScheme = $this->getService('modelScheme');
+        $modelScheme = $locator->getService('modelScheme');
         $keyField = $modelScheme->keyField($modelName);
-        $queryBuilder = $this->getService('query');
+        $queryBuilder = $locator->getService('query');
         if (!$lazy) {
             $query = $queryBuilder->where($keyField, $key);
             return $this->byQuery($modelName, $query);
@@ -55,7 +56,7 @@ class Model_Manager extends Manager_Abstract
         $model = $this->create($modelName, array());
         $model->set($keyField, $key);
         $query = $queryBuilder->select('*')->where($keyField, $key);
-        $this->getService('unitOfWork')->push($query, $model, 'Simple');
+        $locator->getService('unitOfWork')->push($query, $model, 'Simple');
         $model->setLazy(true);
         return $model;
 	}
