@@ -14,12 +14,14 @@ class Query_Translator_Mysql_Delete extends Query_Translator_Mysql_Select
 	public function _renderDelete (Query_Abstract $query)
 	{
 		$parts = $query->parts ();
+        $serviceLocator = IcEngine::serviceLocator();
+        $modelScheme = $serviceLocator->getService('modelScheme');
 		foreach($parts[Query::DELETE] as $key => $part)
 		{
 			$parts [Query::DELETE][$key] = strpos ($part, self::SQL_ESCAPE)
 				!== false
 					? $part
-					: strtolower (Model_Scheme::table ($part));
+					: strtolower ($modelScheme->table ($part));
 			$parts [Query::DELETE][$key] =
 				$this->_escape ($parts [Query::DELETE][$key]);
 		}
