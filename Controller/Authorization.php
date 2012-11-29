@@ -84,32 +84,29 @@ class Controller_Authorization extends Controller_Abstract
 	 * @desc Определение типа авторизации по данным формы
 	 * @param string $auth_login
 	 */
-	public function determine ()
+	public function determine()
 	{
-		$login = $this->_input->receive (
-			$this->config ()->fields_prefix . 'login'
+		$login = $this->_input->receive(
+			$this->config()->fields_prefix . 'login'
 		);
-
-		$authes = explode (',', $this->config ()->available);
-
+		$authes = explode(',', $this->config()->available);
 		/**
 		 * @var Authorization_Abstract $auth
 		 */
-		foreach ($authes as $auth_type)
-		{
-			$auth = Model_Manager::byQuery (
+		$modelManager = $this->getService('modelManager');
+		$query = $this->getService('query');
+		foreach ($authes as $auth_type) {
+			$auth = $modelManager->byQuery(
 				'Authorization',
-				Query::instance ()
-					->where ('name', $auth_type)
+				$query->where('name', $auth_type)
 			);
-			if ($auth && $auth->isValidLogin ($login))
-			{
-				$this->_output->send (array (
-					'data'	=> array (
+			if ($auth && $auth->isValidLogin($login)) {
+				$this->_output->send(array(
+					'data'	=> array(
 						'auth_type'	=> $auth_type
 					)
 				));
-				return $this->replaceAction (
+				return $this->replaceAction(
 					'Authorization_' . $auth->name,
 					'secondPart'
 				);
@@ -123,74 +120,62 @@ class Controller_Authorization extends Controller_Abstract
 	 * @param string password Пароль.
 	 * @param string redirect [optional] Редирект после успешной авторизации.
 	 */
-	public function login ()
+	public function login()
 	{
-		$login = $this->_input->receive ('login');
-
-		if ($this->config ()->sms_auth_enable)
-		{
-			Loader::load ('Helper_Phone');
-			$phone = Helper_Phone::parseMobile ($login);
-			if ($phone)
-			{
-				return $this->replaceAction ('Authorization_Sms', 'login');
+		$login = $this->_input->receive('login');
+		$helperPhone = $this->getService('helperPhone');
+		if ($this->config()->sms_auth_enable) {
+			$phone = $helperPhone->parseMobile($login);
+			if ($phone) {
+				return $this->replaceAction('Authorization_Sms', 'login');
 			}
 		}
-
-		$password = $this->_input->receive ('password');
-		Loader::load ('Authorization');
-
-		$user = Model_Manager::byQuery (
+		$password = $this->input->receive('password');
+		$modelManager = $this->getService('modelManager');
+		$query = $this->getService('query');
+		$user = $modelManager->byQuery(
 			'User',
-			Query::instance ()
-				->where ('email', $login)
-				->where ('password', $password)
-				->where ('md5(`password`)=md5(?)', $password)
+			$query->where('email', $login)
+				->where('password', $password)
+				->where('md5(`password`)=md5(?)', $password)
 		);
-		//Authorization::authorize ($login, $password);
-
-		if (!$user)
-		{
-			$this->_sendError (
+		if (!$user) {
+			$this->_sendError(
 				'Password incorrect',
 				__METHOD__,
 				'/password_incorrect'
 			);
 			return ;
 		}
-		$user->authorize ();
-
-		$this->_output->send ('data', array (
-			'user'	=> array (
+		$user->authorize();
+		$this->_output->send('data', array(
+			'user'	=> array(
 				'id'	=> $user->id,
 				'name'	=> $user->name
 			),
-			'redirect'	=> $this->_redirect ()
+			'redirect'	=> $this->_redirect()
 		));
 	}
 
 	/**
-	 * @desc Авторизация или регистрация.
+	 * Авторизация или регистрация.
 	 */
-	public function loginOrReg ()
+	public function loginOrReg()
 	{
-		$login = $this->_input->receive ('login');
-
-		$login_exists = DDS::execute (
-			Query::instance ()
-			->select ('id')
-			->from ('User')
-			->where ('email', $login)
-		)->getResult ()->asValue ();
-
-		if ($login_exists)
-		{
+		$login = $this->_input->receive('login');
+		$dds = $this->getService('dds');
+		$query = $this->getService('query');
+		$login_exists = $dds->execute(
+			$query->select('id')
+			->from('User')
+			->where('email', $login)
+		)->getResult()->asValue();
+		if ($login_exists) {
 			// Авторизация
-			return $this->replaceAction ($this, 'login');
+			return $this->replaceAction($this, 'login');
 		}
-
 		// Регистрация
-		return $this->replaceAction ('Registration', 'postForm');
+		return $this->replaceAction('Registration', 'postForm');
 	}
 
 	/**
@@ -199,14 +184,16 @@ class Controller_Authorization extends Controller_Abstract
 	public function logout()
 	{
 		$this->_task->setTemplate(null);
-		User::getCurrent()->logout();
-		User_Session::getCurrent()->delete();
+		$user = $this->getService('user')->getCurrent();
+		$user->logout();
+		$session = $this->getService('session')->getCurrent();
+		$session->delete();
 		$redirect = $this->_input->receive('redirect');
 		if (!$redirect) {
 			$redirect = Request::referer();
 		}
-		Loader::load('Helper_Uri');
-		$redirect = Helper_Uri::validRedirect(
+		$helperUri = $this->getService('helperUri');
+		$redirect = $helperUri->validRedirect(
 			$redirect ? $redirect : self::DEFAULT_REDIRECT
 		);
 		$this->_output->send('data', array(
@@ -225,5 +212,4 @@ class Controller_Authorization extends Controller_Abstract
 			'authorize'
 		);
 	}
-
 }
