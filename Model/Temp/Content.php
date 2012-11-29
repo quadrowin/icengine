@@ -1,12 +1,11 @@
 <?php
 
 /**
- *
- * @desc Временный контент - специальная модель, предназначенная для
+ * Временный контент - специальная модель, предназначенная для
  * хранения дополнительной информации о форме для редактирования.
+ *
  * @author Гурус
  * @package IcEngine
- *
  */
 class Temp_Content extends Model
 {
@@ -19,7 +18,8 @@ class Temp_Content extends Model
 	protected $_data = null;
 
 	/**
-	 * @desc Созданные за этот запрос
+	 * Созданные за этот запрос
+	 *
 	 * @param 0 = name
 	 * @param 1 = value
 	 * @var array
@@ -64,90 +64,95 @@ class Temp_Content extends Model
 	}
 
 	/**
-	 * @desc Возвращет временный контент по коду
+	 * Возвращет временный контент по коду
+	 *
 	 * @param string $utcode
 	 * @return Temp_Content
 	 */
-	public static function byUtcode ($utcode)
+	public static function byUtcode($utcode)
 	{
-		return Model_Manager::byKey (
+		return $this->getService('modelManager')->byKey(
 			__CLASS__,
 			(string) $utcode
 		);
 	}
 
 	/**
-	 * @desc Создает новый временный контент
+	 * Создает новый временный контент
+	 *
 	 * @param string|Controller_Abstract $controller Контроллер или название
 	 * @param string $table
 	 * @param integer $row_id
 	 * @return Temp_Content
 	 */
-	public static function create ($controller, $table = '',
+	public static function create($controller, $table = '',
 		$row_id = 0, $data = null)
 	{
-		$utcode = self::genUtcode ();
-
-		$tc = new Temp_Content (array (
-			'time'			=> Helper_Date::toUnix (),
+		$utcode = self::genUtcode();
+		$helperDate = $this->getService('helperDate');
+		$request = $this->getService('request');
+		$user = $this->getService('user');
+		$tc = new Temp_Content(array(
+			'time'			=> $helperDate->toUnix(),
 			'utcode'		=> $utcode,
 			'json'			=> json_encode($data),
-			'ip'			=> Request::ip (),
+			'ip'			=> $request->ip(),
 			'controller'	=>
 				$controller instanceof Controller_Abstract ?
-				$controller->name () :
+				$controller->name() :
 				$controller,
 			'table'			=> $table,
 			'rowId'			=> (int) $row_id,
-			'day'			=> Helper_Date::eraDayNum (),
-			'User__id'		=> User::id ()
+			'day'			=> $helperDate->eraDayNum(),
+			'User__id'		=> $user->id()
 		));
-
-		return $tc->save ();
+		return $tc->save();
 	}
 
 	/**
-	 * @desc Возвращает временный контент для модели на этом запросе
+	 * Возвращает временный контент для модели на этом запросе
+	 *
 	 * @param Model $model
 	 * @param Controller_Abstract $controller
 	 * @return Temp_Content
 	 */
-	public static function getFor (Model $model,
+	public static function getFor(Model $model,
 		Controller_Abstract $controller = null)
 	{
-		$mname = $model->modelName ();
-		$mkey = $model->key ();
+		$mname = $model->modelName();
+		$mkey = $model->key();
 
-		if (!isset (self::$_created [$mname]))
+		if (!isset(self::$_create[$mname]))
 		{
-			self::$_created [$mname] = array ();
+			self::$_created[$mname] = array();
 		}
 
-		if (!isset (self::$_created [$mname][$mkey]))
+		if (!isset (self::$_created[$mname][$mkey]))
 		{
-			self::$_created [$mname][$mkey] = self::create (
-				$controller ? $controller->name () : '',
-				$model->table (),
+			self::$_created[$mname][$mkey] = self::create(
+				$controller ? $controller->name() : '',
+				$model->table(),
 				$mkey
 			);
 		}
 
-		return self::$_created [$mname][$mkey];
+		return self::$_created[$mname][$mkey];
 	}
 
 	/**
-	 * @desc Генерация уникального кода
+	 * Генерация уникального кода
+	 *
 	 * @return string
 	 */
-	public static function genUtcode ()
+	public static function genUtcode()
 	{
 		// ucac7fe407f8e5e1c683005867edd74439452c4.39068717
-		$u = uniqid ('', true);
+		$u = uniqid('', true);
 		// Вырезаем точку
-		return md5 (time ()) . substr ($u, 9, 5) . substr ($u, 15);
+		return md5(time()) . substr($u, 9, 5) . substr($u, 15);
 	}
 
-	public static function idForNew (Temp_Content $tc)
+	public static function idForNew(Temp_Content $tc)
 	{
 		return $tc->utcode;
 	}
@@ -158,13 +163,11 @@ class Temp_Content extends Model
 	 * @param array $components
 	 * @return Temp_Content
 	 */
-	public function rejoinComponents (Model $item, array $components)
+	public function rejoinComponents(Model $item, array $components)
 	{
-		foreach ($components as $component)
-		{
-			$this->component ($component)->rejoin ($item);
+		foreach ($components as $component) {
+			$this->component($component)->rejoin($item);
 		}
 		return $this;
 	}
-
 }
