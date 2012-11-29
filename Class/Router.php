@@ -42,7 +42,12 @@ class Router extends Manager_Abstract
 		if (!empty($route['params'])) {
 			foreach ($route['params'] as $paramName => $paramValue) {
                 if (strpos($paramValue, '::')) {
-                    $paramValue = call_user_func($paramValue);
+                    list($className, $method) = explode('::', $paramValue);
+                    $serviceName = $this->getServiceLocator()->normalizeName(
+                        $className
+                    );
+                    $service = $this->getService($serviceName);
+                    $paramValue = $service->$method();
                 }
 				$request->param($paramName, $paramValue);
 			}

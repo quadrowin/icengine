@@ -17,8 +17,10 @@ class Query_Translator_Mysql_Insert extends Query_Translator_Mysql_Select
 		if ($query->getMultiple()) {
 			return $this->_renderInsertMultiple($query);
 		}
+        $serviceLocator = IcEngine::serviceLocator();
+        $modelScheme = $serviceLocator->getService('modelScheme');
 		$table = $query->part (Query::INSERT);
-		$sql = 'INSERT ' . strtolower (Model_Scheme::table ($table)) . ' (';
+		$sql = 'INSERT ' . strtolower ($modelScheme->table ($table)) . ' (';
 		$fields = array_keys ($query->part (Query::VALUES));
 		$values = array_values ($query->part (Query::VALUES));
 
