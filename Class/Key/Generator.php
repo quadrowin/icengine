@@ -1,12 +1,13 @@
 <?php
+
 /**
- *
- * @desc Генератор уникальных ключей
+ * Генератор уникальных ключей
+ * 
  * @author Yury Shveodv, Ilya Kolesnikov
  * @package IcEngine
  *
  */
-class Key_Generator
+class Key_Generator extends Manager_Abstract
 {
 
 	/**

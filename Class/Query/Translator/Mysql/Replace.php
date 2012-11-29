@@ -13,8 +13,10 @@ class Query_Translator_Mysql_Replace extends Query_Translator_Mysql_Select
 	 */
 	public function _renderReplace (Query_Abstract $query)
 	{
+        $serviceLocator = IcEngine::serviceLocator();
+        $modelScheme = $serviceLocator->getService('modelScheme');
 		$table = $query->part (Query_Replace::REPLACE);
-		$sql = 'REPLACE ' . strtolower (Model_Scheme::table ($table)) . ' (';
+		$sql = 'REPLACE ' . strtolower ($modelScheme->table ($table)) . ' (';
 
 		$fields = array_keys ($query->part (Query_Replace::VALUES));
 		$values = array_values ($query->part (Query_Replace::VALUES));
