@@ -17,8 +17,8 @@ class Service_Locator
      *
      * @var Service_Source
      */
-    protected $source;
-
+    protected $source; 
+    
     /**
      * Получить сервис
      *
