@@ -706,55 +706,37 @@ class Controller_Admin_Database extends Controller_Abstract
 				$old = array();
 				foreach ($includes as $field => $model) {
 					$ffield = $modelScheme->keyField($model);
-
 					if (strpos($model, '/') !== false) {
 						list($model, $ffield) = explode('/', $model);
 					}
-
-					$model = Model_Manager::byQuery (
+					$model = $modelManager->byQuery(
 						$model,
-						Query::instance ()
-							->where ($ffield, $item->$field)
+						$query->where($ffield, $item->$field)
 					);
-
-					if ($model)
-					{
-						$old [$field] = $item->$field;
-						$item->$field = $model->title ();
+					if ($model) {
+						$old[$field] = $item->$field;
+						$item->$field = $model->title();
 					}
 				}
-
-				if ($old)
-				{
-					$item->data ('old', $old);
+				if ($old) {
+					$item->data('old', $old);
 				}
 			}
 		}
-
-		$styles = array ();
-
-		if (!empty ($this->getAdminConfig ($class_name)->styles))
-		{
-			$styles = $this->getAdminConfig ($class_name)->styles;
+		$styles = array();
+		if (!empty($this->getAdminConfig($class_name)->styles)) {
+			$styles = $this->getAdminConfig($class_name)->styles;
 		}
-
-		$link_styles = array ();
-
-		if (!empty ($this->getAdminConfig ($class_name)->link_styles))
-		{
-			$link_styles = $this->getAdminConfig ($class_name)->link_styles;
+		$link_styles = array();
+		if (!empty($this->getAdminConfig($class_name)->link_styles)) {
+			$link_styles = $this->getAdminConfig($class_name)->link_styles;
 		}
-
-		$field_filters = array ();
-		if (
-			isset ($this->getAdminConfig ($class_name)->field_filters)
-		)
-		{
-			$field_filters = $this->getAdminConfig ($class_name)->field_filters
-				->__toArray ();
+		$field_filters = array();
+		if (isset($this->getAdminConfig($class_name)->field_filters)) {
+			$field_filters = $this->getAdminConfig($class_name)->field_filters
+				->__toArray();
 		}
-
-		$this->_output->send (array (
+		$this->_output->send(array(
 			'collection'		=> $collection,
 			'fields'			=> $fields,
 			'search'			=> $search,
@@ -764,177 +746,134 @@ class Controller_Admin_Database extends Controller_Abstract
 			'table'				=> $table,
 			'limitators'		=> $limitators,
 			'limitator'			=> $limitator,
-			'title'				=> !empty ($title) ? $title : $this->config ()->default_title,
+			'title'				=> !empty($title) ? $title : $this->config()->default_title,
 			'links'				=> $links,
-			'keyField'			=> Model_Scheme::keyField ($class_name),
+			'keyField'			=> $modelScheme->keyField($class_name),
 			'styles'			=> $styles,
 			'link_styles'		=> $link_styles
 		));
 	}
 
 	/**
-	 * @desc Сохранение записи
+	 * Сохранение записи
 	 */
-	public function save ()
+	public function save()
 	{
-		list (
+		list(
 			$table,
 			$row_id,
 			$column
-		) = $this->_input->receive (
+		) = $this->_input->receive(
 			'table',
 			'row_id',
 			'column'
 		);
-
-//		print_r ($_POST);
-
-		$prefix = Model_Scheme::$default ['prefix'];
-		$class_name = $this->__className ($table, $prefix);
-		$fields = Helper_Data_Source::fields ('`' . $table . '`');
-		$acl_fields = $this->__aclFields ($table, $fields);
-
-		if (!$acl_fields || !User::id ())
-		{
-			return $this->replaceAction ('Error', 'accessDenied');
+		$modelScheme = $this->getService('modelScheme');
+		$prefix = $modelScheme->$default['prefix'];
+		$class_name = $this->__className($table, $prefix);
+		$helperDataSource = $this->getService('helperDataSource');
+		$fields = $helperDataSource->fields('`' . $table . '`');
+		$acl_fields = $this->__aclFields($table, $fields);
+		$userService = $this->getService('user');
+		if (!$acl_fields || !$userService->id()) {
+			return $this->replaceAction('Error', 'accessDenied');
 		}
-
 		/* @var $row Model */
-		$row = Model_Manager::get (
+		$modelManager = $this->getService('modelManager');
+		$row = $modelManager->get(
 			$class_name,
 			$row_id
 		);
-
-		$exists_links = Model_Scheme::links ($class_name);
-		$links_to_save = array ();
-
-		if (!is_array ($column))
-		{
+		$exists_links = $modelScheme->links($class_name);
+		$links_to_save = array();
+		if (!is_array($column)) {
 			return;
 		}
-
-		foreach ($column as $field => $value)
-		{
-			if (isset ($exists_links [$field]))
-			{
-				$links_to_save [$field] = $value;
-				unset ($column [$field]);
+		foreach ($column as $field => $value) {
+			if (isset($exists_links[$field])) {
+				$links_to_save[$field] = $value;
+				unset($column[$field]);
 			}
 		}
-
-		foreach ($column as $field => $value)
-		{
-			if (!in_array ($field, $acl_fields))
-			{
-				unset ($column [$field]);
+		foreach ($column as $field => $value) {
+			if (!in_array($field, $acl_fields)) {
+				unset($column[$field]);
 			}
 		}
-
-		$modificators = array ();
-
-		$tmp = $this->getAdminConfig ($class_name)->modificators;
-
-		if ($tmp)
-		{
-			$modificators = $tmp->__toArray ();
+		$modificators = array();
+		$tmp = $this->getAdminConfig($class_name)->modificators;
+		if ($tmp) {
+			$modificators = $tmp->__toArray();
 		}
-
 		$updated_fields = $column;
-
-		foreach ($updated_fields as $field => $value)
-		{
-			if (isset ($modificators [$field]))
-			{
-				$value = call_user_func (
-					$modificators [$field],
+		foreach ($updated_fields as $field => $value) {
+			if (isset($modificators[$field])) {
+				$value = call_user_func(
+					$modificators[$field],
 					$value
 				);
 				//echo $value . '<br />';
-				$column [$field] = $value;
-				$updated_fields [$field] = $value;
+				$column[$field] = $value;
+				$updated_fields[$field] = $value;
 			}
 		}
-
-		if ($row->key ())
-		{
-			foreach ($column as $field => $value)
-			{
-				if ($value === $row->field ($field))
-				{
-					unset ($updated_fields [$field]);
+		if ($row->key()) {
+			foreach ($column as $field => $value) {
+				if ($value === $row->field($field)) {
+					unset($updated_fields[$field]);
 				}
 			}
-
-			if ($updated_fields)
-			{
-				$row->update ($updated_fields);
-//				print_r ($updated_fields);
-//				echo DDS::getDataSource ()->getQuery ()->translate ();
+			if ($updated_fields) {
+				$row->update($updated_fields);
+			}
+		} else {
+			if ($updated_fields) {
+				$row->set(
+					$modelScheme->keyField($row->modelName()),
+					null
+				);
+				$row->set($updated_fields);
+				$row->save();
 			}
 		}
-		else
-		{
-			if ($updated_fields)
-			{
-				$row->set (Model_Scheme::keyField ($row->modelName ()), null);
-				$row->set ($updated_fields);
-				$row->save ();
-//				print_r ($row);
-//				echo DDS::getDataSource ()->getQuery ()->translate ();
-			}
-		}
-
-		foreach ($links_to_save as $link => $links)
-		{
-			Helper_Link::unlinkWith ($row, $link);
-
-			if (!is_array ($links))
-			{
+		$helperLink = $this->getService('Helper_Link');
+		foreach ($links_to_save as $link => $links) {
+			$helperLink->unlinkWith($row, $link);
+			if (!is_array($links)) {
 				continue;
 			}
-
-			foreach ($links as $link_id)
-			{
-				$link_row = Model_Manager::byKey (
+			foreach ($links as $link_id) {
+				$link_row = $modelManager->byKey(
 					$link,
 					$link_id
 				);
-
-				if ($link_row)
-				{
-					Helper_Link::link ($row, $link_row);
+				if ($link_row) {
+					$helperLink->link($row, $link_row);
 				}
 			}
 		}
-
-		$this->__log (
+		$this->__log(
 			__METHOD__,
 			$table,
 			$row_id,
 			$updated_fields
 		);
-
-		$after_save = $this->getAdminConfig ($class_name)->afterSave;
-
-		if ($after_save)
-		{
-			foreach ($after_save as $action)
-			{
-				list ($controller, $action) = explode ('::', $action);
-
-				Controller_Manager::call (
+		$after_save = $this->getAdminConfig($class_name)->afterSave;
+		$controllerManager = $this->getService('controllerManager');
+		if ($after_save) {
+			foreach ($after_save as $action) {
+				list($controller, $action) = explode('::', $action);
+				$controllerManager->call(
 					$controller,
 					$action,
-					array (
+					array(
 						'table'			=> $table,
 						'row'			=> $row
 					)
 				);
 			}
 		}
-//		print_r ($updated_fields);
-//		echo DDS::getDataSource ()->getQuery ()->translate ();
-
-		Helper_Header::redirect ('/cp/table/' . $table . '/');
+		$helperHeader = $this->getService('helperHeader');
+		$helperHeader->redirect('/cp/table/' . $table . '/');
 	}
 }
