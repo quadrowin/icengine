@@ -13,10 +13,12 @@ class Query_Translator_Mysql_Update extends Query_Translator_Mysql_Select
 	 */
 	public function _renderUpdate (Query_Abstract $query)
 	{
+        $serviceLocator = IcEngine::serviceLocator();
+        $modelScheme = $serviceLocator->getService('modelScheme');
 		$table = $query->part (Query::UPDATE);
 		$sql =
 			'UPDATE ' .
-			strtolower (Model_Scheme::table ($table)) .
+			strtolower ($modelScheme->table ($table)) .
 			' SET ';
 
 		$values = $query->part (Query::VALUES);

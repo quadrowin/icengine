@@ -9,17 +9,15 @@ class Query_Update extends Query_Select
 	/**
 	 * @see Query_Select::getTags();
 	 */
-	public function getTags ()
+	public function getTags()
 	{
-		$tags = array ();
-
-		$update = $this->getPart (Query::UPDATE);
-		if ($update)
-		{
-	   		$tags [] = Model_Scheme::table ($update);
+		$tags = array();
+        $modelScheme = IcEngine::serviceLocator()->getService('modelScheme');
+		$update = $this->getPart(Query::UPDATE);
+		if ($update) {
+	   		$tags[] = $modelScheme->table($update);
 		}
-
-		return array_unique ($tags);
+		return array_unique($tags);
 	}
 
 	/**

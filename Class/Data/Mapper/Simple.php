@@ -1,21 +1,22 @@
 <?php
+
 /**
- * 
  * @desc Simple
  * @author Shvedov_U
  * @package IcEngine
- * 
  */
-class Data_Mapper_Simple extends Data_Mapper_Abstract {
+class Data_Mapper_Simple extends Data_Mapper_Abstract 
+{
 	
 	/**
 	 * @desc 
 	 * @param string $model 
 	 * @return string
 	 */
-	public function getTable ($model)
+	public function getTable($model)
 	{
-		return Model_Scheme::table ($model);
+        $serviceLocator = IcEngine::serviceLocator();
+		return $serviceLocator->getService('modelScheme')->table($model);
 	}
 	
 	/**
@@ -25,7 +26,7 @@ class Data_Mapper_Simple extends Data_Mapper_Abstract {
 	 */
 	public function getModel ($table)
 	{
-		return Model_Scheme::tableToModel ($table);
+        $serviceLocator = IcEngine::serviceLocator();
+		return $serviceLocator->getService('modelScheme')->tableToModel($table);
 	}
-	
 }

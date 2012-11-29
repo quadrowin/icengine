@@ -35,10 +35,12 @@ class Query_Translator_Mysql_Create_Table extends Query_Translator_Mysql_Alter_T
 	 */
 	public function _renderCreateTable (Query_Abstract $query)
 	{
+        $serviceLocator = IcEngine::serviceLocator();
+        $modelScheme = $serviceLocator->getService('modelScheme');
 		$parts = $query->parts ();
 		$name = $parts [Query_Create_Table::CREATE_TABLE];
 		$sql = self::SQL_CREATE_TABLE . ' ' . self::SQL_IF_NOT_EXISTS . ' ' .
-			$this->_escape (Model_Scheme::table ($name)) . '(';
+			$this->_escape ($modelScheme->table ($name)) . '(';
 		$fields = self::_renderFields ($query) ;
 		return $sql . PHP_EOL .
 			($fields ? $fields . ',' . PHP_EOL : '') .
