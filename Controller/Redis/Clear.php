@@ -27,8 +27,8 @@ class Controller_Redis_Clear extends Controller_Abstract
 	 */
 	public function _checkAccess()
 	{
-		$user = User::getCurrent();
-		if (!$user->key() || $user->isAdmin()) {
+		$user = $this->getService('user')->getCurrent();
+		if ($user->key() < 0 || $user->isAdmin()) {
 			return true;
 		}
 		foreach ($this->config()->access_roles as $role) {
