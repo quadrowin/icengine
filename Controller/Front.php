@@ -12,7 +12,7 @@ class Controller_Front extends Controller_Abstract
 	 */
 	public function index()
 	{
-		$route = Router::getRoute();
+		$route = $this->getService('router')->getRoute();
 		try
 		{
 			if (Tracer::$enabled) {
@@ -22,16 +22,18 @@ class Controller_Front extends Controller_Abstract
 			 * Начинаем цикл диспетчеризации и получаем список
 			 * выполняемых руот экшинов.
 			 */
-			$actions = Controller_Dispatcher::loop($route->actions());
+            $dispatcher = $this->getService('controllerDispatcher');
+			$actions = $dispatcher->loop($route->actions());
+            $controllerManager = $this->getService('controllerManager');
 			// Создаем задания для выполнения. В них отдает входные данные.
-			$tasks = Controller_Manager::createTasks($actions, $this->getInput());
+			$tasks = $controllerManager->createTasks($actions, $this->getInput());
 			if (Tracer::$enabled) {
 				$endTime = microtime(true);
 				Tracer::setDispatcherTime($endTime - $startTime);
 			}
 			// Выполненяем задания
-			$resultTasks = Controller_Manager::runTasks($tasks);
-			$this->_output->send('tasks', $resultTasks);
+			$resultTasks = $controllerManager->runTasks($tasks);
+			$this->output->send('tasks', $resultTasks);
 		} catch (Exception $e) {
             Error::render($e);
 		}

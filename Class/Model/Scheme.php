@@ -4,7 +4,7 @@
  *
  * @author gooris, morph
  */
-abstract class Model_Scheme
+class Model_Scheme extends Manager_Abstract
 {
 	/**
 	 * Имя ключего поля модели по умолчанию
@@ -18,7 +18,7 @@ abstract class Model_Scheme
 	 *
      * @var array
 	 */
-	public static $defaultLinkScheme = array(
+	public $defaultLinkScheme = array(
 
 	);
 
@@ -27,7 +27,7 @@ abstract class Model_Scheme
 	 *
      * @var string
 	 */
-	public static $default = array(
+	public $default = array(
 		'keyGen'	=> null,
 		'prefix'	=> 'ice_'
 	);
@@ -37,7 +37,7 @@ abstract class Model_Scheme
      *
 	 * @var array
 	 */
-	public static $models = array(
+	public $models = array(
 		/**
 		 * Класс модели
 		 * Обязательно в нижнем регистре.
@@ -84,15 +84,17 @@ abstract class Model_Scheme
 	 * @param string $modelName название модели.
 	 * @return Data_Source_Abstract
 	 */
-	public static function dataSource($modelName)
+	public function dataSource($modelName)
 	{
 		$modelName = strtolower($modelName);
-		if (!isset(self::$models[$modelName],
-            self::$models[$modelName]['source'])) {
-			return DDS::getDataSource();
+		if (!isset($this->models[$modelName],
+            $this->models[$modelName]['source'])) {
+            $dds = $this->getService('dds');
+			return $dds->getDataSource();
 		}
-		$name = self::$models[$modelName]['source'];
-		return Data_Source_Manager::get($name);
+		$name = $this->models[$modelName]['source'];
+        $dataSourceManager = $this->getService('dataSourceManager');
+		return $dataSourceManager->get($name);
 	}
 
 	/**
@@ -101,18 +103,21 @@ abstract class Model_Scheme
 	 * @param Model $model
 	 * @return string
 	 */
-	public static function generateKey(Model $model)
+	public function generateKey(Model $model)
 	{
 		$name = strtolower($model->table());
-		if (!isset(self::$models[$name], self::$models[$name]['keyGen'])) {
-			if (!isset(self::$default['keyGen'])) {
+		if (!isset($this->models[$name], $this->models[$name]['keyGen'])) {
+			if (!isset($this->default['keyGen'])) {
 				return null;
 			}
-			$keygen = self::$default['keyGen'];
+			$keygen = $this->default['keyGen'];
 		} else {
-			$keygen = self::$models[$name]['keyGen'];
+			$keygen = $this->models[$name]['keyGen'];
 		}
-		return call_user_func($keygen, $model);
+        list($className, $method) = explode('::', $keygen);
+        $keygen = new $className;
+        $callable = array($keygen, $method);
+		return call_user_func($callable, $model);
 	}
 
     /**
@@ -121,14 +126,14 @@ abstract class Model_Scheme
 	 * @param string $modelName Название модели.
 	 * @return array Массив индексов.
 	 */
-	public static function indexes($modelName)
+	public function indexes($modelName)
 	{
 		$modelName = strtolower($modelName);
-		if (!isset(self::$models[$modelName],
-            self::$models[$modelName]['indexes'])) {
+		if (!isset($this->models[$modelName],
+            $this->models[$modelName]['indexes'])) {
 			return array();
 		}
-		return self::$models[$modelName]['indexes'];
+		return $this->models[$modelName]['indexes'];
 	}
 
     /**
@@ -136,13 +141,13 @@ abstract class Model_Scheme
      *
 	 * @param Config_Array $config
 	 */
-	public static function init(Config_Array $config)
+	public function init(Config_Array $config)
 	{
 		if ($config->default) {
-			self::$default = $config->default;
+			$this->default = $config->default;
 		}
 		if ($config->models) {
-			self::$models = $config->models->__toArray();
+			$this->models = $config->models->__toArray();
 		}
 	}
 
@@ -152,14 +157,14 @@ abstract class Model_Scheme
 	 * @param string $modelName Название модели.
 	 * @return string Имя ключевого поля.
 	 */
-	public static function keyField($modelName)
+	public function keyField($modelName)
 	{
 		$modelName = strtolower($modelName);
-		if (!isset(self::$models[$modelName],
-            self::$models[$modelName]['key'])) {
+		if (!isset($this->models[$modelName],
+            $this->models[$modelName]['key'])) {
 			return self::DEFAULT_KEY_FIELD;
 		}
-		return self::$models[$modelName]['key'];
+		return $this->models[$modelName]['key'];
 	}
 
     /**
@@ -168,12 +173,12 @@ abstract class Model_Scheme
 	 * @param string $modelName
 	 * @return array
 	 */
-	public static function links($modelName)
+	public function links($modelName)
 	{
 		$modelName = strtolower($modelName);
-		return !isset(self::$models[$modelName],
-            self::$models[$modelName]['links'])
-            ? array() : self::$models[$modelName]['links'];
+		return !isset($this->models[$modelName],
+            $this->models[$modelName]['links'])
+            ? array() : $this->models[$modelName]['links'];
 	}
 
     /**
@@ -182,12 +187,12 @@ abstract class Model_Scheme
 	 * @param string $modelName
 	 * @return array|null
 	 */
-	public static function modelOptions($modelName)
+	public function modelOptions($modelName)
 	{
 		$modelName = strtolower($modelName);
-		return !isset(self::$models[$modelName],
-            self::$models[$modelName]['options'])
-            ? array() : self::$models[$modelName]['options'];
+		return !isset($this->models[$modelName],
+            $this->models[$modelName]['options'])
+            ? array() : $this->models[$modelName]['options'];
 	}
 
     /**
@@ -196,9 +201,10 @@ abstract class Model_Scheme
      * @param string $modelName
      * @return array
      */
-    public static function scheme($modelName)
+    public function scheme($modelName)
     {
-        return Config_Manager::get('Model_Mapper_' . $modelName);
+        $configManager = $this->getService('configManager');
+        return $configManager->get('Model_Mapper_' . $modelName);
     }
 
 	/**
@@ -207,14 +213,14 @@ abstract class Model_Scheme
 	 * @param string|Model $model Имя модели или экземпляр класса модели.
 	 * @return string Действительное имя таблицы.
 	 */
-	public static function table($model)
+	public function table($model)
 	{
-	    $modelName = strtolower (is_object($model) ? $model->table() : $model);
+	    $modelName = strtolower(is_object($model) ? $model->table() : $model);
         if (strpos($modelName, '`') !== false) {
             return $modelName;
         }
-		if (isset(self::$models[$modelName])) {
-            $data = self::$models[$modelName];
+		if (isset($this->models[$modelName])) {
+            $data = $this->models[$modelName];
             if (is_string($data)) {
                 return $data;
             } elseif (isset($data['table'])) {
@@ -223,7 +229,7 @@ abstract class Model_Scheme
 				return $data['prefix'] . $modelName;
 			}
         }
-		return self::$default['prefix'] . $modelName;
+		return $this->default['prefix'] . $modelName;
 	}
 
 	/**
@@ -232,11 +238,11 @@ abstract class Model_Scheme
 	 * @param string $table
 	 * @return string
 	 */
-	public static function tableToModel($table)
+	public function tableToModel($table)
 	{
-		$prefix = self::$default['prefix'];
-		foreach (self::$models as $name => $model) {
-			if (!empty($model['table']) && $model['table'] == $table) {
+		$prefix = $this->default['prefix'];
+		foreach ($this->models as $name => $model) {
+			if ($model['table'] == $table) {
 				$parts = explode('_', $name);
                 $mappedParts = array_map('ucfirst', $parts);
 				return implode('_', $mappedParts);

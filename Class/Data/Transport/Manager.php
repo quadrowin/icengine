@@ -1,26 +1,23 @@
 <?php
+
 /**
+ * Менеджер транспортов данных
  * 
- * @desc Менеджер транспортов
- * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
- *
+ * @author goorus, morph
  */
 class Data_Transport_Manager extends Manager_Abstract
 {
-	
 	/**
-	 * @desc Config
-	 * @var array
+	 * @inheritdoc
 	 */
-	protected static $_config = array (
+	protected $config = array(
 		/**
 		 * @desc Транспорты
 		 * @var array
 		 */
-		'transports'	=> array (
-			'cli_input'		=> array (
-				'providers'	=> array (
+		'transports'	=> array(
+			'cli_input'		=> array(
+				'providers'	=> array(
 					'Cli'
 				)
 			),
@@ -28,12 +25,12 @@ class Data_Transport_Manager extends Manager_Abstract
 			 * @desc транспорт входных данные по умолчанию
 			 * @var array
 			 */
-			'default_input'	=> array (
+			'default_input'	=> array(
 				/**
 				 * @desc Провайдеры, входящие в транспорт
 				 * @var array
 				 */
-				'providers'	=> array (
+				'providers'	=> array(
 					'Router',
 					'Request',
 					'Session'
@@ -43,62 +40,65 @@ class Data_Transport_Manager extends Manager_Abstract
 			 * @desc Транспорт исходящих данных
 			 * @var array
 			 */
-			'default_output'	=> array ()
+			'default_output'	=> array()
 		)
 	);
 	
 	/**
-	 * @desc Инициализированные транспорты.
-	 * @var array
+	 * Инициализированные транспорты.
+	 * 
+     * @var array
 	 */
-	protected static $_transports = array ();
+	protected $transports = array();
 	
 	/**
-	 * @desc 
+	 * Получить конфигурация транспорта
+     * 
 	 * @param string $name
 	 * @return array
 	 */
-	public static function configFor ($name)
+	public function configFor($name)
 	{
-		$config = self::config ();
-		$config = $config ['transports'][$name];
-		
-		// Алиасы
-		while (is_string ($config))
-		{
-			$config = $config ['transports'][$config];
+        $config = $this->config();
+        $transportConfig = $config->transports[$name];
+		while (is_string($transportConfig)) {
+			$transportConfig = $config->transports[$transportConfig];
 		}
-		
-		return $config;
+		return $transportConfig;
 	}
 	
 	/**
-	 * @desc 
+	 * Получить транспорт по имени
+     * 
 	 * @param string $name
 	 * @return Data_Transport
 	 */
-	public static function get ($name)
+	public function get($name)
 	{
-		if (isset (self::$_transports [$name]))
-		{
-			return self::$_transports [$name];
+		if (isset($this->transports[$name])) {
+			return $this->transports[$name];
 		}
-		
-		$cfg = self::configFor ($name);
-		
-		$transport = new Data_Transport ();
-		
-		if (isset ($cfg ['providers']))
-		{
-			foreach ($cfg ['providers'] as $provider)
-			{
-				$transport->appendProvider (
-					Data_Provider_Manager::get ($provider)
-				);
+		$transportConfig = $this->configFor($name);
+		$transport = new Data_Transport();
+		if ($transportConfig && $transportConfig->providers) {
+            $dataProviderManager = $this->getService('dataProviderManager');
+			foreach ($transportConfig->providers as $provider) {
+				$provider = $dataProviderManager->get($provider);
+                $transport->appendProvider($provider);
 			}
 		}
-		
-		return self::$_transports [$name] = $transport;
+        $this->transorts[$name] = $transport;
+		return $transport;
 	}
-	
+    
+    /**
+     * Изменить транспорт по имени
+     * 
+     * @param string $name
+     * @param Data_Transport $transport
+     */
+    public function set($name, $transport)
+    {
+        $this->transports[$name] = $transport;
+    }
 }

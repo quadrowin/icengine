@@ -10,7 +10,7 @@ class Module_Manager extends Manager_Abstract
     /**
      * @inheritdoc
      */
-    protected static $_config = array(
+    protected $config = array(
         'configPath'        => 'Config',
         'defaultModule'     => 'Ice',
         'fromModel'         => false,
@@ -30,20 +30,20 @@ class Module_Manager extends Manager_Abstract
 	 *
 	 * @var array
 	 */
-	public static $modules = array();
+	protected $modules = array();
 
 	/**
 	 * Добавить модуль в проект
 	 *
      * @param string $moduleName Название модуля
 	 */
-	public static function addModule($moduleName)
+	public function addModule($moduleName)
 	{
-		if (isset(self::$modules[$moduleName])) {
+		if (isset($this->modules[$moduleName])) {
 			return;
 		}
-        $selfConfig = self::config();
-        $moduleConfig = self::getConfig($moduleName);
+        $selfConfig = $this->config();
+        $moduleConfig = $this->getConfig($moduleName);
         if ($moduleConfig->baseDir) {
             $moduleDir = $moduleConfig->baseDir;
             if ($moduleDir[0] != '/') {
@@ -70,9 +70,10 @@ class Module_Manager extends Manager_Abstract
                 $pathTypes[$value][] = $prefix = !$prefix || $prefix[0] != '/'
                     ? $moduleDir . $prefix : $prefix;
             }
+            $loader = $this->getService('loader');
             foreach ($pathTypes as $type => $paths) {
                 foreach ($paths as $path) {
-                    Loader::addPath($type, rtrim($path, '/') . '/');
+                    $loader->addPath($type, rtrim($path, '/') . '/');
                 }
             }
         }
@@ -86,11 +87,12 @@ class Module_Manager extends Manager_Abstract
         if (!empty($configPath) && $configPath[0] != '/') {
             $configPath = IcEngine::root() . ltrim($configPath, '/');
         }
+        $configManager = $this->getService('configManager');
         if ($configPath) {
-            Config_Manager::addPath(rtrim($configPath, '/') . '/');
+            $configManager->addPath(rtrim($configPath, '/') . '/');
         }
         if ($moduleName != $selfConfig->defaultModule) {
-            Config_Manager::addPath(
+            $configManager->addPath(
                 IcEngine::root() . $selfConfig->defaultModule .
                 '/Config/Module/' . $moduleName . '/'
             );
@@ -105,10 +107,11 @@ class Module_Manager extends Manager_Abstract
             $viewPath = IcEngine::root() . ltrim($viewPath, '/');
         }
         if ($viewPath) {
-            $view = View_Render_Manager::getView();
+            $viewRenderManager = $this->getService('viewRenderManager');
+            $view = $viewRenderManager->getView();
             $view->addTemplatesPath(rtrim($viewPath, '/') . '/');
         }
-		self::$modules[$moduleName] = true;
+		$this->modules[$moduleName] = true;
 	}
 
     /**
@@ -116,10 +119,11 @@ class Module_Manager extends Manager_Abstract
      *
      * @author morph
      */
-    public static function getConfig($moduleName)
+    public function getConfig($moduleName)
     {
-        $resourceKey = self::resourceKey($moduleName);
-        $tryConfig = Resource_Manager::get('Config', $resourceKey);
+        $resourceKey = $this->resourceKey($moduleName);
+        $resourceManager = $this->getService('resourceManager');
+        $tryConfig = $resourceManager->get('Config', $resourceKey);
         if ($tryConfig) {
             return $tryConfig;
         }
@@ -128,8 +132,8 @@ class Module_Manager extends Manager_Abstract
         $defaultModule = $selfConfig->defaultModule;
         $resultConfig = array();
         if (is_file($baseConfigFile)) {
-            include_once($baseConfigFile);
-            if (isset($config)) {
+            $config = include_once($baseConfigFile);
+            if ($config) {
                 $resultConfig = $config;
                 unset($config);
             }
@@ -144,7 +148,7 @@ class Module_Manager extends Manager_Abstract
         }
         $config = new Config_Array($resultConfig);
         if (!empty($resultConfig)) {
-            Resource_Manager::set('Config', $resourceKey, $config);
+            $resourceManager->set('Config', $resourceKey, $config);
         }
         return $config;
     }
@@ -152,13 +156,13 @@ class Module_Manager extends Manager_Abstract
     /**
      * Загрузка модулей
      */
-	public static function init()
+	public function init()
 	{
-        $config = self::config();
+        $config = $this->config();
         if ($config->fromModel) {
-            self::loadFromModel();
+            $this->loadFromModel();
         } else {
-            self::loadByNames((array) $config->modules);
+            $this->loadByNames((array) $config->modules);
         }
 	}
 
@@ -167,7 +171,7 @@ class Module_Manager extends Manager_Abstract
      *
      * @param array $names
      */
-    public static function loadByNames($names)
+    public function loadByNames($names)
     {
         foreach ($names as $name) {
 			if (empty($name)) {
@@ -180,15 +184,16 @@ class Module_Manager extends Manager_Abstract
     /**
      * Загрузить модули из модели
      */
-    public static function loadFromModel()
+    public function loadFromModel()
     {
-        $moduleCollection = Model_Collection_Manager::create('Module')
+        $collectionManager = $this->getService('collectionManager');
+        $moduleCollection = $collectionManager->create('Module')
             ->addOptions(array(
                'name'   => '::Order_Desc',
                'field'  => 'id'
             ));
 		foreach ($moduleCollection->raw() as $module) {
-			self::addModule($module['name']);
+			$this->addModule($module['name']);
 		}
     }
 
@@ -198,7 +203,7 @@ class Module_Manager extends Manager_Abstract
      * @param string $moduleName
      * @return string
      */
-    public static function resourceKey($moduleName)
+    public function resourceKey($moduleName)
     {
         return 'Module/' . $moduleName;
     }

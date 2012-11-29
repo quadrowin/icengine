@@ -13,8 +13,9 @@ class Controller_Tracer extends Controller_Abstract
 	public function index()
 	{
 		$maxMemory = ini_get('memory_limit');
-		$user = User::getCurrent();
-		if (!$user->isAdmin() || !Request::get('TRACER') || !Tracer::$enabled) {
+		$user = $this->getService('user')->getCurrent();
+        $request = $this->getService('request');
+		if (!$user->isAdmin() || !$request->get('TRACER') || !Tracer::$enabled) {
 			//return $this->_task->setTemplate(null);
 		}
 		$lowQueryVector = Tracer::getLowQueryVector();
@@ -25,7 +26,7 @@ class Controller_Tracer extends Controller_Abstract
 		}
 		$sessions = Tracer::getSessions();
 		array_pop($sessions);
-		$this->_output->send(array(
+		$this->output->send(array(
 			'totalTime'				=> Tracer::getTotalTime(),
 			'maxMemory'				=> $maxMemory,
 			'bootstrapTime'			=> Tracer::getBootstrapTime(),
@@ -58,12 +59,18 @@ class Controller_Tracer extends Controller_Abstract
 			'cachedSelectQueryCount'	=> Tracer::getCachedSelectQueryCount(),
 			'sessions'					=> $sessions,
 			'bootstrapInitDb'				=> Tracer::getBootstrapInitDbTime(),
-			'bootstrapInitAttributeManager'	=> Tracer::getBootstrapInitAttributeManagerTime(),
-			'bootstrapInitModelScheme'		=> Tracer::getBootstrapInitModelSchemeTime(),
-			'bootstrapInitModelManager'		=> Tracer::getBootstrapInitModelManagerTime(),
-			'bootstrapInitAcl'				=> Tracer::getBootstrapInitAclTime(),
-			'bootstrapInitUser'				=> Tracer::getBootstrapInitUserTime(),
-			'bootstrapInitUserSession'		=> Tracer::getBootstrapInitUserSessionTime(),
+			'bootstrapInitAttributeManager'	=> 
+                Tracer::getBootstrapInitAttributeManagerTime(),
+			'bootstrapInitModelScheme'		=> 
+                Tracer::getBootstrapInitModelSchemeTime(),
+			'bootstrapInitModelManager'		=> 
+                Tracer::getBootstrapInitModelManagerTime(),
+			'bootstrapInitAcl'				=> 
+                Tracer::getBootstrapInitAclTime(),
+			'bootstrapInitUser'				=> 
+                Tracer::getBootstrapInitUserTime(),
+			'bootstrapInitUserSession'		=> 
+                Tracer::getBootstrapInitUserSessionTime(),
 			'routingTime'					=> Tracer::getRoutingTime()
 		));
 	}

@@ -1,57 +1,52 @@
 <?php
+
 /**
- *
- * @desc Транслятор запросов.
- * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
- *
+ * Транслятор запросов.
+ * 
+ * @author morph, goorus
  */
 class Query_Translator
 {
 	/**
-	 * @desc Подключенные трансляторы.
-	 * @var array
+	 * Подключенные трансляторы.
+	 * 
+     * @var array
 	 */
-	protected static $_translators = array ();
+	protected $translators = array();
 
 	/**
-	 * @desc Возвращает объект транслятора по имени.
-	 * @param string $name Название транслятора.
+	 * Возвращает объект транслятора по имени.
+	 * 
+     * @param string $name Название транслятора.
 	 * @return Query_Translator
 	 */
-	public static function byName ($name)
+	public function byName($name)
 	{
-		if (!isset (self::$_translators [$name]))
-		{
-			$class_name = 'Query_Translator_' . $name;
-			self::$_translators [$name] = new $class_name ();
+		if (!isset($this->translators[$name])) {
+			$className = 'Query_Translator_' . $name;
+            $translator = new $className;
+			$this->translators[$name] = $translator;
 		}
-
-		return self::$_translators [$name];
+		return $this->translators[$name];
 	}
 
 	/**
-	 * @desc Возвращает объект транслятора по имени и типу.
-	 * @param string $name Название транслятора.
+	 * Возвращает объект транслятора по имени и типу.
+	 * 
+     * @param string $name Название транслятора.
 	 * @param string $type Тип запроса
 	 * @return Query_Translator
 	 */
-	public static function factory ($name, $type)
+	public function factory($name, $type)
 	{
-		$parts = explode (' ', $type);
-		foreach ($parts as &$part)
-		{
-			$part = strtoupper (substr ($part, 0, 1)) .
-				strtolower (substr ($part, 1));
+		$parts = explode(' ', $type);
+		foreach ($parts as &$part) {
+			$part = strtoupper(substr($part, 0, 1)) .
+				strtolower(substr($part, 1));
 		}
-		$type = implode ('_', $parts);
+		$type = implode('_', $parts);
 		$name .= '_' . $type;
-		if (!isset (self::$_translators [$name]))
-		{
-			$class_name = 'Query_Translator_' . $name;
-			self::$_translators [$name] = new $class_name ();
-		}
-
-		return self::$_translators [$name];
+		$translator = $this->byName($name);
+		return $translator;
 	}
 }
