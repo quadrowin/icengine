@@ -29,16 +29,16 @@ class Test_Mail_Provider_LittlesmsTest extends PHPUnit_Framework_TestCase
 	/**
 	 * Prepares the environment before running a test.
 	 */
-	protected function setUp ()
+	protected function setUp()
 	{
-		parent::setUp ();
-
-		$this->Mail_Provider_Sms_Littlesms = Model_Manager::byQuery (
+		parent::setUp();
+		$locator = IcEngine::serviceLocator();
+		$modelManager = $locator->getService('modelManager');
+		$query = $locator->getService('query');
+		$this->Mail_Provider_Sms_Littlesms = $modelManager->byQuery(
 			'Mail_Provider',
-			Query::instance ()
-			->where ('name', 'Sms_Littlesms')
+			$query->where('name', 'Sms_Littlesms')
 		);
-
 		$this->_numbers = array (
 			'+79134236328',
 			'+79133271039',
@@ -50,10 +50,10 @@ class Test_Mail_Provider_LittlesmsTest extends PHPUnit_Framework_TestCase
 	/**
 	 * Cleans up the environment after running a test.
 	 */
-	protected function tearDown ()
+	protected function tearDown()
 	{
 		// TODO Auto-generated Mail_Provider_Sms::tearDown()
-		parent::tearDown ();
+		parent::tearDown();
 	}
 
 	/**

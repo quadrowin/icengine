@@ -1,16 +1,15 @@
 <?php
 /**
+ * Базовая схема рейтинга.
  *
- * @desc Базовая схема рейтинга.
  * @author Юрий
  * @package IcEngine
- *
  */
 class Component_Rating_Scheme_Abstract extends Model_Factory_Delegate
 {
-
 	/**
-	 * @desc Изменение рейтинга
+	 * Изменение рейтинга
+	 *
 	 * @param string $table Модель
 	 * @param integer $row_id Запись
 	 * @param integer $value Изменение рейтинга.
@@ -19,27 +18,26 @@ class Component_Rating_Scheme_Abstract extends Model_Factory_Delegate
 	 */
 	public function vote ($table, $row_id, $value)
 	{
-		$rating = Model_Manager::byQuery (
+		$modelManager = $this->getService('modelManager');
+		$query = $this->getService('query');
+		$rating = $modelManager->byQuery(
 			'Component_Rating',
-			Query::instance ()
-			->where ('table', $table)
-			->where ('rowId', $row_id)
+			$query->where('table', $table)
+				->where('rowId', $row_id)
 		);
-		if (!$rating)
-		{
-			$rating = Model_Manager::create (
+		$helperDate = $this->getService('helperDate');
+		if (!$rating) {
+			$rating = $modelManager->create (
 				'Component_Rating',
-				array (
-					'table'	=> $table,
-					'rowId'	=> $row_id,
-					'votes'	=> 0,
-					'value'	=> 0,
-					'changeTime'	=> Helper_Date::NULL_DATE
+				array(
+					'table'			=> $table,
+					'rowId'			=> $row_id,
+					'votes'			=> 0,
+					'value'			=> 0,
+					'changeTime'	=> $helperDate->NULL_DATE
 				)
 			);
 		}
-
-		return $rating->increment ($value);
+		return $rating->increment($value);
 	}
-
 }

@@ -23,34 +23,29 @@ class Helper_GeoIP
 	public static function getCity ($ip = null)
 	{
 		$ip = self::ip2int ($ip !== null ? $ip : Request::ip ());
-
-		$city_name = DDS::execute (
-			Query::instance ()
-				->select ('net_city.name_ru AS name')
-				->from ('`net_ru`')
-				->from ('`net_city`')
-				->where ('net_ru.begin_ip<=?', $ip)
-				->where ('net_ru.end_ip>=?', $ip)
-				->where ('net_ru.city_id=net_city.id')
-		)->getResult ()->asValue ();
-
-		return Model_Manager::byQuery (
+		$locator = IcEngine::serviceLocator();
+		$dds = $locator->getService('dds');
+		$query = $locator->getService('query');
+		$city_name = $dds->execute(
+			$query->select('net_city.name_ru AS name')
+				->from('`net_ru`')
+				->from('`net_city`')
+				->where('net_ru.begin_ip<=?', $ip)
+				->where('net_ru.end_ip>=?', $ip)
+				->where('net_ru.city_id=net_city.id')
+		)->getResult()->asValue();
+		$modelManager = $locator->getService('modelManager');
+		return $modelManager->byQuery(
 			'City',
-			Query::instance ()
-				->where ('name', $city_name)
+			$query->where('name', $city_name)
 		);
-
-		$query = Query::instance ()
-			->select ('city_id')
-			->from ('Net_City_Ip')
-			->where ('begin_ip<=?', $ip)
-			->where ('end_ip>=?', $ip);
-
-		$city_id = DDS::execute ($query)
-			->getResult ()
-				->asValue ();
-
-		return Model_Manager::byKey (
+		$city_id = $dds->execute(
+			$query->select('city_id')
+				->from('Net_City_Ip')
+				->where('begin_ip<=?', $ip)
+				->where('end_ip>=?', $ip)
+		)->getResult()->asValue();
+		return $modelManager->byKey(
 			'City',
 			$city_id
 		);

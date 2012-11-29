@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Активация чего-либо, требующая код подтверждения от пользователя.
  * @author Юрий Шведов
  * @package IcEngine
@@ -8,30 +8,33 @@
  */
 class Activation extends Model
 {
-	
+
 	/**
 	 * @desc Время завершения по умолчанию.
 	 * @var string
 	 */
 	const EMPTY_FINISH_TIME = '2000-01-01';
-	
+
 	/**
-	 * @desc Находит активацию по коду, при условии, что она не 
-	 * истекла по времени.
+	 * Находит активацию по коду, при условии, что она не истекла по времени.
+	 *
 	 * @param string $code Код активации.
 	 * @return Activation|null Найденная активация.
 	 */
-	public static function byCode ($code, $type = '')
+	public static function byCode($code, $type = '')
 	{
-		return Model_Manager::byQuery (
+		return $this->getService('modelManager')->byQuery(
 			'Activation',
-			Query::instance ()
-				->where ('type', $type)
-				->where ('code', $code)
-				->where ('expirationTime<?', Helper_Date::toUnix ())
+			Query::instance()
+				->where('type', $type)
+				->where('code', $code)
+				->where(
+					'expirationTime<?', 
+					$this->getService('helperDate')->toUnix()
+				)
 		);
 	}
-	
+
 	/**
 	 * @desc Создает и возвращает новую активацию.
 	 * @param array $params Параметры активации.
@@ -39,7 +42,7 @@ class Activation extends Model
 	 * $params ['type'] [optional] Тип (smsauth/review и т.п.)
 	 * $params ['code'] Код активации.
 	 * $params ['User__id'] [optional] Если не передан, id текущего.
-	 * $params ['expirationTime'] Время, когда активация станет 
+	 * $params ['expirationTime'] Время, когда активация станет
 	 * недействительной (в формате UNIX).
 	 * $params ['callbackMessage'] Сообщение, попадающие в Message_Queue
 	 * 	после успешной активации.
@@ -49,36 +52,36 @@ class Activation extends Model
 	{
 		$activation = new Activation (array (
 			'address'			=> $params ['address'],
-			'type'				=> 
-				isset ($params ['type']) ? 
+			'type'				=>
+				isset ($params ['type']) ?
 					$params ['type'] :
 					'',
 			'code'				=> $params ['code'],
-			'finished'			=> 
+			'finished'			=>
 				isset ($params ['finished']) ?
 					$params ['finished'] :
 					0,
 			'createTime'		=> Helper_Date::toUnix (),
 			'finishTime'		=> self::EMPTY_FINISH_TIME,
-			'expirationTime'	=> 
+			'expirationTime'	=>
 				isset ($params ['expirationTime']) ?
 					$params ['expirationTime'] :
 					'2040-01-01 00:00:00',
-			'User__id'			=> 
+			'User__id'			=>
 				isset ($params ['User__id']) ?
 					$params ['User__id'] :
 					User::id (),
 			'createIp'			=> Request::ip (),
 			'finishIp'			=> '',
 			'day'				=> Helper_Date::eraDayNum (),
-			'callbackMessage'	=> 
+			'callbackMessage'	=>
 				isset ($params ['callbackMessage']) ?
 					$params ['callbackMessage'] :
 					''
 		));
 		return $activation->save ();
 	}
-	
+
 	/**
 	 * @desc Успешное окончание активации
 	 * @return Activation Эта активация.
@@ -90,7 +93,7 @@ class Activation extends Model
 			'finishTime'	=> Helper_Date::toUnix (),
 			'finishIp'		=> Request::ip ()
 		));
-		
+
 		// Сообщение об успешной активации
 		if ($this->callbackMessage)
 		{
@@ -101,8 +104,8 @@ class Activation extends Model
 				)
 			);
 		}
-		
+
 		return $this;
 	}
-	
+
 }

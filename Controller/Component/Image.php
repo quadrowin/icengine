@@ -4,11 +4,11 @@ class Controller_Component_Image extends Controller_Abstract
 {
 	public function adminPlugin ()
 	{
-		$image = $this->_input->receive ('row');
+		$image = $this->input->receive ('row');
 
 		$text = $row->attr ('text');
 		$url = $row->attr ('smallUrl');
-		
+
 		$this->_output->send (array (
 			'row'	=> $row,
 			'text'	=> $text,
@@ -25,8 +25,8 @@ class Controller_Component_Image extends Controller_Abstract
 			'id',
 			'text'
 		);
-
-		$image = Model_Manager::byKey (
+		$modelManager = $this->getService('modelManager');
+		$image = $modelManager->byKey(
 			'Component_Image',
 			$id
 		);

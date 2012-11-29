@@ -1,44 +1,46 @@
 <?php
 
 /**
- * @desc Метод схемы связей модели, создающий модель
+ * Метод схемы связей модели, создающий модель
+ *
  * @author Илья Колесников
  */
 class Model_Mapper_Method_Find extends Model_Mapper_Method_Abstract
 {
 	/**
-	 * @desc Поля модели
+	 * Поля модели
+	 *
 	 * @var array
 	 */
-	private $_fields = array ();
+	private $_fields = array();
 
 	/**
-	 * @desc Добавить поле модели
+	 * Добавить поле модели
+	 *
 	 * @param mixed
 	 * @return Model_Mapper_Method_Create
 	 */
-	public function with ()
+	public function with()
 	{
-		$args = func_get_args ();
-		if (count ($args) == 2)
-		{
-			$args = array ($args [0] => $args [1]);
+		$args = func_get_args();
+		if (count($args) == 2) {
+			$args = array($args[0] => $args[1]);
 		}
-		foreach ($args as $arg => $value)
-		{
-			$this->_fields [$arg] = $value;
+		foreach ($args as $arg => $value) {
+			$this->_fields[$arg] = $value;
 		}
 		return $this;
 	}
 
 	/**
-	 * @desc Создать модель
+	 * Создать модель
+	 * 
 	 * @return Model
 	 */
 	public function get ()
 	{
-		return Model_Manager::create (
-			$this->_params [0],
+		return $this->getService('modelManager')->create(
+			$this->_params[0],
 			$this->_fields
 		);
 	}

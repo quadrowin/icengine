@@ -2,7 +2,7 @@
 
 /**
  * Генератор уникальных ключей
- * 
+ *
  * @author Yury Shveodv, Ilya Kolesnikov
  * @package IcEngine
  *
@@ -83,16 +83,15 @@ class Key_Generator extends Manager_Abstract
 	 */
 	public static function lastFile ($model)
 	{
-		$dir = IcEngine::root () . 'Ice/Var/Key/Generator/' .
-			urlencode (Helper_Site_Location::getLocation ());
-
-		if (!is_dir ($dir))
-		{
-			mkdir ($dir, 0666);
-			chmod ($dir, 0666);
+		$locator = IcEngine::serviceLocator();
+		$helperSiteLocation = $locator->getService('helperSiteLocation');
+		$dir = IcEngine::root() . 'Ice/Var/Key/Generator/' .
+			urlencode ($helperSiteLocation->getLocation());
+		if (!is_dir($dir)) {
+			mkdir($dir, 0666);
+			chmod($dir, 0666);
 		}
-
-		return $dir . '/' . urlencode ($model) . '.txt';
+		return $dir . '/' . urlencode($model) . '.txt';
 	}
 
 	/**
