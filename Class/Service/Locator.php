@@ -44,6 +44,25 @@ class Service_Locator
     }
 
     /**
+     * Привести имя класса к стандартному имени сервиса
+     * 
+     * @param string $name
+     * @return string
+     */
+    public function normalizeName($name)
+    {
+        $nameParts = explode('_', $name);
+        $loweredNameParts = array_map('strtolower', $nameParts);
+        $firstParts = reset($loweredNameParts);;
+        if (count($loweredNameParts) == 1) {
+            return $firstParts;
+        }
+        array_shift($loweredNameParts);
+        $upperedNameParts = array_map('ucfirst', $loweredNameParts);
+        return $firstParts . implode('', $upperedNameParts);
+    }
+    
+    /**
      * Регистрация нового сервиса
      *
      * @param string $serviceName
