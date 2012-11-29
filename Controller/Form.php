@@ -200,122 +200,98 @@ class Controller_Form extends Controller_Abstract
 		return ($resource && $resource->userCan (User::getCurrent ()));
 	}
 
-	public function view ()
+	public function view()
 	{
-		$id = $this->_input->receive ('id');
-		$model_name = $this->name ();
-
-		if (!$this->_userCan ($model_name, $id, self::READ))
-		{
-			return $this->_accessDenied ();
+		$id = $this->_input->receive('id');
+		$model_name = $this->name();
+		if (!$this->_userCan ($model_name, $id, self::READ)) {
+			return $this->_accessDenied();
 		}
-
-		$model = Model_Manager::get ($model_name, $id);
-
-		$this->_output->send ('model', $model);
+		$locator = IcEngine::serviceLocator();
+		$modelManager = $locator->getService('modelManager');
+		$model = $modelManager->get($model_name, $id);
+		$this->_output->send('model', $model);
 	}
 
-	public function create ()
+	public function create()
 	{
 		$id = 0;
-		$model_name = $this->name ();
-
-		if (!$this->_userCan ($model_name, $id, self::READ))
-		{
-			return $this->_accessDenied ();
+		$model_name = $this->name();
+		if (!$this->_userCan($model_name, $id, self::READ)) {
+			return $this->_accessDenied();
 		}
-
 		// TODO: filters
-		$params = $this->_input->receive (self::PARAM);
-
-		$key_field = Model_Scheme::keyField ($model_name);
-
-		if (isset ($params [$key_field]))
-		{
-			unset ($params [$key_field]);
+		$params = $this->_input->receive(self::PARAM);
+		$locator = IcEngine::serviceLocator();
+		$modelScheme = $locator->getService('modelScheme');
+		$key_field = $modelScheme->keyField($model_name);
+		if (isset($params[$key_field])) {
+			unset($params[$key_field]);
 		}
-
-		$model = new $model_name (array (
+		$model = new $model_name(array(
 			$key_field => null
 		));
-
-		$this->_updateModel ($model, (array) $params);
-
-		$this->_output->send (array (
+		$this->_updateModel($model, (array) $params);
+		$this->_output->send(array(
 			'model'	=> $model
 		));
 	}
 
-	public function edit ()
+	public function edit()
 	{
-		$id = $this->_input->receive ('id');
-		$model_name = $this->name ();
-
-		if (!$this->_userCan ($model_name, $id, self::EDIT))
-		{
-			return $this->_accessDenied ();
+		$id = $this->_input->receive('id');
+		$model_name = $this->name();
+		if (!$this->_userCan($model_name, $id, self::EDIT)) {
+			return $this->_accessDenied();
 		}
-
 		// TODO: filters
-		$params = $this->_input->receive (self::PARAM);
-
-		$key_field = Model_Scheme::keyField ($model_name);
-
-		if (isset ($params [$key_field]))
-		{
-			unset ($params [$key_field]);
+		$params = $this->input->receive(self::PARAM);
+		$locator = IcEngine::serviceLocator();
+		$modelScheme = $locator->getService('modelScheme');
+		$key_field = $modelScheme->keyField($model_name);
+		if (isset($params[$key_field])) {
+			unset($params[$key_field]);
 		}
-
-		$model = Model_Manager::byKey ($model_name, $id);
-
-		if (!$model)
-		{
-			return $this->replaceAction ('Error', 'notFound');
+		$modelManager = $locator->getService('modelManager');
+		$model = $modelManager->byKey($model_name, $id);
+		if (!$model) {
+			return $this->replaceAction('Error', 'notFound');
 		}
-
-		$this->_updateModel ($model, (array) $params);
-
-		$this->_output->send (array (
+		$this->_updateModel($model, (array) $params);
+		$this->_output->send(array(
 			'model'	=> $model
 		));
 	}
 
-	public function delete ()
+	public function delete()
 	{
-		$ids = (array) $this->_input->receive ('id');
-		$model_name = $this->name ();
-
-		foreach ($ids as $id)
-		{
-			if (!$this->_userCan ($model_name, $id, self::DELETE))
-			{
-				return $this->_accessDenied ();
+		$ids = (array) $this->_input->receive('id');
+		$model_name = $this->name();
+		foreach ($ids as $id) {
+			if (!$this->_userCan($model_name, $id, self::DELETE)) {
+				return $this->_accessDenied();
 			}
 		}
-
-		$key_field = Model_Scheme::keyField ($model_name);
-
-		$collection = Model_Collection_Manager::byQuery (
+		$locator = IcEngine::serviceLocator();
+		$modelScheme = $locator->getService('modelScheme');
+		$key_field = $modelScheme->keyField($model_name);
+		$collectionManager = $locator->getService('collectionManager');
+		$query = $locator->getService('query');
+		$collection = $collectionManager->byQuery(
 			$model_name,
-			Query::instance ()
-			->where ("$key_field IN (?)", $ids)
+			$query->where("$key_field IN (?)", $ids)
 		);
-
-		$collection->delete ();
-
-		$this->_output->send (array (
-			'count'	=> $collection->count ()
+		$collection->delete();
+		$this->output->send(array(
+			'count'	=> $collection->count()
 		));
 	}
 
 	/**
 	 * Форма устарела
 	 */
-	public function obsolete ()
+	public function obsolete()
 	{
 
 	}
-
-
-
 }
