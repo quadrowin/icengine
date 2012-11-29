@@ -22,27 +22,21 @@ class User_Loginza extends Model
 	public static function byToken (Authorization_Loginza_Token $token,
 		$email_search = true, $user_search = true)
 	{
-		if (!$token->identity)
-		{
+		if (!$token->identity) {
 			return null;
 		}
-
-		$loginza = Model_Manager::byQuery (
+		$modelManager = $this->getService('modelManager');
+		$query = $this->getService('query');
+		$loginza = $modelManager->byQuery(
 			__CLASS__,
-			Query::instance ()
-				->where ('identity', $token->identity)
+			$query->where('identity', $token->identity)
 		);
-
-		if (!$loginza && $email_search && $token->email)
-		{
-			$other_loginza = Model_Manager::byQuery (
+		if (!$loginza && $email_search && $token->email) {
+			$other_loginza = $modelManager->byQuery(
 				__CLASS__,
-				Query::instance ()
-					->where ('email', $token->email)
+				$query->where('email', $token->email)
 			);
-
-			if ($other_loginza)
-			{
+			if ($other_loginza) {
 				$loginza = new self (array (
 					'User__id'	=> $other_loginza->User__id,
 					'identity'	=> $token->identity,
