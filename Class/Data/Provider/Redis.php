@@ -40,7 +40,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 				foreach ($value as $server) {
                     $redis = new Redis();
                     $this->connections[$server['host']] = $redis;
-                    $redis->pconnect(
+                    $redis->connect(
                         $server['host'], 
                         isset($server['port']) ? $server['post'] : null
                     );

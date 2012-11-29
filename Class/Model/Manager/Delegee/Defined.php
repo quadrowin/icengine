@@ -15,7 +15,7 @@ class Model_Manager_Delegee_Defined
 	 * @param Model|array $object Объект или данные
 	 * @return Model В случае успеха объект, иначе null.
 	 */
-	public static function get($modelName, $key, $object)
+	public function get($modelName, $key, $object)
 	{
 		$rows = $modelName::$rows;
         $params = is_array($object) ? $object : array();

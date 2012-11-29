@@ -188,6 +188,19 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	}
 
     /**
+     * Получить ключи данных
+     * 
+     * @return array 
+     */
+    public function keys()
+    {
+        if (!$this->data) {
+            return array();
+        }
+        return array_keys($this->data);
+    }
+    
+    /**
 	 * (non-PHPdoc)
 	 * @see ArrayAccess::offsetExists()
 	 */

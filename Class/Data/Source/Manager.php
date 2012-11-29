@@ -80,23 +80,10 @@ class Data_Source_Manager extends Manager_Abstract
             $sourceConfig = array('source' => $name);
         }
         $sourceClass = 'Data_Source_' . $sourceConfig['source'];
-        $mapperClass = null;
-        if (isset($sourceConfig['mapper'])) {
-            $mapperClass = 'Data_Mapper_' . $sourceConfig['mapper'];
-        }
         $source = new $sourceClass;
+        $source->setName($name);
+        $source->setConfig($sourceConfig);
         $this->sources[$name] = $source;
-        $mapper = $source->getDataMapper();
-        if ($mapperClass && !($mapper instanceof $mapperClass)) {
-            $mapper = new $mapperClass();
-            $source->setDataMapper($mapper);
-        }
-        if (isset($sourceConfig['mapper_options'])) {
-            $options = $sourceConfig['mapper_options'];
-            foreach ($options as $key => $value) {
-                $mapper->setOption($key, $value);
-            }
-        }
         return $source;
 	}
     
@@ -126,5 +113,30 @@ class Data_Source_Manager extends Manager_Abstract
     public function set($name, $dataSource)
     {
         $this->sources[$name] = $dataSource;
+    }
+    
+    /**
+     * Инициализация дата маппера
+     * 
+     * @param Data_Source_Abstract $dataSource
+     */
+    public function setDataMapper($source) 
+    {
+        $sourceConfig = $source->getConfig();
+        $mapper = $source->getDataMapper();
+        $mapperClass = null;
+        if (isset($sourceConfig['mapper'])) {
+            $mapperClass = 'Data_Mapper_' . $sourceConfig['mapper'];
+        }
+        if ($mapperClass && !($mapper instanceof $mapperClass)) {
+            $mapper = new $mapperClass();
+            $source->setDataMapper($mapper);
+        }
+        if (isset($sourceConfig['mapper_options'])) {
+            $options = $sourceConfig['mapper_options'];
+            foreach ($options as $key => $value) {
+                $mapper->setOption($key, $value);
+            }
+        }
     }
 }

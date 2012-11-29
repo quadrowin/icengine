@@ -66,19 +66,6 @@ class Resource_Manager extends Manager_Abstract
             $provider = $dataProviderManager->get($name);
             $transport->appendProvider($provider);
         }
-        $filterManager = $this->getService('filterManager');
-        if ($config->inputFilters) {
-            foreach ($config->inputFilters as $filter) {
-                $filter = $filterManager->get($filter);
-                $transport->inputFilters()->append($filter);
-            }
-        }
-        if ($config->outputFilters) {
-            foreach ($config->outputFilters as $filter) {
-                $filter = $filterManager->get($filter);
-                $transport->outputFilters()->append($filter);
-            }
-        }
 		return $transport;
 	}
 

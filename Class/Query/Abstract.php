@@ -110,6 +110,17 @@ class Query_Abstract
 	{
 		return isset ($this->_parts [$name]) ? $this->_parts [$name] : null;
 	}
+    
+    /**
+	 * Возвращает все части запроса
+	 * 
+     * @param string $name
+	 * @return mixed
+	 */
+	public function getParts()
+	{
+		return $this->_parts;
+	}
 
 	/**
 	 * @desc Возвращает тэги

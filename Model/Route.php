@@ -75,8 +75,9 @@ class Route extends Model_Child
 	public function byUrl($url)
 	{
 		$url = '/' . ltrim($url, '/');
-        $resourceManager = $this->getService('resourceManager');
-		$route = $resourceManager->get('Route_Cache', $url);
+        $dataProviderManager = $this->getService('dataProviderManager');
+        $provider = $dataProviderManager->get('Route_Cache');
+		$route = $provider->get($url);
 		if ($route) {
 			return $route ? new self($route) : null;
 		}
@@ -121,7 +122,7 @@ class Route extends Model_Child
                 }
 			}
 		}
-		$resourceManager->set('Route_Cache', $url, $row);
+		$provider->set($url, $row);
 		return $row ? new self($row) : null;
 	}
 

@@ -32,6 +32,11 @@ class Attribute_Manager extends Manager_Abstract
         // Таблица атрибутов
         'tables'        => array()
 	);
+    
+    /**
+     * Инициализирован ли атрибут менеджер
+     */
+    protected $isInited = false;
 
 	/**
 	 * Провайдер для кэширования
@@ -52,6 +57,10 @@ class Attribute_Manager extends Manager_Abstract
 	 */
 	public function init()
 	{
+        if ($this->isInited) {
+            return;
+        }
+        $this->isInited = true;
 		$config = $this->config();
 		if ($config['source']) {
 			$this->source = $this->getService('dataSourceManager')->get(
@@ -74,6 +83,7 @@ class Attribute_Manager extends Manager_Abstract
 	 */
 	public function deleteFor(Model $model)
 	{
+        $this->init();
         $modelName = $model->table();
 		$source = $this->getSource($modelName);
         $queryBulder = $this->getService('query');
@@ -98,6 +108,7 @@ class Attribute_Manager extends Manager_Abstract
 	 */
 	public function get(Model $model, $key)
 	{
+        $this->init();
 		$modelName = $model->table();
 		$id = $model->key();
 		if ($this->provider) {
@@ -180,6 +191,7 @@ class Attribute_Manager extends Manager_Abstract
 	 */
 	public static function set(Model $model, $key, $value)
 	{
+        $this->init();
 	    $modelName = $model->table();
 	    $id = $model->key();
         $queryBuilder = $this->getService('query');
