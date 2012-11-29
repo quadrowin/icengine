@@ -7,20 +7,6 @@
  */
 class Data_Transport
 {
-	/**
-	 * Фильтры применяемые только на вход транспорта.
-	 * 
-     * @var Filter_Collection
-	 */
-	protected $inputFilters;
-
-	/**
-	 * Фильтры применяемые только на выход транспорта.
-	 * 
-     * @var Filter_Collection
-	 */
-	protected $outputFilters;
-
     /**
      * Поставщики данных.
      * 
@@ -41,15 +27,6 @@ class Data_Transport
      * @var array
 	 */
 	protected $transactions = array();
-
-	/**
-	 * Возвращает экземпляр коллекции фильтров
-	 */
-	public function __construct()
-	{
-		$this->resetFilters();
-		$this->resetValidators();
-	}
 
     /**
      * Добавить провайдер 
@@ -118,62 +95,6 @@ class Data_Transport
 	{
 		return $this->providers;
 	}
-
-    /**
-     * Получить коллекцию валидаторов
-     * 
-     * @return array
-     */
-	public function getValidators()
-	{
-		return $this->validators;
-	}
-    
-    /**
-     * Входные фильтры
-     * 
-     * @return Filter_Collection
-     */
-	public function inputFilters()
-	{
-		return $this->inputFilters;
-	}
-
-	/**
-	 * Композит на массив провайдеров
-	 * 
-     * @return Composite
-	 */
-	public function providers()
-	{
-		return new Composite($this->providers);
-	}
-
-	/**
-	 * Инициализация или сброс фильтров.
-	 */
-	public function resetFilters()
-	{
-		$this->inputFilters = new Filter_Collection();
-		$this->outputFilters = new Filter_Collection();
-	}
-
-	/**
-	 * Инициализация или сброс валидаторов.
-	 */
-	public function resetValidators()
-	{
-		$this->validators = new Data_Validator_Collection();
-	}
-
-	/**
-	 * Выходные фильтры
-	 */
-	public function outputFilters()
-	{
-		return $this->outputFilters;
-	}
-
     /**
      * Получение данных.
      * 
@@ -189,11 +110,7 @@ class Data_Transport
 			foreach ($keys as $key) {
 				$data = null;
 				$chunk = isset($buffer[$key]) ? $buffer[$key] : null;
-				$this->outputFilters->apply($chunk);
-				if (!is_null($chunk) && $this->validators->validate($chunk)) {
-					$data = $chunk;
-				}
-				$results[] = $data;
+				$results[] = $chunk;
 			}
 		} else {
             $jcount = count($this->providers);
@@ -202,11 +119,9 @@ class Data_Transport
 				for ($j = 0; $j < $jcount; ++$j) {
 					$provider = $this->providers[$j];
 					$chunk = $provider->get($keys[$i]);
-					$this->outputFilters->apply($chunk);
-					if (!is_null($chunk) && 
-                        $this->validators->validate($chunk)) {
-						$data = $chunk;
-					}
+                    if (!is_null($chunk)) {
+                        $data = $chunk;
+                    }
 				}
 				$results[] = $data;
 			}
@@ -281,7 +196,6 @@ class Data_Transport
         $count = $count = sizeof($this->providers);
 		foreach ($key as $k => $v) {
             if($v){
-                $this->inputFilters->apply($v);
                 for ($i = 0; $i < $count; $i++){
                     $this->providers[$i]->set($k, $v);
                 }

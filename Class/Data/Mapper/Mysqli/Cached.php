@@ -33,9 +33,9 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	 * 
      * @return string
 	 */
-	protected function sqlHash()
+	protected function sqlHash($query)
 	{
-		return md5($this->sql);
+		return md5(json_encode($query->getParts()));
 	}
 
 	/**
@@ -119,7 +119,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 		if (Tracer::$enabled) {
 			Tracer::incSelectQueryCount();
 		}
-		$key = $this->sqlHash();
+		$key = $this->sqlHash($query);
 		$expiration = $options->getExpiration();
         if (!isset(self::$caches[$key])) {
             $cache = $this->cacher->get($key);
@@ -132,9 +132,6 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
             $expiresValid = $cache['a'] + $expiration > time() || 
                 $expiration = 0;
 			$cacheValid = $expiresValid && $tagsValid;
-			if (!$this->cacher->lock($key, 5, 1, 1)) {
-				$cacheValid = true;
-			}
 		}
 		if ($cacheValid) {
             if (!isset(self::$caches[$key])) {
@@ -154,6 +151,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 			$startTime = microtime(true);
 			Tracer::begin(__CLASS__, __METHOD__, __LINE__);
 		}
+        $this->sql = $query->translate('Mysql');
 		$rows = parent::_executeSelect($query, $options);
 		if (Tracer::$enabled) {
 			$endTime = microtime(true);
@@ -200,7 +198,6 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 			return new Query_Result(null);
 		}
 		$start = microtime(true);
-		$this->sql = $query->translate('Mysql');
 		$this->errno = 0;
 		$this->error = '';
 		$this->affectedRows = 0;
@@ -211,6 +208,9 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 			$options = $this->getDefaultOptions();
 		}
 		$m = $this->queryMethods[$query->type()];
+        if ($m != '_executeSelect') {
+            $this->sql = $query->translate('Mysql');
+        }
 		$result = $this->{$m}($query, $options);
 		if ($this->errno) {
 			throw new Exception(

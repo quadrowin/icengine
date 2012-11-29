@@ -199,6 +199,9 @@ class User_Abstract extends Model
 	 */
 	public function init($sessionId = null)
 	{
+        if ($this->current) {
+            return;
+        }
         $request = $this->getService('request');
 		$sessionId = $sessionId ?:$request->sessionId();
         $session = $this->getService('session');

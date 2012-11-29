@@ -117,7 +117,6 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 		$translator = $this->translator();
 		$ids = array();
 		$rows = array();
-
 		// Выбираем ID всех записей, подходящих под условие
 		foreach ($this->translated as $pattern) {
 			if (strpos($pattern, '*') == false) {
@@ -208,7 +207,7 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 		$m = $this->queryMethods[$query->type()];
 		$result = $this->{$m}($query, $options);
 		if ($this->errno) {
-			throw new Data_Mapper_Mysqli_Exception(
+			throw new Exception(
 			    $this->error . "\n" . $this->query->translate('Mysql'),
 			    $this->errno
 			);

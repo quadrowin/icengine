@@ -23,13 +23,6 @@ class Model_Factory extends Model
 	    if (is_array($source) && isset($source['name'])) {
 		    return $modelName . '_' . $source['name'];
 	    }
-        $keyField = Model_Scheme::keyField($modelName);
-		$query = Query::instance()
-			->select('name')
-			->from($modelName)
-			->where($keyField, $key);
-	    $delegateName = DDS::execute($query)->getResult ()->asValue();
-		return $modelName . '_' . ($delegateName ?: 'Abstrtact');
 	}
 
 	/**

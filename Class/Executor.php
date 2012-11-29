@@ -45,7 +45,7 @@ class Executor extends Manager_Abstract
         'forLog'    => array(
             'Controller_Manager'
         ),
-        'logProvider'   => 'ControllerLog',
+        'logProvider'   => 'Controller_Log',
 		/**
 		 * @desc Провайдер поставки тэгов
 		 */
@@ -122,8 +122,12 @@ class Executor extends Manager_Abstract
         $cache = array();
         $tagValid = true;
         $expiresValid = true;
-        if ($this->cacher) {
-            $key = $this->getCacheKey($function, $args);
+        if ($this->getCacher()) {
+            $keyFunction = $function;
+            if (is_object($keyFunction[0])) {
+                $keyFunction[0] = get_class($keyFunction[0]);
+            }
+            $key = $this->getCacheKey($keyFunction, $args);
             $cache = $this->getCacher()->get($key);
             $tagValid = $this->isTagValid($cache, $options);
             $expiresValid = $this->isNotExpires($cache, $options);
@@ -131,8 +135,7 @@ class Executor extends Manager_Abstract
 		$inputValid = $this->isInputValid($options);
         $functionName = is_object($function[0]) 
             ? get_class($function[0]) : $function[0];
-		if ($cache && !$options->forceRecache && $inputValid)
-		{
+		if ($cache && !$options->forceRecache && $inputValid) {
             if ($tagValid && $expiresValid) {
                 if (Tracer::$enabled) {
 					if ($functionName == 'Controller_Manager') {
@@ -141,10 +144,6 @@ class Executor extends Manager_Abstract
 				}
 				return $cache['v'];
             }
-			if (!$this->cacher->lock($key, 5, 1, 1)) {
-				// ключ уже заблокирова параллельным процессом
-				return $cache['v'];
-			}
 		}
 		$start = microtime(true);
 		$value = $this->executeUncaching($function, $args);
@@ -199,12 +198,10 @@ class Executor extends Manager_Abstract
         }
         $config = $this->config();
         if ($config->cache_provider) {
-            $this->cacher = $this->getService('providerManager')->get(
+            $this->cacher = $this->getService('dataProviderManager')->get(
                 $config->cache_provider
             );
-        } else {
-            $this->cacher = new Data_Provider_Buffer();
-        }
+        } 
 		return $this->cacher;
 	}
 
@@ -254,7 +251,7 @@ class Executor extends Manager_Abstract
     {
         $tagValid = true;
         if (empty($cache['t'])) {
-            $tagValid = false;
+            $tagValid = true;
         } elseif ($options->current_tags) {
             $currentTags = $options->current_tags->__toArray();
             if (array_diff($currentTags, $cache['t'])) {

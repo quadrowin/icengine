@@ -29,19 +29,24 @@ class Model_Collection_Manager_Delegee_Simple
 		if ($query->getPart(Query::CALC_FOUND_ROWS)) {
 			$collection->data('foundRows', $queryResult->foundRows());
 		}
-		$scheme = $modelScheme->scheme($modelName);
-		$schemeFields = array_keys($scheme['fields']->__toArray());
+        $scheme = $modelScheme->scheme($modelName);
+		$schemeFields = $scheme['fields']->keys();
 		$rows = $queryResult->asTable();
         if (!$rows) {
             return array('items' => array());
         }
         $currentFields = array_keys($rows[0]);
         $needleFields = array_intersect($schemeFields, $currentFields);
-        $addictFields = array_intersect($currentFields, $schemeFields);
-        $helperArray = $serviceLocator->getService('helperArray');
-        $items = $helperArray->column($rows, $needleFields);
-        $addicts = $helperArray->column($rows, $addictFields);
-		$collection->data('addicts', $addicts);
-		return array('items' => $items);
+        $addictFields = array_diff($currentFields, $schemeFields);
+        if ($addictFields) {
+            $helperArray = $serviceLocator->getService('helperArray');
+            $items = $helperArray->column($rows, $needleFields);
+            $addicts = $helperArray->column($rows, $addictFields);
+            $collection->data('addicts', $addicts);
+        } else {
+            $items = $rows;
+        }
+        $items = $rows;
+        return array('items' => $items);
 	}
 }

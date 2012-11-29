@@ -14,7 +14,6 @@ class Model_Manager extends Manager_Abstract
 		'delegee'	=> array(
 			'Model'             => 'Simple',
 			'Component'         => 'Simple',
-			'Model_Config'		=> 'Config',
 			'Model_Defined'		=> 'Defined',
 			'Model_Factory'		=> 'Factory'
 		),
@@ -22,6 +21,13 @@ class Model_Manager extends Manager_Abstract
             'Model_Factory', 'Model_Defined'
         )
 	);
+    
+    /**
+     * Созданные делегаты
+     * 
+     * @var array
+     */
+    protected $delegees;
 
 	/**
 	 * Получение модели по первичному ключу
@@ -145,12 +151,20 @@ class Model_Manager extends Manager_Abstract
 		$config = $this->config();
         $parent = $this->getParentClass($modelName, $config['delegee']);
 		$delegee = 'Model_Manager_Delegee_' . $config['delegee'][$parent];
-		$model = call_user_func_array(
-            array($delegee, 'get'),
-            array($modelName, 0, $row)
-		);
-		$model->set($row);
-		return $model;
+		if ($config['delegee'][$parent] == 'Simple') {
+            $newModel = new $modelName($row);
+        } else {
+            if (!isset($this->delegees[$delegee])) {
+                $this->delegees[$delegee] = new $delegee;
+            }
+            $delegee = $this->delegees[$delegee];
+            $newModel = call_user_func_array(
+                array($delegee, 'get'),
+                array($modelName, 0, $row)
+            );
+        }
+		$newModel->set($row);
+		return $newModel;
 	}
 
 	/**
@@ -179,10 +193,18 @@ class Model_Manager extends Manager_Abstract
         $parent = $this->getParentClass($modelName, $config['delegee']);
         $delegee = 'Model_Manager_Delegee_' .
             $config['delegee'][$parent];
-        $newModel = call_user_func_array(
-            array($delegee, 'get'),
-            array($modelName, $key, $source)
-        );
+        if ($config['delegee'][$parent] == 'Simple') {
+            $newModel = new $modelName($source);
+        } else {
+            if (!isset($this->delegees[$delegee])) {
+                $this->delegees[$delegee] = new $delegee;
+            }
+            $delegee = $this->delegees[$delegee];
+            $newModel = call_user_func_array(
+                array($delegee, 'get'),
+                array($modelName, $key, $source)
+            );
+        }
         $keyField = $newModel->keyField();
         $newModel->set($keyField, $key);
         if ($key) {

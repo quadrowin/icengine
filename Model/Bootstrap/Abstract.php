@@ -84,8 +84,7 @@ abstract class Bootstrap_Abstract
 	 */
 	public function initAttributeManager()
 	{
-        $serviceLocator = IcEngine::serviceLocator();
-        $serviceLocator->getService('attributeManager')->init();
+
 	}
 
 	/**
@@ -125,7 +124,7 @@ abstract class Bootstrap_Abstract
 	/**
 	 * Инициализация пользователя и сессии.
 	 */
-	public function initUser ()
+	public function initUser()
 	{
         $serviceLocator = IcEngine::serviceLocator();
         $serviceLocator->getService('userGuest')->init();
@@ -135,7 +134,7 @@ abstract class Bootstrap_Abstract
 	/**
 	 * Инициализация рендера.
 	 */
-	public function initView ()
+	public function initView()
 	{
         $serviceLocator = IcEngine::serviceLocator();
 		$serviceLocator->getService('viewRenderManager')->getView();

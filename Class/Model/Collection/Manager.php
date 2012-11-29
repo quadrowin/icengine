@@ -87,7 +87,6 @@ class Model_Collection_Manager extends Manager_Abstract
 		if ($iterator) {
 			return $iterator->setData($data['items']);
 		}
-        $st = microtime(true);
         $modelManager = $this->getService('modelManager');
 		foreach ($data['items'] as $i => $item) {
             if (isset($item[$keyField])) {
@@ -102,10 +101,6 @@ class Model_Collection_Manager extends Manager_Abstract
 				$data['items'][$i]->data($addicts[$i]);
 			}
 		}
-        $e = microtime(true);
-        $d = $e - $st;
-        echo $collection->modelName() . ' ' . count($data['items']) . ' ' . 
-            $d . '<br />';
 		$collection->setItems($data['items']);
 	}
 }

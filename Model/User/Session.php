@@ -8,6 +8,13 @@
 class User_Session extends Model
 {
     /**
+     * Первый доступ
+     * 
+     * @var boolean
+     */
+    protected $firstAttend;
+    
+    /**
      * Сессия текущего пользователя.
      * 
      * @var User_Session
@@ -20,7 +27,7 @@ class User_Session extends Model
      * @var integer
 	 */
 	protected $defaultUserId = 0;
-
+    
 	/**
 	 * Получить сессию пользователя по phpSessionId
      * 
@@ -44,7 +51,7 @@ class User_Session extends Model
 				'eraHourNum'	=> $date->eraHourNum(),
     			'userAgent'	    => substr(getenv('HTTP_USER_AGENT'), 0, 100)
     		));
-    		$session->save (true);
+    		$session->save(true);
 		}
 		return $session;
 	}
@@ -56,6 +63,15 @@ class User_Session extends Model
 	 */
 	public function getCurrent ()
 	{
+        if (!$this->firstAttend) {
+            if (!$this->current) {
+                $sessionId = $this->getService('request')->sessionId();
+                $userSession = $this->byPhpSessionId($sessionId);
+                $this->setCurrent($userSession);
+            }
+            $this->current->updateSession();
+            $this->firstAttend = true;
+        }
 	    return $this->current;
 	}
 
