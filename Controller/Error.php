@@ -18,7 +18,7 @@ class Controller_Error extends Controller_Abstract
 	 */
 	public function accessDenied ()
 	{
-		$this->_output->send (array (
+		$this->output->send (array (
 			'error'	=> 'access denied',
 			'data'	=> array (
 				'error' => 'access denied'
@@ -39,7 +39,7 @@ class Controller_Error extends Controller_Abstract
 	 */
 	public function notFound ()
 	{
-		$this->_output->send (array (
+		$this->output->send (array (
 			'error'	=> 'not found',
 			'data'	=> array (
 				'error' => 'not found'
@@ -54,7 +54,7 @@ class Controller_Error extends Controller_Abstract
 	 */
 	public function obsolete ()
 	{
-		$this->_output->send (array (
+		$this->output->send (array (
 			'error' => 'page obsolete',
 			'data'	=> array (
 				'error'	=> 'page obsolete'

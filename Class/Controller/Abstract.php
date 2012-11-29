@@ -181,7 +181,7 @@ class Controller_Abstract
             $controllerManager = $this->getService('controllerManager');
 			$other = $controllerManager->get($controller);
 		}
-		$this->_task->setTemplate(
+		$this->task->setTemplate(
 			'Controller/' . str_replace('_', '/', $controller) . '/' . $action
 		);
 		if ($controller == get_class($this)) {
