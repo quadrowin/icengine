@@ -37,7 +37,17 @@ class Controller_Manager extends Manager_Abstract
 		 * @desc Настройки кэширования для экшенов.
 		 * @var array
 		 */
-		'actions'			=> array()
+		'actions'			=> array(),
+        
+        /**
+         * Контекст по умолчанию
+         */
+        'context'           => array(
+            'queryBuilder'  => 'query',
+            'modelManager'  => 'modelManager',
+            'dds'               => 'dds',
+            'collectionManager' => 'collectionManager'
+        )
 	);
     
 	/**
@@ -189,16 +199,28 @@ class Controller_Manager extends Manager_Abstract
         $params = $this->sendToTransportFromActionArgs(
             $controller, $actionName
         );
+        $defaultContext = $this->config->context;
+        if ($defaultContext) {
+            $services = array();
+            foreach ($defaultContext->__toArray() as $argName => $serviceName) {
+                $services[$argName] = $this->serviceLocator()->getService(
+                    $serviceName
+                );
+            }
+            $params['context'] = new Objective($services);
+        }
         if ($controller->hasInjections()) {
             $reflection = new ReflectionClass($controller);
             $this->annotationManager()->getSource()->setReflection($reflection);
             $scheme = $this->annotationManager()->getAnnotation($controller);
             $actionScheme = $scheme->getMethod($actionName);
             if (!empty($actionScheme['service'])) {
-                $context = $this->serviceInjector()->inject(
+                $actionContext = $this->serviceInjector()->inject(
                     null, $actionScheme['service']
-                ); 
-                $params['context'] = $context;
+                );
+                $params['context'] = isset($params['context'])
+                    ? $params['context']->merge($actionContext) 
+                    : $actionContext;
             }
         }
         call_user_func_array(array($controller, $actionName), (array) $params);
