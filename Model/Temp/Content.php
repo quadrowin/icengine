@@ -121,12 +121,10 @@ class Temp_Content extends Model
 	{
 		$mname = $model->modelName();
 		$mkey = $model->key();
-
 		if (!isset(self::$_create[$mname]))
 		{
 			self::$_created[$mname] = array();
 		}
-
 		if (!isset (self::$_created[$mname][$mkey]))
 		{
 			self::$_created[$mname][$mkey] = self::create(
@@ -135,7 +133,6 @@ class Temp_Content extends Model
 				$mkey
 			);
 		}
-
 		return self::$_created[$mname][$mkey];
 	}
 
