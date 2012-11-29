@@ -2,14 +2,14 @@
 
 /**
  * Помощник для построения зависимостей от положения сайта
- * 
+ *
  * @author goorus, morph
  */
 class Helper_Site_Location extends Manager_Abstract
 {
 	/**
 	 * Определение положения
-	 * 
+	 *
      * @var string
 	 */
 	protected $location = null;
@@ -25,7 +25,7 @@ class Helper_Site_Location extends Manager_Abstract
 
 	/**
 	 * Возвращает значение параметра для текущего положения
-	 * 
+	 *
      * @param string $params
 	 * @return mixed
 	 */
@@ -43,7 +43,7 @@ class Helper_Site_Location extends Manager_Abstract
 
 	/**
 	 * Возвращает положение
-	 * 
+	 *
      * @return string
 	 */
 	public function getLocation()
@@ -73,7 +73,7 @@ class Helper_Site_Location extends Manager_Abstract
 
 	/**
 	 * Устанавливает положение.
-	 * 
+	 *
      * @param string $value
 	 */
 	public function setLocation($value)
