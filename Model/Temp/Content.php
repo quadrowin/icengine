@@ -1,11 +1,12 @@
 <?php
 
 /**
- * Временный контент - специальная модель, предназначенная для
- * хранения дополнительной информации о форме для редактирования.
  *
+ * @desc Временный контент - специальная модель, предназначенная для
+ * хранения дополнительной информации о форме для редактирования.
  * @author Гурус
  * @package IcEngine
+ *
  */
 class Temp_Content extends Model
 {
@@ -18,13 +19,12 @@ class Temp_Content extends Model
 	protected $_data = null;
 
 	/**
-	 * Созданные за этот запрос
-	 *
+	 * @desc Созданные за этот запрос
 	 * @param 0 = name
 	 * @param 1 = value
 	 * @var array
 	 */
-	protected static $_created = array ();
+	protected $_created = array ();
 
 	/**
 	 * Устанавливаем дату, ключ = значение
@@ -64,39 +64,42 @@ class Temp_Content extends Model
 	}
 
 	/**
-	 * Возвращет временный контент по коду
-	 *
+	 * @desc Возвращет временный контент по коду
 	 * @param string $utcode
 	 * @return Temp_Content
 	 */
-	public static function byUtcode($utcode)
+	public function byUtcode ($utcode)
 	{
-		return $this->getService('modelManager')->byKey(
+		$modelManager = $this->getService('modelManager');
+        return $modelManager->byOptions(
 			__CLASS__,
-			(string) $utcode
+            array(
+                'name'  => '::Key',
+                'key'   => (string) $utcode
+            )
 		);
 	}
 
 	/**
-	 * Создает новый временный контент
-	 *
+	 * @desc Создает новый временный контент
 	 * @param string|Controller_Abstract $controller Контроллер или название
 	 * @param string $table
 	 * @param integer $row_id
 	 * @return Temp_Content
 	 */
-	public static function create($controller, $table = '',
+	public function create ($controller, $table = '',
 		$row_id = 0, $data = null)
 	{
-		$utcode = self::genUtcode();
-		$helperDate = $this->getService('helperDate');
-		$request = $this->getService('request');
-		$user = $this->getService('user');
-		$tc = new Temp_Content(array(
+		$userService = $this->getService('user');
+        $helperDate = $this->getService('date');
+        $requestService = $this->getService('request');
+        
+        $utcode = $this->genUtcode();
+		$tc = new Temp_Content (array (
 			'time'			=> $helperDate->toUnix(),
 			'utcode'		=> $utcode,
 			'json'			=> json_encode($data),
-			'ip'			=> $request->ip(),
+			'ip'			=> $requestService->ip(),
 			'controller'	=>
 				$controller instanceof Controller_Abstract ?
 				$controller->name() :
@@ -104,44 +107,43 @@ class Temp_Content extends Model
 			'table'			=> $table,
 			'rowId'			=> (int) $row_id,
 			'day'			=> $helperDate->eraDayNum(),
-			'User__id'		=> $user->id()
+			'User__id'		=> $userService->id()
 		));
+
 		return $tc->save();
 	}
 
 	/**
-	 * Возвращает временный контент для модели на этом запросе
-	 *
+	 * @desc Возвращает временный контент для модели на этом запросе
 	 * @param Model $model
 	 * @param Controller_Abstract $controller
 	 * @return Temp_Content
 	 */
-	public static function getFor(Model $model,
+	public function getFor(Model $model,
 		Controller_Abstract $controller = null)
 	{
 		$mname = $model->modelName();
 		$mkey = $model->key();
 
-		if (!isset(self::$_create[$mname]))
+		if (!isset($this->$_created[$mname]))
 		{
-			self::$_created[$mname] = array();
+			$this->$_created[$mname] = array();
 		}
 
-		if (!isset (self::$_created[$mname][$mkey]))
+		if (!isset ($this->$_created[$mname][$mkey]))
 		{
-			self::$_created[$mname][$mkey] = self::create(
+			$this->$_created[$mname][$mkey] = self::create(
 				$controller ? $controller->name() : '',
 				$model->table(),
 				$mkey
 			);
 		}
 
-		return self::$_created[$mname][$mkey];
+		return $this->$_created[$mname][$mkey];
 	}
 
 	/**
-	 * Генерация уникального кода
-	 *
+	 * @desc Генерация уникального кода
 	 * @return string
 	 */
 	public static function genUtcode()
@@ -165,9 +167,11 @@ class Temp_Content extends Model
 	 */
 	public function rejoinComponents(Model $item, array $components)
 	{
-		foreach ($components as $component) {
+		foreach ($components as $component)
+		{
 			$this->component($component)->rejoin($item);
 		}
 		return $this;
 	}
+
 }
