@@ -63,10 +63,10 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 * @var Query_Result
 	 */
 	protected $queryResult;
-    
+
     /**
      * Локатор сервисов
-     * 
+     *
      * @var Service_Locator
      */
     protected static $serviceLocator;
@@ -361,7 +361,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 
     /**
      * Получить сервис
-     * 
+     *
      * @param string $name
      * @return mixed
      */
@@ -372,24 +372,24 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
         }
         return self::$serviceLocator->getService($name);
     }
-    
+
     /**
      * Получить текущий сеовис локатор
-     * 
+     *
      * @return Service_Locator
      */
     public function getServiceLocator()
     {
         return self::$serviceLocator;
     }
-    
+
 	/**
 	 * Возвращает модель из коллекции
      *
 	 * @param integer $index Индекс
 	 * @return Model|null
 	 */
-	public function &item($index)
+	public function item($index)
 	{
 		if (!is_array($this->items)) {
 			$this->items();
@@ -718,14 +718,14 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 
     /**
      * Изменить локатор сервисов
-     * 
+     *
      * @param Service_Locator $serviceLocator
      */
     public function setServiceLocator($serviceLocator)
     {
         self::$serviceLocator = $serviceLocator;
     }
-    
+
 	/**
 	 * Вернуть первый элемент коллекции, удалив его из коллекции
      *

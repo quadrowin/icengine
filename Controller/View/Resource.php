@@ -1,11 +1,10 @@
 <?php
 /**
- *
- * @desc Контроллер для компновки ресурсов представления.
+ * Контроллер для компновки ресурсов представления.
  * Предназначен для сбора js, css файлов в один.
+ *
  * @author Юрий
  * @package IcEngine
- *
  */
 class Controller_View_Resource extends Controller_Abstract
 {
@@ -14,35 +13,31 @@ class Controller_View_Resource extends Controller_Abstract
 	 * (non-PHPdoc)
 	 * @see Controller_Abstract::index()
 	 */
-	public function index ()
+	public function index()
 	{
 		//$config = $this->config ();
-		list (
+		list(
 			$type,
 			$params,
 			$name_filter
-		) = $this->_input->receive (
+		) = $this->input->receive(
 			'type',
 			'params',
 			'name'
 		);
-
-		$vars = array ();
-
-		if ($params)
-		{
-			foreach ($params as $k => $v)
-			{
-				$vars ['{$' . $k . '}'] = $v;
+		$vars = array();
+		if ($params) {
+			foreach ($params as $k => $v) {
+				$vars['{$' . $k . '}'] = $v;
 			}
 		}
-
-		//var_dump($type . __FILE__);die;
-		$moduleCollection = Model_Collection_Manager::create(
+		$configManager = $this->getService('configManager');
+		$collectionManager = $this->getService('collectionManager');
+		$moduleCollection = $collectionManager->create(
 			'Module'
 		);
 		foreach ($moduleCollection as $module) {
-			$config = Config_Manager::byPath(__CLASS__, $module->name);
+			$config = $configManager->byPath(__CLASS__, $module->name);
 			if (empty($module['hasResource'])) {
 				continue;
 			}
@@ -55,29 +50,21 @@ class Controller_View_Resource extends Controller_Abstract
 				if (
 					($type && $type != $target->type) ||
 					($name_filter && $name_filter != $name)
-				)
-				{
+				) {
 					continue;
 				}
-
-				$res = array ();
-				foreach ($target->sources as $source)
-				{
-					if (is_string ($source))
-					{
-						$src_dir = IcEngine::root ();
-						$src_files = array ($source);
+				$res = array();
+				foreach ($target->sources as $source) {
+					if (is_string($source)) {
+						$src_dir = IcEngine::root();
+						$src_files = array($source);
+					} else {
+						$src_dir = strtr($source->dir, $vars);
+						$src_files = is_scalar($source->file)
+							? array($source->file)
+							: $source->file->__toArray();
 					}
-					else
-					{
-						$src_dir = strtr ($source->dir, $vars);
-						$src_files = is_scalar ($source->file)
-							? array ($source->file)
-							: $source->file->__toArray ();
-					}
-
-					foreach ($src_files as $src_file)
-					{
+					foreach ($src_files as $src_file) {
 						$src_file = strtr ($src_file, $vars);
 						//echo $src_file . ' ' . $src_dir . '<br />';
 						$res = array_merge (

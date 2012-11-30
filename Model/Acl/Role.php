@@ -35,9 +35,9 @@ class Acl_Role extends Model
 	 * @param User $user
 	 * @return Acl_Role
 	 */
-	public function attachUser (User $user)
+	public function attachUser(User $user)
 	{
-	    Helper_Link::link ($this, $user);
+	    Helper_Link::link($this, $user);
 		return $this;
 	}
 
@@ -46,12 +46,13 @@ class Acl_Role extends Model
 	 * @param string $name
 	 * @return Acl_Role|null
 	 */
-	public static function byName ($name)
+	public function byName($name)
 	{
-	    return Model_Manager::byQuery (
+		$modelManager = $this->getService('modelManager');
+		$query = $this->getService('query');
+	    return $modelManager->byQuery(
 		    'Acl_Role',
-		    Query::instance ()
-		   		->where ('name', $name)
+		    $query->where('name', $name)
 		);
 	}
 
@@ -61,7 +62,7 @@ class Acl_Role extends Model
 	 * @param string $name
 	 * @return Acl_Role|null
 	 */
-	public static function byTypeNName ($type_id, $name)
+	public static function byTypeNName($type_id, $name)
 	{
 		return Model_Manager::byQuery (
 		    'Acl_Role',

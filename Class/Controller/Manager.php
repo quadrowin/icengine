@@ -32,7 +32,7 @@ class Controller_Manager extends Manager_Abstract
 		 */
 		'actions'			=> array()
 	);
-    
+
 	/**
 	 * Текущее задание
      *
