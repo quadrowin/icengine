@@ -38,7 +38,7 @@ class Controller_View_Resource extends Controller_Abstract
 		);
 		$viewResourceManager = $this->getService('viewResourceManager');
 		foreach ($moduleCollection as $module) {
-			$config = $configManager->byPath(__CLASS__, $module->name);
+			$config = '';//$configManager->byPath(__CLASS__, $module->name);
 			if (empty($module['hasResource'])) {
 				continue;
 			}
