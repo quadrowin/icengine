@@ -43,12 +43,15 @@ class Model_Mapper_Method_Find extends Model_Mapper_Method_Abstract
 	 */
 	public function get ()
 	{
-		$query = Query::factory ('Select');
+        $serviceLocator = IcEngine::serviceLocator();
+        $collectionManager = $serviceLocator->getService('collectionManager');
+        $queryBuilder = $serviceLocator->getService('query');
+		$query = $queryBuilder->factory ('Select');
 		foreach ($this->_criteria as $arg => $value)
 		{
 			$query->where ($arg, $value);
 		}
-		return Model_Collection_Manager::byQuery (
+		return $collectionManager->byQuery (
 			$this->_params [0], 	$query
 		);
 	}

@@ -286,13 +286,16 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function filter($fields)
 	{
+        $helperArray = $this->getService('helperArray');
+        $collectionManager = $this->getService('collectionManager');
+        $modelScheme = $this->getService('modelScheme');
         $modelName = $this->modelName();
-        $keyField = Model_Scheme::keyField($modelName);
-		$collection = Model_Collection_Manager::create($modelName)
+        $keyField = $modelScheme->keyField($modelName);
+		$collection = $collectionManager->create($modelName)
 			->reset();
-        $result = Helper_Array::filter($this->items(), $fields);
+        $result = $helperArray->filter($this->items(), $fields);
 		if ($result) {
-            $ids = Helper_Array::column($result, $keyField);
+            $ids = $helperArray->column($result, $keyField);
             foreach ($ids as $id) {
                 foreach ($this->items as $model) {
                     if ($id != $model[$keyField]) {

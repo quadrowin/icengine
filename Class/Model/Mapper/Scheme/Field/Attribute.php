@@ -13,8 +13,10 @@ class Model_Mapper_Scheme_Field_Attribute
 	 */
 	public static function byName ($name)
 	{
-		$class_name = 'Model_Mapper_Scheme_Field_Attribute_' . $name;
-		if (!Loader::load ($class_name))
+		$serviceLocator = IcEngine::serviceLocator();
+        $loader = $serviceLocator->getService('loader');
+        $class_name = 'Model_Mapper_Scheme_Field_Attribute_' . $name;
+		if (!$loader->load($class_name))
 		{
 			throw new Model_Mapper_Scheme_Field_Attribute_Exception ('Field had not found');
 		}
