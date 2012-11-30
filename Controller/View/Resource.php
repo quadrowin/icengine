@@ -1,0 +1,89 @@
+<?php
+
+/**
+ * Контроллер для компновки ресурсов представления.
+ * Предназначен для сбора js, css файлов в один.
+ * 
+ * @author goorus, morph
+ */
+class Controller_View_Resource extends Controller_Abstract
+{
+	/**
+     * Процесс упаковки ресурсов
+     * 
+     * @service configManager $configManager
+     * @service viewResourceManager $viewResourceManager
+     */
+	public function index($type, $params, $name, $context)
+	{
+		$vars = array ();
+		if ($params) {
+			foreach ($params as $key => $value) {
+				$vars ['{$' . $key . '}'] = $value;
+			}
+		}
+        $resultResources = array();
+		$moduleCollection = $context->collectionManager->create('Module');
+		foreach ($moduleCollection as $module) {
+			$config = $context->configManager->get('Module_' . $module->name);
+			if (empty($module['hasResource'])) {
+				continue;
+			}
+			$vars['{$moduleName}'] = $module->name;
+			$vars['{$modulePath}'] = $module->path();
+			if (!$config) {
+				return;
+			}
+			foreach ($config->targets as $targetName => $target) {
+				if ($type && $type != $target->type) {
+                    continue;
+                }
+                if ($name && $name != $targetName) {
+                    continue;
+                }
+				$resources = array();
+				foreach ($target->sources as $source) {
+					if (is_string($source)) {
+						$sourceDir = IcEngine::root();
+						$sourceFields = array($source);
+					} else {
+						$sourceDir = strtr($source->dir, $vars);
+						$sourceFiles = is_scalar($source->file)
+							? array($source->file)
+                            : $source->file->__toArray();
+					}
+					foreach ($sourceFiles as $filename) {
+						$filename = strtr($filename, $vars);
+                        $loadedResources = $context->viewResourceManager->load(
+                            '/',
+                            $sourceDir,
+                            $sourceFiles,
+                            $target->type
+                        );
+						$resources = array_merge(
+							$resources, $loadedResources
+						);
+					}
+				}
+				$packer = $context->viewResourceManager->packer($target->type);
+				$packerConfig = $target->packer_config;
+				if ($packerConfig && $packerConfig->state_file) {
+					$packerConfig->state_file = strtr(
+						$packerConfig->state_file, $vars
+					);
+				}
+				$destinationFile = strtr($target->file, $vars);
+				$packer->pushConfig($packerConfig);
+				$packer->pack ($resources, $destinationFile, $packerConfig);
+				$packer->popConfig();
+                $resultResources[$name] = array(
+					'type'	=> $target->type,
+					'url'	=> strtr($target->url, $vars),
+					'ts'	=> $packer->cacheTimestamp()
+				);
+			}
+            print_r($resultResources);
+			$this->output->send('resources', $resultResources);
+		}
+	} 
+}
