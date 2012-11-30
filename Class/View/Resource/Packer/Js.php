@@ -1,66 +1,53 @@
 <?php
+
 /**
- *
- * @desc Упаковщик Js ресурсов представления.
- * @author Юрий
- * @package IcEngine
- *
+ * Упаковщик Js ресурсов представления.
+ * 
+ * @author goorus, morph
  */
 class View_Resource_Packer_Js extends View_Resource_Packer_Abstract
 {
 	/**
-	 * @desc Класс Packer'a
-	 * @var string
+	 * Класс Packer'a
+	 * 
+     * @var string
 	 */
 	const PACKER = 'class.JavaScriptPacker.php';
+    
+    /**
+     * Не упаковывать файлы
+     * 
+     * @var boolean
+     */
+    protected $noPack = false;
 
-	public function __construct ()
+	public function __construct()
 	{
-		Loader::requireOnce (self::PACKER, 'includes');
+		IcEngine::getLoader()->requireOnce(self::PACKER, 'includes');
 	}
 
-	public function packOne (View_Resource $resource)
+    /**
+     * @inheritdoc
+     */
+	public function packOne(View_Resource $resource)
 	{
-		if (
-			$this->config ()->item_prefix &&
-			isset ($resource->filePath)
-		)
-		{
-			$result = strtr (
-				$this->config ()->item_prefix,
-				array (
-					'{$source}' => $resource->filePath,
-					'{$src}'	=> $resource->localPath
-				)
-			);
-		}
-		else
-		{
+        $config = $this->config();
+		if ($config->item_prefix && isset($resource->filePath)) {
+			$result = strtr($config->item_prefix, array (
+                '{$source}' => $resource->filePath,
+                '{$src}'	=> $resource->localPath
+            ));
+		} else {
 			$result = '';
 		}
-
-		if ($this->_currentResource->nopack)
-		{
-			$result .= $resource->content ();
+		if ($this->currentResource->nopack || $this->noPack) {
+			$result .= $resource->content();
+		} else {
+			$packer = new JavaScriptPacker($resource->content(), 0);
+			$result .= $packer->pack();
 		}
-		else
-		{
-//			$result .=
-//				preg_replace (
-//					'#\n\s*/\*.*\*/#Us',
-//					"\n",
-//					$resource->content ()
-//				);
-			$packer = new JavaScriptPacker ($resource->content (), 0);
-			$result .= $packer->pack ();
-			//$result .= $resource->content();
-
-		}
-
-		$fname = IcEngine::root () . '/cache/js.pack.log';
-		file_put_contents ($fname, time() . PHP_EOL, FILE_APPEND);
-
-		return $result . $this->config ()->item_postfix;
+		$fname = IcEngine::root() . '/cache/js.pack.log';
+		file_put_contents($fname, time() . PHP_EOL, FILE_APPEND);
+		return $result . $config->item_postfix;
 	}
-
 }

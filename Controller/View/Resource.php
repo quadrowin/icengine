@@ -19,14 +19,21 @@ class Controller_View_Resource extends Controller_Abstract
 		$vars = array ();
 		if ($params) {
 			foreach ($params as $key => $value) {
-				$vars ['{$' . $key . '}'] = $value;
+				$vars['{$' . $key . '}'] = $value;
 			}
 		}
         $resultResources = array();
 		$moduleCollection = $context->collectionManager->create('Module');
 		foreach ($moduleCollection as $module) {
-			$config = $context->configManager->get('Module_' . $module->name);
-			if (empty($module['hasResource'])) {
+            $configName = 'Controller_View_Resource';
+            $mainModule = false;
+            if (!$module->isMain) {
+                $configName = 'Module_' . $module->name. '_' . $configName;
+            } else {
+                $mainModule = true;
+            }
+			$config = $context->configManager->get($configName);
+			if (!$mainModule && empty($module['hasResource'])) {
 				continue;
 			}
 			$vars['{$moduleName}'] = $module->name;
@@ -45,7 +52,7 @@ class Controller_View_Resource extends Controller_Abstract
 				foreach ($target->sources as $source) {
 					if (is_string($source)) {
 						$sourceDir = IcEngine::root();
-						$sourceFields = array($source);
+						$sourceFiles = array($source);
 					} else {
 						$sourceDir = strtr($source->dir, $vars);
 						$sourceFiles = is_scalar($source->file)
@@ -53,15 +60,12 @@ class Controller_View_Resource extends Controller_Abstract
                             : $source->file->__toArray();
 					}
 					foreach ($sourceFiles as $filename) {
-						$filename = strtr($filename, $vars);
+                        $filename = strtr($filename, $vars);
                         $loadedResources = $context->viewResourceManager->load(
-                            '/',
-                            $sourceDir,
-                            $sourceFiles,
-                            $target->type
+                            '/', $sourceDir, array($filename), $target->type
                         );
 						$resources = array_merge(
-							$resources, $loadedResources
+							$resources, $loadedResources->getData($target->type)
 						);
 					}
 				}
@@ -74,7 +78,7 @@ class Controller_View_Resource extends Controller_Abstract
 				}
 				$destinationFile = strtr($target->file, $vars);
 				$packer->pushConfig($packerConfig);
-				$packer->pack ($resources, $destinationFile, $packerConfig);
+				$packer->pack($resources, $destinationFile, $packerConfig, true);
 				$packer->popConfig();
                 $resultResources[$name] = array(
 					'type'	=> $target->type,
@@ -82,7 +86,6 @@ class Controller_View_Resource extends Controller_Abstract
 					'ts'	=> $packer->cacheTimestamp()
 				);
 			}
-            print_r($resultResources);
 			$this->output->send('resources', $resultResources);
 		}
 	} 

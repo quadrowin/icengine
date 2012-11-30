@@ -25,23 +25,13 @@ class User_Cli extends User
 	);
 
 	/**
-	 * Экзмепляр модели консольного пользователя
-	 * 
-     * @var User_Cli
-	 */
-	protected $instance;
-
-	/**
 	 * Создает и возвращает экземпляр модели консольного пользователя
 	 * 
      * @return User_Cli
 	 */
 	public function getInstance()
 	{
-		if (!$this->instance) {
-			$this->instance = new self($this->config()->fields->__toArray());
-		}
-		return $this->instance;
+		return new self($this->config()->fields->__toArray());
 	}
 
 	/**
@@ -54,22 +44,8 @@ class User_Cli extends User
 	{
 		$instance = $this->getInstance();
         $resourceManager = $this->getService('resourceManager');
-        $provider = $this->getService('dataProviderManager')->get(
-            'user_session'
-        );
-        if (isset($_COOKIE['PHPSESSID'])) {
-            $sessionId = $_COOKIE['PHPSESSID'];
-        } else {
-            $sessionId = $this->getService('request')->sessionId();
-        }
-        $key = 'User_Session_1/0:' . $sessionId;
-        $data = $provider->get($key);
-        if ($data) {
-            $session = new User_Session($data);
-            $this->getService('session')->setCurrent($session);
-            $this->getService('user')->setCurrent($instance);
-        }
 		$resourceManager->set('Model', $instance->resourceKey(), $instance);
+        $this->getService('user')->setCurrent($instance);
 	}
 
 	/**

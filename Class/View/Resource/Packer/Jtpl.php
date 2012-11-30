@@ -1,68 +1,39 @@
 <?php
+
 /**
- *
- * @desc Упаковщик Jtpl ресурсов представления.
- * @author Юрий
- * @package IcEngine
- *
+ * Упаковщик Jtpl ресурсов представления.
+ * 
+ * @author goorus, morph
  */
-class View_Resource_Packer_Jtpl extends View_Resource_Packer_Abstract
+class View_Resource_Packer_Jtpl extends View_Resource_Packer_Js
 {
 	/**
-	 * @desc Класс Packer'a
-	 * @var string
-	 */
-	const PACKER = 'class.JavaScriptPacker.php';
-
-	public function __construct ()
+     * @inheritdoc
+     */
+	public function packOne(View_Resource $resource)
 	{
-		Loader::requireOnce (self::PACKER, 'includes');
-	}
-
-	public function packOne (View_Resource $resource)
-	{
-		if (
-			$this->config ()->item_prefix &&
-			isset ($resource->filePath)
-		)
-		{
-			$result = strtr (
-				$this->config ()->item_prefix,
-				array (
-					'{$source}' => $resource->filePath,
-					'{$src}'	=> $resource->localPath
-				)
-			);
-		}
-		else
-		{
+		$config = $this->config();
+		if ($config->item_prefix && isset($resource->filePath)) {
+			$result = strtr($config->item_prefix, array(
+                '{$source}' => $resource->filePath,
+                '{$src}'	=> $resource->localPath,
+            ));
+		} else {
 			$result = '';
-		}
-
-		$content = $resource->content ();
-		$content = str_replace (
-			array ('\\',	'"',	"\r\n",			"\n",			"\r"),
-			array ('\\\\',	'\\"',	'"+"\\r\\n"+"',	'"+"\\n"+"',	'"+"\\r"+"'),
-			$content
+		}	
+		$replacedContent = str_replace(
+			array('\\',	'"', "\r\n", "\n", "\r"),
+			array('\\\\', '\\"', '"+"\\r\\n"+"', '"+"\\n"+"', '"+"\\r"+"'),
+			$resource->content ()
 		);
-
-		$content =
-			'View_Render.templates[\'' . $resource->localPath . '\']="' . $content . '";';
-
-		if (
-			isset ($this->_currentResource->nopack) &&
-			$this->_currentResource->nopack
-		)
-		{
+		$content = 'View_Render.templates[\'' . $resource->localPath . '\']="' . 
+            $replacedContent . '";';
+		if (!empty($this->currentResource->nopack) || $this->noPack) {
 			$result .= $content . "\n";
-		}
-	    else
-	    {
-			$packer = new JavaScriptPacker ($content, 0);
-			$result .= $packer->pack ();
+		} else {
+			$packer = new JavaScriptPacker($content, 0);
+			$result .= $packer->pack();
 	    }
-
-		return $result . $this->config ()->item_postfix;
+		return $result . $this->config()->item_postfix;
 	}
-
 }

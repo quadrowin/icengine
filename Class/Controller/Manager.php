@@ -185,7 +185,7 @@ class Controller_Manager extends Manager_Abstract
         $params = $this->sendToTransportFromActionArgs(
             $controller, $reflectionMethod
         );
-        $defaultContext = $this->config->context;
+        $defaultContext = $this->config()->context;
         if ($defaultContext) {
             $services = array();
             foreach ($defaultContext->__toArray() as $argName => $serviceName) {
@@ -406,7 +406,6 @@ class Controller_Manager extends Manager_Abstract
 	{
 		if (!$this->output) {
 			$this->output = new Data_Transport();
-            $this->appendOutputFilters($this->output);
 		}
 		return $this->output;
 	}
