@@ -69,6 +69,15 @@ class Controller_View_Resource extends Controller_Abstract
 						);
 					}
 				}
+                $existsResources = array();
+                $resultResources = array();
+                foreach ($resources as $resource) {
+                    if (in_array($resource->filePath, $existsResources)) {
+                        continue;
+                    }
+                    $resultResources[] = $resource;
+                    $existsResources[] = $resource->filePath;
+                }
 				$packer = $context->viewResourceManager->packer($target->type);
 				$packerConfig = $target->packer_config;
 				if ($packerConfig && $packerConfig->state_file) {
@@ -78,7 +87,9 @@ class Controller_View_Resource extends Controller_Abstract
 				}
 				$destinationFile = strtr($target->file, $vars);
 				$packer->pushConfig($packerConfig);
-				$packer->pack($resources, $destinationFile, $packerConfig, true);
+				$packer->pack(
+                    $resultResources, $destinationFile, $packerConfig, true
+                );
 				$packer->popConfig();
                 $resultResources[$name] = array(
 					'type'	=> $target->type,
