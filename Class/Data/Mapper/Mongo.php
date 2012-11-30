@@ -196,14 +196,6 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 		$this->query['criteria']['_id'] = $this->normalizeId(
 			$this->query['criteria']['_id']
 		);
-		$content = file_get_contents('/var/www/ab/info.txt');
-		$content .= strlen(print_r($this->query, true)) . "\n";
-		$content .= print_r($this->query, true);
-		//ob_start();
-		//var_dump($this->query);
-		//$content .= ob_get_contents();
-		//ob_end_clean();
-		file_put_contents('/var/www/ab/info.txt', $content);
 		$this->collection->update(
             $this->query['criteria'],
             $this->query['newobj'],
