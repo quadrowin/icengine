@@ -19,11 +19,11 @@ class Controller_Manager extends Manager_Abstract
 
     /**
      * Менеджер аннотаций
-     * 
+     *
      * @var Annotation_Manager_Abstract
      */
     protected $annotationManager;
-    
+
     /**
 	 * @inheritdoc
 	 */
@@ -38,7 +38,7 @@ class Controller_Manager extends Manager_Abstract
 		 * @var array
 		 */
 		'actions'			=> array(),
-        
+
         /**
          * Контекст по умолчанию
          */
@@ -59,7 +59,7 @@ class Controller_Manager extends Manager_Abstract
 	 * @var Controller_Task
 	 */
 	protected $currentTask;
-    
+
 	/**
 	 * Транспорт входных данных
      *
@@ -108,24 +108,24 @@ class Controller_Manager extends Manager_Abstract
 	 * @var array <array <Controller_Task>>
 	 */
 	protected $tasksResultsBuffer = array();
-    
+
     /**
      * Инжектор сервисов
-     * 
+     *
      * @var Service_Injector_Abstract
      */
     protected $serviceInjector;
-    
+
     /**
      * Локатор услуг
-     * 
-     * @var Service_Locator 
+     *
+     * @var Service_Locator
      */
     protected $serviceLocator;
 
     /**
      * Получить менеджер аннотаций
-     * 
+     *
      * @return Annotation_Manager_Abstract
      */
     public function annotationManager()
@@ -205,7 +205,7 @@ class Controller_Manager extends Manager_Abstract
                     null, $actionScheme['service']
                 );
                 $params['context'] = isset($params['context'])
-                    ? $params['context']->merge($actionContext) 
+                    ? $params['context']->merge($actionContext)
                     : $actionContext;
             }
         }
@@ -342,14 +342,14 @@ class Controller_Manager extends Manager_Abstract
 
     /**
      * Вернуть менеджер аннотаций
-     * 
+     *
      * @return Annotation_Manager_Abstract
      */
     public function getAnnotationManager()
     {
         return $this->annotationManager;
     }
-    
+
     /**
 	 * Настройки кэширования для контроллера-экшена.
 	 *
@@ -409,20 +409,20 @@ class Controller_Manager extends Manager_Abstract
 		}
 		return $this->output;
 	}
-    
+
     /**
      * Получить инжектор сервисов
-     * 
+     *
      * @return Service_Injector_Abstract
      */
     public function getServiceInjector()
     {
         return $this->serviceInjector;
     }
-    
+
     /**
      * Получить локатор сервисов
-     * 
+     *
      * @return Service_Locator
      */
     public function getServiceLocator()
@@ -528,7 +528,7 @@ class Controller_Manager extends Manager_Abstract
         }
 		return !empty($options['full_result']) ? $result : $result['html'];
 	}
-    
+
     /**
      * Логирует ошибку
      *
@@ -671,10 +671,10 @@ class Controller_Manager extends Manager_Abstract
         }
         return $resultParams;
     }
-    
+
     /**
      * Получить инжектор сервисов
-     * 
+     *
      * @return Service_Injector_Abstract
      */
     public function serviceInjector()
@@ -689,10 +689,10 @@ class Controller_Manager extends Manager_Abstract
         }
         return $this->serviceInjector;
     }
-    
+
     /**
      * Получить локатор сервисов
-     * 
+     *
      * @return Service_Locator
      */
     public function serviceLocator()
@@ -702,30 +702,30 @@ class Controller_Manager extends Manager_Abstract
         }
         return $this->serviceLocator;
     }
-    
+
     /**
      * Изменить менеджер аннотаций
-     * 
+     *
      * @param Annotation_Manager_Abstract $annotationManager
      */
     public function setAnnotationManager($annotationManager)
     {
         $this->annotationManager = $annotationManager;
     }
-    
+
     /**
      * Изменить инжектор сервисов
-     * 
+     *
      * @param Service_Injector_Abstract $serviceInjector
      */
     public function setServiceInjector($serviceInjector)
     {
         $this->serviceInjector = $serviceInjector;
     }
-    
+
     /**
      * Изменить локатор сервисов
-     * 
+     *
      * @param Service_Locator $serviceLocator
      */
     public function setServiceLocator($serviceLocator)

@@ -41,7 +41,7 @@ class Model_Collection_Manager_Delegee_Defined
             $result = $helperArray->filter($rows, $filter);
         }
         if ($result && $sort) {
-            $helperArray->masort($result, implode(',', $sort));
+            $result = $helperArray->masort($result, implode(',', $sort));
         }
 		return array('items' => $result);
 	}
