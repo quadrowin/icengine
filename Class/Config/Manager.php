@@ -2,14 +2,14 @@
 
 /**
  * Менеджер конфигурация
- * 
+ *
  * @author goorus, morph
  */
 class Config_Manager
 {
 	/**
 	 * Путь до конфигов от корня сайта
-	 * 
+	 *
      * @var string
 	 */
 	protected $pathToConfig = array('Ice/Config/');
@@ -18,14 +18,14 @@ class Config_Manager
 	 * Флаг означающий, что идет процесс загрузки конфига,
 	 * необходим для предотвращения бесконечной рекурсии при
 	 * загрузке конфигов для менеджера ресурсов.
-	 * 
+	 *
      * @var boolean
 	 */
 	protected $inLoading = false;
 
 	/**
 	 * Добавляет путь для загрузки конфигураций
-	 * 
+	 *
      * @param string $path
 	 */
 	public function addPath($path)
@@ -34,8 +34,33 @@ class Config_Manager
 	}
 
 	/**
+	 * Получить конфиг по пути, результат не кешируется
+	 */
+	public function byPath($path)
+	{
+		$first = $path;
+		$path = str_replace('_', '/', $path);
+		$filename =
+				IcEngine::root() . (strstr($first, '__') ?
+					str_replace(
+						'_',
+						'/',
+						str_replace('__', '/Config/', $first)
+					) : $this->pathToConfig[0] . $path) .
+				'.php';
+		if (is_file($filename)) {
+			$ext = ucfirst(strtolower(substr(strrchr($filename, '.'), 1)));
+			$class = 'Config_' . $ext;
+
+			$result = new $class ($filename);
+			return $result;
+		}
+		return array();
+	}
+
+	/**
 	 * Пустой конфиг.
-	 * 
+	 *
      * @return Config_Array
 	 */
 	public function emptyConfig()
@@ -45,7 +70,7 @@ class Config_Manager
 
     /**
      * Получить пути до конфигураций
-     * 
+     *
      * @return type
      */
 	public function getPaths()
@@ -55,7 +80,7 @@ class Config_Manager
 
 	/**
 	 * Загружает и возвращает конфиг.
-	 * 
+	 *
      * @param string $type Тип конфига.
 	 * @param string|array $config [optional] Название или конфиг по умолчанию.
 	 * 		Если параметром $config переданы настройки по умолчанию,
@@ -64,7 +89,7 @@ class Config_Manager
 	 */
 	public function get($type, $config = '')
 	{
-		$resourceKey = $type . 
+		$resourceKey = $type .
             (is_string($config) && $config ? '/' . $config : '');
         if ($this->inLoading) {
 			return $this->load($type, $config);
@@ -83,7 +108,7 @@ class Config_Manager
 
 	/**
 	 * Загрузка реального конфига, игнорируя менеджер ресурсов.
-	 * 
+	 *
      * @param string $type Тип конфига.
 	 * @param string|array $config [optional] Название или конфиг по умолчанию.
 	 */
@@ -94,7 +119,7 @@ class Config_Manager
 
     /**
 	 * Загружает конфиг из файла и возвращает класс конфига.
-	 * 
+	 *
      * @param string $type Тип конфига.
 	 * @param string|array $config Название конфига или конфиг по умолчанию.
 	 * @return Config_Array|Objective Заруженный конфиг.
@@ -125,7 +150,7 @@ class Config_Manager
 			}
 		}
 	}
-    
+
 	/**
 	 * @desc Меняет путь до конфига
 	 * @param mixed $path

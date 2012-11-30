@@ -36,8 +36,9 @@ class Controller_View_Resource extends Controller_Abstract
 		$moduleCollection = $collectionManager->create(
 			'Module'
 		);
+		$viewResourceManager = $this->getService('viewResourceManager');
 		foreach ($moduleCollection as $module) {
-			$config = '';//$configManager->byPath(__CLASS__, $module->name);
+			$config = $configManager->byPath(__CLASS__, $module->name);
 			if (empty($module['hasResource'])) {
 				continue;
 			}
@@ -69,7 +70,7 @@ class Controller_View_Resource extends Controller_Abstract
 						//echo $src_file . ' ' . $src_dir . '<br />';
 						$res = array_merge (
 							$res,
-							View_Resource_Manager::patternLoad (
+							$viewResourceManager->patternLoad(
 								$src_dir,
 								$src_file,
 								$target->type
@@ -77,35 +78,25 @@ class Controller_View_Resource extends Controller_Abstract
 						);
 					}
 				}
-
-				$packer = View_Resource_Manager::packer ($target->type);
+				$packer = $viewResourceManager->packer ($target->type);
 				$packer_config = $target->packer_config;
-
-				if ($packer_config && $packer_config->state_file)
-				{
-					$packer_config->state_file = strtr (
+				if ($packer_config && $packer_config->state_file) {
+					$packer_config->state_file = strtr(
 						$packer_config->state_file,
 						$vars
 					);
 				}
-
-				$dst_file = strtr ($target->file, $vars);
-				$packer->pushConfig ($packer_config);
-
-				$packer->pack ($res, $dst_file, $packer_config);
-				$packer->popConfig ();
-
-				$reses [$name] = array (
+				$dst_file = strtr($target->file, $vars);
+				$packer->pushConfig($packer_config);
+				$packer->pack($res, $dst_file, $packer_config);
+				$packer->popConfig();
+				$reses[$name] = array(
 					'type'	=> $target->type,
-					'url'	=> strtr ($target->url, $vars),
-					'ts'	=> $packer->cacheTimestamp ()
+					'url'	=> strtr($target->url, $vars),
+					'ts'	=> $packer->cacheTimestamp()
 				);
 			}
-
-			$this->_output->send ('reses', $reses);
+			$this->output->send('reses', $reses);
 		}
-
-
 	}
-
 }
