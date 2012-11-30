@@ -43,7 +43,14 @@ class View_Resource_Packer_Js extends View_Resource_Packer_Abstract
 		if ($this->currentResource->nopack || $this->noPack) {
 			$result .= $resource->content();
 		} else {
-			$packer = new JavaScriptPacker($resource->content(), 0);
+			/*ob_start();
+            $command = 'java -jar ' . IcEngine::root() . 
+                'Ice/Static/utils/yuicompressor.jar ' .
+                $resource->filePath;
+            system($command);
+            $result .= ob_get_contents();
+            ob_end_clean();*/
+            $packer = new JavaScriptPacker($resource->content(), 0);
 			$result .= $packer->pack();
 		}
 		$fname = IcEngine::root() . '/cache/js.pack.log';
