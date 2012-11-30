@@ -2,7 +2,7 @@
 
 class Model_Validator_Attribute_Additional extends Model_Validator_Attribute_Abstract
 {
-	public static function validate ($model, $field, $value, $input)
+	public static function validate($model, $field, $value, $input)
 	{
 		$result = true;
 

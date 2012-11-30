@@ -47,15 +47,19 @@ class Model_Collection_Option
 	 */
 	public function execute ($type, $collection, Query_Abstract $query)
 	{
+        $serviceLocator = IcEngine::serviceLocator();
+        $executorService = $serviceLocator->getService('executor');
+        $collectionOptionManager = $serviceLocator->getService(
+            'collectionOptionManager'
+        );
 		if (!$this->_option)
 		{
-			$this->_option = Model_Collection_Option_Manager::get (
+			$this->_option = $collectionOptionManager->get(
 				$this->_name,
 				$collection
 			);
 		}
-
-		return Executor::execute (
+		return $executorService->execute(
 			array ($this->_option, $type),
 			array ($collection, $query, $this->_params)
 		);
