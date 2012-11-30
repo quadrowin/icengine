@@ -3,14 +3,14 @@
 /**
  * Контроллер для компновки ресурсов представления.
  * Предназначен для сбора js, css файлов в один.
- * 
+ *
  * @author goorus, morph
  */
 class Controller_View_Resource extends Controller_Abstract
 {
 	/**
      * Процесс упаковки ресурсов
-     * 
+     *
      * @service configManager $configManager
      * @service viewResourceManager $viewResourceManager
      */
@@ -88,5 +88,5 @@ class Controller_View_Resource extends Controller_Abstract
 			}
 			$this->output->send('resources', $resultResources);
 		}
-	} 
+	}
 }
