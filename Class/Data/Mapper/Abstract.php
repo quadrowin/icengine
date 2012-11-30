@@ -183,7 +183,8 @@ abstract class Data_Mapper_Abstract
 	 * @param Query_Options $options
 	 * @return Query_Result
 	 */
-	public function execute (Data_Source_Abstract $source, Query_Abstract $query, $options = null)
+	public function execute (Data_Source_Abstract $source,
+		Query_Abstract $query, $options = null)
 	{
 		if (!($query instanceof Query))
 		{
