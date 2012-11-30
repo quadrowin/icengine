@@ -2,35 +2,35 @@
 
 /**
  * Абстрактный класс загрузчика
- * 
+ *
  * @author goorus, morph
  */
 abstract class Bootstrap_Abstract
 {
 	/**
 	 * Путь до начала структуры Ice.
-	 * 
+	 *
      * @var string
 	 */
 	protected $basePath;
 
 	/**
 	 * Название бутстрапа
-	 * 
+	 *
      * @var string
 	 */
 	protected $name;
 
 	/**
 	 * Флаг выполненного бутстрапа.
-	 * 
+	 *
      * @var boolean
 	 */
 	protected $runned = false;
 
 	/**
 	 * Возвращает загрузчик.
-	 * 
+	 *
      * @param string $path путь до этого загрузчика
 	 */
 	public function __construct($path)
@@ -57,7 +57,7 @@ abstract class Bootstrap_Abstract
 
 	/**
 	 * Возвращает путь до начала структуры Ice.
-	 * 
+	 *
      * @return string.
 	 */
 	public function basePath()
@@ -78,7 +78,7 @@ abstract class Bootstrap_Abstract
 		$this->initView();
 		$this->initUser();
 	}
-    
+
 	/**
 	 * Инициализация менеджера атрибутов.
 	 */
@@ -109,7 +109,7 @@ abstract class Bootstrap_Abstract
 
 	/**
 	 * Инициализация схемы моделей.
-	 * 
+	 *
      * @param string $config
 	 */
 	public function initModelScheme($name)
@@ -142,7 +142,7 @@ abstract class Bootstrap_Abstract
 
 	/**
 	 * Возвращает название загрузчика.
-	 * 
+	 *
      * @return string
 	 */
 	public function name()
