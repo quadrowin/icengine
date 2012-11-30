@@ -22,7 +22,7 @@ class Model_Proxy_Collection extends Model_Collection
 	public function __construct ($model_name)
 	{
 		$this->_modelName = $model_name;
-    	$this->_options = new Model_Collection_Option_Collection ($this);
+    	$this->_options = new Model_Collection_Option_Collection($this);
 	}
 
 	/**
@@ -38,7 +38,7 @@ class Model_Proxy_Collection extends Model_Collection
 
 		foreach ($rows as $row)
 		{
-			$this->_items [] = new Model_Proxy ($this->_modelName, $row);
+			$this->_items [] = new Model_Proxy($this->_modelName, $row);
 		}
 
 		return $this;

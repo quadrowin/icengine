@@ -9,11 +9,11 @@ class Model_Mapper_Scheme_Accessor_Reference extends Model_Mapper_Scheme_Accesso
 	/**
 	 * @see Model_Mapper_Scheme_Accessor_Abstract::get
 	 */
-	public function get ($scheme, $entity)
+	public function get($scheme, $entity)
 	{
-		return $entity->getValue ()->data (
-			$scheme->getModel ()->modelName (),
-			$scheme->getModel ()->key ()
+		return $entity->getValue()->data(
+			$scheme->getModel()->modelName(),
+			$scheme->getModel()->key()
 		);
 	}
 }

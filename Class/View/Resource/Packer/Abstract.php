@@ -1,30 +1,33 @@
 <?php
+
 /**
- * @desc Абстрактный упаковщик ресурсов представления.
- * @author Юрий
- * @package IcEngine
- *
+ * Абстрактный упаковщик ресурсов представления.
+ * 
+ * @author goorus, morph
  */
 abstract class View_Resource_Packer_Abstract
 {
 	
 	/**
-	 * @desc Текущий ресурс
-	 * @var View_Resource
+	 * Текущий ресурс
+	 * 
+     * @var View_Resource
 	 */
-	protected $_currentResource;
+	protected $currentResource;
 	
 	/**
-	 * @desc Время создания упакованного файла.
-	 * @var string
+	 * Время создания упакованного файла.
+	 * 
+     * @var string
 	 */
-	protected $_cacheTimestamp = 0;
+	protected $cacheTimestamp = 0;
 	
 	/**
-	 * @desc Настройки
-	 * @var array
+	 * Настройки
+	 * 
+     * @var array
 	 */
-	protected $_config = array (
+	protected $config = array(
 		/**
 		 * @desc Префикс файла с упакованными ресурсами.
 		 * @var string
@@ -71,241 +74,218 @@ abstract class View_Resource_Packer_Abstract
 	);
 	
 	/**
-	 * @desc Пул конфигов.
-	 * @var array <Config_Array>
+	 * Пул конфигов.
+	 * 
+     * @var array <Config_Array>
 	 */
-	protected $_configPool = array ();
+	protected $configPool = array();
 	
 	/**
-	 * @desc Собирает префикс для файла.
-	 * @return string Префикс для файла.
+	 * Собирает префикс для файла.
+	 * 
+     * @return string Префикс для файла.
 	 */
-	public function _compileFilePrefix ()
+	public function compileFilePrefix()
 	{
-		return str_replace (
-			'{$time}',
-			date ('Y-m-d H:i:s'),
-			$this->config ()->file_prefix
+		return str_replace(
+			'{$time}', date('Y-m-d H:i:s'), $this->config()->file_prefix
 		);
 	}
 	
 	/**
-	 * @desc Таймстамп создания кэша.
-	 * @return integer
+	 * Таймстамп создания кэша.
+	 * 
+     * @return integer
 	 */
-	public function cacheTimestamp ()
+	public function cacheTimestamp()
 	{
-		return $this->_cacheTimestamp;
+		return $this->cacheTimestamp;
 	}
 	
 	/**
-	 * @desc Проверяет существование валидного кэша для ресурсов.
-	 * @param array $resources
-	 * @param string $result_file
+	 * Проверяет существование валидного кэша для ресурсов.
+	 * 
+     * @param array $resources
+	 * @param string $resultFile
 	 * @return boolean
 	 */
-	public function cacheValid (array $resources, $result_file)
+	public function cacheValid(array $resources, $resultFile)
 	{
-		$config = $this->config ();
-		
-		if (
-			!$result_file || 
-			!file_exists ($result_file) || 
-			!$config->state_file ||
-			!file_exists ($config ['state_file'])
-		)
-		{
+		$config = $this->config();
+		if (!$resultFile) {
+            return false;
+        }
+        if (!file_exists($resultFile)) {
+            return false;
+        }
+        if (!$config->state_file) {
+            return false;
+        }
+        if (!file_exists($config->state_file)) {
+            return false;
+        }
+		$stateData = file_get_contents($config->state_file);
+		$state = json_decode($stateData, true);
+		if (!$state) {
 			return false;
 		}
-		
-		$state = file_get_contents ($config ['state_file']);
-		$state = json_decode ($state, true);
-		
-		if (!$state)
-		{
-			return false;
+        if (!isset($state['result_file'], $state['result_time'],
+            $state['resources'])) {
+            return false;
+        }
+        if ($state['result_file'] != $resultFile) {
+            return false;
+        }
+        if (!is_array($state['resources'])) {
+            return false;
+        }
+        if (count($state['resources']) != count($resources)) {
+            return false;
+        }
+		$deltaTime = time() - $state['result_time'];
+		if ($deltaTime > $config->refresh_time) {
+			$deltaTime -= $config->refresh_time;
+			if ($deltaTime > $config->refresh_time || rand(0, $deltaTime) == 0) {
+                return false;
+            }
 		}
-		
-		if (
-			!isset ($state ['result_file']) ||
-			!isset ($state ['result_time']) ||
-			!isset ($state ['resources']) ||
-			$state ['result_file'] != $result_file ||
-			!is_array ($state ['resources']) ||
-			count ($state ['resources']) != count ($resources)
-		)
-		{
-			return false;
+		foreach ($state['resources'] as $i => $resource) {
+            if (!isset($resources[$i])) {
+                return false;
+            }
+            if ($resource['filemtime'] != $resources[$i]->filemtime()) {
+                return false;
+            }
+            if ($resource['file_path'] != $resources[$i]->filePath) {
+                return false;
+            }
 		}
-		
-		$delta_time = time () - $state ['result_time'];
-		if ($delta_time > $config ['refresh_time'])
-		{
-			$delta_time -= $config ['refresh_time'];
-			
-			if (
-				$delta_time > $config ['refresh_time'] ||
-				rand (0, $delta_time) == 0
-			)
-			{
-				return false;
-			}
-		} 
-		
-		foreach ($state ['resources'] as $i => $res)
-		{
-			if (
-				!isset ($resouces [$i]) ||
-				$res ['filemtime'] != $resources [$i]->filemtime () ||
-				$res ['file_path'] != $resources [$i]->filePath 
-			)
-			{
-				return false;
-			}
-		}
-		
-		$this->_cacheTimestamp = $state ['result_time'];
-		
+		$this->cacheTimestamp = $state['result_time'];
 		return true;
 	}
 	
 	/**
-	 * @desc Объединение результатов упаковщика.
-	 * @param array $packages
+	 * Объединение результатов упаковщика.
+	 * 
+     * @param array $packages
 	 * @return string
 	 */
-	public function compile (array $packages)
+	public function compile(array $packages)
 	{
-		return
-			$this->_compileFilePrefix () . 
-			implode ("\n", $packages);
+		return $this->compileFilePrefix() . implode("\n", $packages);
 	}
 	
 	/**
-	 * @desc Загружает и возвращает конфиг
-	 * @return Objective
+	 * Загружает и возвращает конфиг
+	 * 
+     * @return Objective
 	 */
-	public function config ()
+	public function config()
 	{
-		if (is_array ($this->_config))
-		{
-			$this->_config = Config_Manager::get (
-				get_class ($this),
-				$this->_config
+		if (is_array($this->config)) {
+            $serviceLocator = IcEngine::serviceLocator();
+            $configManager = $serviceLocator->getService('configManager');
+			$this->config = $configManager->get(
+				get_class($this), $this->config
 			);
 		}
-		return $this->_config;
+		return $this->config;
 	}
 	
 	/**
-	 * @desc Пакование ресурсов в строку или указанный файл.
-	 * @param array <string> $resources Ресурсы.
-	 * @param string $result_file [optional] Файл для сохранения результата.
+	 * Пакование ресурсов в строку или указанный файл.
+	 * 
+     * @param array <string> $resources Ресурсы.
+	 * @param string $resultFile [optional] Файл для сохранения результата.
+     * @param boolean $notForceRepack [optional] Принудительно перепаковать статику
 	 * @return mixed|string
 	 * 		
 	 */
-	public function pack (array $resources, $result_file = '')
+	public function pack(array $resources, $resultFile = '', $config = null,
+        $notForceRepack = false)
 	{
-		$config = $this->config ();
-		
-		$packages = array ();
-		
-		if ($this->cacheValid ($resources, $result_file))
-		{
+        if (!$config) {
+            $config = $this->config();
+        }
+		$noCompiledPackages = array();
+		if ($this->cacheValid($resources, $resultFile) && !$notForceRepack) {
 			return true;
 		}
-		
-		foreach ($resources as $resource)
-		{
-			if (!$resource->exclude)
-			{
-				$this->_currentResource = $resource;
-				$packages [] = $this->packOne ($resource);
+		foreach ($resources as $resource) {
+			if (!$resource->exclude) {
+				$this->currentResource = $resource;
+				$noCompiledPackages[] = $this->packOne($resource);
 			}
 		}
-		
-		$packages = $this->compile ($packages);
-		
-		if ($config ['charset_base'] != $config ['charset_output'])
-		{
-			$packages = iconv (
-				$config ['charset_base'],
-				$config ['charset_output'],
-				$packages
+		$packages = $this->compile($noCompiledPackages);
+		if ($config->charset_base != $config->charset_output) {
+			$packages = iconv(
+				$config->charset_base, $config->charset_output, $packages
 			);
 		}
-        
-		if ($result_file)
-		{
-			$this->saveValidState ($resources, $result_file);
-			return file_put_contents ($result_file, $packages);
+		if ($resultFile) {
+			$this->saveValidState($resources, $resultFile);
+			return file_put_contents($resultFile, $packages);
 		}
-
 		return $packages;
 	}
 	
 	/**
-	 * @desc Паковка одного ресурса.
-	 * @param View_Resource $resource Ресурс.
+	 * Паковка одного ресурса.
+	 * 
+     * @param View_Resource $resource Ресурс.
 	 * @return string Запакованная строка, содержащая ресурс.
 	 */
-	abstract public function packOne (View_Resource $resource);
+	abstract public function packOne(View_Resource $resource);
 	
 	/**
 	 * @desc Возвращание конфигов к исходному состоянию.
 	 */
-	public function popConfig ()
+	public function popConfig()
 	{
-		$this->config = array_pop ($this->_configPool);
+		$this->config = array_pop($this->configPool);
 	}
 	
 	/**
-	 * @desc Наложение конфигов.
+	 * Наложение конфигов.
 	 */
-	public function pushConfig (Objective $config)
+	public function pushConfig(Objective $config)
 	{
-		$this->_configPool [] = $this->config ();
-		$this->_config = new Objective (array_merge (
-			$this->_config->asArray (),
-			$config->asArray ()
+		$this->configPool[] = $this->config();
+		$this->config = new Objective(array_merge(
+			$this->config->asArray(),
+			$config->asArray()
 		));
 	}
 	
 	/**
-	 * @desc Сохраняет информацию о текущем состоянии файлов.
-	 * @param array $resources
-	 * @param string $result_file
+	 * Сохраняет информацию о текущем состоянии файлов.
+	 * 
+     * @param array $resources
+	 * @param string $resultFile
 	 */
-	public function saveValidState (array $resources, $result_file)
+	public function saveValidState(array $resources, $resultFile)
 	{
-		$config = $this->config ();
-		
-		if (
-			!$result_file ||  
-			!$config->state_file
-		)
-		{
-			return false;
-		}
-		
-		$state = array (
-			'result_file'	=> $result_file,
-			'result_time'	=> time (),
-			'resources'		=> array ()
+		$config = $this->config();
+		if (!$resultFile) {
+            return false;
+        }
+        if (!$config->state_file) {
+            return false;
+        }
+		$state = array(
+			'result_file'	=> $resultFile,
+			'result_time'	=> time(),
+			'resources'		=> array()
 		);
-		
-		foreach ($resources as $i => $resource)
-		{
-			$state ['resources'][$i] = array (
+		foreach ($resources as $i => $resource) {
+			$state['resources'][$i] = array(
 				'file_path'	=> $resource->filePath,
-				'filemtime'	=> $resource->filemtime ()
+				'filemtime'	=> $resource->filemtime()
 			);
 		}
-		
-		$this->_cacheTimestamp = $state ['result_time'];
-		
-		$state = json_encode ($state);
-		file_put_contents ($config->state_file, $state);
+		$this->cacheTimestamp = $state['result_time'];
+		$stateEncoded = json_encode($state);
+		file_put_contents($config->state_file, $stateEncoded);
 	}
-	
 }

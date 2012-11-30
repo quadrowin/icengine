@@ -23,21 +23,25 @@ class Model_Mapper
 	 */
 	public static function __callStatic ($method, $params)
 	{
-		$method = Model_Mapper_Method::normalizaName ($method);
-		$method = Model_Mapper_Method::byName ($method);
+        $serviceLocator = IcEngine::serviceLocator();
+        $modelMapperMethod = $serviceLocator->getService('modelMapperMethod');
+		$method = $modelMapperMethod->normalizaName($method);
+		$method = $modelMapperMethod->byName($method);
 		$method->setParams ($params);
-		return $method->execute ();
+		return $method->execute();
 	}
 
 	/**
 	 * @desc Получить конфигурацию
 	 * @return Objective
 	 */
-	public static function config ()
+	public static function config()
 	{
-		if (!is_object (self::$_config))
+		$serviceLocator = IcEngine::serviceLocator();
+        $configManager = $serviceLocator->getService('configManager');
+        if (!is_object (self::$_config))
 		{
-			self::$_config = Config_Manager::get (__CLASS__, self::$_config);
+			self::$_config = $configManager->get(__CLASS__, self::$_config);
 		}
 		return self::$_config;
 	}
@@ -48,16 +52,21 @@ class Model_Mapper
 	 */
 	public static function scheme ($model)
 	{
+        $serviceLocator = IcEngine::serviceLocator();
+        $configManager = $serviceLocator->getService('configManager');
+        $modelMapperScheme = $serviceLocator->getService('modelMapperScheme');
+        $modelMapperSchemePart = $serviceLocator->getService(
+            'modelMapperSchemePart'
+        );
 		if (is_object($model)) {
-			$model_name = $model->modelName ();
+			$model_name = $model->modelName();
 		} else {
 			$model = $model_name;
 		}
-		$key = $model_name . '_' . $model->key ();
-
-		if (!isset (self::$_schemes [$key]))
+		$key = $model_name . '_' . $model->key();
+		if (!isset (self::$_schemes[$key]))
 		{
-			$config = Config_Manager::get ('Model_Mapper_' . $model_name);
+			$config = $configManager->get('Model_Mapper_' . $model_name);
 			if (!$config)
 			{
 				return;
@@ -68,19 +77,19 @@ class Model_Mapper
 			{
 				$scheme_name = $config->scheme;
 			}
-			$scheme = Model_Mapper_Scheme::byName ($scheme_name);
-			$scheme->setModel ($model);
+			$scheme = $modelMapperScheme->byName($scheme_name);
+			$scheme->setModel($model);
 			foreach ($config as $name => $values)
 			{
 				if ($values)
 				{
-					$scheme = Model_Mapper_Scheme_Part::getAuto (
+					$scheme = $modelMapperSchemePart->getAuto(
 						$name, $scheme, $values
 					);
 				}
 			}
-			self::$_schemes [$key] = $scheme;
+			self::$_schemes[$key] = $scheme;
 		}
-		return clone self::$_schemes [$key];
+		return clone self::$_schemes[$key];
 	}
 }

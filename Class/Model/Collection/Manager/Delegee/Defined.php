@@ -17,6 +17,8 @@ class Model_Collection_Manager_Delegee_Defined
 	public static function load(Model_Collection $collection,
         Query_Abstract $query)
 	{
+        $serviceLocator = IcEngine::serviceLocator();
+        $helperArray = $serviceLocator->getService('helperArray');
 		$modelName = $collection->modelName();
 		$rows = $modelName::$rows;
 		$where = $query->getPart(Query::WHERE);
@@ -36,10 +38,10 @@ class Model_Collection_Manager_Delegee_Defined
 		}
         $result = $rows;
         if ($filter) {
-            $result = Helper_Array::filter($rows, $filter);
+            $result = $helperArray->filter($rows, $filter);
         }
         if ($result && $sort) {
-            Helper_Array::masort($result, implode(',', $sort));
+            $helperArray->masort($result, implode(',', $sort));
         }
 		return array('items' => $result);
 	}

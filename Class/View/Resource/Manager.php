@@ -30,21 +30,21 @@ class View_Resource_Manager extends Manager_Abstract
 	/**
 	 * @inheritdoc
 	 */
-	protected $config = array ();
+	protected $config = array();
 
 	/**
 	 * Ресурсы
      * 
 	 * @var array <View_Resource_Item>
 	 */
-	protected $resources = array ();
+	protected $resources = array();
 
 	/**
 	 * Упаковщики ресурсов.
 	 * 
      * @var array <View_Resrouce_Packer_Abstract>
 	 */
-	protected $packers = array ();
+	protected $packers = array();
 
 	/**
 	 * Добавление ресурса
@@ -116,6 +116,7 @@ class View_Resource_Manager extends Manager_Abstract
                 }
             }
         }
+        return $this;
 	}
     
     /**
@@ -171,6 +172,9 @@ class View_Resource_Manager extends Manager_Abstract
         $list = array($dir);
         $files = array();
         for ($dir = reset($list); $dir !== false; $dir = next($list)) {
+            if (!is_dir($baseDir . $dir)) {
+                continue;
+            }
             $subdirs = scandir($baseDir . $dir);
             $path = $dir ? $dir . '/' : '';
             for ($j = 0, $count = sizeof($subdirs); $j < $count; $j++) {
@@ -189,7 +193,7 @@ class View_Resource_Manager extends Manager_Abstract
             }
         }
         $result = array();
-        $baseDirLen = strlen($baseDirLen);
+        $baseDirLen = strlen($baseDir);
         for ($j = 0, $count = sizeof($files); $j < $count; $j++) {
             $options = array(
                 'source'    => $files[$j][0],
@@ -216,12 +220,11 @@ class View_Resource_Manager extends Manager_Abstract
     protected function loadWithPattern($pattern, $baseDir, $baseUrl)
     {
         $noPack = $pattern[0] == '-';
-        $exclude = $pattern[9] == '^';
+        $exclude = $pattern[0] == '^';
         $options = array(
             'source'	=> $pattern,
             'nopack'	=> $noPack,
-            'exlude'    => $exclude,
-            'filePath'	=> ''
+            'exlude'    => $exclude
         );
         if ($noPack || $exclude) {
             $pattern = substr($pattern, 1);
@@ -251,12 +254,10 @@ class View_Resource_Manager extends Manager_Abstract
         if (!$results) {
             return array();
         }
-        foreach ($results as $i => $items) {
-            foreach ($items as $j => $item) {
-                $results[$i][$j]['options'] = array_merge(
-                    $item['options'], $options
-                );
-            }
+        foreach ($results as $i => $item) {
+            $results[$i]['options'] = array_merge(
+                $item['options'], $options
+            );
         }
         return $results;
     }
