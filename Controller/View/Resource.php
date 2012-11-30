@@ -1,48 +1,31 @@
 <?php
+
 /**
- *
- * @desc Контроллер для компновки ресурсов представления.
+ * Контроллер для компновки ресурсов представления.
  * Предназначен для сбора js, css файлов в один.
- * @author Юрий
- * @package IcEngine
- *
+ * 
+ * @author goorus, morph
  */
 class Controller_View_Resource extends Controller_Abstract
 {
-
 	/**
-	 * (non-PHPdoc)
-	 * @see Controller_Abstract::index()
-	 */
-	public function index ()
+     * Процесс упаковки ресурсов
+     * 
+     * @service configManager $configManager
+     * @service viewResourceManager $viewResourceManager
+     */
+	public function index($type, $params, $name, $context)
 	{
-		//$config = $this->config ();
-		list (
-			$type,
-			$params,
-			$name_filter
-		) = $this->_input->receive (
-			'type',
-			'params',
-			'name'
-		);
-
 		$vars = array ();
-
-		if ($params)
-		{
-			foreach ($params as $k => $v)
-			{
-				$vars ['{$' . $k . '}'] = $v;
+		if ($params) {
+			foreach ($params as $key => $value) {
+				$vars ['{$' . $key . '}'] = $value;
 			}
 		}
-
-		//var_dump($type . __FILE__);die;
-		$moduleCollection = Model_Collection_Manager::create(
-			'Module'
-		);
+        $resultResources = array();
+		$moduleCollection = $context->collectionManager->create('Module');
 		foreach ($moduleCollection as $module) {
-			$config = Config_Manager::byPath(__CLASS__, $module->name);
+			$config = $context->configManager->get('Module_' . $module->name);
 			if (empty($module['hasResource'])) {
 				continue;
 			}
@@ -51,74 +34,56 @@ class Controller_View_Resource extends Controller_Abstract
 			if (!$config) {
 				return;
 			}
-			foreach ($config->targets as $name => $target) {
-				if (
-					($type && $type != $target->type) ||
-					($name_filter && $name_filter != $name)
-				)
-				{
-					continue;
-				}
-
-				$res = array ();
-				foreach ($target->sources as $source)
-				{
-					if (is_string ($source))
-					{
-						$src_dir = IcEngine::root ();
-						$src_files = array ($source);
+			foreach ($config->targets as $targetName => $target) {
+				if ($type && $type != $target->type) {
+                    continue;
+                }
+                if ($name && $name != $targetName) {
+                    continue;
+                }
+				$resources = array();
+				foreach ($target->sources as $source) {
+					if (is_string($source)) {
+						$sourceDir = IcEngine::root();
+						$sourceFields = array($source);
+					} else {
+						$sourceDir = strtr($source->dir, $vars);
+						$sourceFiles = is_scalar($source->file)
+							? array($source->file)
+                            : $source->file->__toArray();
 					}
-					else
-					{
-						$src_dir = strtr ($source->dir, $vars);
-						$src_files = is_scalar ($source->file)
-							? array ($source->file)
-							: $source->file->__toArray ();
-					}
-
-					foreach ($src_files as $src_file)
-					{
-						$src_file = strtr ($src_file, $vars);
-						//echo $src_file . ' ' . $src_dir . '<br />';
-						$res = array_merge (
-							$res,
-							View_Resource_Manager::patternLoad (
-								$src_dir,
-								$src_file,
-								$target->type
-							)
+					foreach ($sourceFiles as $filename) {
+						$filename = strtr($filename, $vars);
+                        $loadedResources = $context->viewResourceManager->load(
+                            '/',
+                            $sourceDir,
+                            $sourceFiles,
+                            $target->type
+                        );
+						$resources = array_merge(
+							$resources, $loadedResources
 						);
 					}
 				}
-
-				$packer = View_Resource_Manager::packer ($target->type);
-				$packer_config = $target->packer_config;
-
-				if ($packer_config && $packer_config->state_file)
-				{
-					$packer_config->state_file = strtr (
-						$packer_config->state_file,
-						$vars
+				$packer = $context->viewResourceManager->packer($target->type);
+				$packerConfig = $target->packer_config;
+				if ($packerConfig && $packerConfig->state_file) {
+					$packerConfig->state_file = strtr(
+						$packerConfig->state_file, $vars
 					);
 				}
-
-				$dst_file = strtr ($target->file, $vars);
-				$packer->pushConfig ($packer_config);
-
-				$packer->pack ($res, $dst_file, $packer_config);
-				$packer->popConfig ();
-
-				$reses [$name] = array (
+				$destinationFile = strtr($target->file, $vars);
+				$packer->pushConfig($packerConfig);
+				$packer->pack ($resources, $destinationFile, $packerConfig);
+				$packer->popConfig();
+                $resultResources[$name] = array(
 					'type'	=> $target->type,
-					'url'	=> strtr ($target->url, $vars),
-					'ts'	=> $packer->cacheTimestamp ()
+					'url'	=> strtr($target->url, $vars),
+					'ts'	=> $packer->cacheTimestamp()
 				);
 			}
-
-			$this->_output->send ('reses', $reses);
+            print_r($resultResources);
+			$this->output->send('resources', $resultResources);
 		}
-
-
-	}
-
+	} 
 }

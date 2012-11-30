@@ -30,21 +30,21 @@ class View_Resource_Manager extends Manager_Abstract
 	/**
 	 * @inheritdoc
 	 */
-	protected $config = array ();
+	protected $config = array();
 
 	/**
 	 * Ресурсы
      * 
 	 * @var array <View_Resource_Item>
 	 */
-	protected $resources = array ();
+	protected $resources = array();
 
 	/**
 	 * Упаковщики ресурсов.
 	 * 
      * @var array <View_Resrouce_Packer_Abstract>
 	 */
-	protected $packers = array ();
+	protected $packers = array();
 
 	/**
 	 * Добавление ресурса

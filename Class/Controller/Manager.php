@@ -47,7 +47,9 @@ class Controller_Manager extends Manager_Abstract
             'modelManager'  => 'modelManager',
             'dds'               => 'dds',
             'collectionManager' => 'collectionManager',
-            'controllerManager' => 'controllerManager'
+            'controllerManager' => 'controllerManager',
+            'userSession'       => 'session',
+            'user'              => 'user'
         )
 	);
     
@@ -139,24 +141,6 @@ class Controller_Manager extends Manager_Abstract
             $this->annotationManager->setSource($annotationSource);
         }
         return $this->annotationManager;
-    }
-    
-    /**
-     * Добавляет выходные фильтры по умолчанию
-     *
-     * @param Data_Transport $output
-     */
-    public function appendOutputFilters($output)
-    {
-        $filters = $this->config()->output_filters;
-        if (!$filters) {
-            return;
-        }
-        foreach ($filters as $filter) {
-            $filterClass = 'Filter_' . $filter;
-            $filter = new $filterClass;
-            $output->outputFilters()->append($filter);
-        }
     }
 
 	/**
