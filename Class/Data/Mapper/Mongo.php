@@ -245,7 +245,7 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 		if (!($query instanceof Query_Abstract)) {
 			return new Query_Result(null);
 		}
-		$start = microtime (true);
+		$start = microtime(true);
 		$this->query = $query->translate('Mongo');
 		$this->collection = $this->connect()->selectCollection(
 			$this->connectionOptions['database'],
