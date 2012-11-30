@@ -206,7 +206,15 @@ class IcEngine
 	{
         require dirname(__FILE__) . '/Class/Tracer.php';
 	}
-    
+    /**
+     * Получить frontTamplate
+     * 
+     * @return string
+     */
+    public static function getFrontTemplate()
+    {
+        return self::$frontTemplate;
+    }
     /**
      * Получить имя сервиса менеджера для локатора сервисов
      * 

@@ -125,8 +125,6 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 	 */
 	public function _executeSelect(Query_Abstract $query, Query_Options $options)
 	{
-        $modelScheme = IcEngine::serviceLocator()->getService('modelScheme');
-        $modelName = Model_Scheme::tableToModel($this->query['collection']);
 		if ($this->query['find_one']) {
 			$row = $this->collection->findOne($this->query['query']);
 			$this->result = array();

@@ -10,7 +10,7 @@ class Controller_Redis_Clear extends Controller_Abstract
 	/**
 	 * @inheritdoc
 	 */
-	protected $_config = array(
+	protected $config = array(
 		// Роли, имеющие доступ
 		'access_roles'		=> array('admin', 'editor', 'cli'),
 		// Провайдеры, которые будут игнорироваться при очищение
@@ -45,17 +45,20 @@ class Controller_Redis_Clear extends Controller_Abstract
 	 */
 	public function _beforeAction($action)
 	{
-		DDS::execute (
-			Query::instance ()
-				->insert('Redis_Log')
-				->values (array (
-					'time'		=> Helper_Date::toUnix (),
-					'User__id'	=> User::id (),
+		$dds = $this->getService('dds');
+		$query = $this->getService('query');
+		$helperDate = $this->getService('helperDate');
+		$userService = $this->getService('user');
+		$dds->execute(
+			$query->insert('Redis_Log')
+				->values(array(
+					'time'		=> $helperDate->toUnix(),
+					'User__id'	=> $userService->id(),
 					'action'	=> $action,
-					'data'		=> var_export($this->_input->receiveAll (), true)
+					'data'		=> var_export($this->input->receiveAll(), true)
 				))
 		);
-		parent::_beforeAction ($action);
+		parent::_beforeAction($action);
 	}
 
 	public function clear()
@@ -69,8 +72,10 @@ class Controller_Redis_Clear extends Controller_Abstract
 		if (!$indexes && !$controllers) {
 			return;
 		}
+		$dataProviderManager = $this->getService('dataProviderManager');
+		$helperHeader = $this->getService('helperHeader');
 		if ($controllers) {
-			$provider = Data_Provider_Manager::get('executor');
+			$provider = $dataProviderManager->get('executor');
 			$methods = array('callUncached', 'htmlUncached');
 			foreach ($controllers as $controller) {
 				$controller = explode('::', $controller);
@@ -81,7 +86,7 @@ class Controller_Redis_Clear extends Controller_Abstract
 					$provider->delete($key);
 				}
 			}
-			return Helper_Header::redirect('/caches');
+			return $helperHeader->redirect('/caches');
 		}
 		$ignoreProviders = (array) $this->config()->ignore_providers
 			->__toArray();;
@@ -96,7 +101,7 @@ class Controller_Redis_Clear extends Controller_Abstract
 			}
 			$provider->conn->clearByPattern($pattern);
 		}
-		Helper_Header::redirect('/caches');
+		$helperHeader->redirect('/caches');
 	}
 
 	/**
@@ -105,14 +110,15 @@ class Controller_Redis_Clear extends Controller_Abstract
 	 */
 	public function clearContent()
 	{
-		$this->_task->setTemplate(null);
+		$this->task->setTemplate(null);
 		if (!$this->_checkAccess()) {
 			return;
 		}
 		$cleared = 0;
 		$ignored = array();
 		$indexes = array();
-		$config = Config_Manager::get('Data_Provider_Manager');
+		$configManager = $this->getService('configManager');
+		$config = $configManager->get('Data_Provider_Manager');
 		$ignoreProviders = (array) $this->config()->ignore_providers
 			->__toArray();;
 		foreach ($config as $name => $provider) {
@@ -126,8 +132,9 @@ class Controller_Redis_Clear extends Controller_Abstract
 				'prefix'	=> $provider['params']['prefix']
 			);
 		}
+		$dataProviderManager = $this->getService('dataProviderManager');
 		foreach ($indexes as $index) {
-			$provider = Data_Provider_Manager::get ($index['name']);
+			$provider = $dataProviderManager->get($index['name']);
 			if (!$provider) {
 				continue;
 			}
@@ -136,7 +143,7 @@ class Controller_Redis_Clear extends Controller_Abstract
 				$provider->deleteByPattern('');
 			}
 		}
-		$this->_output->send(array(
+		$this->output->send(array(
 			'cleared'	=> $cleared,
 			'ignored'	=> $ignored
 		));
@@ -147,12 +154,14 @@ class Controller_Redis_Clear extends Controller_Abstract
 	 */
 	public function index ()
 	{
-		Bread_Crumb::append('Очистка кэша', null);
+		$breadCrumb = $this->getService('breadCrumb');
+		$breadCrumb->append('Очистка кэша', null);
 		if (!$this->_checkAccess()) {
 			return $this->replaceAction('Error', 'accessDenied');
 		}
 		$indexes = array ();
-		$config = Config_Manager::get('Data_Provider_Manager');
+		$configManager = $this->getService('configManager');
+		$config = $configManager->get('Data_Provider_Manager');
 		$providerNames = (array) $this->config()->provider_names->__toArray();
 		foreach ($config as $name => $provider) {
 			if (!in_array($provider->provider, $providerNames)) {
@@ -164,16 +173,14 @@ class Controller_Redis_Clear extends Controller_Abstract
 			);
 		}
 		$isAdmin = 0;
-		$user = User::getCurrent();
-		if ($user && $user->hasRole('admin'))
-		{
+		$user = $this->getService('user')->getCurrent();
+		if ($user && $user->hasRole('admin')) {
 			$isAdmin = 1;
 		}
-		$this->_output->send (array(
+		$this->output->send(array(
 			'isAdmin'		=> $isAdmin,
 			'indexes'		=> $indexes,
 			'controllers'	=> $this->config()->controller_actions
 		));
 	}
-
 }

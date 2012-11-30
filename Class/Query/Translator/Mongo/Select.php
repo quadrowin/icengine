@@ -111,27 +111,23 @@ class Query_Translator_Mongo_Select extends Query_Translator_Abstract
 	}
 
 	/**
-	 * @desc Возвращает название коллекции.
+	 * Возвращает название коллекции.
+	 *
 	 * @return string
 	 */
-	public function _getFromCollection (Query_Abstract $query, $use_alias = true)
+	public function _getFromCollection(Query_Abstract $query, $use_alias = true)
 	{
-		$from = $query->part (Query::FROM);
-
-		if (!$from)
-		{
+		$locator = IcEngine::serviceLocator();
+		$modelScheme = $locator->getService('modelScheme');
+		$from = $query->part(Query::FROM);
+		if (!$from) {
 			return;
 		}
-
-		if (count ($from) > 1)
-		{
-			throw new Zend_Exception ('Multi from not supported.');
+		if (count($from) > 1) {
+			throw new Zend_Exception('Multi from not supported.');
 		}
-
-		//foreach ($from as $alias => $from)
-
-		reset ($from);
-		return strtolower (Model_Scheme::table (key ($from)));
+		reset($from);
+		return strtolower($modelScheme->table(key($from)));
 	}
 
 	/**

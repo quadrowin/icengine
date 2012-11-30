@@ -197,7 +197,7 @@ class Helper_Link extends Manager_Abstract
 	 */
     public function linkScheme($model1, $model2)
 	{
-        $modelScheme = $this->getService('modelScheme'); 
+        $modelScheme = $this->getService('modelScheme');
         $links = $modelScheme->links($model1);
         return isset($links[$model2]) ? $links[$model2] : array();
 		$model1 = strtolower ($model1);
@@ -290,7 +290,7 @@ class Helper_Link extends Manager_Abstract
 	 * @param Model $model2
 	 * @return boolean
 	 */
-	public static function wereLinked(Model $model1, Model $model2)
+	public function wereLinked(Model $model1, Model $model2)
 	{
 		if (strcmp($model1->table(), $model2->table()) > 0) {
 	        $tmp = $model1;

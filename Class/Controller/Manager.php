@@ -52,7 +52,7 @@ class Controller_Manager extends Manager_Abstract
             'user'              => 'user'
         )
 	);
-    
+
 	/**
 	 * Текущее задание
      *

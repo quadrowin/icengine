@@ -16,7 +16,7 @@ class Controller_Cli extends Controller_Abstract
 	protected function _parsedInput ()
 	{
 		$buffer = new Data_Provider_Buffer ();
-		$argv = $this->_input->receiveAll ();
+		$argv = $this->input->receiveAll ();
 
 		foreach ($argv as $arg)
 		{
@@ -39,33 +39,27 @@ class Controller_Cli extends Controller_Abstract
 	 */
 	public function index ()
 	{
-		try
-		{
-			$ca = $this->_input->receive (1);
-			$action = explode ('/', $ca);
-
-			$action = Controller_Dispatcher::dispatch (
-				$action [0] ? $action [0] : $ca,
-				isset ($action [1]) && $action [1] ? $action [1] : 'index'
+		$controllerDispatcher = $this->getService('controllerDispatcher');
+		$controllerManager = $this->getService('controllerManager');
+		$error = $this->getService('error');
+		try {
+			$ca = $this->input->receive(1);
+			$action = explode('/', $ca);
+			$action = $controllerDispatcher->dispatch(
+				$action[0] ? $action[0] : $ca,
+				isset($action[1]) && $action[1] ? $action[1] : 'index'
 			);
-
-			$action = new Controller_Action ($action);
-
-			$task = new Controller_Task ($action);
-			$task->setInput ($this->_parsedInput ());
-
+			$action = new Controller_Action($action);
+			$task = new Controller_Task($action);
+			$task->setInput($this->_parsedInput ());
 			/**
 			 * @desc Выполненяем задания.
 			 * @var array <Controller_Task>
 			 */
-			$tasks = Controller_Manager::runTasks (array ($task));
-
-			$this->_output->send ('tasks', $tasks);
-		}
-		catch (Zend_Exception $e)
-		{
-			Error::render ($e);
+			$tasks = $controllerManager->runTasks(array($task));
+			$this->output->send('tasks', $tasks);
+		} catch (Zend_Exception $e) {
+			$error->render($e);
 		}
 	}
-
 }
