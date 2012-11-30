@@ -16,7 +16,7 @@ class Model_Mapper_Scheme_Index_Abstract
 	 * @desc Получить имя фабрики
 	 * @return string
 	 */
-	public function factoryName ()
+	public function factoryName()
 	{
 		return 'Index';
 	}
@@ -25,7 +25,7 @@ class Model_Mapper_Scheme_Index_Abstract
 	 * @desc Получить поля индекса
 	 * @return array
 	 */
-	public function getFields ()
+	public function getFields()
 	{
 		return $this->_fields;
 	}
@@ -34,16 +34,16 @@ class Model_Mapper_Scheme_Index_Abstract
 	 * @desc Получить имя индекса
 	 * @return string
 	 */
-	public function getName ()
+	public function getName()
 	{
-		return substr (get_class ($this), 26);
+		return substr(get_class ($this), 26);
 	}
 
 	/**
 	 * @desc Изменить поля индекса
 	 * @param array $fields
 	 */
-	public function setFields ($fields)
+	public function setFields($fields)
 	{
 		$this->_fields = $fields;
 	}

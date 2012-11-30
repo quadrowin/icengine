@@ -9,8 +9,8 @@ class Model_Mapper_Scheme_Accessor_Index extends Model_Mapper_Scheme_Accessor_Ab
 	/**
 	 * @see Model_Mapper_Scheme_Accessor_Abstract::get
 	 */
-	public function get ($scheme, $entity)
+	public function get($scheme, $entity)
 	{
-		return $entity->getValue ();
+		return $entity->getValue();
 	}
 }

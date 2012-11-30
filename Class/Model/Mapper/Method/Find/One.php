@@ -43,12 +43,15 @@ class Model_Mapper_Method_Find_One extends Model_Mapper_Method_Abstract
 	 */
 	public function get ()
 	{
-		$query = Query::factory ('Select');
+        $serviceLocator = IcEngine::serviceLocator();
+        $queryBuilder = $serviceLocator->getService('query');
+        $modelManager = $serviceLocator->getService('modelManager');
+		$query = $queryBuilder->factory ('Select');
 		foreach ($this->_criteria as $arg => $value)
 		{
 			$query->where ($arg, $value);
 		}
-		return Model_Manager::byQuery (
+		return $modelManager->byQuery (
 			$this->_params [0], $query
 		);
 	}

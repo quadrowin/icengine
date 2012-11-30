@@ -8,6 +8,8 @@ class Model_Validator_Abstract
 
 	public static function validate ($model, $input)
 	{
-		return Model_Validator::validate ($model, static::$_scheme, $input);
+        $serviceLocator = IcEngine::serviceLocator();
+        $modelValidator = $serviceLocator->getService('modelValidator');
+		return $modelValidator->validate($model, static::$_scheme, $input);
 	}
 }
