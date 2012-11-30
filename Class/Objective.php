@@ -169,6 +169,16 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 		return $result;
 	}
 
+    /**
+     * Получить данные
+     * 
+     * @return array
+     */
+    public function getData()
+    {
+        return $this->data;
+    }
+    
 	/**
 	 * (non-PHPdoc)
 	 * @see IteratorAggregate::getIterator()
@@ -198,6 +208,17 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
             return array();
         }
         return array_keys($this->data);
+    }
+    
+    /**
+     * Соединить текущие данные с переданными
+     * 
+     * @return Objective
+     */
+    public function merge($objective)
+    {
+        $this->data = array_merge($this->data, $objective->getData());
+        return $this;
     }
     
     /**

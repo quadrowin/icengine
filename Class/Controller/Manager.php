@@ -18,6 +18,13 @@ class Controller_Manager extends Manager_Abstract
     const DEFAULT_VIEW = 'Smarty';
 
     /**
+     * Менеджер аннотаций
+     * 
+     * @var Annotation_Manager_Abstract
+     */
+    protected $annotationManager;
+    
+    /**
 	 * @inheritdoc
 	 */
 	protected $config = array(
@@ -30,7 +37,18 @@ class Controller_Manager extends Manager_Abstract
 		 * @desc Настройки кэширования для экшенов.
 		 * @var array
 		 */
-		'actions'			=> array()
+		'actions'			=> array(),
+        
+        /**
+         * Контекст по умолчанию
+         */
+        'context'           => array(
+            'queryBuilder'  => 'query',
+            'modelManager'  => 'modelManager',
+            'dds'               => 'dds',
+            'collectionManager' => 'collectionManager',
+            'controllerManager' => 'controllerManager'
+        )
 	);
 
 	/**
@@ -39,7 +57,7 @@ class Controller_Manager extends Manager_Abstract
 	 * @var Controller_Task
 	 */
 	protected $currentTask;
-
+    
 	/**
 	 * Транспорт входных данных
      *
@@ -88,7 +106,41 @@ class Controller_Manager extends Manager_Abstract
 	 * @var array <array <Controller_Task>>
 	 */
 	protected $tasksResultsBuffer = array();
+    
+    /**
+     * Инжектор сервисов
+     * 
+     * @var Service_Injector_Abstract
+     */
+    protected $serviceInjector;
+    
+    /**
+     * Локатор услуг
+     * 
+     * @var Service_Locator 
+     */
+    protected $serviceLocator;
 
+    /**
+     * Получить менеджер аннотаций
+     * 
+     * @return Annotation_Manager_Abstract
+     */
+    public function annotationManager()
+    {
+        if (!$this->annotationManager) {
+            $this->annotationManager = new Annotation_Manager_Standart;
+            $dataProviderManager = $this->serviceLocator()->getService(
+                'dataProviderManager'
+            );
+            $provider = $dataProviderManager->get('Annotation');
+            $annotationSource = new Annotation_Source_Simple;
+            $this->annotationManager->setRepository($provider);
+            $this->annotationManager->setSource($annotationSource);
+        }
+        return $this->annotationManager;
+    }
+    
     /**
      * Добавляет выходные фильтры по умолчанию
      *
@@ -145,9 +197,34 @@ class Controller_Manager extends Manager_Abstract
             ->setOutput($output)
             ->setTask($task);
 		$output->beginTransaction();
+        $reflectionMethod = new ReflectionMethod($controller, $actionName);
         $params = $this->sendToTransportFromActionArgs(
-            $controller, $actionName
+            $controller, $reflectionMethod
         );
+        $defaultContext = $this->config->context;
+        if ($defaultContext) {
+            $services = array();
+            foreach ($defaultContext->__toArray() as $argName => $serviceName) {
+                $services[$argName] = $this->serviceLocator()->getService(
+                    $serviceName
+                );
+            }
+            $params['context'] = new Objective($services);
+        }
+        if ($controller->hasInjections()) {
+            $reflection = new ReflectionClass($controller);
+            $this->annotationManager()->getSource()->setReflection($reflection);
+            $scheme = $this->annotationManager()->getAnnotation($controller);
+            $actionScheme = $scheme->getMethod($actionName);
+            if (!empty($actionScheme['service'])) {
+                $actionContext = $this->serviceInjector()->inject(
+                    null, $actionScheme['service']
+                );
+                $params['context'] = isset($params['context'])
+                    ? $params['context']->merge($actionContext) 
+                    : $actionContext;
+            }
+        }
         call_user_func_array(array($controller, $actionName), (array) $params);
 		$task->setTransaction($output->endTransaction());
 		$controller
@@ -251,7 +328,7 @@ class Controller_Manager extends Manager_Abstract
     protected function createTransport($input)
     {
         $transport = new Data_Transport();
-        $transport->beginTransaction ()->send($input);
+        $transport->beginTransaction()->send($input);
         return $transport;
     }
 
@@ -279,6 +356,16 @@ class Controller_Manager extends Manager_Abstract
         return $controller;
 	}
 
+    /**
+     * Вернуть менеджер аннотаций
+     * 
+     * @return Annotation_Manager_Abstract
+     */
+    public function getAnnotationManager()
+    {
+        return $this->annotationManager;
+    }
+    
     /**
 	 * Настройки кэширования для контроллера-экшена.
 	 *
@@ -339,6 +426,26 @@ class Controller_Manager extends Manager_Abstract
 		}
 		return $this->output;
 	}
+    
+    /**
+     * Получить инжектор сервисов
+     * 
+     * @return Service_Injector_Abstract
+     */
+    public function getServiceInjector()
+    {
+        return $this->serviceInjector;
+    }
+    
+    /**
+     * Получить локатор сервисов
+     * 
+     * @return Service_Locator
+     */
+    public function getServiceLocator()
+    {
+        return $this->serviceLocator;
+    }
 
 	/**
 	 * Выполняет указанный контроллер, экшен с заданными параметрами
@@ -438,7 +545,7 @@ class Controller_Manager extends Manager_Abstract
         }
 		return !empty($options['full_result']) ? $result : $result['html'];
 	}
-
+    
     /**
      * Логирует ошибку
      *
@@ -554,12 +661,11 @@ class Controller_Manager extends Manager_Abstract
      * из заголовка метода
      *
      * @param Controller_Abstract $controller
-     * @param string $actionName
+     * @param ReflectionMethod $reflection
      * @return array
      */
-    public function sendToTransportFromActionArgs($controller, $actionName)
+    public function sendToTransportFromActionArgs($controller, $reflection)
     {
-        $reflection = new ReflectionMethod($controller, $actionName);
 		$params = $reflection->getParameters();
         $currentInput = $controller->getInput();
         $provider = $currentInput->getProvider(0);
@@ -568,6 +674,9 @@ class Controller_Manager extends Manager_Abstract
             return array();
         }
         foreach ($params as $param) {
+            if ($param->name == 'context') {
+                $controller->setHasInjections(true);
+            }
             $value = $currentInput->receive($param->name);
             if (!$value && $param->isOptional()) {
                 $value = $param->getDefaultValue();
@@ -578,5 +687,66 @@ class Controller_Manager extends Manager_Abstract
             $resultParams[$param->name] = $value;
         }
         return $resultParams;
+    }
+    
+    /**
+     * Получить инжектор сервисов
+     * 
+     * @return Service_Injector_Abstract
+     */
+    public function serviceInjector()
+    {
+        if (!$this->serviceInjector) {
+            $injector = $this->serviceLocator()->getService(
+                'serviceInjector'
+            );
+            $this->serviceInjector = $injector->get(
+                'Context', $this->serviceLocator
+            );
+        }
+        return $this->serviceInjector;
+    }
+    
+    /**
+     * Получить локатор сервисов
+     * 
+     * @return Service_Locator
+     */
+    public function serviceLocator()
+    {
+        if (!$this->serviceLocator) {
+            $this->serviceLocator = new Service_Locator;
+        }
+        return $this->serviceLocator;
+    }
+    
+    /**
+     * Изменить менеджер аннотаций
+     * 
+     * @param Annotation_Manager_Abstract $annotationManager
+     */
+    public function setAnnotationManager($annotationManager)
+    {
+        $this->annotationManager = $annotationManager;
+    }
+    
+    /**
+     * Изменить инжектор сервисов
+     * 
+     * @param Service_Injector_Abstract $serviceInjector
+     */
+    public function setServiceInjector($serviceInjector)
+    {
+        $this->serviceInjector = $serviceInjector;
+    }
+    
+    /**
+     * Изменить локатор сервисов
+     * 
+     * @param Service_Locator $serviceLocator
+     */
+    public function setServiceLocator($serviceLocator)
+    {
+        $this->serviceLocator = $serviceLocator;
     }
 }
