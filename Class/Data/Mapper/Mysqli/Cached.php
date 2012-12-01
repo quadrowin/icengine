@@ -2,35 +2,35 @@
 
 /**
  * Мэппер для работы с mysql, с кэшированием запросов.
- * 
+ *
  * @author goorus, morph
  */
 class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 {
 	/**
 	 * Кэшер запросов.
-	 * 
+	 *
      * @var Data_Provider_Abstract
 	 */
 	protected $cacher;
-    
+
     /**
      * Кэши, уже полученные из провайдера
-     * 
+     *
      * @var array
      */
     protected static $caches = array();
-    
+
     /**
      * Валидны ли тэги
-     * 
+     *
      * @var array
      */
     protected static $tagsValid = array();
 
 	/**
 	 * Получение хэша запроса
-	 * 
+	 *
      * @return string
 	 */
 	protected function sqlHash($query)
@@ -41,7 +41,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	/**
 	 * @inheritdoc
 	 */
-	protected function _executeChange(Query_Abstract $query, 
+	protected function _executeChange(Query_Abstract $query,
         Query_Options $options)
 	{
 		if (!$this->linkIdentifier) {
@@ -78,7 +78,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	/**
 	 * @inheritdoc
 	 */
-	protected function _executeInsert (Query_Abstract $query, 
+	protected function _executeInsert(Query_Abstract $query,
         Query_Options $options)
 	{
 		if (!$this->linkIdentifier) {
@@ -113,13 +113,15 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	 * @param Query_Options $options
 	 * @return null|array
 	 */
-	protected function _executeSelect(Query_Abstract $query, 
+	protected function _executeSelect(Query_Abstract $query,
         Query_Options $options)
 	{
+		//print_r($options->getExpiration());
 		if (Tracer::$enabled) {
 			Tracer::incSelectQueryCount();
 		}
 		$key = $this->sqlHash($query);
+		//echo $query->translate() . '<br />'; echo $key . '<br />';
 		$expiration = $options->getExpiration();
         if (!isset(self::$caches[$key])) {
             $cache = $this->cacher->get($key);
@@ -128,8 +130,8 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
         }
 		$cacheValid = false;
 		if ($cache) {
-            $tagsValid = $this->isTagsValid($cache['t']); 
-            $expiresValid = $cache['a'] + $expiration > time() || 
+            $tagsValid = $this->isTagsValid($cache['t']);
+            $expiresValid = $cache['a'] + $expiration > time() ||
                 $expiration = 0;
 			$cacheValid = $expiresValid && $tagsValid;
 		}
@@ -191,7 +193,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	 * (non-PHPdoc)
 	 * @see Data_Mapper_Abstract::execute()
 	 */
-	public function execute(Data_Source_Abstract $source, Query_Abstract $query, 
+	public function execute(Data_Source_Abstract $source, Query_Abstract $query,
         $options = null)
 	{
 		if (!($query instanceof Query_Abstract)) {
@@ -238,7 +240,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 
 	/**
      * Получить текущего кэшера
-     * 
+     *
 	 * @return Data_Provider_Abstract
 	 */
 	public function getCacher()
@@ -248,7 +250,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 
     /**
      * Проверяет валидны ли тэги
-     * 
+     *
      * @param array $tags
      * @return boolean
      */
@@ -272,10 +274,10 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
         }
         return $validTags;
     }
-    
+
 	/**
 	 * Изменить текущего кэшера
-     * 
+     *
 	 * @param Data_Provider_Abstract $cacher
 	 */
 	public function setCacher(Data_Provider_Abstract $cacher)
