@@ -1,23 +1,21 @@
 <?php
+
 /**
- * 
- * @desc Фильтр для сериализации конфигов
- * @author Юрий
- * @package IcEngine
+ * Фильтр для сериализации конфигов
  *
+ * @author Юрий, neon
+ * @package IcEngine
  */
 class Filter_Config_Serialize
 {
-	
 	/**
-	 * @desc Десириализация модели в строку
+	 * Десeриализация модели в строку
+	 *
 	 * @param Config_Array $data
 	 * @return string
 	 */
-	public function filter (Config_Array $data)
+	public function filter(Config_Array $data)
 	{
-		return
-			get_class ($data) . ':' . json_encode ($data->__toArray ());
+		return get_class($data) . ':' . json_encode($data->__toArray());
 	}
-	
 }
