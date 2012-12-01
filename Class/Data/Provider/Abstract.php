@@ -1,29 +1,28 @@
 <?php
+
 /**
+ * Абстрактный класс провайдера данных.
  *
- * @desc Абстрактный класс провайдера данных.
- * @author Goorus
+ * @author Goorus, neon
  * @package IcEngine
- *
  */
 class Data_Provider_Abstract
 {
-
 	/**
 	 * Локи установленные текущим экземпляром скрипта.
 	 * Хранятся для снятия в конце работы.
 	 * @var array
 	 */
-	public $locks			= array ();
+	public $locks			= array();
 
 	/**
-	 * @desc Трейсер
+	 * Трейсер
 	 * @var Tracer_Abstract
 	 */
 	public $tracer;
 
 	/**
-	 * @desc Префикс ключей.
+	 * Префикс ключей.
 	 * @var string
 	 */
 	public $prefix			= '';
@@ -50,59 +49,52 @@ class Data_Provider_Abstract
 	public $prefixTag		= '_tag\\';
 
 	/**
-	 * @desc Создает и возвращает провайдер данных.
+	 * Создает и возвращает провайдер данных.
+	 *
 	 * @param array $config Параметры провайдера.
 	 */
-	public function __construct ($config = null)
+	public function __construct($config = null)
 	{
-		if (!$config)
-		{
+		if (!$config) {
 			return;
 		}
-
-		foreach ($config as $opt_name => $opt_value)
-		{
-			$this->setOption ($opt_name, $opt_value);
+		foreach ($config as $opt_name => $opt_value) {
+			$this->setOption($opt_name, $opt_value);
 		}
 	}
 
 	/**
-	 * @desc Установка параметров.
+	 * Установка параметров.
+	 *
 	 * @param string $key Параметр.
 	 * @param string $value Значение.
 	 */
-	protected function _setOption ($key, $value)
+	protected function _setOption($key, $value)
 	{
-		if ($key == 'tracer')
-		{
+		if ($key == 'tracer') {
 			$class = 'Tracer_' . $value;
-			$this->tracer = new $class ();
-		}
-		elseif ($key == 'prefix')
-		{
+			$this->tracer = new $class();
+		} elseif ($key == 'prefix') {
 			$this->prefix = $value;
 		}
 	}
 
-	public function _valDump ($value)
+	public function _valDump($value)
 	{
-		if (is_bool ($value) || is_numeric($value))
-		{
-			return var_export ($value, true);
+		if (is_bool($value) || is_numeric($value)) {
+			return var_export($value, true);
 		}
-		if (is_array ($value))
-		{
-			return 'Array (' . count ($value) . ')';
+		if (is_array($value)) {
+			return 'Array (' . count($value) . ')';
 		}
-		if (is_object ($value))
-		{
-			return get_class ($value);
+		if (is_object($value)) {
+			return get_class($value);
 		}
-		if (is_null ($value))
-		{
+		if (is_null($value)) {
 			return 'null';
 		}
-		return gettype ($value) . '(' . strlen ($value) . ') "' . substr ($value, 0, 30) . '"';
+		return gettype($value) . '(' . strlen($value) . ') "' .
+			substr($value, 0, 30) . '"';
 	}
 
 	/**
@@ -115,124 +107,104 @@ class Data_Provider_Abstract
      * @param array $tags Тэги
      * @return boolean false, если ключ уже существует
 	 */
-	public function add ($key, $value, $expiration = 0, $tags = array())
+	public function add($key, $value, $expiration = 0, $tags = array())
 	{
-		if ($this->tracer)
-		{
-			$this->tracer->add ('add', $key, $expiration);
+		if ($this->tracer) {
+			$this->tracer->add('add', $key, $expiration);
 		}
 	}
 
 	/**
      * Добавление значения к ключу.
-     * @param string $key
-     * 		Ключ
-     * @param string $value
-     * 		Строка, которая будет добавлена к текущему значению ключа
+	 *
+     * @param string $key Ключ
+     * @param string $value Строка, которая будет добавлена к текущему
+	 * значению ключа
 	 */
-	public function append ($key, $value)
+	public function append($key, $value)
 	{
-		if ($this->tracer)
-		{
-			$this->tracer->add ('append', $key);
+		if ($this->tracer) {
+			$this->tracer->add('append', $key);
 		}
-
-		$v = $this->get ($key);
-		return $this->set ($key, $value . $v);
+		$v = $this->get($key);
+		return $this->set($key, $value . $v);
 	}
 
 	/**
 	 * Проверка доступности провайдера.
+	 *
 	 * @return boolean
 	 */
-	public function available ()
+	public function available()
 	{
 		return true;
 	}
 
 	/**
 	 * Проверка тегов на актуальность
-	 * @param array $tags
-	 * 		Массив пар (тег => время_создания)
-	 * @return boolean
-	 * 		true, если все теги актуальны, иначе false.
+	 *
+	 * @param array $tags Массив пар (тег => время_создания)
+	 * @return boolean true, если все теги актуальны, иначе false.
 	 */
-	public function checkTags ($tags = array ())
+	public function checkTags($tags = array())
 	{
-		if (!is_array ($tags) || empty ($tags))
-		{
+		if (!is_array($tags) || empty($tags)) {
 			return true;
 		}
-
-		$tags_keys = array_keys ($tags);
-		$tags_vals = array_values ($tags);
-
-		foreach ($tags_keys as &$key)
-		{
+		$tags_keys = array_keys($tags);
+		$tags_vals = array_values($tags);
+		foreach ($tags_keys as &$key) {
 			$key = $this->prefixTag . $key;
 		}
-
-		$current_values = $this->getMulti ($tags_keys, true);
-
-		if (count ($tags_keys) != count ($current_values))
-		{
-		    debug_print_backtrace ();
+		$current_values = $this->getMulti($tags_keys, true);
+		if (count($tags_keys) != count($current_values)) {
+		    debug_print_backtrace();
 		    return false;
 		}
-
-		for ($i = 0, $count = count ($tags_vals); $i < $count; $i++)
-		{
-			if ($tags_vals [$i] != $current_values [$i])
-			{
+		for ($i = 0, $count = count($tags_vals); $i < $count; $i++) {
+			if ($tags_vals[$i] != $current_values[$i]) {
 				return false;
 			}
 		}
-
 		return true;
 	}
 
 	/**
      * Уменьшает значение ключа на указанную величину
-     * @param string $key
-     * 		Ключ
-     * @param integer $value
-     * 		Величина, на которую будет уменьшено значение ключа
+	 *
+     * @param string $key Ключ
+     * @param integer $value Величина, на которую будет уменьшено
+	 * значение ключа
 	 */
-	public function decrement ($key, $value = 1)
+	public function decrement($key, $value = 1)
 	{
-		if ($this->tracer)
-		{
-			$this->tracer->add ('decrement', $key, $value);
+		if ($this->tracer) {
+			$this->tracer->add('decrement', $key, $value);
 		}
-
-		$current = $this->get ($key);
-		$this->set ($key, $current - $value);
+		$current = $this->get($key);
+		$this->set($key, $current - $value);
 	}
 
 	/**
      * Удаление одного или нескольких ключей
      *
-     * @param string|array $keys
-     * 		Ключ или массив ключей
-     * @param integer $time
-     * 		Время блокировки ключа, после удаления (в секундах).
-     * @param boolean $set_deleted
-     *  	Пометить ключ как удаленный.
-     *  	Если true, будет создан новый ключ, существование ключа будет
-     * 		возможно проверить методом isDeleted
+     * @param string|array $keys Ключ или массив ключей
+     * @param integer $time Время блокировки ключа, после удаления (в секундах).
+     * @param boolean $set_deleted Пометить ключ как удаленный.
+     * Если true, будет создан новый ключ, существование ключа будет
+     * возможно проверить методом isDeleted
  	 */
-	public function delete ($keys, $time = 0, $set_deleted = false)
+	public function delete($keys, $time = 0, $set_deleted = false)
 	{
 		$keys = (array) $keys;
-
-		if ($this->tracer)
-		{
-			$this->tracer->add ('delete', implode (',', $keys));
+		if ($this->tracer) {
+			$this->tracer->add('delete', implode(',', $keys));
 		}
 	}
 
 	/**
-     * @desc Удаление одного или нескольких ключей.
+     * Удаление одного или нескольких ключей по шаблону
+	 *
      * @param string $pattern Маска ключа.
      * @param integer $time Время блокировки ключа, после
      * удаления (в секундах).
@@ -242,62 +214,57 @@ class Data_Provider_Abstract
      * @return integer|null Количественно найденных ключей. Может отличаться
      * от реально удаленного количства ключей ничего не возвращать.
  	 */
-	public function deleteByPattern ($pattern, $time = 0, $set_deleted = false)
+	public function deleteByPattern($pattern, $time = 0, $set_deleted = false)
 	{
-		$keys = $this->keys ($pattern);
-		$this->delete (
+		$keys = $this->keys($pattern);
+		$this->delete(
 			$keys,
 			$time,
 			$set_deleted
 		);
-		return count ($keys);
+		return count($keys);
 	}
 
 	/**
-     * @desc Очистка кеша. Все ключи будут удалены.
+     * Очистка кеша. Все ключи будут удалены.
      * Внимание! В большинстве случаев это приводит к полной очистке кэша,
      * а не только данных этого провайдера. Так если используется один
      * мемкеш (или редис), будут затерты данные всех провайдеров. Для
      * очистки одного провайдера, следует использовать deleteByPattern ('*').
      * @param integer $delay
 	 */
-	public function flush ($delay = 0)
+	public function flush($delay = 0)
 	{
-		if ($this->tracer)
-		{
-			$this->tracer->add ('flush', $delay);
+		if ($this->tracer) {
+			$this->tracer->add('flush', $delay);
 		}
 	}
 
 	/**
      * Получение значения ключа
-     * @param string $key
-     * 		Ключи
-     * @param boolean $plain
-     * 		Получение значения в том виде, в каком он хранится.
-     * @return
-     * 		Текущее значение ключа.
-     * 		Если ключа не существует - null.
+	 *
+     * @param string $key Ключи
+     * @param boolean $plain Получение значения в том виде, в каком он хранится.
+     * @return string|null Текущее значение ключа, если ключа не существует,
+	 * null.
 	 */
-	public function get ($key, $plain = false)
+	public function get($key, $plain = false)
 	{
-		if ($this->tracer)
-		{
-			$this->tracer->add ('get', $key);
+		if ($this->tracer) {
+			$this->tracer->add('get', $key);
 		}
-
 		return null;
 	}
 
 	/**
 	 * Получение всех значений провайдера.
 	 * <b>Внимание</b>: реализовано не для всех провайдеров.
-	 * @return array
-	 * 		Массив пар (ключ => значение)
+	 *
+	 * @return array Массив пар (ключ => значение)
 	 */
-	public function getAll ()
+	public function getAll()
 	{
-		return $this->getMulti ($this->keys ('*'));
+		return $this->getMulti($this->keys ('*'));
 	}
 
 	/**
