@@ -122,7 +122,7 @@ class Controller_Authorization extends Controller_Abstract
 	 */
 	public function login()
 	{
-		$login = $this->_input->receive('login');
+		$login = $this->input->receive('login');
 		$helperPhone = $this->getService('helperPhone');
 		if ($this->config()->sms_auth_enable) {
 			$phone = $helperPhone->parseMobile($login);
@@ -148,7 +148,7 @@ class Controller_Authorization extends Controller_Abstract
 			return ;
 		}
 		$user->authorize();
-		$this->_output->send('data', array(
+		$this->output->send('data', array(
 			'user'	=> array(
 				'id'	=> $user->id,
 				'name'	=> $user->name
