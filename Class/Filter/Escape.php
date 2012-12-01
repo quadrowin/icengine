@@ -1,11 +1,20 @@
 <?php
-
+/**
+ * Экранирование данных через Data_Source
+ *
+ * @author neon
+ */
 class Filter_Escape
 {
-
-	public function filter ($data)
+	/**
+	 * @inheritdoc
+	 * @param string $data
+	 * @return string
+	 */
+	public function filter($data)
 	{
-		return DDS::escape ($data);
+		$locator = IcEngine::serviceLocator();
+		$dds = $locator->getService('dds');
+		return $dds->escape($data);
 	}
-	
 }

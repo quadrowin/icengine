@@ -1,22 +1,21 @@
 <?php
-
 /**
  * Менеджер фильтров
- * 
+ *
  * @author gooorus, morph
  */
 class Filter_Manager extends Manager_Abstract
 {
 	/**
 	 * Подключенные фильтры
-	 * 
+	 *
      * @var array <Filter_Abstract>
 	 */
 	protected $filters = array();
 
 	/**
      * Получить фильтр по имени
-     * 
+     *
 	 * @param string $name Фильтр.
 	 * @return Filter_Abstract
 	 */
@@ -33,7 +32,7 @@ class Filter_Manager extends Manager_Abstract
 
 	/**
 	 * Фильтрация
-	 * 
+	 *
      * @param string $name Фильтр
 	 * @param mixed $data
 	 * @return mixed
@@ -45,7 +44,7 @@ class Filter_Manager extends Manager_Abstract
 
 	/**
 	 * Фильтрация с использованием схемы
-	 * 
+	 *
      * @param string $name Фильтр
 	 * @param string $field
 	 * @param stdClass $data
