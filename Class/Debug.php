@@ -321,7 +321,7 @@ class Debug
 			self::$config ['die_on_error']
 		)
 		{
-			die ("<b>Terminated on fatal error.</b><br />" . $log_text);
+			die ("<b>Terminated on fatal error.</b><br />" . str_replace("\n", "<br/>\n", $log_text));
 		}
 
 		return true;

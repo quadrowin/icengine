@@ -10,13 +10,36 @@
 class View_Render extends Model_Factory
 {
 
-	/**
-	 * (non-PHPdoc)
-	 * @see Model_Factory::table()
-	 */
-	public function table ()
-	{
-		return 'View_Render';
-	}
+    public static $rows = array(
+        array(
+            'id' => 1,
+            'name' => 'Smarty'
+        ),
+        array(
+            'id' => 2,
+            'name' => 'Php'
+        ),
+        array(
+            'id' => 3,
+            'name' => 'JsHttpRequest'
+        ),
+        array(
+            'id' => 4,
+            'name' => 'Ajax'
+        ),
+        array(
+            'id' => 5,
+            'name' => 'Post'
+        ),
+    );
+
+    /**
+     * (non-PHPdoc)
+     * @see Model_Factory::table()
+     */
+    public function table()
+    {
+        return 'View_Render';
+    }
 
 }
