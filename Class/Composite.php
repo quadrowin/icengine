@@ -1,27 +1,27 @@
 <?php
 
 /**
- * @desc Реализация паттерна "Composite". 
+ * Реализация паттерна "Composite". 
  * Необходим для обращения к коллекции объектов, как к объекту
- * @author Илья Колесников
- * @package IcEngine
+ * 
+ * @author morph
  */
 class Composite 
 {
 	/**
-	 * @desc Объекты композита
+	 * Объекты композита
+     * 
 	 * @var mixed
 	 */
-	protected $_items = array ();
+	protected $items;
 	
 	/**
 	 * (non-PHPDoc)
 	 */
-	public function __call ($method, $args)
+	public function __call($method, $args)
 	{
-		foreach ($this->_items as $item)
-		{
-			$item->$method ($args);
+		foreach ($this->items as $item) {
+			call_user_func_array(array($item, $method), $args);
 		}
 	}
 	
@@ -29,8 +29,8 @@ class Composite
 	 * (non-PHPDoc)
 	 * @param array<mixed> $items 
 	 */
-	public function __construct ($items)
+	public function __construct($items)
 	{
-		$this->_items = $items;
+		$this->items = $items;
 	}
 }

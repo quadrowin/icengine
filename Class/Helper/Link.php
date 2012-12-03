@@ -4,7 +4,7 @@
  *
  * @author goorus, morph
  */
-class Helper_Link
+class Helper_Link extends Manager_Abstract
 {
     /**
      * Связывает модели
@@ -15,14 +15,15 @@ class Helper_Link
      * @param integer $key2
      * @return Link|null
      */
-	protected static function _link($table1, $key1, $table2, $key2)
+	protected function simpleLink($table1, $key1, $table2, $key2)
 	{
-		$query =  Query::instance()
+		$query =  $this->getService('query')
 			->where ('fromTable', $table1)
 			->where ('fromRowId', $key1)
 			->where ('toTable', $table2)
 			->where ('toRowId', $key2);
-		return Model_Manager::byQuery('Link', $query);
+        $modelManager = $this->getService('modelManager');
+		return $modelManager->byQuery('Link', $query);
 	}
 
 	/**
@@ -34,10 +35,10 @@ class Helper_Link
      * @param integer $key2
      * @return Link|null
      */
-	protected static function _schemeLink($scheme, $key1, $key2)
+	protected function schemeLink($scheme, $key1, $key2)
 	{
-		$link_class = $scheme['link'];
-		$query = Query::instance ()
+		$linkClass = $scheme['link'];
+		$query = $this->getService('query')
 			->where ($scheme['fromKey'], $key1)
 			->where ($scheme['toKey'], $key2);
 		if (!empty ($scheme['addict'])) {
@@ -45,7 +46,8 @@ class Helper_Link
 				$query->where($field, $value);
 			}
 		}
-		$link = Model_Manager::byQuery($link_class, $query);
+        $modelManager = $this->getService('modelManager');
+		$link = $modelManager->byQuery($linkClass, $query);
 		return $link;
 	}
 
@@ -56,21 +58,21 @@ class Helper_Link
 	 * @param Model $model2
 	 * @return Link
 	 */
-	public static function link(Model $model1, Model $model2)
+	public function link(Model $model1, Model $model2)
 	{
 	    if (strcmp($model1->table(), $model2->table()) > 0) {
 	        $tmp = $model1;
 	        $model1 = $model2;
 	        $model2 = $tmp;
 	    }
-	    $scheme = self::linkScheme($model1->table(), $model2->table());
+	    $scheme = $this->linkScheme($model1->table(), $model2->table());
 	    if (!$scheme) {
-			$link = self::_link(
+			$link = $this->simplerLink(
 				$model1->table(), $model1->key(),
 				$model2->table(), $model2->key()
 			);
 	    } else {
-			$link = self::_schemeLink($scheme, $model1->key(), $model2->key());
+			$link = $this->schemeLink($scheme, $model1->key(), $model2->key());
 	    }
 	    if (!$link) {
 			$className = 'Link';
@@ -93,7 +95,9 @@ class Helper_Link
 					}
 				}
 			}
-			$link = Model_Manager::create($className, $data);
+			$link = $this->getService('modelManager')->create(
+                $className, $data
+            );
 			$link->save();
 	    }
 	    return $link;
@@ -106,7 +110,7 @@ class Helper_Link
 	 * @param string $model2
 	 * @return Model_Collection
 	 */
-	public static function linkedItems (Model $model1, $model2)
+	public function linkedItems(Model $model1, $model2)
 	{
 		$table1 = $model1->table();
 		$table2 = $model2;
@@ -116,22 +120,24 @@ class Helper_Link
 			$table1 = $table2;
 			$table2 = $tmp;
 		}
-		$scheme = self::linkScheme($table1, $table2);
+		$scheme = $this->linkScheme($table1, $table2);
+        $queryBuilder = $this->getService('query');
+        $dds = $this->getService('dds');
 		$ids = array();
 		if (!$scheme) {
 			$dir = strcmp($model1->modelName(), $model2) > 0
 				? 'from' : 'to';
 			$otherDir = $dir == 'to' ? 'from' : 'to';
-			$query = Query::instance()
+			$query = $queryBuilder
 				->select($dir . 'RowId')
 				->from('Link')
 				->where($dir . 'Table', $model2)
 				->where($otherDir . 'RowId', $model1->key())
 				->where($otherDir . 'Table', $model1->table());
-			$ids = DDS::execute($query)->getResult()->asColumn();
+			$ids = $dds->execute($query)->getResult()->asColumn();
 		} else {
 			$link_class = $scheme['link'];
-			$query = Query::factory('Select');
+			$query = $queryBuilder->factory('Select');
 			$column = null;
 			if (strcmp($model1->table(), $model2) > 0) {
 				$column = $scheme['fromKey'];
@@ -145,18 +151,18 @@ class Helper_Link
 					->where($scheme['fromKey'], $model1->key());
 			}
 			$query->select($column);
-
 			if (!empty($scheme['addict'])) {
 				foreach ($scheme['addict'] as $field => $value) {
 					$query->where ($field, $value);
 				}
 			}
-			$ids = DDS::execute($query)->getResult ()->asColumn($column);
+			$ids = $dds->execute($query)->getResult ()->asColumn($column);
 		}
+        $collectionManager = $this->getService('collectionManager');
 		if (!$ids) {
-			$result = Model_Collection_Manager::create($model2)->reset();
+			$result = $collectionManager->create($model2)->reset();
 		} else {
-			$result = Model_Collection_Manager::create($model2)
+			$result = $collectionManager->create($model2)
 				->addOptions(array(
 					'name'	=> '::Key',
 					'key'	=> $ids
@@ -175,10 +181,11 @@ class Helper_Link
 	 * @return array
 	 * 		Массив первичных ключей второй модели.
 	 */
-	public static function linkedKeys(Model $model1, $linked_model_name)
+	public function linkedKeys(Model $model1, $linked_model_name)
 	{
-		$collection = self::linkedItems($model1, $linked_model_name);
-		return $collection->column(Model_Scheme::keyField($linked_model_name));
+		$collection = $this->linkedItems($model1, $linked_model_name);
+        $modelScheme = $this->getService('modelScheme');
+		return $collection->column($modelScheme->keyField($linked_model_name));
 	}
 
     /**
@@ -188,9 +195,10 @@ class Helper_Link
 	 * @param string $model2
 	 * @return array
 	 */
-    public static function linkScheme($model1, $model2)
+    public function linkScheme($model1, $model2)
 	{
-        $links = Model_Scheme::links($model1);
+        $modelScheme = $this->getService('modelScheme');
+        $links = $modelScheme->links($model1);
         return isset($links[$model2]) ? $links[$model2] : array();
 		$model1 = strtolower ($model1);
 	}
@@ -201,21 +209,21 @@ class Helper_Link
 	 * @param Model $model1
 	 * @param Model $model2
 	 */
-	public static function unlink(Model $model1, Model $model2)
+	public function unlink(Model $model1, Model $model2)
 	{
 	    if (strcmp($model1->table(), $model2->table()) > 0) {
 			$tmp = $model1;
 			$model1 = $model2;
 			$model2 = $tmp;
 	    }
-		$scheme = self::linkScheme($model1->table(), $model2->table());
+		$scheme = $this->linkScheme($model1->table(), $model2->table());
 	    if (!$scheme) {
-			$link = self::_link(
+			$link = $this->simplelink(
 				$model1->table(), $model1->key(),
 				$model2->table(), $model2->key()
 			);
 		} else {
-			$link = self::_schemeLink($scheme, $model1->key(), $model2->key());
+			$link = $this->schemeLink($scheme, $model1->key(), $model2->key());
 		}
 	    if ($link) {
 	        return $link->delete();
@@ -228,7 +236,7 @@ class Helper_Link
 	 * @param Model $model1
 	 * @param string $model2
 	 */
-	public static function unlinkWith(Model $model1, $model2)
+	public function unlinkWith(Model $model1, $model2)
 	{
 		$table1 = $model1->table();
 		$table2 = $model2;
@@ -237,11 +245,13 @@ class Helper_Link
 			$table1 = $table2;
 			$table2 = $tmp;
 		}
-		$scheme = self::linkScheme($table1, $table2);
+		$scheme = $this->linkScheme($table1, $table2);
+        $queryBuilder = $this->getService('query');
+        $dds = $this->getService('dds');
 		if (!$scheme) {
-			$query = Query::instance ()
-				->delete ()
-				->from ('Link');
+			$query = $queryBuilder
+				->delete()
+				->from('Link');
 			if (strcmp($model1->table(), $model2) > 0) {
 				$query
 					->where('fromTable', $model2)
@@ -253,23 +263,23 @@ class Helper_Link
 					->where('fromRowId', $model1->key())
 					->where('toTable', $model2);
 			}
-			DDS::execute($query);
+			$dds->execute($query);
 		} else {
 			$link_class = $scheme['link'];
-			$query = Query::instance()
+			$query = $queryBuilder
 				->delete()
 				->from($link_class);
-			if (strcmp ($model1->table(), $model2) > 0) {
-				$query->where ($scheme['toKey'], $model1->key());
+			if (strcmp($model1->table(), $model2) > 0) {
+				$query->where($scheme['toKey'], $model1->key());
 			} else {
-				$query->where ($scheme['fromKey'], $model1->key());
+				$query->where($scheme['fromKey'], $model1->key());
 			}
 			if (!empty($scheme['addict'])) {
 				foreach ($scheme['addict'] as $field => $value) {
 					$query->where($field, $value);
 				}
 			}
-			DDS::execute($query);
+			$dds->execute($query);
 		}
 	}
 
@@ -280,21 +290,21 @@ class Helper_Link
 	 * @param Model $model2
 	 * @return boolean
 	 */
-	public static function wereLinked(Model $model1, Model $model2)
+	public function wereLinked(Model $model1, Model $model2)
 	{
 		if (strcmp($model1->table(), $model2->table()) > 0) {
 	        $tmp = $model1;
 	        $model1 = $model2;
 	        $model2 = $tmp;
 	    }
-		$scheme = self::linkScheme($model1->table(), $model2->table());
+		$scheme = $this->linkScheme($model1->table(), $model2->table());
 		if (!$scheme) {
-			$link = self::_link(
+			$link = $this->simpleLink(
 				$model1->table(), $model1->key(),
 				$model2->table(), $model2->key()
 			);
 		} else {
-			$link = self::_schemeLink($scheme, $model1->key(), $model2->key());
+			$link = $this->schemeLink($scheme, $model1->key(), $model2->key());
 		}
 	    return (bool) $link;
 	}

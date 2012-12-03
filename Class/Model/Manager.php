@@ -10,43 +10,53 @@ class Model_Manager extends Manager_Abstract
 	/**
 	 * @inheritdoc
 	 */
-	protected static $_config = array(
+	protected $config = array(
 		'delegee'	=> array(
 			'Model'             => 'Simple',
 			'Component'         => 'Simple',
-			'Model_Config'		=> 'Config',
 			'Model_Defined'		=> 'Defined',
 			'Model_Factory'		=> 'Factory'
-		)
+		),
+        'heavyDelegees'         => array(
+            'Model_Factory', 'Model_Defined'
+        )
 	);
+
+    /**
+     * Созданные делегаты
+     *
+     * @var array
+     */
+    protected $delegees;
 
 	/**
 	 * Получение модели по первичному ключу
      *
-	 * @param string $model Имя класса модели.
+	 * @param string $modelName Имя класса модели.
 	 * @param integer $key Значение первичного ключа.
      * @param boolean $lazy Добавить ли загрузку модели в очередь отложенных
      * загрузок
 	 * @return Model|null
 	 */
-	public static function byKey($modelName, $key, $lazy = false)
+	public function byKey($modelName, $key, $lazy = false)
 	{
-        $result = Resource_Manager::get('Model', $modelName . '__' . $key);
+		$locator = IcEngine::serviceLocator();
+        $resourceManager = $locator->getService('resourceManager');
+        $result = $resourceManager->get('Model', $modelName . '__' . $key);
         if ($result) {
             return $result;
         }
-        $keyField = Model_Scheme::keyField($modelName);
+        $modelScheme = $locator->getService('modelScheme');
+        $keyField = $modelScheme->keyField($modelName);
+        $queryBuilder = $locator->getService('query');
         if (!$lazy) {
-            $query = Query::instance()
-                ->where($keyField, $key);
-            return self::byQuery($modelName, $query);
+            $query = $queryBuilder->where($keyField, $key);
+            return $this->byQuery($modelName, $query);
         }
-        $model = self::create($modelName, array());
+        $model = $this->create($modelName, array());
         $model->set($keyField, $key);
-        $query = Query::instance()
-            ->select('*')
-            ->where($keyField, $key);
-        Unit_Of_Work::push($query, $model, 'Simple');
+        $query = $queryBuilder->select('*')->where($keyField, $key);
+        $locator->getService('unitOfWork')->push($query, $model, 'Simple');
         $model->setLazy(true);
         return $model;
 	}
@@ -58,9 +68,10 @@ class Model_Manager extends Manager_Abstract
 	 * @param mixed $_ [optional]
 	 * @return Model|null
 	 */
-	public static function byOptions($modelName)
+	public function byOptions($modelName)
 	{
-        $collection = Model_Collection_Manager::create($modelName)
+        $collectionManager = $this->getService('collectionManager');
+        $collection = $collectionManager->create($modelName)
             ->addOptions(array(
                 'name'  => '::Limit',
                 'count' => 1
@@ -68,11 +79,18 @@ class Model_Manager extends Manager_Abstract
         $args = func_get_args();
         $count = count($args);
         if ($count > 1) {
+            if ($count == 2 && is_array($args[1]) && !empty($args[1][0]) &&
+                is_array($args[1][0])) {
+                $args = $args[1];
+                array_unshift($args, null);
+                $count = count($args);
+            }
             for ($i = 1; $i < $count; $i++) {
                 $collection->addOptions($args[$i]);
             }
         }
-        return $collection->first();
+        $model = $collection->first();
+        return $model;
 	}
 
 	/**
@@ -84,12 +102,11 @@ class Model_Manager extends Manager_Abstract
      * отложенных запросов
 	 * @return Model|null
 	 */
-	public static function byQuery($modelName, Query_Abstract $query,
-        $lazy = false)
+	public function byQuery($modelName, Query_Abstract $query, $lazy = false)
 	{
-        $config = self::config();
-        $parentClass = self::getParentClass($modelName, $config['delegee']);
-        static $heavyDelegees = array('Model_Factory', 'Model_Defined');
+        $config = $this->config();
+        $parentClass = $this->getParentClass($modelName, $config['delegee']);
+        $heavyDelegees = $config->heavyDelegees->__toArray();
         if (!$query->getPart(Query::SELECT)) {
             $query->select(array($modelName => '*'));
         }
@@ -97,16 +114,17 @@ class Model_Manager extends Manager_Abstract
             $query->from($modelName);
         }
 		if ($lazy && !in_array($parentClass, $heavyDelegees)) {
-            return self::lazyLoad($modelName, $query);
+            return $this->lazyLoad($modelName, $query);
         }
-        $dataSource = Model_Scheme::dataSource($modelName);
+        $modelScheme = $this->getService('modelScheme');
+        $dataSource = $modelScheme->dataSource($modelName);
         $data = $dataSource->execute($query)->getResult()->asRow();
-        $keyField = Model_Scheme::keyField($modelName);
+        $keyField = $modelScheme->keyField($modelName);
         if (!$data || !isset($data[$keyField])) {
             return null;
         }
         $key = $data[$keyField];
-        $model = self::get($modelName, $key, $data);
+        $model = $this->get($modelName, $key, $data);
         if ($lazy) {
             $model->setLazy(true);
         }
@@ -120,9 +138,10 @@ class Model_Manager extends Manager_Abstract
 	 * @param array $fields источник значений для полей
 	 * @return Model
 	 */
-	public static function create($modelName, $fields)
+	public function create($modelName, $fields)
 	{
-		$scheme = Model_Scheme::scheme($modelName);
+        $modelScheme = $this->getService('modelScheme');
+		$scheme = $modelScheme->scheme($modelName);
 		$schemeFields = $scheme->fields;
 		$row = array();
 		foreach ($schemeFields as $field => $data) {
@@ -130,15 +149,23 @@ class Model_Manager extends Manager_Abstract
             $value = isset($fields[$field]) ? $fields[$field] : $default;
             $row[$field] = $value;
         }
-		$config = self::config();
-        $parent = self::getParentClass($modelName, $config['delegee']);
+		$config = $this->config();
+        $parent = $this->getParentClass($modelName, $config['delegee']);
 		$delegee = 'Model_Manager_Delegee_' . $config['delegee'][$parent];
-		$model = call_user_func_array(
-            array($delegee, 'get'),
-            array($modelName, 0, $row)
-		);
-		$model->set($row);
-		return $model;
+		if ($config['delegee'][$parent] == 'Simple') {
+            $newModel = new $modelName($row);
+        } else {
+            if (!isset($this->delegees[$delegee])) {
+                $this->delegees[$delegee] = new $delegee;
+            }
+            $delegee = $this->delegees[$delegee];
+            $newModel = call_user_func_array(
+                array($delegee, 'get'),
+                array($modelName, 0, $row)
+            );
+        }
+		$newModel->set($row);
+		return $newModel;
 	}
 
 	/**
@@ -149,33 +176,42 @@ class Model_Manager extends Manager_Abstract
 	 * @param Model|array $source Объект или данные
 	 * @return Model В случае успеха объект, иначе null.
 	 */
-	public static function get($modelName, $key, $source = null)
+	public function get($modelName, $key, $source = null)
 	{
 		if ($source instanceof Model) {
             return $source;
         }
+        $resourceManager = $this->getService('resourceManager');
         $resourceKey = $modelName . '__' . $key;
-        $model = Resource_Manager::get('Model', $resourceKey);
+        $model = $resourceManager->get('Model', $resourceKey);
         if ($model instanceof Model) {
             if (is_array($source)) {
                 $model->set($source);
             }
             return $model;
         }
-        $config = self::config();
-        $parent = self::getParentClass($modelName, $config['delegee']);
+        $config = $this->config();
+        $parent = $this->getParentClass($modelName, $config['delegee']);
         $delegee = 'Model_Manager_Delegee_' .
             $config['delegee'][$parent];
-        $newModel = call_user_func_array(
-            array($delegee, 'get'),
-            array($modelName, $key, $source)
-        );
+        if ($config['delegee'][$parent] == 'Simple') {
+            $newModel = new $modelName($source);
+        } else {
+            if (!isset($this->delegees[$delegee])) {
+                $this->delegees[$delegee] = new $delegee;
+            }
+            $delegee = $this->delegees[$delegee];
+            $newModel = call_user_func_array(
+                array($delegee, 'get'),
+                array($modelName, $key, $source)
+            );
+        }
         $keyField = $newModel->keyField();
         $newModel->set($keyField, $key);
         if ($key) {
-            self::read($newModel);
+            $this->read($newModel);
         }
-        Resource_Manager::set('Model', $resourceKey, $newModel);
+        $resourceManager->set('Model', $resourceKey, $newModel);
 		return $newModel;
 	}
 
@@ -186,7 +222,7 @@ class Model_Manager extends Manager_Abstract
      * @param array|Objective $config
      * @return string
      */
-    public static function getParentClass($modelName, $config)
+    public function getParentClass($modelName, $config)
     {
         $parents = class_parents($modelName);
 		$first = end($parents);
@@ -201,7 +237,7 @@ class Model_Manager extends Manager_Abstract
      * @param Query_Abstract $query
      * @return Model
      */
-    public static function lazyLoad($modelName, $query)
+    public function lazyLoad($modelName, $query)
     {
 		$where = $query->part(QUERY::WHERE);
 		$wheres = array();
@@ -210,8 +246,9 @@ class Model_Manager extends Manager_Abstract
 			$wheres[] = $value[QUERY::WHERE] . '=' . $value[QUERY::VALUE];
 			$whereFields[$value[QUERY::WHERE]] = $value[QUERY::VALUE];
 		}
+        $resourceManager = $this->getService('resourceManager');
 		$keyHash = implode(':', $wheres);
-		$result = Resource_Manager::get('Model', $modelName . '__' . $keyHash);
+		$result = $resourceManager->get('Model', $modelName . '__' . $keyHash);
 		if ($result) {
 			return $result;
 		}
@@ -225,9 +262,9 @@ class Model_Manager extends Manager_Abstract
 			$fieldName = trim(strtr($key, $filters));
 			$whereFieldsPrepared[$fieldName] = $whereField;
 		}
-		$model = self::create($modelName);
+		$model = $this->create($modelName);
         $model->set($whereFieldsPrepared);
-		Unit_Of_Work::push($query, $model, 'Simple');
+		$this->getService('unitOfWork')->push($query, $model, 'Simple');
 		return $model;
     }
 
@@ -237,18 +274,20 @@ class Model_Manager extends Manager_Abstract
      * @param Model $model
 	 * @return boolean
 	 */
-	protected static function read(Model $model)
+	protected function read(Model $model)
 	{
 		$key = $model->key();
 		if (!$key) {
 			return false;
 		}
         $modelName = $model->table();
-		$query = Query::instance ()
+        $queryBuilder = $this->getService('query');
+		$query = $queryBuilder
 			->select ('*')
 			->from($modelName)
 			->where($model->keyField(), $key);
-        $dataSource = Model_Scheme::dataSource($modelName);
+        $modelScheme = $this->getService('modelScheme');
+        $dataSource = $modelScheme->dataSource($modelName);
         $data = $dataSource->execute($query)->getResult()->asRow();
         if ($data) {
             $data = array_merge($data, $model->asRow());
@@ -263,16 +302,19 @@ class Model_Manager extends Manager_Abstract
      *
 	 * @param Model $model
 	 */
-	public static function remove(Model $model)
+	public function remove(Model $model)
 	{
         $key = $model->key();
         if (!$key) {
             return;
         }
-        Resource_Manager::set('Model', $model->resourceKey(), null);
+        $resourceManager = $this->getService('resourceManager');
+        $resourceManager->set('Model', $model->resourceKey(), null);
         $modelName = $model->table();
-        $dataSource = Model_Scheme::dataSource($modelName);
-        $query = Query::instance()
+        $modelScheme = $this->getService('modelScheme');
+        $queryBuilder = $this->getService('query');
+        $dataSource = $modelScheme->dataSource($modelName);
+        $query = $queryBuilder
             ->delete()
             ->from($modelName)
             ->where($model->keyField(), $key);
@@ -285,7 +327,7 @@ class Model_Manager extends Manager_Abstract
 	 * @param Model $model Объект модели.
 	 * @param boolean $hardInsert Объект будет вставлен в источник данных.
 	 */
-	public static function set(Model $model, $hardInsert = false)
+	public function set(Model $model, $hardInsert = false)
 	{
         $resourceKey = $model->resourceKey();
         $updatedFields = $model->getUpdatedFields();
@@ -293,10 +335,11 @@ class Model_Manager extends Manager_Abstract
             $updatedFields = $model->getFields();
         }
         if ($updatedFields) {
-            self::write($model, $hardInsert);
+            $this->write($model, $hardInsert);
         }
-		Resource_Manager::set('Model', $resourceKey, $model);
-		Resource_Manager::setUpdated('Model', $resourceKey, $updatedFields);
+        $resourceManager = $this->getService('resourceManager');
+		$resourceManager->set('Model', $resourceKey, $model);
+		$resourceManager->setUpdated('Model', $resourceKey, $updatedFields);
 	}
 
     /**
@@ -305,28 +348,31 @@ class Model_Manager extends Manager_Abstract
 	 * @param Model $model
 	 * @param boolean $hardInsert
 	 */
-	protected static function write(Model $model, $hardInsert = false)
+	protected function write(Model $model, $hardInsert = false)
 	{
         $modelName = $model->table();
         $key = $model->key();
         $keyField = $model->keyField();
-        $dataSource = Model_Scheme::dataSource($modelName);
+        $modelScheme = $this->getService('modelScheme');
+        $dataSource = $modelScheme->dataSource($modelName);
+        $queryBuilder = $this->getService('query');
         if ($key && !$hardInsert) {
-            $query = Query::instance()
+            $query = $queryBuilder
                 ->update($modelName)
                 ->values($model->getFields())
-                ->where($keyField, $key);
+                ->where($keyField, $key)
+				->limit(1);
             $dataSource->execute($query);
         } else {
             if (!$key) {
-                $key = Model_Scheme::generateKey($model);
+                $key = $modelScheme->generateKey($model);
             }
             if ($key) {
                 $model->set($keyField, $key);
             } else {
                 $model->unsetField($keyField);
             }
-            $query = Query::instance()
+            $query = $queryBuilder
                 ->insert($modelName)
                 ->values($model->getFields());
             $result = $dataSource->execute($query)->getResult();

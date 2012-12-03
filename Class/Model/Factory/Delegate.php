@@ -7,6 +7,13 @@
  */
 class Model_Factory_Delegate extends Model
 {
+    /**
+     * Фабрика по созданию фабрик
+     * 
+     * @var Model_Manager_Delegee_Factory
+     */
+    protected static $factory;
+    
     /*
 	 * Фабрика
      *
@@ -22,11 +29,14 @@ class Model_Factory_Delegate extends Model
 	 */
 	public function __construct(array $fields = array(), $model = null)
 	{
+        if (is_null(self::$factory)) {
+            self::$factory = new Model_Manager_Delegee_Factory;
+        }
 		// Находим фабрику
-		$this->modelFactory = Model_Manager_Delegee_Factory::factory($this);
+		$this->modelFactory = self::$factory->factory($this);
 		parent::__construct($fields, $model);
 	}
-
+    
 	/**
 	 * (non-PHPdoc)
 	 * @see Model::modelName()
@@ -53,5 +63,4 @@ class Model_Factory_Delegate extends Model
 	{
 		return $this->modelFactory->table();
 	}
-
 }

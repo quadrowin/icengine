@@ -21,35 +21,42 @@ class Controller_Abstract
      *
      * @var Service_Locator
      */
-    protected $serviceLocator;
+    protected static $serviceLocator;
 
 	/**
 	 * Текущая задача
      *
 	 * @var Controller_Task
 	 */
-	protected $_task;
+	protected $task;
 
 	/**
 	 * Входные данные
      *
 	 * @var Data_Transport
 	 */
-	protected $_input;
+	protected $input;
+    
+    /**
+     * Будут ли использоваться внедрения зависимостей в данном контроллере
+     * 
+     * @var boolean
+     */
+    protected $hasInjections = false;
 
 	/**
 	 * Выходные данные
      *
 	 * @var Data_Transport
 	 */
-	protected $_output;
+	protected $output;
 
 	/**
 	 * Конфиг контроллера
      *
 	 * @var array
 	 */
-	protected $_config = array();
+	protected $config = array();
 
 	/**
 	 * Завершение работы контроллера ошибкой
@@ -62,9 +69,9 @@ class Controller_Abstract
 	 * взято из $text.
 	 * @param string $tpl [optional] Шаблон.
 	 */
-	protected function _sendError($text, $method = null, $tpl = true)
+	protected function sendError($text, $method = null, $tpl = true)
 	{
-		$this->_output->send(array(
+		$this->output->send(array(
 			'error'	=> array(
 				'text'	=> $text,
 				'tpl'	=> $tpl
@@ -74,14 +81,14 @@ class Controller_Abstract
 			$method = $text;
 		}
 		if (!is_bool($tpl)) {
-			$this->_task->setClassTpl($method, $tpl);
+			$this->task->setClassTpl($method, $tpl);
 		} elseif ($method) {
 			if (strpos($method, '/') === false) {
-				$this->_task->setClassTpl(
+				$this->task->setClassTpl(
                     $this->currentAction, '/' . ltrim($method, '/')
 				);
 			} else {
-				$this->_task->setClassTpl($method);
+				$this->task->setClassTpl($method);
 			}
 		}
 	}
@@ -93,12 +100,13 @@ class Controller_Abstract
 	 */
 	public function config()
 	{
-		if (is_array($this->_config)) {
-			$this->_config = Config_Manager::get(
-                get_class($this), $this->_config
+		if (is_array($this->config)) {
+			$configManager = $this->getService('configManager');
+            $this->config = $configManager->get(
+                get_class($this), $this->config
 			);
 		}
-		return $this->_config;
+		return $this->config;
 	}
 
     /**
@@ -108,7 +116,7 @@ class Controller_Abstract
 	 */
 	public function getInput()
 	{
-		return $this->_input;
+		return $this->input;
 	}
 
     /**
@@ -118,7 +126,7 @@ class Controller_Abstract
 	 */
 	public function getOutput()
 	{
-		return $this->_output;
+		return $this->output;
 	}
 
     /**
@@ -129,10 +137,20 @@ class Controller_Abstract
      */
     public function getService($serviceName)
     {
-        if (!$this->serviceLocator) {
-            $this->serviceLocator = new Service_Locator;
+        if (!self::$serviceLocator) {
+            self::$serviceLocator = new Service_Locator;
         }
-        return $this->serviceLocator->getService($serviceName);
+        return self::$serviceLocator->getService($serviceName);
+    }
+    
+    /**
+     * Получить сервис локатор
+     * 
+     * @return Service_Locator
+     */
+    public function getServiceLocator()
+    {
+        return self::$serviceLocator;
     }
 
 	/**
@@ -142,8 +160,18 @@ class Controller_Abstract
 	 */
 	public function getTask()
 	{
-		return $this->_task;
+		return $this->task;
 	}
+    
+    /**
+     * Будут ли использоваться внедрения зависимостей в данном контроллере
+     * 
+     * @return boolean
+     */
+    public function hasInjections()
+    {
+        return $this->hasInjections;
+    }
 
 	/**
 	 * Имя контроллера (без приставки Controller_)
@@ -167,17 +195,18 @@ class Controller_Abstract
 			$other = $controller;
 			$controller = $other->name();
 		} else {
-			$other = Controller_Manager::get($controller);
+            $controllerManager = $this->getService('controllerManager');
+			$other = $controllerManager->get($controller);
 		}
-		$this->_task->setTemplate(
+		$this->task->setTemplate(
 			'Controller/' . str_replace('_', '/', $controller) . '/' . $action
 		);
 		if ($controller == get_class($this)) {
 			return $this->$action();
 		} else {
-			$other->setInput($this->_input);
-			$other->setOutput($this->_output);
-			$other->setTask($this->_task);
+			$other->setInput($this->input);
+			$other->setOutput($this->output);
+			$other->setTask($this->task);
             $other->$action();
 		}
 	}
@@ -190,7 +219,7 @@ class Controller_Abstract
 	 */
 	public function setTask($task)
 	{
-		$this->_task = $task;
+		$this->task = $task;
 		return $this;
 	}
 
@@ -202,10 +231,20 @@ class Controller_Abstract
 	 */
 	public function setInput($input)
 	{
-		$this->_input = $input;
+		$this->input = $input;
 		return $this;
 	}
 
+    /**
+     * Изменить факт инъекции в экшин
+     * 
+     * @param boolean $value
+     */
+    public function setHasInjections($value)
+    {
+        $this->hasInjections = $value;
+    }
+    
 	/**
 	 * Устанавливает транспорт выходных данных
      *
@@ -214,7 +253,17 @@ class Controller_Abstract
 	 */
 	public function setOutput($output)
 	{
-		$this->_output = $output;
+		$this->output = $output;
 		return $this;
 	}
+    
+    /**
+     * Изменить локатор сервисов
+     * 
+     * @param Service_Locator $serviceLocator
+     */
+    public function setServiceLocator($serviceLocator)
+    {
+        self::$serviceLocator = $serviceLocator;
+    }
 }

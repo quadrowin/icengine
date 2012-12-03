@@ -200,17 +200,17 @@ class Controller_Migration extends Controller_Abstract
 	/**
 	 * @desc Получить уникальный номер миграции
 	 */
-	public function seq ()
+	public function seq()
 	{
-		$this->_task->setTemplate (null);
-		$url = Helper_Site_Location::get ('seq_url');
-		if (!$url)
-		{
+		$this->_task->setTemplate(null);
+		$helperSiteLocation = $this->getService('helperSiteLocation');
+		$url = $helperSiteLocation->get('seq_url');
+		if (!$url) {
 			return;
 		}
-		$seq = file_get_contents ($url);
+		$seq = file_get_contents($url);
 		echo 'Migration #' . $seq . PHP_EOL;
-		$this->_output->send (array (
+		$this->_output->send(array(
 			'seq'	=> $seq
 		));
 	}

@@ -253,10 +253,11 @@ class Debug
 					'tUUm3vW3Zkrqa7JgggNAFxXFeVUPOmpo',
 					false
 				);
-
+				$locator = IcEngine::serviceLocator();
+				$helperSiteLocation = $locator->getService('helperSiteLocation');
 				foreach ($pnos as $pno) {
 					$text =
-						Helper_Site_Location::getLocation() . PHP_EOL .
+						$helperSiteLocation->getLocation() . PHP_EOL .
 						date('Y-m-d H:i:s') . PHP_EOL .
 						$errfile . ' ' . $errline;
 					$client->sendSMS (

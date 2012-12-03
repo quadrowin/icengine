@@ -5,21 +5,21 @@
  *
  * @author goorus, morph
  */
-class Router
+class Router extends Manager_Abstract
 {
 	/**
 	 * Текущий роут
 	 *
 	 * @var Route
 	 */
-	private static $route;
+	private $route;
 
 	/**
 	 * Обнулить текущий роут
 	 */
-	public static function clearRoute()
+	public function clearRoute()
 	{
-		self::$route = null;
+		$this->route = null;
 	}
 
 	/**
@@ -27,23 +27,29 @@ class Router
 	 *
 	 * @return Route
 	 */
-	public static function getRoute()
+	public function getRoute()
 	{
-		if (!is_null(self::$route)) {
-			return self::$route;
+		if (!is_null($this->route)) {
+			return $this->route;
 		}
-		$url = Request::uri();
-		$route = Route::byUrl($url);
-		self::$route = $route;
-		if (!self::$route || !isset(self::$route['route'])) {
+        $request = $this->getService('request');
+		$url = $request->uri();
+		$route =  $this->getService('route')->byUrl($url); 
+		$this->route = $route;
+		if (!$this->route || !isset($this->route['route'])) {
 			return;
 		}
 		if (!empty($route['params'])) {
 			foreach ($route['params'] as $paramName => $paramValue) {
                 if (strpos($paramValue, '::')) {
-                    $paramValue = call_user_func($paramValue);
+                    list($className, $method) = explode('::', $paramValue);
+                    $serviceName = $this->getServiceLocator()->normalizeName(
+                        $className
+                    );
+                    $service = $this->getService($serviceName);
+                    $paramValue = $service->$method();
                 }
-				Request::param($paramName, $paramValue);
+				$request->param($paramName, $paramValue);
 			}
 		}
 		$firstParamPos = strpos($route['route'], '{');
@@ -58,26 +64,27 @@ class Router
 						continue;
 					}
 					if (!empty($data[0])) {
-						Request::param($keys[$i - 1], $data[0]);
+						$request->param($keys[$i - 1], $data[0]);
 					} else {
 						$part = $route['patterns'][$keys[$i - 1]];
 						if (isset($part['default'])) {
-							Request::param($keys[$i - 1], $part['default']);
+							$request->param($keys[$i - 1], $part['default']);
 						}
 					}
 				}
 			}
 		}
-		self::setParamsFromRequest();
+		$this->setParamsFromRequest();
 		return $route;
 	}
 
 	/**
 	 * Отдать в $_REQUEST то, что прилетело из get
 	 */
-	public static function setParamsFromRequest()
+	public function setParamsFromRequest()
 	{
-		$gets = Request::stringGet();
+        $request = $this->getService('request');
+		$gets = $request->stringGet();
 		if ($gets) {
 			$gets = (array) explode('&', $gets);
 			foreach ($gets as $get) {
@@ -85,10 +92,9 @@ class Router
 				if (!isset($tmp[1])) {
 					$tmp[1] = 1;
 				}
-				$_REQUEST [$tmp[0]] = $_GET [$tmp[0]] = $tmp[1];
-				Request::param($tmp[0], $tmp[1]);
+				$_REQUEST[$tmp[0]] = $_GET [$tmp[0]] = $tmp[1];
+				$request->param($tmp[0], $tmp[1]);
 			}
 		}
 	}
-
 }

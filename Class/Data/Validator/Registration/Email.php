@@ -15,51 +15,41 @@ class Data_Validator_Registration_Email
 
 	const REPEAT	= 'repeat';		// Уже используется
 
-	public function validateEx ($field, $data, $scheme)
+	public function validateEx($field, $data, $scheme)
 	{
-		if (empty ($data->$field))
-		{
+		if (empty($data->$field)) {
 			return __CLASS__ . '/' . self::SHORT;
 		}
-
 		$email = $data->$field;
 		$param = $scheme->$field;
-
 		if (
-			!filter_var ($email, FILTER_VALIDATE_EMAIL) ||
+			!filter_var($email, FILTER_VALIDATE_EMAIL) ||
 			(
-				isset ($param ['maxLength']) &&
-				$param ['maxLength'] &&
-				strlen ($email) > $param ['maxLength']
+				isset($param['maxLength']) &&
+				$param['maxLength'] &&
+				strlen($email) > $param['maxLength']
 			)
 		)
 		{
 			return __CLASS__ . '/' . self::INCORRECT;
 		}
-
-		$user = Model_Manager::byQuery (
+		$locator = IcEngine::serviceLocator();
+		$modelManager = $locator->getService('modelManager');
+		$query = $locator->getService('query');
+		$user = $modelManager->byQuery(
 			'User',
-			Query::instance ()
-				->where ('email', $email)
+			$query->where('email', $email)
 		);
-
-		if ($user)
-		{
+		if ($user) {
 			return __CLASS__ . '/' . self::REPEAT;
 		}
-
-		$reg = Model_Manager::byQuery (
+		$reg = $modelManager->byQuery(
 			'Registration',
-			Query::instance ()
-				->where ('email', $email)
+			$query->where('email', $email)
 		);
-
-		if ($reg)
-		{
+		if ($reg) {
 			return __CLASS__ . '/' . self::REPEAT;
 		}
-
 		return true;
 	}
-
 }

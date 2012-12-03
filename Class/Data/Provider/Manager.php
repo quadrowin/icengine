@@ -1,61 +1,57 @@
 <?php
+
 /**
- *
- * @desc Менеджер провайдеров данных.
- * По переданному названию создает и возвращает соответсвующего провайдера.
- * @author Юрий
- * @package IcEngine
- *
+ * Менеджер провайдеров данных. По переданному названию создает и 
+ * возвращает соответсвующего провайдера.
+ * 
+ * @author goorus, morph
  */
 class Data_Provider_Manager extends Manager_Abstract
 {
-
-	/**
-	 * @desc Загруженные провайдеры.
-	 * @var array <Data_Provider_Abstract>
+    /**
+	 * @inheritdoc
 	 */
-	protected static $_providers = array ();
-
+	protected $config = array();
+    
 	/**
-	 * @desc Конфиг
-	 * @var array|Objective
+	 * Загруженные провайдеры.
+	 * 
+     * @var array <Data_Provider_Abstract>
 	 */
-	protected static $_config = array ();
+	protected $providers = array();
 
 	/**
-	 * @desc Возвращает провайдера.
-	 * @param string $name Название провайдера в конфиге.
+	 * Возвращает провайдера.
+	 * 
+     * @param string $name Название провайдера в конфиге.
 	 * @return Data_Provider_Abstract
 	 */
-	public static function get ($name)
-	{
-		if (isset (self::$_providers [$name]))
-		{
-			return self::$_providers [$name];
+	public function get($name) {
+		if (isset($this->providers[$name])) {
+			return $this->providers[$name];
 		}
-
-		$cfg = self::config ()->$name;
-
-		if ($cfg && $cfg ['provider'])
-		{
-			$provider_name = $cfg ['provider'];
-			$provider_params = $cfg ['params'];
+        $config = $this->config();
+        $providerConfig = $config[$name];
+        $params = null;
+        $providerName = $name;
+		if ($providerConfig && $providerConfig['provider']) {
+			$providerName = $providerConfig['provider'];
+			$params = $providerConfig['params'];
 		}
-		else
-		{
-			$provider_name = $name;
-			$provider_params = null;
-		}
-
-		$class_name = 'Data_Provider_' . $provider_name;
-
-		/**
-		 * @desc Новый провайдер данных
-		 * @var Data_Provider_Abstract
-		 */
-		$provider = new $class_name ($provider_params);
-
-		return self::$_providers [$name] = $provider;
+		$className = 'Data_Provider_' . $providerName;
+		$provider = new $className($params);
+        $this->providers[$name] = $provider;
+		return $provider;
 	}
-
+    
+    /**
+     * Изменить провайдера по имени
+     * 
+     * @param string $name
+     * @param Data_Provider_Abstract $provider
+     */
+    public function set($name, $provider)
+    {
+        $this->providers[$name] = $provider;
+    }
 }

@@ -1,209 +1,185 @@
 <?php
+
 /**
- *
- * @desc Менеджер ресурсов
- * @author Юрий
- * @package IcEngine
- *
+ * Менеджер ресурсов
+ * 
+ * @author goorus, morph
  */
-class Resource_Manager
+class Resource_Manager extends Manager_Abstract
 {
-
 	/**
-	 * @desc Транспорты для ресурсов по типам.
-	 * @var array
+	 * Транспорты для ресурсов по типам.
+	 * 
+     * @var array
 	 */
-	protected static $_transports = array ();
+	protected $transports = array();
 
 	/**
-	 * @desc Загруженные ресурсы
-	 * @var array
+	 * Загруженные ресурсы
+	 * 
+     * @var array
 	 */
-	protected static $_resources = array ();
+	protected $resources = array();
 
 	/**
-	 * @desc Обновленные в процессе ресурсы.
+	 * Обновленные в процессе ресурсы.
 	 * Необходимо для предотвращения постоянной записи неизменяемых ресурсов.
-	 * @var array <boolean>
+	 * 
+     * @var array <boolean>
 	 */
-	protected static $_updatedResources = array ();
+	protected $updatedResources = array();
 
 	/**
-	 * @desc Конфиг
-	 * @var array
+	 * @inheritdoc
 	 */
-	public static $config = array (
+	protected $config = array (
 		/**
 		 * @desc По умолчанию
 		 * @var array
 		 */
-		'default'	=> array (),
+		'default'	=> array(),
 		/**
 		 * @desc Во избезажании рекурсивного вызова Config_Manager'a
 		 * @var array
 		 */
-		'Resource_Manager'	=> array ()
+		'Resource_Manager'	=> array()
 	);
 
-
-
 	/**
-	 * @desc Возвращает транспорт согласно конфигу.
-	 * @param Objective $conf
+	 * Возвращает транспорт согласно конфигу.
+	 * 
+     * @param Objective $conf
 	 * @return Data_Transport
 	 */
-	protected static function _initTransport (Objective $conf)
+	protected function initTransport($config)
 	{
-		$transport = new Data_Transport ();
-
-		$providers = $conf->providers;
-
-		if ($providers)
-		{
-			if (is_string ($providers))
-			{
-				$providers = array ($providers);
-			}
-
-			foreach ($providers as $name)
-			{
-				$transport->appendProvider (
-					Data_Provider_Manager::get ($name)
-				);
-			}
-
-			// Входные фильтры
-			if ($conf->inputFilters)
-			{
-				foreach ($conf->inputFilters as $filter)
-				{
-					$transport->inputFilters ()->append (
-						Filter_Manager::get ($filter)
-					);
-				}
-			}
-
-			// Выходные фильтры
-			if ($conf->outputFilters)
-			{
-				foreach ($conf->outputFilters as $filter)
-				{
-					$transport->outputFilters ()->append (
-						Filter_Manager::get ($filter)
-					);
-				}
-			}
-		}
-
+		$transport = new Data_Transport();
+		$providers = $config->providers;
+        if (!$providers) {
+            return $transport;
+        }
+        if (is_string($providers)) {
+            $providers = array($providers);
+        }
+        $dataProviderManager = $this->getService('dataProviderManager');
+        foreach ($providers as $name) {
+            $provider = $dataProviderManager->get($name);
+            $transport->appendProvider($provider);
+        }
 		return $transport;
 	}
 
 	/**
-	 * @desc Возвращает конфиг. Загружает, если он не был загружен ранее.
-	 * @return Objective
+	 * @inheritdoc
 	 */
-	public static function config ()
+	public function config()
 	{
-		if (is_array (self::$config))
-		{
-			self::$config = Config_Manager::getReal (__CLASS__, self::$config);
+		if (is_array($this->config)) {
+            $configManager = $this->getService('configManager');
+			$this->config = $configManager->getReal(__CLASS__, $this->config);
 		}
-
-		return self::$config;
+		return $this->config;
 	}
 
 	/**
-	 * @desc Возвращает Ресурс указанного типа по идентификатору.
-	 * @param string $type Тип ресурса.
+	 * Возвращает Ресурс указанного типа по идентификатору.
+	 * 
+     * @param string $type Тип ресурса.
 	 * @param string $name|array Идентификатор ресурса или ресурсов.
 	 * @return mixed
 	 */
-	public static function get ($type, $name)
+	public function get($type, $name)
 	{
-		if (!isset (self::$_resources [$type][$name]))
-		{
-			self::$_resources [$type][$name] =
-				self::transport ($type)->receive ($name);
+        if (!isset($this->resources[$type])) {
+            $this->resources[$type] = array();
+        }
+		if (!isset($this->resources[$type][$name])) {
+            $resource = $this->transport($type)->receive($name);
+			$this->resources[$type][$name] = $resource;
 		}
-
-		return self::$_resources [$type][$name];
+		return $this->resources[$type][$name];
 	}
 
 	/**
-	 * @desc Получить обновленные ресурсы
-	 * @param string $type
+	 * Получить обновленные ресурсы
+	 * 
+     * @param string $type
 	 */
-	public static function getUpdated ($type)
+	public function getUpdated($type)
 	{
-		return self::$_resources [$type];
+		return $this->updatedResources[$type];
 	}
 
 	/**
-	 * @desc Слить объекты хранилища
+	 * Слить объекты хранилища
 	 */
-	public static function save ()
+	public function save()
 	{
-		foreach (self::$_resources as $type => $resources)
-		{
-			foreach ($resources as $name => $resource)
-			{
-				if (isset (self::$_updatedResources [$type][$name]))
-				{
-					self::transport ($type)->send ($name, $resource);
-				}
+		foreach ($this->resources as $type => $resources) {
+			foreach ($resources as $name => $resource) {
+                if (!isset($this->updatedResources[$type],
+                    $this->updatedResources[$type][$name])) {
+                    continue;
+                }
+				$this->transport($type)->send($name, $resource);
 			}
 		}
 	}
 
 	/**
-	 * @desc Сохраняет ресурс
-	 * @param string $type
+	 * Сохраняет ресурс
+	 * 
+     * @param string $type
 	 * @param string $name
 	 * @param mixed $resource
 	 */
-	public static function set ($type, $name, $resource)
+	public function set($type, $name, $resource)
 	{
-		self::$_updatedResources [$type][$name] = true;
-
+        if (!isset($this->updatedResources[$type])) {
+            $this->updatedResources[$type] = array();
+        }
+        if (!isset($this->resources[$type])) {
+            $this->resources[$type] = array();
+        }
+		$this->updatedResources[$type][$name] = true;
 		if (Tracer::$enabled) {
 			if ($type == 'Model') {
-				if (!isset(self::$_resources[$type][$name])) {
+				if (!isset($this->resources[$type][$name])) {
 					Tracer::incDeltaModelCount();
 					Tracer::incTotalModelCount();
 				}
 			}
 		}
-		self::$_resources [$type][$name] = $resource;
+		$this->resources[$type][$name] = $resource;
 	}
 
 	/**
-	 * @desc Обновить ресурс
-	 * @param string $type
+	 * Обновить ресурс
+	 * 
+     * @param string $type
 	 * @param string $name
 	 * @param mixed $updated
 	 */
-	public static function setUpdated ($type, $name, $updated)
+	public function setUpdated($type, $name, $updated)
 	{
-		self::$_updatedResources [$type][$name] = $updated;
+        if (!isset($this->updatedResources[$type])) {
+            $this->updatedResources[$type] = array();
+        }
+		$this->updatedResources[$type][$name] = $updated;
 	}
 
 	/**
-	 * @desc Возвращает транспорт для ресурсов указанного типа.
-	 * @param string $type Тип ресурса.
+	 * Возвращает транспорт для ресурсов указанного типа.
+	 * 
+     * @param string $type Тип ресурса.
 	 * @return Data_Transport Транспорт данных.
 	 */
-	public static function transport ($type)
+	public function transport($type)
 	{
-		if (!isset (self::$_transports [$type]))
-		{
-			$conf = self::config ()->$type;
-			self::$_transports [$type] =
-				$conf ?
-				self::_initTransport ($conf) :
-				self::_initTransport (self::$config->default);
+		if (!isset($this->transports[$type])) {
+			$config = $this->config()->$type ?: $this->config->default;
+			$this->transports[$type] = $this->initTransport($config);
 		}
-
-		return self::$_transports [$type];
+		return $this->transports[$type];
 	}
-
 }

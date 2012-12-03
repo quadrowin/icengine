@@ -14,10 +14,11 @@ class CaptchaTest extends PHPUnit_Framework_TestCase {
 	 * This method is called before a test is executed.
 	 */
 	protected function setUp() {
-		
-		$ds = Data_Source_Manager::get ('default');
-		
-		DDS::setDataSource ($ds);
+
+		$locator = IcEngine::serviceLocator();
+		$ds = $locator->getService('dataSourceManager')->get('default');
+		$dds = $locator->getService('dds');
+		$dds->setDataSource($ds);
 	}
 
 	/**
@@ -25,45 +26,37 @@ class CaptchaTest extends PHPUnit_Framework_TestCase {
 	 * This method is called after a test is executed.
 	 */
 	protected function tearDown() {
-		
+
 	}
 
 	/**
 	 * @todo Implement testAccept().
 	 */
-	public function testAccept() {
-		
-		$captcha = Captcha::accept ();
-		
-		$captcha->save ();
-		
-		$id = $captcha->key ();
-		
-		$captcha_2 = Model_Manager::byKey (
+	public function testAccept()
+	{
+		$locator = IcEngine::serviceLocator();
+		$captcha = $locator->getService('captcha')->accept();
+		$captcha->save();
+		$id = $captcha->key();
+		$modelManager = $locator->getService('modelManager');
+		$captcha_2 = $modelManager->byKey(
 			'Captcha',
 			$id
 		);
-		
-		$this->assertEquals ($captcha, $captcha_2);
+		$this->assertEquals($captcha, $captcha_2);
 	}
 
 	/**
 	 * @todo Implement testCheck().
 	 */
 	public function testCheck() {
-		$this->assertFalse (Captcha::check ());
-		
-		$_POST ['captcha_hash'] = 'fake';
-		
-		$this->assertFalse (Captcha::check ());
-		
-		$_SESSION ['captcha'] = 'fake';
-		
-		$this->assertTrue (Captcha::check ());
-		
-		$this->assertFalse (Captcha::check ('Fake'));
+		$locator = IcEngine::serviceLocator();
+		$captcha = $locator->getService('captcha');
+		$this->assertFalse($captcha->check());
+		$_POST['captcha_hash'] = 'fake';
+		$this->assertFalse($captcha->check());
+		$_SESSION['captcha'] = 'fake';
+		$this->assertTrue($captcha->check());
+		$this->assertFalse($captcha->check('Fake'));
 	}
-
 }
-
-?>

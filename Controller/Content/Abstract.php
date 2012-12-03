@@ -16,17 +16,18 @@ class Controller_Content_Abstract extends Controller_Abstract
 		if (!$user->hasRole ('editor')) {
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
-		$content = Model_Manager::get ('Content', $contentId);
+		$modelManager = $this->getService('modelManager');
+		$content = $modelManager->get ('Content', $contentId);
 		if ($content->key ()) {
 			$category = $content->Content_Category;
 		} else {
-			$category = Model_Manager::byKey ('Content_Category', $categoryId);
+			$category = $modelManager->byKey ('Content_Category', $categoryId);
 		}
 		if (!$category) {
 			return $this->replaceAction ('Error', 'notFound');
 		}
 		Registry::set ('category', $category);
-		$extending = Model_Manager::get ($category->controller, $contentId);
+		$extending = $modelManager->get ($category->controller, $contentId);
 		Loader::load ('Temp_Content');
 		$tc = Temp_Content::create ($this, 'Content');
 		$tc->attr (array (
@@ -60,7 +61,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		if (!$user->hasRole ('editor')) {
 			return;
 		}
-		$content = Model_Manager::byKey ('Content', $contentId);
+		$content = $modelManager->byKey ('Content', $contentId);
 		if (!$content) {
 			return;
 		}
@@ -85,7 +86,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		if (!$user->hasRole ('editor')) {
 			return;
 		}
-		$image = Model_Manager::byKey ('Component_Image', $imageId);
+		$image = $modelManager->byKey ('Component_Image', $imageId);
 		if (!$image) {
 			return;
 		}
@@ -103,9 +104,9 @@ class Controller_Content_Abstract extends Controller_Abstract
 	public function roll($categoryId, $url = null)
 	{
 		if ($categoryId) {
-			$category = Model_Manager::byKey ('Content_Category', $categoryId);
+			$category = $modelManager->byKey ('Content_Category', $categoryId);
 		} elseif ($url) {
-			$category = Model_Manager::byOptions (
+			$category = $modelManager->byOptions (
 				'Content_Category',
 				array (
 					'name'	=> '::Url',
@@ -118,7 +119,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 		if (!$category) {
 			return $this->replaceAction ('Error', 'notFound');
 		}
-		$parent = Model_Manager::byKey ('Content_Category', $category->parentId);
+		$parent = $modelManager->byKey ('Content_Category', $category->parentId);
 		if (!$parent) {
 			return $this->replaceAction ('Error', 'notFound');
 		}
@@ -167,11 +168,11 @@ class Controller_Content_Abstract extends Controller_Abstract
 		$referer = $tc->attr ('referer');
 		$contentId = $tc->attr ('contentId');
 		$categoryId = $tc->attr ('categoryId');
-		$category = Model_Manager::byKey ('Content_Category', $categoryId);
+		$category = $modelManager->byKey ('Content_Category', $categoryId);
 		if (!$category) {
 			return $this->replaceAction ('Error', 'notFound');
 		}
-		$content = Model_Manager::get ('Content', $contentId);
+		$content = $modelManager->get ('Content', $contentId);
 		$content->update (array (
 			'title'					=> $title,
 			'short'					=> $short,
@@ -182,7 +183,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 			'url'					=> $url,
 			'extending'				=> $category->controller
 		));
-		$extending = Model_Manager::get($category->controller, $content->key());
+		$extending = $modelManager->get($category->controller, $content->key());
 		$fields = array ();
 		if (!$content->url) {
 			$fields['url'] = $extending->defaultUrl ();
@@ -204,9 +205,9 @@ class Controller_Content_Abstract extends Controller_Abstract
 	public function view($contentId, $url)
 	{
 		if ($contentId) {
-			$content = Model_Manager::byKey ('Content', $contentId);
+			$content = $modelManager->byKey ('Content', $contentId);
 		} elseif ($url) {
-			$content = Model_Manager::byOptions (
+			$content = $modelManager->byOptions (
 				'Content',
 				array (
 					'name'	=> '::Url',

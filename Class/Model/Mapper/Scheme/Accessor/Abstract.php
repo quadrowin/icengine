@@ -12,7 +12,7 @@ class Model_Mapper_Scheme_Accessor_Abstract
 	 * @param mixed $entity
 	 * @return mixed
 	 */
-	public function get ($scheme, $entity)
+	public function get($scheme, $entity)
 	{
 
 	}
@@ -21,8 +21,8 @@ class Model_Mapper_Scheme_Accessor_Abstract
 	 * @desc Получить имя
 	 * @return string
 	 */
-	public function getName ()
+	public function getName()
 	{
-		return substr (get_class ($this), 31);
+		return substr(get_class($this), 31);
 	}
 }

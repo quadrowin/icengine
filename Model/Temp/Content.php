@@ -24,7 +24,7 @@ class Temp_Content extends Model
 	 * @param 1 = value
 	 * @var array
 	 */
-	protected static $_created = array ();
+	protected $_created = array ();
 
 	/**
 	 * Устанавливаем дату, ключ = значение
@@ -32,11 +32,11 @@ class Temp_Content extends Model
 	 * @param string $key
 	 * @param string $value
 	 */
-	protected function _setAttr ($key, $value)
+	protected function _setAttr($key, $value)
 	{
 		$this->_data[$key] = $value;
 		$this->update(array(
-			'data' => json_encode ($this->_data)
+			'json' => json_encode($this->_data)
 		));
 	}
 
@@ -45,23 +45,21 @@ class Temp_Content extends Model
 	 *
 	 * @return type
 	 */
-	public function attr ($key)
+	public function attr($key, $value = null)
 	{
-		if (is_null ($this->_data)) {
-			$this->_data = json_decode ($this->data, true);
+		if (is_null($this->_data)) {
+			$this->_data = json_decode($this->json, true);
 		}
-
-		$args = func_get_args ();
-
-		if (count ($args) == 1 && !is_array ($args[0])) {
+		$args = func_get_args();
+		if (count($args) == 1 && !is_array($args[0])) {
 			return isset($this->_data[$args[0]])
 					? $this->_data[$args[0]] : null;
-		} elseif (is_array ($args[0])) {
+		} elseif (is_array($args[0])) {
 			foreach ($args[0] as $key => $value) {
-				$this->_setAttr ($key, $value);
+				$this->_setAttr($key, $value);
 			}
-		} elseif (count ($args) == 2) {
-			$this->_setAttr ($args[0], $args[1]);
+		} elseif (count($args) == 2) {
+			$this->_setAttr($args[0], $args[1]);
 		}
 	}
 
@@ -70,11 +68,15 @@ class Temp_Content extends Model
 	 * @param string $utcode
 	 * @return Temp_Content
 	 */
-	public static function byUtcode ($utcode)
+	public function byUtcode ($utcode)
 	{
-		return Model_Manager::byKey (
+		$modelManager = $this->getService('modelManager');
+        return $modelManager->byOptions(
 			__CLASS__,
-			(string) $utcode
+            array(
+                'name'  => '::Key',
+                'key'   => (string) $utcode
+            )
 		);
 	}
 
@@ -85,27 +87,30 @@ class Temp_Content extends Model
 	 * @param integer $row_id
 	 * @return Temp_Content
 	 */
-	public static function create ($controller, $table = '',
+	public function create ($controller, $table = '',
 		$row_id = 0, $data = null)
 	{
-		$utcode = self::genUtcode ();
-
+		$userService = $this->getService('user');
+        $helperDate = $this->getService('date');
+        $requestService = $this->getService('request');
+        
+        $utcode = $this->genUtcode();
 		$tc = new Temp_Content (array (
-			'time'			=> Helper_Date::toUnix (),
+			'time'			=> $helperDate->toUnix(),
 			'utcode'		=> $utcode,
-			'data'			=> json_encode($data),
-			'ip'			=> Request::ip (),
+			'json'			=> json_encode($data),
+			'ip'			=> $requestService->ip(),
 			'controller'	=>
 				$controller instanceof Controller_Abstract ?
-				$controller->name () :
+				$controller->name() :
 				$controller,
 			'table'			=> $table,
 			'rowId'			=> (int) $row_id,
-			'day'			=> Helper_Date::eraDayNum (),
-			'User__id'		=> User::id ()
+			'day'			=> $helperDate->eraDayNum(),
+			'User__id'		=> $userService->id()
 		));
 
-		return $tc->save ();
+		return $tc->save();
 	}
 
 	/**
@@ -114,42 +119,42 @@ class Temp_Content extends Model
 	 * @param Controller_Abstract $controller
 	 * @return Temp_Content
 	 */
-	public static function getFor (Model $model,
+	public function getFor(Model $model,
 		Controller_Abstract $controller = null)
 	{
-		$mname = $model->modelName ();
-		$mkey = $model->key ();
+		$mname = $model->modelName();
+		$mkey = $model->key();
 
-		if (!isset (self::$_created [$mname]))
+		if (!isset($this->$_created[$mname]))
 		{
-			self::$_created [$mname] = array ();
+			$this->$_created[$mname] = array();
 		}
 
-		if (!isset (self::$_created [$mname][$mkey]))
+		if (!isset ($this->$_created[$mname][$mkey]))
 		{
-			self::$_created [$mname][$mkey] = self::create (
-				$controller ? $controller->name () : '',
-				$model->table (),
+			$this->$_created[$mname][$mkey] = self::create(
+				$controller ? $controller->name() : '',
+				$model->table(),
 				$mkey
 			);
 		}
 
-		return self::$_created [$mname][$mkey];
+		return $this->$_created[$mname][$mkey];
 	}
 
 	/**
 	 * @desc Генерация уникального кода
 	 * @return string
 	 */
-	public static function genUtcode ()
+	public static function genUtcode()
 	{
 		// ucac7fe407f8e5e1c683005867edd74439452c4.39068717
-		$u = uniqid ('', true);
+		$u = uniqid('', true);
 		// Вырезаем точку
-		return md5 (time ()) . substr ($u, 9, 5) . substr ($u, 15);
+		return md5(time()) . substr($u, 9, 5) . substr($u, 15);
 	}
 
-	public static function idForNew (Temp_Content $tc)
+	public static function idForNew(Temp_Content $tc)
 	{
 		return $tc->utcode;
 	}
@@ -160,11 +165,11 @@ class Temp_Content extends Model
 	 * @param array $components
 	 * @return Temp_Content
 	 */
-	public function rejoinComponents (Model $item, array $components)
+	public function rejoinComponents(Model $item, array $components)
 	{
 		foreach ($components as $component)
 		{
-			$this->component ($component)->rejoin ($item);
+			$this->component($component)->rejoin($item);
 		}
 		return $this;
 	}

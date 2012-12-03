@@ -12,7 +12,7 @@ abstract class Model implements ArrayAccess
      *
 	 * @var array|Objective
 	 */
-	protected static $_config;
+	protected static $config;
 
 	/**
 	 * Связанные данные
@@ -53,6 +53,13 @@ abstract class Model implements ArrayAccess
 	 * @var array
 	 */
 	protected $scheme;
+
+    /**
+     * Локатор сервисов
+     *
+     * @var Service_Locator
+     */
+    protected static $serviceLocator;
 
 	/**
 	 * Обновленные поля
@@ -172,14 +179,15 @@ abstract class Model implements ArrayAccess
 	 */
 	public function attr($key, $value = null)
 	{
+        $attributeManager = $this->getService('attributeManager');
         if (func_num_args() == 1) {
             if (is_scalar($key)) {
-                return Attribute_Manager::get($this, $key);
+                return $attributeManager->get($this, $key);
             }
         } else {
             $key = array($key => $value);
         }
-        Attribute_Manager::set($this, $key, null);
+        $attributeManager->set($this, $key, null);
 	}
 
     /**
@@ -202,7 +210,8 @@ abstract class Model implements ArrayAccess
 	protected function joint($modelName, $key = null)
 	{
 		if (!is_null($key)) {
-            $joinedModel = Model_Manager::byKey($modelName, $key);
+            $modelManager = $this->getService('modelManager');
+            $joinedModel = $modelManager->byKey($modelName, $key);
 			$this->joints[$modelName] = $joinedModel;
 		}
 		return $this->joints[$modelName];
@@ -218,7 +227,8 @@ abstract class Model implements ArrayAccess
 	 */
 	public function component($type, $index = null)
 	{
-		$collection = Model_Collection_Manager::create('Component_' . $type)
+        $collectionManager = $this->getService('collectionManager');
+		$collection = $collectionManager->create('Component_' . $type)
             ->addOptions(
                 array(
                     'name'  => '::Table',
@@ -237,14 +247,15 @@ abstract class Model implements ArrayAccess
      *
 	 * @return Objective
 	 */
-	public static function config()
+	public function config()
 	{
-		if (!is_object(static::$_config)) {
-			static::$_config = Config_Manager::get(
-				get_called_class(), static::$_config
+		if (!is_object(static::$config)) {
+			$configManager = $this->getService('configManager');
+            static::$config = $configManager->get(
+				get_class($this), static::$config
 			);
 		}
-		return static::$_config;
+		return static::$config;
 	}
 
 	/**
@@ -271,8 +282,9 @@ abstract class Model implements ArrayAccess
 	 */
 	public function delete()
 	{
+        $modelManager = $this->getService('modelManager');
 		if ($this->key()) {
-			Model_Manager::remove($this);
+			$modelManager->remove($this);
 		}
 	}
 
@@ -288,7 +300,8 @@ abstract class Model implements ArrayAccess
 	 */
 	public function external($modelName, $index = null)
 	{
-        $collection = Model_Collection_Manager::create($modelName)
+        $collectionManager = $this->getService('collectionManager');
+        $collection = $collectionManager->create($modelName)
             ->addOptions(array(
                 'name'  => '::External',
                 'table' => $this->table(),
@@ -335,6 +348,30 @@ abstract class Model implements ArrayAccess
     }
 
     /**
+     * Получить услугу по имени
+     *
+     * @param string $serviceName
+     * @return mixed
+     */
+    public function getService($serviceName)
+    {
+        if (!self::$serviceLocator) {
+            self::$serviceLocator = new Service_Locator;
+        }
+        return self::$serviceLocator->getService($serviceName);
+    }
+    
+    /**
+     * Получить текущий сервис локатор
+     * 
+     * @return Service_Locator
+     */
+    public function getServiceLocator()
+    {
+        return self::$serviceLocator;
+    }
+
+    /**
      * Получить список обновленных полей
      *
      * @return array
@@ -376,7 +413,8 @@ abstract class Model implements ArrayAccess
 	public function keyField()
 	{
         if (!$this->keyField) {
-            $this->keyField = Model_Scheme::keyField($this->table());
+            $modelScheme = $this->getService('modelScheme');
+            $this->keyField = $modelScheme->keyField($this->table());
         }
 		return $this->keyField;
 	}
@@ -449,7 +487,7 @@ abstract class Model implements ArrayAccess
 	 */
 	public function save($hardInsert = false)
 	{
-		Model_Manager::set($this, $hardInsert);
+		$this->getService('modelManager')->set($this, $hardInsert);
 		return $this;
 	}
 
@@ -461,7 +499,8 @@ abstract class Model implements ArrayAccess
 	public function scheme()
 	{
 		if (!$this->scheme) {
-            $this->scheme = Config_Manager::get(
+            $configManager = $this->getService('configManager');
+            $this->scheme = $configManager->get(
                 'Model_Mapper_' . $this->table()
             );
         }
@@ -510,6 +549,16 @@ abstract class Model implements ArrayAccess
 		$this->lazy = $value;
 	}
 
+    /**
+     * Изменить локатор сервисов
+     * 
+     * @param Service_Locator $serviceLocator
+     */
+    public function setServiceLocator($serviceLocator)
+    {
+        self::$serviceLocator = $serviceLocator;
+    }
+    
 	/**
 	 * Тихое получение или установка поля
      *
@@ -551,9 +600,10 @@ abstract class Model implements ArrayAccess
 	public function load()
 	{
         if ($this->lazy) {
-            Unit_Of_Work::load($this);
+            $this->getService('unitOfWork')->load($this);
         } else {
-            Model_Manager::get($this->table(), $this->key(), $this);
+            $modelManager = $this->getService('modelManager');
+            $modelManager->get($this->table(), $this->key(), $this);
         }
         if (!$this->fields) {
             $this->fields = array(
@@ -576,7 +626,7 @@ abstract class Model implements ArrayAccess
         if (!isset($scheme->validators) || !isset($scheme->validators[$name])) {
             return true;
         }
-        return Model_Validator::validate(
+        return $this->getService('modelValidator')->validate(
             $this, $scheme->validators[$name], $input
         );
 	}

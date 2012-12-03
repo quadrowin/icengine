@@ -12,14 +12,14 @@ class Route extends Model_Child
 	 *
 	 * @var boolean
 	 */
-	protected static $fromConfigLoaded = false;
+	protected $fromConfigLoaded = false;
 
 	/**
 	 * Лист роутов
 	 *
 	 * @var array
 	 */
-	protected static $list;
+	protected $list;
 
 	/**
 	 * Сформировать роут экшины, привязаннык роуту
@@ -61,9 +61,9 @@ class Route extends Model_Child
 	 *
 	 * @param array $route
 	 */
-	public static function addRoute($route)
+	public function addRoute($route)
 	{
-		self::$list[] = $route;
+		$this->list[] = $route;
 	}
 
 	/**
@@ -72,18 +72,22 @@ class Route extends Model_Child
 	 * @param string $url
 	 * @return Route
 	 */
-	public static function byUrl($url)
+	public function byUrl($url)
 	{
 		$url = '/' . ltrim($url, '/');
-		$route = Resource_Manager::get('Route_Cache', $url);
+        $dataProviderManager = $this->getService('dataProviderManager');
+        $provider = $dataProviderManager->get('Route_Cache');
+		$route = $provider->get($url);
 		if ($route) {
 			return $route ? new self($route) : null;
 		}
-		$config = Config_Manager::get(__CLASS__);
+        $configManager = $this->getService('configManager');
+		$config = $configManager->get(__CLASS__);
 		$emptyRoute = $config['empty_route']->__toArray();
-		$routes = self::getList();
+		$routes = $this->getList();
 		$row = null;
-        $host = Request::host();
+        $request = $this->getService('request');
+        $host = $request->host();
         $lastWithHost = false;
 		foreach ($routes as $route) {
 			if (empty($route['route'])) {
@@ -95,7 +99,7 @@ class Route extends Model_Child
             $withHost = false;
             if (!empty($route['host'])) {
                 $withHost = true;
-                $hostValid = self::checkHost($host['route'], $host);
+                $hostValid = $this->checkHost($host['route'], $host);
             }
 			if (!empty($route['patterns'])) {
 				foreach ($route['patterns'] as $var => $routeData) {
@@ -118,7 +122,7 @@ class Route extends Model_Child
                 }
 			}
 		}
-		Resource_Manager::set('Route_Cache', $url, $row);
+		$provider->set($url, $row);
 		return $row ? new self($row) : null;
 	}
 
@@ -129,7 +133,7 @@ class Route extends Model_Child
      * @param string $host
      * @return boolean
      */
-    protected static function checkHost($pattern, $host)
+    protected function checkHost($pattern, $host)
     {
         if (!$pattern) {
             return true;
@@ -142,38 +146,15 @@ class Route extends Model_Child
 	 *
 	 * @return array
 	 */
-	public static function getList()
+	public function getList()
 	{
-		if (!self::$fromConfigLoaded) {
-			$config = Config_Manager::get(__CLASS__);
-			self::$list = $config['routes']->__toArray();
-			self::$fromConfigLoaded = true;
-			$moduleCollection = Model_Collection_Manager::create(
-				'Module'
-			)->addOptions(array(
-				'name'	=> 'Main',
-				'value'	=> false
-			));
-			if ($moduleCollection) {
-				$currentRoutes = array();
-				foreach (self::$list as $route) {
-					$currentRoutes[$route['route']] = 1;
-				}
-				foreach ($moduleCollection as $module) {
-					$moduleConfig = Config_Manager::byPath('Route', $module->name);
-					if (!$moduleConfig) {
-						continue;
-					}
-					foreach ($moduleConfig['routes']->__toArray() as $route) {
-						if (!isset($currentRoutes[$route['route']])) {
-							$route['params']['module'] = $module->name;
-							self::$list[] = $route;
-						}
-					}
-				}
-			}
+		if (!$this->fromConfigLoaded) {
+            $configManager = $this->getService('configManager');
+			$config = $configManager->get(__CLASS__);
+			$this->list = $config['routes']->__toArray();
+			$this->fromConfigLoaded = true;
 		}
-		return self::$list;
+		return $this->list;
 	}
 
 	/**
@@ -186,9 +167,11 @@ class Route extends Model_Child
         $render = null;
 		if (!empty($this->params['View_Render__id'])) {
 			$viewRenderId = $this->params['View_Render__id'];
-            $render = Model_Manager::byKey('View_Render', $viewRenderId);
+            $modelManager = $this->getService('modelManager');
+            $render = $modelManager->byKey('View_Render', $viewRenderId);
 		} else {
-			$render = View_Render_Manager::getView();
+            $viewRenderManager = $this->getService('viewRenderManager');
+			$render = $viewRenderManager->getView();
 		}
 		return $render;
 	}

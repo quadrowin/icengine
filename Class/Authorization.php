@@ -14,35 +14,32 @@ class Authorization
 	);
 
 	/**
-	 * @desc Попытка авторизации
+	 * Попытка авторизации
+	 *
 	 * @param Data_Transport $input Вход контроллера
 	 * @return User|string Пользователь или ошибка - строка вида
 	 * "Тип_Авторизации::ошибка".
 	 */
-	public static function getAuthUser (Data_Transport $input)
+	public static function getAuthUser(Data_Transport $input)
 	{
-		$authes = Model_Collection_Manager::byQuery (
+		$locator = IcEngine::serviceLocator();
+		$collectionManager = $locator->getService('collectionManager');
+		$query = $locator->getService('query');
+		$authes = $collectionManager->byQuery(
 			'Authorization_Type',
-			Query::instance ()
-			->where ('active', 1)
-			->order ('rank')
+			$query->where('active', 1)
+				->order('rank')
 		);
-
 		$error = 'noAuthMethod';
-
-		foreach ($authes as $auth)
-		{
-			if ($auth->possibleAuth ($input))
-			{
-				$user = $auth->getAuthUser ($input);
-				if ($user instanceof User)
-				{
+		foreach ($authes as $auth) {
+			if ($auth->possibleAuth($input)) {
+				$user = $auth->getAuthUser($input);
+				if ($user instanceof User) {
 					return $user;
 				}
 				$error = $user;
 			}
 		}
-
 		return $error;
 	}
 
@@ -52,16 +49,17 @@ class Authorization
 	 * @param string $password
 	 * @return User|null
 	 */
-	public static function findUser ($login, $password)
+	public static function findUser($login, $password)
 	{
-		return Model_Manager::byQuery (
+		$locator = IcEngine::serviceLocator();
+		$query = $locator->getService('query');
+		return $locator->getService('modelManager')->byQuery(
 			'User',
-			Query::instance ()
-			->where (self::$config ['login_field'], $login)
-			->where (self::$config ['password_field'], $password)
-			->where ('active=1')
-			->order (self::$config ['login_field'])
-			->limit (1, 0)
+			$query->where(self::$config['login_field'], $login)
+				->where(self::$config['password_field'], $password)
+				->where('active=1')
+				->order(self::$config['login_field'])
+				->limit(1, 0)
 		);
 	}
 
@@ -71,22 +69,21 @@ class Authorization
 	 * @param string $password
 	 * @return User|null
 	 */
-	public static function authorize ($login, $password)
+	public static function authorize($login, $password)
 	{
-		$user = self::findUser ($login, $password);
-
-		if ($user)
-		{
-			$user->authorize ();
+		$user = self::findUser($login, $password);
+		if ($user) {
+			$user->authorize();
 		}
-
 		return $user;
 	}
 
-	public static function logout ($redirect = '/')
+	public static function logout($redirect = '/')
 	{
-		User_Session::getCurrent ()->delete ();
-		Header::redirect ($redirect);
+		$locator = IcEngine::serviceLocator();
+		$session = $locator->getService('session')->getCurrent();
+		$session->delete();
+		$header = $locator->getService('header');
+		$header->redirect($redirect);
 	}
-
 }

@@ -1,24 +1,22 @@
 <?php
-/**
- *
- * @desc Модель гостя (незарегистрированного посетителя сайта).
- * @author Юрий
- * @package IcEngine
- *
- */
-class User_Guest extends User
-{
 
+/**
+ * Модель гостя (незарегистрированного посетителя сайта).
+ * 
+ * @author goorus, morph
+ */
+class User_Guest extends User_Cli
+{
 	/**
 	 * @desc Конфиг
 	 * @var array
 	 */
-	protected static $_config = array (
+	protected static $config = array(
 		/**
 		 * @desc Конфиг пользователя
 		 * @var array
 		 */
-		'data'	=> array (
+		'fields'	=> array(
 			'id'		=> 0,
 			'active'	=> 1,
 			'login'		=> '',
@@ -27,45 +25,29 @@ class User_Guest extends User
 			'password'	=> ''
 		)
 	);
-
-	/**
-	 * @desc Экзмепляр модели гостя
-	 * @var Model
+    
+    /**
+	 * @inheritdoc
 	 */
-	protected static $_instance;
-
-	/**
-	 * @desc Создает и возвращает экземпляр модели гостя.
-	 * @return User_Guest
-	 */
-	public static function getInstance ()
+	public function init($sessionId = null)
 	{
-		if (!self::$_instance)
-		{
-			self::$_instance = new self (static::config ()->data->__toArray ());
-		}
-		return self::$_instance;
+		$instance = $this->getInstance();
+        $resourceManager = $this->getService('resourceManager');
+        $provider = $this->getService('dataProviderManager')->get(
+            'user_session'
+        );
+        if (isset($_COOKIE['PHPSESSID'])) {
+            $sessionId = $_COOKIE['PHPSESSID'];
+        } else {
+            $sessionId = $this->getService('request')->sessionId();
+        }
+        $key = 'User_Session_1/0:' . $sessionId;
+        $data = $provider->get($key);
+        if ($data) {
+            $session = new User_Session($data);
+            $this->getService('session')->setCurrent($session);
+            $this->getService('user')->setCurrent($instance);
+        }
+		$resourceManager->set('Model', $instance->resourceKey(), $instance);
 	}
-
-	/**
-	 * @desc Инициализирует модель гостя.
-	 * Модель будет добавлена в менеджер ресурсов.
-	 * @param mixed $session_id Идентификатор сессии. Не имеет значения,
-	 * параметр необходим для совместимости с User::init ().
-	 */
-	public static function init ($session_id = null)
-	{
-		$instance = self::getInstance ();
-		Resource_Manager::set ('Model', $instance->resourceKey (), $instance);
-	}
-
-	/**
-	 * (non-PHPdoc)
-	 * @see Model::modelName()
-	 */
-	public function table()
-	{
-		return 'User';
-	}
-
 }

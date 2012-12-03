@@ -178,7 +178,7 @@ class Helper_Array
 	 * @param string $sortby Поля сортировки через запятую
 	 * @return boolean true если успешно, иначе false.
 	 */
-	public static function masort (&$data, $sortby)
+	public static function masort ($data, $sortby)
 	{
 		static $funcs = array ();
 
@@ -218,7 +218,8 @@ class Helper_Array
 			$funcs [$sortby] = create_function ('$a, $b', $code);
 		}
 
-		return uasort ($data, $funcs [$sortby]);
+		uasort ($data, $funcs [$sortby]);
+		return $data;
 	}
 
 	/**

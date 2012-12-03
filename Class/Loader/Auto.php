@@ -1,28 +1,29 @@
 <?php
+
 /**
+ * Класс для автоматического подключения классов движка.
  * 
- * @desc Класс для автоматического подключения классов движка.
- * @author Юрий Шведов
- * @package IcEngine
- *
+ * @author goorus
  */
 class Loader_Auto
 {
-	
 	/**
-	 * @desc Подключение автозагрузки классов
+	 * Подключение автозагрузки классов
 	 */
-	public static function register ()
+	public function register()
 	{
-		spl_autoload_register ('Loader::load');
+        $loader = IcEngine::getLoader();
+        $callable = array($loader, 'load');
+		spl_autoload_register($callable);
 	}
 	
 	/**
-	 * @desc Отключение автозагрузки классов
+	 * Отключение автозагрузки классов
 	 */
-	public static function unregister ()
+	public function unregister()
 	{
-		spl_autoload_unregister ('Loader::load');
+        $loader = IcEngine::getLoader();
+        $callable = array($loader, 'load');
+		spl_autoload_unregister($callable);
 	}
-	
 }

@@ -1,43 +1,46 @@
 <?php
+
 /**
- *
- * @desc Упаковщик Css ресурсов представления
- * @author Юрий
- * @package IcEngine
- *
+ * Упаковщик Css ресурсов представления
+ * 
+ * @author goorus, morph
  */
 class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 {
+	/**
+	 * Импортируемые стили.
+	 * 
+     * @var array
+	 */
+	protected $imports = array();
 
 	/**
-	 * @desc Импортируемые стили.
-	 * @var array
+	 * Домен второго уровня
+	 * 
+     * @var string
 	 */
-	protected $_imports = array ();
+	protected $domain = 'localhost';
 
 	/**
-	 * @desc домен второго уровня
-	 * @var string
+	 * Шаблоны имен доменов
+	 * 
+     * @var Objective
 	 */
-	protected $_domain = 'localhost';
+	protected $domains;
 
 	/**
-	 * @desc Шаблоны имен доменов
-	 * @var Objective
+	 * Последний использованный домен.
+	 * 
+     * @var integer
 	 */
-	protected $_domains;
+	protected $last = 0;
 
 	/**
-	 * @desc Последний использованный домен.
-	 * @var integer
+	 * Расширения конфига
+	 * 
+     * @var array
 	 */
-	protected $_last = 0;
-
-	/**
-	 * @desc Расширения конфига
-	 * @var array
-	 */
-	protected $_configExt = array (
+	protected $configExt = array(
 		// Домены
 //		'domains'	=> array (
 //			'img1.{$domain}{$url}',
@@ -53,104 +56,79 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 	);
 
 	/**
-	 * @desc Сформированные адреса изображений.
+	 * Сформированные адреса изображений.
 	 * Необходимо чтобы на одно изображние не получалось несколько ссылок.
-	 * @var array <String>
+	 * 
+     * @var array <String>
 	 */
-	protected $_formedUrls = array (
-	);
+	protected $formedUrls = array();
 
 	/**
-	 * @desc Создает и возвращает экземпляра
+	 * Конструктор
 	 */
-	public function __construct ()
+	public function __construct()
 	{
-		$this->_domain = Helper_Uri::mainDomain ();
-
-		$this->_config = array_merge (
-			$this->_config,
-			$this->_configExt
+		$this->domain = Helper_Uri::mainDomain();
+		$this->config = array_merge(
+			$this->config,
+			$this->configExt
 		);
-
-		$this->_domains = $this->config ()->domains;
+		$this->domains = $this->config()->domains;
 	}
 
 	/**
-	 * @desc Callback для preg_replace вырезания @import.
-	 * @param array $matches
+	 * Callback для preg_replace вырезания @import.
+	 * 
+     * @param array $matches
 	 * @return string
 	 */
-	public function _excludeImport (array $matches)
+	public function excludeImport(array $matches)
 	{
-		if (strncmp ($matches [1], '/', 1) == 0)
-		{
-			$this->_imports [] = $matches [0];
+		if (strncmp($matches[1], '/', 1) == 0) {
+			$this->imports[] = $matches[0];
+		} else {
+			$this->imports[] =
+				'@import "' . $this->currentResource->urlPath . 
+                $matches[1] . '";';
 		}
-		else
-		{
-			$this->_imports [] =
-				'@import "' . $this->_currentResource->urlPath . $matches [1] . '";';
-		}
-
 		return '';
 	}
 
 	/**
-	 * @desc Callback для preg_replace замены путей к изображениям.
-	 * @param array $matches
+	 * Callback для preg_replace замены путей к изображениям.
+	 * 
+     * @param array $matches
 	 * @return string
 	 */
-	public function _replaceUrl (array $matches)
+	public function replaceUrl(array $matches)
 	{
-		if (substr ($matches [1], 0, 5) == 'data:')
-		{
-			return 'url(' . $matches [1] . ')';
+		if (substr($matches[1], 0, 5) == 'data:') {
+			return 'url(' . $matches[1] . ')';
+		} elseif (substr($matches[1], 0, 5) == 'http:') {
+			return 'url(' . $matches[1] . ')';
 		}
-		elseif (substr ($matches [1], 0, 5) == 'http:')
-		{
-			return 'url(' . $matches [1] . ')';
+		if (substr($matches[1], 0, 1) == '/') {
+			$url = $matches[1];
+		} else {
+			$url = $this->currentResource->urlPath . $matches[1];
 		}
-
-		if (substr ($matches [1], 0, 1) == '/')
-		{
-			$url = $matches [1];
-		}
-		else
-		{
-			$url = $this->_currentResource->urlPath . $matches [1];
-		}
-
-		if (isset ($this->_formedUrls [$url]))
-		{
-			$url = $this->_formedUrls [$url];
-		}
-		elseif (
-			substr ($url, 0, 1) == '/' &&
-			$this->_domains && count ($this->_domains) // Objective, не массив
-		)
-		{
-			$this->_last++;
-
-			if ($this->_last >= count ($this->_domains))
-			{
-				$this->_last = 0;
+		if (isset($this->formedUrls[$url])) {
+			$url = $this->formedUrls[$url];
+		} elseif (
+			substr($url, 0, 1) == '/' &&
+			$this->domains && count($this->_domains) // Objective, не массив
+		) {
+			$this->last++;
+			if ($this->last >= count($this->domains)) {
+				$this->last = 0;
 			}
-
-			$this->_formedUrls [$url] = 'http://' . str_replace (
-				array (
-					'{$domain}',
-					'{$url}'
-				),
-				array (
-					$this->_domain,
-					$url
-				),
-				$this->_domains [$this->_last]
+			$this->formedUrls[$url] = 'http://' . str_replace(
+				array('{$domain}', '{$url}'),
+				array($this->domain, $url),
+				$this->domains[$this->last]
 			);
-
-			$url = $this->_formedUrls [$url];
+			$url = $this->formedUrls[$url];
 		}
-
 		return 'url("' . $url . '")';
 	}
 
@@ -158,65 +136,51 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 	 * (non-PHPdoc)
 	 * @see View_Resource_Packer_Abstract::compile()
 	 */
-	public function compile (array $packages)
+	public function compile(array $packages)
 	{
-		return
-			$this->_compileFilePrefix () .
-			implode ("\n", $this->_imports) . "\n" .
-			implode ("\n", $packages);
+		return $this->compileFilePrefix () .
+			implode("\n", $this->imports) . "\n" .
+			implode("\n", $packages);
 	}
 
 	/**
-	 *
-	 * @param string $style
-	 * @return string
+	 * @inheritdoc
 	 */
-	public function packOne (View_Resource $resource)
+	public function packOne(View_Resource $resource)
 	{
-		$resource->urlPath = dirname ($resource->href) . '/';
-
-		if (
-			$this->config ()->item_prefix &&
-			isset ($resource->filePath)
-		)
-		{
-			$prefix = strtr (
-				$this->config ()->item_prefix,
-				array (
-					'{$source}' => $resource->filePath,
-					'{$src}'	=> $resource->localPath,
-				)
-			);
-		}
-		else
-		{
+        $config = $this->config();
+		$resource->urlPath = dirname($resource->href) . '/';
+		if ($config->item_prefix && isset($resource->filePath)) {
+			$prefix = strtr ($config->item_prefix, array (
+                '{$source}' => $resource->filePath,
+                '{$src}'	=> $resource->localPath,
+            ));
+		} else {
 			$prefix = '';
 		}
-
-		$style = preg_replace_callback (
+		$replacedStyle = preg_replace_callback(
 			'/url\\([\'"]?(.*?)[\'"]?\\)/i',
-			array ($this, '_replaceUrl'),
-			$resource->content ()
+			array($this, 'replaceUrl'),
+			$resource->content()
 		);
-
-		$style = preg_replace_callback (
+		$excludedStyle = preg_replace_callback(
 			'/@import\\s*[\'"]?(.*?)[\'"]?\\s*;/i',
-			array ($this, '_excludeImport'),
-			$style
+			array ($this, 'excludeImport'),
+			$replacedStyle
 		);
-
-		$style = preg_replace ('!/\*[^*]*\*+([^/][^*]*\*+)*/!', '', $style);
-		$style = str_replace (array ("\r", "\t", '@CHARSET "UTF-8";'), '', $style);
-
+		$trimmedStyle = preg_replace(
+            '!/\*[^*]*\*+([^/][^*]*\*+)*/!', '', 
+            $excludedStyle
+        );
+		$style = str_replace(
+            array("\r", "\t", '@CHARSET "UTF-8";'), '', $trimmedStyle
+        );
 		do {
-			$length = strlen ($style);
-			$style = str_replace ('  ', ' ', $style);
-		} while (strlen ($style) != $length);
-
-		$fname = rtrim(IcEngine::root (), '/') . '/log/css.log';
-		file_put_contents ($fname, time (). PHP_EOL, FILE_APPEND);
-
-		return $prefix . $style . $this->config ()->item_postfix;
+			$length = strlen($style);
+			$style = str_replace('  ', ' ', $style);
+		} while (strlen($style) != $length);
+		$fname = rtrim(IcEngine::root(), '/') . '/log/css.log';
+		file_put_contents($fname, time(). PHP_EOL, FILE_APPEND);
+		return $prefix . $style . $config->item_postfix;
 	}
-
 }

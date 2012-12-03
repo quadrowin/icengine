@@ -1,16 +1,13 @@
 <?php
 /**
- * 
  * Экранирование добавление слэшей
- * @author Morph
  *
+ * @author Morph
  */
 class Filter_AddSlashes
 {
-	
-	public function filter ($data)
+	public function filter($data)
 	{
-		return addslashes ($data);
+		return addslashes($data);
 	}
-	
 }

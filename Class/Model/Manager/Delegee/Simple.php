@@ -1,23 +1,23 @@
 <?php
+
 /**
+ * Класс для создания простых моделей
  * 
- * @desc Класс для создания простых моделей.
- * @author Юрий Шведов
- * @package IcEngine
- *
+ * @author goorus, morph
  */
 class Model_Manager_Delegee_Simple
 {
-	
 	/**
-	 * @desc 
+	 * Возвращает новою модель
+     * 
 	 * @param string $model
 	 * @param string $key
 	 * @param mixed $object
 	 */
-	public static function get ($model, $key, $object)
+	public function get($modelName, $key, $object)
 	{
-		return new $model (is_array ($object) ? $object : array ());
+        $params = is_array($object) ? $object : array();
+        $model = new $modelName($params);
+		return $model;
 	}
-	
 }

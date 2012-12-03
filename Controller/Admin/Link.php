@@ -1,204 +1,178 @@
 <?php
 
 /**
- * @desc Контроллер админки линковки
+ * Контроллер админки линковки
+ *
  * @package IcEngine
  * @author Илья Колесников
  * @copyright i-complex.ru
  */
 class Controller_Admin_Link extends Controller_Abstract
 {
-	public function index ()
+	public function index()
 	{
-		if (!User::getCurrent ()->isAdmin ())
-		{
-			return $this->replaceAction (
+		$userService = $this->getService('user');
+		if (!$userService->getCurrent()->isAdmin()) {
+			return $this->replaceAction(
 				'Error',
 				'accessDenied'
 			);
 		}
-
-		$tables = Helper_Data_Source::tables ();
-
-		$result = array ();
-
-		foreach ($tables as $table)
-		{
-			$result [] = array (
+		$helperDataSource = $this->getService('helperDataSource');
+		$tables = $helperDataSource->tables();
+		$result = array();
+		foreach ($tables as $table) {
+			$result[] = array(
 				'name'	=> $table->Name,
 				'title'	=> $table->Comment
 			);
 		}
-
-		$this->_output->send (array (
+		$this->output->send(array(
 			'tables'	=> $result
 		));
 	}
 
 	/**
-	 * @desc Получаем модели коллекции
+	 * Получаем модели коллекции
 	 */
-	public function items ()
+	public function items()
 	{
-		$table = $this->_input->receive ('table');
-
-		$class_name = Model_Scheme::tableToModel ($table);
-
-		$result = array ();
-
-		$collection = Model_Collection_Manager::create ($class_name);
-
-		foreach ($collection as $model)
-		{
-			$result [] = array (
-				'id'	=> $model->key (),
-				'name'	=> $model->title ()
+		$table = $this->input->receive('table');
+		$modelScheme = $this->getService('modelScheme');
+		$class_name = $modelScheme->tableToModel($table);
+		$result = array();
+		$collectionManager = $this->getService('collectionManager');
+		$collection = $collectionManager->create($class_name);
+		foreach ($collection as $model) {
+			$result[] = array(
+				'id'	=> $model->key(),
+				'name'	=> $model->title()
 			);
 		}
-
-		$this->_task->setTemplate (null);
-
-		$this->_output->send (array (
-			'data'	=> array (
+		$this->_task->setTemplate(null);
+		$this->output->send(array(
+			'data'	=> array(
 				'items'	=> $result
 			)
 		));
 	}
 
 	/**
-	 * @desc Получаем модели, в том числе прилинкованные
+	 * Получаем модели, в том числе прилинкованные
 	 */
-	public function linkRoll ()
+	public function linkRoll()
 	{
-		list (
+		list(
 			$table1,
 			$table2,
 			$row1
-		) = $this->_input->receive (
+		) = $this->_input->receive(
 			'table1',
 			'table2',
 			'row1'
 		);
-
-		$class_name1 = Model_Scheme::tableToModel ($table1);
-		$class_name2 = Model_Scheme::tableToModel ($table2);
-
-		$model1 = Model_Manager::get (
+		$modelScheme = $this->getService('modelScheme');
+		$class_name1 = $modelScheme->tableToModel($table1);
+		$class_name2 = $modelScheme->tableToModel($table2);
+		$modelManager = $this->getService('modelManager');
+		$model1 = $modelManager->get(
 			$class_name1,
 			$row1
 		);
-
-		$model2_collection = Model_Collection_Manager::create ($class_name2);
-
-		$linked_models = Helper_Link::linkedItems (
+		$collectionManager = $this->getService('collectionManager');
+		$model2_collection = $collectionManager->create($class_name2);
+		$helperLink = $this->getService('helperLink');
+		$linked_models = $helperLink->linkedItems(
 			$model1,
 			$class_name2
 		);
-
-		$result = array ();
-
-		foreach ($model2_collection as $i=> $model)
-		{
-			$result [$i] = array (
-				'id'		=> $model->key (),
-				'name'		=> $model->title (),
+		$result = array();
+		foreach ($model2_collection as $i => $model) {
+			$result[$i] = array(
+				'id'		=> $model->key(),
+				'name'		=> $model->title(),
 				'linked'	=> 0
 			);
-
-			$filtered = $linked_models->filter (array (
-				Model_Scheme::keyField ($class_name2)	=> $model->key ()
+			$filtered = $linked_models->filter(array(
+				$modelScheme->keyField($class_name2)	=> $model->key()
 			));
-
-			if ($filtered->count ())
-			{
-				$result [$i]['linked'] = 1;
+			if ($filtered->count()) {
+				$result[$i]['linked'] = 1;
 			}
 		}
-
-		$this->_task->setTemplate (null);
-
-		$this->_output->send (array (
-			'data'	=> array (
+		$this->_task->setTemplate(null);
+		$this->output->send(array(
+			'data'	=> array(
 				'items'	=> $result
 			)
 		));
 	}
 
 	/**
-	 * @desc Сохраняем изменения
+	 * Сохраняем изменения
 	 */
-	public function save ()
+	public function save()
 	{
-		list (
+		list(
 			$table1,
 			$table2,
 			$row1,
 			$models2
-		) = $this->_input->receive (
+		) = $this->_input->receive(
 			'table1',
 			'table2',
 			'row1',
 			'models2'
 		);
-
-		$class_name1 = Model_Scheme::tableToModel ($table1);
-		$class_name2 = Model_Scheme::tableToModel ($table2);
-
-		$model1 = Model_Manager::get (
+		$modelScheme = $this->getService('modelScheme');
+		$class_name1 = $modelScheme->tableToModel($table1);
+		$class_name2 = $modelScheme->tableToModel($table2);
+		$modelManager = $this->getService('modelManager');
+		$model1 = $modelManager->get(
 			$class_name1,
 			$row1
 		);
-
-		Helper_Link::unlinkWith (
+		$helperLink = $this->getService('helperLink');
+		$helperLink->unlinkWith(
 			$model1,
 			$class_name2
 		);
-
-		if (!$models2)
-		{
+		if (!$models2) {
 			return;
 		}
-
-		foreach ($models2 as $model2_id)
-		{
-			$model2 = Model_Manager::byKey (
+		$modelManager = $this->getService('modelManager');
+		foreach ($models2 as $model2_id){
+			$model2 = $modelManager->byKey(
 				$class_name2,
 				$model2_id
 			);
-
-			if ($model2)
-			{
-				Helper_Link::link (
+			if ($model2) {
+				$helperLink->link(
 					$model1,
 					$model2
 				);
 			}
 		}
-
-		$this->_task->setTemplate (null);
+		$this->_task->setTemplate(null);
 	}
 
 	/**
-	 * @desc Получаем список таблиц
+	 * Получаем список таблиц
 	 */
-	public function tables ()
+	public function tables()
 	{
-		$tables = Helper_Data_Source::tables ();
-
-		$result = array ();
-
-		foreach ($tables as $table)
-		{
-			$result [] = array (
+		$helperDataSource = $this->getService('helperDataSource');
+		$tables = $helperDataSource->tables();
+		$result = array();
+		foreach ($tables as $table) {
+			$result[] = array(
 				'name'	=> $table->Name,
 				'title'	=> $table->Comment
 			);
 		}
-
-		$this->_task->setTemplate (null);
-
-		$this->_output->send (array (
-			'data'	=> array (
+		$this->_task->setTemplate(null);
+		$this->output->send(array(
+			'data'	=> array(
 				'tables'	=> $result
 			)
 		));
