@@ -14,7 +14,7 @@ class Controller_Dispatcher
 	 * @param string $action
 	 * @return array<controller,action>
 	 */
-	public static function dispatch($controller, $action)
+	public function dispatch($controller, $action)
 	{
 		return array(
 			'controller'	=> $controller,
@@ -29,10 +29,10 @@ class Controller_Dispatcher
 	 * @param Route_Action_Collection $actions
 	 * @return Route_Action_Collection
 	 */
-	public static function loop($actions)
+	public function loop($actions)
 	{
 		foreach ($actions as &$action) {
-			$dispacthResult = self::dispatch(
+			$dispacthResult = $this->dispatch(
                 $action['controller'], $action['action']
             );
             $action['controller'] = $dispacthResult['controller'];

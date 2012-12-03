@@ -1,290 +1,202 @@
 <?php
 
 /**
- *
- * @desc Мэппер для работы с Mongodb, с кэшированием запросов.
- * @author Юрий Шведов
- * @package IcEngine
- *
+ * Мэппер для работы с Mongodb, с кэшированием запросов
+ * 
+ * @author goorus, morph
  */
 class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 {
 	/**
-	 * @desc Кэшер запросов.
+	 * Кэшер запросов
+     * 
 	 * @var Data_Provider_Abstract
 	 */
-	protected $_cacher;
+	protected $cacher;
 
 	/**
-	 * @desc Получение хэша запроса
+	 * Получение хэша запроса
+     * 
 	 * @return string
 	 */
-	protected function _queryHash ()
+	protected function queryHash()
 	{
-		return md5 (json_encode ($this->_query));
+		return md5(json_encode($this->query));
 	}
 
 	/**
-	 * @desc Запрос на удаление
+	 * @inheritdoc
 	 */
-	public function _executeDelete (Query_Abstract $query, Query_Options $options)
+	public function _executeDelete(Query_Abstract $query, Query_Options $options)
 	{
-		$this->_collection->remove (
-			$this->_query ['criteria'],
-			$this->_query ['options']
+        $this->collection = $this->connect()->selectCollection(
+			$this->connectionOptions['database'],
+			$this->query['collection']
 		);
-		$this->_touchedRows = 1;
-
-		$tags = $query->getTags ();
-
-		for ($i = 0, $count = sizeof ($tags); $i < $count; ++$i)
-		{
-			$this->_cacher->tagDelete ($tags [$i]);
+		parent::_executeDelete($query, $options);
+		$tags = $query->getTags();
+		for ($i = 0, $count = sizeof($tags); $i < $count; ++$i) {
+			$this->cacher->tagDelete($tags[$i]);
 		}
 	}
 
 	/**
-	 * @desc Запрос на вставку
+	 * @inheritdoc
 	 */
-	public function _executeInsert (Query_Abstract $query, Query_Options $options)
+	public function _executeInsert(Query_Abstract $query, Query_Options $options)
 	{
-		if (isset ($this->_query ['a']['_id']))
-		{
-			$this->_insertId = $this->_query ['a']['_id'];
-			$this->_collection->update (
-				array (
-					'_id'		=> $this->_insertId
-				),
-				$this->_query ['a'],
-				array (
-					'upsert'	=> true
-				)
-			);
-		}
-		else
-		{
-			$this->_collection->insert ($this->_query ['a']);
-			$this->_insertId = $this->_query ['a']['_id'];
-		}
-
-		$this->_touchedRows = 1;
-
-		$tags = $query->getTags ();
-
-		for ($i = 0, $count = sizeof ($tags); $i < $count; ++$i)
-		{
-			$this->_cacher->tagDelete ($tags [$i]);
+        $this->collection = $this->connect()->selectCollection(
+			$this->connectionOptions['database'],
+			$this->query['collection']
+		);
+		parent::_executeInsert($query, $options);
+		$tags = $query->getTags();
+		for ($i = 0, $count = sizeof($tags); $i < $count; ++$i) {
+			$this->cacher->tagDelete($tags [$i]);
 		}
 	}
 
 	/**
-	 * @desc Запрос на выбор
-	 * @param Query_Abstract $query
-	 * @param Query_Option $options
+	 * @inheritdoc
 	 */
-	public function _executeSelect (Query_Abstract $query, Query_Options $options)
+	public function _executeSelect(Query_Abstract $query, Query_Options $options)
 	{
-		$key = $this->_queryHash ();
-
-		$expiration = $options->getExpiration ();
-
-		$cache = $this->_cacher->get ($key);
-
-		$use_cache = false;
-
-		if ($cache)
-		{
-			if (
-	   			($cache ['a'] + $expiration > time () || $expiration == 0) &&
-				$this->_cacher->checkTags ($cache ['t'])
-			)
-			{
-	  			$use_cache = true;
-			}
-
-			if (!$this->_cacher->lock ($key, 5, 1, 1))
-			{
-				$use_cache = true;
+		$key = $this->queryHash();
+		$expiration = $options->getExpiration();
+		$cache = $this->cacher->get($key);
+		$useCache = false;
+		if ($cache) {
+            if ($cache['a'] + $expiration > time() || $expiration == 0) {
+                if ($this->cacher->checkTags($cache['t'])) {
+                    $useCache = true;
+                }
+            }
+			if (!$this->cacher->lock($key, 5, 1, 1)) {
+				$useCache = true;
 			}
 		}
-
-		if ($use_cache)
-		{
-			$this->_foundRows = $cache ['f'];
-			return $cache ['v'];
+		if ($useCache) {
+			$this->foundRows = $cache['f'];
+			$this->result = $cache['v'];
+            return;
 		}
-
-		if (class_exists ('Tracer'))
-		{
-			Tracer::begin (
-				__CLASS__,
-				__METHOD__,
-				__LINE__
-			);
-		}
-
-		if ($this->_query ['find_one'])
-		{
-			$this->_result = array (
-				$this->_collection->findOne ($this->_query ['query'])
-			);
-		}
-		else
-		{
-//			fb (json_encode ($q ['query']));
-
-			$r = $this->_collection->find ($this->_query ['query']);
-
-			if ($this->_query [Query::CALC_FOUND_ROWS])
-			{
-				$this->_foundRows = $r->count ();
-			}
-
-			if ($this->_query ['sort'])
-			{
-				$r->sort ($this->_query ['sort']);
-			}
-			if ($this->_query ['skip'])
-			{
-				$r->skip ($this->_query ['skip']);
-			}
-			if ($this->_query ['limit'])
-			{
-				$r->limit ($this->_query ['limit']);
-			}
-			//$result = Mysql::select ($tags, $sql);
-			$this->_touchedRows = $r->count (true);
-
-			$this->_result = array ();
-			foreach ($r as $tr)
-			{
-				$this->_result [] = $tr;
-			}
-			// Так не работает, записи начинают повторяться
-			// $this->_result = $r;
-		}
-
-		if (class_exists ('Tracer'))
-		{
-			Tracer::end ($this->_sql);
-		}
-
-		$tags = $query->getTags ();
-
-		$this->_cacher->set (
+        $this->collection = $this->connect()->selectCollection(
+			$this->connectionOptions['database'],
+			$this->query['collection']
+		);
+		parent::_executeSelect($query, $options);
+		$tags = $query->getTags();
+		$this->cacher->set(
 			$key,
-			array (
-				'v' => $this->_result,
-				'a' => time (),
-				't' => $this->_cacher->getTags ($tags),
-				'f'	=> $this->_foundRows
+			array(
+				'v' => $this->result,
+				'a' => time(),
+				't' => $this->cacher->getTags($tags),
+				'f'	=> $this->foundRows
 			)
 		);
-
-		if ($cache)
-		{
-			$this->_cacher->unlock ($key);
-		}
-
-	}
-
-	/**
-	 * @desc
-	 * @param Query $query
-	 * @param Query_Options $options
-	 */
-	public function _executeShow ()
-	{
-		$show = strtoupper ($this->_query ['show']);
-		if ($show == 'DELETE_INDEXES')
-		{
-			// Удаление индексов
-			$this->_result = array ($this->_collection->deleteIndexes ());
-		}
-		elseif ($show == 'ENSURE_INDEXES')
-		{
-			// Создание индексов
-			$result = Model_Scheme::getScheme ($this->_query ['model']);
-			$this->_result = $result ['keys'];
-			foreach ($this->_result as $key)
-			{
-				$temp = array ();
-				$options = array ();
-				if (isset ($key ['primary']))
-				{
-					$temp = (array) $key ['primary'];
-					$options ['unique'] = true;
-				}
-				elseif (isset ($key ['index']))
-				{
-					$temp = (array) $key ['index'];
-				}
-
-				$keys = array ();
-				foreach ($temp as $index)
-				{
-					$keys [$index] = 1;
-				}
-
-				$this->_collection->ensureIndex ($keys, $options);
-			}
+		if ($cache) {
+			$this->cacher->unlock($key);
 		}
 	}
+    
+    /**
+     * @inheritdoc
+     */
+    public function _executeShow(Query_Abstract $query, Query_Options $options) {
+        $this->connect();
+        parent::_executeShow($query, $options);
+    }
 
 	/**
-	 * @desc Обновление
+	 * @inheritdoc
 	 */
-	public function _executeUpdate (Query_Abstract $query, Query_Options $options)
+	public function _executeUpdate(Query_Abstract $query, Query_Options $options)
 	{
-		$this->_collection->update (
-			$this->_query ['criteria'],
-			$this->_query ['newobj'],
-			$this->_query ['options']
+        $this->collection = $this->connect()->selectCollection(
+			$this->connectionOptions['database'],
+			$this->query['collection']
 		);
-		//Mysql::update ($tags, $sql);
-		$this->_touchedRows = 1; // unknown count
-
-		$tags = $query->getTags ();
-
-		for ($i = 0, $count = sizeof ($tags); $i < $count; ++$i)
-		{
-			$this->_cacher->tagDelete ($tags [$i]);
+		parent::_executeUpdate($query, $options);
+		$tags = $query->getTags();
+		for ($i = 0, $count = sizeof($tags); $i < $count; ++$i) {
+			$this->cacher->tagDelete($tags[$i]);
 		}
+	}
+    
+    /**
+     * @inheritdoc
+     */
+	public function execute(Data_Source_Abstract $source, Query_Abstract $query,
+		$options = null)
+	{
+		if (!($query instanceof Query_Abstract)) {
+			return new Query_Result(null);
+		}
+		$start = microtime (true);
+		$this->query = $query->translate('Mongo');
+		$this->result = array();
+		$this->touchedRows = 0;
+		$this->foundRows = 0;
+		$this->insertId = null;
+		if (!$options) {
+			$options = $this->getDefaultOptions();
+		}
+		$m = $this->queryMethods[$query->type()];
+		$this->{$m}($query, $options);
+		$finish = microtime (true);
+		return new Query_Result(array(
+			'error'			=> '',
+			'errno'			=> 0,
+			'query'			=> $query,
+			'startAt'		=> $start,
+			'finishedAt'	=> $finish,
+			'foundRows'		=> $this->foundRows,
+			'result'		=> $this->result,
+			'touchedRows'	=> $this->touchedRows,
+			'insertKey'		=> $this->insertId,
+			'currency'		=> 1,
+			'source'		=> $source
+		));
 	}
 
 	/**
+     * Получить кэшер запросов
+     * 
 	 * @return Data_Provider_Abstract
 	 */
-	public function getCacher ()
+	public function getCacher()
 	{
-		return $this->_cacher;
+		return $this->cacher;
 	}
 
 	/**
-	 *
+	 * Изменить кэшер запросов
+     * 
 	 * @param Data_Provider_Abstract $cacher
 	 */
-	public function setCacher (Data_Provider_Abstract $cacher)
+	public function setCacher(Data_Provider_Abstract $cacher)
 	{
-		$this->_cacher = $cacher;
+		$this->cacher = $cacher;
 	}
 
 	/**
-	 * (non-PHPdoc)
-	 * @see Data_Mapper_Mysqli::setOption()
+	 * @inheritdoc
 	 */
-	public function setOption ($key, $value = null)
+	public function setOption($key, $value = null)
 	{
-		switch ($key)
-		{
+		switch ($key) {
 			case 'cache_provider':
-				$this->setCacher (Data_Provider_Manager::get ($value));
+                $serviceLocator = IcEngine::serviceLocator();
+                $dataProviderManager = $serviceLocator->getService(
+                    'dataProviderManager'
+                );
+				$this->setCacher($dataProviderManager->get($value));
 				return;
 			case 'expiration':
-				$this->getDefaultOptions ()->setExpiration ($value);
+				$this->getDefaultOptions()->setExpiration($value);
 				return;
 		}
-		return parent::setOption ($key, $value);
+		return parent::setOption($key, $value); 
 	}
-
 }

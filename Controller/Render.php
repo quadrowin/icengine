@@ -1,21 +1,17 @@
 <?php
+
 /**
- *
- * @desc Контролер для рендеринга заданий
- * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
- *
+ * Контролер для рендеринга заданий
+ * 
+ * @author goorus, morph
  */
 class Controller_Render extends Controller_Abstract
 {
-
 	/**
-	 * @desc Рендерим
-	 * @param Controller_Task $task
+	 * Рендерим
 	 */
-	public function index (Controller_Task $task)
+	public function index($task)
 	{  
-		$task->getViewRender ()->render ($task);
+		$task->getViewRender ()->render($task);
 	}
-
 }

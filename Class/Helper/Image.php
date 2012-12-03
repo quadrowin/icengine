@@ -266,7 +266,9 @@ class Helper_Image
 		//$this->_log ('test');
 		$file = Request::fileByIndex (0);
 
-		$host = Helper_Site_Location::getLocation ();
+		$locator = IcEngine::serviceLocator();
+		$helperSiteLocation = $locator->getService('helperSiteLocation');
+		$host = $helperSiteLocation->getLocation();
 		if ($host == 'localhost')
 		{
 			$host = '';

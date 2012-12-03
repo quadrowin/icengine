@@ -18,7 +18,7 @@ class Query_Translator_Mongo_Select extends Query_Translator_Abstract
 	 * @param Query $query
 	 * @return array
 	 */
-	public function _getCriteria (Query $query)
+	public function _getCriteria (Query_Abstract $query)
 	{
 		$wheres = $query->part (Query::WHERE);
 
@@ -51,6 +51,10 @@ class Query_Translator_Mongo_Select extends Query_Translator_Abstract
 		);
 
 		$w = $where [Query::WHERE];
+        $p = strpos($w, '.');
+        if ($p !== false) {
+            $w = substr($w, $p + 1);
+        }
 		$v = true;
 
 		foreach ($operations as $op => $solve)
@@ -69,10 +73,9 @@ class Query_Translator_Mongo_Select extends Query_Translator_Abstract
 					$value = $w;
 					$w = $temp;
 				}
-
 				if ($op == '=')
 				{
-					$criteria [$w] = $value;
+					$criteria [$w] =  (string) $value;
 					return ;
 				}
 				elseif (is_string ($solve))
@@ -94,38 +97,37 @@ class Query_Translator_Mongo_Select extends Query_Translator_Abstract
 		if (array_key_exists (Query::VALUE, $where))
 		{
 			$v = $where [Query::VALUE];
-			if (is_array ($v))
+			$keys = is_array($v) ? array_keys($v) : array(null);
+			if (is_array ($v) && ($keys[0] != '$id' || count($v) > 1))
 			{
 				$criteria [$w]['$in'] = $v;
 				return ;
 			}
 		}
-
+        if (is_scalar($v)) {
+            $v = (string) $v;
+        }
 		$criteria [$w] = $v;
 	}
 
 	/**
-	 * @desc Возвращает название коллекции.
+	 * Возвращает название коллекции.
+	 *
 	 * @return string
 	 */
-	public function _getFromCollection (Query $query, $use_alias = true)
+	public function _getFromCollection(Query_Abstract $query, $use_alias = true)
 	{
-		$from = $query->part (Query::FROM);
-
-		if (!$from)
-		{
+		$locator = IcEngine::serviceLocator();
+		$modelScheme = $locator->getService('modelScheme');
+		$from = $query->part(Query::FROM);
+		if (!$from) {
 			return;
 		}
-
-		if (count ($from) > 1)
-		{
-			throw new Zend_Exception ('Multi from not supported.');
+		if (count($from) > 1) {
+			throw new Zend_Exception('Multi from not supported.');
 		}
-
-		//foreach ($from as $alias => $from)
-
-		reset ($from);
-		return strtolower (Model_Scheme::table (key ($from)));
+		reset($from);
+		return strtolower($modelScheme->table(key($from)));
 	}
 
 	/**
@@ -150,7 +152,7 @@ class Query_Translator_Mongo_Select extends Query_Translator_Abstract
 	 * @param Query $query
 	 * @return string
 	 */
-	public function _getSort (Query $query)
+	public function _getSort (Query_Abstract $query)
 	{
 		$orders = $query->part (Query::ORDER);
 		if (!$orders)
@@ -180,7 +182,7 @@ class Query_Translator_Mongo_Select extends Query_Translator_Abstract
 	 * @param Query $query
 	 * @return array
 	 */
-	public function _partCalcFoundRows (Query $query)
+	public function _partCalcFoundRows (Query_Abstract $query)
 	{
 		return array (
 			'count'	=> (bool) $query->part (Query::CALC_FOUND_ROWS)
@@ -192,7 +194,7 @@ class Query_Translator_Mongo_Select extends Query_Translator_Abstract
 	 * @param Query $query
 	 * @return array
 	 */
-	public function _renderLimitoffset (Query $query)
+	public function _renderLimitoffset (Query_Abstract $query)
 	{
 		$sql = '';
 		$limit_count = $query->part (Query::LIMIT_COUNT);
@@ -219,7 +221,7 @@ class Query_Translator_Mongo_Select extends Query_Translator_Abstract
 	 * @param Query $query Запрос
 	 * @return string Сформированный Mongo запрос
 	 */
-	public function _renderSelect (Query $query)
+	public function _renderSelect (Query_Abstract $query)
 	{
 		$fields = array ();
 

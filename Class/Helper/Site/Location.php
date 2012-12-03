@@ -1,101 +1,83 @@
 <?php
+
 /**
+ * Помощник для построения зависимостей от положения сайта
  *
- * @desc Помощник для построения зависимостей от положения сайта
- * @author Yury Shvedov
- * @package IcEngine
- *
+ * @author goorus, morph
  */
-class Helper_Site_Location
+class Helper_Site_Location extends Manager_Abstract
 {
+	/**
+	 * Определение положения
+	 *
+     * @var string
+	 */
+	protected $location = null;
 
 	/**
-	 * @desc Определение положения
-	 * @var string
+	 * @inheritdoc
 	 */
-	protected static $_location = null;
-
-
-	/**
-	 * @desc Параметры
-	 * @var array
-	 */
-	protected static $_config = array (
+	protected $config = array (
 		'127.0.0.1'	=> array (
 			'host'	=> 'localhost'
 		)
 	);
 
 	/**
-	 * @desc Возвращает значение параметра для текущего положения
-	 * @param string $params
+	 * Возвращает значение параметра для текущего положения
+	 *
+     * @param string $params
 	 * @return mixed
 	 */
-	public static function get ($param)
+	public function get($param)
 	{
-		if (is_array (self::$_config))
-		{
-			self::load ();
+		$location = $this->getLocation();
+		while (is_string($this->config[$location])) {
+			$location = $this->config[$location];
 		}
-
-		$location = self::$_location;
-
-		while (is_string (self::$_config [$location]))
-		{
-			$location = self::$_config [$location];
+		if (strpos($param, '::') !== false) {
+			list($location, $param) = explode('::', $param);
 		}
-
-		if (strpos ($param, '::') !== false)
-		{
-			list ($location, $param) = explode ('::', $param);
-		}
-		return self::$_config [$location][$param];
+		return $this->config[$location][$param];
 	}
 
 	/**
-	 * @desc Возвращает положение
-	 * @return string
+	 * Возвращает положение
+	 *
+     * @return string
 	 */
-	public static function getLocation ()
+	public function getLocation()
 	{
-		if (is_array (self::$_config))
-		{
-			self::load ();
+		if (is_array($this->config)) {
+			$this->load();
 		}
-		return self::$_location;
+		return $this->location;
 	}
 
 	/**
-	 * @desc Загрузка данных о положении из файла.
+	 * Загрузка данных о положении из файла.
 	 */
-	public static function load ()
+	public function load()
 	{
-
-		if (!self::$_location)
-		{
-
-			$file = IcEngine::root () . 'Ice/Var/Helper/Site/Location.txt';
-
-			if (file_exists ($file))
-			{
-				self::$_location = trim (file_get_contents ($file));
-			}
-			else
-			{
-				self::$_location = $_SERVER ['HTTP_HOST'];
+		if (!$this->location) {
+			$file = IcEngine::root() . 'Ice/Var/Helper/Site/Location.txt';
+			if (file_exists($file)) {
+				$this->location = trim(file_get_contents($file));
+			} else {
+				$this->location = $_SERVER['HTTP_HOST'];
 			}
 		}
-
-		self::$_config = Config_Manager::get (__CLASS__, self::$_config);
+        $configManager = $this->getService('configManager');
+        $this->config = $configManager->get(__CLASS__, $this->config);
 	}
 
 	/**
-	 * @desc Устанавливает положение.
-	 * @param string $value
+	 * Устанавливает положение.
+	 *
+     * @param string $value
 	 */
-	public static function setLocation ($value)
+	public function setLocation($value)
 	{
-		self::$_location = $value;
+		$this->location = $value;
 	}
-
 }

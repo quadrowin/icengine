@@ -1,39 +1,39 @@
 <?php
+
 /**
- *
- * @desc Класс для создания определенных моделей.
- * @author Юрий Шведов
- * @package IcEngine
- *
+ * Класс для создания определенных моделей
+ * 
+ * @author morph, goorus
  */
 class Model_Manager_Delegee_Defined
 {
 	/**
-	 * @desc
+	 * Создает предопределенную модель
+     * 
 	 * @param string $model Название модели
 	 * @param string $key Ключ (id)
 	 * @param Model|array $object Объект или данные
 	 * @return Model В случае успеха объект, иначе null.
 	 */
-	public static function get ($model, $key, $object)
+	public function get($modelName, $key, $object)
 	{
-		$rows = $model::$rows;
-
-		foreach ($rows as $row)
-		{
-			if ($row ['id'] == $key)
-			{
-				if (isset ($row ['name']))
-				{
-					if (Loader::tryLoad($model . '_' . $row['name'])) {
-						$model .= '_' . $row ['name'];
-					}
-				}
-				return new $model ($row);
-			}
+		$rows = $modelName::$rows;
+        $params = is_array($object) ? $object : array();
+        $loader = IcEngine::serviceLocator()->getService('loader');
+		foreach ($rows as $row){
+			if ($row['id'] != $key) {
+                continue;
+            }
+            if (!isset($row['name'])) {
+                continue;
+            }
+            $delegeeName = $modelName . '_' . $row['name'];
+            if ($loader->tryLoad($delegeeName)) { 
+                $modelName = $delegeeName;
+            }
+            break;
 		}
-
-		return new $model (is_array ($object) ? $object : array ());
+        $model = new $modelName($params);
+        return $model;
 	}
-
 }

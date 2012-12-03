@@ -1,24 +1,20 @@
 <?php
-/**
- *
- * @desc Пользователь для консоли
- * @package IcEngine
- * @author Юрий Шведов
- *
- */
-class User_Cli extends User_Abstract
-{
 
-	/**
-	 * @desc Конфиг
-	 * @var array
-	 */
-	protected static $_config = array (
+/**
+ * Модель консольного пользователя
+ * @author goorus, morph
+ */
+class User_Cli extends User
+{
+    /**
+     * @inheritdoc
+     */
+	protected static $config = array(
 		/**
 		 * @desc Конфиг пользователя
 		 * @var array
 		 */
-		'data'	=> array (
+		'fields'	=> array (
 			'id'		=> -1,
 			'active'	=> 1,
 			'login'		=> '',
@@ -29,74 +25,34 @@ class User_Cli extends User_Abstract
 	);
 
 	/**
-	 * @desc Экземпляр пользователя консоли
-	 * @var User_Cli
+	 * Создает и возвращает экземпляр модели консольного пользователя
+	 * 
+     * @return User_Cli
 	 */
-	protected static $_instance;
-
-	/**
-	 * (non-PHPdoc)
-	 * @see Model::_afterConstruct()
-	 */
-	protected function _afterConstruct ()
+	public function getInstance()
 	{
-
+		return new self($this->config()->fields->__toArray());
 	}
 
 	/**
-	 * @desc Создает и возвращает экземпляр модели гостя.
-	 * @return User_Guest
+	 * Инициализирует модель гостя. Модель будет добавлена в менеджер ресурсов
+     * 
+	 * @param mixed $session_id Идентификатор сессии. Не имеет значения,
+	 * параметр необходим для совместимости с User::init ().
 	 */
-	public static function getInstance ()
+	public function init($sessionId = null)
 	{
-		if (!self::$_instance)
-		{
-			self::$_instance = new self (static::config ()->data->__toArray ());
-		}
-		return self::$_instance;
+		$instance = $this->getInstance();
+        $resourceManager = $this->getService('resourceManager');
+		$resourceManager->set('Model', $instance->resourceKey(), $instance);
+        $this->getService('user')->setCurrent($instance);
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function hasRole($role)
-	{
-		return false;
-	}
-
-	/**
-	 * @desc
-	 * @return integer
-	 */
-	public static function id ()
-	{
-		return -1;
-	}
-
-	public function isAdmin ()
-	{
-		return true;
-	}
-
-	/**
-	 * @desc Инициализирует модель гостя.
-	 * Модель будет добавлена в менеджер ресурсов.
-	 * @param mixed $session_id Идентификатор сессии. Не имеет значения,
-	 * параметр необходим для совместимости с User::init ().
-	 */
-	public static function init ($session_id = null)
-	{
-		$instance = self::getInstance ();
-		Resource_Manager::set ('Model', $instance->resourceKey (), $instance);
-	}
-
-	/**
-	 * (non-PHPdoc)
-	 * @see Model::modelName()
-	 */
-	public function table ()
+	public function table()
 	{
 		return 'User';
 	}
-
 }

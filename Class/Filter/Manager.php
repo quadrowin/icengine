@@ -1,57 +1,58 @@
 <?php
 /**
+ * Менеджер фильтров
  *
- * @desc Менеджер фильтров
- * @author Юрий
- * @package IcEngine
- *
+ * @author gooorus, morph
  */
-class Filter_Manager
+class Filter_Manager extends Manager_Abstract
 {
-
 	/**
-	 * @desc Подключенные фильтры.
-	 * @var array <Filter_Abstract>
+	 * Подключенные фильтры
+	 *
+     * @var array <Filter_Abstract>
 	 */
-	protected static $_filters = array ();
+	protected $filters = array();
 
 	/**
+     * Получить фильтр по имени
+     *
 	 * @param string $name Фильтр.
 	 * @return Filter_Abstract
 	 */
-	public static function get ($name)
+	public function get($name)
 	{
-		if (isset (self::$_filters [$name]))
-		{
-			return self::$_filters [$name];
+		if (isset($this->filters[$name])) {
+			return $this->filters[$name];
 		}
-
-		$class = 'Filter_' . $name;
-		return self::$_filters [$name] = new $class ();
+		$className = 'Filter_' . $name;
+        $filter = new $className;
+		$this->filters[$name] = $filter;
+        return $filter;
 	}
 
 	/**
-	 * @desc Фильтрация
-	 * @param string $name Фильтр
+	 * Фильтрация
+	 *
+     * @param string $name Фильтр
 	 * @param mixed $data
 	 * @return mixed
 	 */
-	public static function filter ($name, $data)
+	public function filter($name, $data)
 	{
-		return self::get ($name)->filter ($data);
+		return $this->get($name)->filter($data);
 	}
 
 	/**
-	 * @desc Фильтрация с использованием схемы
-	 * @param string $name Фильтр
+	 * Фильтрация с использованием схемы
+	 *
+     * @param string $name Фильтр
 	 * @param string $field
 	 * @param stdClass $data
 	 * @param stdClass|Objective $scheme
 	 * @return mixed
 	 */
-	public static function filterEx ($name, $field, $data, $scheme)
+	public function filterEx($name, $field, $data, $scheme)
 	{
-		return self::get ($name)->filterEx ($field, $data, $scheme);
+		return $this->get($name)->filterEx($field, $data, $scheme);
 	}
-
 }

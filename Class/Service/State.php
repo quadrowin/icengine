@@ -15,25 +15,11 @@ class Service_State
     protected $className;
 
     /**
-     * Рефлексия класса услуги
-     *
-     * @var ReflectionClass
-     */
-    protected $classReflection;
-
-    /**
      * Обработчик нового вызова сервиса
      *
      * @var array
      */
     protected $instanceCallback;
-
-    /**
-     * Рефлексии методов класса
-     *
-     * @var array
-     */
-    protected $methodReflections;
 
     /**
      * Экземпляр объекта
@@ -52,7 +38,6 @@ class Service_State
         $this->object = $object;
         $this->className = $className;
         $this->instanceCallback = $instanceCallback;
-        $this->classReflection = new ReflectionClass($className);
     }
 
     /**
@@ -71,20 +56,10 @@ class Service_State
                 $this->object = $result;
             }
         }
-        if (!$this->methodReflections) {
-            $this->methodReflections = $this->classReflection->getMethods();
-        }
-        $isStatic = false;
-        if (isset($this->methodReflections[$method])) {
-            $reflectionMethod = $this->methodReflections[$method];
-            $isStatic = $reflectionMethod->isStatic();
-        }
         if ($this->object) {
-            if (!$this->classReflection->isAbstract() && !$isStatic) {
-                return call_user_func_array(
-                    array($this->object, $method), $args
-                );
-            }
+            return call_user_func_array(
+                array($this->object, $method), $args
+            );
         }
         return call_user_func_array(array($this->className, $method), $args);
     }

@@ -1,37 +1,37 @@
 <?php
+
 /**
- *
- * @desc Менеджер рендеринга
- * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
- *
+ * Менеджер отображений вида
+ * 
+ * @author goorus, morph
  */
-abstract class View_Render_Manager extends Manager_Abstract
+class View_Render_Manager extends Manager_Abstract
 {
-
 	/**
-	 * @desc Представления по имени.
-	 * @var array <View_Render_Abstract>
+	 * Представления по имени.
+	 * 
+     * @var array <View_Render_Abstract>
 	 */
-	private static $_views = array ();
+	protected $views = array();
 
 	/**
-	 * @desc Стэк представлений.
-	 * @var array <View_Render_Abstract>
+	 * Стэк представлений.
+	 * 
+     * @var array <View_Render_Abstract>
 	 */
-	private static $_viewStack = array ();
+	protected $viewStack = array();
 
 	/**
-	 *
+	 * Расширение шаблона по умолчанию
+     * 
 	 * @var string
 	 */
-	private static $_templateExtension = '.tpl';
+	protected $templateExtension = '.tpl';
 
 	/**
-	 * @desc Конфиг
-	 * @var array
+	 * @inheritdoc
 	 */
-	protected static $_config = array (
+	protected $config = array (
 		/**
 		 * @desc Рендер по умолчанию
 		 * @var string
@@ -40,130 +40,133 @@ abstract class View_Render_Manager extends Manager_Abstract
 	);
 
 	/**
-	 * @desc Возвращает рендер по названию.
-	 * @param string $name
+	 * Возвращает рендер по названию.
+	 * 
+     * @param string $name
 	 * @return View_Render_Abstract
 	 */
-	public static function byName ($name)
+	public function byName($name)
 	{
-		if (isset (self::$_views [$name]))
-		{
-			return self::$_views [$name];
+		if (isset($this->views[$name])) {
+			return $this->views[$name];
 		}
-
-		$view = Model_Manager::byQuery (
-			'View_Render',
-			Query::instance ()
-				->where ('name', $name)
-		);
-
-		if (!$view)
-		{
-			$class_name = 'View_Render_' . $name;
-
-			$view = new $class_name (array (
+        $modelManager = $this->getService('modelManager');
+		$view = $modelManager->byOptions(
+            'View_Render',
+            array(
+                'name'  => '::Name',
+                'value' => $name
+            )
+        );
+		if (!$view) {
+			$className = 'View_Render_' . $name;
+			$view = new $className(array(
 				'id'	=> null,
 				'name'	=> $name
 			));
 		}
-
-		return self::$_views [$name] = $view;
+		$this->views[$name] = $view;
+        return $view;
 	}
 
 	/**
-	 * @desc Выводит результат работы шаблонизатора в браузер.
+	 * Выводит результат работы шаблонизатора в браузер.
 	 */
-	public static function display ($tpl)
+	public function display($tpl)
 	{
-		self::getView ()->display ($tpl);
+		$this->getView()->display($tpl);
 	}
 
 	/**
-	 * @desc Возвращает текущий рендер.
-	 * @return View_Render_Abstract
+	 * Возвращает текущий рендер.
+	 * 
+     * @return View_Render_Abstract
 	 */
-	public static function getView ()
+	public function getView()
 	{
-		if (!self::$_viewStack)
-		{
-			$config = self::config ();
-
-			self::pushViewByName ($config ['default_view']);
-			//self::$_view = new View_Render (array('name' => self::$_defaultView));
+		if (!$this->viewStack) {
+			$config = $this->config();
+			$this->pushViewByName($config['default_view']);
 		}
-
-		return end (self::$_viewStack);
+		return end($this->viewStack);
 	}
 
 	/**
+     * Получить расширение шаблона по умолчанию
+     * 
 	 * @return string
 	 */
-	public static function getTemplateExtension ()
+	public function getTemplateExtension()
 	{
-		return self::$_templateExtension;
+		return $this->templateExtension;
 	}
 
 	/**
+     * Вытолкнуть вид из стэка
+     * 
 	 * @return View_Render_Abstract
 	 */
-	public static function popView ()
+	public function popView()
 	{
-		$view = array_pop (self::$_viewStack);
-		$view->popVars ();
+		$view = array_pop($this->viewStack);
+		$view->popVars();
 		return $view;
 	}
 
 	/**
-	 *
+	 * Поместить вид в стэк
+     * 
 	 * @param View_Render_Abstract $view
 	 * @return View_Render_Abstract
 	 */
-	public static function pushView (View_Render_Abstract $view)
+	public function pushView(View_Render_Abstract $view)
 	{
-		self::$_viewStack [] = $view;
-		$view->pushVars ();
+		$this->viewStack[] = $view;
+		$view->pushVars();
 		return $view;
 	}
 
 	/**
-	 *
+	 * Получить вид по id
+     * 
 	 * @param integer $id
 	 * @return View_Render_Abstract
 	 */
-	public static function pushViewById ($id)
+	public function pushViewById($id)
 	{
-		$view = Model_Manager::byKey ('View_Render', $id);
-		return self::pushView ($view);
+		$view = $this->getService('modelManager')->byKey('View_Render', $id);
+		return $this->pushView($view);
 	}
 
 	/**
-	 *
+	 * Получить вид по имени
 	 *
 	 * @param string $name
 	 * @return View_Render_Abstract
 	 */
-	public static function pushViewByName ($name)
+	public function pushViewByName($name)
 	{
-		$view = self::byName ($name);
-		return self::pushView ($view);
+		$view = $this->byName($name);
+		return $this->pushView($view);
 	}
 
 	/**
-	 *
+	 * Изменить расширение шаблона по умолчанию
+     * 
 	 * @param string $value
 	 */
-	public static function setTemplateExtension ($value)
+	public function setTemplateExtension($value)
 	{
-		self::$_templateExtension = $value;
+		$this->templateExtension = $value;
 	}
 
 	/**
-	 * @desc Обработка шаблонов из стека.
-	 * @param array $outputs
+	 * Обработка шаблонов из стека.
+	 * 
+     * @param array $outputs
 	 */
-	public static function render (array $outputs)
+	public function render(array $outputs)
 	{
-		return self::getView ()->render ($outputs);
+		return $this->getView ()->render($outputs);
 	}
-
 }

@@ -1,7 +1,8 @@
 <?php
 
 /**
- * @desc Транслятор запросов типа insert драйвера mysql
+ * Транслятор запросов типа insert драйвера mysql
+ * 
  * @author goorus, morph
  */
 class Query_Translator_Mysql_Insert extends Query_Translator_Mysql_Select
@@ -12,26 +13,24 @@ class Query_Translator_Mysql_Insert extends Query_Translator_Mysql_Select
 	 * @param Query_Abstract $query Запрос.
 	 * @return string Сформированный SQL запрос.
 	 */
-	public function _renderInsert (Query_Abstract $query)
+	public function _renderInsert(Query_Abstract $query)
 	{
 		if ($query->getMultiple()) {
 			return $this->_renderInsertMultiple($query);
 		}
-		$table = $query->part (Query::INSERT);
-		$sql = 'INSERT ' . strtolower (Model_Scheme::table ($table)) . ' (';
-		$fields = array_keys ($query->part (Query::VALUES));
-		$values = array_values ($query->part (Query::VALUES));
-
-		for ($i = 0, $icount = count ($fields); $i < $icount; $i++)
-		{
-			$fields [$i] = self::_escape ($fields [$i]);
-			$values [$i] = self::_quote ($values [$i]);
+        $serviceLocator = IcEngine::serviceLocator();
+        $modelScheme = $serviceLocator->getService('modelScheme');
+		$table = $query->part(Query::INSERT);
+		$sql = 'INSERT ' . strtolower($modelScheme->table($table)) . ' (';
+		$fields = array_keys($query->part(Query::VALUES));
+		$values = array_values($query->part(Query::VALUES));
+		for ($i = 0, $icount = count($fields); $i < $icount; $i++) {
+			$fields [$i] = self::_escape($fields[$i]);
+			$values [$i] = self::_quote($values[$i]);
 		}
-
-		$fields = implode (', ', $fields);
-		$values = implode (', ', $values);
-
-		return $sql . $fields . ') VALUES (' . $values . ')';
+		$fieldsImploded = implode(', ', $fields);
+		$valuesImploded = implode(', ', $values);
+		return $sql . $fieldsImploded . ') VALUES (' . $valuesImploded . ')';
 	}
 
 	/**
@@ -43,7 +42,9 @@ class Query_Translator_Mysql_Insert extends Query_Translator_Mysql_Select
 	public function _renderInsertMultiple(Query_Abstract $query)
 	{
 		$table = $query->part(Query::INSERT);
-		$sql = 'INSERT ' . strtolower(Model_Scheme::table($table)) . ' (';
+        $serviceLocator = IcEngine::serviceLocator();
+        $modelScheme = $serviceLocator->getService('modelScheme');
+		$sql = 'INSERT ' . strtolower($modelScheme->table($table)) . ' (';
 		$fields = null;
 		$values = array();
 		$queryValues = $query->part(QUERY::VALUES);
@@ -63,14 +64,14 @@ class Query_Translator_Mysql_Insert extends Query_Translator_Mysql_Select
 			}
 			$valuesPrepared[] = implode(', ', $values[$key]);
 		}
-		$fields = implode(', ', $fields);
-		$values = implode('), (', $valuesPrepared);
-		$sql = $sql . $fields . ') VALUES (' . $values . ')';
-
+		$fieldsImploded = implode(', ', $fields);
+		$valuesImploded = implode('), (', $valuesPrepared);
+		$sql = $sql . $fieldsImploded . ') VALUES (' . $valuesImploded . ')';
 		if (($onDuplicateKey = $query->getFlag('onDuplicateKey'))) {
 			$duplicateArray = array();
 			foreach ($onDuplicateKey as $field) {
-				$duplicateArray[] = $field . ' = VALUES(' . $field . ')';
+				$duplicateArray[] = '`' . 
+                    $field . '` = VALUES(`' . $field . '`)';
 			}
 			$sql .= ' ON DUPLICATE KEY UPDATE ' .
 				implode(', ', $duplicateArray);

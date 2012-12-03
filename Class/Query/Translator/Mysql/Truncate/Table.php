@@ -15,10 +15,12 @@ class Query_Translator_Mysql_Truncate_Table extends Query_Translator_Mysql_Alter
 	 */
 	public function _renderTruncateTable (Query_Abstract $query)
 	{
+        $serviceLocator = IcEngine::serviceLocator();
+        $modelScheme = $serviceLocator->getService('modelScheme');
 		$parts = $query->parts ();
 		$model = $parts [Query_Truncate_Table::TRUNCATE_TABLE]
 			[Query_Truncate_Table::NAME];
 		return self::SQL_TRUNCATE_TABLE . ' ' .
-			$this->_escape (Model_Scheme::table ($model));
+			$this->_escape ($modelScheme->table ($model));
 	}
 }

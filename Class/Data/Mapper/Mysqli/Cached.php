@@ -1,52 +1,59 @@
 <?php
 
 /**
+ * Мэппер для работы с mysql, с кэшированием запросов.
  *
- * @desc Мэппер для работы с mysql, с кэшированием запросов.
- * @author Юрий Шведов
- * @package IcEngine
- *
+ * @author goorus, morph
  */
 class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 {
 	/**
-	 * @desc Кэшер запросов.
-	 * @var Data_Provider_Abstract
+	 * Кэшер запросов.
+	 *
+     * @var Data_Provider_Abstract
 	 */
-	protected $_cacher;
+	protected $cacher;
+
+    /**
+     * Кэши, уже полученные из провайдера
+     *
+     * @var array
+     */
+    protected static $caches = array();
+
+    /**
+     * Валидны ли тэги
+     *
+     * @var array
+     */
+    protected static $tagsValid = array();
 
 	/**
-	 * @desc Получение хэша запроса
-	 * @return string
+	 * Получение хэша запроса
+	 *
+     * @return string
 	 */
-	protected function _sqlHash ()
+	protected function sqlHash($query)
 	{
-		return md5 ($this->_sql);
+		return md5(json_encode($query->getParts()));
 	}
 
 	/**
-	 * @desc Выполняет запрос на изменение данных.
-	 * @param Query_Abstract $query
-	 * @param Query_Options $options
-	 * @return boolean
+	 * @inheritdoc
 	 */
-	protected function _executeChange (Query_Abstract $query, Query_Options $options)
+	protected function _executeChange(Query_Abstract $query,
+        Query_Options $options)
 	{
-		if (!$this->_linkIdentifier) {
+		if (!$this->linkIdentifier) {
 			$this->connect();
 		}
-
 		if (Tracer::$enabled) {
 			$startTime = microtime(true);
 		}
-
-		if (!mysql_query ($this->_sql, $this->_linkIdentifier))
-		{
-			$this->_errno = mysql_errno ($this->_linkIdentifier);
-			$this->_error = mysql_error ($this->_linkIdentifier);
-			return false;
-		}
-
+        $result = parent::_executeChange($query, $options);
+        if (!$result) {
+            return false;
+        }
 		if (Tracer::$enabled) {
 			$endTime = microtime(true);
 			$delta = $endTime - $startTime;
@@ -59,45 +66,31 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 			}
 			Tracer::incDeltaQueryCount();
 		}
-
-		$this->_affectedRows = mysql_affected_rows ($this->_linkIdentifier);
-
-		if ($this->_affectedRows > 0)
-		{
-			$tags = $query->getTags ();
-
-			for ($i = 0, $count = sizeof ($tags); $i < $count; ++$i)
-			{
-				$this->_cacher->tagDelete ($tags [$i]);
+		if ($this->affectedRows > 0) {
+			$tags = $query->getTags();
+			for ($i = 0, $count = sizeof($tags); $i < $count; ++$i) {
+				$this->cacher->tagDelete($tags[$i]);
 			}
 		}
-
 		return true;
 	}
 
 	/**
-	 * @desc Выполняет запрос на вставку данных.
-	 * @param Query_Abstract $query
-	 * @param Query_Options $options
-	 * @return boolean
+	 * @inheritdoc
 	 */
-	protected function _executeInsert (Query_Abstract $query, Query_Options $options)
+	protected function _executeInsert(Query_Abstract $query,
+        Query_Options $options)
 	{
-		if (!$this->_linkIdentifier) {
+		if (!$this->linkIdentifier) {
 			$this->connect();
 		}
-
 		if (Tracer::$enabled) {
 			$startTime = microtime(true);
 		}
-
-		if (!mysql_query ($this->_sql, $this->_linkIdentifier))
-		{
-			$this->_errno = mysql_errno ($this->_linkIdentifier);
-			$this->_error = mysql_error ($this->_linkIdentifier);
-			return false;
-		}
-
+		$result = parent::_executeInsert($query, $options);
+        if (!$result) {
+            return false;
+        }
 		if (Tracer::$enabled) {
 			$endTime = microtime(true);
 			$delta = $endTime - $startTime;
@@ -105,20 +98,12 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 			Tracer::incUpdateQueryTime($delta);
 			Tracer::incDeltaQueryCount();
 		}
-
-		$this->_affectedRows = mysql_affected_rows ($this->_linkIdentifier);
-		$this->_insertId = mysql_insert_id ($this->_linkIdentifier);
-
-		if ($this->_affectedRows > 0)
-		{
-			$tags = $query->getTags ();
-
-			for ($i = 0, $count = sizeof ($tags); $i < $count; $i++)
-			{
-				$this->_cacher->tagDelete ($tags [$i]);
+		if ($this->affectedRows > 0) {
+			$tags = $query->getTags();
+			for ($i = 0, $count = sizeof($tags); $i < $count; $i++) {
+				$this->cacher->tagDelete($tags [$i]);
 			}
 		}
-
 		return true;
 	}
 
@@ -128,115 +113,79 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	 * @param Query_Options $options
 	 * @return null|array
 	 */
-	protected function _executeSelect (Query_Abstract $query, Query_Options $options)
+	protected function _executeSelect(Query_Abstract $query,
+        Query_Options $options)
 	{
+		//print_r($options->getExpiration());
 		if (Tracer::$enabled) {
 			Tracer::incSelectQueryCount();
 		}
-
-		$key = $this->_sqlHash ();
-
-		$expiration = $options->getExpiration ();
-
-		$cache = $this->_cacher->get ($key);
-
-		$use_cache = false;
-
-		if ($cache)
-		{
-			if (
-	   			($cache ['a'] + $expiration > time () || $expiration == 0) &&
-				$this->_cacher->checkTags ($cache ['t'])
-			)
-			{
-	  			$use_cache = true;
-			}
-
-			if (!$this->_cacher->lock ($key, 5, 1, 1))
-			{
-				$use_cache = true;
-			}
+		$key = $this->sqlHash($query);
+		//echo $query->translate() . '<br />'; echo $key . '<br />';
+		$expiration = $options->getExpiration();
+        if (!isset(self::$caches[$key])) {
+            $cache = $this->cacher->get($key);
+        } else {
+            $cache = self::$caches[$key];
+        }
+		$cacheValid = false;
+		if ($cache) {
+            $tagsValid = $this->isTagsValid($cache['t']);
+            $expiresValid = $cache['a'] + $expiration > time() ||
+                $expiration = 0;
+			$cacheValid = $expiresValid && $tagsValid;
 		}
-
-		if ($use_cache)
-		{
-			$this->_numRows = count ($cache ['v']);
-			$this->_foundRows = $cache ['f'];
+		if ($cacheValid) {
+            if (!isset(self::$caches[$key])) {
+                self::$caches[$key] = $cache;
+            }
+			$this->numRows = count($cache['v']);
+			$this->foundRows = $cache['f'];
 			if (Tracer::$enabled) {
 				Tracer::incCachedSelectQueryCount();
 			}
-			return $cache ['v'];
+			return $cache['v'];
 		}
-
-		if (!$this->_linkIdentifier) {
+		if (!$this->linkIdentifier) {
 			$this->connect();
 		}
-
 		if (Tracer::$enabled) {
 			$startTime = microtime(true);
 			Tracer::begin(__CLASS__, __METHOD__, __LINE__);
 		}
-
-		$result = mysql_query ($this->_sql, $this->_linkIdentifier);
-
+        $this->sql = $query->translate('Mysql');
+		$rows = parent::_executeSelect($query, $options);
 		if (Tracer::$enabled) {
 			$endTime = microtime(true);
 			$delta = $endTime - $startTime;
 			if ($delta >= Tracer::LOW_QUERY_TIME) {
-				Tracer::addLowQuery($this->_sql, $delta);
+				Tracer::addLowQuery($this->sql, $delta);
 			} else {
 				Tracer::incSelectQueryTime($delta);
 			}
 			Tracer::end(
-                $this->_sql,
-                is_resource($result) ? count(mysql_num_rows($result)) : 0,
+                $this->sql,
+                $this->numRows,
 				memory_get_usage()
             );
 			Tracer::incDeltaQueryCount();
 		}
-
-
-		if (!is_resource ($result))
-		{
-			$this->_errno = mysql_errno ($this->_linkIdentifier);
-			$this->_error = mysql_error ($this->_linkIdentifier);
-			return;
+		$tags = $query->getTags();
+        $providerTags = $this->cacher->getTags($tags);
+        foreach ($tags as $tag) {
+            self::$tagsValid[$tag] = true;
+        }
+        $cache = array (
+            'v' => $rows,
+            'a' => time(),
+            't' => $providerTags,
+            'f'	=> $this->foundRows
+        );
+        self::$caches[$key] = $cache;
+		$this->cacher->set($key, $cache);
+		if ($cache) {
+			$this->cacher->unlock($key);
 		}
-
-		$rows = array ();
-		while (false != ($row = mysql_fetch_assoc ($result)))
-		{
-			$rows [] = $row;
-		}
-		mysql_free_result ($result);
-
-		$this->_numRows = count ($rows);
-
-		if ($query->part (Query::CALC_FOUND_ROWS))
-		{
-			$result = mysql_query (self::SELECT_FOUND_ROWS_QUERY, $this->_linkIdentifier);
-			$row = mysql_fetch_row ($result);
-			$this->_foundRows = reset ($row);
-			mysql_free_result ($result);
-		}
-
-		$tags = $query->getTags ();
-
-		$this->_cacher->set (
-			$key,
-			array (
-				'v' => $rows,
-				'a' => time (),
-				't' => $this->_cacher->getTags ($tags),
-				'f'	=> $this->_foundRows
-			)
-		);
-
-		if ($cache)
-		{
-			$this->_cacher->unlock ($key);
-		}
-
 		return $rows;
 	}
 
@@ -244,117 +193,117 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	 * (non-PHPdoc)
 	 * @see Data_Mapper_Abstract::execute()
 	 */
-	public function execute (Data_Source_Abstract $source, Query_Abstract $query, $options = null)
+	public function execute(Data_Source_Abstract $source, Query_Abstract $query,
+        $options = null)
 	{
-		if (!($query instanceof Query_Abstract))
-		{
-			return new Query_Result (null);
+		if (!($query instanceof Query_Abstract)) {
+			return new Query_Result(null);
 		}
-		$this->connect ();
-
-		$start = microtime (true);
-
-		$clone = clone $query;
-
-		$where = $clone->getPart (Query::WHERE);
-		$this->_filters->apply ($where, Query::VALUE);
-		$clone->setPart (Query::WHERE, $where);
-
-		$query_key = 'query_' . md5 (json_encode ($query->parts ()));
-		$this->_sql = $this->_cacher->get ($query_key);
-
-		if (!$this->_sql)
-		{
-			$this->_sql = $clone->translate ('Mysql');
-
-			$this->_cacher->set ($query_key, $this->_sql);
+		$start = microtime(true);
+		$this->errno = 0;
+		$this->error = '';
+		$this->affectedRows = 0;
+		$this->foundRows = 0;
+		$this->numRows = 0;
+		$this->insertId = null;
+		if (!$options) {
+			$options = $this->getDefaultOptions();
 		}
-		$result = null;
-		$this->_errno = 0;
-		$this->_error = '';
-		$this->_affectedRows = 0;
-		$this->_foundRows = 0;
-		$this->_numRows = 0;
-		$this->_insertId = null;
-
-		if (!$options)
-		{
-			$options = $this->getDefaultOptions ();
-		}
-
-		$m = $this->_queryMethods [$query->type ()];
-		$result = $this->{$m} ($query, $options);
-
-		if ($this->_errno)
-		{
-			if (class_exists ('Debug'))
-			{
-				Debug::errorHandler (
-					E_USER_ERROR, $this->_sql . '; ' . $this->_error,
-					__FILE__, __LINE__
-				);
-			}
-			throw new Data_Mapper_Mysqli_Exception (
-				$this->_error . "\n" . $this->_sql,
-				$this->_errno
+		$m = $this->queryMethods[$query->type()];
+        if ($m != '_executeSelect') {
+            $this->sql = $query->translate('Mysql');
+        }
+		$result = $this->{$m}($query, $options);
+		if ($this->errno) {
+			throw new Exception(
+				$this->error . "\n" . $this->sql,
+				$this->errno
 			);
 		}
-
-		if (!$this->_errno && is_null ($result))
-		{
-			$result = array ();
+		if (!$this->errno && is_null($result)) {
+			$result = array();
 		}
-
 		$finish = microtime (true);
-
-		return new Query_Result (array (
-			'error'			=> $this->_error,
-			'errno'			=> $this->_errno,
-			'query'			=> $clone,
+		return new Query_Result(array(
+			'error'			=> $this->error,
+			'errno'			=> $this->errno,
+			'query'			=> $query,
 			'startAt'		=> $start,
 			'finishedAt'	=> $finish,
-			'foundRows'		=> $this->_foundRows,
+			'foundRows'		=> $this->foundRows,
 			'result'		=> $result,
-			'touchedRows'	=> $this->_numRows + $this->_affectedRows,
-			'insertKey'		=> $this->_insertId,
-			'currency'		=> $this->_isCurrency ($result, $options),
+			'touchedRows'	=> $this->numRows + $this->affectedRows,
+			'insertKey'		=> $this->insertId,
 			'source'		=> $source
 		));
 	}
 
 	/**
+     * Получить текущего кэшера
+     *
 	 * @return Data_Provider_Abstract
 	 */
-	public function getCacher ()
+	public function getCacher()
 	{
-		return $this->_cacher;
+		return $this->cacher;
 	}
 
+    /**
+     * Проверяет валидны ли тэги
+     *
+     * @param array $tags
+     * @return boolean
+     */
+    protected function isTagsValid($tags)
+    {
+        $isValid = true;
+        foreach ($tags as $tag) {
+            if (empty(self::$tagsValid[$tag])) {
+                $isValid = false;
+                break;
+            }
+        }
+        if ($isValid) {
+            return true;
+        }
+        $validTags = $this->cacher->checkTags($tags);
+        if ($validTags) {
+            foreach ($tags as $tag) {
+                self::$tagsValid[$tag] = true;
+            }
+        }
+        return $validTags;
+    }
+
 	/**
-	 *
+	 * Изменить текущего кэшера
+     *
 	 * @param Data_Provider_Abstract $cacher
 	 */
-	public function setCacher (Data_Provider_Abstract $cacher)
+	public function setCacher(Data_Provider_Abstract $cacher)
 	{
-		$this->_cacher = $cacher;
+		$this->cacher = $cacher;
 	}
 
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Mapper_Mysqli::setOption()
 	 */
-	public function setOption ($key, $value = null)
+	public function setOption($key, $value = null)
 	{
-		switch ($key)
-		{
+		switch ($key) {
 			case 'cache_provider':
-				$this->setCacher (Data_Provider_Manager::get ($value));
+                $serviceLocator = IcEngine::serviceLocator();
+                $dataProviderManager = $serviceLocator->getService(
+                    'dataProviderManager'
+                );
+                $provider = $dataProviderManager->get($value);
+				$this->setCacher($provider);
 				return;
 			case 'expiration':
-				$this->getDefaultOptions ()->setExpiration ($value);
+				$this->getDefaultOptions()->setExpiration($value);
 				return;
 		}
-		return parent::setOption ($key, $value);
+		return parent::setOption($key, $value);
 	}
-
 }

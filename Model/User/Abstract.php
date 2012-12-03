@@ -1,19 +1,16 @@
 <?php
+
 /**
- *
- * @desc Абстрактная модель пользователя.
- * @author Юрий Шведов
- * @package IcEngine
- *
+ * Абстрактная модель пользователя.
+ * 
+ * @author goorus, morph
  */
 class User_Abstract extends Model
 {
-
 	/**
-	 * @desc Конфиг
-	 * @var array
+	 * @inheritdoc
 	 */
-	protected static $_config = array (
+	protected static $config = array(
 		// колбэк после авторизации
 		'login_callback'	=> null,
 		// функция, вызываемая при логауте.
@@ -21,330 +18,224 @@ class User_Abstract extends Model
 	);
 
 	/**
-	 * @desc Текущий пользователь.
-	 * @var User
+	 * Текущий пользователь.
+	 * 
+     * @var User
 	 */
-	protected static $_current	= false;
+	protected $current;
 
 	/**
-	 * @desc Авторизоваться этим пользователем.
-	 * @return User
+	 * Авторизоваться этим пользователем.
+	 * 
+     * @return User
 	 */
-	public function authorize ()
+	public function authorize()
 	{
-		User_Session::getCurrent ()->updateSession ($this->id);
-		self::$_current = $this;
-
-		$config = $this->config ();
-		if ($config ['login_callback'])
-		{
-			list ($class, $method) = explode (
-				'::',
-				$config ['login_callback']
-			);
-			call_user_func (
-				array ($class, $method),
-				$this
-			);
-		}
-
+        $session = $this->getService('userSession');
+		$session->updateSession($this->key());
+		$this->current = $this;
 		return $this;
 	}
 
 	/**
-	 * @desc Проверяет, авторизован ли пользователь.
-	 * @return boolean True, если пользователь авторизован, иначе false.
+	 * Проверяет, авторизован ли пользователь.
+	 * 
+     * @return boolean True, если пользователь авторизован, иначе false.
 	 */
-	public static function authorized ()
+	public function authorized ()
 	{
-		return (bool) self::id ();
+		return (bool) $this->current;
 	}
 
 	/**
-	 * @desc Проверяет, имеет ли пользователь доступ.
-	 * @param string|integer $alias
+	 * Проверяет, имеет ли пользователь доступ.
+	 * 
+     * @param string|integer $name
 	 * 		Алиас или id ресурса
 	 * @return boolean
 	 */
-	public function can ($alias)
+	public function can($name)
 	{
-		if (is_numeric ($alias))
-		{
-			$resource = Model_Manager::get ('Acl_Resource', $alias);
-		}
-		else
-		{
-			$resource = Model_Manager::byQuery (
+        $modelManager = $this->getService('modelManager');
+		if (is_numeric($name)) {
+			$resource = $modelManager->get('Acl_Resource', $name);
+		} else {
+			$resource = $modelManager->byOptions(
 				'Acl_Resource',
-				Query::instance ()
-					->where ('alias', $alias)
+                array(
+                    'name'  => '::Name',
+                    'value' => $name
+                )
 			);
 		}
-
-		if (!$resource)
-		{
+		if (!$resource) {
 			return false;
 		}
-
-		return $resource->userCan ($this);
+		return $resource->userCan($this);
 	}
 
 	/**
-	 * @desc Создание пользователя.
-	 * @param array|Objective $data Данные пользователя.
+	 * Создание пользователя.
+	 * 
+     * @param array|Objective $data Данные пользователя.
 	 * $param ['email'] Емейл
 	 * $param ['password'] Пароль
 	 * $param ['active'] = 0 Активен
 	 * $param ['ip'] IP пользователя при регистрации
 	 * @return User
 	 */
-	public static function create ($data)
+	public function create($data)
 	{
-		if (is_object ($data))
-		{
-			$data = $data->__toArray ();
+		if (is_object($data)) {
+			$data = $data->__toArray();
 		}
-
-		if (!isset ($data ['ip']))
-		{
-			$data ['ip'] = Request::ip ();
+		if (!isset($data['ip'])) {
+			$data['ip'] = $this->getService('request')->ip();
 		}
-
-		$user = new User ($data);
-
-		return $user->save ();
+		$user = new User($data);
+		return $user->save();
 	}
 
 	/**
-	 * Перекрытие
-	 * @return Model
-	 */
-	public static function current()
-	{
-		return self::getCurrent();
-	}
-
-	/**
-	 * @desc Генерация пароля заданной длинны.
-	 * @param integer $length
-	 * @return string
-	 */
-	public static function genPassword ($length = 8)
-	{
-		$result = substr (md5 (time), 0, $length);
-	}
-
-	/**
-	 * @desc Возвращает модель текущего пользователя.
+	 * Возвращает модель текущего пользователя.
 	 * Если пользователь не авторизован, будет возвращает экземпляр User_Guest.
-	 * @return User Текущий пользователь.
+	 * 
+     * @return User Текущий пользователь.
 	 */
-	public static function getCurrent ()
+	public function getCurrent()
 	{
-		return self::$_current;
+		return $this->current;
 	}
 
 	/**
-	 * @desc Возвращает id текущего пользователя.
-	 * @return integer id текущего пользователя.
+	 * Возвращает id текущего пользователя.
+	 * 
+     * @return integer id текущего пользователя.
 	 */
-	public static function id ()
+	public function id()
 	{
-		if (!self::$_current || !self::$_current->id)
-		{
+		if (!$this->current || !$this->current->key()) {
 			return 0;
 		}
-
-		return self::$_current->id;
+		return $this->current->key();
 	}
 
 	/**
-	 * @desc Проверяет, имеет ли пользователь роль админа.
-	 * @return boolean true, если имеет, иначе false.
+	 * Проверяет, имеет ли пользователь роль админа.
+	 * 
+     * @return boolean true, если имеет, иначе false.
 	 */
-	public function isAdmin ()
+	public function isAdmin()
 	{
-		return $this->hasRole (Acl_Role::byName ('admin'));
+		return $this->hasRole('admin');
 	}
 
 	/**
-	 * @desc Проверяет, является ли этот пользователем текущим.
+	 * Проверяет, является ли этот пользователем текущим.
 	 * Т.е. авторизован от имени этого пользователя.
-	 * @return boolean
+	 * 
+     * @return boolean
 	 */
-	public function isCurrent ()
+	public function isCurrent()
 	{
-		return self::authorized () && (self::id () == $this->key ());
+		return $this->authorized() && ($this->id() == $this->key());
 	}
 
 	/**
-	 * Проверяет есть ли у юзера доступ к содержимому, админских блоков и т д
-	 * @return boolean
-	 */
-	public function accessToAdmin()
-	{
-		if (self::id() > 0) {
-			$user = self::getCurrent();
-			if ($user->hasRole('editor') ||
-				$user->hasRole('admin')) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * @desc Проверяет, имеет ли пользователь хотя бы одну из указанных ролей.
-	 * @param Acl_Role|string $role Роль или название роли
+	 * Проверяет, имеет ли пользователь хотя бы одну из указанных ролей.
+	 * 
+     * @param Acl_Role|string $role Роль или название роли
 	 * @param $_
 	 * @return boolean Имеет ли пользователь роль.
 	 */
-	public function hasRole ($role)
+	public function hasRole($role)
 	{
-		foreach (func_get_args () as $role)
-		{
-			if ($role)
-			{
-				if (!is_object ($role))
-				{
-					$role = Acl_Role::byName ($role);
-				}
-
-				if ($role && Helper_Link::wereLinked ($this, $role))
-				{
-					return true;
-				}
-			}
+        $roleNames = array();
+        $roles = array();
+		foreach (func_get_args() as $role) {
+			if (!$role) {
+                continue;
+            }
+            if (!is_object($role)) {
+                $roleNames[] = $role;
+            } else {
+                $roles[] = $role;
+            }
 		}
-
-		return false;
+        if ($roleNames) {
+            $collectionManager = $this->getService('collectionManager');
+            $roleCollection = $collectionManager->create('Acl_Role')
+                ->addOptions(array(
+                    'name'  => '::Name',
+                    'value' => $roleNames
+                ));
+            if ($roleCollection->count()) {
+                $roles = array_merge($roles, $roleCollection->items());
+            }
+        }
+        $roleIds = $this->getService('helperArray')->column($roles, 'id');
+        if (!$roleIds) {
+            return false;
+        }
+        $queryBuilder = $this->getService('query');
+        $query = $queryBuilder
+            ->select('id')
+            ->from('Link')
+            ->where('fromTable', 'Acl_Role')
+            ->where('toTable', 'User')
+            ->where('fromRowId', $roleIds)
+            ->where('toRowId', $this->key());
+        $dds = $this->getService('dds');
+        $exists = (bool) $dds->execute($query)->getResult()->asValue();
+		return $exists;
 	}
 
 	/**
-	 * @desc Проверяет имеет ли пользователь роль с указаным типом
-	 * @param integer $type_id
-	 */
-	public function hasRoleWithType ($type_id)
-	{
-		$collection = Helper_Link::linkedItems (
-			$this,
-			'Acl_Role'
-		);
-		$collection
-			->where ('Acl_Role_Type__id=?', $type_id);
-		return !$collection->isEmpty ();
-	}
-
-	/**
-	 * @desc Инициализация пользователя.
+	 * Инициализация пользователя.
 	 * Создание моделей сессии и пользователя.
-	 * @param string $session_id Идентификатор сессии.
+	 * 
+     * @param string $session_id Идентификатор сессии.
 	 * @return User Пользователь.
 	 */
-	public static function init ($session_id = null)
+	public function init($sessionId = null)
 	{
-		$session_id = $session_id ? $session_id : Request::sessionId ();
-		User_Session::setCurrent (
-			User_Session::byPhpSessionId (
-				$session_id ? $session_id : 'unknown')
-		);
-		self::$_current = User_Session::getCurrent()->User;
-		User_Session::getCurrent ()->updateSession ();
-
-		return self::$_current;
+        if ($this->current) {
+            return;
+        }
+        $request = $this->getService('request');
+		$sessionId = $sessionId ?:$request->sessionId();
+        $session = $this->getService('session');
+        $userSession = $session->byPhpSessionId($sessionId ?: 'unknown');
+        $session->setCurrent($userSession);
+		$this->current = $session->getCurrent()->User;
+		$session->getCurrent()->updateSession();
+		return $this->current;
 	}
 
 	/**
-	 * @desc Логаут. Удаление сессии.
+	 * Логаут. Удаление сессии.
 	 */
-	public function logout ()
+	public function logout()
 	{
-		$config = $this->config ();
-		if ($config ['logout_callback'])
-		{
-			list ($class, $method) = explode (
-				'::',
-				$config ['logout_callback']
-			);
-
-			call_user_func (
-				array ($class, $method),
-				$this
-			);
-		}
-		User_Session::getCurrent ()->delete ();
+		$session = $this->getService('session');
+		$session->getCurrent()->delete();
 	}
 
-	/**
-	 * @return Acl_Role
-	 */
-	public function personalRole ()
-	{
-		$role_name = 'User' . $this->id . 'Personal';
-
-		$role = Acl_Role::byTypeNName (
-			Acl_Role_Type_Personal::ID,
-			$role_name
-		);
-
-		if (!$role)
-		{
-			$role = new Acl_Role (array (
-				'name'				=> $role_name,
-				'Acl_Role_Type__id'	=> Acl_Role_Type_Personal::ID
-			));
-			$role->save ();
-		}
-
-		return $role;
-	}
-
-	/**
-	 * @desc Получение роли указанного типа, которую имеет пользователь.
-	 * Если пользователь не имеет роли указанного типа и $autocreate,
-	 * такая роль будет создана и присвоена пользователю.
-	 * @param integer $role_type_id Тип роли.
-	 * @param boolean $autocreate Создавать ли роль в случае отсутсвтия.
-	 * @return Acl_Role Роль.
-	 */
-	public function role ($role_type_id, $autocreate = false)
-	{
-		$role = Helper_Link::linkedItems (
-			$this,
-			'Acl_Role'
-		);
-
-		if ($role)
-		{
-			$role
-				->addOptions (array (
-					'name'			=> 'Role_Type',
-					'role_type_id'	=> $role_type_id
-				));
-			$role = $role->first ();
-		}
-
-		if (!$role && $autocreate)
-		{
-			$role = new Acl_Role (array (
-				'name'				=> 'u' . $this->id . 'rt' . $role_type_id,
-				'Acl_Role_Type__id'	=> $role_type_id
-			));
-			$role->save ();
-			Helper_Link::link ($role, $this);
-		}
-
-		return $role;
-	}
-
-	public function title ()
+    /**
+     *  @inheritodc
+     */
+	public function title()
 	{
 		return $this->login . ' ' . $this->name;
 	}
 
-	public static function setCurrent($user)
+    /**
+     * Изменить текущего пользователя
+     * 
+     * @param type $user
+     */
+	public function setCurrent($user)
 	{
-		self::$_current = $user;
+		$this->current = $user;
 	}
-
 }

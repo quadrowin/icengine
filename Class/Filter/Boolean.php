@@ -1,11 +1,18 @@
 <?php
-
+/**
+ * Фильтр преобразует дату к логическому типу
+ *
+ * @author neon
+ */
 class Filter_Boolean
 {
-	
-	public function filter ($data)
+	/**
+	 * @inheritdoc
+	 * @param string $data
+	 * @return boolean
+	 */
+	public function filter($data)
 	{
 		return (bool) $data;
 	}
-	
 }

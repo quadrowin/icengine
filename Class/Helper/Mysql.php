@@ -1,13 +1,9 @@
 <?php
 
 /**
+ * Хелпер для работы с mysql
  * 
- * @desc Хелпер для мускула. 
- * @author Илья
- * @package IcEngine
- * 
- * @method getModels 
- *
+ * @author morph, goorus
  */
 class Helper_Mysql
 {
@@ -16,8 +12,9 @@ class Helper_Mysql
 	const SQL_WILDCARD = '*';
 
 	/**
-	 * @desc Обособляет название mysql терма, если в этом есть необходимость.
-	 * Функция вернет исходную строку, если в ней присутствуют спец. символы
+	 * Обособляет название mysql терма, если в этом есть необходимость.
+	 * 
+	 *	Функция вернет исходную строку, если в ней присутствуют спец. символы
 	 * (точки, скобки, кавычки, знаки мат. операций и т.п.)
 	 * @param string $value Название терма.
 	 * @return string Резултат обособления.
@@ -40,10 +37,11 @@ class Helper_Mysql
 		}
 		return $value;
 	}
-    
-    /**
-	 * @desc Заключает выражение в кавычки
-	 * @param mixed $value
+
+	/**
+	 * Заключает выражение в кавычки
+	 * 
+     * @param mixed $value
 	 * @return string
 	 */
 	public static function quote ($value)
@@ -56,50 +54,5 @@ class Helper_Mysql
 		return self::SQL_QUOTE .
 			addslashes (iconv ('UTF-8', 'UTF-8//IGNORE', stripslashes ($value))) .
 			self::SQL_QUOTE;
-	}
-    
-    /**
-	 * 
-	 * @desc Получает список моделей по схеме. Для полученных моделей
-	 * дописывает комментарий, если он есть в БД.
-	 * @param Config_Array $config
-	 * @return array<string>
-	 */
-	public static function getModels (Config_Array $config)
-	{
-		$result = mysql_query (
-			'SHOW TABLE STATUS'
-		);
-		
-		if (is_resource ($result) && mysql_num_rows ())
-		{
-			$tables = array ();
-			while (($row = mysql_fetch_assoc ($result)) !== false)
-			{
-				$tables [$row ['Name']] = $row;
-			}
-			if (!$config || empty ($config->models))
-			{
-				return;
-			}
-			$models = array ();
-			foreach ($config->models as $model=>$data)
-			{
-				$table = empty ($data->table) ? $model : $data->table;
-				foreach ($tables as $name=>$values)
-				{
-					if ($table == $name)
-					{
-						$models [] = array (
-							'table'		=> $table,
-							'model'		=> $model,
-							'comment'	=> !empty ($values ['Comment']) ?
-								$values ['Comment'] : $table
-						);
-					}
-				}
-			}
-			return $models;
-		}
 	}
 }

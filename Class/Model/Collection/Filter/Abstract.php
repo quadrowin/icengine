@@ -37,7 +37,7 @@ class Model_Collection_Filter_Abstract
 	 * @desc Создает и возвращает фильтр.
 	 * Устанавливает название фильтра.
 	 */
-	public function __construct ()
+	public function __construct()
 	{
 		$class = get_class ($this);
 		$p = strpos ($class, '_Collection_Filter_');
@@ -51,8 +51,8 @@ class Model_Collection_Filter_Abstract
 	 */
 	protected function _filter (Model_Collection $collection, array $params)
 	{
-		$params ['name'] = $this->name ();
-		$collection->addOptions ($params);
+		$params ['name'] = $this->name();
+		$collection->addOptions($params);
 	}
 
 	/**
@@ -60,16 +60,20 @@ class Model_Collection_Filter_Abstract
 	 * @param array $params Поля.
 	 * @return boolean true, если поля проходят валидацию, иначе false.
 	 */
-	protected function _validate (array $params)
+	protected function _validate(array $params)
 	{
+        $serviceLocator = IcEngine::serviceLocator();
+        $dataValidatorManager = $serviceLocator->getService(
+            'dataValidatorManager'
+        );
 		foreach ($this->validators as $field => $validators)
 		{
 			$validators = (array) $validators;
 			foreach ($validators as $validator)
 			{
-				$valid = Data_Validator_Manager::validate (
+				$valid = $dataValidatorManager->validate (
 					$validator,
-					$params [$field]
+					$params[$field]
 				);
 				if (!$valid)
 				{
@@ -85,34 +89,34 @@ class Model_Collection_Filter_Abstract
 	 * @param Model_Collection $collection Коллекция.
 	 * @param Data_Transport $data Данные для фильтрации.
 	 */
-	public function filter (Model_Collection $collection, Data_Transport $data)
+	public function filter(Model_Collection $collection, Data_Transport $data)
 	{
 		if (!$this->fields)
 		{
-			$params = array ();
+			$params = array();
 		}
-		elseif (count ($this->fields) == 1)
+		elseif (count($this->fields) == 1)
 		{
 			reset ($this->fields);
 			$params = array (
-				key ($this->fields) =>
-					$data->receive (current ($this->fields))
+				key($this->fields) =>
+					$data->receive(current ($this->fields))
 			);
 		}
 		else
 		{
-			$params = array_combine (
+			$params = array_combine(
 				array_keys ($this->fields),
-				call_user_func_array (
+				call_user_func_array(
 					array ($data, 'receive'),
-					array_values ($this->fields)
+					array_values($this->fields)
 				)
 			);
 		}
 
-		if ($this->_validate ($params))
+		if ($this->_validate($params))
 		{
-			$this->_filter ($collection, $params);
+			$this->_filter($collection, $params);
 		}
 	}
 
@@ -120,7 +124,7 @@ class Model_Collection_Filter_Abstract
 	 * @desc Возвращает название фильтра.
 	 * @return string Название фильтра.
 	 */
-	public function name ()
+	public function name()
 	{
 		return $this->_name;
 	}

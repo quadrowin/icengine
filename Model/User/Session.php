@@ -1,128 +1,141 @@
 <?php
 
 /**
- *
- * @desc Сессия пользователя
- * @author Юрий
- * @package IcEngine
- *
+ * Сессия пользователя
+ * 
+ * @author goorus, morph
  */
 class User_Session extends Model
 {
-
     /**
-     * @desc Сессия текущего пользователя.
+     * Первый доступ
+     * 
+     * @var boolean
+     */
+    protected $firstAttend;
+    
+    /**
+     * Сессия текущего пользователя.
+     * 
      * @var User_Session
      */
-    protected static $_current = null;
+    protected $current;
 
 	/**
-	 * @desc id пользователя по умолчаиню
-	 * @var integer
+	 * id пользователя по умолчаиню
+	 * 
+     * @var integer
 	 */
-	protected static $_defaultUserId = 0;
-
+	protected $defaultUserId = 0;
+    
 	/**
-	 *
-	 * @param string $session_id
+	 * Получить сессию пользователя по phpSessionId
+     * 
+	 * @param string $sessionId
+     * @param boolean $autocreate
 	 * @return User_Session
 	 */
-	public static function byPhpSessionId ($session_id, $autocreate = true)
+	public function byPhpSessionId($sessionId, $autocreate = true)
 	{
-		$session = Model_Manager::byKey ('User_Session', $session_id);
-
-		if (!$session && $autocreate)
-		{
-    		$session = new User_Session (array (
-    			'id'			=> $session_id,
-    			'User__id'		=> self::$_defaultUserId,
-    			'phpSessionId'	=> $session_id,
-    			'startTime'	    => Helper_Date::toUnix (),
-    			'lastActive'	=> Helper_Date::toUnix (),
-    			'remoteIp'		=> Request::ip (),
-				'eraHourNum'	=> Helper_Date::eraHourNum(),
-    			'userAgent'	    => substr (getenv ('HTTP_USER_AGENT'), 0, 100)
+        $modelManager = $this->getService('modelManager');
+		$session = $modelManager->byKey('User_Session', $sessionId);
+        $date = $this->getService('date'); 
+		if (!$session && $autocreate) {
+    		$session = $modelManager->create('User_Session', array( 
+    			'id'			=> $sessionId,
+    			'User__id'		=> $this->defaultUserId,
+    			'phpSessionId'	=> $sessionId,
+    			'startTime'	    => $date->toUnix(),
+    			'lastActive'	=> $date->toUnix(),
+    			'remoteIp'		=> $this->getService('request')->ip(),
+				'eraHourNum'	=> $date->eraHourNum(),
+    			'userAgent'	    => substr(getenv('HTTP_USER_AGENT'), 0, 100)
     		));
-    		$session->save (true);
+    		$session->save(true);
 		}
-
 		return $session;
 	}
 
-	public static function current()
-	{
-		return self::getCurrent();
-	}
-
 	/**
+     * Получить текущую сессию пользователя
+     * 
 	 * @return User_Session
 	 */
-	public static function getCurrent ()
+	public function getCurrent ()
 	{
-	    return self::$_current;
+        if (!$this->firstAttend) {
+            if (!$this->current) {
+                $sessionId = $this->getService('request')->sessionId();
+                $userSession = $this->byPhpSessionId($sessionId);
+                $this->setCurrent($userSession);
+            }
+            $this->current->updateSession();
+            $this->firstAttend = true;
+        }
+	    return $this->current;
 	}
 
 	/**
-	 * @desc Возвращает ПК пользователя по умолчанию.
-	 * @return integer
+	 * Возвращает ПК пользователя по умолчанию.
+	 * 
+     * @return integer
 	 */
-	public static function getDefaultUserId ()
+	public function getDefaultUserId ()
 	{
-		return self::$_defaultUserId;
+		return $this->defaultUserId;
 	}
 
 	/**
-	 *
+	 * Изменить текущую сессию пользователя
+     * 
 	 * @param User_Session $session
 	 */
-	public static function setCurrent (User_Session $session)
+	public function setCurrent(User_Session $session)
 	{
-	    self::$_current = $session;
+	    $this->current = $session;
 	}
 
 	/**
-	 * @desc Устанавливает ПК пользователя по умолчанию
-	 * @param integer $value ПК пользователя
+	 * Устанавливает id пользователя по умолчанию
+	 * 
+     * @param integer $value ПК пользователя
 	 */
-	public static function setDefaultUserId ($value)
+	public function setDefaultUserId($id)
 	{
-		self::$_defaultUserId = $value;
+		$this->defaultUserId = $id;
 	}
 
 	/**
+     * Обновляет данные сессии
+     * 
 	 * @param integer $new_user_id [optional] Изменить пользователя.
 	 * @return User_Session
 	 */
-	public function updateSession ($new_user_id = null)
+	public function updateSession($newUserId = null)
 	{
-		$now = Helper_Date::toUnix ();
-
-		if (isset ($new_user_id) && $new_user_id)
-		{
-			$upd = array (
-				'User__id'		=> $new_user_id,
+        $date = $this->getService('date');
+		$now = $date->toUnix();
+        $updateData = array();
+		if ($newUserId) {
+			$updateData = array(
+				'User__id'		=> $newUserId,
 				'lastActive'	=> $now,
-				'eraHourNum'	=> Helper_Date::eraHourNum()
+				'eraHourNum'	=> $date->eraHourNum()
 			);
-		}
-		else
-		{
+		} else {
 			// Обновляем сессию не чаще, чем раз в 10 минут.
 			// strlen ('YYYY-MM-DD HH:I_:__') =
-			if (strncmp ($now, $this->lastActive, 15) == 0)
-			{
+			if (strncmp($now, $this->lastActive, 15) == 0) {
 				return $this;
 			}
-
-			$upd = array (
+			$updateData = array(
 				'lastActive'	=> $now,
-				'eraHourNum'	=> Helper_Date::eraHourNum()
+				'eraHourNum'	=> $date->eraHourNum()
 			);
 		}
-
-	    $this->update ($upd);
-
+        if ($updateData) {
+            $this->update($updateData);
+        }
 		return $this;
 	}
-
 }

@@ -88,44 +88,32 @@ class Controller_Admin_Acl extends Controller_Abstract
 	/**
 	 * @desc Получить список полей для создания прав
 	 */
-	public function field ()
+	public function field()
 	{
-		if (!$this->_checkAccess ())
-		{
-			return $this->replaceAction ('Error', 'accessDenied');
+		if (!$this->_checkAccess()) {
+			return $this->replaceAction('Error', 'accessDenied');
 		}
-
-		$role_id = $this->_input->receive ('role_id');
-
-		$role = Model_Manager::byKey (
+		$role_id = $this->_input->receive('role_id');
+		$modelManager = $this->getService('modelManager');
+		$role = $modelManager->byKey(
 			'Acl_Role',
 			$role_id
 		);
-
-		if (!$role)
-		{
+		if (!$role) {
 			return;
 		}
-
-		$resources = $this->__resources ($role);
-
-		$tables = Helper_Data_Source::tables ();
-
-		$result = array ();
-
-		foreach ($tables as $table)
-		{
-			$fields = Helper_Data_Source::fields ('`' . $table ['Name'] . '`');
-
-			$result [$table ['Name']] = array (
+		$resources = $this->__resources($role);
+		$helperDataSource = $this->getservice('helperDataSource');
+		$tables = $helperDataSource->tables();
+		$result = array();
+		foreach ($tables as $table) {
+			$fields = $helperDataSource->fields('`' . $table ['Name'] . '`');
+			$result[$table['Name']] = array(
 				'table'		=> $table,
-				'fields'	=> array ()
+				'fields'	=> array()
 			);
-
-			foreach ($this->config ()->access_types as $type)
-			{
-				foreach ($fields as $field)
-				{
+			foreach ($this->config()->access_types as $type) {
+				foreach ($fields as $field) {
 					if (!isset ($result [$table ['Name']]['fields'][$field ['Field']]))
 					{
 						$result [$table ['Name']]['fields'][$field ['Field']] = array (
@@ -154,22 +142,19 @@ class Controller_Admin_Acl extends Controller_Abstract
 	/**
 	 * @desc Получаем список ролей
 	 */
-	public function roll ()
+	public function roll()
 	{
-		if (!$this->_checkAccess ())
-		{
-			return $this->replaceAction ('Error', 'accessDenied');
+		if (!$this->_checkAccess()) {
+			return $this->replaceAction('Error', 'accessDenied');
 		}
-
-		$role_names = $this->config ()->control_roles->asArray ();
-
-		$role_collection = Model_Collection_Manager::byQuery (
+		$role_names = $this->config()->control_roles->asArray();
+		$collectionManager = $this->getService('collectionManager');
+		$query = $this->getService('query');
+		$role_collection = $collectionManager->byQuery(
 			'Acl_Role',
-			Query::instance ()
-				->where ('name', $role_names)
+			$query->where('name', $role_names)
 		);
-
-		$this->_output->send (array (
+		$this->_output->send(array(
 			'role_collection'	=> $role_collection
 		));
 	}
@@ -187,104 +172,78 @@ class Controller_Admin_Acl extends Controller_Abstract
 		}
 
 		$role_id = $this->_input->receive ('role_id');
-
-		$role = Model_Manager::byKey (
+		$modelManager = $this->getService('modelManager');
+		$role = $modelManager->byKey (
 			'Acl_Role',
 			$role_id
 		);
-
-		if (!$role)
-		{
+		if (!$role) {
 			return;
 		}
-
-		$resources = $this->__resources ($role);
-
-		$resource_collection = Model_Collection_Manager::byQuery (
+		$resources = $this->__resources($role);
+		$collectionManager = $this->getService('collectionManager');
+		$query = $this->getService('query');
+		$resource_collection = $collectionManager->byQuery(
 			'Acl_Resource',
-			Query::instance ()
-				->where ('name', $resources)
+			$query->where('name', $resources)
 		);
-
-		foreach ($resource_collection as $resource)
-		{
-			Helper_Link::unlink ($role, $resource);
+		$helperLink = $this->getService('helperLink');
+		foreach ($resource_collection as $resource) {
+			$helperLink->unlink($role, $resource);
 		}
-
-		$resources = $this->_input->receive ('resources');
-
-		foreach ($resources as $resource_name)
-		{
+		$resources = $this->input->receive('resources');
+		foreach ($resources as $resource_name) {
 			$resource = Model_Manager::byQuery (
 				'Acl_Resource',
-				Query::instance ()
-					->where ('name', $resource_name)
+				$query->where('name', $resource_name)
 			);
-
-			if (!$resource)
-			{
-				$resource = new Acl_Resource (array (
+			if (!$resource) {
+				$resource = new Acl_Resource(array(
 					'name'	=> $resource_name
 				));
-
-				$resource->save ();
+				$resource->save();
 			}
-
-			Helper_Link::link ($role, $resource);
+			$helperLink->link($role, $resource);
 		}
-
-		Helper_Header::redirect ('/cp/acl/');
+		$helperHeader = $this->getService('helperHeader');
+		$helperHeader->redirect('/cp/acl/');
 	}
 
 	/**
-	 * @desc Сохраняем права на один определенный ресурс
+	 * Сохраняем права на один определенный ресурс
 	 */
-	public function saveOneResource ($resource_name, $checked, $role_id)
+	public function saveOneResource($resource_name, $checked, $role_id)
 	{
-		$this->_task->setTemplate (null);
-
+		$this->_task->setTemplate(null);
 		set_time_limit (0);
-
-		if (!$this->_checkAccess ())
-		{
-			return $this->replaceAction ('Error', 'accessDenied');
+		if (!$this->_checkAccess()) {
+			return $this->replaceAction('Error', 'accessDenied');
 		}
-
-		$role_id = $this->_input->receive ('role_id');
-
-		$role = Model_Manager::byKey (
+		$role_id = $this->_input->receive('role_id');
+		$modelManager = $this->getService('modelManager');
+		$role = $modelManager->byKey(
 			'Acl_Role',
 			$role_id
 		);
-
-		if (!$role)
-		{
+		if (!$role) {
 			return;
 		}
-
-		$resource = Model_Manager::byQuery (
+		$query = $this->getService('query');
+		$resource = $modelManager->byQuery(
 			'Acl_Resource',
-			Query::instance ()
-				->where ('name', $resource_name)
+			$query->where('name', $resource_name)
 		);
-
-		if (!$resource)
-		{
-			$resource = new Acl_Resource (array (
+		if (!$resource) {
+			$resource = new Acl_Resource(array(
 				'name'	=> $resource_name
 			));
-
-			$resource->save ();
+			$resource->save();
 		}
-
-		if ($checked)
-		{
-			Helper_Link::link ($role, $resource);
+		$helperLink = $this->getService('helperLink');
+		if ($checked) {
+			$helperLink->link ($role, $resource);
+		} else {
+			$helperLink->unlink ($role, $resource);
 		}
-		else {
-			Helper_Link::unlink ($role, $resource);
-		}
-
 	}
-
 }

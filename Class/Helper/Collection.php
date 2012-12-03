@@ -8,6 +8,21 @@
 class Helper_Collection
 {
 	/**
+	 * Переназначение коллекции на модель
+	 *
+	 * @param Model $model
+	 * @param Model_Collection $collection
+	 * @return void
+	 */
+	public static function rejoin($model, $collection)
+	{
+		$collection->update(array(
+			'table'	=> $model->modelName(),
+			'rowId'	=> $model->key()
+		));
+	}
+
+	/**
 	 * Упорядочивание списка для вывода дерева по полю parentId
 	 *
 	 * @param Model_Collection $collection

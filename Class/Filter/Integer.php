@@ -1,18 +1,20 @@
 <?php
-
 /**
- * 
  * Стандартный фильтр чисел.
- * @author Юрий
  *
+ * @author Юрий, neon
  */
-
 class Filter_Integer extends Filter_Abstract
 {
-	
-	public function filter ($data)
+	/**
+	 * @inheritdoc
+	 * @param string $data
+	 * @return int
+	 */
+	public function filter($data)
 	{
-		return Helper_String::str2int (trim ($data));
+		$locator = IcEngine::serviceLocator();
+		$helperString = $locator->getService('helperString');
+		return $helperString->str2int(trim($data));
 	}
-	
 }

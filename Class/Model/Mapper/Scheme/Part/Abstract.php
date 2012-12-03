@@ -17,7 +17,7 @@ class Model_Mapper_Scheme_Part_Abstract
 	 * @param Objective $values
 	 * @return Model_Mapper_Scheme_Abstract
 	 */
-	public function execute ($scheme, $values)
+	public function execute($scheme, $values)
 	{
 
 	}
@@ -26,16 +26,16 @@ class Model_Mapper_Scheme_Part_Abstract
 	 * @desc Получить имя
 	 * @return string
 	 */
-	public function getName ()
+	public function getName()
 	{
-		return substr (get_class ($this), 25);
+		return substr(get_class($this), 25);
 	}
 
 	/**
 	 * @desc Получить спецификацию
 	 * @return string
 	 */
-	public function getSpecification ()
+	public function getSpecification()
 	{
 		return static::$_specification;
 	}

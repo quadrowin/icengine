@@ -1,73 +1,68 @@
 <?php
 /**
- * 
- * @desc Коллекция фильтров
+ * Коллекция фильтров
+ *
  * @author Илья
  * @package IcEngine
- *
  */
-class Filter_Collection 
+class Filter_Collection
 {
-	
 	/**
-	 * @desc Фильтры
+	 * Фильтры
+	 *
 	 * @var array <Filter_Abstract>
 	 */
 	protected $_filters;
-	
+
 	/**
-	 * @desc Возвращает экземпляр коллекции фильтров.
+	 * Возвращает экземпляр коллекции фильтров.
 	 */
-	public function __construct ()
+	public function __construct()
 	{
-		$this->_filters = array ();
+		$this->_filters = array();
 	}
-	
+
 	/**
-	 * @desc Добавляет фильтр в коллекцию.
+	 * Добавляет фильтр в коллекцию.
+	 *
 	 * @param Filter_Abstract $filter
 	 */
-	public function append ($filter)
+	public function append($filter)
 	{
-		$this->_filters [] = $filter;
+		$this->_filters[] = $filter;
 		return $this;
 	}
-	
+
 	/**
-	 * @desc Последовательно применяет фильтры на данные.
+	 * Последовательно применяет фильтры на данные.
+	 *
 	 * @param mixed $data
 	 * @param array|null $fields
 	 * @return Filter_Collection
 	 */
-	public function apply (&$data, $fields = null)
+	public function apply(&$data, $fields = null)
 	{
-		if (!is_null ($fields))
-		{
+		if (!is_null($fields)) {
 			$fields = (array) $fields;
 		}
-		
-		if (!is_array ($data))
-		{
-			for ($i = 0, $count = sizeof ($this->_filters); $i < $count; $i++)
-			{
-				$data = $this->_filters [$i]->filter ($data);
+		if (!is_array($data)) {
+			for ($i = 0, $count = sizeof($this->_filters); $i < $count; $i++) {
+				$data = $this->_filters[$i]->filter($data);
 			}
-		}
-		else
-		{
-			foreach ($data as $key=>&$value)
-			{
-				if ($fields && !in_array ($key, $fields))
-				{
+		} else {
+			foreach ($data as $key=>&$value) {
+				if ($fields && !in_array($key, $fields)) {
 					continue;
 				}
-				for ($i = 0, $count = sizeof ($this->_filters); $i < $count; $i++)
-				{
-					$value = $this->_filters [$i]->filter ($value);
+				for (
+					$i = 0, $count = sizeof($this->_filters);
+					$i < $count;
+					$i++
+				) {
+					$value = $this->_filters[$i]->filter($value);
 				}
 			}
 		}
-		
 		return $this;
 	}
 }

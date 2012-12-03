@@ -84,7 +84,7 @@ class Unit_Of_Work
 	 */
 	public static function flush()
 	{
-		echo 'flush' . "\n";
+		//echo 'flush' . "\n";
 		self::build();
 		foreach (self::$queries as $key=>$query) {
 			self::_execute($key, $query);

@@ -34,7 +34,7 @@ class Controller_Captcha extends Controller_Abstract
 
 		$_SESSION [Helper_Captcha::SF_AUTO_CODE] = $code;
 
-		$this->_output->send (array (
+		$this->output->send (array (
 			'code'	=> $code
 		));
 	}

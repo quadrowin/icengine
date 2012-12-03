@@ -1,63 +1,35 @@
 <?php
+
 /**
- *
- * @desc Упаковщик Jres ресурсов представления.
- * @author Юрий
- * @package IcEngine
- *
+ * Упаковщик Jres ресурсов представления.
+ * 
+ * @author goorus, morph
  */
-class View_Resource_Packer_Jres extends View_Resource_Packer_Abstract
+class View_Resource_Packer_Jres extends View_Resource_Packer_Js
 {
-	/**
-	 * @desc Класс Packer'a
-	 * @var string
-	 */
-	const PACKER = 'class.JavaScriptPacker.php';
-
-	public function __construct ()
+    /**
+     * @inheritdoc
+     */
+	public function packOne(View_Resource $resource)
 	{
-		Loader::requireOnce (self::PACKER, 'includes');
-	}
-
-	public function packOne (View_Resource $resource)
-	{
-		if (
-			$this->config ()->item_prefix &&
-			isset ($resource->filePath)
-		)
-		{
-			$result = strtr (
-				$this->config ()->item_prefix,
-				array (
-					'{$source}' => $resource->filePath,
-					'{$src}'	=> $resource->localPath,
-				)
-			);
-		}
-		else
-		{
+        $config = $this->config();
+		if ($config->item_prefix && isset($resource->filePath)) {
+			$result = strtr($config->item_prefix, array(
+                '{$source}' => $resource->filePath,
+                '{$src}'	=> $resource->localPath,
+            ));
+		} else {
 			$result = '';
-		}
-
-		$content = $resource->content ();
-
-		$content =
-			'Ice.Resource_Manager.set ("Jres", "' . $resource->localPath . '", ' . $content . ');';
-
-		if (
-			isset ($this->_currentResource->nopack) &&
-			$this->_currentResource->nopack
-		)
-		{
+		}		
+		$content = 'Ice.Resource_Manager.set("Jres", "' . 
+            $resource->localPath . '", ' . 
+            $resource->content() . ');';
+		if (!empty($this->currentResource->nopack) || $this->noPack) {
 			$result .= $content . "\n";
-		}
-	    else
-	    {
-			$packer = new JavaScriptPacker ($content, 0);
-			$result .= $packer->pack ();
+		} else {
+			$packer = new JavaScriptPacker($content, 0);
+			$result .= $packer->pack();
 	    }
-
-		return $result . $this->config ()->item_postfix;
+		return $result . $this->config()->item_postfix;
 	}
-
 }

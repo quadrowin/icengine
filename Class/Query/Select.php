@@ -142,9 +142,11 @@ class Query_Select extends Query_Abstract
 		{
 			return;
 		}
+        $serviceLocator = IcEngine::serviceLocator();
+        $modelScheme = $serviceLocator->getService('modelScheme');
 		foreach ($from as $info)
 		{
-			$tags [] = Model_Scheme::table ($info [Query::TABLE]);
+			$tags [] = $modelScheme->table ($info [Query::TABLE]);
 		}
 		return array_unique ($tags);
 	}

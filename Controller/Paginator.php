@@ -1,44 +1,36 @@
 <?php
+
 /**
- * 
- * @desc Контроллер пагинатор.
- * @author Юрий Шведов
- * @package IcEngine
+ * Контроллер пагинатор.
  *
+ * @author Юрий Шведов, neon
+ * @package IcEngine
  */
 class Controller_Paginator extends Controller_Abstract
 {
-	
 	/**
 	 * (non-PHPdoc)
 	 * @see Controller_Abstract::index()
 	 */
-	public function index ()
+	public function index()
 	{
-		list (
+		list(
 			$paginator,
 			$template,
 			$tpl
-		) = $this->_input->receive (
+		) = $this->input->receive(
 			'data',
 			'template',
 			'tpl'
 		);
-
 	    /* @var $paginator Paginator */
-		$paginator->buildPages ();
-		
-		$this->_output->send ('paginator', $paginator);
-		
-		if ($template)
-		{
-			$this->_task->setTemplate ($template);
+		$paginator->buildPages();
+		$this->output->send('paginator', $paginator);
+		if ($template) {
+			$this->task->setTemplate($template);
 		}
-		
-		if ($tpl)
-		{
-			$this->_task->setClassTpl (__METHOD__, $tpl);
+		if ($tpl) {
+			$this->task->setClassTpl(__METHOD__, $tpl);
 		}
 	}
-	
 }

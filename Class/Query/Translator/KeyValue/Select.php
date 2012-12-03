@@ -33,9 +33,10 @@ class Query_Translator_KeyValue_Select extends Query_Translator_Abstract
 	 */
 	protected function _compileKeyMask ($table, array $where)
 	{
-		$key_field = Model_Scheme::keyField ($table);
-
-		$indexes = Model_Scheme::indexes ($table);
+        $serviceLocator = IcEngine::serviceLocator();
+        $modelScheme = $serviceLocator->getService('modelScheme');
+		$key_field = $modelScheme->keyField ($table);
+		$indexes = $modelScheme->indexes ($table);
 
 		// Покрытие индексом запроса
 		// Изначально строка "11111", по мере использования,
@@ -69,7 +70,7 @@ class Query_Translator_KeyValue_Select extends Query_Translator_Abstract
 			$cond = $wvalue [Query::WHERE];
 			if (!is_scalar ($wvalue [Query::VALUE]))
 			{
-				throw new Zend_Exception ('Condition unsupported.');
+				throw new Exception ('Condition unsupported.');
 			}
 
 			if (!is_array ($cond))
@@ -80,7 +81,7 @@ class Query_Translator_KeyValue_Select extends Query_Translator_Abstract
 
 			if (empty ($cond))
 			{
-				throw new Zend_Exception ('Condition field unsupported.');
+				throw new Exception ('Condition field unsupported.');
 			}
 
 			$cond = trim (end ($cond), '`?= ');
@@ -162,11 +163,13 @@ class Query_Translator_KeyValue_Select extends Query_Translator_Abstract
 	 */
 	public function _compileKeys ($table, array $values)
 	{
-		$key_field = Model_Scheme::keyField ($table);
+        $serviceLocator = IcEngine::serviceLocator();
+        $modelScheme = $serviceLocator->getService('modelScheme');
+		$key_field = $modelScheme->keyField ($table);
 
 		if (!isset ($values [$key_field]))
 		{
-			throw new Zend_Exception ("Primary key must be defined.");
+			throw new Exception ("Primary key must be defined.");
 		}
 
 		$keys = array (
@@ -175,7 +178,7 @@ class Query_Translator_KeyValue_Select extends Query_Translator_Abstract
 			$values [$key_field]
 		);
 
-		$indexes = Model_Scheme::indexes ($table);
+		$indexes = $modelScheme->indexes ($table);
 		foreach ($indexes as $i => $index)
 		{
 			$index = (array) $index;
@@ -215,7 +218,7 @@ class Query_Translator_KeyValue_Select extends Query_Translator_Abstract
 		// Иначе SELECT или DELETE
 		if (count ($tables) != 1)
 		{
-			throw new Zend_Exception ('Invalid query.');
+			throw new Exception ('Invalid query.');
 		}
 
 		$table = reset ($tables);

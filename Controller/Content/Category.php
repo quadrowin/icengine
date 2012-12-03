@@ -13,11 +13,12 @@ class Controller_Content_Category extends Controller_Abstrtact
 	public function remove($categoryId)
 	{
 		$this->_task->setTemplate(null);
-		$category = Model_Manager::byKey('Content_Category', $categoryId);
+		$modelManager = $this->getService('modelManager');
+		$category = $modelManager->byKey('Content_Category', $categoryId);
 		if (!$category) {
 			return;
 		}
-		$user = User::getCurrent();
+		$user = $this->getService('user')->getCurrent();
 		if (!$user->hasRole('editor') && $category->User__id != $user->key()) {
 			return;
 		}
@@ -29,11 +30,13 @@ class Controller_Content_Category extends Controller_Abstrtact
 	 */
 	public function roll($parentId)
 	{
-		$parent = Model_Manager::byKey('Content_Category', $parentId);
+		$modelManager = $this->getService('modelManager');
+		$parent = $modelManager->byKey('Content_Category', $parentId);
 		if (!$parent) {
 			return $this->replaceAction('Error', 'notFound');
 		}
-		$categoryCollection = Model_Collection_Manager::create(
+		$collectionManager = $this->getService('collectionManager');
+		$categoryCollection = $collectionManager->create(
 			'Contnet_Category'
 		)->addOptions(
 			'::Active',
@@ -42,7 +45,7 @@ class Controller_Content_Category extends Controller_Abstrtact
 				'id'	=> $parentId
 			)
 		);
-		$this->_output->send(array(
+		$this->output->send(array(
 			'parent'		=> $parent,
 			'categories'	=> $categoryCollection
 		));
@@ -55,15 +58,16 @@ class Controller_Content_Category extends Controller_Abstrtact
 		$url, $class)
 	{
 		$this->_task->setTemplate(null);
-		$parent = Model_Manager::byKey('Content_Category', $parentId);
+		$modelManager = $this->getService('modelManager');
+		$parent = $modelManager->byKey('Content_Category', $parentId);
 		if (!$parent) {
 			return;
 		}
-		$user = User::getCurrent();
+		$user = $this->getService('user')->getCurrent();
 		if (!$user->hasRole('editor') || $user->key() != $parent->User__id) {
 			return;
 		}
-		$category = Model_Manager::get('Content_Category', $categoryId);
+		$category = $modelManager->get('Content_Category', $categoryId);
 		$category->set(array(
 			'parentId'	=> $parent->key(),
 			'title'		=> $title,

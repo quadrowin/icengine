@@ -24,7 +24,7 @@ class Api_Abstract extends Model_Factory_Delegate
 	 */
 	public function userAttachment (User $user)
 	{
-		return Model_Manager::byOptions (
+		return $this->getService('modelManager')->byOptions (
 			'User_Api',
 			array (
 				'name'	=> 'Api',
