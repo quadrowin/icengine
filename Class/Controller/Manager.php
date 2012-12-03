@@ -47,6 +47,7 @@ class Controller_Manager extends Manager_Abstract
             'modelManager'  => 'modelManager',
             'dds'               => 'dds',
             'collectionManager' => 'collectionManager',
+            'configManager'     => 'configManager',
             'controllerManager' => 'controllerManager',
             'userSession'       => 'session',
             'user'              => 'user'
