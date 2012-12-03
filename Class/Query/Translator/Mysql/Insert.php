@@ -10,7 +10,7 @@ class Query_Translator_Mysql_Insert extends Query_Translator_Mysql_Select
 	/**
 	 * Рендеринг INSERT запроса.
 	 *
-	 * @param Query_Abstract $query Запрос.
+	 * @param Query_Abstract $query Запро с.
 	 * @return string Сформированный SQL запрос.
 	 */
 	public function _renderInsert(Query_Abstract $query)
