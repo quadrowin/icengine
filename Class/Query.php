@@ -2,9 +2,9 @@
 
 /**
  * Фабрика запросов
- * 
+ *
  * @author morph, goorus
- * 
+ *
  * @method Query_Select select() select(array|string $colums) Добавить в запрос SELECT часть
  * @method Query_Insert insert() insert(string $table) Запрос преобразуется в запрос на вставку
  * @method Query_Update update() update(string $table) Преобразует запрос к запросу на обновление
@@ -51,10 +51,11 @@ class Query
 	const USE_INDEX			= 'USE INDEX';
 	const FORCE_INDEX		= 'FORCE INDEX';
 	const CALC_FOUND_ROWS   = 'CALC_FOUND_ROWS';
+	const TRUNCATE_TABLE	= 'TRUNCATE TABLE';
 
 	/**
 	 * Уже созданные запросы
-	 * 
+	 *
      * @var array
 	 */
 	protected $queries;
@@ -71,7 +72,7 @@ class Query
 
 	/**
 	 * Создает и возвращает новый запрос.
-	 * 
+	 *
      * Аналогично "new Query()".
 	 * @return Query Новый запрос.
 	 */
@@ -82,7 +83,7 @@ class Query
 
 	/**
 	 * Создать запрос по типу
-	 * 
+	 *
      * @param array $name
 	 * @return Query_Abstract
 	 */
@@ -99,7 +100,7 @@ class Query
 
 	/**
 	 * Привести имя метод из вида methodName к виду Method_Name
-	 * 
+	 *
      * @param string $name
 	 */
 	public function normalizaName($name)

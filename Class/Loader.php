@@ -2,28 +2,28 @@
 
 /**
  * Загрузчик модулей и классов.
- * 
+ *
  * @author goorus, morph
  */
 class Loader
 {
 	/**
 	 * Пути.
-	 * 
+	 *
      * @var array
 	 */
 	protected $paths = array();
 
 	/**
 	 * Подключенные классы
-	 * 
+	 *
      * @var array
 	 */
 	protected $required = array();
 
 	/**
 	 * Добавленные пути
-	 * 
+	 *
      * @param string $type Тип.
 	 * @param string $path Путь.
 	 */
@@ -37,7 +37,7 @@ class Loader
 
 	/**
 	 * @desc Добавление путей
-     * 
+     *
 	 * @param array $paths
 	 */
 	public function addPathes(array $paths)
@@ -50,9 +50,9 @@ class Loader
 	}
 
 	/**
-	 * Возвращает полный путь до файла. Если файла не существует, возвращается 
+	 * Возвращает полный путь до файла. Если файла не существует, возвращается
      * false.
-	 * 
+	 *
      * @param string $file Искомый файл.
 	 * @param string $type Тип.
 	 * @return string Если файл найден, полный путь до файла. Иначе false.
@@ -73,7 +73,7 @@ class Loader
 
 	/**
 	 * Возвращает все пути для указанного типа.
-	 * 
+	 *
      * @param string $type
 	 * @return array
 	 */
@@ -85,7 +85,7 @@ class Loader
 
 	/**
 	 * Проверяет был ли уже подключен файл
-	 * 
+	 *
      * @param string $file
 	 * @param string $type
 	 * @return bool
@@ -94,13 +94,13 @@ class Loader
 	{
         if (!isset($this->required[$type])) {
             return false;
-        } 
+        }
 		return isset($this->required[$type][$file]);
 	}
 
     /**
 	 * Подключение класса.
-	 * 
+	 *
      * @param string $class_name Название класса.
 	 * @param string $type [optional]
 	 * @return boolean true, если удалось подключить, иначе false.
@@ -113,10 +113,10 @@ class Loader
         $filename = str_replace('_', '/', $class) . '.php';
 		return $this->requireOnce($filename, $type);
 	}
-    
+
 	/**
 	 * Подключение файла.
-	 * 
+	 *
      * @param string $file
 	 * @param string $type
      * @param boolean $exceptionThrow
@@ -153,7 +153,7 @@ class Loader
 
 	/**
 	 * Заного устанавливает пути до файлов. Предыдущие пути будут удалены.
-	 * 
+	 *
      * @param string $type Тип.
 	 * @param string|array $path Путь или массив патей.
 	 */
@@ -164,7 +164,7 @@ class Loader
 
 	/**
 	 * Делает отметку о подключении файла.
-	 * 
+	 *
      * @param string $file Файл.
 	 * @param string $type Тип.
 	 * @param boolean $required [optional]
@@ -178,9 +178,9 @@ class Loader
 	}
 
 	/**
-	 * Попытка подключить указанный класс. В случае ошибки не возникает 
+	 * Попытка подключить указанный класс. В случае ошибки не возникает
      * исключения.
-	 * 
+	 *
      * @param string $class Название класса.
 	 * @param string $type [optional]
 	 * @return boolean true в случае, если файл класса подключен или класс

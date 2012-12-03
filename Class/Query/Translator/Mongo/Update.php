@@ -1,27 +1,30 @@
 <?php
 
 /**
- * @desc Транслятор запроса типа select для mongodb
- * @author morph, goorus
+ * Транслятор запроса типа select для mongodb
+ *
+ * @author morph, goorus, neon
  */
 class Query_Translator_Mongo_Update extends Query_Translator_Mongo_Select
 {
 	/**
-	 * @desc Рендеринг UPDATE запроса.
+	 * Рендеринг UPDATE запроса.
+	 *
 	 * @param Query $query Запрос.
 	 * @return array
 	 */
-	public function _renderUpdate (Query_Abstract $query)
+	public function _renderUpdate(Query_Abstract $query)
 	{
-		//print_r($query->part (Query::LIMIT_COUNT));die;
-		$table = $query->part (Query::UPDATE);
-		return array (
-			'collection'	=> strtolower (Model_Scheme::table ($table)),
-			'criteria'		=> $this->_getCriteria ($query),
-			'newobj'		=> $query->part (Query::VALUES),
-			'options'		=> array (
+		$locator = IcEngine::serviceLocator();
+		$modelScheme = $locator->getService('modelScheme');
+		$table = $query->part(Query::UPDATE);
+		return array(
+			'collection'	=> strtolower($modelScheme->table($table)),
+			'criteria'		=> $this->_getCriteria($query),
+			'newobj'		=> $query->part(Query::VALUES),
+			'options'		=> array(
 				'upsert'		=> true,
-				'multi'			=> $query->part (Query::LIMIT_COUNT) != 1
+				'multi'			=> $query->part(Query::LIMIT_COUNT) != 1
 			)
 		);
 	}
