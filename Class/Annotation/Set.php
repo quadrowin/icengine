@@ -10,7 +10,7 @@ class Annotation_Set
 	/**
 	 * Набор аннотаций класса
 	 *
-	 * @var Annotation_Row
+	 * @var array
 	 */
 	protected $classAnnotation;
 
@@ -53,6 +53,20 @@ class Annotation_Set
             ? $this->classAnnotation[$name] : null;
 	}
 
+    /**
+     * Получить данные аннотации 
+     * 
+     * @return array
+     */
+    public function getData()
+    {
+        return array(
+            'class'         => $this->classAnnotation,
+            'methods'       => $this->methodAnnotations,
+            'properties'    => $this->propertyAnnotations
+        );
+    }
+    
 	/**
 	 * Изменить аннотацию класса
 	 *

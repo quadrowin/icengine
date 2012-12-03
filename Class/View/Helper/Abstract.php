@@ -28,7 +28,9 @@ abstract class View_Helper_Abstract
 	 */
 	public function __construct ($view = null)
 	{
-	    $this->_view = $view ? $view : View_Render_Manager::getView ();
+        $serviceLocator = IcEngine::serviceLocator();
+        $viewRenderManager = $serviceLocator->getService('viewRenderManager');
+	    $this->_view = $view ? $view : $viewRenderManager->getView ();
 	}
 	
 	/**
@@ -40,7 +42,9 @@ abstract class View_Helper_Abstract
 	{
 		if (is_array ($this->_config))
 		{
-			$this->_config = Config_Manager::get (
+            $serviceLocator = IcEngine::serviceLocator();
+            $configManager = $serviceLocator->getService('configManager');
+			$this->_config = $configManager->get (
 				$class ? $class : get_class ($this),
 				$this->_config
 			);

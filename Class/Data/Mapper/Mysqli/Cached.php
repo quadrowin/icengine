@@ -101,7 +101,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 		if ($this->affectedRows > 0) {
 			$tags = $query->getTags();
 			for ($i = 0, $count = sizeof($tags); $i < $count; $i++) {
-				$this->cacher->tagDelete($tags [$i]);
+				$this->cacher->tagDelete($tags[$i]);
 			}
 		}
 		return true;
@@ -116,12 +116,10 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	protected function _executeSelect(Query_Abstract $query,
         Query_Options $options)
 	{
-		//print_r($options->getExpiration());
 		if (Tracer::$enabled) {
 			Tracer::incSelectQueryCount();
 		}
 		$key = $this->sqlHash($query);
-		//echo $query->translate() . '<br />'; echo $key . '<br />';
 		$expiration = $options->getExpiration();
         if (!isset(self::$caches[$key])) {
             $cache = $this->cacher->get($key);
@@ -183,9 +181,6 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
         );
         self::$caches[$key] = $cache;
 		$this->cacher->set($key, $cache);
-		if ($cache) {
-			$this->cacher->unlock($key);
-		}
 		return $rows;
 	}
 
