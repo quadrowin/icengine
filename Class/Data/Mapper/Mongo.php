@@ -30,7 +30,7 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 		'host'		=> 'localhost',
 		'username'	=> '',
 		'password'	=> '',
-		'database'	=> 'unknown',
+		'database'	=> 'ab',
 		'charset'	=> 'utf8',
 		'options'	=> array()
 	);
@@ -313,8 +313,10 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 			}
 			return;
 		}
+		$locator = IcEngine::serviceLocator();
+		$cryptManager = $locator->getService('cryptManager');
 		if (isset($this->connectionOptions[$key])) {
-			$this->connectionOptions[$key] = Crypt_Manager::autoDecode($value);
+			$this->connectionOptions[$key] = $cryptManager->autoDecode($value);
 			return;
 		}
 		return parent::setOption($key, $value);
