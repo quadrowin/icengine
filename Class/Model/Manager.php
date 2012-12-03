@@ -210,6 +210,7 @@ class Model_Manager extends Manager_Abstract
         $newModel->set($keyField, $key);
         if (!$key) {
             $this->read($newModel);
+            $resourceKey = $modelName . '__' . $newModel->key();
         }
         $resourceManager->set('Model', $resourceKey, $newModel);
 		return $newModel;
