@@ -208,7 +208,7 @@ class Model_Manager extends Manager_Abstract
         }
         $keyField = $newModel->keyField();
         $newModel->set($keyField, $key);
-        if ($key) {
+        if (!$key) {
             $this->read($newModel);
         }
         $resourceManager->set('Model', $resourceKey, $newModel);
