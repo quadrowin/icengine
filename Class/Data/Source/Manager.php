@@ -1,16 +1,16 @@
 <?php
 
 /**
- * Менеджер источников данных. По переданному названию загружает конфиг из 
+ * Менеджер источников данных. По переданному названию загружает конфиг из
  * директории "{$config}/Data/Source/" и создает соответсвующего провайдера.
- * 
+ *
  * @author goorus, morph
  */
 class Data_Source_Manager extends Manager_Abstract
 {
 	/**
 	 * Загруженные источники.
-	 * 
+	 *
      * @var array <Data_Source_Abstract>
 	 */
 	protected $sources = array();
@@ -45,10 +45,10 @@ class Data_Source_Manager extends Manager_Abstract
 			)
 		)
 	);
-    
+
 	/**
 	 * Получение данных провайдера.
-	 * 
+	 *
      * @param string $name
 	 * @return Data_Source_Abstract
 	 */
@@ -56,7 +56,7 @@ class Data_Source_Manager extends Manager_Abstract
 	{
 		$config = $this->config();
 		if ($config['source_domain_alias'] == $name) {
-			$name = isset ($_SERVER['HTTP_HOST']) 
+			$name = isset ($_SERVER['HTTP_HOST'])
                 ? $_SERVER['HTTP_HOST'] : $config['empty_domain_source'];
 		}
         if (isset($this->sources[$name])) {
@@ -86,10 +86,10 @@ class Data_Source_Manager extends Manager_Abstract
         $this->sources[$name] = $source;
         return $source;
 	}
-    
+
     /**
      * Получить имя источника данных по шаблону
-     * 
+     *
      * @param string $pattern
      * @return Data_Source_Abstract
      */
@@ -103,10 +103,10 @@ class Data_Source_Manager extends Manager_Abstract
             }
         }
     }
-    
+
     /**
      * Изменить источник данных по имени
-     * 
+     *
      * @param string $name
      * @param Data_Sourec_Abstract $dataSource
      */
@@ -114,13 +114,13 @@ class Data_Source_Manager extends Manager_Abstract
     {
         $this->sources[$name] = $dataSource;
     }
-    
+
     /**
      * Инициализация дата маппера
-     * 
+     *
      * @param Data_Source_Abstract $dataSource
      */
-    public function setDataMapper($source) 
+    public function setDataMapper($source)
     {
         $sourceConfig = $source->getConfig();
         $mapper = $source->getDataMapper();
