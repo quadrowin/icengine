@@ -251,6 +251,10 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
      */
     protected function isTagsValid($tags)
     {
+		$validTags = $this->cacher->checkTags($tags);
+		if (!$validTags) {
+			return false;
+		}
         $isValid = true;
         foreach ($tags as $tag) {
             if (empty(self::$tagsValid[$tag])) {
@@ -261,7 +265,6 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
         if ($isValid) {
             return true;
         }
-        $validTags = $this->cacher->checkTags($tags);
         if ($validTags) {
             foreach ($tags as $tag) {
                 self::$tagsValid[$tag] = true;
