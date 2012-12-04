@@ -26,100 +26,76 @@ class Query_Translator_KeyValue_Select extends Query_Translator_Abstract
 	public $valuesDelim = ':';
 
 	/**
-	 * @desc Возвращает массив масок ключей
+	 * Возвращает массив масок ключей
+	 *
 	 * @param string $table Таблица (модель).
 	 * @param array $where Часть запроса Query::WHERE
 	 * @return array Массив масок
 	 */
-	protected function _compileKeyMask ($table, array $where)
+	protected function _compileKeyMask($table, array $where)
 	{
         $serviceLocator = IcEngine::serviceLocator();
         $modelScheme = $serviceLocator->getService('modelScheme');
 		$key_field = $modelScheme->keyField ($table);
 		$indexes = $modelScheme->indexes ($table);
-
 		// Покрытие индексом запроса
 		// Изначально строка "11111", по мере использования,
 		// 1 заменяются на 0. Если индекс покрывает запрос, в конце
 		// значение будет равно "000000" == 0
-		$index_use = array ();
-
+		$index_use = array();
 		// Значения для полей индекса
-		$index_values = array ();
-
-		$keys = array_keys ($indexes);
-
+		$index_values = array();
+		$keys = array_keys($indexes);
 		// Отсекаем индексы, которые заведомо не покрывают запрос (короткие)
 		// и инициализируем массивы
-		foreach ($indexes as $i => $index)
-		{
-			if (count ($index) < count ($where))
-			{
-				unset ($indexes [$i]);
-			}
-			else
-			{
-				$index_use [$i] = str_repeat ('1', count ($index));
-				$index_values [$i] = array ();
+		foreach ($indexes as $i => $index) {
+			if (count($index) < count($where)) {
+				unset($indexes[$i]);
+			} else {
+				$index_use[$i] = str_repeat('1', count($index));
+				$index_values[$i] = array();
 			}
 		}
-
+		//print_r($where);die;
 		// Запоминаем значения для полей индекса
-		foreach ($where as $wi => &$wvalue)
-		{
-			$cond = $wvalue [Query::WHERE];
-			if (!is_scalar ($wvalue [Query::VALUE]))
-			{
-				throw new Exception ('Condition unsupported.');
+		foreach ($where as $wi => &$wvalue){
+			$cond = $wvalue[Query::WHERE];
+			if (!is_scalar($wvalue[Query::VALUE])) {
+				throw new Exception('Condition unsupported.');
 			}
-
-			if (!is_array ($cond))
-			{
+			if (!is_array($cond)) {
 				// Получаем таблицу и колонку
-				$cond = explode ('.', $cond, 2);
+				$cond = explode('.', $cond, 2);
 			}
-
-			if (empty ($cond))
-			{
-				throw new Exception ('Condition field unsupported.');
+			if (empty($cond)) {
+				throw new Exception('Condition field unsupported.');
 			}
-
-			$cond = trim (end ($cond), '`?= ');
-			$is_like = (strtoupper (substr ($cond, -4, 4)) == 'LIKE');
-			$where_value = urlencode ($wvalue [Query::VALUE]);
-
-			if (!$is_like && $cond == $key_field)
-			{
-				return array (
+			$cond = trim(end($cond), '`?= ');
+			$is_like = (strtoupper(substr($cond, -4, 4)) == 'LIKE');
+			$where_value = urlencode($wvalue[Query::VALUE]);
+			if (!$is_like && $cond == $key_field) {
+				return array(
 					$table . $this->tableIndexDelim .
 					'k' . $this->indexKeyDelim .
 					$where_value
 				);
 			}
-
-			foreach ($indexes as $ii => &$icolumns)
-			{
-				foreach ($icolumns as $ici => &$icolumn)
-				{
-					if ($cond == $icolumn)
-					{
-						$index_use [$ii][$ici] = 0;
-
-						if ($is_like)
-						{
-							$index_values [$ii][$ici] = str_replace (
+			foreach ($indexes as $ii => &$icolumns) {
+				foreach ($icolumns as $ici => &$icolumn) {
+					if ($cond == $icolumn) {
+						$index_use[$ii][$ici] = 0;
+						if ($is_like) {
+							$index_values[$ii][$ici] = str_replace(
 								'%25', '*', $where_value
 							);
-						}
-						else
-						{
-							$index_values [$ii][$ici] = $where_value;
+						} else {
+							$index_values[$ii][$ici] = $where_value;
 						}
 					}
 				}
-				unset ($icolumn);
+				unset($icolumn);
 			}
-			unset ($icolumns);
+			unset($icolumns);
 		}
 
 		// Выбираем наиболее покрывающий индекс.
