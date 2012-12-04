@@ -275,8 +275,6 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	 */
 	public function set($key, $value, $expiration = 3600, $tags = array())
 	{
-		//var_dump($key);die;
-		//echo $key . ' ' . print_r($value, true) . '<br /><br />';
 		if ($expiration < 0) {
 			$expiration = 0;
 		}
