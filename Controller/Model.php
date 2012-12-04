@@ -5,7 +5,7 @@ class Controller_Model extends Controller_Abstract
 	/**
 	 * Сравнение схем моделей и таблиц
 	 */
-	public function compare($author, $filename)
+	public function compare($author, $filename, $modelName)
 	{
 		$this->_task->setTemplate(null);
 		$dir = IcEngine::root() . 'Ice/Config/Model/Mapper/';
@@ -21,8 +21,9 @@ class Controller_Model extends Controller_Abstract
 		if (!$files) {
 			return;
 		}
-		$models = array();
-		foreach ($files as $file) {
+        $models = array();
+        if (!$modelName) {
+            foreach ($files as $file) {
 			if (!is_file($file)) {
 				continue;
 			}
@@ -38,6 +39,9 @@ class Controller_Model extends Controller_Abstract
 			}
 			$models[] = $className;
 		}
+        } else {
+            $models  = array($modelName);
+        }
 		foreach ($models as $model) {
 			$fields = Helper_Data_Source::fields($model);
 			$table = Model_Scheme::table($model);
