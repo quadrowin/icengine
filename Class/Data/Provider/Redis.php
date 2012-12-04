@@ -2,25 +2,25 @@
 
 /**
  * Провайдер данных Redis
- * 
+ *
  * @author goorus, morph
  */
 class Data_Provider_Redis extends Data_Provider_Abstract
 {
 	/**
 	 * Подключение к редису
-	 * 
+	 *
      * @var Redis
 	 */
 	protected $connections = array();
 
     /**
      * Уже полученные ключи
-     * 
+     *
      * @var array
      */
     public static $keys = array();
-    
+
 	/**
 	 * @inheritdoc
 	 */
@@ -41,7 +41,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
                     $redis = new Redis();
                     $this->connections[$server['host']] = $redis;
                     $redis->connect(
-                        $server['host'], 
+                        $server['host'],
                         isset($server['port']) ? $server['post'] : null
                     );
 				}
@@ -49,7 +49,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 		}
 		return parent::_setOption($key, $value);
 	}
-    
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::decrement()
@@ -67,6 +67,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	 */
 	public function delete($keys, $time = 0, $set_deleted = false)
 	{
+		//print_r($keys);die;
 		if (!is_array($keys)) {
 			if (isset($this->locks[$keys])) {
 				unset($this->locks[$keys]);
@@ -96,10 +97,10 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	{
         $this->delete($this->keys($pattern));
 	}
-    
+
     /**
      * Отфильтровать ключу для конкретного соединения
-     * 
+     *
      * @param array $keys
      * @param integer $index
      * return array
@@ -119,7 +120,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
         }
         return $result;
     }
-    
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::get()
@@ -146,7 +147,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 
 	/**
 	 * Получить соединение (сокет)
-	 * 
+	 *
      * @param string $key
      * @return resource
 	 */
@@ -191,7 +192,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
         }
         $sortedItems = array();
         foreach ($keys as $key) {
-            $sortedItems[$key] = isset($result[$key]) 
+            $sortedItems[$key] = isset($result[$key])
                 ? $this->valueDecode($result[$key]) : null;
         }
         if ($numeric_index) {
@@ -199,7 +200,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
         }
         return $sortedItems;
 	}
-    
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::increment()
@@ -213,7 +214,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 
 	/**
 	 * Кодирование ключа для корректного сохранения в редисе.
-	 * 
+	 *
      * @param string $key
 	 * @return string
 	 */
@@ -224,7 +225,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 
 	/**
 	 * Декодирование ключа.
-	 * 
+	 *
      * @param string $key
 	 * @return string
 	 */
@@ -272,7 +273,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::set()
 	 */
-	public function set($key, $value, $expiration = 0, $tags = array())
+	public function set($key, $value, $expiration = 3600, $tags = array())
 	{
 		if ($expiration < 0) {
 			$expiration = 0;
@@ -315,10 +316,10 @@ class Data_Provider_Redis extends Data_Provider_Abstract
             $connection->unsubscribe($channel);
         }
 	}
-    
+
     /**
      * Расшифровывает значение
-     * 
+     *
      * @param string $value
      * @return mixed
      */
@@ -326,14 +327,14 @@ class Data_Provider_Redis extends Data_Provider_Abstract
     {
         return json_decode(urldecode($value), true);
     }
-    
+
     /**
      * Кодирует значение
-     * 
+     *
      * @param mixed $value
      * @return mixed
      */
-    protected function valueEncode($value) 
+    protected function valueEncode($value)
     {
         return urlencode(json_encode($value));
     }

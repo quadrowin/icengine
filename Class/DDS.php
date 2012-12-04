@@ -31,12 +31,16 @@ class DDS
         $dataSource = $this->source;
         if ($auto) {
             $fromParts = $query->getPart(Query::FROM);
-			if (!$fromParts) {
-				$fromParts = $query->getPart(Query::TRUNCATE_TABLE);
-				$from = reset($fromParts);
-			} else {
+			$fromPartTruncate = $query->getPart(Query::TRUNCATE_TABLE);
+			$fromPartUpdate = $query->getPart(Query::UPDATE);
+			if ($fromParts){
 				$fromPart = reset($fromParts);
 				$from = $fromPart[Query::TABLE];
+			}
+			if ($fromPartTruncate) {
+				$from = reset($fromPartTruncate);
+			} else {
+				$from = $fromPartUpdate;
 			}
             $scheme = IcEngine::serviceLocator()->getService('modelScheme');
             $dataSource = $scheme->dataSource($from);
