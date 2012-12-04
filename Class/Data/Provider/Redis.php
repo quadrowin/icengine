@@ -67,7 +67,6 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	 */
 	public function delete($keys, $time = 0, $set_deleted = false)
 	{
-		//print_r($keys);die;
 		if (!is_array($keys)) {
 			if (isset($this->locks[$keys])) {
 				unset($this->locks[$keys]);
@@ -231,7 +230,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	 */
 	public function keyDecode($key)
 	{
-		return substr(urldecode ($key), strlen($this->prefix));
+		return substr(urldecode($key), strlen($this->prefix));
 	}
 
 	/**
@@ -245,7 +244,9 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 		}
         $keys = array();
         foreach ($this->connections as $connection) {
-            $connectionKeys = $connection->keys($pattern . '*');
+            $connectionKeys = $connection->keys(
+				$this->keyEncode($pattern) . '*'
+			);
             if (!$connectionKeys) {
                 continue;
             }
@@ -256,7 +257,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 			Tracer::incRedisKeyCount();
 			Tracer::incRedisKeyTime($endTime - $startTime);
 		}
-        return array_map(array($this, 'keyEncode'), $keys);
+        return array_map(array($this, 'keyDecode'), $keys);
 	}
 
 	/**
