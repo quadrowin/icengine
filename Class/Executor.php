@@ -4,21 +4,21 @@
  * Исполнитель всякого. Необходим для того, чтобы исполнять всякое. (с) morph
  * Предназначени для запуска функций/методов и кэширования результатов
  * их работы.
- * 
+ *
  * @author goorus, morph
  */
 class Executor extends Manager_Abstract
 {
 	/**
 	 * Разделитель частей при формировании ключа для кэширования
-     * 
+     *
 	 * @var string
 	 */
 	const DELIM = '/';
 
 	/**
 	 * Кэшер
-     * 
+     *
 	 * @var Data_Provider_Abstract
 	 */
 	protected $cacher;
@@ -55,7 +55,7 @@ class Executor extends Manager_Abstract
 
     /**
 	 * Возвращает ключ для кэширования
-	 * 
+	 *
      * @param function $function Кэшируемая функция.
 	 * @param array $args Аргкументы функции.
 	 * @return string Ключ кэша.
@@ -68,10 +68,10 @@ class Executor extends Manager_Abstract
 		}
 		return $key;
 	}
-    
+
 	/**
 	 * Возвращает название функции
-     * 
+     *
 	 * @param string $function Функция
 	 * @return string
 	 */
@@ -83,13 +83,13 @@ class Executor extends Manager_Abstract
                 $first = get_class($first);
             }
 			return $first . self::DELIM . $function[1];
-		} 
+		}
         return $function;
 	}
-    
+
     /**
 	 * Выполняет переданную функцию.
-	 * 
+	 *
      * @param function $function Функция.
 	 * @param array $args Аргументы функции.
 	 * @param Objective $options [optional] Опции кэширования.
@@ -111,7 +111,7 @@ class Executor extends Manager_Abstract
 
 	/**
 	 * Выполнение функции подлежащей кэшированию.
-	 * 
+	 *
      * @param function $function Функция.
 	 * @param array $args Аргументы функции.
 	 * @param Objective $options Опции кэширования.
@@ -133,7 +133,7 @@ class Executor extends Manager_Abstract
             $expiresValid = $this->isNotExpires($cache, $options);
         }
 		$inputValid = $this->isInputValid($options);
-        $functionName = is_object($function[0]) 
+        $functionName = is_object($function[0])
             ? get_class($function[0]) : $function[0];
 		if ($cache && !$options->forceRecache && $inputValid) {
             if ($tagValid && $expiresValid) {
@@ -176,7 +176,7 @@ class Executor extends Manager_Abstract
 
 	/**
 	 * Выполнение функции без кэширования.
-	 * 
+	 *
      * @param function $function Функция.
 	 * @param array $args Аргументы функции.
 	 * @return mixed Результат выполнения функции.
@@ -188,7 +188,7 @@ class Executor extends Manager_Abstract
 
 	/**
 	 * Возвращает текущий кэшер.
-	 * 
+	 *
      * @return Data_Provider_Abstract|null
 	 */
 	public function getCacher()
@@ -201,13 +201,13 @@ class Executor extends Manager_Abstract
             $this->cacher = $this->getService('dataProviderManager')->get(
                 $config->cache_provider
             );
-        } 
+        }
 		return $this->cacher;
 	}
 
     /**
      * Проверяет валидны ли данные входного транспорта
-     * 
+     *
      * @param Objective $options
      * @return boolean
      */
@@ -217,7 +217,8 @@ class Executor extends Manager_Abstract
 		if (!$options->inputArgs) {
             return $inputValid;
         }
-        $input = Data_Transport_Manager::get('default_input');
+		$dataTransportManager = $this->getService('dataTransportManager');
+        $input = $dataTransportManager->get('default_input');
         foreach ($options->inputArgs as $arg) {
             if (!is_null($input->receive($arg))) {
                 $inputValid = false;
@@ -226,10 +227,10 @@ class Executor extends Manager_Abstract
         }
         return $inputValid;
     }
-    
+
     /**
      * Не вышел ли срок валидности кэша
-     * 
+     *
      * @param array $cache
      * @param Objective $options
      * @return boolean
@@ -239,10 +240,10 @@ class Executor extends Manager_Abstract
         $expiration = (int) $options->expiration;
         return ($cache['a'] + $expiration > time()) || $expiration == 0;
     }
-    
+
     /**
      * Проверяет валидны ли текущие тэги кэша
-     * 
+     *
      * @param array $cache
      * @param Objective $options
      * @return boolean
@@ -260,10 +261,10 @@ class Executor extends Manager_Abstract
         }
         return $tagValid;
     }
-    
+
     /**
      * Логирует вызов функции
-     * 
+     *
      * @param array $function
      * @param string $delta
      * @param array $args
@@ -285,14 +286,14 @@ class Executor extends Manager_Abstract
             'last'		=> time()
         ));
     }
-    
+
 	/**
 	 * Устаналвивает кэшер
-     * 
+     *
 	 * @param Data_Provider_Abstract $cacher
 	 */
 	public function setCacher($cacher)
 	{
 		$this->cacher = $cacher;
-	} 
+	}
 }
