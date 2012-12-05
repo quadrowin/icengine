@@ -25,7 +25,6 @@ class ControllerManagerDelegeeRole extends ControllerManagerDelegeeAbstract
         $user = $args['context']->user->getCurrent();
         $actionScheme = $scheme->getMethod($context->getAction());
         $request = $args['context']->request;
-        print_r($actionScheme);
         if (!empty($actionScheme['role'])) {
             if (!$user->hasRole($actionScheme['role'])) {
                 if ($request->isAjax() || $request->isPost()) {
