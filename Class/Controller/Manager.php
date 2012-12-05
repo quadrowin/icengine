@@ -51,7 +51,8 @@ class Controller_Manager extends Manager_Abstract
             'configManager'     => 'configManager',
             'controllerManager' => 'controllerManager',
             'userSession'       => 'session',
-            'user'              => 'user'
+            'user'              => 'user',
+            'request'           => 'request'
         ),
         
         /**
@@ -59,7 +60,8 @@ class Controller_Manager extends Manager_Abstract
          */
         'delegees'           => array(
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeParam',
-            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeContext'
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeContext',
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeRole'
         )
 	);
 
@@ -221,8 +223,10 @@ class Controller_Manager extends Manager_Abstract
             }
         } 
         $callable = array($controller, $actionName);
-        call_user_func_array($callable, $context->getArgs());
-		$task->setTransaction($output->endTransaction());
+        if (!$controller->getTask()->getIgnore()) {
+            call_user_func_array($callable, $context->getArgs());
+            $task->setTransaction($output->endTransaction());
+        }
 		$controller
 			->setInput($lastInput)
 			->setOutput($lastOutput)

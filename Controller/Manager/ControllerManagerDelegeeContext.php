@@ -18,13 +18,13 @@ class ControllerManagerDelegeeContext extends ControllerManagerDelegeeAbstract
         if (!$controller->hasInjections()) {
             return false;
         }
-        $reflection = new ReflectionClass($controller);
-        $controllerManager = $this->getControllerManager();
+        $reflection = new \ReflectionClass($controller);
+        $controllerManager = $context->getControllerManager();
         $controllerManager->annotationManager()->getSource()
             ->setReflection($reflection);
         $scheme = $controllerManager->annotationManager()
             ->getAnnotation($controller);
-        $params = $this->getArgs();
+        $params = $context->getArgs();
         $actionScheme = $scheme->getMethod($context->getAction());
         if (!empty($actionScheme['service'])) {
             $actionContext = $controllerManager->serviceInjector()->inject(
