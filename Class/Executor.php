@@ -154,7 +154,7 @@ class Executor extends Manager_Abstract
 		if (in_array($functionName, $forLog)) {
             $this->logFunction($function, $delta, $args);
 		}
-        if ($this->cacher) {
+        if ($this->cacher && $inputValid) {
             $cacheValue = array(
                 'v' => $value,
                 'a' => time()
@@ -217,7 +217,7 @@ class Executor extends Manager_Abstract
 		if (!$options->inputArgs) {
             return $inputValid;
         }
-        $input = Data_Transport_Manager::get('default_input');
+        $input = $this->getService('dataTransportManager')->get('default_input');
         foreach ($options->inputArgs as $arg) {
             if (!is_null($input->receive($arg))) {
                 $inputValid = false;

@@ -133,7 +133,7 @@ class Service_Source
         if (is_file($filename)) {
             self::$services = include_once($filename);
         } else {
-            self::$servies = array();
+            self::$servcies = array();
         }
     }
 

@@ -41,17 +41,16 @@ class Query_Insert extends Query_Abstract
 	/**
 	 * @see Query_Select::getTags()
 	 */
-	public function getTags ()
+	public function getTags()
 	{
-		$tags = array ();
-
-		$insert = $this->getPart (Query::INSERT);
-		if ($insert)
-		{
-	   		$tags [] = Model_Scheme::table ($insert);
+		$locator = IcEngine::serviceLocator();
+		$modelScheme = $locator->getService('modelScheme');
+		$tags = array();
+		$insert = $this->getPart(Query::INSERT);
+		if ($insert) {
+	   		$tags[] = $modelScheme->table($insert);
 		}
-
-		return array_unique ($tags);
+		return array_unique($tags);
 	}
 
 	/**

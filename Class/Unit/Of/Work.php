@@ -11,58 +11,60 @@ class Unit_Of_Work
 	 * Очередь запросов
 	 * @var array
 	 */
-	private static $queries = array();
+	private $queries = array();
 
 	/**
 	 * Необработанные запросы
 	 * @var array
 	 */
-	private static $raw = array();
+	private $raw = array();
 	/**
 	 * Количество запросов в очереди
 	 * @var int
 	 */
-	private static $rawCount = 0;
+	private $rawCount = 0;
 	/**
 	 * Количество запросов на автостарт
 	 * @var int
 	 */
-	private static $autoFlush = 0;
+	private $autoFlush = 0;
 
 	/**
 	 * Незагруженные модели, для селекта
 	 * @var array
 	 * @deprecated
 	 */
-	private static $rawModel = array();
+	private $rawModel = array();
 
 	/**
 	 * Загрузчик по умолчанию, для SELECT
 	 * @var type
 	 * @deprecated
 	 */
-	private static $loader = null;
+	private $loader = null;
 
 	/**
 	 * Максимальное число запросов в буфере
 	 *
 	 * @param type $value
 	 */
-	public static function setAutoFlush($value)
+	public function setAutoFlush($value)
 	{
-		self::$autoFlush = (int) $value;
+		$this->autoFlush = (int) $value;
 	}
 
 	/**
 	 * Обработка $raw данных и сборка запросов
 	 */
-	private static function build()
+	private function build()
 	{
-		foreach (self::$raw as $type=>$array) {
+		$locator = IcEngine::serviceLocator();
+		$unitOfWorkManager = $locator->getService('unitOfWorkManager');
+		foreach ($this->raw as $type=>$array) {
 			foreach ($array as $key=>$data) {
-				$uowQuery = Unit_Of_Work_Manager::byName($type);
+				$uowQuery = $unitOfWorkManager->byName($type);
 				$query = $uowQuery->build($key, $data);
-				self::pushQuery($query, $key);
+				$this->pushQuery($query, $key);
 			}
 		}
 	}
@@ -72,24 +74,23 @@ class Unit_Of_Work
 	 *
 	 * @param string $key
 	 */
-	private static function buildOne($key)
+	private function buildOne($key)
 	{
-		$uowQuery = Unit_Of_Work_Manager::byName(QUERY::SELECT);
-		$query = $uowQuery->build($key, self::getRaw(QUERY::SELECT, $key));
-		self::pushQuery($query, $key);
+		$uowQuery = $this->byName(QUERY::SELECT);
+		$query = $uowQuery->build($key, $this->getRaw(QUERY::SELECT, $key));
+		$this->pushQuery($query, $key);
 	}
 
 	/**
 	 * Освободить очередь
 	 */
-	public static function flush()
+	public function flush()
 	{
-		//echo 'flush' . "\n";
-		self::build();
-		foreach (self::$queries as $key=>$query) {
-			self::_execute($key, $query);
+		$this->build();
+		foreach ($this->queries as $key=>$query) {
+			$this->_execute($key, $query);
 		}
-		self::reset();
+		$this->reset();
 	}
 
 	/**
@@ -98,20 +99,25 @@ class Unit_Of_Work
 	 * @param string $key
 	 * @return void
 	 */
-	private static function _execute($key)
+	private function _execute($key)
 	{
-		$query = self::$queries[$key];
+		$locator = IcEngine::serviceLocator();
+		$modelScheme = $locator->getService('modelScheme');
+		$unitOfWorkLoaderManager = $locator->getService(
+			'unitOfWorkLoaderManager'
+		);
+		$query = $this->queries[$key];
 		//echo $key . ' ' . $query['query']->translate() . '<br />';
-		$result = Model_Scheme::dataSource($query['modelName'])
+		$result = $modelScheme->dataSource($query['modelName'])
 			->execute($query['query']);
 		//print_r($result);die;
-		self::$rawCount--;
+		$this->rawCount--;
 		if (isset($query['loader'])) {
-			$loader = Unit_Of_Work_Loader_Manager::get($query['loader']);
+			$loader = $unitOfWorkLoaderManager->get($query['loader']);
 			$loader->load($key, $result);
 		}
-		unset(self::$raw[$key]);
-		unset(self::$queries[$key]);
+		unset($this->raw[$key]);
+		unset($this->queries[$key]);
 	}
 
 	/**
@@ -120,18 +126,18 @@ class Unit_Of_Work
 	 *
 	 * @return array
 	 */
-	public static function getRaw($type = null, $key = null)
+	public function getRaw($type = null, $key = null)
 	{
 		if ($type) {
 			if (isset($key)) {
-				return self::$raw[$type][$key];
+				return $this->raw[$type][$key];
 			}
-			if (!isset(self::$raw[$type])) {
-				self::$raw[$type] = array();
+			if (!isset($this->raw[$type])) {
+				$this->raw[$type] = array();
 			}
-			return self::$raw[$type];
+			return $this->raw[$type];
 		}
-		return self::$raw;
+		return $this->raw;
 	}
 
 	/**
@@ -139,14 +145,14 @@ class Unit_Of_Work
 	 *
 	 * @param Model $object
 	 */
-	public static function load($object)
+	public function load($object)
 	{
 		$uniqName = get_class($object) . '@' .
 			implode(':', array_keys($object->getFields()));
 		//echo $uniqName . '<br />';
-		self::buildOne($uniqName);
-		self::_execute($uniqName);
-		//self::reset();
+		$this->buildOne($uniqName);
+		$this->_execute($uniqName);
+		//$this->reset();
 	}
 
 	/**
@@ -156,14 +162,16 @@ class Unit_Of_Work
 	 * @param Model $object модель, для возврата данных SELECT
 	 * @param string|null $loaderName
 	 */
-	public static function push(Query_Abstract $query, $object = null, $loaderName = null)
+	public function push(Query_Abstract $query, $object = null, $loaderName = null)
 	{
-		$uowQuery = Unit_Of_Work_Manager::get($query);
+		$locator = IcEngine::serviceLocator();
+		$unitOfWorkManager = $locator->getService('unitOfWorkManager');
+		$uowQuery = $unitOfWorkManager->get($query);
 		$uowQuery->push($query, $object, $loaderName);
-		if (self::$autoFlush && self::$autoFlush == self::$rawCount) {
-			self::flush();
+		if ($this->autoFlush && $this->autoFlush == $this->rawCount) {
+			$this->flush();
 		}
-		self::$rawCount++;
+		$this->rawCount++;
 	}
 
 	/**
@@ -171,9 +179,9 @@ class Unit_Of_Work
 	 *
 	 * @param string $query
 	 */
-	public static function pushQuery($query, $key = null)
+	public function pushQuery($query, $key = null)
 	{
-		self::$queries[$key] = $query;
+		$this->queries[$key] = $query;
 	}
 
 	/**
@@ -183,31 +191,31 @@ class Unit_Of_Work
 	 * @param string $table таблица запроса
 	 * @param array $data данные запроса
 	 */
-	public static function pushRaw($type, $uniqName, $data, $loaderName = null)
+	public function pushRaw($type, $uniqName, $data, $loaderName = null)
 	{
-		if (!isset(self::$raw[$type])) {
-			self::$raw[$type] = array();
+		if (!isset($this->raw[$type])) {
+			$this->raw[$type] = array();
 		}
-		if (!isset(self::$raw[$type][$uniqName])) {
-			self::$raw[$type][$uniqName] = array();
+		if (!isset($this->raw[$type][$uniqName])) {
+			$this->raw[$type][$uniqName] = array();
 		}
 		if ($loaderName) {
-			if (!isset(self::$raw[$type][$uniqName])) {
-				self::$raw[$type][$uniqName][$loaderName] = array();
+			if (!isset($this->raw[$type][$uniqName])) {
+				$this->raw[$type][$uniqName][$loaderName] = array();
 			}
-			self::$raw[$type][$uniqName][$loaderName][] = $data;
+			$this->raw[$type][$uniqName][$loaderName][] = $data;
 		} else {
-			self::$raw[$type][$uniqName][] = $data;
+			$this->raw[$type][$uniqName][] = $data;
 		}
 	}
 
 	/**
 	 * Сброс
 	 */
-	private static function reset()
+	private function reset()
 	{
-		self::$queries = array();
-		self::$raw = array();
-		self::$rawCount = 0;
+		$this->queries = array();
+		$this->raw = array();
+		$this->rawCount = 0;
 	}
 }

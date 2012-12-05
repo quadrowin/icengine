@@ -94,12 +94,10 @@ class Query_Translator_Mongo_Select extends Query_Translator_Abstract
 			}
 		}
 
-		if (array_key_exists (Query::VALUE, $where))
-		{
+		if (array_key_exists (Query::VALUE, $where)) {
 			$v = $where [Query::VALUE];
-			$keys = is_array($v) ? array_keys($v) : array(null);
-			if (is_array ($v) && ($keys[0] != '$id' || count($v) > 1))
-			{
+			$keys = is_array($v) ? array_keys($v) : array('$id');
+			if (is_array($v) || $keys[0] != '$id') {
 				$criteria [$w]['$in'] = $v;
 				return ;
 			}
@@ -107,7 +105,7 @@ class Query_Translator_Mongo_Select extends Query_Translator_Abstract
         if (is_scalar($v)) {
             $v = (string) $v;
         }
-		$criteria [$w] = $v;
+		$criteria[$w] = $v;
 	}
 
 	/**

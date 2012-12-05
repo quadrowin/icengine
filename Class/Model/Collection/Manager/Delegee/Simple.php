@@ -24,7 +24,7 @@ class Model_Collection_Manager_Delegee_Simple
         $dataSource = $modelScheme->dataSource($modelName);
         $queryResult = $dataSource->execute($query)->getResult();
 		$collection->queryResult($queryResult);
-		// Если установлен флаг CALC_FOUND_ROWS,
+		// Если установлен флагp CALC_FOUND_ROWS,
 		// то назначаем ему значение
 		if ($query->getPart(Query::CALC_FOUND_ROWS)) {
 			$collection->data('foundRows', $queryResult->foundRows());

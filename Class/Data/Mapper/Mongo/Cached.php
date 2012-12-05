@@ -2,21 +2,21 @@
 
 /**
  * Мэппер для работы с Mongodb, с кэшированием запросов
- * 
+ *
  * @author goorus, morph
  */
 class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 {
 	/**
 	 * Кэшер запросов
-     * 
+     *
 	 * @var Data_Provider_Abstract
 	 */
 	protected $cacher;
 
 	/**
 	 * Получение хэша запроса
-     * 
+     *
 	 * @return string
 	 */
 	protected function queryHash()
@@ -71,9 +71,6 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
                     $useCache = true;
                 }
             }
-			if (!$this->cacher->lock($key, 5, 1, 1)) {
-				$useCache = true;
-			}
 		}
 		if ($useCache) {
 			$this->foundRows = $cache['f'];
@@ -95,11 +92,8 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 				'f'	=> $this->foundRows
 			)
 		);
-		if ($cache) {
-			$this->cacher->unlock($key);
-		}
 	}
-    
+
     /**
      * @inheritdoc
      */
@@ -123,7 +117,7 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 			$this->cacher->tagDelete($tags[$i]);
 		}
 	}
-    
+
     /**
      * @inheritdoc
      */
@@ -162,7 +156,7 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 
 	/**
      * Получить кэшер запросов
-     * 
+     *
 	 * @return Data_Provider_Abstract
 	 */
 	public function getCacher()
@@ -172,7 +166,7 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 
 	/**
 	 * Изменить кэшер запросов
-     * 
+     *
 	 * @param Data_Provider_Abstract $cacher
 	 */
 	public function setCacher(Data_Provider_Abstract $cacher)
@@ -197,6 +191,6 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 				$this->getDefaultOptions()->setExpiration($value);
 				return;
 		}
-		return parent::setOption($key, $value); 
+		return parent::setOption($key, $value);
 	}
 }

@@ -1,22 +1,20 @@
 <?php
 /**
- * 
- * @desc Фильтр для кодирования Json
- * @author Юрий
- * @package IcEngine
+ * Фильтр для кодирования Json
  *
+ * @author Юрий, neon
+ * @package IcEngine
  */
 class Filter_Json_Encode
 {
-	
 	/**
-	 * @desc Кодирование Json
+	 * Кодирование Json
+	 *
 	 * @param mixed $data
 	 * @return string
 	 */
-	public function filter ($data)
+	public function filter($data)
 	{
-		return json_encode ($data);
+		return json_encode($data);
 	}
-	
 }

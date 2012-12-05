@@ -2,35 +2,35 @@
 
 /**
  * Мэппер для работы с mysql, с кэшированием запросов.
- * 
+ *
  * @author goorus, morph
  */
 class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 {
 	/**
 	 * Кэшер запросов.
-	 * 
+	 *
      * @var Data_Provider_Abstract
 	 */
 	protected $cacher;
-    
+
     /**
      * Кэши, уже полученные из провайдера
-     * 
+     *
      * @var array
      */
     protected static $caches = array();
-    
+
     /**
      * Валидны ли тэги
-     * 
+     *
      * @var array
      */
     protected static $tagsValid = array();
 
 	/**
 	 * Получение хэша запроса
-	 * 
+	 *
      * @return string
 	 */
 	protected function sqlHash($query)
@@ -41,7 +41,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	/**
 	 * @inheritdoc
 	 */
-	protected function _executeChange(Query_Abstract $query, 
+	protected function _executeChange(Query_Abstract $query,
         Query_Options $options)
 	{
 		if (!$this->linkIdentifier) {
@@ -78,7 +78,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	/**
 	 * @inheritdoc
 	 */
-	protected function _executeInsert (Query_Abstract $query, 
+	protected function _executeInsert(Query_Abstract $query,
         Query_Options $options)
 	{
 		if (!$this->linkIdentifier) {
@@ -101,7 +101,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 		if ($this->affectedRows > 0) {
 			$tags = $query->getTags();
 			for ($i = 0, $count = sizeof($tags); $i < $count; $i++) {
-				$this->cacher->tagDelete($tags [$i]);
+				$this->cacher->tagDelete($tags[$i]);
 			}
 		}
 		return true;
@@ -113,7 +113,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	 * @param Query_Options $options
 	 * @return null|array
 	 */
-	protected function _executeSelect(Query_Abstract $query, 
+	protected function _executeSelect(Query_Abstract $query,
         Query_Options $options)
 	{
 		if (Tracer::$enabled) {
@@ -128,8 +128,8 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
         }
 		$cacheValid = false;
 		if ($cache) {
-            $tagsValid = $this->isTagsValid($cache['t']); 
-            $expiresValid = $cache['a'] + $expiration > time() || 
+            $tagsValid = $this->isTagsValid($cache['t']);
+            $expiresValid = $cache['a'] + $expiration > time() ||
                 $expiration = 0;
 			$cacheValid = $expiresValid && $tagsValid;
 		}
@@ -181,9 +181,6 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
         );
         self::$caches[$key] = $cache;
 		$this->cacher->set($key, $cache);
-		if ($cache) {
-			$this->cacher->unlock($key);
-		}
 		return $rows;
 	}
 
@@ -191,7 +188,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	 * (non-PHPdoc)
 	 * @see Data_Mapper_Abstract::execute()
 	 */
-	public function execute(Data_Source_Abstract $source, Query_Abstract $query, 
+	public function execute(Data_Source_Abstract $source, Query_Abstract $query,
         $options = null)
 	{
 		if (!($query instanceof Query_Abstract)) {
@@ -238,7 +235,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 
 	/**
      * Получить текущего кэшера
-     * 
+     *
 	 * @return Data_Provider_Abstract
 	 */
 	public function getCacher()
@@ -248,12 +245,16 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 
     /**
      * Проверяет валидны ли тэги
-     * 
+     *
      * @param array $tags
      * @return boolean
      */
     protected function isTagsValid($tags)
     {
+		$validTags = $this->cacher->checkTags($tags);
+		if (!$validTags) {
+			return false;
+		}
         $isValid = true;
         foreach ($tags as $tag) {
             if (empty(self::$tagsValid[$tag])) {
@@ -264,7 +265,6 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
         if ($isValid) {
             return true;
         }
-        $validTags = $this->cacher->checkTags($tags);
         if ($validTags) {
             foreach ($tags as $tag) {
                 self::$tagsValid[$tag] = true;
@@ -272,10 +272,10 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
         }
         return $validTags;
     }
-    
+
 	/**
 	 * Изменить текущего кэшера
-     * 
+     *
 	 * @param Data_Provider_Abstract $cacher
 	 */
 	public function setCacher(Data_Provider_Abstract $cacher)
