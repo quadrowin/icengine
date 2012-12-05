@@ -12,7 +12,7 @@ class Unit_Of_Work_Loader_Manager
 	 *
 	 * @param string $name
 	 */
-	public static function get($name = 'Simple')
+	public function get($name = 'Simple')
 	{
 		$classPrevix = 'Unit_Of_Work_Loader_';
 		$className = $classPrevix . $name;
