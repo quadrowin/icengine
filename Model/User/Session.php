@@ -2,35 +2,35 @@
 
 /**
  * Сессия пользователя
- * 
+ *
  * @author goorus, morph
  */
 class User_Session extends Model
 {
     /**
      * Первый доступ
-     * 
+     *
      * @var boolean
      */
     protected $firstAttend;
-    
+
     /**
      * Сессия текущего пользователя.
-     * 
+     *
      * @var User_Session
      */
     protected $current;
 
 	/**
 	 * id пользователя по умолчаиню
-	 * 
+	 *
      * @var integer
 	 */
 	protected $defaultUserId = 0;
-    
+
 	/**
 	 * Получить сессию пользователя по phpSessionId
-     * 
+     *
 	 * @param string $sessionId
      * @param boolean $autocreate
 	 * @return User_Session
@@ -39,9 +39,9 @@ class User_Session extends Model
 	{
         $modelManager = $this->getService('modelManager');
 		$session = $modelManager->byKey('User_Session', $sessionId);
-        $date = $this->getService('date'); 
+        $date = $this->getService('date');
 		if (!$session && $autocreate) {
-    		$session = $modelManager->create('User_Session', array( 
+    		$session = $modelManager->create('User_Session', array(
     			'id'			=> $sessionId,
     			'User__id'		=> $this->defaultUserId,
     			'phpSessionId'	=> $sessionId,
@@ -58,7 +58,7 @@ class User_Session extends Model
 
 	/**
      * Получить текущую сессию пользователя
-     * 
+     *
 	 * @return User_Session
 	 */
 	public function getCurrent ()
@@ -77,7 +77,7 @@ class User_Session extends Model
 
 	/**
 	 * Возвращает ПК пользователя по умолчанию.
-	 * 
+	 *
      * @return integer
 	 */
 	public function getDefaultUserId ()
@@ -87,7 +87,7 @@ class User_Session extends Model
 
 	/**
 	 * Изменить текущую сессию пользователя
-     * 
+     *
 	 * @param User_Session $session
 	 */
 	public function setCurrent(User_Session $session)
@@ -97,7 +97,7 @@ class User_Session extends Model
 
 	/**
 	 * Устанавливает id пользователя по умолчанию
-	 * 
+	 *
      * @param integer $value ПК пользователя
 	 */
 	public function setDefaultUserId($id)
@@ -107,7 +107,7 @@ class User_Session extends Model
 
 	/**
      * Обновляет данные сессии
-     * 
+     *
 	 * @param integer $new_user_id [optional] Изменить пользователя.
 	 * @return User_Session
 	 */

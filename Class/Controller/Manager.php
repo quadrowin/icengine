@@ -33,6 +33,7 @@ class Controller_Manager extends Manager_Abstract
 		 * @var array
 		 */
 		'output_filters'	=> array(),
+        
 		/**
 		 * @desc Настройки кэширования для экшенов.
 		 * @var array
@@ -43,14 +44,24 @@ class Controller_Manager extends Manager_Abstract
          * Контекст по умолчанию
          */
         'context'           => array(
-            'queryBuilder'  => 'query',
-            'modelManager'  => 'modelManager',
+            'queryBuilder'      => 'query',
+            'modelManager'      => 'modelManager',
             'dds'               => 'dds',
             'collectionManager' => 'collectionManager',
             'configManager'     => 'configManager',
             'controllerManager' => 'controllerManager',
             'userSession'       => 'session',
-            'user'              => 'user'
+            'user'              => 'user',
+            'request'           => 'request'
+        ),
+        
+        /**
+         * Делигата менеджера контроллеров по умолчанию
+         */
+        'delegees'           => array(
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeParam',
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeContext',
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeRole'
         )
 	);
 
@@ -61,6 +72,13 @@ class Controller_Manager extends Manager_Abstract
 	 */
 	protected $currentTask;
 
+    /**
+     * Созданные делегита менеджера контроллеров
+     * 
+     * @var array
+     */
+    protected $deleeges = array();
+    
 	/**
 	 * Транспорт входных данных
      *
@@ -182,11 +200,12 @@ class Controller_Manager extends Manager_Abstract
             ->setOutput($output)
             ->setTask($task);
 		$output->beginTransaction();
-        $reflectionMethod = new ReflectionMethod($controller, $actionName);
-        $params = $this->sendToTransportFromActionArgs(
-            $controller, $reflectionMethod
-        );
-        $defaultContext = $this->config()->context;
+        $config = $this->config();
+        $defaultContext = $config->context;
+        $context = new IcEngine\Controller\ControllerContext();
+        $context->setController($controller);
+        $context->setAction($actionName);
+        $context->setControllerManager($this);
         if ($defaultContext) {
             $services = array();
             foreach ($defaultContext->__toArray() as $argName => $serviceName) {
@@ -195,23 +214,19 @@ class Controller_Manager extends Manager_Abstract
                 );
             }
             $params['context'] = new Objective($services);
+            $context->setArgs($params);
         }
-        if ($controller->hasInjections()) {
-            $reflection = new ReflectionClass($controller);
-            $this->annotationManager()->getSource()->setReflection($reflection);
-            $scheme = $this->annotationManager()->getAnnotation($controller);
-            $actionScheme = $scheme->getMethod($actionName);
-            if (!empty($actionScheme['service'])) {
-                $actionContext = $this->serviceInjector()->inject(
-                    null, $actionScheme['service']
-                );
-                $params['context'] = isset($params['context'])
-                    ? $params['context']->merge($actionContext)
-                    : $actionContext;
+        $delegees = $config->delegees;
+        if ($delegees) {
+            foreach ($delegees as $delegeeName) {
+                $this->delegee($delegeeName)->call($controller, $context);
             }
+        } 
+        $callable = array($controller, $actionName);
+        if (!$controller->getTask()->getIgnore()) {
+            call_user_func_array($callable, $context->getArgs());
+            $task->setTransaction($output->endTransaction());
         }
-        call_user_func_array(array($controller, $actionName), (array) $params);
-		$task->setTransaction($output->endTransaction());
 		$controller
 			->setInput($lastInput)
 			->setOutput($lastOutput)
@@ -315,6 +330,21 @@ class Controller_Manager extends Manager_Abstract
         $transport = new Data_Transport();
         $transport->beginTransaction()->send($input);
         return $transport;
+    }
+    
+    /**
+     * Получить делегата менеджера контроллеров по имени
+     * 
+     * @param string $delegeeName
+     * @return IcEngine\Controller\ControllerManagerDelegeeAbstract
+     */
+    public function delegee($delegeeName)
+    {
+        if (!isset($this->delegees[$delegeeName])) {
+            $delegee = new $delegeeName;
+            $this->delegees[$delegeeName] = $delegee;
+        }
+        return $this->delegees[$delegeeName];
     }
 
 	/**
@@ -639,39 +669,6 @@ class Controller_Manager extends Manager_Abstract
 		$this->tasksResults = array_pop($this->tasksResultsBuffer);
 		return $result;
 	}
-
-    /**
-     * Отправить в входной транспорт аргументы, полученные рефлексией
-     * из заголовка метода
-     *
-     * @param Controller_Abstract $controller
-     * @param ReflectionMethod $reflection
-     * @return array
-     */
-    public function sendToTransportFromActionArgs($controller, $reflection)
-    {
-		$params = $reflection->getParameters();
-        $currentInput = $controller->getInput();
-        $provider = $currentInput->getProvider(0);
-        $resultParams = array();
-        if (!$params) {
-            return array();
-        }
-        foreach ($params as $param) {
-            if ($param->name == 'context') {
-                $controller->setHasInjections(true);
-            }
-            $value = $currentInput->receive($param->name);
-            if (!$value && $param->isOptional()) {
-                $value = $param->getDefaultValue();
-            }
-            if ($provider) {
-                $provider->set($param->name, $value);
-            }
-            $resultParams[$param->name] = $value;
-        }
-        return $resultParams;
-    }
 
     /**
      * Получить инжектор сервисов

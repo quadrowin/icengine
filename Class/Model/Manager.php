@@ -185,9 +185,6 @@ class Model_Manager extends Manager_Abstract
         $resourceKey = $modelName . '__' . $key;
         $model = $resourceManager->get('Model', $resourceKey);
         if ($model instanceof Model) {
-            if (is_array($source)) {
-                $model->set($source);
-            }
             return $model;
         }
         $config = $this->config();

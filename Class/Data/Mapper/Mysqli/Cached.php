@@ -127,18 +127,11 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
             $cache = self::$caches[$key];
         }
 		$cacheValid = false;
-		$tmp = array_keys($cache['t']);
-		$modelName = reset($tmp);
-		$is = $modelName == 'ice_cart_item';
 		if ($cache) {
             $tagsValid = $this->isTagsValid($cache['t']);
             $expiresValid = $cache['a'] + $expiration > time() ||
                 $expiration = 0;
 			$cacheValid = $expiresValid && $tagsValid;
-		}
-		if ($modelName == 'ice_cart_item') {
-			$time = time();
-			echo '<h1>' . ($time - $cache['t'][$modelName]) . '</h1>';
 		}
 		if ($cacheValid) {
             if (!isset(self::$caches[$key])) {
@@ -258,6 +251,10 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
      */
     protected function isTagsValid($tags)
     {
+		$validTags = $this->cacher->checkTags($tags);
+		if (!$validTags) {
+			return false;
+		}
         $isValid = true;
         foreach ($tags as $tag) {
             if (empty(self::$tagsValid[$tag])) {
@@ -265,14 +262,9 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
                 break;
             }
         }
-		if (isset($tags['ice_cart_item'])) {
-			print_r($tags);
-			var_dump(self::$tagsValid);die;
-		}
         if ($isValid) {
             return true;
         }
-        $validTags = $this->cacher->checkTags($tags);
         if ($validTags) {
             foreach ($tags as $tag) {
                 self::$tagsValid[$tag] = true;

@@ -113,7 +113,7 @@ class Annotation_Source_Simple extends Annotation_Source_Abstract
 		if (!$parts) {
 			return;
 		}
-        $regExp = '#^([a-zA-Z]+) ([a-zA-Z_]+) \$([a-zA-Z]+)#';
+        $regExp = '#^([a-zA-Z]+) ([a-zA-Z_]+)(?: \$([a-zA-Z]+))?#';
 		foreach ($parts as $param) {
             $matches = array();
             preg_match_all($regExp, $param, $matches);
@@ -126,7 +126,11 @@ class Annotation_Source_Simple extends Annotation_Source_Abstract
             if (!isset($result[$annotation])) {
                 $result[$annotation] = array();
             }
-            $result[$annotation][$var] = $type;
+            if ($type) {
+                $result[$annotation][$var] = $type;
+            } else {
+                $result[$annotation][] = $var;
+            }
 		}
 		return $result;
 	}
