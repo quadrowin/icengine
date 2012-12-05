@@ -26,7 +26,9 @@ abstract class Unit_Of_Work_Query_Abstract
 
 	public function pushRaw($uniqName, $object, $wheres)
 	{
-		Unit_Of_Work::pushRaw(QUERY::SELECT, $uniqName, array(
+		$locator = IcEngine::serviceLocator();
+		$unitOfWork = $locator->getService('unitOfWork');
+		$unitOfWork->pushRaw(QUERY::SELECT, $uniqName, array(
 			'object'	=> &$object,
 			'wheres'	=> $wheres
 		));
