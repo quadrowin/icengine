@@ -2,70 +2,70 @@
 
 /**
  * Мэппер данных через провайдер.
- * 
+ *
  * @author goorus, morph
  */
 class Data_Mapper_Provider extends Data_Mapper_Abstract
 {
 	/**
 	 * Используемый транслятор
-	 * 
+	 *
      * @var string
 	 */
 	const TRANSLATOR = 'KeyValue';
 
     /**
      * Код ошибки
-     * 
-     * @var integer 
+     *
+     * @var integer
      */
     protected $errno = 0;
-    
+
     /**
      * Сообщение об ошибке
-     *  
+     *
      * @var string
      */
     protected $error = '';
 
     /**
      * Количество затронутых рядов
-     * 
-     * @var integer 
+     *
+     * @var integer
      */
     protected $affectedRows = 0;
-    
+
     /**
      * Количество найденных рядов
-     * 
+     *
      * @var integer
      */
     protected $foundRows = 0;
-    
+
     /**
      * id последней созданной сущности
-     *  
+     *
      * @var mixed
      */
     protected $insertId = null;
 
     /**
      * Оттранслированный запрос
-     * 
+     *
      * @var array
      */
     protected $translated;
 
     /**
      * Провайдер, через которого буду получаться данные
-     * 
+     *
      * @var Data_Provider_Abstract
      */
     protected $provider;
 
     /**
      * Методы, через которые будут выполнены операции
-     *  
+     *
      * @var array
      */
     protected $queryMethods = array(
@@ -77,7 +77,7 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 
     /**
      * Текущий запрос
-     * 
+     *
      * @var mixed
      */
 	protected $query;
@@ -85,7 +85,7 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
     /**
      * @inheritdoc
      */
-	protected function _executeDelete(Query_Abstract $query, 
+	protected function _executeDelete(Query_Abstract $query,
         Query_Options $options)
 	{
 		$this->affectedRows = $this->fullDeleteByPatterns(
@@ -98,7 +98,7 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 	/**
 	 * @inheritdoc
 	 */
-    protected function _executeInsert(Query_Abstract $query, 
+    protected function _executeInsert(Query_Abstract $query,
         Query_Options $options)
     {
         foreach ($this->translated[0] as $key) {
@@ -111,7 +111,7 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 	/**
 	 * @inheritdoc
 	 */
-    protected function _executeSelect(Query_Abstract $query, 
+    protected function _executeSelect(Query_Abstract $query,
         Query_Options $options)
     {
 		$translator = $this->translator();
@@ -157,12 +157,12 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 
 	/**
 	 * Полный список ключей по маскам.
-	 * 
+	 *
      * @param string $table
 	 * @param array $patterns
 	 * @return integer Количество удаленных первичных ключей.
 	 */
-	protected function fullDeleteByPatterns ($table, array $patterns)
+	protected function fullDeleteByPatterns($table, array $patterns)
 	{
 		$translator = $this->translator();
 		$ids = array();
@@ -177,7 +177,7 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 		// Для каждого ID выбираем запись,
 		// строим ключи согласно индексам и удаляем их.
 		foreach ($ids as $id) {
-			$key = $table . $translator->tableIndexDelim . 'k' . 
+			$key = $table . $translator->tableIndexDelim . 'k' .
                 $translator->indexKeyDelim . $id;
             $row = $this->provider->get($key);
 			$keys = $translator->_compileKeys($table, $row);
@@ -190,7 +190,7 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
      * (non-PHPdoc)
      * @see Data_Mapper_Abstract::execute()
      */
-	public function execute(Data_Source_Abstract $source, Query_Abstract $query, 
+	public function execute(Data_Source_Abstract $source, Query_Abstract $query,
         $options = null)
 	{
 		$this->query = $query;
@@ -229,7 +229,7 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 
 	/**
      * Получить текущего провайдера
-     * 
+     *
 	 * @return Data_Provider_Abstract
 	 */
 	public function getProvider()
@@ -258,7 +258,7 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 
 	/**
 	 * Изменить текущего провайдера
-     * 
+     *
 	 * @param Data_Provider_Abstract $provider
 	 * @return Data_Mapper_Provider
 	 */
@@ -270,7 +270,7 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 
 	/**
      * Получить трансплятор запросов
-     * 
+     *
 	 * @return Query_Translator_KeyValue
 	 */
 	public function translator ()
