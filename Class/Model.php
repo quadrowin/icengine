@@ -360,10 +360,10 @@ abstract class Model implements ArrayAccess
         }
         return self::$serviceLocator->getService($serviceName);
     }
-    
+
     /**
      * Получить текущий сервис локатор
-     * 
+     *
      * @return Service_Locator
      */
     public function getServiceLocator()
@@ -509,7 +509,7 @@ abstract class Model implements ArrayAccess
 
 	/**
 	 * Установка значений полей без обновления источника.
-	 * При использовании этого метод не проверяется сущестовование полей
+	 * При использовании этого метод не проверяется существование полей
 	 * у модели. Это позволяет установить поля для создаваемой модели,
 	 * однако может привести к ошибкам в дальнейшем при сохранении, если
 	 * были заданы несуществующие поля.
@@ -551,14 +551,14 @@ abstract class Model implements ArrayAccess
 
     /**
      * Изменить локатор сервисов
-     * 
+     *
      * @param Service_Locator $serviceLocator
      */
     public function setServiceLocator($serviceLocator)
     {
         self::$serviceLocator = $serviceLocator;
     }
-    
+
 	/**
 	 * Тихое получение или установка поля
      *

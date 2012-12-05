@@ -129,6 +129,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 		$cacheValid = false;
 		$tmp = array_keys($cache['t']);
 		$modelName = reset($tmp);
+		$is = $modelName == 'ice_cart_item';
 		if ($cache) {
             $tagsValid = $this->isTagsValid($cache['t']);
             $expiresValid = $cache['a'] + $expiration > time() ||
@@ -264,6 +265,10 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
                 break;
             }
         }
+		if (isset($tags['ice_cart_item'])) {
+			print_r($tags);
+			var_dump(self::$tagsValid);die;
+		}
         if ($isValid) {
             return true;
         }
