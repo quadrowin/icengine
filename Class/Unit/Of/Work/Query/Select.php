@@ -24,8 +24,9 @@ class Unit_Of_Work_Query_Select extends Unit_Of_Work_Query_Abstract
 			}
 		}
 		list($modelName, $keyField) = explode('@', $key);
-		$query = Query::instance()
-			->select('*')
+		$locator = IcEngine::serviceLocator();
+		$queryBuilder = $locator->getService('query');
+		$query = $queryBuilder->select('*')
 			->from($modelName);
 		if (count($wheres) == 1) {
 			foreach ($wheres as $where) {
@@ -62,6 +63,8 @@ class Unit_Of_Work_Query_Select extends Unit_Of_Work_Query_Abstract
 			'object'	=> &$object,
 			'wheres'	=> $wheres
 		);
-		Unit_Of_Work::pushRaw(QUERY::SELECT, $uniqName, $data, $loaderName);
+		$locator = IcEngine::serviceLocator();
+		$unitOfWork = $locator->getService('unitOfWork');
+		$unitOfWork->pushRaw(QUERY::SELECT, $uniqName, $data, $loaderName);
 	}
 }

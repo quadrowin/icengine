@@ -18,8 +18,9 @@ class Unit_Of_Work_Query_Update extends Unit_Of_Work_Query_Abstract
 			$dataPrepared[] = array_merge($v['wheres'], $v['values']);
 
 		}
-		$query = Query::instance()
-			->insert($modelName);
+		$locator = IcEngine::serviceLocator();
+		$queryBuilder = $locator->getService('query');
+		$query = $queryBuilder->insert($modelName);
 		foreach ($dataPrepared as $values) {
 			$query->values($values, true);
 		}
@@ -49,8 +50,9 @@ class Unit_Of_Work_Query_Update extends Unit_Of_Work_Query_Abstract
 		if (!$keys) {
 			return;
 		}
-		$query = Query::instance()
-			->update($modelName)
+		$locator = IcEngine::serviceLocator();
+		$queryBuilder = $locator->getService('query');
+		$query = $queryBuilder->update($modelName)
 			->set($valueField, $value)
 			->where($keyField, $keys);
 		return array(
@@ -97,9 +99,11 @@ class Unit_Of_Work_Query_Update extends Unit_Of_Work_Query_Abstract
 	 */
 	public function push(Query_Abstract $query, $object = null, $loaderName = null)
 	{
+		$locator = IcEngine::serviceLocator();
+		$configManager = $locator->getService('configManager');
 		$table = $query->getPart(QUERY::UPDATE);
 		$where = $query->getPart(QUERY::WHERE)?: false;
-		$tableScheme = Config_Manager::get('Model_Mapper_' . $table);
+		$tableScheme = $configManager->get('Model_Mapper_' . $table);
 		$tableFields = array_keys($tableScheme->fields->asArray());
 		$values = $query->getPart(QUERY::VALUES)?: false;
 		$resultFields = array();
@@ -130,7 +134,8 @@ class Unit_Of_Work_Query_Update extends Unit_Of_Work_Query_Abstract
 			$uniqName = $table . '@' .
 			implode('', $dataFields) . $valuesQ . $whereQ;
 		}
-		Unit_Of_Work::pushRaw(QUERY::UPDATE, $uniqName, array(
+		$unitOfWork = $locator->getService('unitOfWork');
+		$unitOfWork->pushRaw(QUERY::UPDATE, $uniqName, array(
 			'values'	=> $resultFields,
 			'wheres'	=> $wheres
 		));
