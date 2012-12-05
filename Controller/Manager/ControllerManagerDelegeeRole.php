@@ -21,10 +21,9 @@ class ControllerManagerDelegeeRole extends ControllerManagerDelegeeAbstract
             ->setReflection($reflection);
         $scheme = $controllerManager->annotationManager()
             ->getAnnotation($controller);
-        $args = $context->getArgs();
-        $user = $args['context']->user->getCurrent();
+        $user = $controller->getService('user');
         $actionScheme = $scheme->getMethod($context->getAction());
-        $request = $args['context']->request;
+        $request = $controller->getService('request');
         if (!empty($actionScheme['role'])) {
             if (!$user->hasRole($actionScheme['role'])) {
                 if ($request->isAjax() || $request->isPost()) {
