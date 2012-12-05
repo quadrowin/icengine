@@ -362,7 +362,7 @@ class Model_Manager extends Manager_Abstract
                 ->update($modelName)
                 ->values($model->getFields())
                 ->where($keyField, $key)
-				->limit(1); 
+				->limit(1);
             $dataSource->execute($query);
         } else {
             if (!$key) {
