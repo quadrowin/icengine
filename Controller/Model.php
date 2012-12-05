@@ -246,7 +246,8 @@ class Controller_Model extends Controller_Abstract
 	}
 
 	/**
-	 * @desc Создание модели
+	 * Создание модели
+	 *
 	 * @param string $name Название модели
 	 * @param string $author Автор
 	 * @param boolean $without_table Создавать ли таблицу
@@ -257,88 +258,73 @@ class Controller_Model extends Controller_Abstract
 	 * @param boolean $without_options Создавать ли директорию для опшинов
 	 * @param integer $id Айди сущности, если необходимо
 	 */
-	public function create ($name, $author, $without_table, $extends, $with_load,
+	public function create($name, $author, $without_table, $extends, $with_load,
 		$comment, $without_collection, $without_options, $id = 0)
 	{
-		$this->_task->setTemplate (null);
-
-		$config = Config_Manager::get ('Model_Mapper_' . $name);
-		if (!$config)
-		{
-			echo 'Scheme for model "' . $name . '" had not found. Exit' . PHP_EOL;
+		$this->task->setTemplate(null);
+		$configManager = $this->getService('configManager');
+		$helperCodeGenerator = $this->getService('helperCodeGenerator');
+		$helperDate = $this->getService('helperDate');
+		$controllerManager = $this->getService('controllerManager');
+		$config = $configManager->get('Model_Mapper_' . $name);
+		if (!$config) {
+			echo 'Scheme for model "' . $name . '" had not found. Exit' .
+				PHP_EOL;
 			return;
 		}
-		$dir = IcEngine::root () . 'Ice/Model/';
-		$name_dir = explode ('_', $name);
-		$filename = array_pop ($name_dir);
+		$dir = IcEngine::root() . 'Ice/Model/';
+		$name_dir = explode('_', $name);
+		$filename = array_pop($name_dir);
 		$current_dir = $dir;
-		if ($name_dir)
-		{
-			foreach ($name_dir as $dir)
-			{
+		if ($name_dir) {
+			foreach ($name_dir as $dir) {
 				$current_dir .= $dir . '/';
-				if (!is_dir ($current_dir))
-				{
-					mkdir ($current_dir);
+				if (!is_dir($current_dir)) {
+					mkdir($current_dir);
 				}
 			}
 		}
 		$dir = $current_dir . $filename . '/';
-		if (!$without_collection)
-		{
-			if (!is_dir ($dir))
-			{
-				mkdir ($dir);
+		if (!$without_collection) {
+			if (!is_dir($dir)) {
+				mkdir($dir);
 			}
 		}
-		if (!$without_options)
-		{
-			if (!is_dir ($dir . 'Option'))
-			{
-				mkdir ($dir . 'Option');
+		if (!$without_options) {
+			if (!is_dir($dir . 'Option')) {
+				mkdir($dir . 'Option');
 			}
 		}
 		$filename = $current_dir . $filename . '.php';
-
 		$author = $author ? $author : $config->author;
-
-		if (!is_file ($filename))
-		{
+		if (!is_file($filename)) {
 			$properties = array ();
-			if ($config->fields)
-			{
-				foreach ($config->fields as $field => $values)
-				{
+			if ($config->fields) {
+				foreach ($config->fields as $field => $values) {
 					$type = $values[0];
-					if ($type == 'tinyint')
-					{
+					if ($type == 'tinyint') {
 						$type = 'boolean';
-					}
-					elseif (strpos (strtolower ($type), 'int') !== false)
-					{
+					} elseif (strpos(strtolower($type), 'int') !== false) {
 						$type = 'integer';
-					}
-					else
-					{
+					} else {
 						$type = 'string';
 					}
-					$comment = !empty ($values[1]['Comment'])
+					$comment = !empty($values[1]['Comment'])
 						? $values[1]['Comment'] : '';
-					$properties[] = array (
+					$properties[] = array(
 						'type'		=> $type,
 						'field'		=> $field,
 						'comment'	=> $comment
 					);
 				}
 			}
-
-			$output = Helper_Code_Generator::fromTemplate (
+			$output = $helperCodeGenerator->fromTemplate(
 				'model',
-				array (
+				array(
 					'extends'	=> $extends ? $extends : 'Model',
 					'with_load'	=> $with_load,
 					'comment'	=> $comment ? $comment : $config->comment,
-					'date'		=> Helper_Date::toUnix (),
+					'date'		=> $helperDate->toUnix(),
 					'author'	=> $author,
 					'package'	=> 'Vipgeo',
 					'category'	=> 'Models',
@@ -347,26 +333,20 @@ class Controller_Model extends Controller_Abstract
 					'properties'	=> $properties
 				)
 			);
-
 			echo 'File: ' . $filename . PHP_EOL;
 			file_put_contents ($filename, $output);
-
 			echo $output . PHP_EOL . PHP_EOL;
 		}
-
-		if (!$without_collection)
-		{
+		if (!$without_collection) {
 			$filename = $dir . 'Collection.php';
-
-			if (!is_file ($filename))
-			{
-				$output = Helper_Code_Generator::fromTemplate (
+			if (!is_file($filename)) {
+				$output = $helperCodeGenerator->fromTemplate(
 					'model',
-					array (
+					array(
 						'extends'	=> $extends ? $extends : 'Model_Collection',
 						'with_load'	=> $with_load,
 						'comment'	=> 'Collection for model ' . $name,
-						'date'		=> Helper_Date::toUnix (),
+						'date'		=> $helperDate->toUnix(),
 						'author'	=> $author,
 						'package'	=> 'Vipgeo',
 						'category'	=> 'Collections',
@@ -374,19 +354,15 @@ class Controller_Model extends Controller_Abstract
 						'name'		=> $name . '_Collection'
 					)
 				);
-
 				echo 'File: ' . $filename . PHP_EOL;
-				file_put_contents ($filename, $output);
-
+				file_put_contents($filename, $output);
 				echo $output . PHP_EOL . PHP_EOL;
 			}
 		}
-
-		if (!$without_table && $config->fields)
-		{
-			Controller_Manager::call (
+		if (!$without_table && $config->fields) {
+			$controllerManager->call(
 				'Model', 'createTable',
-				array (
+				array(
 					'name'	=> $name,
 					'id'	=> $id
 				)
@@ -394,7 +370,7 @@ class Controller_Model extends Controller_Abstract
 		}
 	}
 
-	public function createMissing ()
+	public function createMissing()
 	{
 		$task = Controller_Manager::call (
 			'Model', 'missing', array ()
@@ -457,20 +433,26 @@ class Controller_Model extends Controller_Abstract
 		}
 	}
 
-	public function createTable ($name, $id)
+	public function createTable($name, $id)
 	{
-		$model = new Model_Proxy (
+		$modelScheme = $this->getService('modelScheme');
+		$modelMapper = $this->getService('modelMapper');
+		$modelMapperSchemeRenderView = $this->getService(
+			'modelMapperSchemeRenderView'
+		);
+		$dds = $this->getService('dds');
+		$model = new Model_Proxy(
 			$name,
-			array (
-				Model_Scheme::keyField ($name)	=> $id
+			array(
+				$modelScheme->keyField($name)	=> $id
 			)
 		);
-		$scheme = Model_Mapper::scheme ($model);
-		$view = Model_Mapper_Scheme_Render_View::byName ('Mysql');
-		$query = $view->render ($scheme);
-		DDS::execute ($query);
+		$scheme = $modelMapper->scheme($model);
+		$view = $modelMapperSchemeRenderView->byName('Mysql');
+		$query = $view->render($scheme);
+		$dds->execute($query);
 		echo 'Query: ' . PHP_EOL;
-		echo $query->translate ('Mysql') . PHP_EOL;
+		echo $query->translate('Mysql') . PHP_EOL;
 	}
 
 	public function fromTable($name, $author, $comment, $missing = 0,
