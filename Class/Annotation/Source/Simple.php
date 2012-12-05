@@ -126,7 +126,11 @@ class Annotation_Source_Simple extends Annotation_Source_Abstract
             if (!isset($result[$annotation])) {
                 $result[$annotation] = array();
             }
-            $result[$annotation][$var] = $type;
+            if ($type) {
+                $result[$annotation][$var] = $type;
+            } else {
+                $result[$annotation][] = $var;
+            }
 		}
 		return $result;
 	}
