@@ -1,63 +1,54 @@
 <?php
 
 /**
- * @desc Контроллер для запуска миграций
- * @author Илья Колесников
+ * Контроллер для запуска миграций
+ *
+ * @author Илья Колесников, neon
  */
 class Controller_Migration extends Controller_Abstract
 {
 	/**
-	 * @desc Применить конкретную миграцию
+	 * Применить конкретную миграцию
+	 *
 	 * @param string $name
 	 * @param string $action
 	 */
-	public function apply ($name, $action)
+	public function apply($name, $action)
 	{
-//		if (User::id () >= 0)
-//		{
-//			echo 'Access denied' . PHP_EOL;
-//			return;
-//		}
-
-		$args = $this->_input->receiveAll ();
-		if (!isset ($args ['name']))
-		{
+		$helperMigration = $this->getService('helperMigration');
+		$modelScheme = $this->getService('modelScheme');
+		$controllerManager = $this->getService('controllerManager');
+		$args = $this->input->receiveAll();
+		if (!isset($args['name'])) {
 			return;
 		}
-		unset ($args ['name']);
-		if (!isset ($args ['action']))
-		{
+		unset($args['name']);
+		if (!isset($args['action'])) {
 			return;
 		}
-		unset ($args ['action']);
+		unset($args['action']);
 		$base = 'default';
-		if (isset ($args ['base']))
-		{
-			$base = $args ['base'];
-			unset ($args ['base']);
+		if (isset($args['base'])) {
+			$base = $args['base'];
+			unset($args['base']);
 		}
-		Loader::load ('Helper_Migration');
-		$migration = Helper_Migration::byName ($name);
-		if (!$migration)
-		{
+		$migration = $helperMigration->byName($name);
+		if (!$migration) {
 			return;
 		}
-		$queue = Helper_Migration::getQueue ($base);
-		$params = array ();
-		if (isset ($queue [$name]))
-		{
+		$queue = $helperMigration->getQueue($base);
+		$params = array();
+		if (isset($queue[$name])) {
 			$params = $queue [$name];
 		}
-		$params = array_merge ($params, (array) $args);
-		$migration->setParams ($params);
-		if ($migration->$action ())
-		{
-			if (!empty ($migration->model))
-			{
-				$table = Model_Scheme::table ($migration->model);
-				Controller_Manager::call (
+		$params = array_merge($params, (array) $args);
+		$migration->setParams($params);
+		if ($migration->$action()) {
+			if (!empty($migration->model)) {
+				$table = $modelScheme->table($migration->model);
+				$controllerManager->call(
 					'Model', 'fromTable',
-					array (
+					array(
 						'name'		=> $table,
 						'rewrite'	=> 1
 					)
@@ -65,41 +56,41 @@ class Controller_Migration extends Controller_Abstract
 			}
 			echo 'Migration done' . PHP_EOL;
 		}
-		Helper_Migration::log ($name, $action);
-		Helper_Migration::setLastData ($name, $action, $base);
-		Helper_Migration::logFlush ();
+		$helperMigration->log($name, $action);
+		$helperMigration->setLastData($name, $action, $base);
+		$helperMigration->logFlush();
 	}
 
 	/**
-	 * @desc Создать миграцию
+	 * Создать миграцию
+	 *
 	 * @param string $name
 	 */
-	public function create ($name, $desc, $author, $base)
+	public function create($name, $desc, $author, $base)
 	{
-		$filename = IcEngine::root () . 'Ice/Model/Migration/' . $name . '.php';
-		if (is_file ($filename))
-		{
+		$controllerManager = $this->getService('controllerManager');
+		$helperCodeGenerator = $this->getService('helperCodeGenerator');
+		$helperDate = $this->getService('helperDate');
+		$filename = IcEngine::root() . 'Ice/Model/Migration/' . $name . '.php';
+		if (is_file($filename)) {
 			return;
 		}
-		$task = Controller_Manager::call (
+		$task = $controllerManager->call(
 			'Migration', 'seq',
-			array ()
+			array()
 		);
 		$seq = 'undefined';
-		if ($task)
-		{
-			$buffer = $task->getTransaction ()->buffer ();
-			if (isset ($buffer ['seq']))
-			{
-				$seq = $buffer ['seq'];
+		if ($task) {
+			$buffer = $task->getTransaction()->buffer();
+			if (isset($buffer['seq'])) {
+				$seq = $buffer['seq'];
 			}
 		}
-		Loader::load ('Helper_Code_Generator');
-		$output = Helper_Code_Generator::fromTemplate (
+		$output = $helperCodeGenerator->fromTemplate(
 			'migration',
-			array (
+			array(
 				'desc'		=> $desc,
-				'date'		=> Helper_Date::toUnix (),
+				'date'		=> $helperDate->toUnix(),
 				'author'	=> $author,
 				'base'		=> $base,
 				'seq'		=> $seq,
@@ -107,8 +98,7 @@ class Controller_Migration extends Controller_Abstract
 			)
 		);
 		echo 'File: ' . $filename . PHP_EOL;
-		file_put_contents ($filename, $output);
-
+		file_put_contents($filename, $output);
 	}
 
 	/**
@@ -198,11 +188,10 @@ class Controller_Migration extends Controller_Abstract
 	}
 
 	/**
-	 * @desc Получить уникальный номер миграции
+	 * Получить уникальный номер миграции
 	 */
-	public function seq()
-	{
-		$this->_task->setTemplate(null);
+	public function seq() {
+		$this->task->setTemplate(null);
 		$helperSiteLocation = $this->getService('helperSiteLocation');
 		$url = $helperSiteLocation->get('seq_url');
 		if (!$url) {
@@ -210,7 +199,7 @@ class Controller_Migration extends Controller_Abstract
 		}
 		$seq = file_get_contents($url);
 		echo 'Migration #' . $seq . PHP_EOL;
-		$this->_output->send(array(
+		$this->output->send(array(
 			'seq'	=> $seq
 		));
 	}
