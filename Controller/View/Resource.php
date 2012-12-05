@@ -3,14 +3,14 @@
 /**
  * Контроллер для компновки ресурсов представления.
  * Предназначен для сбора js, css файлов в один.
- * 
+ *
  * @author goorus, morph
  */
 class Controller_View_Resource extends Controller_Abstract
 {
 	/**
      * Процесс упаковки ресурсов
-     * 
+     *
      * @service configManager $configManager
      * @service viewResourceManager $viewResourceManager
      */
@@ -69,6 +69,15 @@ class Controller_View_Resource extends Controller_Abstract
 						);
 					}
 				}
+                $existsResources = array();
+                $resultResources = array();
+                foreach ($resources as $resource) {
+                    if (in_array($resource->filePath, $existsResources)) {
+                        continue;
+                    }
+                    $resultResources[] = $resource;
+                    $existsResources[] = $resource->filePath;
+                }
 				$packer = $context->viewResourceManager->packer($target->type);
 				$packerConfig = $target->packer_config;
 				if ($packerConfig && $packerConfig->state_file) {
@@ -78,7 +87,9 @@ class Controller_View_Resource extends Controller_Abstract
 				}
 				$destinationFile = strtr($target->file, $vars);
 				$packer->pushConfig($packerConfig);
-				$packer->pack($resources, $destinationFile, $packerConfig, true);
+				$packer->pack(
+                    $resultResources, $destinationFile, $packerConfig, true
+                );
 				$packer->popConfig();
                 $resultResources[$name] = array(
 					'type'	=> $target->type,
@@ -88,5 +99,5 @@ class Controller_View_Resource extends Controller_Abstract
 			}
 			$this->output->send('resources', $resultResources);
 		}
-	} 
+	}
 }

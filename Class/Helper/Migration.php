@@ -1,34 +1,35 @@
 <?php
 
 /**
- * @desc Хелпер для миграций
- * @author Илья Колесников
+ * Хелпер для миграций
+ *
+ * @author Илья Колесников, neon
  */
 class Helper_Migration
 {
 	/**
 	 * @var Objective
 	 */
-	protected static $_config;
+	protected $config;
 
 	/**
-	 * @desc Лог выполненных в текущей сессии миграций
+	 * Лог выполненных в текущей сессии миграций
 	 * @var array
 	 */
-	protected static $_log;
+	protected $log;
 
 	/**
-	 * @desc Методы миграции
+	 * Методы миграции
 	 * @var array
 	 */
-	public static $methods = array ('down', 'up');
+	public $methods = array ('down', 'up');
 
 	/**
 	 * @desc Получить имя класса
 	 * @param string $content
 	 * @return string
 	 */
-	protected static function _getClassName ($content)
+	protected function _getClassName ($content)
 	{
 		$matches = array ();
 		preg_match_all (
@@ -49,7 +50,7 @@ class Helper_Migration
 	 * @param string $tag
 	 * @return string
 	 */
-	protected static function _normalizeComment ($content, $tag)
+	protected function _normalizeComment ($content, $tag)
 	{
 		$result = '';
 		$matches = array ();
@@ -72,11 +73,12 @@ class Helper_Migration
 	}
 
 	/**
-	 * @desc Получить миграцию по имениf
+	 * Получить миграцию по имени
+	 *
 	 * @param string $name
 	 * @return Migration_Abstract
 	 */
-	public static function byName ($name)
+	public function byName($name)
 	{
 		$model_name = 'Migration_' . $name;
 		return new $model_name;
@@ -86,15 +88,16 @@ class Helper_Migration
 	 * @desc Получить конфиг хелпера
 	 * @return Objective
 	 */
-	public static function config ()
+	public function config()
 	{
-		if (!self::$_config)
-		{
-			self::$_config = Config_Manager::get (
-				'Migration', self::$_config
+		$locator = IcEngine::serviceLocator();
+		$configManager = $locator->getService('configManager');
+		if (!$this->config) {
+			$this->config = $configManager->get(
+				'Migration', $this->config
 			);
 		}
-		return self::$_config;
+		return $this->config;
 	}
 
 	/*
@@ -102,7 +105,7 @@ class Helper_Migration
 	 * @param string $base
 	 * @return array
 	 */
-	public static function getBase ($base)
+	public function getBase ($base)
 	{
 		$config = self::config ();
 		if (empty ($config->queue) || empty ($config->queue->$base))
@@ -116,7 +119,7 @@ class Helper_Migration
 	 * @desc Получить имена баз миграции
 	 * @return array
 	 */
-	public static function getBases ()
+	public function getBases ()
 	{
 		$config = self::config ();
 		if (empty ($config->queue))
@@ -131,7 +134,7 @@ class Helper_Migration
 	 * @param string $base
 	 * @return boolean
 	 */
-	public static function getBaseDone ($base)
+	public function getBaseDone ($base)
 	{
 		$base = self::getBase ($base);
 		return !empty ($base ['done']);
@@ -142,7 +145,7 @@ class Helper_Migration
 	 * @param string $name
 	 * @param string $base
 	 */
-	public static function getIndex ($name, $base = 'default')
+	public function getIndex ($name, $base = 'default')
 	{
 		$i = 0;
 		$queue = self::getQueue ($base);
@@ -165,7 +168,7 @@ class Helper_Migration
 	 * @desc Получить данные о последней миграции
 	 * @return array
 	 */
-	public static function getLastData ()
+	public function getLastData ()
 	{
 		$filename = IcEngine::root () . 'Ice/Var/Helper/Migration/last.txt';
 		if (!file_exists ($filename))
@@ -184,7 +187,7 @@ class Helper_Migration
 	 * @desc Получить данные последней миграции
 	 * @return array
 	 */
-	public static function getLastLog ()
+	public function getLastLog ()
 	{
 		$filename = IcEngine::root () . 'Ice/Var/Helper/Migration/log.last.txt';
 		if (!is_file ($filename))
@@ -204,7 +207,7 @@ class Helper_Migration
 	 * но не добавленных в очередь миграций
 	 * @return array
 	 */
-	public static function getMigrations ($base = 'default')
+	public function getMigrations ($base = 'default')
 	{
 		$dir = IcEngine::root () . 'Ice/Model/Migration/';
 		$exec = 'find ' . $dir . '*';
@@ -248,6 +251,8 @@ class Helper_Migration
 			$seq = self::_normalizeComment ($content, 'seq');
 			$params = isset ($migrations [$class_name])
 				? $migrations [$class_name] : null;
+			$locator = IcEngine::serviceLocator();
+			$helperDate = $locator->getService('helperDate');
 			$result [$class_name] = array (
 				'file'		=> $file,
 				'base'		=> $base_name,
@@ -257,7 +262,7 @@ class Helper_Migration
 				'comment'	=> $comment,
 				'seq'		=> $seq,
 				'params'	=> $params,
-				'filemtime'	=> date (Helper_Date::UNIX_FORMAT, filemtime ($file))
+				'filemtime'	=> date ($helperDate->UNIX_FORMAT, filemtime ($file))
 			);
 		}
 		if (!$result)
@@ -291,7 +296,7 @@ class Helper_Migration
 	 * @param string $base
 	 * @return array
 	 */
-	public static function getQueue ($base = 'default')
+	public function getQueue ($base = 'default')
 	{
 		$tmp = self::getMigrations ($base);
 
@@ -319,28 +324,31 @@ class Helper_Migration
 	 * @param string $name
 	 * @param string $action
 	 */
-	public static function log ($name, $action)
+	public function log ($name, $action)
 	{
-		self::$_log [] = array (
+		$locator = IcEngine::serviceLocator();
+		$helperDate = $locator->getService('helperDate');
+		self::$_log[] = array(
 			'name'		=> $name,
 			'action'	=> $action,
-			'date'		=> Helper_Date::toUnix ()
+			'date'		=> $helperDate->toUnix()
 		);
 	}
 
 	/**
 	 * @desc Записать лог в файл
 	 */
-	public static function logFlush ()
+	public function logFlush ()
 	{
-		if (!self::$_log)
-		{
+		if (!self::$_log) {
 			return;
 		}
+		$locator = IcEngine::serviceLocator();
+		$helperDate = $locator->getService('helperDate');
 		$filename = IcEngine::root () . 'Ice/Var/Helper/Migration/log.last.txt';
 		file_put_contents ($filename, json_encode (self::$_log));
 		$filename = IcEngine::root () . 'Ice/Var/Helper/Migration/log/log.' .
-			Helper_Date::toUnix () . '.txt';
+			$helperDate->toUnix () . '.txt';
 		file_put_contents ($filename, json_encode (self::$_log));
 	}
 
@@ -350,7 +358,7 @@ class Helper_Migration
 	 * @param integer $action
 	 * @param string $base
 	 */
-	public static function migration ($name, $action, $user_params,
+	public function migration ($name, $action, $user_params,
 		$base = 'default')
 	{
 		if (self::getBaseDone ($base))
@@ -481,9 +489,8 @@ class Helper_Migration
 			}
 		}
 
-		self::simpleRun (self::config ()->post, $method);
-
-		Helper_Migration::logFlush ();
+		self::simpleRun(self::config ()->post, $method);
+		self::logFlush();
 		echo 'Migration done' . PHP_EOL;
 
 		return true;
@@ -493,7 +500,7 @@ class Helper_Migration
 	 * @desc Востановить данные миграции
 	 * @param string $name
 	 */
-	public static function restore ($name)
+	public function restore ($name)
 	{
 		$migration = self::byName ($migration_name);
 		if (!$migration)
@@ -520,7 +527,7 @@ class Helper_Migration
 	 * @param string $base
 	 * @return mixed
 	 */
-	public static function rollback ($first_name, $queue, $action, $user_params,
+	public function rollback ($first_name, $queue, $action, $user_params,
 		$base)
 	{
 		echo 'Migration error. Rollback' . PHP_EOL;
@@ -564,7 +571,7 @@ class Helper_Migration
 	 * @param string $method
 	 * @param string $base
 	 */
-	public static function run ($name, $method, $base)
+	public function run ($name, $method, $base)
 	{
 		$cmd = './ice Migration/apply --name ' . $name . ' --action ' . $method .
 			' --base ' . $base;
@@ -586,19 +593,21 @@ class Helper_Migration
 	 * @param string $action
 	 * @param string $base
 	 */
-	public static function setLastData ($name, $action, $base)
+	public function setLastData ($name, $action, $base)
 	{
+		$locator = IcEngine::serviceLocator();
+		$helperDate = $locator->getService('helperDate');
 		$data = array (
 			'base'		=> $base,
 			'name'		=> $name,
 			'action'	=> $action,
-			'date'		=> Helper_Date::toUnix ()
+			'date'		=> $helperDate->toUnix()
 		);
 		$filename = IcEngine::root () . 'Ice/Var/Helper/Migration/last.txt';
 		file_put_contents ($filename, json_encode ($data));
 	}
 
-	public static function simpleRun ($list, $method)
+	public function simpleRun ($list, $method)
 	{
 		if (!$list)
 		{
@@ -624,7 +633,7 @@ class Helper_Migration
 	 * @param string $name
 	 * @param array $data
 	 */
-	public static function storeData ($name, $data)
+	public function storeData ($name, $data)
 	{
 		$filename = IcEngine::root () . 'Ice/Var/Helper/Migration/store/' .
 			$name . '.json';

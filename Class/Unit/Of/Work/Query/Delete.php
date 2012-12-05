@@ -28,8 +28,9 @@ class Unit_Of_Work_Query_Delete extends Unit_Of_Work_Query_Abstract
 		if (!$keys) {
 			return;
 		}
-		$query = Query::instance()
-			->delete()
+		$locator = IcEngine::serviceLocator();
+		$queryBuilder = $locator->getService('query');
+		$query = $queryBuilder->delete()
 			->from($modelName)
 			->where($keyField, $keys);
 		return array(
@@ -57,8 +58,10 @@ class Unit_Of_Work_Query_Delete extends Unit_Of_Work_Query_Abstract
 				$wheres[$value[QUERY::WHERE]] = $value[QUERY::VALUE];
 			}
 		}
+		$locator = IcEngine::serviceLocator();
+		$unitOfWork = $locator->getService('unitOfWork');
 		$uniqName = $table;
-		Unit_Of_Work::pushRaw(QUERY::DELETE, $uniqName, array(
+		$unitOfWork->pushRaw(QUERY::DELETE, $uniqName, array(
 			'wheres'	=> $wheres
 		));
 	}

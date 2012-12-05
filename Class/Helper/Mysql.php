@@ -1,7 +1,8 @@
 <?php
 
 /**
- * @desc Хелпер для работы с mysql
+ * Хелпер для работы с mysql
+ * 
  * @author morph, goorus
  */
 class Helper_Mysql
@@ -11,8 +12,9 @@ class Helper_Mysql
 	const SQL_WILDCARD = '*';
 
 	/**
-	 * @desc Обособляет название mysql терма, если в этом есть необходимость.
-	 * Функция вернет исходную строку, если в ней присутствуют спец. символы
+	 * Обособляет название mysql терма, если в этом есть необходимость.
+	 * 
+	 *	Функция вернет исходную строку, если в ней присутствуют спец. символы
 	 * (точки, скобки, кавычки, знаки мат. операций и т.п.)
 	 * @param string $value Название терма.
 	 * @return string Резултат обособления.
@@ -37,8 +39,9 @@ class Helper_Mysql
 	}
 
 	/**
-	 * @desc Заключает выражение в кавычки
-	 * @param mixed $value
+	 * Заключает выражение в кавычки
+	 * 
+     * @param mixed $value
 	 * @return string
 	 */
 	public static function quote ($value)

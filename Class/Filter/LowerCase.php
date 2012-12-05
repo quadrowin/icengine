@@ -1,11 +1,18 @@
 <?php
-
+/**
+ * Фильтр для перевода в нижний регистр
+ *
+ * @author neon
+ */
 class Filter_LowerCase
 {
-	
-	public function filter ($data)
+	/**
+	 * @inheritdoc
+	 * @param string $data
+	 * @return string
+	 */
+	public function filter($data)
 	{
-		return mb_strtolower ($data);
+		return mb_strtolower($data);
 	}
-	
 }

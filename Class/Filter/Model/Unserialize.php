@@ -1,29 +1,27 @@
 <?php
+
 /**
+ * Фильтр для десериализации моделей
  *
- * @desc Фильтр для десериализации моделей
- * @author Юрий
+ * @author Юрий, neon
  * @package IcEngine
- *
  */
 class Filter_Model_Unserialize
 {
 
 	/**
-	 * @desc Десириализация строки в модель
+	 * Десериализация строки в модель
+	 *
 	 * @param string $data
 	 * @return Model
 	 */
-	public function filter ($data)
+	public function filter($data)
 	{
-		if (!$data)
-		{
+		if (!$data) {
 			return null;
 		}
-
-		$p = strpos ($data, ':');
-		$class = substr ($data, 0, $p);
-		return new $class (json_decode (substr ($data, $p + 1), true));
+		$p = strpos($data, ':');
+		$class = substr($data, 0, $p);
+		return new $class(json_decode(substr($data, $p + 1), true));
 	}
-
 }

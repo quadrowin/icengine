@@ -208,8 +208,9 @@ class Model_Manager extends Manager_Abstract
         }
         $keyField = $newModel->keyField();
         $newModel->set($keyField, $key);
-        if ($key) {
+        if (!$key) {
             $this->read($newModel);
+            $resourceKey = $modelName . '__' . $newModel->key();
         }
         $resourceManager->set('Model', $resourceKey, $newModel);
 		return $newModel;
@@ -361,7 +362,7 @@ class Model_Manager extends Manager_Abstract
                 ->update($modelName)
                 ->values($model->getFields())
                 ->where($keyField, $key)
-				->limit(1);
+				->limit(1); 
             $dataSource->execute($query);
         } else {
             if (!$key) {
