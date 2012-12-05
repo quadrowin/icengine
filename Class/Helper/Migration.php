@@ -25,7 +25,8 @@ class Helper_Migration
 	public $methods = array('down', 'up');
 
 	/**
-	 * @desc Получить имя класса
+	 * Получить имя класса
+	 *
 	 * @param string $content
 	 * @return string
 	 */
@@ -230,82 +231,71 @@ class Helper_Migration
 				continue;
 			}
 			$content = file_get_contents($file);
-			$class_name = self::_getClassName($content);
+			$class_name = $this->_getClassName($content);
 			if (!$class_name) {
 				continue;
 			}
-			$base_name = self::_normalizeComment($content, 'base');
+			$base_name = $this->_normalizeComment($content, 'base');
 			if ($base_name != $base) {
 				continue;
 			}
-			$comment = self::_normalizeComment ($content, 'desc');
-			$author_name = self::_normalizeComment ($content, 'author');
-			$seq = self::_normalizeComment ($content, 'seq');
-			$params = isset ($migrations [$class_name])
-				? $migrations [$class_name] : null;
+			$comment = $this->_normalizeComment($content, 'desc');
+			$author_name = $this->_normalizeComment($content, 'author');
+			$seq = $this->_normalizeComment($content, 'seq');
+			$params = isset($migrations[$class_name])
+				? $migrations[$class_name] : null;
 			$locator = IcEngine::serviceLocator();
 			$helperDate = $locator->getService('helperDate');
-			$result [$class_name] = array (
+			$result[$class_name] = array(
 				'file'		=> $file,
 				'base'		=> $base_name,
 				'class'		=> $class_name,
-				'name'		=> substr ($class_name, strlen ('Migration_')),
+				'name'		=> substr ($class_name, strlen('Migration_')),
 				'author'	=> $author_name,
 				'comment'	=> $comment,
 				'seq'		=> $seq,
 				'params'	=> $params,
-				'filemtime'	=> date ($helperDate->UNIX_FORMAT, filemtime ($file))
+				'filemtime'	=> date($helperDate->UNIX_FORMAT, filemtime($file))
 			);
 		}
-		if (!$result)
-		{
+		if (!$result) {
 			return;
 		}
-
-		$tmp = array ();
+		$tmp = array();
 		$i = 0;
-		foreach ($result as $class_name => $data)
-		{
-			$seq = !empty ($data ['seq']) ? $data ['seq'] : $i--;
-			$tmp [$seq] = $class_name;
+		foreach ($result as $class_name => $data) {
+			$seq = !empty($data['seq']) ? $data['seq'] : $i--;
+			$tmp[$seq] = $class_name;
 		}
-		ksort ($tmp);
-		$return = array ();
-		foreach ($tmp as $class_name)
-		{
-			if (!isset ($result [$class_name]))
-			{
+		ksort($tmp);
+		$return = array();
+		foreach ($tmp as $class_name) {
+			if (!isset($result[$class_name])) {
 				continue;
 			}
-			$return [] = $result [$class_name];
+			$return[] = $result[$class_name];
 		}
-
 		return $return;
 	}
 
 	/**
-	 * @desc Получить очередь миграций
+	 * Получить очередь миграций
+	 *
 	 * @param string $base
 	 * @return array
 	 */
-	public function getQueue ($base = 'default')
+	public function getQueue($base = 'default')
 	{
-		$tmp = self::getMigrations ($base);
-
-		$result = array ();
-		if (!$tmp)
-		{
+		$tmp = $this->getMigrations($base);
+		$result = array();
+		if (!$tmp) {
 			return;
 		}
-		foreach ($tmp as $t)
-		{
-			if (isset ($t ['params']))
-			{
-				$result [$t ['name']] = $t ['params'];
-			}
-			else
-			{
-				$result [] = $t ['name'];
+		foreach ($tmp as $t) {
+			if (isset($t['params'])) {
+				$result[$t['name']] = $t['params'];
+			} else {
+				$result[] = $t['name'];
 			}
 		}
 		return $result;
@@ -321,7 +311,7 @@ class Helper_Migration
 	{
 		$locator = IcEngine::serviceLocator();
 		$helperDate = $locator->getService('helperDate');
-		$this->$log[] = array(
+		$this->log[] = array(
 			'name'		=> $name,
 			'action'	=> $action,
 			'date'		=> $helperDate->toUnix()
@@ -354,14 +344,14 @@ class Helper_Migration
 	public function migration ($name, $action, $user_params,
 		$base = 'default')
 	{
-		if (self::getBaseDone ($base))
+		if ($this->getBaseDone ($base))
 		{
 			echo 'Migrations base had already done' . PHP_EOL;
 			return;
 		}
 		$first_name = null;
-		$queue = self::getQueue ($base);
-		$last_data = self::getLastData ($base);
+		$queue = $this->getQueue ($base);
+		$last_data = $this->getLastData ($base);
 		if (!$last_data)
 		{
 			$first_name = null;
@@ -381,7 +371,7 @@ class Helper_Migration
 			$queue = array_reverse ($queue);
 		}
 		$st = false;
-		$name_index = self::getIndex ($name, $base);
+		$name_index = $this->getIndex ($name, $base);
 		if (is_null ($name_index))
 		{
 			echo 'Migration had not found in current base' . PHP_EOL;
@@ -389,7 +379,7 @@ class Helper_Migration
 		}
 		if ($first_name && count ($queue) > 1)
 		{
-			$first_index = self::getIndex ($first_name, $base);
+			$first_index = $this->getIndex ($first_name, $base);
 
 			if (!$first_index)
 			{
@@ -410,7 +400,7 @@ class Helper_Migration
 			}
 		}
 
-		self::simpleRun (self::config ()->pre, $method);
+		$this->simpleRun ($this->config ()->pre, $method);
 
 		foreach ($queue as $migration_name => $params)
 		{
@@ -439,10 +429,10 @@ class Helper_Migration
 			{
 				continue;
 			}
-			$migration = self::byName ($migration_name);
+			$migration = $this->byName ($migration_name);
 			if (!$migration)
 			{
-				return self::rollback (
+				return $this->rollback (
 					$first_name,
 					$queue,
 					$action,
@@ -457,18 +447,18 @@ class Helper_Migration
 			$migration->setParams (array_merge (
 				$user_params, $params
 			));
-			self::storeData (
+			$this->storeData (
 				$migration_name,
 				$migration->store ()
 			);
-			$result = self::run ($migration->getName (), $method, $base);
+			$result = $this->run ($migration->getName (), $method, $base);
 			if ($result)
 			{
 				echo 'Migration ' . $migration->getName () . ': done' . PHP_EOL;
 			}
 			else
 			{
-				return self::rollback (
+				return $this->rollback (
 					$first_name,
 					$queue,
 					$action,
@@ -482,8 +472,8 @@ class Helper_Migration
 			}
 		}
 
-		self::simpleRun(self::config ()->post, $method);
-		self::logFlush();
+		$this->simpleRun($this->config ()->post, $method);
+		$this->logFlush();
 		echo 'Migration done' . PHP_EOL;
 
 		return true;
@@ -495,7 +485,7 @@ class Helper_Migration
 	 */
 	public function restore ($name)
 	{
-		$migration = self::byName ($migration_name);
+		$migration = $this->byName ($migration_name);
 		if (!$migration)
 		{
 			return;
@@ -533,7 +523,7 @@ class Helper_Migration
 			{
 				$migration_name = $params;
 			}
-			$migration = self::byName ($migration_name);
+			$migration = $this->byName ($migration_name);
 			if (!$migration)
 			{
 				continue;
@@ -546,14 +536,14 @@ class Helper_Migration
 				$user_params, $params
 			));
 			echo $migration->getName () . '::' . $method . PHP_EOL;
-			self::run ($migration->getName (), $method, $base);
+			$this->run ($migration->getName (), $method, $base);
 			if ($migration_name == $first_name)
 			{
 				break;
 			}
 		}
 
-		self::simpleRun (self::config ()->post, $method);
+		$this->simpleRun ($this->config ()->post, $method);
 
 		return;
 	}
@@ -612,7 +602,7 @@ class Helper_Migration
 			{
 				$migration_name = $params;
 			}
-			$migration = self::byName ($migration_name);
+			$migration = $this->byName ($migration_name);
 			if (!$migration)
 			{
 				continue;
