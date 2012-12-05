@@ -1,11 +1,13 @@
 <?php
 
+namespace IcEngine\Service;
+
 /**
  * Состояние сервиса
  *
  * @author morph
  */
-class Service_State
+class ServiceState
 {
     /**
      * Имя класса услуги

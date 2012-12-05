@@ -31,8 +31,9 @@ class Unit_Of_Work_Query_Insert extends Unit_Of_Work_Query_Abstract
 		foreach ($values as $v) {
 			$valuesQuery[] = '(' . implode(',', $v) . ')';
 		}
-		$query = Query::instance()
-			->insert($modelName);
+		$locator = IcEngine::serviceLocator();
+		$queryBuilder = $locator->getService('query');
+		$query = $queryBuilder->insert($modelName);
 		foreach ($values as $valuesPart) {
 			$query->values($valuesPart, true);
 		}
@@ -53,8 +54,11 @@ class Unit_Of_Work_Query_Insert extends Unit_Of_Work_Query_Abstract
 	 */
 	public function push(Query_Abstract $query, $object = null, $loaderName = null)
 	{
+		$locator = IcEngine::serviceLocator();
+		$configManager = $locator->getService('configManager');
+		$unitOfWork = $locator->getService('unitOfWork');
 		$table = $query->getPart(QUERY::INSERT);
-		$tableScheme = Config_Manager::get('Model_Mapper_' . $table);
+		$tableScheme = $configManager->get('Model_Mapper_' . $table);
 		$tableFields = array_keys($tableScheme->fields->asArray());
 		$values = $query->getPart(QUERY::VALUES);
 		$resultFields = array();
@@ -65,7 +69,7 @@ class Unit_Of_Work_Query_Insert extends Unit_Of_Work_Query_Abstract
 		}
 		$dataFields = array_keys($resultFields);
 		$uniqName = $table . '@' . md5(implode('', $dataFields));
-		Unit_Of_Work::pushRaw(QUERY::INSERT, $uniqName, array(
+		$unitOfWork->pushRaw(QUERY::INSERT, $uniqName, array(
 			'values'	=> $resultFields
 		));
 	}

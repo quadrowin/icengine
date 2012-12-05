@@ -162,7 +162,7 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 	 * @param array $patterns
 	 * @return integer Количество удаленных первичных ключей.
 	 */
-	protected function fullDeleteByPatterns ($table, array $patterns)
+	protected function fullDeleteByPatterns($table, array $patterns)
 	{
 		$translator = $this->translator();
 		$ids = array();
@@ -281,4 +281,5 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 			self::TRANSLATOR . '_' . $this->query->getName()
 		);
 	}
+
 }

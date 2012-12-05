@@ -2,7 +2,7 @@
 
 /**
  * Модель гостя (незарегистрированного посетителя сайта).
- * 
+ *
  * @author goorus, morph
  */
 class User_Guest extends User_Cli
@@ -25,7 +25,7 @@ class User_Guest extends User_Cli
 			'password'	=> ''
 		)
 	);
-    
+
     /**
 	 * @inheritdoc
 	 */

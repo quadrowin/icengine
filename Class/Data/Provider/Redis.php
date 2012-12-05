@@ -230,7 +230,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	 */
 	public function keyDecode($key)
 	{
-		return substr(urldecode ($key), strlen($this->prefix));
+		return substr(urldecode($key), strlen($this->prefix));
 	}
 
 	/**
@@ -244,7 +244,9 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 		}
         $keys = array();
         foreach ($this->connections as $connection) {
-            $connectionKeys = $connection->keys($pattern . '*');
+            $connectionKeys = $connection->keys(
+				$this->keyEncode($pattern) . '*'
+			);
             if (!$connectionKeys) {
                 continue;
             }
@@ -255,7 +257,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 			Tracer::incRedisKeyCount();
 			Tracer::incRedisKeyTime($endTime - $startTime);
 		}
-        return array_map(array($this, 'keyEncode'), $keys);
+        return array_map(array($this, 'keyDecode'), $keys);
 	}
 
 	/**
@@ -272,9 +274,8 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::set()
 	 */
-	public function set($key, $value, $expiration = 0, $tags = array())
+	public function set($key, $value, $expiration = 3600, $tags = array())
 	{
-		echo $key . ' ' . print_r($value, true) . '<br /><br />';
 		if ($expiration < 0) {
 			$expiration = 0;
 		}
