@@ -1,15 +1,20 @@
 <?php
 
+/**
+ * Помощник для Data Source
+ *
+ * @author ..., neon
+ */
 class Helper_Data_Source
 {
-
 	/**
-	 * @desc Получить информацию о колонке таблицы
+	 * Получить информацию о колонке таблицы
+	 *
 	 * @param string $table
 	 * @param string $field
 	 * @return Objective
 	 */
-	public static function field ($table, $field, $ds = null)
+	public static function field($table, $field, $ds = null)
 	{
         if (!$ds) {
             $ds = DDS::getDataSource();
@@ -30,57 +35,49 @@ class Helper_Data_Source
 	}
 
 	/**
-	 * @desc Получить список колонок таблицы
+	 * Получить список колонок таблицы
+	 *
 	 * @param string $table
 	 * @return Objective
 	 */
-	public static function fields ($table, $ds = null)
+	public function fields($table, $ds = null)
 	{
+		$locator = IcEngine::serviceLocator();
+		$dds = $locator->getService('dds');
+		$queryBuilder = $locator->getService('query');
         if (!$ds) {
-            $ds = DDS::getDataSource();
+            $ds = $dds->getDataSource();
         }
-
-		$query = Query::instance ()
-			->show ('FULL COLUMNS')
-			->from ($table);
-
-		$status = $ds->execute (
-			$query
-		)
-			->getResult ()
-				->asTable ();
-		if (!$status)
-		{
+		$query = $queryBuilder->show('FULL COLUMNS')
+			->from($table);
+		$status = $ds->execute($query)->getResult()->asTable();
+		if (!$status) {
 			return;
 		}
-		return new Objective ($status);
+		return new Objective($status);
 	}
 
 	/**
- 	 * @desc Получить информацию по таблице
+ 	 * Получить информацию по таблице
+	 *
  	 * @return Objective
  	 */
-	public static function table ($table, $ds = null)
+	public static function table($table, $ds = null)
  	{
+		$locator = IcEngine::serviceLocator();
+		$dds = $locator->getService('dds');
+		$queryBuilder = $locator->getService('query');
         if (!$ds) {
-            $ds = DDS::getDataSource();
+            $ds = $dds->getDataSource();
         }
-        
- 		$query = Query::instance ()
- 			->show ('TABLE STATUS')
-			->where ('Name', $table)
-			->resetPart (Query::FROM);
-
- 		$status = $ds->execute (
- 			$query
- 		)
-			->getResult ()
-				->asRow ();
-		if (!$status)
-		{
+ 		$query = $queryBuilder->show('TABLE STATUS')
+			->where('Name', $table)
+			->resetPart(Query::FROM);
+ 		$status = $ds->execute($query)->getResult()->asRow();
+		if (!$status) {
 			return;
 		}
- 		return new Objective ($status);
+ 		return new Objective($status);
  	}
 
 	/**
@@ -92,7 +89,7 @@ class Helper_Data_Source
         if (!$ds) {
             $ds = DDS::getDataSource();
         }
-        
+
 		$query = Query::instance ()
 			->show ('TABLE STATUS')
 			->resetPart (Query::FROM);
