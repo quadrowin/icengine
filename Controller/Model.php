@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * Контроллер модели
+ *
+ * @author ..., neon
+ */
 class Controller_Model extends Controller_Abstract
 {
 	/**
@@ -42,7 +47,7 @@ class Controller_Model extends Controller_Abstract
 			$fields = Helper_Data_Source::fields($model);
 			$table = Model_Scheme::table($model);
 			if (!$fields) {
-				echo 'Model "' . $model . '" not have a table. Create? [Y/n] ';
+				echo 'Model "' . $model . '" not have a table. Create?[Y/n] ';
 				$a = fgets(STDIN);
 				if ($a[0] == 'Y') {
 					Controller_Manager::call(
@@ -70,7 +75,7 @@ class Controller_Model extends Controller_Abstract
 				if ($addedFields) {
 					foreach ($addedFields as $fieldName => $data) {
 						echo 'In model "' . $model . '" had added field "' .
-							$fieldName . '". Create? [Y/n] ';
+							$fieldName . '". Create?[Y/n] ';
 						$a = fgets(STDIN);
 						if ($a[0] == 'Y') {
 							$field = new Model_Field($fieldName);
@@ -104,7 +109,7 @@ class Controller_Model extends Controller_Abstract
 				if ($deletedFields) {
 					foreach ($deletedFields as $fieldName => $data) {
 						echo 'In model "' . $model . '" had deleted field "' .
-							$fieldName . '". Delete? [Y/n] ';
+							$fieldName . '". Delete?[Y/n] ';
 						$a = fgets(STDIN);
 						if ($a[0] == 'Y') {
 							$field = new Model_Field($fieldName);
@@ -144,7 +149,7 @@ class Controller_Model extends Controller_Abstract
 								echo 'In model "' . $model .
 									'" had changed field "' .
 									$fieldName . '" with added attribute "' .
-									$attrName .	'". Apply changes? [Y/n] ';
+									$attrName .	'". Apply changes?[Y/n] ';
 								$a = fgets(STDIN);
 								if ($a[0] == 'Y') {
 									$field = new Model_Field($fieldName);
@@ -192,7 +197,7 @@ class Controller_Model extends Controller_Abstract
 								echo 'In model "' . $model .
 									'" had changed field "' .
 									$fieldName . '" with changed attribute "' .
-									$attrName .	'". Apply changes? [Y/n] ';
+									$attrName .	'". Apply changes?[Y/n] ';
 								$a = fgets(STDIN);
 								if ($a[0] == 'Y') {
 									$field = new Model_Field($fieldName);
@@ -304,7 +309,7 @@ class Controller_Model extends Controller_Abstract
 			{
 				foreach ($config->fields as $field => $values)
 				{
-					$type = $values [0];
+					$type = $values[0];
 					if ($type == 'tinyint')
 					{
 						$type = 'boolean';
@@ -317,9 +322,9 @@ class Controller_Model extends Controller_Abstract
 					{
 						$type = 'string';
 					}
-					$comment = !empty ($values [1]['Comment'])
-						? $values [1]['Comment'] : '';
-					$properties [] = array (
+					$comment = !empty ($values[1]['Comment'])
+						? $values[1]['Comment'] : '';
+					$properties[] = array (
 						'type'		=> $type,
 						'field'		=> $field,
 						'comment'	=> $comment
@@ -399,11 +404,11 @@ class Controller_Model extends Controller_Abstract
 			return;
 		}
 		$buffer = $task->getTransaction ()->buffer ();
-		if (empty ($buffer ['missings']))
+		if (empty ($buffer['missings']))
 		{
 			return;
 		}
-		$missings = $buffer ['missings'];
+		$missings = $buffer['missings'];
 		foreach ($missings as $model_name)
 		{
 			Controller_Manager::call (
@@ -468,204 +473,163 @@ class Controller_Model extends Controller_Abstract
 		echo $query->translate ('Mysql') . PHP_EOL;
 	}
 
-	public function fromTable ($name, $author, $comment, $missing = 0, $rewrite = 0, $ds = NULL)
+	public function fromTable($name, $author, $comment, $missing = 0,
+		$rewrite = 0, $ds = NULL)
 	{
-
+		$dds = $this->getService('dds');
+		$helperDataSource = $this->getService('helperDataSource');
+		$modelScheme = $this->getService('modelScheme');
+		$configManager = $this->getService('configManager');
+		$queryBuilder = $this->getService('query');
+		$helperConverter = $this->getService('helperConverter');
+		$helperCodeGenerator = $this->getService('helperCodeGenerator');
         if (!$ds) {
-            $ds = DDS::getDataSource();
+            $ds = $dds->getDataSource();
         }
-
-		$this->_task->setTemplate (null);
-
-		if (!$missing)
-		{
-			$names = array ($name);
-		}
-		else
-		{
+		$this->task->setTemplate(null);
+		if (!$missing) {
+			$names = array($name);
+		} else {
 			$comment = '';
-			$tables = Helper_Data_Source::tables ();
-			$names = array ();
-			foreach ($tables as $table)
-			{
-				$names [] = $table ['Name'];
+			$tables = $helperDataSource->tables();
+			$names = array();
+			foreach ($tables as $table) {
+				$names[] = $table['Name'];
 			}
 		}
-
-		foreach ($names as $name)
-		{
-			$fields = Helper_Data_Source::fields ('`' . $name . '`', $ds);
-			$info = Helper_Data_Source::table ('`' . $name . '`', $ds);
-			$model_name = Model_Scheme::tableToModel ($name);
-			$dir = IcEngine::root () . 'Ice/Config/Model/Mapper/';
-			$name_dir = explode ('_', $model_name);
-			$filename = array_pop ($name_dir);
+		foreach ($names as $name) {
+			$fields = $helperDataSource->fields('`' . $name . '`', $ds);
+			$info = $helperDataSource->table('`' . $name . '`', $ds);
+			$model_name = $modelScheme->tableToModel($name);
+			$dir = IcEngine::root() . 'Ice/Config/Model/Mapper/';
+			$name_dir = explode('_', $model_name);
+			$filename = array_pop($name_dir);
 			$current_dir = $dir;
-			$exists_scheme = Config_Manager::get ('Model_Mapper_' . $model_name);
-			$references = array ();
-			$admin_panel = array ();
-			if ($exists_scheme)
-			{
+			$exists_scheme = $configManager->get('Model_Mapper_' . $model_name);
+			$references = array();
+			$admin_panel = array();
+			if ($exists_scheme) {
 				$author = $author ? $author : $exists_scheme->author;
 				$comment = $comment ? $comment : $exists_scheme->comment;
 				$references = $exists_scheme->references;
 				$admin_panel = $exists_scheme->admin_panel;
 			}
-			if ($name_dir)
-			{
-				foreach ($name_dir as $dir)
-				{
+			if ($name_dir) {
+				foreach ($name_dir as $dir) {
 					$current_dir .= $dir . '/';
-					if (!is_dir ($current_dir))
-					{
-						mkdir ($current_dir);
+					if (!is_dir($current_dir)) {
+						mkdir($current_dir);
 					}
 				}
 			}
 			$filename = $current_dir . $filename . '.php';
-			if (is_file ($filename) && !$rewrite)
-			{
+			if (is_file($filename) && !$rewrite) {
 				continue;
 			}
-
-			$result_fields = array ();
-			$result_keys = array ();
-			$query = Query::instance ()
-				->show ('KEYS')
-				->from ('`' . $name . '`');
-
-            //$scheme = Model_Scheme::getScheme('Sn_User_Dialog');
-            //print_r($scheme);die;
-
-            //$ds = Data_Source_Manager::
-
-			$keys = $ds->execute ($query)->getResult ()->asTable ();
-
-			foreach ($fields as $field)
-			{
+			$result_fields = array();
+			$result_keys = array();
+			$query = $queryBuilder->show('KEYS')
+				->from('`' . $name . '`');
+			$keys = $ds->execute($query)->getResult()->asTable();
+			foreach ($fields as $field) {
 				$unsigned = false;
-				$type = $field ['Type'];
+				$type = $field['Type'];
 				$size = null;
-				$values = array ();
-				$tmp = explode ('(', $type);
-				if (isset ($tmp [1]))
-				{
-					$type = $tmp [0];
-					if (strpos ($tmp [1], ' ') !== false && $type != 'enum')
-					{
+				$values = array();
+				$tmp = explode('(', $type);
+				if (isset($tmp[1])) {
+					$type = $tmp[0];
+					if (strpos($tmp[1], ' ') !== false && $type != 'enum') {
 						$unsigned = true;
-						$size = substr ($tmp [1], 0, strpos ($tmp [1], ')'));
+						$size = substr($tmp[1], 0, strpos($tmp[1], ')'));
+					} else {
+						$size = rtrim($tmp[1], ')');
 					}
-					else
-					{
-						$size = rtrim ($tmp [1], ')');
+					if (strpos($size, ',') !== false) {
+						$size = explode(',', $size);
 					}
-					if (strpos ($size, ',') !== false)
-					{
-						$size = explode (',', $size);
-					}
-					if ($type == 'enum')
-					{
+					if ($type == 'enum') {
 						$values = $size;
 						$size = '';
 					}
 				}
-				$result_fields [$field ['Field']] = array (
-					ucfirst ($type),
-					array ()
+				$result_fields[$field['Field']] = array(
+					ucfirst($type),
+					array()
 				);
-				if ($size)
-				{
-					$result_fields [$field ['Field']][1]['Size'] = $size;
+				if ($size) {
+					$result_fields[$field['Field']][1]['Size'] = $size;
 				}
-				if ($values)
-				{
-					$result_fields [$field ['Field']][1]['Enum'] = $values;
+				if ($values) {
+					$result_fields[$field['Field']][1]['Enum'] = $values;
 				}
 				if (
-					strpos ($field ['Type'], 'text') === false &&
+					strpos($field['Type'], 'text') === false &&
 					(
-						strpos ($field ['Type'], 'date') === false ||
-						!empty ($field ['Default'])
+						strpos($field['Type'], 'date') === false ||
+						!empty($field['Default'])
 					)
-				)
-				{
+				) {
 					if (
-						strpos (strtolower ($type), 'int') === false ||
-						is_numeric ($field ['Default'])
-					)
-					{
-						$result_fields [$field ['Field']][1]['Default'] =
-							$field ['Default'];
+						strpos(strtolower($type), 'int') === false ||
+						is_numeric($field['Default'])
+					) {
+						$result_fields[$field['Field']][1]['Default'] =
+							$field['Default'];
 					}
 
 				}
-				if (!empty ($field ['Comment']))
+				if (!empty($field['Comment']))
 				{
-					$result_fields [$field ['Field']][1]['Comment'] = addslashes (
-						$field ['Comment']
+					$result_fields[$field['Field']][1]['Comment'] = addslashes(
+						$field['Comment']
 					);
 				}
-				if ($unsigned)
-				{
-					$result_fields [$field ['Field']][1][] = 'Unsigned';
+				if ($unsigned) {
+					$result_fields[$field['Field']][1][] = 'Unsigned';
 				}
-				if ($field ['Null'] == 'YES')
-				{
-					$result_fields [$field ['Field']][1][] = 'Not_Null';
+				if ($field['Null'] == 'YES') {
+					$result_fields[$field['Field']][1][] = 'Not_Null';
+				} else {
+					$result_fields[$field['Field']][1][] = 'Null';
 				}
-				else
-				{
-					$result_fields [$field ['Field']][1][] = 'Null';
-				}
-				if ($field ['Extra'] == 'auto_increment')
-				{
-					$result_fields [$field ['Field']][1][] = 'Auto_Increment';
+				if ($field['Extra'] == 'auto_increment') {
+					$result_fields[$field['Field']][1][] = 'Auto_Increment';
 				}
 			}
-
-			foreach ($keys as $key)
-			{
-				$name = $key ['Key_name'];
-				if (!isset ($result_keys [$name]))
-				{
-					$result_keys [$name] = $key;
+			foreach ($keys as $key) {
+				$name = $key['Key_name'];
+				if (!isset($result_keys[$name])) {
+					$result_keys[$name] = $key;
 				}
-				if (!is_array ($result_keys [$name]['Column_name']))
-				{
-					$result_keys [$name]['Column_name'] = array ();
+				if (!is_array($result_keys[$name]['Column_name'])) {
+					$result_keys[$name]['Column_name'] = array();
 				}
-				$result_keys [$name]['Column_name'][] = $key ['Column_name'];
+				$result_keys[$name]['Column_name'][] = $key['Column_name'];
 			}
-			$keys = array_values ($result_keys);
-
-			$result_keys = array ();
-
-			foreach ($keys as $key)
-			{
-				$key_name = $key ['Key_name'] != 'PRIMARY'
-					? $key ['Key_name'] : 'id';
+			$keys = array_values($result_keys);
+			$result_keys = array();
+			foreach ($keys as $key) {
+				$key_name = $key['Key_name'] != 'PRIMARY'
+					? $key['Key_name'] : 'id';
 				$key_name .= '_index';
-				$type = $key ['Non_unique'] ? 'Key' : 'Unique';
-				$type = $key ['Key_name'] == 'PRIMARY' ? 'Primary' : $type;
-				$result_keys [$key_name] = array (
+				$type = $key['Non_unique'] ? 'Key' : 'Unique';
+				$type = $key['Key_name'] == 'PRIMARY' ? 'Primary' : $type;
+				$result_keys[$key_name] = array(
 					$type,
-					$key ['Column_name']
+					$key['Column_name']
 				);
 			}
-
-			if (!$comment && !empty ($info ['Comment']))
-			{
-				$comment = $info ['Comment'];
+			if (!$comment && !empty($info['Comment'])) {
+				$comment = $info['Comment'];
 			}
-
 			if (!empty($admin_panel)) {
-				$admin_panel =  '\'admin_panel\' => ' . Helper_Converter::arrayToString($admin_panel);
+				$admin_panel =  '\'admin_panel\' => ' .
+					$helperConverter->arrayToString($admin_panel);
 			}
-
-			$output = Helper_Code_Generator::fromTemplate (
+			$output = $helperCodeGenerator->fromTemplate(
 				'scheme',
-				array (
+				array(
 					'author'		=> $author,
 					'comment'		=> $comment,
 					'fields'		=> $result_fields,
@@ -674,9 +638,8 @@ class Controller_Model extends Controller_Abstract
 					'admin_panel'	=> $admin_panel
 				)
 			);
-
 			echo 'File: ' . $filename . PHP_EOL;
-			file_put_contents ($filename, $output);
+			file_put_contents($filename, $output);
 		}
 	}
 
@@ -686,7 +649,7 @@ class Controller_Model extends Controller_Abstract
 		$exists_models = array ();
 		foreach ($tables as $table)
 		{
-			$exists_models [] = Model_Scheme::tableToModel ($table->Name);
+			$exists_models[] = Model_Scheme::tableToModel ($table->Name);
 		}
 		$dir = IcEngine::root () . 'Ice/Config/Model/Mapper/';
 		$exec = 'find ' . $dir . '*';
@@ -720,14 +683,14 @@ class Controller_Model extends Controller_Abstract
 			{
 				continue;
 			}
-			$config_models [] = $class_name;
+			$config_models[] = $class_name;
 		}
 		$result = array ();
 		foreach ($config_models as $model)
 		{
 			if (!in_array ($model, $exists_models))
 			{
-				$result []  = $model;
+				$result[]  = $model;
 			}
 		}
 		$this->_output->send (array (
@@ -919,11 +882,11 @@ class Controller_Model extends Controller_Abstract
 
 		echo 'File: ' . $filename . PHP_EOL . PHP_EOL;
 
-		$fields = !$fields ? $scheme ['fields'] : $fields;
+		$fields = !$fields ? $scheme['fields'] : $fields;
 
-		$indexes = !$indexes ? $scheme ['indexes'] : $indexes;
+		$indexes = !$indexes ? $scheme['indexes'] : $indexes;
 
-		$admin_panel = !$admin_panel ? $scheme ['admin_panel'] : $admin_panel;
+		$admin_panel = !$admin_panel ? $scheme['admin_panel'] : $admin_panel;
 
 		$admin_panel = "'admin_panel' => " . $admin_panel;
 
