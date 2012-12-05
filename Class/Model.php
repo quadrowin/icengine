@@ -360,10 +360,10 @@ abstract class Model implements ArrayAccess
         }
         return self::$serviceLocator->getService($serviceName);
     }
-    
+
     /**
      * Получить текущий сервис локатор
-     * 
+     *
      * @return Service_Locator
      */
     public function getServiceLocator()
@@ -551,14 +551,14 @@ abstract class Model implements ArrayAccess
 
     /**
      * Изменить локатор сервисов
-     * 
+     *
      * @param Service_Locator $serviceLocator
      */
     public function setServiceLocator($serviceLocator)
     {
         self::$serviceLocator = $serviceLocator;
     }
-    
+
 	/**
 	 * Тихое получение или установка поля
      *

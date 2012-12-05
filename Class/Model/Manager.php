@@ -185,9 +185,6 @@ class Model_Manager extends Manager_Abstract
         $resourceKey = $modelName . '__' . $key;
         $model = $resourceManager->get('Model', $resourceKey);
         if ($model instanceof Model) {
-            if (is_array($source)) {
-                $model->set($source);
-            }
             return $model;
         }
         $config = $this->config();
@@ -362,7 +359,7 @@ class Model_Manager extends Manager_Abstract
                 ->update($modelName)
                 ->values($model->getFields())
                 ->where($keyField, $key)
-				->limit(1); 
+				->limit(1);
             $dataSource->execute($query);
         } else {
             if (!$key) {
