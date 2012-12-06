@@ -71,7 +71,7 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 	protected $insertId = null;
 
 	/**
-	 * Обработчики по видам запросов
+	 * ОбMongoработчики по видам запросов
      *
 	 * @var array
 	 */
@@ -85,8 +85,12 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 
 	/**
 	 * Запрос на удаление
+	 *
+	 * @param Query_Abstract $query
+	 * @param Query_Options $options
 	 */
-	public function _executeDelete(Query_Abstract $query, Query_Options $options)
+	public function _executeDelete(Query_Abstract $query,
+		Query_Options $options)
 	{
 		$this->query['criteria']['_id'] = $this->normalizeId(
 			$this->query['criteria']['_id']
@@ -100,9 +104,10 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 	/**
 	 * Запрос на вставку
 	 */
-	public function _executeInsert(Query_Abstract $query, Query_Options $options)
+	public function _executeInsert(Query_Abstract $query,
+		Query_Options $options)
 	{
-		if (isset ($this->query['a']['_id'])) {
+		if (isset($this->query['a']['_id'])) {
 			$this->insertId = $this->query['a']['_id'];
 			$this->collection->update(
 				array(
@@ -123,7 +128,8 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 	/**
 	 * Запрос на выборку
 	 */
-	public function _executeSelect(Query_Abstract $query, Query_Options $options)
+	public function _executeSelect(Query_Abstract $query,
+		Query_Options $options)
 	{
 		if ($this->query['find_one']) {
 			$row = $this->collection->findOne($this->query['query']);
@@ -260,7 +266,7 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 		}
 		$m = $this->queryMethods[$query->type()];
 		$this->{$m}($query, $options);
-		$finish = microtime (true);
+		$finish = microtime(true);
 		return new Query_Result(array(
 			'error'			=> '',
 			'errno'			=> 0,
