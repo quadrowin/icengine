@@ -2,7 +2,7 @@
 
 /**
  * Абстрактная модель пользователя.
- * 
+ *
  * @author goorus, morph
  */
 class User_Abstract extends Model
@@ -19,19 +19,19 @@ class User_Abstract extends Model
 
 	/**
 	 * Текущий пользователь.
-	 * 
+	 *
      * @var User
 	 */
 	protected $current;
 
 	/**
 	 * Авторизоваться этим пользователем.
-	 * 
+	 *
      * @return User
 	 */
 	public function authorize()
 	{
-        $session = $this->getService('userSession');
+        $session = $this->getService('session')->getCurrent();
 		$session->updateSession($this->key());
 		$this->current = $this;
 		return $this;
@@ -39,7 +39,7 @@ class User_Abstract extends Model
 
 	/**
 	 * Проверяет, авторизован ли пользователь.
-	 * 
+	 *
      * @return boolean True, если пользователь авторизован, иначе false.
 	 */
 	public function authorized ()
@@ -49,7 +49,7 @@ class User_Abstract extends Model
 
 	/**
 	 * Проверяет, имеет ли пользователь доступ.
-	 * 
+	 *
      * @param string|integer $name
 	 * 		Алиас или id ресурса
 	 * @return boolean
@@ -76,7 +76,7 @@ class User_Abstract extends Model
 
 	/**
 	 * Создание пользователя.
-	 * 
+	 *
      * @param array|Objective $data Данные пользователя.
 	 * $param ['email'] Емейл
 	 * $param ['password'] Пароль
@@ -99,7 +99,7 @@ class User_Abstract extends Model
 	/**
 	 * Возвращает модель текущего пользователя.
 	 * Если пользователь не авторизован, будет возвращает экземпляр User_Guest.
-	 * 
+	 *
      * @return User Текущий пользователь.
 	 */
 	public function getCurrent()
@@ -109,7 +109,7 @@ class User_Abstract extends Model
 
 	/**
 	 * Возвращает id текущего пользователя.
-	 * 
+	 *
      * @return integer id текущего пользователя.
 	 */
 	public function id()
@@ -122,7 +122,7 @@ class User_Abstract extends Model
 
 	/**
 	 * Проверяет, имеет ли пользователь роль админа.
-	 * 
+	 *
      * @return boolean true, если имеет, иначе false.
 	 */
 	public function isAdmin()
@@ -133,7 +133,7 @@ class User_Abstract extends Model
 	/**
 	 * Проверяет, является ли этот пользователем текущим.
 	 * Т.е. авторизован от имени этого пользователя.
-	 * 
+	 *
      * @return boolean
 	 */
 	public function isCurrent()
@@ -143,7 +143,7 @@ class User_Abstract extends Model
 
 	/**
 	 * Проверяет, имеет ли пользователь хотя бы одну из указанных ролей.
-	 * 
+	 *
      * @param Acl_Role|string $role Роль или название роли
 	 * @param $_
 	 * @return boolean Имеет ли пользователь роль.
@@ -193,7 +193,7 @@ class User_Abstract extends Model
 	/**
 	 * Инициализация пользователя.
 	 * Создание моделей сессии и пользователя.
-	 * 
+	 *
      * @param string $session_id Идентификатор сессии.
 	 * @return User Пользователь.
 	 */
@@ -231,7 +231,7 @@ class User_Abstract extends Model
 
     /**
      * Изменить текущего пользователя
-     * 
+     *
      * @param type $user
      */
 	public function setCurrent($user)

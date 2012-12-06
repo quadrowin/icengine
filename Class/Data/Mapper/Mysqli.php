@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Мэппер для соеденения с mysql
- * 
+ * Мэппер для соединения с mysql
+ *
  * @author goorus, morph
  */
 class Data_Mapper_Mysqli extends Data_Mapper_Abstract
@@ -14,14 +14,14 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 
 	/**
 	 * Соединение с mysql
-	 * 
+	 *
      * @var resource
 	 */
 	protected $linkIdentifier = null;
 
 	/**
 	 * Параметры соединения
-	 * 
+	 *
      * @var array
 	 */
 	public $connectionOptions = array(
@@ -34,63 +34,63 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 
 	/**
 	 * Последний оттранслированный запрос.
-	 * 
+	 *
      * @var string
 	 */
 	protected $sql = '';
 
     /**
      * Код ошибки
-     * 
-     * @var integer 
+     *
+     * @var integer
      */
 	protected $errno = 0;
-	
+
     /**
      * Сообщение об ошибке
-     *  
+     *
      * @var string
      */
     protected $error = '';
 
     /**
      * Количество затронутых последним запросом кортежей
-     * 
+     *
      * @var integer
      */
 	protected $affectedRows = 0;
-    
+
     /**
      * Количество полученных рядов (игнорируя лимит)
-     * 
-     * @var integer 
+     *
+     * @var integer
      */
 	protected $foundRows = 0;
-    
+
     /**
      * Количество полученных рядов
-     * 
-     * @var integer 
+     *
+     * @var integer
      */
 	protected $numRows = 0;
-    
+
     /**
      * id последней добавленной сущности
-     *  
-     * @var mixed 
+     *
+     * @var mixed
      */
 	protected $insertId = null;
 
     /**
      * Опции маппера
-     *  
+     *
      * @var array
      */
 	protected $options;
 
 	/**
 	 * Обработчики по видам запросов.
-	 * 
+	 *
      * @var array
 	 */
 	protected $queryMethods = array(
@@ -103,12 +103,12 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 
 	/**
 	 * Запрос на изменение данных (Update или Delete).
-	 * 
+	 *
      * @param Query_Abstract $query Запрос
 	 * @param Query_Options $options Параметры запроса.
 	 * @return boolean
 	 */
-	protected function _executeChange(Query_Abstract $query, 
+	protected function _executeChange(Query_Abstract $query,
         Query_Options $options)
 	{
 		if (!mysql_query($this->sql, $this->linkIdentifier)) {
@@ -122,12 +122,12 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 
 	/**
 	 * Запрос на вставку.
-	 * 
+	 *
      * @param Query_Abstract $query Запрос.
 	 * @param Query_Options $options Параметры запроса.
 	 * @return boolean
 	 */
-	protected function _executeInsert(Query_Abstract $query, 
+	protected function _executeInsert(Query_Abstract $query,
         Query_Options $options)
 	{
 		if (!mysql_query($this->sql, $this->linkIdentifier)) {
@@ -143,12 +143,12 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 
 	/**
 	 * Запрос на выборку.
-	 * 
+	 *
      * @param Query_Abstract $query Запрос.
 	 * @param Query_Options $options Параметры запроса.
 	 * @return array|null
 	 */
-	protected function _executeSelect(Query_Abstract $query, 
+	protected function _executeSelect(Query_Abstract $query,
         Query_Options $options)
 	{
 		$result = mysql_query($this->sql, $this->linkIdentifier);
@@ -174,10 +174,10 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 		}
 		return $rows;
 	}
-    
+
 	/**
 	 * Подключение к БД
-	 * 
+	 *
      * @param Objective|array $config [optional]
 	 */
 	public function connect($config = null)
@@ -209,7 +209,7 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 	 * (non-PHPdoc)
 	 * @see Data_Mapper_Abstract::execute()
 	 */
-	public function execute(Data_Source_Abstract $source, Query_Abstract $query, 
+	public function execute(Data_Source_Abstract $source, Query_Abstract $query,
         $options = null)
 	{
 		if (!($query instanceof Query_Abstract)) {
@@ -240,8 +240,8 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 		if (!$this->_errno && is_null($result)) {
 			$result = array();
 		}
-		$finish = microtime (true);
-		return new Query_Result(array (
+		$finish = microtime(true);
+		return new Query_Result(array(
 			'error'			=> $this->error,
 			'errno'			=> $this->errno,
 			'query'			=> $query,
@@ -257,7 +257,7 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 
 	/**
 	 * Возвращает ресурс соединения с mysql.
-	 * 
+	 *
      * @return resource
 	 */
 	public function linkIdentifier()
@@ -288,5 +288,4 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 		}
 		return parent::setOption($key, $value);
 	}
-
 }

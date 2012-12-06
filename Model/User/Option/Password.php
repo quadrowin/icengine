@@ -12,12 +12,13 @@ class User_Option_Password extends Model_Option
 	 */
 	public function before()
 	{
+		$locator = IcEngine::serviceLocator();
+		$cryptManager = $locator->getService('cryptManager');
 		if ($this->params['value']) {
 			$password = $this->params['value'];
 			if (isset($this->params['type']) &&
 					$this->params['type'] == 'RSA') {
-				Loader::load('Crypt_Manager');
-				$rsa = Crypt_Manager::get('RSAW2');
+				$rsa = $cryptManager->get('RSAW2');
 				$password = $rsa->encode($this->params['value']);
 			} else {
 				$password = md5($password);
