@@ -4,7 +4,6 @@
  * Базовый класс коллекции моделей
  *
  * @author goorus, morph
- *
  */
 class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 {
