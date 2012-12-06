@@ -3,6 +3,7 @@
 /**
  * @desc Часть схемы моделей
  * @author Илья Колесников
+ * @Service("modelMapperSchemePart")
  */
 class Model_Mapper_Scheme_Part
 {

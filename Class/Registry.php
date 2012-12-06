@@ -3,7 +3,8 @@
 /**
  * Регистр глобальных переменных
  *
- * @author goorus, morph 
+ * @author goorus, morph
+ * @Service("registry") 
  */
 class Registry
 {

@@ -4,6 +4,7 @@
  * Генератор кода
  *
  * @author ..., neon
+ * @Service("helperCodeGenerator")
  */
 class Helper_Code_Generator
 {

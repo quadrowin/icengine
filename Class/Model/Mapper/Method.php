@@ -3,6 +3,8 @@
 /**
  * @desc Фабрика методов ORM
  * @author Илья Колесников
+ * 
+ * @Service("modelMapperMethod")
  */
 class Model_Mapper_Method
 {

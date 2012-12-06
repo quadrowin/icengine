@@ -4,6 +4,7 @@
  * Помощник упаковщика статических ресурсов
  *
  * @author morph
+ * @Service("helperViewResource")
  */
 class Helper_View_Resource
 {

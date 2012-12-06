@@ -4,6 +4,7 @@
  * Менеджер ресурсов представления
  * 
  * @author goorus, morph
+ * @Service("viewResourceManager")
  */
 class View_Resource_Manager extends Manager_Abstract
 {

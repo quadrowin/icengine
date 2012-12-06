@@ -4,6 +4,7 @@
  * Класс для автоматического подключения классов движка.
  * 
  * @author goorus
+ * @Service("loaderAuto")
  */
 class Loader_Auto
 {

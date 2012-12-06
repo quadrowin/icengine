@@ -5,16 +5,14 @@
  *
  * @author Yury Shveodv, Ilya Kolesnikov
  * @package IcEngine
- *
  */
 class Key_Generator extends Manager_Abstract
 {
 
 	/**
-	 * @desc Конфиг
-	 * @var array|Objective
+	 * @inheritdoc
 	 */
-	protected static $_config = array (
+	protected $config = array(
 		// Провайдер
 		'provider'		=> null,
 		// Минимальное значение
@@ -24,67 +22,47 @@ class Key_Generator extends Manager_Abstract
 	);
 
 	/**
-	 * @desc Провайдер для хранения текущего значения
-	 * @var Data_Provider_Abstract
+	 * Провайдер для хранения текущего значения
+	 * 
+     * @var Data_Provider_Abstract
 	 */
-	protected static $_provider;
+	protected $provider;
 
 	/**
-	 * @desc Вовзращает конфиги
-	 * @return Objective
-	 */
-	public static function config ()
-	{
-		if (is_array (self::$_config))
-		{
-			self::$_config = Config_Manager::get (__CLASS__, self::$_config);
-		}
-		return self::$_config;
-	}
-
-	/**
-	 * @desc Генерирует новый ключ
+	 * Генерирует новый ключ
+     * 
 	 * @param string|Model $model
 	 * @return integer
 	 */
-	public static function get ($model = 'def')
+	public function get($model = 'def')
 	{
-		if (is_object ($model))
-		{
-			$model = $model->modelName ();
+		if (is_object($model)) {
+			$model = $model->modelName();
 		}
-
-		$provider = self::provider ();
-		$val = $provider->increment ($model);
-		if ($val < self::config ()->min_value)
-		{
-			if (!$provider->lock ($model, 1, 5, 100))
-			{
+		$provider = $this->provider();
+		$value = $provider->increment($model);
+		$newValue = $value;
+        if ($value < $this->config()->min_value) {
+			if (!$provider->lock($model, 1, 5, 100)) {
 				throw new Exception ('Failed to lock key value');
 			}
-
-			$val = self::load ($model, self::config ()->min_value);
-
-			$provider->set ($model, $val);
-
-			$provider->unlock ($model);
-
-			$val = $provider->increment ($model);
+			$value = $this->load($model, $this->config()->min_value);
+			$provider->set($model, $value);
+			$provider->unlock($model);
+			$newValue = $provider->increment($model);
 		}
-
-		self::save ($model, $val);
-
-		return $val;
+		$this->save($model, $newValue);
+		return $newValue;
 	}
 
 	/**
-	 * @desc Возвращает название файла с бэкапом ключей.
-	 * @return string
+	 * Возвращает название файла с бэкапом ключей.
+	 * 
+     * @return string
 	 */
-	public static function lastFile ($model)
+	public function lastFile($model)
 	{
-		$locator = IcEngine::serviceLocator();
-		$helperSiteLocation = $locator->getService('helperSiteLocation');
+		$helperSiteLocation = $this->getService('helperSiteLocation');
 		$dir = IcEngine::root() . 'Ice/Var/Key/Generator/' .
 			urlencode ($helperSiteLocation->getLocation());
 		if (!is_dir($dir)) {
@@ -95,59 +73,56 @@ class Key_Generator extends Manager_Abstract
 	}
 
 	/**
-	 * @desc Загрузка значения из надежного хранилища
-	 * @param string $model
+	 * Загрузка значения из надежного хранилища
+	 * 
+     * @param string $model
 	 * @param integer $min
 	 */
-	public static function load ($model, $min)
+	public function load($model, $min)
 	{
-		$file = self::lastFile ($model);
-
-		if (file_exists ($file))
-		{
-			$val = file_get_contents ($file);
+		$file = $this->lastFile($model);
+		if (file_exists($file)) {
+			$value = file_get_contents ($file);
+		} else {
+            $modelScheme = $this->getService('modelScheme');
+			$dataSource = $modelScheme->dataSource($model);
+			$keyField = $modelScheme->keyField($model);
+            $queryBuilder = $this->getService('query');
+            $query = $queryBuilder
+                ->select($keyField)
+                ->from($model)
+                ->where("$keyField < ?", $this->config()->max_value)
+                ->order(array($keyField => Query::DESC))
+                ->limit(1);
+			$value = $dataSource->execute($query)->getResult()->asValue();
 		}
-		else
-		{
-			$ds = Model_Scheme::dataSource ($model);
-			$kf = Model_Scheme::keyField ($model);
-			$val = $ds->execute (
-				Query::instance ()
-					->select ($kf)
-					->from ($model)
-					->where ("`$kf` < ?", self::config ()->max_value)
-					->order (array ($kf => Query::DESC))
-					->limit (1)
-			)->getResult ()->asValue ();
-		}
-
-		return max ($val, $min) + 7; // magic 7
+		return max($value, $min) + 7; // magic 7
 	}
 
 	/**
-	 * @desc Провайдер
-	 * @return Data_Provider_Abstract
+	 * Провайдер
+	 * 
+     * @return Data_Provider_Abstract
 	 */
-	public static function provider ()
+	public function provider()
 	{
-		if (!self::$_provider)
-		{
-			self::$_provider = Data_Provider_Manager::get (
-				self::config ()->provider
-			);
+		if (!$this->provider) {
+            $dataProviderManager = $this->getService('dataProviderManager');
+            $providerName = $this->config()->provider;
+			$this->provider = $dataProviderManager->get($providerName);
 		}
-		return self::$_provider;
+		return $this->provider;
 	}
 
 	/**
-	 * @desc Дублирование значения в файл
-	 * @param string $model
+	 * Дублирование значения в файл
+	 * 
+     * @param string $model
 	 * @param integer $value
 	 */
-	public static function save ($model, $value)
+	public function save($model, $value)
 	{
-		$file = self::lastFile ($model);
-		file_put_contents ($file, $value);
+		$file = $this->lastFile($model);
+		file_put_contents($file, $value);
 	}
-
 }

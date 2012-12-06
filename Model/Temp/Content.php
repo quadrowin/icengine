@@ -6,6 +6,7 @@
  * хранения дополнительной информации о форме для редактирования.
  * @author Гурус
  * @package IcEngine
+ * @Service("tempContent")
  *
  */
 class Temp_Content extends Model

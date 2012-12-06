@@ -6,6 +6,7 @@
  * их работы.
  * 
  * @author goorus, morph
+ * @Service("executor")
  */
 class Executor extends Manager_Abstract
 {

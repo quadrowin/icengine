@@ -10,9 +10,9 @@ class Annotation_Source_Simple extends Annotation_Source_Abstract
 	/**
 	 * Рефлексия класса
 	 *
-	 * @var \ReflectionClass
+	 * @var array
 	 */
-	private $reflection;
+	private $reflections = array();
 
 	/**
 	 * Разбирает строку на части
@@ -94,10 +94,11 @@ class Annotation_Source_Simple extends Annotation_Source_Abstract
 	 */
 	protected function getReflection($class)
 	{
-		if (!$this->reflection) {
-			$this->reflection = new \ReflectionClass($class);
+        $className = is_string($class) ? $class : get_class($class);
+		if (!isset($this->reflections[$className])) {
+			$this->reflections[$className] = new \ReflectionClass($className);
 		}
-		return $this->reflection;
+		return $this->reflections[$className];
 	}
 
 	/**

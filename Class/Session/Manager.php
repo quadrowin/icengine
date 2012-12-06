@@ -4,6 +4,7 @@
  * Менеджер для работы с сессиями.
  * 
  * @author goorus, morph
+ * @Service("sessionManager")
  */
 class Session_Manager extends Manager_Abstract
 {

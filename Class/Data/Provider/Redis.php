@@ -266,7 +266,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	public function publish($channel, $message)
 	{
         foreach ($this->connections as $connection) {
-            $connection->publush($channel, $message);
+            $connection->publish($channel, $message);
         }
 	}
 

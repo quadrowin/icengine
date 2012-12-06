@@ -4,6 +4,7 @@
  * Менеджер модулей
  *
  * @author morph, neon
+ * @Service("moduleManager")
  */
 class Module_Manager extends Manager_Abstract
 {

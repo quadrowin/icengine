@@ -3,6 +3,7 @@
  * Помощник работы с массивами
  *
  * @author goorus, morph
+ * @Service("helperArray")
  */
 class Helper_Array
 {

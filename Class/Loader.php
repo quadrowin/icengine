@@ -4,6 +4,7 @@
  * Загрузчик модулей и классов.
  *
  * @author goorus, morph
+ * @Service("loader")
  */
 class Loader
 {

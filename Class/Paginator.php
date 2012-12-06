@@ -4,7 +4,7 @@
  * @desc Объект для хранения списка страниц.
  * @author Юрий Шведов
  * @package IcEngine
- *
+ * @Service("paginator")
  */
 class Paginator
 {

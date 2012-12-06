@@ -4,6 +4,7 @@
  * Роут
  *
  * @author goorus, morph
+ * @Service("route")
  */
 class Route extends Model_Child
 {

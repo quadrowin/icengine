@@ -49,7 +49,7 @@ abstract class Manager_Abstract
     public function getService($serviceName)
     {
         if (!$this->serviceLocator) {
-            $this->serviceLocator = new Service_Locator;
+            $this->serviceLocator = IcEngine::serviceLocator();
         }
         return $this->serviceLocator->getService($serviceName);
     }

@@ -4,6 +4,7 @@
  * Менеджер отображений вида
  * 
  * @author goorus, morph
+ * @Service("viewRenderManager")
  */
 class View_Render_Manager extends Manager_Abstract
 {

@@ -4,6 +4,7 @@
  * Менеджер моделей
  *
  * @author goorus, morph, neon
+ * @Service("modelManager")
  */
 class Model_Manager extends Manager_Abstract
 {

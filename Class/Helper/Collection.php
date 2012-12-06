@@ -4,6 +4,7 @@
  * Хелпер для коллекции
  *
  * @author neon
+ * @Service("collection")
  */
 class Helper_Collection
 {

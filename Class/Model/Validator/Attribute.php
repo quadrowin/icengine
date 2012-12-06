@@ -4,6 +4,7 @@
  * Атрибуты для валидация модели
  * 
  * @author morph
+ * @Service("modelValidatorAttribute")
  */
 class Model_Validator_Attribute
 {

@@ -3,6 +3,7 @@
 /**
  * @desc Фабрика атрибутов полей схемы связей модели
  * @author Илья Колесников
+ * @Service("modelMapperSchemeFieldAttribute")
  */
 class Model_Mapper_Scheme_Field_Attribute
 {

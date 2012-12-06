@@ -35,7 +35,7 @@ class Crypt_Xor extends Crypt_Abstract
 	 * (non-PHPdoc)
 	 * @see Crypt_Abstract::encode()
 	 */
-	public function decode ($input, $key)
+	public function decode ($input, $key = null)
 	{
 		return self::_xor ($input, $key);
 	}
@@ -44,7 +44,7 @@ class Crypt_Xor extends Crypt_Abstract
 	 * (non-PHPdoc)
 	 * @see Crypt_Abstract::encode()
 	 */
-	public function encode ($input, $key)
+	public function encode ($input, $key = null)
 	{
 		return self::_xor ($input, $key);
 	}

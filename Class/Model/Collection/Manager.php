@@ -4,6 +4,7 @@
  * Менеджер коллекций
  *
  * @author morph, goorus
+ * @Service("collectionManager")
  */
 class Model_Collection_Manager extends Manager_Abstract
 {

@@ -4,7 +4,7 @@
  * @desc Класс для работы с HTTP запросом.
  * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
- *
+ * @Service("request")
  */
 class Request
 {

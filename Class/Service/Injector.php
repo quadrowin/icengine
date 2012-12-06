@@ -3,7 +3,8 @@
 /**
  * Объект, который внедряет зависимости
  * 
- * @author
+ * @author morph
+ * @Service("serviceInjector")
  */
 class Service_Injector
 {

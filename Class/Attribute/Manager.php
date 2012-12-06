@@ -4,6 +4,7 @@
  * Менеджер атрибутов. Получает и устанавливает значения атрибутов модели
  * 
  * @author goorus, morph
+ * @Service("attributeManager")
  */
 class Attribute_Manager extends Manager_Abstract
 {

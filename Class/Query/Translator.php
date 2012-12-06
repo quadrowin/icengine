@@ -4,6 +4,7 @@
  * Транслятор запросов.
  * 
  * @author morph, goorus
+ * @Service("queryTranslator")
  */
 class Query_Translator
 {

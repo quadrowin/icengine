@@ -4,6 +4,7 @@
  * Помощник для построения зависимостей от положения сайта
  *
  * @author goorus, morph
+ * @Service("siteLocation")
  */
 class Helper_Site_Location extends Manager_Abstract
 {

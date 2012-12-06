@@ -356,7 +356,7 @@ abstract class Model implements ArrayAccess
     public function getService($serviceName)
     {
         if (!self::$serviceLocator) {
-            self::$serviceLocator = new Service_Locator;
+            self::$serviceLocator = IcEngine::serviceLocator();
         }
         return self::$serviceLocator->getService($serviceName);
     }

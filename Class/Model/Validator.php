@@ -4,6 +4,7 @@
  * Валидатор модели
  *
  * @author morph
+ * @Service("modelValidator")
  */
 class Model_Validator extends Manager_Abstract
 {

@@ -3,6 +3,7 @@
  * Класс хранящий и предоставляющий информацию о схеме моделей
  *
  * @author gooris, morph
+ * @Service("modelScheme")
  */
 class Model_Scheme extends Manager_Abstract
 {

@@ -4,6 +4,7 @@
  * Механизм определения роута по адресу
  *
  * @author goorus, morph
+ * @Service("router")
  */
 class Router extends Manager_Abstract
 {

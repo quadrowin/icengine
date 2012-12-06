@@ -7,6 +7,7 @@
  * DDS::execute ($query)
  *
  * @author goorus
+ * @Service("dds")
  */
 class DDS
 {

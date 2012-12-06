@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Менеджер валидаторов данных
+ * 
+ * @author morph
+ * @Service("dataValidatorManager")
+ */
 class Data_Validator_Manager
 {
 

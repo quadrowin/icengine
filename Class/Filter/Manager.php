@@ -3,6 +3,7 @@
  * Менеджер фильтров
  *
  * @author gooorus, morph
+ * @Service("filterManager")
  */
 class Filter_Manager extends Manager_Abstract
 {

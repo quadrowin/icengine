@@ -4,6 +4,7 @@
  * Диспетчер контроллеров
  *
  * @author goorus, morph
+ * @Service("controllerDispatcher")
  */
 class Controller_Dispatcher
 {

@@ -371,7 +371,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
     public function getService($name)
     {
         if (!self::$serviceLocator) {
-            self::$serviceLocator = new Service_Locator;
+            self::$serviceLocator = IcEngine::serviceLocator();
         }
         return self::$serviceLocator->getService($name);
     }

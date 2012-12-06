@@ -5,7 +5,7 @@
  *
  * @author morph
  */
-class Data_Link_Filter_Operand_Is_Not_Null extends
+class Data_Link_Filter_Operand_Not_Is_Null extends
 	Data_Link_Filter_Operand_Abstract
 {
 	/**

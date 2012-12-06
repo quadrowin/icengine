@@ -4,6 +4,7 @@
  * Ресурс для хранения в сессии
  *
  * @author goorus, morph
+ * @Service("sessionResource")
  */
 class Session_Resource extends Objective
 {
@@ -23,6 +24,9 @@ class Session_Resource extends Objective
 	public function __construct($name, $autoCreate = true)
 	{
 		$this->name = $name;
+        if (!$name) {
+            return;
+        }
         if (isset($_SESSION[$name])) {
             $this->data = &$_SESSION[$name];
         } elseif ($autoCreate) {

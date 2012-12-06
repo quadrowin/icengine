@@ -248,7 +248,7 @@ class IcEngine
 	{
 		if (!isset (self::$managers[$name])) {
             $fromServiceLocator = false;
-            $serviceName = self::getNameForServiceLocator($name);
+            $serviceName = self::getNameForServiceLocator($name . '_Manager');
             $manager = self::serviceLocator()->getService($serviceName);
             if ($manager) {
                 $fromServiceLocator = true;
@@ -351,7 +351,17 @@ class IcEngine
     public static function serviceLocator()
     {
         if (!self::$serviceLocator) {
-            self::$serviceLocator = new Service_Locator;
+            self::$serviceLocator = new Service_Locator();
+            $source = new Service_Source();
+            self::$serviceLocator->setSource($source);
+            $annotationManager = new Annotation_Manager_Standart();
+            $annotationSource = new Annotation_Source_Standart();
+            $annotationManager->setSource($annotationSource);
+            $source->setLocator(self::$serviceLocator);
+            $provider = new Data_Provider_Annotation();
+            $provider->setPath('Ice/Var/Annotation/');
+            $source->setAnnotationManager($annotationManager);
+            $annotationManager->setRepository($provider);
         }
         return self::$serviceLocator;
     }

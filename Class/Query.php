@@ -15,6 +15,7 @@
  * @method Query_Create_Table createTable() createTable(string $table) Часть запроса CREATE TABLE
  * @method Query_Drop_Table dropTable() dropTable(string $table) Часть запроса DROP TABLE
  * @method Query_Truncate_Table truncateTable() truncateTable(string $table) Часть запроса TRUNCATE TABLE
+ * @Service("query", source={method="instance"})
  */
 class Query
 {

@@ -21,6 +21,7 @@ class Annotation_Source_Standart extends Annotation_Source_Simple
 			return;
 		}
 		foreach ($parts as $param) {
+            $param = trim($param);
 			$b = strpos($param, '(');
 			if ($b !== false) {
 				$e = strrpos($param, ')');
@@ -29,11 +30,11 @@ class Annotation_Source_Standart extends Annotation_Source_Simple
 				}
 				$value = trim(substr($param, $b + 1, $e - $b - 1));
 				$param = trim(substr($param, 0, $b));
-				if (!$param) {
+				if (!$param || !preg_match('#[A-Z]#', $param[0])) {
 					continue;
 				}
 				$r = $this->parsePart($param, $value);
-				if ($r) {
+                if ($r) {
 					if (!isset($result[$param])) {
 						$result[$param] = array();
 					}
@@ -41,13 +42,12 @@ class Annotation_Source_Standart extends Annotation_Source_Simple
 				}
 			} elseif ($param) {
 				$e = strrpos($param, ')');
-				if ($e !== false) {
+				if ($e !== false || !preg_match('#[A-Z]#', $param[0])) {
 					continue;
 				}
 				$result[$param] = $param;
 			}
 		}
-
 		return $result;
 	}
 
@@ -79,7 +79,6 @@ class Annotation_Source_Standart extends Annotation_Source_Simple
 				$result[$key] = $value;
 			}
 		}
-
 		return $result;
 	}
     

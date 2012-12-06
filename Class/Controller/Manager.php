@@ -4,6 +4,7 @@
  * Менеджер контроллеров
  *
  * @author goorus, morph
+ * @Service("controllerManager")
  */
 class Controller_Manager extends Manager_Abstract
 {
@@ -72,6 +73,14 @@ class Controller_Manager extends Manager_Abstract
 	 */
 	protected $currentTask;
 
+    /**
+     * Менеджер провайдеров
+     * 
+     * @Inject("dataProviderManager")
+     * @var Data_Provider_Manager
+     */
+    protected $dataProviderManager;
+    
     /**
      * Созданные делегита менеджера контроллеров
      * 
@@ -150,12 +159,9 @@ class Controller_Manager extends Manager_Abstract
     public function annotationManager()
     {
         if (!$this->annotationManager) {
-            $this->annotationManager = new Annotation_Manager_Standart;
-            $dataProviderManager = $this->serviceLocator()->getService(
-                'dataProviderManager'
-            );
-            $provider = $dataProviderManager->get('Annotation');
-            $annotationSource = new Annotation_Source_Simple;
+            $this->annotationManager = new Annotation_Manager_Standart();
+            $provider = $this->dataProviderManager->get('Annotation');
+            $annotationSource = new Annotation_Source_Simple();
             $this->annotationManager->setRepository($provider);
             $this->annotationManager->setSource($annotationSource);
         }

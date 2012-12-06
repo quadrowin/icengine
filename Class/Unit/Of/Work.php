@@ -4,6 +4,7 @@
  * Unit of work
  *
  * @author neon
+ * @Service("unitOfWork")
  */
 class Unit_Of_Work
 {

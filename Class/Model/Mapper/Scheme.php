@@ -3,6 +3,7 @@
 /**
  * @desc Фабрика схем модели
  * @author Илья Колесников
+ * @Service("modelMapperScheme")
  */
 class Model_Mapper_Scheme
 {

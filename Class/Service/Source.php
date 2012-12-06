@@ -8,6 +8,13 @@
 class Service_Source
 {
     /**
+     * Менеджер аннотаций
+     * 
+     * @var Annotation_Manager_Abstract
+     */
+    protected $annotationManager;
+    
+    /**
      * Локатор сервисов источника
      *
      * @var Service_Locator
@@ -31,6 +38,7 @@ class Service_Source
     protected function buildService($serviceName, $serviceData)
     {
         $className = $serviceData['class'];
+        $object = null;
         if (!empty($serviceData['source']) || !empty($serviceData['args'])) {
             $args = !empty($serviceData['args']) ? $serviceData['args'] :
                 array();
@@ -40,8 +48,8 @@ class Service_Source
                 }
             }
             if (empty($serviceData['source'])) {
-                $reflection = new ReflectionClass($className);
-                return $reflection->newInstanceArgs($args);
+                $reflection = new \ReflectionClass($className);
+                $object = $reflection->newInstanceArgs($args);
             } else {
                 if (!empty($serviceData['source'])) {
                     $sourceData = $serviceData['source'];
@@ -64,13 +72,63 @@ class Service_Source
                         array($source, $method), $args
                     );
                 }
-                return call_user_func_array(array($source, $method), $args);
+                $object = call_user_func_array(array($source, $method), $args);
             }
         } else {
-            return new $className;
+            if (!empty($serviceData['isAbstract'])) {
+                $reflection = new \ReflectionClass($className);
+                $object = $reflection->newInstanceWithoutConstructor();
+            } else {
+                $object = new $className;
+            }
         }
+        if ($this->annotationManager) {
+            $realObject = $object;
+            if ($object instanceof Service_State) {
+                $realObject = $object->__object();
+            }
+            $annotations = $this->annotationManager->getAnnotation($realObject)
+                ->getData();
+            if (!empty($annotations['properties'])) {
+                $properties = $annotations['properties'];
+                $reflection = null;
+                foreach ($properties as $propertyName => $data) {
+                    if (!isset($data['Inject'])) {
+                        continue;
+                    }
+                    if (!$reflection) {
+                         $reflection = new \ReflectionClass($className);
+                    }
+                    $values = array_values($data['Inject']);
+                    $serviceName = $values[0];
+                    $service = $this->locator->getService($serviceName);
+                    $propertyReflection = $reflection->getProperty(
+                        $propertyName
+                    );
+                    $propertyReflection->setAccessible(true);
+                    if ($propertyReflection->isStatic()) {
+                        $reflection->setStaticPropertyValue(
+                            $propertyName, $service
+                        );
+                    } else {
+                        $propertyReflection->setValue($realObject, $service);
+                    }
+                }
+            }
+        }
+        return $object;
     }
 
+    /**
+     * Получить менеджер аннотаций
+     * 
+     * @return Annotation_Manager_Abstract
+     */
+    public function getAnnotationManager()
+    {
+        return $this->annotationManager;
+    }
+    
     /**
      * Получить аргумент
      *
@@ -136,7 +194,17 @@ class Service_Source
             self::$servcies = array();
         }
     }
-
+    
+    /**
+     * Менеджер аннотаций
+     * 
+     * @param Annotation_Manager_Abstract $annotationManager
+     */
+    public function setAnnotationManager($annotationManager)
+    {
+        $this->annotationManager = $annotationManager;
+    }
+    
     /**
      * Изменить локатор сервисов
      *

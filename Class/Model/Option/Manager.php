@@ -4,6 +4,7 @@
  * Менеджер опций
  *
  * @author morph, goorus
+ * @Service("collectionOptionManager")
  */
 class Model_Option_Manager extends Manager_Abstract
 {

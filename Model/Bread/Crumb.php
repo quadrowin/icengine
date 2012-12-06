@@ -4,6 +4,7 @@
  * Хлебные крошки
  *
  * @author morph
+ * @Service("breadCrumb")
  */
 class Bread_Crumb
 {

@@ -4,6 +4,7 @@
  * Менеджер транспортов данных
  * 
  * @author goorus, morph
+ * @Service("dataTransportManager")
  */
 class Data_Transport_Manager extends Manager_Abstract
 {

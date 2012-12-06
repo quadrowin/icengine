@@ -3,6 +3,7 @@
 /**
  * Модель консольного пользователя
  * @author goorus, morph
+ * @Service("userCli")
  */
 class User_Cli extends User
 {

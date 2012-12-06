@@ -3,6 +3,7 @@
 /**
  * @desc Фабрика полей схемы моделей
  * @author Илья Колесников
+ * @Service("modelMapperSchemeField")
  */
 class Model_Mapper_Scheme_Field
 {

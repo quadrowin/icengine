@@ -4,6 +4,7 @@
  * Менеджер алгоритмов шифрования.
  * 
  * @author goorus
+ * @Service("cryptManager")
  */
 class Crypt_Manager extends Manager_Abstract
 {

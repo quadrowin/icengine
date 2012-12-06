@@ -4,6 +4,7 @@
  * Менеджер ресурсов
  * 
  * @author goorus, morph
+ * @Service("resourceManager")
  */
 class Resource_Manager extends Manager_Abstract
 {

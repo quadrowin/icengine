@@ -5,6 +5,7 @@
  * возвращает соответсвующего провайдера.
  * 
  * @author goorus, morph
+ * @Service("dataProviderManager")
  */
 class Data_Provider_Manager extends Manager_Abstract
 {

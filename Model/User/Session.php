@@ -4,6 +4,7 @@
  * Сессия пользователя
  *
  * @author goorus, morph
+ * @Service("session")
  */
 class User_Session extends Model
 {

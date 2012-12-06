@@ -4,7 +4,7 @@
  * @desc Хелпер управления заголовоками
  * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
- *
+ * @Service("helperHeader")
  */
 class Helper_Header
 {

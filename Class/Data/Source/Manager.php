@@ -5,6 +5,7 @@
  * директории "{$config}/Data/Source/" и создает соответсвующего провайдера.
  *
  * @author goorus, morph
+ * @Service("dataSourceManager")
  */
 class Data_Source_Manager extends Manager_Abstract
 {

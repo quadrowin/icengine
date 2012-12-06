@@ -4,7 +4,7 @@
  * @desc Помощник для перевода текста в транслит
  * @author Юрий Шведов
  * @package IcEngine
- *
+ * @Service("helperTranslit")
  */
 class Helper_Translit
 {

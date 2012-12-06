@@ -30,7 +30,7 @@ abstract class Annotation_Manager_Abstract
 	 */
 	public function getAnnotation($class)
 	{
-		$className = get_class($class);
+		$className = is_string($class) ? $class : get_class($class);
 		$annotationSet = $this->repository->get($className);
 		if (!$annotationSet) {
 			$annotationSet = $this->source->get($class);

@@ -4,7 +4,7 @@
  * @desc Сообщение
  * @author Юрий Шведов
  * @package IcEngine
- *
+ * @Service("mail")
  */
 class Mail_Message extends Model
 {

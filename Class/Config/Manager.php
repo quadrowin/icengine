@@ -4,6 +4,7 @@
  * Менеджер конфигурация
  *
  * @author goorus, morph
+ * @Service("configManager")
  */
 class Config_Manager
 {

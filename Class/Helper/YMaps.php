@@ -4,7 +4,7 @@
  * @desc Хелпер для работы с яндекс картами.
  * @author Yury Shvedov
  * @package IcEngine
- *
+ * @Service("helperYMaps")
  */
 class Helper_YMaps
 {
