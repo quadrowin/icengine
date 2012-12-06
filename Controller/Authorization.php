@@ -183,20 +183,21 @@ class Controller_Authorization extends Controller_Abstract
 	 */
 	public function logout()
 	{
-		$this->_task->setTemplate(null);
+		$this->task->setTemplate(null);
 		$user = $this->getService('user')->getCurrent();
 		$user->logout();
 		$session = $this->getService('session')->getCurrent();
 		$session->delete();
-		$redirect = $this->_input->receive('redirect');
+		$request = $this->getService('request');
+		$redirect = $this->input->receive('redirect');
 		if (!$redirect) {
-			$redirect = Request::referer();
+			$redirect = $request->referer();
 		}
 		$helperUri = $this->getService('helperUri');
 		$redirect = $helperUri->validRedirect(
 			$redirect ? $redirect : self::DEFAULT_REDIRECT
 		);
-		$this->_output->send('data', array(
+		$this->output->send('data', array(
 			'redirect'	=> $redirect
 		));
 	}
