@@ -84,6 +84,8 @@ class Service_Source
                     );
                 }
                 $object = call_user_func_array(array($source, $method), $args);
+                $className = get_class($object);
+                self::$services[$serviceName]['class'] = $className;
             }
         } else {
            $object = new $className;
@@ -187,7 +189,12 @@ class Service_Source
             return null;
         }
         $serviceData = self::$services[$serviceName];
-        $className = $serviceData['class'];
+        if (!isset($serviceData['class']) && !isset($serviceData['source'])) {
+            return null;
+        }
+        if (!isset($serviceData['class'])) {
+            $serviceData['class'] = null;
+        }
         if (empty($serviceData['isAbstract'])) {
             $service = $this->buildService($serviceName, $serviceData);
         }
@@ -195,7 +202,11 @@ class Service_Source
         if (!empty(self::$services[$serviceName]['instanceCallback'])) {
            $instanceCallback = self::$services[$serviceName]['instanceCallback'];
         }
-        $state = new Service_State($service, $className, $instanceCallback);
+        $state = new Service_State(
+            $service, 
+            self::$services[$serviceName]['class'],
+            $instanceCallback
+        );
         return $state;
     }
 
