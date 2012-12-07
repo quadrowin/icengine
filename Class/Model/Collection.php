@@ -104,7 +104,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 				$this->items[] = $model;
 			}
 		} elseif (is_array($item)) {
-			$item->items[] = $item;
+			$this->items[] = &$item;
 		} else {
 			throw new Model_Exception('Model add error');
 		}
@@ -625,7 +625,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
                 $this->items = $pack['items'];
             }
             $optionManager->executeAfter($this, $this->options);
-			print_r($this->options);
             if ($this->paginator) {
                 $this->paginator->fullCount = $this->data('foundRows');
             }
