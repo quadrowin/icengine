@@ -129,7 +129,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 		if (!is_object ($user))
 		{
 			// Пользователя не существует
-			$this->_sendError (
+			$this->sendError (
 				'authorization error: ' . $user,
 				$user ? $user : __METHOD__,
 				$user ? null : '/passwordIncorrect'
@@ -195,21 +195,21 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 			);
 		}
 		if (!$user) {
-			return $this->_sendError(
+			return $this->sendError(
 				'password incorrect',
 				'Data_Validator_Authorization_Password/invalid'
 			);
 		}
 
 		if (!$user->active) {
-			return $this->_sendError(
+			return $this->sendError(
 				'user unactive',
 				'Data_Validator_Authorization_User/unactive'
 			);
 		}
 
 		if (!$user->phone) {
-			return $this->_sendError('noPhone');
+			return $this->sendError('noPhone');
 		}
 
 		$count = $user->attr (self::SMS_SEND_COUNTER_ATTR);
@@ -228,7 +228,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 			)
 		)
 		{
-			return $this->_sendError ('smsLimit');
+			return $this->sendError ('smsLimit');
 		}
 
 		$activation = $this->_authorization ()->sendActivationSms (array (
@@ -242,7 +242,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 
 		if (!is_object ($activation))
 		{
-			$this->_sendError (
+			$this->sendError (
 				'send activation code fail (' . (string) $activation . ')',
 				$activation ? $activation : 'accessDenied'
 			);
