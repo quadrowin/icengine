@@ -107,10 +107,12 @@ class Controller_Annotation extends Controller_Abstract
         if ($configServices) {
             foreach ($configServices as $serviceName => $service) {
                 if (!isset($services[$serviceName])) {
+                    $service['name'] = $serviceName;
                     $services[$serviceName] = $service;
                 }
             }
         }
+        ksort($services);
         $output = Helper_Code_Generator::fromTemplate (
             'service',
             array (
