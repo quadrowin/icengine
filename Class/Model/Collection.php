@@ -3,7 +3,7 @@
 /**
  * Базовый класс коллекции моделей
  *
- * @author goorus, morph
+ * @author goorus, morph, neon
  */
 class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 {
@@ -89,13 +89,13 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 
 	/**
-	 * Добавить модель в коллекцию
+	 * Добавить модель и не только в коллекцию
      *
 	 * @param Model|Model_Collection|array $item
 	 * @return Model_Collection
 	 * @throws Zend_Exception
 	 */
-	public function add($item)
+	public function add(&$item)
 	{
 		if ($item instanceof Model) {
 			$this->items[] = $item;
