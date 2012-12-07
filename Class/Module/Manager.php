@@ -218,7 +218,7 @@ class Module_Manager extends Manager_Abstract
      * @param string $configName
      * @return string
      */
-    public function resourceKey($moduleName, $configName)
+    public function resourceKey($moduleName, $configName = 'Index')
     {
         return 'Module/' . $moduleName . '/' . $configName;
     }
