@@ -4,6 +4,7 @@
  * Помощник для Data Source
  *
  * @author ..., neon
+ * @Service("helperDataSource")
  */
 class Helper_Data_Source
 {
