@@ -1,14 +1,13 @@
 <?php
+
 /**
+ * Объект для хранения списка страниц.
  *
- * @desc Объект для хранения списка страниц.
- * @author Юрий Шведов
+ * @author Юрий Шведов, neon
  * @package IcEngine
- *
  */
 class Paginator
 {
-
 	/**
 	 * Флаг означает, что ссылки нам нужны без всяких ?&page
 	 * @var bool
@@ -16,32 +15,32 @@ class Paginator
 	public $notGet = false;
 
 	/**
-	 * @desc Общее количество элементов
+	 * Общее количество элементов
 	 * @var integer
 	 */
-	public $fullCount;
+	public $total;
 
 	/**
-	 * @desc Ссылка на страницу.
+	 * Ссылка на страницу.
 	 * Если на задана, будешь использован адрес из запроса.
 	 * @var string
 	 */
 	public $href;
 
 	/**
-	 * @desc Текущая страница
+	 * Текущая страница
 	 * @var integer
 	 */
 	public $page;
 
 	/**
-	 * @desc Количество элементов на странице
+	 * Количество элементов на странице
 	 * @var integer
 	 */
-	public $pageLimit = 30;
+	public $perPage = 30;
 
 	/**
-	 * @desc Сформированные для вывода номера страниц
+	 * Сформированные для вывода номера страниц
 	 * array (
 	 * 		'href'	=> ссылка на страница
 	 * 		'title'	=> номер страницы или многоточие
@@ -51,13 +50,13 @@ class Paginator
 	public $pages;
 
 	/**
-	 * @desc Предыдущая страница
+	 * Предыдущая страница
 	 * @var array
 	 */
 	public $prev;
 
 	/**
-	 * @desc Следующая страница
+	 * Следующая страница
 	 * @var array
 	 */
 	public $next;
@@ -67,40 +66,41 @@ class Paginator
 	 * @param integer $page Текущая страница
 	 * @param integer $page_limit Количество элементов на странице
 	 * @param integer $full_count Полное количество элементов
+	 * @param boolean $notGet ЧПУ стиль
 	 */
-	public function __construct ($page, $page_limit = 30, $full_count = 0, $notGet = false)
+	public function __construct($page, $perPage = 30, $total = 0, $notGet = false)
 	{
 		$this->page = $page;
-		$this->pageLimit = $page_limit;
-		$this->fullCount = $full_count;
+		$this->perPage = $perPage;
+		$this->total = $total;
 		$this->notGet = $notGet;
 	}
 
 	/**
-	 * @desc Заполнение массива страниц со ссылками.
+	 * Заполнение массива страниц со ссылками.
 	 */
-	public function buildPages ()
+	public function buildPages()
 	{
-		$this->pages = array ();
-		$pages_count = $this->pagesCount ();
-
-		if ($pages_count <= 1)
-		{
+		$locator = IcEngine::serviceLocator();
+		$request = $locator->getService('request');
+		$this->pages = array();
+		$pages_count = $this->pagesCount();
+		if ($pages_count <= 1) {
 			return ;
 		}
-
-		$half_page = round ($pages_count / 2);
+		$half_page = round($pages_count / 2);
 		$spaced = false;
-
-		$href = isset ($this->href) ? $this->href : Request::uri (false);
-
+		$href = isset($this->href) ? $this->href : $request->uri(false);
 		// Удаление из запроса GET параметра page
 		$p = 'page';
-		$href = preg_replace (
+		$href = preg_replace(
 			"/((?:\?|&)$p(?:\=[^&]*)?$)+|((?<=[?&])$p(?:\=[^&]*)?&)+|((?<=[?&])$p(?:\=[^&]*)?(?=&|$))+|(\?$p(?:\=[^&]*)?(?=(&$p(?:\=[^&]*)?)+))+/",
 			'',
 			$href
 		);
+		/**
+		 * Для ссылок вида $page/, тоже учтём
+		 */
 		if (!$this->notGet) {
 			if (strpos ($href, '?') === false) {
 				$href .= '?page=';
@@ -109,47 +109,41 @@ class Paginator
 			}
 		} else {
 			if ($this->page > 1) {
-				$href = substr($href, 0, (int) (strlen((string) $this->page) + 1) * -1);
+				$href = substr(
+					$href,
+					0,
+					(int) (strlen((string) $this->page) + 1) * -1
+				);
 			}
 		}
-
-		for ($i = 1; $i <= $pages_count; $i++)
-		{
+		for ($i = 1; $i <= $pages_count; $i++) {
 			if (
 				$i <= 3 ||							// первые 3 страницы
 				($pages_count - $i) < 3 ||			// последние 3 страницы
-				abs ($half_page - $i) < 3 ||		// середина
-				abs ($this->page - $i) < 3			// возле текущей
-			)
-			{
+				abs($half_page - $i) < 3 ||			// середина
+				abs($this->page - $i) < 3			// возле текущей
+			) {
 				$pageHref = $href . ($i > 1 ?
 					$i . ($this->notGet ? '/' : '') : '');
 				// Ссылка с номером страницы
-				$page = array (
+				$page = array(
 					'href'	    => $pageHref,
 					'title'	    => $i,
 					'next'		=> ($this->page == $i - 1),
 					'prev'		=> ($this->page == $i + 1),
 					'selected'	=> ($this->page == $i)
 				);
-				$this->pages [] = $page;
-
-				if ($page ['prev'])
-				{
+				$this->pages[] = $page;
+				if ($page['prev']) {
 					$this->prev = $page;
-				}
-				elseif ($page ['next'])
-				{
+				} elseif ($page['next']) {
 					$this->next = $page;
 				}
-
 				$spaced = false;
 				continue ;
 			}
-
-			if (!$spaced)
-			{
-				$this->pages [] = array (
+			if (!$spaced) {
+				$this->pages[] = array(
 					'href'		=> '',
 					'title'		=> '...',
 					'prev'		=> false,
@@ -166,11 +160,13 @@ class Paginator
 	 * @param string $prefix
 	 * @return Paginator
 	 */
-	public static function fromGet ($full_count = 0, $prefix = '')
+	public static function fromGet($full_count = 0, $prefix = '')
 	{
-		return new self (
-			max (Request::get ('page'), 1),
-			max (Request::get ('limit', 30), 10),
+		$locator = IcEngine::serviceLocator();
+		$request = $locator->getService('request');
+		return new self(
+			max($request->get('page'), 1),
+			max($request->get('limit', 30), 10),
 			$full_count,
 			false
 		);
@@ -182,48 +178,48 @@ class Paginator
 	 * @param integer $full_count Общее количество элементов.
 	 * @return Paginator
 	 */
-	public static function fromInput (Data_Transport $input, $full_count = 0, $notGet = false)
+	public static function fromInput(Data_Transport $input,
+		$full_count = 0, $notGet = false)
 	{
-		return new self (
-			max ($input->receive ('page'), 1),
-			max ($input->receive ('limit'), 10),
+		return new self(
+			max($input->receive('page'), 1),
+			max($input->receive('limit'), 10),
 			$full_count,
 			$notGet
 		);
 	}
+
 	/**
-	 * @return integer
-	 * @desc возвращает текущий начальный индекс
-	 * @deprecated следует использовать метод Paginator::offset ().
-	 */
-	public function getIndex ()
-	{
-		return max ($this->page - 1, 0) * $this->pageLimit;
-	}
-	/**
-	 * @desc Возвращает индекс первой записи на текущей страницы
+	 * Возвращает индекс первой записи на текущей страницы
 	 * (индекс первой записи - 0).
+	 *
 	 * @return integer Индекс первой записи или 0.
 	 */
-	public function offset ()
+	public function offset()
 	{
-		$offset = max (($this->page - 1) * $this->pageLimit, 0);
+		$offset = max(($this->page - 1) * $this->perPage, 0);
 		return $offset;
 	}
 
 	/**
 	 * @return integer
 	 */
-	public function pagesCount ()
+	public function pagesCount()
 	{
-		if ($this->pageLimit > 0)
-		{
-			return ceil ($this->fullCount / $this->pageLimit);
-		}
-		else
-		{
+		if ($this->perPage > 0) {
+			return ceil($this->total / $this->perPage);
+		} else {
 			return 1;
 		}
 	}
 
+	/**
+	 * Установить число элементов на страницу
+	 *
+	 * @param int $value
+	 */
+	public function setPerPage($value)
+	{
+		$this->perPage = $value;
+	}
 }
