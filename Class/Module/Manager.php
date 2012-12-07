@@ -203,10 +203,16 @@ class Module_Manager extends Manager_Abstract
     {
         $collectionManager = $this->getService('collectionManager');
         $moduleCollection = $collectionManager->create('Module')
-            ->addOptions(array(
-               'name'   => '::Order_Desc',
-               'field'  => 'id'
-            ));
+            ->addOptions(
+                array(
+                    'name'   => '::Order_Desc',
+                    'field'  => 'isMain'
+                ),
+                array(
+                    'name'   => '::Order_Desc',
+                    'field'  => 'id'
+                )
+            );
 		foreach ($moduleCollection->raw() as $module) {
 			$this->addModule($module['name']);
 		}
