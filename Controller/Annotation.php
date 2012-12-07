@@ -101,6 +101,16 @@ class Controller_Annotation extends Controller_Abstract
         if (!$services) {
             return;
         }
+        $configServices = $this->getService('configManager')->get(
+            'Service_Source'
+        )->__toArray();
+        if ($configServices) {
+            foreach ($configServices as $serviceName => $service) {
+                if (!isset($services[$serviceName])) {
+                    $services[$serviceName] = $service;
+                }
+            }
+        }
         $output = Helper_Code_Generator::fromTemplate (
             'service',
             array (
