@@ -98,7 +98,7 @@ class Controller_Annotation extends Controller_Abstract
                 ->getData();
             $classAnnotation = $annotation['class'];
             if ($classAnnotation && !empty($classAnnotation['Service'])) {
-                $serviceAnnotation = $classAnnotation['Service'];
+                $serviceAnnotation = $classAnnotation['Service'][0];
                 $serviceName = array_shift($serviceAnnotation);
                 $data = $serviceAnnotation;
                 $data['class'] = $class['class'];
