@@ -35,19 +35,20 @@ class Router extends Manager_Abstract
 		}
         $request = $this->getService('request');
 		$url = $request->uri();
-		$route =  $this->getService('route')->byUrl($url); 
+		$route =  $this->getService('route')->byUrl($url);
 		$this->route = $route;
 		if (!$this->route || !isset($this->route['route'])) {
 			return;
 		}
 		if (!empty($route['params'])) {
 			foreach ($route['params'] as $paramName => $paramValue) {
-                if (strpos($paramValue, '::') !== false) {
+                if (is_string($paramValue) && strpos($paramValue, '::') !== false) {
                     list($className, $method) = explode('::', $paramValue);
                     $serviceName = $this->getServiceLocator()->normalizeName(
                         $className
                     );
                     $service = $this->getService($serviceName);
+					var_dump($paramValue);
                     $paramValue = $service->$method();
                 }
 				$request->param($paramName, $paramValue);
