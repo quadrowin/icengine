@@ -298,7 +298,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		if ($result) {
             $ids = $helperArray->column($result, $keyField);
             foreach ($ids as $id) {
-                foreach ($this->items as $model) {
+                foreach ($this->items as &$model) {
                     if ($id != $model[$keyField]) {
                         continue;
                     }
@@ -600,15 +600,20 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
     {
         $helperArray = $this->getService('helperArray');
         $result = array();
+		$keyField = $this->keyField();
         if ($this->items) {
             if (is_array($this->items[0])) {
-                $result = $helperArray->column($this->items, $columns);
+                $result = $helperArray->column(
+					$this->items, $columns, $keyField
+				);
             } else {
                 $fullResult = array();
                 foreach ($this->items as $item) {
                     $fullResult[] = $item->asRow();
                 }
-                $result = $helperArray->column($fullResult, $columns);
+                $result = $helperArray->column(
+					$fullResult, $columns, $keyField
+				);
             }
         } else {
             if ($columns) {
@@ -628,9 +633,15 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
             if ($this->paginator) {
                 $this->paginator->fullCount = $this->data('foundRows');
             }
-            $result = $helperArray->column($this->items, $columns);
+            $result = $helperArray->column($this->items, $columns, $keyField);
         }
-        return (array) $result;
+		foreach ($this->items as $item) {
+			if (isset($result[$item[$keyField]]) &&
+				isset($item['data'])) {
+				$result[$item[$keyField]]['data'] = $item['data'];
+			}
+		}
+        return array_values((array) $result);
     }
 
 	/**

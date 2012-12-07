@@ -1,6 +1,6 @@
 <?php
 
-$config = array (
+return array (
 	{if !empty($admin_panel)}
 		{$admin_panel},
 	{/if}
