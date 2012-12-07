@@ -1,10 +1,18 @@
 <?php
 
-function smarty_modifier_plural ($string, $forms)
+/**
+ *
+ * @param type $string
+ * @param type $forms
+ * @return type
+ */
+function smarty_modifier_plural($string, $forms)
 {
-	return View_Helper_Manager::get (
+	$locator = IcEngine::serviceLocator();
+	$viewHelperManager = $locator->getService('viewHelperManager');
+	return $viewHelperManager->get(
 		'Plural',
-		array (
+		array(
 			'value'	=> $string,
 			'forms'	=> $forms
 		)
