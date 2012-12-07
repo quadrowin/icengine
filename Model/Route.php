@@ -21,6 +21,14 @@ class Route extends Model_Child
 	 * @var array
 	 */
 	protected $list;
+    
+    /**
+     * Провайдер для кэширования роутов
+     * 
+     * @Inject("routeCache")
+     * @var Data_Provider_Abstract
+     */
+    protected $provider;
 
 	/**
 	 * Сформировать роут экшины, привязаннык роуту
@@ -76,9 +84,7 @@ class Route extends Model_Child
 	public function byUrl($url)
 	{
 		$url = '/' . ltrim($url, '/');
-        $dataProviderManager = $this->getService('dataProviderManager');
-        $provider = $dataProviderManager->get('Route_Cache');
-		$route = $provider->get($url);
+		$route = $this->provider->get($url);
 		if ($route) {
 			return $route ? new self($route) : null;
 		}
@@ -123,7 +129,7 @@ class Route extends Model_Child
                 }
 			}
 		}
-		$provider->set($url, $row);
+		$this->provider->set($url, $row);
 		return $row ? new self($row) : null;
 	}
 
