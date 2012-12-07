@@ -12,9 +12,10 @@ class Helper_Array
      *
 	 * @param array $input Двумерный массив.
 	 * @param string $columns Название колонки.
+	 * @param string $index Имя индекса
 	 * @return array Колонка $column исходного массива
 	 */
-	public static function column($input, $columns)
+	public static function column($input, $columns, $index = null)
 	{
         if (!$columns) {
             return $input;
@@ -31,7 +32,11 @@ class Helper_Array
                     $current = $value;
                 }
             }
-			$result[] = $current;
+			if ($index && isset($current[$index])) {
+				$result[$current[$index]] = $current;
+			} else {
+				$result[] = $current;
+			}
 		}
 		return $result;
 	}

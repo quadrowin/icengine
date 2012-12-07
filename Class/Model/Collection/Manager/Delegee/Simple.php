@@ -30,6 +30,9 @@ class Model_Collection_Manager_Delegee_Simple
 			$collection->data('foundRows', $queryResult->foundRows());
 		}
         $scheme = $modelScheme->scheme($modelName);
+		if (!$scheme['fields']) {
+			return;
+		}
 		$schemeFields = $scheme['fields']->keys();
 		$rows = $queryResult->asTable();
         if (!$rows) {
