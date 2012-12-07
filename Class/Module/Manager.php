@@ -112,23 +112,36 @@ class Module_Manager extends Manager_Abstract
             $view = $viewRenderManager->getView();
             $view->addTemplatesPath(rtrim($viewPath, '/') . '/');
         }
-		$this->modules[$moduleName] = true;
+        if ($moduleName != 'Ice') {
+            $this->modules[$moduleName] = true;
+            $routeConfig = $this->getConfig($moduleName, 'Route');
+            $routeService = $this->getService('route');
+            if ($routeConfig->routes) {
+                foreach ($routeConfig->routes as $route) {
+                    $routeService->add($route);
+                }
+            }
+        }
 	}
 
     /**
      * Получить конфиг для модуля
      *
+     * @param string $moduleName 
+     * @param string $name
      * @author morph
      */
-    public function getConfig($moduleName)
+    public function getConfig($moduleName, $configName = 'Index')
     {
         $resourceKey = $this->resourceKey($moduleName);
-        $resourceManager = $this->getService('resourceManager');
+        $configName = str_replace('_', '/', $configName);
+        $resourceManager = $this->getService('resourceManager', $configName);
         $tryConfig = $resourceManager->get('Config', $resourceKey);
         if ($tryConfig) {
             return $tryConfig;
         }
-        $baseConfigFile = IcEngine::root() . $moduleName . '/Config/Index.php';
+        $baseConfigFile = IcEngine::root() . $moduleName . '/Config/' .
+            $configName . '.php';
         $selfConfig = self::config();
         $defaultModule = $selfConfig->defaultModule;
         $resultConfig = array();
@@ -202,10 +215,11 @@ class Module_Manager extends Manager_Abstract
      * Получить ключ ресурса
      *
      * @param string $moduleName
+     * @param string $configName
      * @return string
      */
-    public function resourceKey($moduleName)
+    public function resourceKey($moduleName, $configName)
     {
-        return 'Module/' . $moduleName;
+        return 'Module/' . $moduleName . '/' . $configName;
     }
 }

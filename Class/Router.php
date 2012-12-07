@@ -42,7 +42,7 @@ class Router extends Manager_Abstract
 		}
 		if (!empty($route['params'])) {
 			foreach ($route['params'] as $paramName => $paramValue) {
-                if (strpos($paramValue, '::')) {
+                if (strpos($paramValue, '::') !== false) {
                     list($className, $method) = explode('::', $paramValue);
                     $serviceName = $this->getServiceLocator()->normalizeName(
                         $className
