@@ -112,13 +112,13 @@ class Module_Manager extends Manager_Abstract
             $view = $viewRenderManager->getView();
             $view->addTemplatesPath(rtrim($viewPath, '/') . '/');
         }
+		$this->modules[$moduleName] = true;
         if ($moduleName != 'Ice') {
-            $this->modules[$moduleName] = true;
             $routeConfig = $this->getConfig($moduleName, 'Route');
             $routeService = $this->getService('route');
             if ($routeConfig->routes) {
-                foreach ($routeConfig->routes as $route) {
-                    $routeService->add($route);
+                foreach ($routeConfig->routes->__toArray() as $route) {
+                    $routeService->addRoute($route);
                 }
             }
         }

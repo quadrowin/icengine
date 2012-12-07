@@ -20,7 +20,7 @@ class Route extends Model_Child
 	 *
 	 * @var array
 	 */
-	protected $list;
+	protected $list = array();
     
     /**
      * Провайдер для кэширования роутов
@@ -159,7 +159,9 @@ class Route extends Model_Child
 		if (!$this->fromConfigLoaded) {
 			$configManager = $this->getService('configManager');
 			$config = $configManager->get(__CLASS__);
-			$this->list = $config['routes']->__toArray();
+			$this->list = array_merge(
+				$this->list, $config['routes']->__toArray()
+			);
 			$this->fromConfigLoaded = true;
 		}
 		return $this->list;
