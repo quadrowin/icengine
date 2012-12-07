@@ -147,19 +147,18 @@ class Module_Manager extends Manager_Abstract
         $defaultModule = $selfConfig->defaultModule;
         $resultConfig = array();
         if (is_file($baseConfigFile)) {
-            $config = include_once($baseConfigFile);
-            if ($config) {
-                $resultConfig = $config;
-                unset($config);
-            }
+            $resultConfig = include_once($baseConfigFile);
         }
         $overrideConfigFile = IcEngine::root() . $defaultModule .
             '/Config/Module/' . $moduleName . '.php';
         if (is_file($overrideConfigFile)) {
-            include_onec($overrideConfigFile);
+            $config = $overrideConfigFile;
             if (isset($config)) {
                 $resultConfig = array_merge($resultConfig, $config);
             }
+        }
+        if (empty($resultConfig[0])) {
+            $resultConfig = array();
         }
         $config = new Config_Array($resultConfig);
         if (!empty($resultConfig)) {
