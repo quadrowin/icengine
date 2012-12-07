@@ -40,13 +40,18 @@ class Controller_Annotation extends Controller_Abstract
         if ($path) {
             $paths = array(IcEngine::root() . $path);
         } else {
-            $paths = IcEngine::getLoader()->getPaths('Class');
+            $paths = array_merge(
+                IcEngine::getLoader()->getPaths('Class'),
+                IcEngine::getLoader()->getPaths('Model'),
+                IcEngine::getLoader()->getPaths('Controller')
+            );
         }
         foreach ($paths as $path) {
             if (!$path || !is_dir($path)) {
                 continue;
             }
             if (strpos($path, 'Class') === false && 
+                strpos($path, 'Controller') === false &&
                 strpos($path, 'Model') === false) {
                 continue;
             }
@@ -60,6 +65,9 @@ class Controller_Annotation extends Controller_Abstract
                     continue;
                 }
                 $content = file_get_contents($file);
+                if (strpos($content, 'namespace IcEngine\\') !== false) {
+                    continue;
+                }
                 $matches = array();
                 preg_match_all(
                     '#class\s+([A-Z][A-Za-z_0-9]+)#', $content, $matches

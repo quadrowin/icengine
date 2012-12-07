@@ -5,6 +5,7 @@
  *
  * @author Юрий, neon
  * @package IcEngine
+ * @Service("viewHelperManager")
  */
 class View_Helper_Manager
 {

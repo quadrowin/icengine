@@ -105,12 +105,12 @@ class Service_Source
                         continue;
                     }
                     if (isset($data['Inject'])) {
-                        $values = array_values($data['Inject']);
+                        $values = array_values($data['Inject'][0]);
                         $serviceName = $values[0];
                         $service = $this->locator->getService($serviceName);
                     } elseif (isset($data['Service'])) {
-                        $serviceName = reset($data['Service']);
-                        $this->addService($serviceName, $data['Service']);
+                        $serviceName = reset($data['Service'][0]);
+                        $this->addService($serviceName, $data['Service'][0]);
                         $service = $this->locator->getService($serviceName);
                     }
                     $methodName = 'set' . ucfirst($propertyName);

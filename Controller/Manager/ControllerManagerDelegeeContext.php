@@ -26,9 +26,9 @@ class ControllerManagerDelegeeContext extends ControllerManagerDelegeeAbstract
             ->getAnnotation($controller);
         $params = $context->getArgs();
         $actionScheme = $scheme->getMethod($context->getAction());
-        if (!empty($actionScheme['service'])) {
+        if (!empty($actionScheme['Context'])) {
             $actionContext = $controllerManager->serviceInjector()->inject(
-                null, $actionScheme['service']
+                null, $actionScheme['Context']
             );
             $params['context'] = isset($params['context'])
                 ? $params['context']->merge($actionContext)
