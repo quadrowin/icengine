@@ -98,6 +98,9 @@ abstract class Model implements ArrayAccess
         if (!$this->fields) {
             $this->load();
         }
+		if ($field == 'data') {
+			return $this->getData();
+		}
         $joinField = $field . '__id';
         if (isset($this->joints[$field])) {
             return $this->joints[$field];
@@ -133,7 +136,7 @@ abstract class Model implements ArrayAccess
             $this->load();
         }
         if ($field == 'data') {
-            return $this->data($field, $value);
+            return $this->data($value);
         }
         $fields = $this->scheme()->fields;
 		if (isset($fields[$field])) {
@@ -325,6 +328,16 @@ abstract class Model implements ArrayAccess
 		} else {
 			return $this->__get($key);
 		}
+	}
+
+	/**
+	 * Получить все хранимые данные модели
+	 *
+	 * @return array
+	 */
+	public function getData()
+	{
+		return $this->data;
 	}
 
 	/**
