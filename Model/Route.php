@@ -150,11 +150,37 @@ class Route extends Model_Child
 	public function getList()
 	{
 		if (!$this->fromConfigLoaded) {
-            $configManager = $this->getService('configManager');
+			$configManager = $this->getService('configManager');
 			$config = $configManager->get(__CLASS__);
 			$this->list = $config['routes']->__toArray();
 			$this->fromConfigLoaded = true;
+			$collectionManager = $this->getService('collectionManager');
+			$moduleCollection = $collectionManager->create(
+				'Module'
+			)->addOptions(array(
+				'name'	=> 'Main',
+				'value'	=> false
+			));
+			if ($moduleCollection) {
+				$currentRoutes = array();
+				foreach ($this->list as $route) {
+					$currentRoutes[$route['route']] = 1;
+				}
+				foreach ($moduleCollection as $module) {
+					$moduleConfig = $configManager->byPath($module->name . '__' . __CLASS__);
+					if (!$moduleConfig) {
+						continue;
+					}
+					foreach ($moduleConfig['routes']->__toArray() as $route) {
+						if (!isset($currentRoutes[$route['route']])) {
+							$route['params']['module'] = $module->name;
+							$this->list[] = $route;
+						}
+					}
+				}
+			}
 		}
+		//print_r($this->list);
 		return $this->list;
 	}
 
