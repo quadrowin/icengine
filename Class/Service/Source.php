@@ -29,6 +29,17 @@ class Service_Source
     protected static $services;
 
     /**
+     * Добавить сервис в источник
+     * 
+     * @param string $serviceName
+     * @param array $serviceData
+     */
+    public function addService($serviceName, $serviceData)
+    {
+        self::$services[$serviceName] = $serviceData;
+    }
+    
+    /**
      * Построить сервис
      *
      * @param string $serviceName
@@ -93,15 +104,21 @@ class Service_Source
                 $properties = $annotations['properties'];
                 $reflection = null;
                 foreach ($properties as $propertyName => $data) {
-                    if (!isset($data['Inject'])) {
+                    if (!isset($data['Inject']) && !isset($data['Service'])) {
                         continue;
                     }
                     if (!$reflection) {
                          $reflection = new \ReflectionClass($className);
                     }
-                    $values = array_values($data['Inject']);
-                    $serviceName = $values[0];
-                    $service = $this->locator->getService($serviceName);
+                    if (isset($data['Inject'])) {
+                        $values = array_values($data['Inject']);
+                        $serviceName = $values[0];
+                        $service = $this->locator->getService($serviceName);
+                    } elseif (isset($data['Service'])) {
+                        $serviceName = reset($data['Service']);
+                        $this->addService($serviceName, $data['Service']);
+                        $service = $this->locator->getService($serviceName);
+                    }    
                     $propertyReflection = $reflection->getProperty(
                         $propertyName
                     );
@@ -111,7 +128,9 @@ class Service_Source
                             $propertyName, $service
                         );
                     } else {
-                        $propertyReflection->setValue($realObject, $service);
+                        $propertyReflection->setValue(
+                            $realObject, $service
+                        );
                     }
                 }
             }
