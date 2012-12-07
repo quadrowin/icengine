@@ -160,7 +160,7 @@ class Route extends Model_Child
 			$configManager = $this->getService('configManager');
 			$config = $configManager->get(__CLASS__);
 			$this->list = array_merge(
-				$this->list, $config['routes']->__toArray()
+				$config['routes']->__toArray(), $this->list
 			);
 			$this->fromConfigLoaded = true;
 		}
