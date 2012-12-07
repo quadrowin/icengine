@@ -120,7 +120,7 @@ class Attribute_Manager extends Manager_Abstract
 			}
 		}
 		$source = $this->getSource($modelName);
-        $queryBuilder = $this->getQuery('query');
+        $queryBuilder = $this->getService('query');
         $table = $this->getTable($modelName);
         $selectQuery = $queryBuilder
 			->select('value')
