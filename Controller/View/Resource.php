@@ -11,8 +11,8 @@ class Controller_View_Resource extends Controller_Abstract
 	/**
      * Процесс упаковки ресурсов
      *
-     * @service configManager $configManager
-     * @service viewResourceManager $viewResourceManager
+     * @Context("configManager")
+     * @Context("viewResourceManager")
      */
 	public function index($type, $params, $name, $context)
 	{
