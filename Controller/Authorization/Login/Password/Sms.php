@@ -47,9 +47,9 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 	 */
 	protected function _authorization ()
 	{
-		return Model_Manager::byQuery (
+		return $this->getService('modelManager')->byQuery (
 			'Authorization',
-			Query::instance ()
+				$this->getService('query')->instance ()
 				->where ('name', 'Login_Password_Sms')
 		);
 	}
@@ -77,7 +77,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 			$activation_id,
 			$activation_code,
 			$redirect
-		) = $this->_input->receive (
+		) = $this->input->receive (
 			'name',
 			'pass',
 			'a_id',
@@ -85,12 +85,13 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 			'href'
 		);
 
+		$model_manager = $this->getService('modelManager');
 		if (!$activation_id && $activation_code)
 		{
 			// Сразу указали код активации, мб старая активация
-			$activation = Model_Manager::byQuery (
+			$activation = $model_manager->byQuery (
 				'Activation',
-				Query::instance ()
+				$this->getService('query')->instance ()
 					->from ('Activation')
 					->singleInnerJoin (
 						'User',
@@ -143,7 +144,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 		));
 
 		$redirect = Helper_Uri::validRedirect ($redirect);
-		$this->_output->send (array (
+		$this->output->send (array (
 			'redirect'		=> $redirect,
 			'data'	=> array (
 				'redirect'	=> $redirect
@@ -161,13 +162,14 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 			$login,
 			$password,
 			$send
-		) = $this->_input->receive(
+		) = $this->input->receive(
 			'provider',
 			'name',
 			'pass',
 			'send'
 		);
-		$user = Model_Manager::byOptions(
+		$model_manager = $this->getService('modelManager');
+		$user = $model_manager->byOptions(
 			'User',
 			array(
 				'name'	=> 'Login',
@@ -179,7 +181,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 			)
 		);
 		if (!$user) {
-			$user = Model_Manager::byOptions (
+			$user = $model_manager->byOptions (
 				'User',
 				array(
 					'name'	=> 'Login',
@@ -252,7 +254,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 			self::SMS_SEND_COUNTER_ATTR		=> $count + 1
 		));
 
-		$this->_output->send (array (
+		$this->output->send (array (
 			'activation'	=> $activation,
 			'time'			=> $time,
 			'data'			=> array (
