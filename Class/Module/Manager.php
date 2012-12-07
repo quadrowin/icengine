@@ -118,6 +118,7 @@ class Module_Manager extends Manager_Abstract
             $routeService = $this->getService('route');
             if ($routeConfig->routes) {
                 foreach ($routeConfig->routes->__toArray() as $route) {
+                    $route['param']['module'] = $moduleName;
                     $routeService->addRoute($route);
                 }
             }
