@@ -192,7 +192,7 @@ class Module_Manager extends Manager_Abstract
 			if (empty($name)) {
 				continue;
 			}
-			self::addModule($name);
+			$this->addModule($name);
 		}
     }
 
