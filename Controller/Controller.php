@@ -46,7 +46,7 @@ class Controller_Controller extends Controller_Abstract
 	public function create ($name, $action, $author, $comment)
 	{
 		$helperCodeGenerator = $this->getService('helperCodeGenerator');
-        $helperDate = $this->getService('date');
+        $helperDate = $this->getService('helperDate');
         $filename = IcEngine::root() . 'Ice/Controller/' .
 			str_replace('_', '/', $name) . '.php';
 		if (file_exists($filename))
