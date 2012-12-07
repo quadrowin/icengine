@@ -38,7 +38,7 @@ class Annotation_Source_Standart extends Annotation_Source_Simple
 					if (!isset($result[$param])) {
 						$result[$param] = array();
 					}
-					$result[$param] = array_merge($result[$param], $r);
+					$result[$param] = array_merge($result[$param], array($r));
 				}
 			} elseif ($param) {
 				$e = strrpos($param, ')');

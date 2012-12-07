@@ -5,7 +5,7 @@
  *
  * @author morph, goorus
  */
-class Controller_Content_Category extends Controller_Abstrtact
+class Controller_Content_Category extends Controller_Abstract
 {
 	/**
 	 * Удалить категорию

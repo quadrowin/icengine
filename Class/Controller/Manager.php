@@ -161,7 +161,7 @@ class Controller_Manager extends Manager_Abstract
         if (!$this->annotationManager) {
             $this->annotationManager = new Annotation_Manager_Standart();
             $provider = $this->dataProviderManager->get('Annotation');
-            $annotationSource = new Annotation_Source_Simple();
+            $annotationSource = new Annotation_Source_Standart();
             $this->annotationManager->setRepository($provider);
             $this->annotationManager->setSource($annotationSource);
         }
