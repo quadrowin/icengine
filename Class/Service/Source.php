@@ -84,14 +84,11 @@ class Service_Source
                     );
                 }
                 $object = call_user_func_array(array($source, $method), $args);
+                $className = get_class($object);
+                self::$services[$serviceName]['class'] = $className;
             }
         } else {
-            if (!empty($serviceData['isAbstract'])) {
-                $reflection = new \ReflectionClass($className);
-                $object = $reflection->newInstanceWithoutConstructor();
-            } else {
-                $object = new $className;
-            }
+           $object = new $className;
         }
         if ($this->annotationManager) {
             $realObject = $object;
@@ -107,9 +104,6 @@ class Service_Source
                     if (!isset($data['Inject']) && !isset($data['Service'])) {
                         continue;
                     }
-                    if (!$reflection) {
-                         $reflection = new \ReflectionClass($className);
-                    }
                     if (isset($data['Inject'])) {
                         $values = array_values($data['Inject']);
                         $serviceName = $values[0];
@@ -118,19 +112,27 @@ class Service_Source
                         $serviceName = reset($data['Service']);
                         $this->addService($serviceName, $data['Service']);
                         $service = $this->locator->getService($serviceName);
-                    }    
-                    $propertyReflection = $reflection->getProperty(
-                        $propertyName
-                    );
-                    $propertyReflection->setAccessible(true);
-                    if ($propertyReflection->isStatic()) {
-                        $reflection->setStaticPropertyValue(
-                            $propertyName, $service
-                        );
+                    }
+                    $methodName = 'set' . ucfirst($propertyName);
+                    if (method_exists($realObject, $methodName)) {
+                        $realObject->$methodName($service);
                     } else {
-                        $propertyReflection->setValue(
-                            $realObject, $service
+                        if (!$reflection) {
+                            $reflection = new \ReflectionClass($className);
+                        }
+                        $propertyReflection = $reflection->getProperty(
+                            $propertyName
                         );
+                        $propertyReflection->setAccessible(true);
+                        if ($propertyReflection->isStatic()) {
+                            $reflection->setStaticPropertyValue(
+                                $propertyName, $service
+                            );
+                        } else {
+                            $propertyReflection->setValue(
+                                $realObject, $service
+                            );
+                        }
                     }
                 }
             }
@@ -156,9 +158,7 @@ class Service_Source
     protected function getArg($arg)
     {
         if ($arg[0] == '$') {
-            $argName = substr($arg, 1);
-            $arg = $this->getService($arg);
-            $this->locator->registerService($argName, $arg);
+            $arg = $this->locator->getService(substr($arg, 1));
         }
         return $arg;
     }
@@ -189,7 +189,12 @@ class Service_Source
             return null;
         }
         $serviceData = self::$services[$serviceName];
-        $className = $serviceData['class'];
+        if (!isset($serviceData['class']) && !isset($serviceData['source'])) {
+            return null;
+        }
+        if (!isset($serviceData['class'])) {
+            $serviceData['class'] = null;
+        }
         if (empty($serviceData['isAbstract'])) {
             $service = $this->buildService($serviceName, $serviceData);
         }
@@ -197,7 +202,11 @@ class Service_Source
         if (!empty(self::$services[$serviceName]['instanceCallback'])) {
            $instanceCallback = self::$services[$serviceName]['instanceCallback'];
         }
-        $state = new Service_State($service, $className, $instanceCallback);
+        $state = new Service_State(
+            $service, 
+            self::$services[$serviceName]['class'],
+            $instanceCallback
+        );
         return $state;
     }
 
