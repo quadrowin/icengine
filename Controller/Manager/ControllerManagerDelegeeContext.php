@@ -15,23 +15,17 @@ class ControllerManagerDelegeeContext extends ControllerManagerDelegeeAbstract
      */
     public function call($controller, $context)
     {
-        if (!$controller->hasInjections()) {
-            return false;
-        }
-        $reflection = new \ReflectionClass($controller);
-        $controllerManager = $context->getControllerManager();
-        $controllerManager->annotationManager()->getSource()
-            ->setReflection($reflection);
-        $scheme = $controllerManager->annotationManager()
-            ->getAnnotation($controller);
+        $scheme = $controller->getAnnotations();
         $params = $context->getArgs();
         $actionScheme = $scheme->getMethod($context->getAction());
+        $controllerManager = $context->getControllerManager();
         if (!empty($actionScheme['Context'])) {
             $actionContext = $controllerManager->serviceInjector()->inject(
                 null, $actionScheme['Context']
             );
+            $defaultContext = clone $params['context'];
             $params['context'] = isset($params['context'])
-                ? $params['context']->merge($actionContext)
+                ? $defaultContext->merge($actionContext)
                 : $actionContext;
         }
         $context->setArgs($params);

@@ -18,7 +18,8 @@ class Controller_Route extends Controller_Abstract
             return;
         }
         $paths = IcEngine::getLoader()->getPaths('Controller');
-        $routes = array();
+        $routesWithGroup = array();
+        $routesWithoutGroups = array();
         $controllers = array();
         foreach ($paths as $path) {
             if (!$path || !is_dir($path)) {
@@ -86,6 +87,8 @@ class Controller_Route extends Controller_Abstract
                     continue;
                 }
                 $route = reset($data['Route'][0]);
+                $routeGroup = !empty($data['RouteGroup'])
+                    ? resert($data['RouteGroup'][0]) : null;
                 $patterns = array();
                 if (!empty($data['RouteComponent'])) {
                     foreach ($data['RouteComponent'] as $routeComponent) {
@@ -124,10 +127,17 @@ class Controller_Route extends Controller_Abstract
                 if ($patterns) {
                     $routeData['patterns'] = $patterns;
                 }
+                $source = &$routesWithoutGroups;
+                if ($routeGroup) {
+                    if (!isset($routesWithGroup[$routeGroup])) {
+                        $routesWithGroup[$routeGroup] = array();
+                    }
+                    $source = &$routesWithGroup[$routeGroup];
+                }
                 if ($routeName) {
-                    $routes[$routeName] = $routeData;
+                    $source[$routeName] = $routeData;
                 } else {
-                    $routes[] = $routeData;
+                    $source[] = $routeData;
                 }
             }
         }
@@ -136,9 +146,43 @@ class Controller_Route extends Controller_Abstract
             ? $config['empty_route'] : array();
         if (!empty($config['routes'])) {
             foreach ($config['routes'] as $routeName => $route) {
+                if (empty($route['route'])) {
+                    continue;
+                }
                 if (in_array($route['route'], $routeIds)) {
                     continue;
                 }
+                $source = &$routesWithoutGroups;
+                if (!empty($route['group'])) {
+                    $routeGroup = $route['group'];
+                    if (!isset($routesWithGroup[$routeGroup])) {
+                        $routesWithGroup[$routeGroup] = array();
+                    }
+                    $source = &$routesWithGroup[$routeGroup];
+                }
+                if (is_numeric($routeName)) {
+                    $source[] = $route;
+                } else {
+                    $source[$routeName] = $route;
+                }
+            }
+        }
+        ksort($routesWithGroup);
+        ksort($routesWithoutGroups);
+        $routes = array();
+        if ($routesWithoutGroups) {
+            foreach ($routesWithGroup as $groupRoutes) {
+                foreach ($groupRoutes as $routeName => $route) {
+                    if (is_numeric($routeName)) {
+                        $routes[] = $route;
+                    } else {
+                        $routes[$routeName] = $route;
+                    }
+                }
+            }
+        }
+        if ($routesWithoutGroups) {
+            foreach ($routesWithoutGroups as $routeName => $route) {
                 if (is_numeric($routeName)) {
                     $routes[] = $route;
                 } else {
@@ -146,7 +190,6 @@ class Controller_Route extends Controller_Abstract
                 }
             }
         }
-        ksort($routes);
         $output = Helper_Code_Generator::fromTemplate (
             'route',
             array (

@@ -25,9 +25,6 @@ class ControllerManagerDelegeeParam extends ControllerManagerDelegeeAbstract
             return array();
         }
         foreach ($params as $param) {
-            if ($param->name == 'context') {
-                $controller->setHasInjections(true);
-            }
             $value = $currentInput->receive($param->name);
             if (!$value && $param->isOptional()) {
                 $value = $param->getDefaultValue();

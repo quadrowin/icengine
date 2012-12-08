@@ -4,7 +4,7 @@
  * Ресурс для хранения в сессии
  *
  * @author goorus, morph
- * @Service("sessionResource", args={null})
+ * @Service("sessionResource", args={"name"="null"})
  */
 class Session_Resource extends Objective
 {

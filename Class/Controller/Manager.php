@@ -65,7 +65,7 @@ class Controller_Manager extends Manager_Abstract
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeRole'
         )
 	);
-
+    
 	/**
 	 * Текущее задание
      *
@@ -152,13 +152,6 @@ class Controller_Manager extends Manager_Abstract
     protected $serviceInjector;
 
     /**
-     * Локатор услуг
-     *
-     * @var Service_Locator
-     */
-    protected $serviceLocator;
-
-    /**
      * Получить менеджер аннотаций
      *
      * @return Annotation_Manager_Abstract
@@ -212,23 +205,8 @@ class Controller_Manager extends Manager_Abstract
             ->setInput($input)
             ->setOutput($output)
             ->setTask($task);
-		$output->beginTransaction();
-        $config = $this->config();
-        $defaultContext = $config->context;
-        $context = new IcEngine\Controller\ControllerContext();
-        $context->setController($controller);
-        $context->setAction($actionName);
-        $context->setControllerManager($this);
-        if ($defaultContext) {
-            $services = array();
-            foreach ($defaultContext->__toArray() as $argName => $serviceName) {
-                $services[$argName] = $this->serviceLocator()->getService(
-                    $serviceName
-                );
-            }
-            $params['context'] = new Objective($services);
-            $context->setArgs($params);
-        }
+		$config = $this->config();
+        $context = $this->createControllerContext($controller, $actionName);
         $delegees = $config->delegees;
         if ($delegees) {
             foreach ($delegees as $delegeeName) {
@@ -236,6 +214,7 @@ class Controller_Manager extends Manager_Abstract
             }
         } 
         $callable = array($controller, $actionName);
+        $output->beginTransaction();
         if (!$controller->getTask()->getIgnore()) {
             call_user_func_array($callable, $context->getArgs());
             $task->setTransaction($output->endTransaction());
@@ -253,7 +232,45 @@ class Controller_Manager extends Manager_Abstract
 		}
 		return $task;
 	}
+    
+    /**
+     * Создает контекст для контроллера
+     * 
+     * @param Controller_Abstract $controller
+     * @param string $actionName
+     * @return IcEngine\Controller\ControllerContext
+     */
+    protected function createControllerContext($controller, $actionName)
+    {
+        $context = new IcEngine\Controller\ControllerContext();
+        $context->setController($controller);
+        $context->setAction($actionName);
+        $context->setControllerManager($this);
+        $defaultContext = $this->getDefaultContext();
+        $context->setArgs(array(
+            'context'   => $defaultContext
+        ));
+        return $context;
+    }
 
+    /**
+     * Создает новый контекст по умолчанию
+     * 
+     * @return Objective
+     */
+    protected function createDefaultContext()
+    {
+         $config = $this->config();
+         $defaultContext = $config->context;
+         if ($defaultContext) {
+            $services = array();
+            foreach ($defaultContext->__toArray() as $argName => $serviceName) {
+                $services[$argName] = $this->getService($serviceName);
+            }
+            return new Objective($services);
+         }
+    }
+    
     /**
      * Создает опции вызова контроллера по умолчанию
      *
@@ -428,6 +445,19 @@ class Controller_Manager extends Manager_Abstract
         return $controllerConfig;
 	}
 
+    /**
+     * Получить контекст контроллера по умолчанию
+     * 
+     * @return Objective
+     */
+    public function getDefaultContext()
+    {
+        if (is_null($this->defaultContext)) {
+            $this->defaultContext = $this->createDefaultContext();
+        }
+        return $this->defaultContext;
+    }
+    
 	/**
      * Получить входной транспорт по умолчанию
      *
@@ -462,16 +492,6 @@ class Controller_Manager extends Manager_Abstract
     public function getServiceInjector()
     {
         return $this->serviceInjector;
-    }
-
-    /**
-     * Получить локатор сервисов
-     *
-     * @return Service_Locator
-     */
-    public function getServiceLocator()
-    {
-        return $this->serviceLocator;
     }
 
 	/**
@@ -702,19 +722,6 @@ class Controller_Manager extends Manager_Abstract
     }
 
     /**
-     * Получить локатор сервисов
-     *
-     * @return Service_Locator
-     */
-    public function serviceLocator()
-    {
-        if (!$this->serviceLocator) {
-            $this->serviceLocator = new Service_Locator;
-        }
-        return $this->serviceLocator;
-    }
-
-    /**
      * Изменить менеджер аннотаций
      *
      * @param Annotation_Manager_Abstract $annotationManager
@@ -725,6 +732,16 @@ class Controller_Manager extends Manager_Abstract
     }
 
     /**
+     * Изменить контекст контроллера по умолчанию
+     * 
+     * @param Objective $defaultContext
+     */
+    public function setDefaultContext($defaultContext)
+    {
+        $this->defaultContext = $defaultContext;
+    }
+    
+    /**
      * Изменить инжектор сервисов
      *
      * @param Service_Injector_Abstract $serviceInjector
@@ -732,15 +749,5 @@ class Controller_Manager extends Manager_Abstract
     public function setServiceInjector($serviceInjector)
     {
         $this->serviceInjector = $serviceInjector;
-    }
-
-    /**
-     * Изменить локатор сервисов
-     *
-     * @param Service_Locator $serviceLocator
-     */
-    public function setServiceLocator($serviceLocator)
-    {
-        $this->serviceLocator = $serviceLocator;
     }
 }

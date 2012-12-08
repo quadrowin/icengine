@@ -7,7 +7,6 @@
  */
 class Controller_Abstract
 {
-
 	/**
 	 * Последний вызванный экшен. В случае, если был вызван replaceAction,
      * может отличаться от $_task
@@ -36,13 +35,6 @@ class Controller_Abstract
 	 * @var Data_Transport
 	 */
 	protected $input;
-    
-    /**
-     * Будут ли использоваться внедрения зависимостей в данном контроллере
-     * 
-     * @var boolean
-     */
-    protected $hasInjections = false;
 
 	/**
 	 * Выходные данные
@@ -110,6 +102,17 @@ class Controller_Abstract
 	}
 
     /**
+     * Получить аннотацию текущего контроллера
+     * 
+     * @return Annotation_Set
+     */
+    public function getAnnotations()
+    {
+        return $this->getService('controllerManager')->annotationManager()
+            ->getAnnotation($this);
+    }
+    
+    /**
      * Получить текущий входной транспорт
      *
 	 * @return Data_Transport
@@ -162,16 +165,6 @@ class Controller_Abstract
 	{
 		return $this->task;
 	}
-    
-    /**
-     * Будут ли использоваться внедрения зависимостей в данном контроллере
-     * 
-     * @return boolean
-     */
-    public function hasInjections()
-    {
-        return $this->hasInjections;
-    }
 
 	/**
 	 * Имя контроллера (без приставки Controller_)
@@ -234,16 +227,6 @@ class Controller_Abstract
 		$this->input = $input;
 		return $this;
 	}
-
-    /**
-     * Изменить факт инъекции в экшин
-     * 
-     * @param boolean $value
-     */
-    public function setHasInjections($value)
-    {
-        $this->hasInjections = $value;
-    }
     
 	/**
 	 * Устанавливает транспорт выходных данных
