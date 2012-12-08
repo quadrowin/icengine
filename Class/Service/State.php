@@ -13,10 +13,10 @@ class Service_State
      * @var string
      */
     protected $className;
-    
+
     /**
      * Рефлексия класса сервиса
-     * 
+     *
      * @var \ReflectionClass
      */
     protected $classReflection;
@@ -90,10 +90,10 @@ class Service_State
     {
         return $this->object;
     }
-    
+
     /**
      * Создать новый экземпляр сервиса
-     * 
+     *
      * @return mixed
      */
     public function newInstance()

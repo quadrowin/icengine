@@ -1,16 +1,17 @@
 <?php
+
 /**
+ * Помощник для перевода текста в транслит
  *
- * @desc Помощник для перевода текста в транслит
- * @author Юрий Шведов
+ * @author Юрий Шведов, neon
  * @package IcEngine
  * @Service("helperTranslit")
  */
 class Helper_Translit
 {
-
 	/**
-	 * @desc Заменяет символы в строке согласно переданным наборам.
+	 * Заменяет символы в строке согласно переданным наборам.
+	 *
 	 * @param string $value Исходая строка.
 	 * @param string|array $to Символы, которые будут вставлены на места
 	 * заменяемых.
@@ -19,24 +20,19 @@ class Helper_Translit
 	 * массив вида "заменяемый символ" => "символ для замены".
 	 * @return string Результат замены
 	 */
-	protected static function u_strtr ($value, $to, $from = null)
+	protected function u_strtr($value, $to, $from = null)
 	{
-		if (is_null ($from))
-		{
-			arsort ($to, SORT_LOCALE_STRING);
-			foreach ($to as $c => $r)
-			{
-				$value = str_replace ($c, $r, $value);
+		if (is_null($from)) {
+			arsort($to, SORT_LOCALE_STRING);
+			foreach ($to as $c => $r) {
+				$value = str_replace($c, $r, $value);
 			}
-		}
-		else
-		{
-			$len = min (strlen ($to), strlen ($from));
-			for ($i = 0; $i < $len; ++$i)
-			{
-				$value = str_replace (
-					mb_substr ($to, $i, 1, 'UTF-8'),
-					mb_substr ($from, $i, 1, 'UTF-8'),
+		} else {
+			$len = min(strlen($to), strlen($from));
+			for ($i = 0; $i < $len; ++$i) {
+				$value = str_replace(
+					mb_substr($to, $i, 1, 'UTF-8'),
+					mb_substr($from, $i, 1, 'UTF-8'),
 					$value
 				);
 			}
@@ -45,14 +41,15 @@ class Helper_Translit
 	}
 
 	/**
-	 * @desc для перевода СМС.
+	 * для перевода СМС.
+	 *
 	 * @param string $string
 	 * @author Sergey
 	 * @return string
 	 */
-	public static function rus2translit ($string)
+	public function rus2translit($string)
 	{
-		$converter = array (
+		$converter = array(
 			'а' => 'a',   'б' => 'b',   'в' => 'v',
 			'г' => 'g',   'д' => 'd',   'е' => 'e',
 			'ё' => 'e',   'ж' => 'zh',  'з' => 'z',
@@ -78,50 +75,43 @@ class Helper_Translit
 			'Э' => 'E',   'Ю' => 'Yu',  'Я' => 'Ya',
 		);
 		// переводим в транслит
-		$str = strtr ($string, $converter);
+		$str = strtr($string, $converter);
 		// заменям все ненужное нам на ""
 		//$str = preg_replace('~[^-a-z0-9_]+~u', '', $str);
 		// удаляем начальные и конечные '-'
-		$str = trim ($str, "-");
+		$str = trim($str, "-");
 		return $str;
 	}
 
 	/**
-	 * @desc Перевод строки в транслит
+	 * Перевод строки в транслит
+	 *
 	 * @param string $value Исходна стока
 	 * @param string $lang [optional] Направление перевода
 	 * 		Если "en" - из русского на транслит,
 	 * 		если "ru" - из транслита на русский
 	 * @return Результат транслитации.
 	 */
-	public static function translit ($value, $lang = null)
+	public function translit($value, $lang = null)
 	{
-		$value = trim ($value);
-
-		$value = str_replace (
+		$value = trim($value);
+		$value = str_replace(
 			array ("\r", "\n", "\t", ',', '.', '(', ')', '[', ']', '{', '}'),
 			'',
 			$value
-
 		);
-
-		if (!isset ($lang))
-		{
+		if (!isset($lang)) {
 			$regexpRus = '/^[а-яА-Я]+/';
-			$lang = preg_match ($regexpRus, $value) ? 'ru' : 'en';
+			$lang = preg_match($regexpRus, $value) ? 'en' : 'ru';
 		}
-
-
-		if ($lang == 'en')
-		{
+		if ($lang == 'en') {
 			// Сначала заменяем "односимвольные" фонемы.
-			$value = self::u_strtr ($value, "абвгдеёзийклмнопрстуфхыэ ", "abvgdeeziyklmnoprstufhie_");
-			$value = self::u_strtr ($value, "АБВГДЕЁЗИЙКЛМНОПРСТУФХЫЭ ", "ABVGDEEZIYKLMNOPRSTUFHIE_");
-
+			$value = $this->u_strtr($value, "абвгдеёзийклмнопрстуфхыэ ", "abvgdeeziyklmnoprstufhie_");
+			$value = $this->u_strtr($value, "АБВГДЕЁЗИЙКЛМНОПРСТУФХЫЭ ", "ABVGDEEZIYKLMNOPRSTUFHIE_");
 			// Затем - "многосимвольные".
-			$value = self::u_strtr (
+			$value = $this->u_strtr(
 				$value,
-				array (
+				array(
 					"ж"=>"zh", "ц"=>"ts", "ч"=>"ch", "ш"=>"sh",
 					"щ"=>"shch","ь"=>"", "ъ"=>"", "ю"=>"yu", "я"=>"ya",
 					"Ж"=>"ZH", "Ц"=>"TS", "Ч"=>"CH", "Ш"=>"SH",
@@ -130,13 +120,11 @@ class Helper_Translit
 					"&nbsp;"=>"_"
 				)
 			);
-		}
-		elseif ($lang == 'ru')
-		{
+		} elseif ($lang == 'ru') {
 			// Сначала заменяем"многосимвольные".
-			$value = self::u_strtr (
+			$value = $this->u_strtr(
 				$value,
-				array (
+				array(
 					"zh"=>"ж", "ts"=>"ц", "ch"=>"ч", "sh"=>"ш",
 					"shch"=>"щ", "yu"=>"ю", "ya"=>"я",
 					"ZH"=>"Ж", "TS"=>"Ц", "CH"=>"Ч", "SH"=>"Ш",
@@ -144,29 +132,34 @@ class Helper_Translit
 					"&nbsp;"=>"_"
 				)
 			);
-
-
 			//  Затем - "односимвольные" фонемы.
-			$value = self::u_strtr ($value, "abvgdeziyklmnoprstufh_", "абвгдезийклмнопрстуфх ");
-			$value = self::u_strtr ($value, "ABVGDEZIYKLMNOPRSTUFH_", "АБВГДЕЗИЙКЛМНОПРСТУФХ ");
+			$value = $this->u_strtr(
+				$value,
+				"abvgdeziyklmnoprstufh_",
+				"абвгдезийклмнопрстуфх "
+			);
+			$value = $this->u_strtr(
+				$value,
+				"ABVGDEZIYKLMNOPRSTUFH_",
+				"АБВГДЕЗИЙКЛМНОПРСТУФХ "
+			);
 		}
-
 		return $value;
 	}
 
 	/**
-	 * @desc Формирует из названия статьи ссылку.
+	 * Формирует из названия статьи ссылку.
+	 *
 	 * @param string $value Исходное название
 	 * @return string Ссылка
 	 */
-	public static function makeUrlLink ($value)
+	public function makeUrlLink($value)
 	{
-		$link = self::translit ($value, 'en');
+		$link = $this->translit ($value, 'en');
 		$link = preg_replace ('/([^0-9a-zA-Z_])+/', '', $link);
 		$link = preg_replace ('/[_]{2,}/', '_', $link);
 		$link = preg_replace ('/^_/', '', $link);
 		$link = preg_replace ('/_$/', '', $link);
-
 		return $link;
 	}
 }
