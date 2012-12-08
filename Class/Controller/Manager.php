@@ -711,9 +711,7 @@ class Controller_Manager extends Manager_Abstract
     public function serviceInjector()
     {
         if (!$this->serviceInjector) {
-            $injector = $this->serviceLocator()->getService(
-                'serviceInjector'
-            );
+            $injector = $this->getService('serviceInjector');
             $this->serviceInjector = $injector->get(
                 'Context', $this->serviceLocator
             );
