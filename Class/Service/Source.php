@@ -9,11 +9,11 @@ class Service_Source
 {
     /**
      * Менеджер аннотаций
-     * 
+     *
      * @var Annotation_Manager_Abstract
      */
     protected $annotationManager;
-    
+
     /**
      * Локатор сервисов источника
      *
@@ -30,7 +30,7 @@ class Service_Source
 
     /**
      * Добавить сервис в источник
-     * 
+     *
      * @param string $serviceName
      * @param array $serviceData
      */
@@ -38,7 +38,7 @@ class Service_Source
     {
         self::$services[$serviceName] = $serviceData;
     }
-    
+
     /**
      * Построить сервис
      *
@@ -49,6 +49,9 @@ class Service_Source
     protected function buildService($serviceName, $serviceData)
     {
         $className = $serviceData['class'];
+		if ($className == 'Session_Resource') {
+			print_r($serviceData);die;
+		}
         $object = null;
         if (!empty($serviceData['source']) || !empty($serviceData['args'])) {
             $args = !empty($serviceData['args']) ? $serviceData['args'] :
@@ -142,14 +145,14 @@ class Service_Source
 
     /**
      * Получить менеджер аннотаций
-     * 
+     *
      * @return Annotation_Manager_Abstract
      */
     public function getAnnotationManager()
     {
         return $this->annotationManager;
     }
-    
+
     /**
      * Получить аргумент
      *
@@ -203,7 +206,7 @@ class Service_Source
            $instanceCallback = self::$services[$serviceName]['instanceCallback'];
         }
         $state = new Service_State(
-            $service, 
+            $service,
             self::$services[$serviceName]['class'],
             $instanceCallback
         );
@@ -222,17 +225,17 @@ class Service_Source
             self::$servcies = array();
         }
     }
-    
+
     /**
      * Менеджер аннотаций
-     * 
+     *
      * @param Annotation_Manager_Abstract $annotationManager
      */
     public function setAnnotationManager($annotationManager)
     {
         $this->annotationManager = $annotationManager;
     }
-    
+
     /**
      * Изменить локатор сервисов
      *
