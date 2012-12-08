@@ -82,6 +82,13 @@ class Controller_Manager extends Manager_Abstract
     protected $dataProviderManager;
     
     /**
+     * Контекст по умолчанию
+     * 
+     * @var Objective
+     */
+    protected $defaultContext;
+    
+    /**
      * Созданные делегита менеджера контроллеров
      * 
      * @var array

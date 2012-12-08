@@ -24,8 +24,12 @@ class ControllerManagerDelegeeRole extends ControllerManagerDelegeeAbstract
         $user = $controller->getService('user');
         $actionScheme = $scheme->getMethod($context->getAction());
         $request = $controller->getService('request');
-        if (!empty($actionScheme['role'])) {
-            if (!$user->hasRole($actionScheme['role'])) {
+        if (!empty($actionScheme['Role'])) {
+            $roles = array();
+            foreach ($actionScheme['Role'] as $role) {
+                $roles[] = reset($role);
+            }
+            if (!$user->hasRole($roles)) {
                 if ($request->isAjax() || $request->isPost()) {
                     $controller->getTask()->setIgnore(true);
                 } else {
