@@ -40,7 +40,7 @@ class User_Session extends Model
 	{
         $modelManager = $this->getService('modelManager');
 		$session = $modelManager->byKey('User_Session', $sessionId);
-        $date = $this->getService('date');
+        $date = $this->getService('helperDate');
 		if (!$session && $autocreate) {
     		$session = $modelManager->create('User_Session', array(
     			'id'			=> $sessionId,
@@ -114,7 +114,7 @@ class User_Session extends Model
 	 */
 	public function updateSession($newUserId = null)
 	{
-        $date = $this->getService('date');
+        $date = $this->getService('helperDate');
 		$now = $date->toUnix();
         $updateData = array();
 		if ($newUserId) {

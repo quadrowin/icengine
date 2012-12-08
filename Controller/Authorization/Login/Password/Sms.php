@@ -47,9 +47,9 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 	 */
 	protected function _authorization ()
 	{
-		return Model_Manager::byQuery (
+		return $this->getService('modelManager')->byQuery (
 			'Authorization',
-			Query::instance ()
+				$this->getService('query')->instance ()
 				->where ('name', 'Login_Password_Sms')
 		);
 	}
@@ -77,7 +77,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 			$activation_id,
 			$activation_code,
 			$redirect
-		) = $this->_input->receive (
+		) = $this->input->receive (
 			'name',
 			'pass',
 			'a_id',
@@ -85,12 +85,13 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 			'href'
 		);
 
+		$model_manager = $this->getService('modelManager');
 		if (!$activation_id && $activation_code)
 		{
 			// Сразу указали код активации, мб старая активация
-			$activation = Model_Manager::byQuery (
+			$activation = $model_manager->byQuery (
 				'Activation',
-				Query::instance ()
+				$this->getService('query')->instance ()
 					->from ('Activation')
 					->singleInnerJoin (
 						'User',
@@ -128,7 +129,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 		if (!is_object ($user))
 		{
 			// Пользователя не существует
-			$this->_sendError (
+			$this->sendError (
 				'authorization error: ' . $user,
 				$user ? $user : __METHOD__,
 				$user ? null : '/passwordIncorrect'
@@ -143,7 +144,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 		));
 
 		$redirect = Helper_Uri::validRedirect ($redirect);
-		$this->_output->send (array (
+		$this->output->send (array (
 			'redirect'		=> $redirect,
 			'data'	=> array (
 				'redirect'	=> $redirect
@@ -161,13 +162,14 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 			$login,
 			$password,
 			$send
-		) = $this->_input->receive(
+		) = $this->input->receive(
 			'provider',
 			'name',
 			'pass',
 			'send'
 		);
-		$user = Model_Manager::byOptions(
+		$model_manager = $this->getService('modelManager');
+		$user = $model_manager->byOptions(
 			'User',
 			array(
 				'name'	=> 'Login',
@@ -179,7 +181,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 			)
 		);
 		if (!$user) {
-			$user = Model_Manager::byOptions (
+			$user = $model_manager->byOptions (
 				'User',
 				array(
 					'name'	=> 'Login',
@@ -193,21 +195,21 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 			);
 		}
 		if (!$user) {
-			return $this->_sendError(
+			return $this->sendError(
 				'password incorrect',
 				'Data_Validator_Authorization_Password/invalid'
 			);
 		}
 
 		if (!$user->active) {
-			return $this->_sendError(
+			return $this->sendError(
 				'user unactive',
 				'Data_Validator_Authorization_User/unactive'
 			);
 		}
 
 		if (!$user->phone) {
-			return $this->_sendError('noPhone');
+			return $this->sendError('noPhone');
 		}
 
 		$count = $user->attr (self::SMS_SEND_COUNTER_ATTR);
@@ -226,7 +228,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 			)
 		)
 		{
-			return $this->_sendError ('smsLimit');
+			return $this->sendError ('smsLimit');
 		}
 
 		$activation = $this->_authorization ()->sendActivationSms (array (
@@ -240,7 +242,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 
 		if (!is_object ($activation))
 		{
-			$this->_sendError (
+			$this->sendError (
 				'send activation code fail (' . (string) $activation . ')',
 				$activation ? $activation : 'accessDenied'
 			);
@@ -252,7 +254,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 			self::SMS_SEND_COUNTER_ATTR		=> $count + 1
 		));
 
-		$this->_output->send (array (
+		$this->output->send (array (
 			'activation'	=> $activation,
 			'time'			=> $time,
 			'data'			=> array (
