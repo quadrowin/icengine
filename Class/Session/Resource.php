@@ -4,7 +4,7 @@
  * Ресурс для хранения в сессии
  *
  * @author goorus, morph
- * @Service("sessionResource")
+ * @Service("sessionResource"),args={null}
  */
 class Session_Resource extends Objective
 {
@@ -52,7 +52,13 @@ class Session_Resource extends Objective
 	{
 		return $this->name;
 	}
-
+/*
+	public function newInstance($name)
+	{
+		print_r('sdf777');die;
+		return new self($name);
+	}
+*/
 	/**
 	 * Удалить ресурс сессии
 	 */
