@@ -44,14 +44,15 @@ class Controller_Authorization extends Controller_Abstract
 	}
 
 	/**
-	 * @desc Досутп закрыт для текущего пользователя
+	 * Доступ закрыт для текущего пользователя
 	 */
-	function accessDenied ()
+	function accessDenied()
 	{
-		$this->_output->send (array (
+		$user = $this->getService('user')->getCurrent();
+		$this->output->send(array(
 			'error' => 'access denied',
-			'user'	=> User::getCurrent (),
-			'data'	=> array (
+			'user'	=> $user,
+			'data'	=> array(
 				'error'	=> 'access denied'
 			)
 		));
