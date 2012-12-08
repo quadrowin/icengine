@@ -1,33 +1,34 @@
 <?php
 
 /**
- * @desc Реализация ORM
- * @author Илья Колесников
+ * Реализация ORM
+ *
+ * @author Илья Колесников, neon
  */
 class Model_Mapper
 {
 	/**
-	 * @desc Конфигурация схемы связей моделей
+	 * Конфигурация схемы связей моделей
 	 * @var Objective
 	 */
-	protected static $_config;
+	protected $config;
 
 	/**
-	 * @desc Схемы связей моделей
+	 * Схемы связей моделей
 	 * @var array
 	 */
-	private static $_schemes = array ();
+	private $schemes = array();
 
 	/**
 	 * (non-PHPDoc)
 	 */
-	public static function __callStatic ($method, $params)
+	public static function __callStatic($method, $params)
 	{
         $serviceLocator = IcEngine::serviceLocator();
         $modelMapperMethod = $serviceLocator->getService('modelMapperMethod');
 		$method = $modelMapperMethod->normalizaName($method);
 		$method = $modelMapperMethod->byName($method);
-		$method->setParams ($params);
+		$method->setParams($params);
 		return $method->execute();
 	}
 
@@ -35,22 +36,22 @@ class Model_Mapper
 	 * @desc Получить конфигурацию
 	 * @return Objective
 	 */
-	public static function config()
+	public function config()
 	{
 		$serviceLocator = IcEngine::serviceLocator();
         $configManager = $serviceLocator->getService('configManager');
-        if (!is_object (self::$_config))
-		{
-			self::$_config = $configManager->get(__CLASS__, self::$_config);
+        if (!is_object($this->config)) {
+			$this->config = $configManager->get(__CLASS__, $this->config);
 		}
-		return self::$_config;
+		return $this->config;
 	}
 
 	/**
-	 * @desc Получить схему для моделей
+	 * Получить схему для моделей
+	 *
 	 * @param string $model_name
 	 */
-	public static function scheme ($model)
+	public function scheme($model)
 	{
         $serviceLocator = IcEngine::serviceLocator();
         $configManager = $serviceLocator->getService('configManager');
@@ -64,32 +65,26 @@ class Model_Mapper
 			$model = $model_name;
 		}
 		$key = $model_name . '_' . $model->key();
-		if (!isset (self::$_schemes[$key]))
-		{
+		if (!isset($this->schemes[$key])) {
 			$config = $configManager->get('Model_Mapper_' . $model_name);
-			if (!$config)
-			{
+			if (!$config) {
 				return;
 			}
-            
 			$scheme_name = 'Simple';
-			if (isset ($config->scheme))
-			{
+			if (isset($config->scheme)) {
 				$scheme_name = $config->scheme;
 			}
 			$scheme = $modelMapperScheme->byName($scheme_name);
 			$scheme->setModel($model);
-			foreach ($config as $name => $values)
-			{
-				if ($values)
-				{
+			foreach ($config as $name => $values) {
+				if ($values) {
 					$scheme = $modelMapperSchemePart->getAuto(
 						$name, $scheme, $values
 					);
 				}
 			}
-			self::$_schemes[$key] = $scheme;
+			$this->schemes[$key] = $scheme;
 		}
-		return clone self::$_schemes[$key];
+		return clone $this->schemes[$key];
 	}
 }

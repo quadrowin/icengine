@@ -376,64 +376,60 @@ class Controller_Model extends Controller_Abstract
 
 	public function createMissing()
 	{
-		$task = Controller_Manager::call (
-			'Model', 'missing', array ()
+		$controllerManager = $this->getService('controllerManager');
+		$task = $controllerManager->call(
+			'Model', 'missing', array()
 		);
-		if (!$task)
-		{
+		if (!$task) {
 			return;
 		}
-		$buffer = $task->getTransaction ()->buffer ();
-		if (empty ($buffer['missings']))
-		{
+		$buffer = $task->getTransaction()->buffer();
+		if (empty($buffer['missings'])) {
 			return;
 		}
 		$missings = $buffer['missings'];
-		foreach ($missings as $model_name)
-		{
-			Controller_Manager::call (
-				'Model', 'create', array (
+		foreach ($missings as $model_name) {
+			$controllerManager->call(
+				'Model', 'create', array(
 					'name'	=> $model_name
 				)
 			);
 		}
 	}
 
-	public function createOption ($model_name, $name, $author)
+	public function createOption($model_name, $name, $author)
 	{
-		$this->_task->setTemplate (null);
-		$dir = IcEngine::root () . 'Ice/Model/' .
-			str_replace ('_', '/', $model_name) .
+		$this->task->setTemplate(null);
+		$dir = IcEngine::root() . 'Ice/Model/' .
+			str_replace('_', '/', $model_name) .
 			'/Option/';
-		if (!is_array ($name))
-		{
-			$name = explode (',', $name);
+		if (!is_array($name)) {
+			$name = explode(',', $name);
 		}
-		foreach ($name as $n)
-		{
-			$n = trim ($n);
-			$filename = $dir . str_replace ('_', '/', $n) . '.php';
-			$dirname = dirname ($filename);
-			if (!is_dir ($dirname))
-			{
-				mkdir ($dirname, 0750, true);
+		$helperCodeGenerator = $this->getService('helperCodeGenerator');
+		$helperDate = $this->getService('helperDate');
+		foreach ($name as $n) {
+			$n = trim($n);
+			$filename = $dir . str_replace('_', '/', $n) . '.php';
+			$dirname = dirname($filename);
+			if (!is_dir($dirname)) {
+				mkdir($dirname, 0750, true);
 			}
-			if (file_exists ($filename))
-			{
+			if (file_exists($filename)) {
 				continue;
 			}
 			echo 'File: ' . $filename . PHP_EOL;
-			$output = Helper_Code_Generator::fromTemplate (
+			$output = $helperCodeGenerator->fromTemplate(
 				'model_option',
 				array (
 					'author'		=> $author,
 					'model_name'	=> $model_name,
 					'name'			=> $n,
 					'package'		=> 'Vipgeo',
-					'date'			=> Helper_Date::toUnix ()
+					'date'			=> $helperDate->toUnix()
 				)
 			);
-			file_put_contents ($filename, $output);
+			file_put_contents($filename, $output);
 		}
 	}
 
