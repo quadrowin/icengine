@@ -92,9 +92,9 @@ class Temp_Content extends Model
 		$row_id = 0, $data = null)
 	{
 		$userService = $this->getService('user');
-        $helperDate = $this->getService('date');
+        $helperDate = $this->getService('helperDate');
         $requestService = $this->getService('request');
-        
+
         $utcode = $this->genUtcode();
 		$tc = new Temp_Content (array (
 			'time'			=> $helperDate->toUnix(),
