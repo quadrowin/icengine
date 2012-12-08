@@ -49,9 +49,6 @@ class Service_Source
     protected function buildService($serviceName, $serviceData)
     {
         $className = $serviceData['class'];
-		if ($className == 'Session_Resource') {
-			print_r($serviceData);die;
-		}
         $object = null;
         if (!empty($serviceData['source']) || !empty($serviceData['args'])) {
             $args = !empty($serviceData['args']) ? $serviceData['args'] :
