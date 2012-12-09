@@ -38,17 +38,17 @@ class Data_Source_Abstract
 	 * @var integer
 	 */
 	protected $_objIndex = null;
-    
+
     /**
      * Собственная конфигурация источника данных
-     * 
+     *
      * @var array
      */
     protected $config;
-    
+
     /**
      * Название источника данных
-     * 
+     *
      * @var string
      */
     protected $name;
@@ -68,7 +68,7 @@ class Data_Source_Abstract
 	 * @param Query_Options $options
 	 * @return Data_Source_Abstract $this
 	 */
-	public function execute ($query = null, $options = null)
+	public function execute($query = null, $options = null)
 	{
         if (!$this->_mapper) {
             $serviceLocator = IcEngine::serviceLocator();
@@ -77,14 +77,16 @@ class Data_Source_Abstract
             );
             $dataSourceManager->setDataMapper($this);
         }
-		$this->setQuery ($query);
-		$this->setResult ($this->_mapper->execute ($this, $this->_query, $options));
+		$this->setQuery($query);
+		$this->setResult(
+            $this->_mapper->execute($this, $this->_query, $options)
+        );
 		return $this;
 	}
-    
+
     /**
      * Получить собственную конфигурацию источника данных
-     * 
+     *
      * @return array
      */
     public function getConfig()
@@ -111,10 +113,10 @@ class Data_Source_Abstract
 		}
 		return $this->_objIndex;
 	}
-    
+
     /**
      * Получить название источника данных
-     * 
+     *
      * @return string
      */
     public function getName()
@@ -148,14 +150,14 @@ class Data_Source_Abstract
 
     /**
      * Изменить собственную конфигурация источника данных
-     * 
+     *
      * @param array $config
      */
     public function setConfig($config)
     {
         $this->config = $config;
     }
-    
+
 	/**
 	 *
 	 * @param Data_Source_Collection $sources
@@ -169,14 +171,14 @@ class Data_Source_Abstract
 
     /**
      * Изменить название источника данных
-     * 
+     *
      * @param string $name
      */
     public function setName($name)
     {
         $this->name = $name;
     }
-    
+
 	/**
 	 * @desc Устанавливает результат запроса.
 	 * @param Query_Result $result
