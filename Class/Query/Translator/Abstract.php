@@ -1,40 +1,42 @@
 <?php
 
 /**
- * @desc Абстракный транслятор запросов
- * @author goorus, morph
+ * Абстракный транслятор запросов
+ *
+ * @author goorus, morph, neon
  */
 class Query_Translator_Abstract
 {
 	/**
-	 * @desc Возвращает имя транслятора
+	 * Возвращает имя транслятора
+     *
 	 * @return string
 	 */
-	public function getName ()
+	public function getName()
 	{
-		return substr (
-			get_class ($this),
-			strlen ('Query_Translator_')
+		return substr(
+			get_class($this),
+			strlen('Query_Translator_')
 		);
 	}
 
 	/**
-	 * @desc Транслирует запрос.
+	 * Транслирует запрос.
+     *
 	 * @param Query_Abstract $query Запрос.
 	 * @return mixed Результат трансляции.
 	 */
-	public function translate (Query_Abstract $query)
+	public function translate(Query_Abstract $query)
 	{
-		$type = $query->getName ();
-		$parts = explode ('_', $type);
-		foreach ($parts as &$part)
-		{
-			$part = substr (strtoupper ($part), 0, 1).
-				substr (strtolower ($part), 1);
+		$type = $query->getName();
+		$parts = explode('_', $type);
+		foreach ($parts as &$part) {
+			$part = substr(strtoupper($part), 0, 1).
+				substr(strtolower($part), 1);
 		}
-		$type = implode ('', $parts);
-		return call_user_func (
-			array ($this, '_render' . $type),
+		$type = implode('', $parts);
+		return call_user_func(
+			array($this, '_render' . $type),
 			$query
 		);
 	}
