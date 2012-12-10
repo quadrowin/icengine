@@ -98,24 +98,10 @@ class View_Render_Smarty extends View_Render_Abstract
 	 */
 	public function addTemplatesPath ($path)
 	{
-		if (is_array($path)) {
-			foreach ($path as $p) {
-				$this->addPathInTemplate($p);
-			}
-		} else {
-			$this->addPathInTemplate($path);
-		}
-	}
-	
-	/**
-	 * Добавить путь к view шаблонам в порядке добавления
-	 * @param string $path
-	 */
-	private function addPathInTemplate($path)
-	{
-		if (!in_array($path, (array) $this->_smarty->template_dir)) {
-			$this->_smarty->template_dir[] = $path;
-		}
+		$this->_smarty->template_dir = array_merge (
+			array_reverse ((array) $path),
+			(array) $this->_smarty->template_dir
+		);
 	}
 
 	/**
