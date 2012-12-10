@@ -114,10 +114,10 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 		// Приводим к нижнему регистру
 		$login = strtolower ($login);
 		$cfg = $cfg_users [$login];
-
+		$crypt_manager = $this->getService('cryptManager');
 		return
 			$cfg &&
-			Crypt_Manager::isMatch ($password, $cfg ['password']) &&
+			$crypt_manager->isMatch ($password, $cfg ['password']) &&
 			$cfg ['phone'] == $user->phone &&
 			$cfg ['active'];
 	}
@@ -152,7 +152,7 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 
 		foreach ($roles as $role)
 		{
-			$role = Acl_Role::byName ($role);
+			$role = $this->getService('aclRole')->byName ($role);
 			if ($user->hasRole ($role))
 			{
 				return true;
@@ -172,9 +172,11 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 	 */
 	public function authorize ($data)
 	{
-		$user = Model_Manager::byQuery (
+		$model_manager = $this->getService('modelManager');
+		$query = $this->getService('query');
+		$user = $model_manager->byQuery (
 			'User',
-			Query::instance ()
+			$query->instance ()
 				->where ('login', $data ['login'])
 				->where (
 					'(
@@ -196,14 +198,14 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 			return 'Data_Validator_Authorization_User/denied';
 		}
 
-		$activation = Model_Manager::byQuery (
+		$activation = $model_manager->byQuery (
 			'Activation',
-			Query::instance ()
+			$query->instance ()
 				->where ('type', $this->config ()->activation_type)
 				->where ('code', $data ['activation_code'])
 				->where ('id', $data ['activation_id'])
 				->where ('User__id', $user->id)
-				->where ('expirationTime>?', Helper_Date::toUnix ())
+				->where ('expirationTime>?', $this->getService('helperDate')->toUnix ())
 				->where ('finished<1')
 		);
 
@@ -214,7 +216,7 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 
 		$activation->update (array (
 			'finished'		=> $activation->finished + 1,
-			'finishTime'	=> Helper_Date::toUnix ()
+			'finishTime'	=> $this->getService('helperDate')->toUnix ()
 		));
 
 		$this->_authorize ($user);
@@ -228,9 +230,9 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 	 */
 	public function isRegistered ($login)
 	{
-		$user = Model_Manager::byQuery (
+		$user = $this->getService('modelManager')->byQuery (
 			'User',
-			Query::instance ()
+			$this->getService('query')->instance ()
 				->where ('login', $login)
 		);
 
@@ -243,7 +245,7 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 	 */
 	public function isValidLogin ($login)
 	{
-		return Data_Validator_Manager::validate (
+		return $this->getService('dataValidatorManager')->validate (
 			$this->config ()->login_validator,
 			$login
 		);
@@ -255,9 +257,9 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 	 */
 	public function findUser ($data)
 	{
-		return Model_Manager::byQuery (
+		return $this->getService('modelManager')->byQuery (
 			'User',
-			Query::instance ()
+		$this->getService('query')->instance ()
 				->where ('login', $data ['login'])
 		);
 	}
@@ -300,20 +302,22 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 
 		$config = $this->config ();
 
-		$activation_code = Helper_Activation::generateNumeric (
+		$activation_code = $this->getService('helperActivation')->generateNumeric (
 			$config ['code_min_length'],
 			$config ['code_max_length']
 		);
 
+		$model_manager = $this->getService('modelManager');
+		$query = $this->getService('query');
 		// Пробуем использовать старый код
-		$activation = Model_Manager::byQuery (
+		$activation = $model_manager->byQuery (
 			'Activation',
-			Query::instance ()
+			$query->instance ()
 				->where ('User__id', $user->id)
 				->where ('address', $user->phone)
 				->where ('finished<0')
 				->where ('type', $config ['activation_type'])
-				->where ('expirationTime>?', Helper_Date::toUnix ())
+				->where ('expirationTime>?', $this->getService('helperDate')->toUnix ())
 		);
 
 		if ($activation)
@@ -340,7 +344,7 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 				'address'			=> $user->phone,
 				'type'				=> $config ['activation_type'],
 				'code'				=> $activation_code,
-				'expirationTime'	=> Helper_Date::toUnix ($exp_time),
+				'expirationTime'	=> $this->getService('helperDate')->toUnix ($exp_time),
 				'User__id'			=> $user->id
 			));
 		}
@@ -349,13 +353,14 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 		 * @desc Провайдер
 		 * @var Mail_Provider_Abstract
 		 */
-		$provider = Model_Manager::byQuery (
+		$provider = $model_manager->byQuery (
 			'Mail_Provider',
-			Query::instance ()
+			$query->instance ()
 				->where ('name', $provider ? $provider : $config ['sms_provider'])
 		);
 
-		$message = Mail_Message::create (
+		$mail_message = $this->getService('mail');
+		$message = $mail_message->create (
 			$config ['sms_mail_template'],
 			$user->phone,
 			$user->name,

@@ -110,10 +110,10 @@ class Query_Abstract
 	{
 		return isset ($this->_parts [$name]) ? $this->_parts [$name] : null;
 	}
-    
+
     /**
 	 * Возвращает все части запроса
-	 * 
+	 *
      * @param string $name
 	 * @return mixed
 	 */

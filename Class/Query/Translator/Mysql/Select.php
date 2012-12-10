@@ -1,11 +1,10 @@
 <?php
 
 /**
+ * Транслятор в SQL запрос
  *
- * @desc Транслятор в SQL запрос
- * @author Юрий Шведов, Илья Колесников
+ * @author Юрий Шведов, Илья Колесников, neon
  * @package IcEngine
- *
  */
 class Query_Translator_Mysql_Select extends Query_Translator_Abstract
 {
@@ -49,10 +48,12 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
 	/**
 	 * @see Helper_Mysql::escape()
 	 */
-	public function _escape ($value)
+	public function _escape($value)
 	{
+        $locator = IcEngine::serviceLocator();
+        $helperMysql = $locator->getService('helperMysql');
 		if (strpos($value, '(') === false) {
-			return Helper_Mysql::escape ($value);
+			return $helperMysql->escape($value);
 		} else {
 			return $value;
 		}
@@ -61,129 +62,111 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
 	/**
 	 * @see Helper_Mysql::quote()
 	 */
-	public function _quote ($value)
+	public function _quote($value)
 	{
-		return Helper_Mysql::quote ($value);
+        $locator = IcEngine::serviceLocator();
+        $helperMysql = $locator->getService('helperMysql');
+		return $helperMysql->quote($value);
 	}
 
 	/**
-	 * @desc Рендерит часть SQL CALC FOUND ROWS
+	 * Рендерит часть SQL CALC FOUND ROWS
+     *
 	 * @param Query_Abstract $query
 	 * @return string
 	 */
-	public function _partCalcFoundRows (Query_Abstract $query)
+	public function _partCalcFoundRows(Query_Abstract $query)
 	{
-		if (!$query->part (Query::CALC_FOUND_ROWS))
-		{
+		if (!$query->part(Query::CALC_FOUND_ROWS)) {
 			return '';
 		}
-
 		return self::SQL_CALC_FOUND_ROWS;
 	}
 
-	protected function _partExplain (Query_Abstract $query)
+	protected function _partExplain(Query_Abstract $query)
 	{
-		return $query->part (Query::EXPLAIN) ? self::SQL_EXPLAIN : '';
+		return $query->part(Query::EXPLAIN) ? self::SQL_EXPLAIN : '';
 	}
 
 	/**
-	 * @desc Рендерит часть distinct
+	 * Рендерит часть distinct
+     *
 	 * @param Query_Abstract $query
 	 * @return string
 	 */
-	protected function _partDistinct (Query_Abstract $query)
+	protected function _partDistinct(Query_Abstract $query)
 	{
-		return $query->part (Query::DISTINCT) ? self::SQL_DISTINCT : '';
+		return $query->part(Query::DISTINCT) ? self::SQL_DISTINCT : '';
 	}
 
 	/**
-	 * @desc Рендерит часть запроса from
+	 * Рендерит часть запроса from
+     *
 	 * @param Query_Abstract $query
 	 * @param type $use_alias
 	 * @return string
 	 */
-	public function _renderFrom (Query_Abstract $query, $use_alias = true)
+	public function _renderFrom(Query_Abstract $query, $use_alias = true)
 	{
 		$sql = self::SQL_FROM;
 		$i = 0;
-
-		$from = $query->part (Query::FROM);
-
-		if (!$from)
-		{
+		$from = $query->part(Query::FROM);
+		if (!$from) {
 			return;
 		}
-
-		if (count ($from) > 1)
-		{
-			foreach ($from as $a=>$v)
-			{
-				if ($v [Query::JOIN] == Query::FROM)
-				{
-					unset ($from [$a]);
-					$from = array_merge (array ($a=>$v), $from);
+		if (count($from) > 1) {
+			foreach ($from as $a=>$v) {
+				if ($v[Query::JOIN] == Query::FROM) {
+					unset($from[$a]);
+					$from = array_merge(array($a=>$v), $from);
 					break;
 				}
 			}
 		}
-
 		$froms = $from;
         $modelScheme = IcEngine::serviceLocator()->getService('modelScheme');
-		foreach ($froms as $alias => $from)
-		{
-			if ($from [Query::TABLE] instanceof Query_Select)
-			{
+		foreach ($froms as $alias => $from) {
+			if ($from[Query::TABLE] instanceof Query_Select) {
 				$table = '(' .
-					$this->_renderSelect ($from [Query_Select::TABLE]) .
+					$this->_renderSelect($from[Query_Select::TABLE]) .
 					')';
-			}
-			else
-			{
+			} else {
 				$table =
-					strpos ($from [Query::TABLE], self::SQL_ESCAPE) !== false
-					? $from [Query::TABLE]
-					: $modelScheme->table ($from [Query::TABLE]);
-
-				$table = $this->_escape ($table);
+					strpos($from[Query::TABLE], self::SQL_ESCAPE) !== false
+					? $from[Query::TABLE]
+					: $modelScheme->table($from[Query::TABLE]);
+				$table = $this->_escape($table);
 			}
-
-			$alias = $this->_escape ($alias);
-
-			if ($from [Query::JOIN] == Query::FROM)
-			{
+			$alias = $this->_escape($alias);
+			if ($from[Query::JOIN] == Query::FROM) {
 				$a = ($table == $alias || !$use_alias);
 				$sql .=
 					($i ? self::SQL_COMMA : ' ') .
 					($a ? $table : ($table . ' AS ' . $alias));
-			}
-			else
-			{
-				if (is_array ($from [Query::WHERE]))
-				{
+			} else {
+				if (is_array($from[Query::WHERE])) {
 					$where =
-						$this->_escape ($from [Query::WHERE][0]) .
+						$this->_escape($from[Query::WHERE][0]) .
 						self::SQL_DOT .
-						$this->_escape ($from [Query::WHERE][1]) .
+						$this->_escape($from[Query::WHERE][1]) .
 						'=' .
-						$this->_escape ($from [Query::WHERE][2]) .
+						$this->_escape($from[Query::WHERE][2]) .
 						self::SQL_DOT .
-						$this->_escape ($from [Query::WHERE][3]);
-				}
-				else
-				{
-					$where = $from [Query::WHERE];
+						$this->_escape($from[Query::WHERE][3]);
+				} else {
+					$where = $from[Query::WHERE];
 				}
 				$sql .= ' ' .
-					$from [Query::JOIN] . ' ' .
+					$from[Query::JOIN] . ' ' .
 					$table . ' AS ' . $alias . ' ' .
 					self::SQL_ON .
-					'(' . $from [Query::WHERE] . ')';
+					'(' . $from[Query::WHERE] . ')';
 			}
 			$i++;
 		}
 		return $sql .
-			self::_renderUseIndex ($query) .
-			self::_renderForceIndex ($query);
+			self::_renderUseIndex($query) .
+			self::_renderForceIndex($query);
 	}
 
 	/**

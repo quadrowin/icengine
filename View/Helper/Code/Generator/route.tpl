@@ -1,5 +1,6 @@
 <?php
 
+
 return array(
 {if $empty_route}
     'empty_route'   => array(
@@ -11,12 +12,12 @@ return array(
             '{$subfield}'   => {if is_numeric($j)}{$j}{else}'{$j}'{/if}{if !$smarty.foreach.subfield.last},
             {/if}
 {/foreach}
-    
+
         ){if !$smarty.foreach.field.last},
-        {/if} 
+        {/if}
 {/if}
 {/foreach}
-    
+
     ),
 {/if}
     'routes'        => array(
@@ -30,7 +31,7 @@ return array(
 {foreach from=$route item="i" name="field" key="field"}
             '{$field}'          => {if !is_array($i)}{if is_numeric($i)}{$i}{else}'{$i}'{/if}{if !$smarty.foreach.field.last},
 {/if}
-    
+
 {else}array(
 {foreach from=$i item="j" key="subfield" name="subfield"}
 {if is_numeric($subfield)}
@@ -43,7 +44,7 @@ return array(
 {foreach from=$j item="k" key="subSubField" name="subSubField"}
                     '{$subSubField}'    => {if is_numeric($k)}{$k}{else}'{$k}'{/if}{if !$smarty.foreach.subSubField.last},
 {/if}
-    
+
 {/foreach}
                 ){if !$smarty.foreach.subfield.last},
 {/if}
@@ -55,7 +56,7 @@ return array(
 {/if}
 {/if}
 {/foreach}
-    
+
         ){if !$smarty.foreach.routes.last},
 {/if}
 {/foreach}
