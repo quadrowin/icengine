@@ -33,7 +33,7 @@ class Helper_Site_Location extends Manager_Abstract
 	public function get($param)
 	{
 		$location = $this->getLocation();
-		while (is_string($this->config[$location])) {
+        while (is_string($this->config[$location])) {
 			$location = $this->config[$location];
 		}
 		if (strpos($param, '::') !== false) {
