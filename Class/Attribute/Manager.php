@@ -220,7 +220,7 @@ class Attribute_Manager extends Manager_Abstract
             $insertQuery = $queryBuilder
                 ->insert($table)
                 ->values($values);
-            $source->insert($insertQuery);
+            $source->execute($insertQuery);
             $this->storeValue($model, $keyName, $keyValue);
         }
 	}

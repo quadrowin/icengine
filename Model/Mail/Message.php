@@ -96,7 +96,7 @@ class Mail_Message extends Model
 	public function send ()
 	{
 		$this->update (array (
-			'sendDay'		=> Helper_Date::eraDayNum (),
+			'sendDay'		=> $this->getService('helperDate')->eraDayNum (),
 			'sendTime'		=> date ('Y-m-d H:i:s'),
 			'sendTries'	    => $this->sendTries + 1
 		));

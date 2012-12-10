@@ -20,7 +20,7 @@ class Mail_Provider_Sms_Littlesms extends Mail_Provider_Abstract
 	 * @desc Конфиг
 	 * @var array
 	 */
-	protected static $_config = array (
+	protected static $config = array (
 		'original_path'		=> 'LittlesmsOriginal.class.php',
 		'service_login'		=> '',
 		'service_password'	=> '',
