@@ -4,15 +4,17 @@
  * @desc Класс-фабрика провайдера сообщений
  * @author Юрий Шведов
  * @package IcEngine
- *
+ * @Service("mailProvider")
  */
 class Mail_Provider extends Model_Factory
 {
-	public static function byName ($name)
+	public function byName ($name)
 	{
-		return Model_Manager::byQuery (
+		$model_manager = $this->getService('modelManager');
+		$query = $this->getService('query');
+		return $model_manager->byQuery (
 			'Mail_Provider',
-			Query::instance ()
+			$query->instance ()
 				->where ('name', $name)
 		);
 	}

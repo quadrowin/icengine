@@ -1,6 +1,6 @@
 <?php
 /**
- *
+ * @Service("mailTemplate")
  * @desc Шаблоны сообщений.
  * @author Юрий Шведов
  * @package IcEngine
@@ -27,11 +27,13 @@ class Mail_Template extends Model_Child
 	 * @param boolean $blank Вернуть базовый, если шаблон не найден
 	 * @return Mail_Template
 	 */
-	public static function byName ($name, $blank = true)
+	public function byName ($name, $blank = true)
 	{
-		$template = Model_Manager::byQuery (
+		$model_manager = $this->getService('modelManager');
+		$query = $this->getService('query');
+		$template = $model_manager->byQuery (
 		    'Mail_Template',
-		    Query::instance ()
+		    $query->instance ()
 		   		->where ('name', $name)
 		);
 
@@ -50,7 +52,8 @@ class Mail_Template extends Model_Child
 	 */
 	public function body (array $data = array ())
 	{
-		$smarty = View_Render_Manager::pushViewByName ('Smarty')->smarty ();
+		$view_render_manager = $this->getService('viewRenderManager');
+		$smarty = $view_render_manager->pushViewByName ('Smarty')->smarty ();
 		$smarty->assign ($data);
 
 		$tpl_name = 'Mail/Template/' . $this->name . '.tpl';
@@ -63,7 +66,7 @@ class Mail_Template extends Model_Child
 			$body = $smarty->fetch ('string:' . $this->body);
 		}
 
-		View_Render_Manager::popView ();
+		$view_render_manager->popView ();
 
 		$parent = $this->getParent ();
 
@@ -88,13 +91,14 @@ class Mail_Template extends Model_Child
 			// пустая тема
 			return '';
 		}
-
-		$smarty = View_Render_Manager::pushViewByName ('Smarty')->smarty ();
+		
+		$view_render_manager = $this->getService('viewRenderManager');
+		$smarty = $view_render_manager->pushViewByName ('Smarty')->smarty ();
 
 		$smarty->assign ($data);
 
 		$result = $smarty->fetch ('string:' . $this->subject);
-		View_Render_Manager::popView ();
+		$view_render_manager->popView ();
 		return $result;
 	}
 
