@@ -67,7 +67,7 @@ class Helper_Link extends Manager_Abstract
 	    }
 	    $scheme = $this->linkScheme($model1->table(), $model2->table());
 	    if (!$scheme) {
-			$link = $this->simplerLink(
+			$link = $this->simpleLink(
 				$model1->table(), $model1->key(),
 				$model2->table(), $model2->key()
 			);
