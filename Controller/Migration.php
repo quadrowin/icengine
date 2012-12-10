@@ -104,16 +104,17 @@ class Controller_Migration extends Controller_Abstract
 	/**
 	 * @desc Узнать текущую миграцию
 	 */
-	public function current ($base)
+	public function current($base)
 	{
-		if (User::id () >= 0)
+		$userService = $this->getService('user');
+        $helperMigration = $this->getService('helperMigration');
+        if ($userService->id() >= 0)
 		{
 			echo 'Access denied' . PHP_EOL;
 			return;
 		}
 
-		Loader::load ('Helper_Migration');
-		$last_data = Helper_Migration::getLastData ();
+		$last_data = $helperMigration->getLastData();
 		print_r ($last_data);
 	}
 
@@ -122,15 +123,17 @@ class Controller_Migration extends Controller_Abstract
 	 * @param string $to
 	 * @param string $base
 	 */
-	public function down ($to, $base = 'default')
+	public function down($to, $base = 'default')
 	{
-		if (User::id () >= 0)
+		$userService = $this->getService('user');
+        $helperMigration = $this->getService('helperMigration');
+        if ($userService->id() >= 0)
 		{
 			echo 'Access denied' . PHP_EOL;
 			return;
 		}
 
-		$args = $this->_input->receiveAll ();
+		$args = $this->input->receiveAll();
 		if (!isset ($args ['to']))
 		{
 			return;
@@ -141,8 +144,7 @@ class Controller_Migration extends Controller_Abstract
 			$base = $args ['base'];
 			unset ($args ['base']);
 		}
-		Loader::load ('Helper_Migration');
-		Helper_Migration::migration ($to, 0, $args, $base);
+		$helperMigration->migration($to, 0, $args, $base);
 	}
 
 	/**
@@ -150,19 +152,20 @@ class Controller_Migration extends Controller_Abstract
 	 * @param string $base
 	 * @param string $action
 	 */
-	public function last ($base, $action = 'up')
+	public function last($base, $action = 'up')
 	{
-		Loader::load ('Helper_Migration');
-		$queue = Helper_Migration::getQueue ($base);
+        $helperMigration = $this->getService('helperMigration');
+        $controllerManager = $this->getService('controllerManager');
+		$queue = $helperMigration->getQueue($base);
 		$last = end ($queue);
-		if (is_array ($last))
+		if (is_array($last))
 		{
-			$last = key ($last);
+			$last = key($last);
 		}
-		Controller_Manager::call (
+		$controllerManager->call(
 			'Migration', $action,
 			array (
-				'name'	=> $last
+				'name'  => $last
 			)
 		);
 	}
@@ -173,8 +176,8 @@ class Controller_Migration extends Controller_Abstract
 	 */
 	public function queue ($base = 'default')
 	{
-		Loader::load ('Helper_Migration');
-		print_r (Helper_Migration::getQueue ($base));
+        $helperMigration = $this->getService('helperMigration');
+		print_r($helperMigration->getQueue($base));
 	}
 
 	/**
@@ -183,8 +186,8 @@ class Controller_Migration extends Controller_Abstract
 	 */
 	public function restore ($name)
 	{
-		Loader::load ('Helper_Migration');
-		Helper_Migration::restore ($name);
+        $helperMigration = $this->getService('helperMigration');
+		$helperMigration->restore($name);
 	}
 
 	/**
@@ -192,7 +195,7 @@ class Controller_Migration extends Controller_Abstract
 	 */
 	public function seq() {
 		$this->task->setTemplate(null);
-		$helperSiteLocation = $this->getService('helperSiteLocation');
+		$helperSiteLocation = $this->getService('siteLocation');
 		$url = $helperSiteLocation->get('seq_url');
 		if (!$url) {
 			return;
@@ -207,18 +210,18 @@ class Controller_Migration extends Controller_Abstract
 	/**
 	 * @desc сформировать уникальный номер миграции
 	 */
-	public function seqGet ()
+	public function seqGet()
 	{
-		$this->_task->setTemplate (null);
-		$filename = IcEngine::root () . 'Ice/Var/Helper/Migration/seq';
+		$this->task->setTemplate (null);
+		$filename = IcEngine::root() . 'Ice/Var/Helper/Migration/seq';
 		$current = 0;
-		if (file_exists ($filename))
+		if (file_exists($filename))
 		{
-			$current = (int) file_get_contents ($filename);
+			$current = (int) file_get_contents($filename);
 		}
 		$current++;
-		file_put_contents ($filename, $current);
-		$current = str_pad ($current, 8 - strlen ($current), '0', STR_PAD_LEFT);
+		file_put_contents($filename, $current);
+		$current = str_pad($current, 8 - strlen($current), '0', STR_PAD_LEFT);
 		echo $current;
 	}
 
@@ -227,15 +230,16 @@ class Controller_Migration extends Controller_Abstract
 	 * @param string $to
 	 * @param string $base
 	 */
-	public function up ($to, $base = 'default')
+	public function up($to, $base = 'default')
 	{
-		if (User::id () >= 0)
+        $userService = $this->getService('user');
+		if ($userService->id() >= 0)
 		{
 			echo 'Access denied' . PHP_EOL;
 			return;
 		}
 
-		$args = $this->_input->receiveAll ();
+		$args = $this->input->receiveAll();
 		if (!isset ($args ['to']))
 		{
 			return;
@@ -246,7 +250,6 @@ class Controller_Migration extends Controller_Abstract
 			$base = $args ['base'];
 			unset ($args ['base']);
 		}
-		Loader::load ('Helper_Migration');
-		Helper_Migration::migration ($to, 1, $args, $base);
+		$helperMigration->migration($to, 1, $args, $base);
 	}
 }
