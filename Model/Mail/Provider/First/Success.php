@@ -38,15 +38,17 @@ class Mail_Provider_First_Success extends Mail_Provider_Abstract
 			$providers = explode (',', $providers);
 		}
 
+		$model_manager = $this->getService('modelManager');
+		$query = $this->getService('query');
 		foreach ($providers as $provider_name)
 		{
 			/**
 			 * @desc Реальный провайдер
 			 * @var Mail_Provider_Abstract $provider
 			 */
-			$provider = Model_Manager::byQuery (
+			$provider = $model_manager->byQuery (
 				'Mail_Provider',
-				Query::instance ()
+				$query->instance ()
 				->where ('name', $provider_name)
 			);
 

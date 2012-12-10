@@ -1,6 +1,6 @@
 <?php
 /**
- *
+ * @Service("helperActivation")
  * @desc Помощник активации.
  * @author Юрий Шведов
  * @package IcEngine
@@ -17,7 +17,7 @@ class Helper_Activation
 	 * @param integer $from Минимальное количество цифр.
 	 * @param integer $to Максимальное количество цифр.
 	 */
-	public static function generateNumeric ($from = 5, $to = 7)
+	public function generateNumeric ($from = 5, $to = 7)
 	{
 		return rand (
 			str_pad ("1", $from, '0'),	// от 10000
@@ -32,7 +32,7 @@ class Helper_Activation
 	 * @param integer $to Максимальное количество символов.
 	 * @return string Свободный код (с префиксом)
 	 */
-	public static function newShortCode ($prefix, $from = 5, $to = 7)
+	public function newShortCode ($prefix, $from = 5, $to = 7)
 	{
 		do {
 			$code = $prefix . self::generateNumeric ($from, $to);
@@ -48,7 +48,7 @@ class Helper_Activation
 	 * @param string $code
 	 * @return Activation
 	 */
-	public static function byShortCode ($prefix, $code)
+	public function byShortCode ($prefix, $code)
 	{
 		return Activation::byCode ($prefix . $code);
 	}

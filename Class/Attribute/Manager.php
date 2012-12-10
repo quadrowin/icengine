@@ -190,7 +190,7 @@ class Attribute_Manager extends Manager_Abstract
 	 * @param string|array $key Название атрибута.
 	 * @param mixed $value Значение атрибута.
 	 */
-	public static function set(Model $model, $key, $value)
+	public function set(Model $model, $key, $value)
 	{
         $this->init();
 	    $modelName = $model->table();
@@ -216,7 +216,7 @@ class Attribute_Manager extends Manager_Abstract
         );
 		foreach ($key as $keyName => $keyValue) {
             $values['key'] = $keyName;
-            $values['value'] = urlencode(url_encode($keyValue));
+            $values['value'] = urlencode(json_encode($keyValue));
             $insertQuery = $queryBuilder
                 ->insert($table)
                 ->values($values);
