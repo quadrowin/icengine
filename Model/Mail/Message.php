@@ -50,11 +50,12 @@ class Mail_Message extends Model
 	 * @param array|Objective $mail_provider_params Параметры для провайдера.
 	 * @return Mail_Message Созданное сообщение.
 	 */
-	public static function create ($template_name, $address, $to_name,
+	public function create ($template_name, $address, $to_name,
 		array $data = array (), $to_user_id = 0, $mail_provider = 1,
 		$mail_provider_params = array ())
 	{
-		$template = Mail_Template::byName ($template_name);
+		$mail_temlplate = $this->getService('mailTemplate');
+		$template = $mail_temlplate->byName ($template_name);
 
 		$mail_provider_params = is_object ($mail_provider_params) ?
 			$mail_provider_params->__toArray () :
@@ -64,7 +65,8 @@ class Mail_Message extends Model
 		{
 			if (!is_object ($mail_provider))
 			{
-				$mail_provider = Mail_Provider::byName (
+				$mail_provaider = $this->getService('mailProvider');
+				$mail_provider = $mail_provaider->byName (
 					$mail_provider
 				);
 			}

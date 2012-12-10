@@ -2,7 +2,7 @@
 
 /**
  * Транслятор запросов.
- * 
+ *
  * @author morph, goorus
  * @Service("queryTranslator")
  */
@@ -10,14 +10,14 @@ class Query_Translator
 {
 	/**
 	 * Подключенные трансляторы.
-	 * 
+	 *
      * @var array
 	 */
 	protected $translators = array();
 
 	/**
 	 * Возвращает объект транслятора по имени.
-	 * 
+	 *
      * @param string $name Название транслятора.
 	 * @return Query_Translator
 	 */
@@ -33,7 +33,7 @@ class Query_Translator
 
 	/**
 	 * Возвращает объект транслятора по имени и типу.
-	 * 
+	 *
      * @param string $name Название транслятора.
 	 * @param string $type Тип запроса
 	 * @return Query_Translator

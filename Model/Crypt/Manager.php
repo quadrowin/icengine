@@ -92,7 +92,7 @@ class Crypt_Manager extends Manager_Abstract
 	 * @param string $key [optional]
 	 * @return boolean
 	 */
-	public static function isMatch($input, $pattern, $key = null)
+	public function isMatch($input, $pattern, $key = null)
 	{
 		$p = strpos($pattern, self::PROFILE_DELIMETER);
 		if ($p !== false) {

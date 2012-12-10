@@ -196,7 +196,8 @@ class Authorization_Phone_Sms_Send extends Authorization_Abstract
 			->where ('name', $config ['sms_provider'])
 		);
 
-		$message = Mail_Message::create (
+		$mail_message = $this->getService('mail');
+		$message = $mail_message->create (
 			$config ['sms_mail_template'],
 			$phone,
 			$user ? $user->name : $phone,
