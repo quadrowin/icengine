@@ -13,7 +13,7 @@ class Controller_Yandex_Map extends Controller_Abstract
 	 * @desc Конфиг
 	 * @var array
 	 */
-	protected $_config = array (
+	protected $config = array (
 		// Ключ по умолчанию
 		'default_key'		=> 'AN61kk0BAAAAmfUFHQIAviXJjepM1vwUHiRbviRvdAPQ1NMAAAAAAAAAAADerIzEKE8_wbCnBoKFcC4TrqVRCg==',
 		// Ключи для различных доменов
@@ -66,7 +66,7 @@ class Controller_Yandex_Map extends Controller_Abstract
 			$hide_errors,
 			$load_by_require,
 			$wizard
-		) = $this->_input->receive (
+		) = $this->input->receive (
 			'domain',
 			'hide_errors',
 			'load_by_require',
@@ -77,7 +77,7 @@ class Controller_Yandex_Map extends Controller_Abstract
 		
 		$config = $this->config ();
 		
-		$this->_output->send (array (
+		$this->output->send (array (
 			'hide_errors'		=> 
 				is_null ($hide_errors) ?
 					$config ['hide_errors'] :
@@ -101,7 +101,7 @@ class Controller_Yandex_Map extends Controller_Abstract
 		static $loaded = false;
 		if ($loaded)
 		{
-			$this->_task->setTemplate (null);
+			$this->task->setTemplate (null);
 		}
 		else
 		{

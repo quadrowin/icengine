@@ -14,13 +14,13 @@ class User extends User_Abstract
 	 */
 	public function hasAdminAccess()
 	{
-		if (!$this->_current || !$this->_current->id)
+		if (!$this->current || !$this->current->id)
 		{
 			return false;
 		}
-		
+
 		$config = self::config();
-		
+
 		if (empty($config['roles_to_admin_access']))
 		{
 			return false;

@@ -2,9 +2,14 @@
 
 class Controller_Admin_Database_Map extends Controller_Abstract
 {
-	public function index ()
+	/**
+	 * 
+	 * @param Controller_Context $context
+	 * @return type
+	 */
+	public function index ($context)
 	{
-		$user = User::getCurrent ();
+		$user = $context->user->getCurrent ();
 
 		if (
 			!$user->hasRole ('admin') &&
@@ -20,14 +25,15 @@ class Controller_Admin_Database_Map extends Controller_Abstract
 		list (
 			$row_id,
 			$table
-		) = $this->_input->receive (
+		) = $this->input->receive (
 			'row_id',
 			'table'
 		);
 
-		$class_name = Model_Scheme::tableToModel ($table);
+		$modelScheme = $this->getService('modelScheme');
+		$class_name = $modelScheme->tableToModel ($table);
 
-		$row = Model_Manager::byKey (
+		$row = $context->modelManager->byKey (
 			$class_name,
 			$row_id
 		);
@@ -50,7 +56,7 @@ class Controller_Admin_Database_Map extends Controller_Abstract
 
 		$styles = array ();
 
-		$tmp = Model_Collection_Manager::create ($geo_polylines->className ())
+		$tmp = $context->collectionManager->create ($geo_polylines->className ())
 			->assign ($geo_polylines)
 			->add ($geo_polygons);
 
@@ -62,14 +68,14 @@ class Controller_Admin_Database_Map extends Controller_Abstract
 			);
 		}
 
-		$style_collection = Model_Collection_Manager::create (
+		$style_collection = $context->collectionManager->create (
 			'Geo_Point_Style'
 		);
 
 		$lat = 0;
 		$long = 0;
 
-		$tmp = Model_Collection_Manager::create ($geo_polylines->className ())
+		$tmp = $context->collectionManager->create ($geo_polylines->className ())
 			->reset ();
 
 		if ($geo_polylines->first ())
@@ -92,7 +98,7 @@ class Controller_Admin_Database_Map extends Controller_Abstract
 			$long = $first_point->longitude;
 		}
 
-		$this->_output->send (array (
+		$this->output->send (array (
 			'geo_points'		=> $geo_points,
 			'geo_polylines'		=> $geo_polylines,
 			'geo_polygons'		=> $geo_polygons,
@@ -105,21 +111,26 @@ class Controller_Admin_Database_Map extends Controller_Abstract
 		));
 	}
 
-	public function save ()
+	/**
+	 * 
+	 * @param Controller_Context $context
+	 * @return type
+	 */
+	public function save ($context)
 	{
-		$this->_task->setTemplate (null);
+		$this->task->setTemplate (null);
 
 		list (
 			$table,
 			$row_id,
 			$data
-		) = $this->_input->receive (
+		) = $this->input->receive (
 			'table',
 			'row_id',
 			'data'
 		);
 
-		$user = User::getCurrent ();
+		$user = $context->user->getCurrent ();
 
 		if (
 			!$user->hasRole ('admin') &&
@@ -132,14 +143,14 @@ class Controller_Admin_Database_Map extends Controller_Abstract
 		list (
 			$row_id,
 			$table
-		) = $this->_input->receive (
+		) = $this->input->receive (
 			'row_id',
 			'table'
 		);
 
-		$class_name = Model_Scheme::tableToModel ($table);
+		$class_name = $context->modelScheme->tableToModel ($table);
 
-		$row = Model_Manager::byKey (
+		$row = $context->modelManager->byKey (
 			$class_name,
 			$row_id
 		);
@@ -186,9 +197,9 @@ class Controller_Admin_Database_Map extends Controller_Abstract
 			}
 			else
 			{
-				$style = Model_Manager::byQuery (
+				$style = $context->modelManager->byQuery (
 					'Geo_Point_Style',
-					Query::instance ()
+					$context->query->instance ()
 						->where ('name', $point ['style'])
 				);
 			}
@@ -245,7 +256,7 @@ class Controller_Admin_Database_Map extends Controller_Abstract
 				}
 			}
 
-			$this->_output->send (array (
+			$this->output->send (array (
 				'data'	=> array (
 					'success'	=> 1
 				)

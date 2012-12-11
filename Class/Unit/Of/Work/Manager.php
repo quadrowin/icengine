@@ -4,6 +4,7 @@
  * Менеджер запросов UOW, решает какого типа запрос
  *
  * @author neon
+ * @Service("unitOfWorkManager")
  */
 class Unit_Of_Work_Manager
 {
