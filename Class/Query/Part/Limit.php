@@ -1,8 +1,9 @@
 <?php
 
 /**
+ * Опшен для ограничения вывода
  *
- * @author markov
+ * @author markov, neon
  */
 class Query_Part_Limit extends Query_Part
 {
@@ -11,9 +12,10 @@ class Query_Part_Limit extends Query_Part
 	 */
 	public function query()
 	{
-		$this->query->limit (
-			(int) $this->params ['count'],
-			isset ($this->params ['offset']) ? $this->params ['offset'] : null
+		$this->query->limit(
+			(int) isset($this->params['perPage']) ?
+                $this->params['perPage'] : $this->params['count'],
+			isset($this->params['offset']) ? $this->params['offset'] : null
 		);
 	}
 }
