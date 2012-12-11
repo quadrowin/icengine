@@ -121,7 +121,7 @@ class Authorization_Email_Password_Sms extends Authorization_Abstract
 
 		foreach ($roles as $role)
 		{
-			$role = Acl_Role::byName ($role);
+			$role = $this->getService('aclRole')->byName ($role);
 			if ($user->hasRole ($role))
 			{
 				return true;
@@ -137,9 +137,11 @@ class Authorization_Email_Password_Sms extends Authorization_Abstract
 	 */
 	public function authorize ($data)
 	{
-		$user = Model_Manager::byQuery (
+		$model_manager = $this->getService('modelManager');
+		$query = $this->getService('query');
+		$user = $model_manager->byQuery (
 			'User',
-			Query::instance ()
+			$query->instance ()
 				->where ('email', $data ['email'])
 				->where ('password', $data ['password'])
 				->where ('md5(`password`)=md5(?)', $data ['password'])
@@ -157,9 +159,9 @@ class Authorization_Email_Password_Sms extends Authorization_Abstract
 
 		$prefix = $this->config ()->sms_prefix;
 
-		$activation = Model_Manager::byQuery (
+		$activation = $model_manager->byQuery (
 			'Activation',
-			Query::instance ()
+			$query->instance ()
 				->where ('code', $prefix . $data ['activation_code'])
 				->where ('id', $data ['activation_id'])
 				->where ('User__id', $user->id)
@@ -184,9 +186,11 @@ class Authorization_Email_Password_Sms extends Authorization_Abstract
 	 */
 	public function isRegistered ($login)
 	{
-		$user = Model_Manager::byQuery (
+		$model_manager = $this->getService('modelManager');
+		$query = $this->getService('query');
+		$user = $model_manager->byQuery (
 			'User',
-			Query::instance ()
+			$query->instance ()
 				->where ('email', $login)
 		);
 
@@ -208,9 +212,11 @@ class Authorization_Email_Password_Sms extends Authorization_Abstract
 	 */
 	public function findUser ($data)
 	{
-		return Model_Manager::byQuery (
+		$model_manager = $this->getService('modelManager');
+		$query = $this->getService('query');
+		return $model_manager->byQuery (
 			'User',
-			Query::instance ()
+			$query->instance ()
 				->where ('email', $data ['email'])
 		);
 	}
@@ -249,7 +255,8 @@ class Authorization_Email_Password_Sms extends Authorization_Abstract
 
 		$config = $this->config ();
 
-		$clear_code = Helper_Activation::generateNumeric (
+		$helper_activation = $this->getService('helperActivation');
+		$clear_code = $helper_activation->generateNumeric (
 			$config ['code_min_length'],
 			$config ['code_max_length']
 		);
@@ -260,7 +267,7 @@ class Authorization_Email_Password_Sms extends Authorization_Abstract
 			'address'			=> $user->phone,
 			'code'				=> $activation_code,
 			'expirationTime'	=>
-				Helper_Date::toUnix (time () + $config ['sms_expiration']),
+			$this->getService('helperDate')->toUnix (time () + $config ['sms_expiration']),
 			'User__id'			=> $user->id
 		));
 
@@ -268,13 +275,16 @@ class Authorization_Email_Password_Sms extends Authorization_Abstract
 		 * @desc Провайдер
 		 * @var Mail_Provider_Abstract
 		 */
-		$provider = Model_Manager::byQuery (
+		$model_manager = $this->getService('modelManager');
+		$query = $this->getService('query');
+		$provider = $model_manager->byQuery (
 			'Mail_Provider',
-			Query::instance ()
+			$query->instance ()
 			->where ('name', $config ['sms_provider'])
 		);
 
-		$message = Mail_Message::create (
+		$mail_message = $this->getService('mail');
+		$message = $mail_message->create (
 			$config ['sms_mail_template'],
 			$user->phone,
 			$user->name,

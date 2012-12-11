@@ -3,6 +3,7 @@
 /**
  * Хелпер для миграций
  *
+ * @Service("helperMigration")
  * @author Илья Колесников, neon
  */
 class Helper_Migration

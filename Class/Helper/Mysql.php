@@ -2,7 +2,7 @@
 
 /**
  * Хелпер для работы с mysql
- * 
+ * @Service("helperMysql")
  * @author morph, goorus
  */
 class Helper_Mysql

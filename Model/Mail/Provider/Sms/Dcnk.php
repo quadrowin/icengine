@@ -41,7 +41,8 @@ class Mail_Provider_Sms_Dcnk extends Mail_Provider_Abstract
 	 */
 	public function _afterConstruct ()
 	{
-		Loader::requireOnce ($this->config ()->nusoap_path, 'includes');
+		$loader = $this->getService('loader');
+		$loader->requireOnce ($this->config ()->nusoap_path, 'includes');
 
 		$proxyhost = '';
 		$proxyport = '';

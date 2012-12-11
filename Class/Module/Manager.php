@@ -157,9 +157,6 @@ class Module_Manager extends Manager_Abstract
                 $resultConfig = array_merge($resultConfig, $config);
             }
         }
-        if (empty($resultConfig[0])) {
-            $resultConfig = array();
-        }
         $config = new Config_Array($resultConfig);
         if (!empty($resultConfig)) {
             $resourceManager->set('Config', $resourceKey, $config);
