@@ -14,11 +14,18 @@ class Service_Injector_Context extends Service_Injector_Abstract
     {
         $services = array();
         foreach ($scheme as $service) {
-            $serviceName = isset($service['name']) 
-                ? $service['name'] : reset($service);
-            $fieldName = reset($service);
-            $service = $this->serviceLocator->getService($serviceName);
-            $services[$fieldName] = $service;
+            $serviceData = $service;
+            if (isset($service['name'])) {
+                $serviceName = $service['name'];
+                $fieldName = reset($service);
+                $serviceData = array($serviceName => $fieldName);
+            }
+            foreach ($service as $serviceName => $fieldName) {
+                $fetchedService = $this->serviceLocator->getService(
+                    $serviceName
+                );
+                $services[$fieldName] = $fetchedService;
+            }
         }
         $context = new Objective($services);
         return $context;

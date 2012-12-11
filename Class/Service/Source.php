@@ -157,7 +157,7 @@ class Service_Source
      */
     protected function getArg($arg)
     {
-        if ($arg[0] == '$') {
+        if ($arg && $arg[0] == '$') {
             $arg = $this->locator->getService(substr($arg, 1));
         }
         return $arg;
@@ -219,7 +219,7 @@ class Service_Source
         if (is_file($filename)) {
             self::$services = include_once($filename);
         } else {
-            self::$servcies = array();
+            self::$services = array();
         }
     }
 
