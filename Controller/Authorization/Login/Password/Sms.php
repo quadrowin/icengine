@@ -213,9 +213,9 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 		}
 
 		$count = $user->attr (self::SMS_SEND_COUNTER_ATTR);
-		$time = Helper_Date::toUnix ();
+		$time = $this->getService('helperDate')->toUnix ();
 		$last_time = $user->attr (self::SMS_SEND_TIME_ATTR);
-		$delta_time = Helper_Date::secondsBetween ($last_time);
+		$delta_time = $this->getService('helperDate')->secondsBetween ($last_time);
 
 		if (
 			(
@@ -228,9 +228,9 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 			)
 		)
 		{
-			return $this->sendError ('smsLimit');
+			//return $this->sendError ('smsLimit');
 		}
-
+		
 		$activation = $this->_authorization ()->sendActivationSms (array (
 			'login'		=> $login,
 			'password'	=> $password,

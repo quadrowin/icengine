@@ -17,11 +17,13 @@ class Helper_Data_Source
 	 */
 	public static function field($table, $field, $ds = null)
 	{
+		$dds = IcEngine::serviceLocator()->getService('dds');
+		$query_builder = IcEngine::serviceLocator()->getService('query');
         if (!$ds) {
-            $ds = DDS::getDataSource();
+            $ds = $dds->getDataSource();
         }
 
-		$query = Query::instance ()
+		$query = $query_builder->instance ()
 			->show ('FULL COLUMNS')
 			->from ($table)
 			->where ('Field', $field);
@@ -85,13 +87,15 @@ class Helper_Data_Source
 	 * @desc Получить список таблиц текущей базы данных
 	 * @return Objective
 	 */
-	public static function tables ($ds = null)
+	public function tables ($ds = null)
 	{
+		$locator = IcEngine::serviceLocator();
+		$query_builder = $locator->getService('query');
         if (!$ds) {
-            $ds = DDS::getDataSource();
+            $ds = $locator->getService('dds')->getDataSource();
         }
 
-		$query = Query::instance ()
+		$query = $query_builder->instance ()
 			->show ('TABLE STATUS')
 			->resetPart (Query::FROM);
 

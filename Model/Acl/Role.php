@@ -1,6 +1,6 @@
 <?php
 /**
- *
+ * @Service("aclRole")
  * @desc Роли доступа
  * @author Илья Колесников, Юрий Шведов
  * @package IcEngine

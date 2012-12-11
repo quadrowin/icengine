@@ -2,6 +2,7 @@
 
 /**
  * @desc Рейтинг таблиц
+ * @Service("tableRate")
  */
 class Table_Rate extends Model
 {
@@ -10,11 +11,13 @@ class Table_Rate extends Model
 	 * @param string $table
 	 * @return Table_Rage
 	 */
-	public static function byTable ($table)
+	public function byTable ($table)
 	{
-		$rate = Model_Manager::byQuery (
+		$model_manager = $this->getService('modelManager');
+		$query_builder = $this->getService('query');
+		$rate = $model_manager->byQuery (
 			'Table_Rate',
-			Query::instance ()
+			$query_builder->instance ()
 				->where ('table', $table)
 		);
 		
