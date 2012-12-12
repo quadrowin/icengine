@@ -15,10 +15,7 @@ class ControllerManagerDelegeeRole extends ControllerManagerDelegeeAbstract
      */
     public function call($controller, $context)
     {
-        $reflection = new \ReflectionClass($controller);
         $controllerManager = $context->getControllerManager();
-        $controllerManager->annotationManager()->getSource()
-            ->setReflection($reflection);
         $scheme = $controllerManager->annotationManager()
             ->getAnnotation($controller);
         $user = $controller->getService('user');

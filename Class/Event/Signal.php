@@ -13,6 +13,20 @@ class Event_Signal
 	 * @var array
 	 */
 	protected $data;
+    
+    /**
+     * Менеджер сигналов/слотов
+     * 
+     * @var Event_Manager
+     */
+    protected $manager;
+    
+    /**
+     * Название сигнала
+     * 
+     * @var string
+     */
+    protected $name;
 
 	/**
 	 * Конструктор
@@ -24,6 +38,8 @@ class Event_Signal
 	{
 		$this->data = $data;
 		$this->name = $name;
+        $serviceLocator = IcEngine::serviceLocator();
+        $this->manager = $serviceLocator->getService('eventManager');
 	}
 
 	/**
@@ -36,7 +52,7 @@ class Event_Signal
 		if (is_string($slot)) {
 			$slot = $this->getSlot($slot);
 		}
-		Event_Manager::bind($this, $slot);
+		$this->manager->bind($this, $slot);
 	}
 
 	/**
@@ -61,7 +77,17 @@ class Event_Signal
 		}
 		return $this->data;
 	}
-
+    
+    /**
+     * Получить менеджер событий
+     * 
+     * @return Event_Manager
+     */
+    public function getManager()
+    {
+        return $this->manager;
+    }
+    
 	/**
 	 * Получить имя сигнала
 	 *
@@ -83,7 +109,7 @@ class Event_Signal
 	 */
 	protected function getSlot($slotName)
 	{
-		return Event_Manager::getSlot($slotName);
+		return $this->manager->getSlot($slotName);
 	}
 
 	/**
@@ -93,7 +119,7 @@ class Event_Signal
 	 */
 	public function notify()
 	{
-		Event_Manager::notify($this, $this->getData());
+		$this->manager->notify($this, $this->getData());
 	}
 
 	/**
@@ -105,6 +131,16 @@ class Event_Signal
 	{
 		$this->data = $data;
 	}
+    
+    /**
+     * Изменить менеджер
+     * 
+     * @param Event_Manager $manager
+     */
+    public function setManager($manager)
+    {
+        $this->manager = $manager;
+    }
 
 	/**
 	 * Снимает регистрацию со слота
@@ -116,7 +152,7 @@ class Event_Signal
 		if (is_string($slot)) {
 			$slot = $this->getSlot($slot);
 		}
-		Event_Manager::unbind($this, $slot);
+		$this->manager->unbind($this, $slot);
 	}
 
 	/**
@@ -124,6 +160,6 @@ class Event_Signal
 	 */
 	public function unbindAll()
 	{
-		Event_Manager::removeSignal($this);
+		$this->manager->removeSignal($this);
 	}
 }
