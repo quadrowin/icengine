@@ -79,7 +79,6 @@ class Controller_Manager extends Manager_Abstract
     /**
      * Менеджер событий
      * 
-     * @Inject("eventManager")
      * @var Event_Manager
      */
     protected $eventManager;
@@ -229,7 +228,7 @@ class Controller_Manager extends Manager_Abstract
         if (!$controller->getTask()->getIgnore()) {
             call_user_func_array($callable, $context->getArgs());
             $task->setTransaction($output->endTransaction());
-            $this->eventManager->notify(
+            $this->eventManager()->notify(
                 $controller->getName() . '/' . $actionName,
                 array('task'  => $task)
             );
@@ -391,6 +390,19 @@ class Controller_Manager extends Manager_Abstract
         }
         return $this->delegees[$delegeeName];
     }
+    
+    /**
+     * Получить менеджер событий
+     * 
+     * @return Event_Manager
+     */
+    public function eventManager()
+    {
+        if (!$this->eventManager) {
+            $this->eventManager = new Event_Manager;
+        }
+        return $this->eventManager;
+    }
 
 	/**
 	 * Очистка результатов работы контроллеров
@@ -471,6 +483,16 @@ class Controller_Manager extends Manager_Abstract
             $this->defaultContext = $this->createDefaultContext();
         }
         return $this->defaultContext;
+    }
+    
+    /**
+     * Получить менеджер событий
+     * 
+     * @return Event_Manager
+     */
+    public function getEventManager()
+    {
+        return $this->eventManager;
     }
     
 	/**
@@ -752,6 +774,16 @@ class Controller_Manager extends Manager_Abstract
     public function setDefaultContext($defaultContext)
     {
         $this->defaultContext = $defaultContext;
+    }
+    
+    /**
+     * Изменить менеджер событий
+     * 
+     * @param Event_Manager $eventManager
+     */
+    public function setEventManager($eventManager)
+    {
+        $this->eventManager = $eventManager;
     }
     
     /**
