@@ -8,6 +8,19 @@
 class Controller_Annotation extends Controller_Abstract
 {
     /**
+     * @inheritdoc
+     */
+    protected $config = array(
+        'class'             => array(
+            'Service'
+        ),
+        'methods'           => array(
+            'Route', 'Cache'
+        ),
+        'properties'        => array()
+    );
+    
+    /**
      * Сброк аннотации
      */
     public function flush($name, $context)
@@ -29,7 +42,7 @@ class Controller_Annotation extends Controller_Abstract
     /**
      * Обновить аннотации
      */
-    public function update($path, $context)
+    public function update($path, $verbose, $context)
     {
         $this->task->setTemplate(null);
         $user = $context->user->getCurrent();
@@ -84,50 +97,66 @@ class Controller_Annotation extends Controller_Abstract
         if (!$classes) {
             return;
         }
-        $services = array();
+        $delegees = $this->config();
+        $delegeeData = array();
         $annotationManager = IcEngine::serviceLocator()->getSource()
             ->getAnnotationManager();
         foreach ($classes as $i => $class) {
             IcEngine::getLoader()->load($class['class']);
-            echo '#' . ($i + 1) . ' ' . $class['class'] . ' (' . $class['file'] .  
-                ') done.' . PHP_EOL;
+            if ($verbose) {
+                echo '#' . ($i + 1) . ' ' . $class['class'] . 
+                    ' (' . $class['file'] . ') done.' . PHP_EOL;
+            }
+            $className = $class['class'];
             $context->controllerManager->call('Annotation', 'flush', array(
                 'name'  => $class['class']
             ));
             $annotation = $annotationManager->getAnnotation($class['class'])
                 ->getData();
-            $classAnnotation = $annotation['class'];
-            if ($classAnnotation && !empty($classAnnotation['Service'])) {
-                $serviceAnnotation = $classAnnotation['Service'][0];
-                $serviceName = array_shift($serviceAnnotation);
-                $data = $serviceAnnotation;
-                $data['class'] = $class['class'];
-                $data['name'] = $serviceName;
-                $services[$serviceName] = $data;
-            }
-        }
-        if (!$services) {
-            return;
-        }
-        $configServices = $this->getService('configManager')->get(
-            'Service_Source'
-        )->__toArray();
-        if ($configServices) {
-            foreach ($configServices as $serviceName => $service) {
-                if (!isset($services[$serviceName])) {
-                    $service['name'] = $serviceName;
-                    $services[$serviceName] = $service;
+            foreach ($annotation as $delegeeType => $annotationData) {
+                if (!isset($delegees[$delegeeType]) || !$annotationData) {
+                    continue;
+                }
+                foreach ($annotationData as $annotationName => $data) {
+                    foreach ($delegees[$delegeeType] as $delegee) {
+                        if (strpos($annotationName, $delegee) === 0) {
+                            $keys = array_keys($data);
+                            if (is_numeric($keys[0])) {
+                                $delegeeData[$delegee][$className]
+                                [$annotationName] = array(
+                                    'class' => $className,
+                                    'data'  => $data
+                                );
+                            }
+                        } elseif ($data) {
+                            $key = $className . '/' . $annotationName;
+                            foreach ($data as $subAnnotationName => $subData) {
+                                if (is_numeric($subAnnotationName)) {
+                                    continue;
+                                }
+                                if (strpos($subAnnotationName, $delegee) 
+                                    !== false) {
+                                    $delegeeData[$delegee][$key]
+                                    [$subAnnotationName] = 
+                                    array(
+                                        'class' => $className,
+                                        'part'  => $annotationName,
+                                        'data'  => $subData
+                                    );
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
-        ksort($services);
-        $output = Helper_Code_Generator::fromTemplate (
-            'service',
-            array (
-                'services'  => $services
-            )
-        );
-        $filename = IcEngine::root() . 'Ice/Config/Service/Source.php';
-        file_put_contents($filename, $output);
+        foreach ($delegeeData as $delegeeName => $data) {
+            $controllerName = 'Annotation_' . $delegeeName;
+            $context->controllerManager->call(
+                $controllerName, 'update', array(
+                    'data'  => $data
+                )
+            );
+        }
     }
 }
