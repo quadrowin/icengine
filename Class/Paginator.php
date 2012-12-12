@@ -86,6 +86,7 @@ class Paginator
 		$request = $locator->getService('request');
 		$this->pages = array();
 		$pages_count = $this->pagesCount();
+		//Debug::logVar($pages_count);
 		if ($pages_count <= 1) {
 			return ;
 		}
@@ -208,7 +209,13 @@ class Paginator
 	public function pagesCount()
 	{
 		if ($this->perPage > 0) {
-			return ceil($this->total / $this->perPage);
+			if ($this->total) {
+				return ceil($this->total / $this->perPage);
+			} elseif (isset($this->fullCount)) {
+				return ceil($this->fullCount / $this->perPage);
+			} else {
+				return 1;
+			}
 		} else {
 			return 1;
 		}
