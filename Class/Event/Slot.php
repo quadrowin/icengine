@@ -14,6 +14,13 @@ class Event_Slot
 	 */
 	protected $delegee;
 
+    /**
+     * Менеджер событий
+     * 
+     * @var Event_Manager
+     */
+    protected $manager;
+    
 	/**
 	 * Название
 	 *
@@ -36,6 +43,8 @@ class Event_Slot
 	public function __construct($name = null)
 	{
 		$this->name = $name;
+        $serviceLocator = IcEngine::serviceLocator();
+        $this->manager = $serviceLocator->getService('eventManager');
 	}
 
 	/**
@@ -58,6 +67,16 @@ class Event_Slot
 		}
 	}
 
+    /**
+     * Получить менеджера событий
+     * 
+     * @return Event_Manager
+     */
+    public function getManager()
+    {
+        return $this->manager;
+    }
+    
 	/**
 	 * Получить имя слота
 	 *
@@ -89,7 +108,7 @@ class Event_Slot
 	 */
 	protected function getSignal($signalName)
 	{
-		return Event_Manager::getSignal($signalName);
+		return $this->manager->getSignal($signalName);
 	}
 
 	/**
@@ -102,7 +121,7 @@ class Event_Slot
 		if (is_string($signal)) {
 			$signal = $this->getSignal($signal);
 		}
-		Event_Manager::register($signal, $this);
+		$this->manager->register($signal, $this);
 	}
 
 	/**
@@ -135,6 +154,6 @@ class Event_Slot
 		if (is_string($signal)) {
 			$signal = $this->getSignal($signal);
 		}
-		Event_Manager::unregister($signal, $this);
+		$this->manager->unregister($signal, $this);
 	}
 }
