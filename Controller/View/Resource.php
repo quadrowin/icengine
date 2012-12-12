@@ -62,7 +62,7 @@ class Controller_View_Resource extends Controller_Abstract
 					foreach ($sourceFiles as $filename) {
                         $filename = strtr($filename, $vars);
                         $loadedResources = $context->viewResourceManager->load(
-                            '/', $sourceDir, array($filename), $target->type . $module->name
+                            '/', $sourceDir, array($filename), $target->type
                         );
 						$resources = array_merge(
 							$resources, (array)$loadedResources
