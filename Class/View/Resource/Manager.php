@@ -117,7 +117,7 @@ class View_Resource_Manager extends Manager_Abstract
                 }
             }
         }
-        return $this;
+        return $this->getData();
 	}
     
     /**

@@ -65,7 +65,7 @@ class Controller_View_Resource extends Controller_Abstract
                             '/', $sourceDir, array($filename), $target->type
                         );
 						$resources = array_merge(
-							$resources, $loadedResources->getData($target->type)
+							$resources, $loadedResources[$target->type]
 						);
 					}
 				}
