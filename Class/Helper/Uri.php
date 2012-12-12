@@ -1,10 +1,10 @@
 <?php
+
 /**
+ * Помощник работы с URI
  *
- * @desc Помощник работы с URI
- * @author Гурус
- * @package IcEngine
- *
+ * @author Гурус, neon
+ * @Service("helperUri")
  */
 class Helper_Uri
 {
@@ -17,7 +17,9 @@ class Helper_Uri
 	 */
 	public static function fromRoute($routeName, $params = array())
 	{
-		$route = Route::byName($routeName);
+        $locator = IcEngine::serviceLocator();
+        $routeService = $locator->getService('route');
+		$route = $routeService->byName($routeName);
 		if (!$route) {
 			return;
 		}
@@ -55,21 +57,16 @@ class Helper_Uri
 	 * @return string
 	 * 		Домен верхнего уровня (ru, com, localhost)
 	 */
-	public static function highDomain ($server_name = null)
+	public static function highDomain($server_name = null)
 	{
-		if (!$server_name)
-		{
-			$server_name = $_SERVER ['SERVER_NAME'];
+		if (!$server_name) {
+			$server_name = $_SERVER['SERVER_NAME'];
 		}
-
-		$p = strrchr ($server_name, '.');
-
-		if ($p === false)
-		{
+		$p = strrchr($server_name, '.');
+		if ($p === false) {
 			return $server_name;
 		}
-
-		return strtolower (substr ($p, 1));
+		return strtolower(substr($p, 1));
 	}
 
 	/**
@@ -87,111 +84,81 @@ class Helper_Uri
 	 * @return string
 	 * 		Адрес страницы с заданными GET параметрами
 	 */
-	public static function replaceGets (array $gets = array (), $clear = false,
+	public static function replaceGets(array $gets = array(), $clear = false,
 		$url = null)
 	{
-		if (is_null ($url))
-		{
-			$url = $_SERVER ['REQUEST_URI'];
+		if(is_null ($url)) {
+			$url = $_SERVER['REQUEST_URI'];
 		}
 		// Удаляемые
-		$deleting = array ();
-
+		$deleting = array();
 		// кодируем параметры и запоминаем удаляемые
-		foreach ($gets as $k => &$v)
-		{
-			if (is_null ($v))
-			{
-				$deleting [$k] = true;
-				unset ($gets [$k]);
-			}
-			else
-			{
-				$v = urlencode ($k) . '=' . urlencode ($v);
+		foreach ($gets as $k => &$v) {
+			if (is_null ($v)) {
+				$deleting[$k] = true;
+				unset($gets[$k]);
+			} else {
+				$v = urlencode($k) . '=' . urlencode($v);
 			}
 		}
-		unset ($v);
-
-		$p = strpos ($url, '?');
-		if ($p !== false)
-		{
+		unset($v);
+		$p = strpos($url, '?');
+		if ($p !== false) {
 			// В url уже пристствуют GET параметры
-			$get_part = substr ($url, $p + 1);
-
-			$url = substr ($url, 0, $p);
-
-			if (!$clear)
-			{
-				$get_part = explode ('&', $get_part);
-
-				foreach ($get_part as $get)
-				{
-					$p = strpos ($get, '=');
-					if ($p == false)
-					{
+			$get_part = substr($url, $p + 1);
+			$url = substr($url, 0, $p);
+			if (!$clear) {
+				$get_part = explode('&', $get_part);
+				foreach ($get_part as $get) {
+					$p = strpos($get, '=');
+					if ($p == false) {
 						$k = $get;
 						$v = '';
+					} else {
+						$k = substr($get, 0, $p);
+						$v = substr($get, $p + 1);
 					}
-					else
-					{
-						$k = substr ($get, 0, $p);
-						$v = substr ($get, $p + 1);
-					}
-
-					if (!isset ($gets [$k]) && !isset ($deleting [$k]) && ($k || $v))
-					{
-						$gets [$k] = $k . '=' . $v;
+					if (!isset($gets[$k]) &&
+                        !isset($deleting[$k]) && ($k || $v)) {
+						$gets[$k] = $k . '=' . $v;
 					}
 				}
 			}
 		}
-
-		if ($gets)
-		{
-			return $url . '?' . implode ('&', $gets);
+		if ($gets) {
+			return $url . '?' . implode('&', $gets);
 		}
-
 		return $url;
 	}
 
-	public static function mainDomain ($server_name = null)
+	public function mainDomain($server_name = null)
 	{
-		if (!$server_name)
-		{
-			$server_name = $_SERVER ['SERVER_NAME'];
+		if (!$server_name) {
+			$server_name = $_SERVER['SERVER_NAME'];
 		}
-
-		$f = strrpos ($server_name, '.');
-
-		if (!$f)
-		{
+		$f = strrpos($server_name, '.');
+		if (!$f) {
 			return $server_name;
 		}
-
-		$f = strlen ($server_name) - $f;
-
-		$s = strrpos ($server_name, '.', - $f - 1);
-
-		return ($s === false) ? $server_name : substr ($server_name, $s + 1);
+		$f = strlen($server_name) - $f;
+		$s = strrpos($server_name, '.', - $f - 1);
+		return ($s === false) ? $server_name : substr($server_name, $s + 1);
 	}
 
 	/**
-	 * @desc Возвращает полный адрес для редиректа.
+	 * Возвращает полный адрес для редиректа.
+     *
 	 * @param string $uri Полный или относительный адрес редиректа.
 	 * @return string Полный адрес перехода.
 	 */
-	public static function validRedirect ($uri)
+	public static function validRedirect($uri)
 	{
-		if (empty ($uri))
-		{
-			return 'http://' . $_SERVER ['HTTP_HOST'];
+		if (empty($uri)) {
+			return 'http://' . $_SERVER['HTTP_HOST'];
 		}
-
-		if (substr ($uri, 0, 1) == '/')
-		{
-			return 'http://' . $_SERVER ['HTTP_HOST'] . $uri;
+		if (substr($uri, 0, 1) == '/') {
+			return 'http://' . $_SERVER['HTTP_HOST'] . $uri;
 		}
-
 		return $uri;
 	}
 
