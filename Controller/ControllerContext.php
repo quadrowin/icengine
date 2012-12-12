@@ -38,6 +38,13 @@ class ControllerContext
     protected $controllerManager;
     
     /**
+     * Рефлексия контроллера
+     * 
+     * @var \ReflectionClass
+     */
+    protected $reflection;
+    
+    /**
      * Получить действие контроллера
      * 
      * @return string
@@ -78,6 +85,19 @@ class ControllerContext
     }
     
     /**
+     * Получить рефлексию контроллера
+     * 
+     * @return \ReflectionClass
+     */
+    public function getReflection()
+    {
+        if (!$this->reflection) {
+            $this->reflection = new \ReflectionClass($this->controller);
+        }
+        return $this->reflection;
+    }
+    
+    /**
      * Изменить действие контроллера
      * 
      * @param string $action
@@ -115,5 +135,15 @@ class ControllerContext
     public function setControllerManager($controllerManager)
     {
         $this->controllerManager = $controllerManager;
+    }
+    
+    /**
+     * Изменить рефлексию контроллера
+     * 
+     * @param \ReflectionClass $reflection
+     */
+    public function setReflection($reflection)
+    {
+        $this->reflection = $reflection;
     }
 }
