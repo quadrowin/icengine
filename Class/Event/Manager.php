@@ -4,6 +4,7 @@
  * Менеджер событий
  *
  * @author morph
+ * @Service("eventManager")
  */
 class Event_Manager
 {
@@ -34,9 +35,9 @@ class Event_Manager
 	 * @param Event_Signal $signal
 	 * @param Event_Slot $slot
 	 */
-	public static function bind($signal, $slot)
+	public function bind($signal, $slot)
 	{
-		self::getMap()->add($signal, $slot);
+        $this->getMap()->add($signal, $slot);
 	}
 
 	/**
@@ -44,7 +45,7 @@ class Event_Manager
 	 *
 	 * @return Event_Map
 	 */
-	public static function getMap()
+	public function getMap()
 	{
 		if (!self::$map) {
 			self::$map = new Event_Map;
@@ -58,11 +59,16 @@ class Event_Manager
 	 * @param string $signalName
 	 * @return Event_Signal
 	 */
-	public static function getSignal($signalName)
+	public function getSignal($signalName)
 	{
 		if (!isset(self::$signals[$signalName])) {
 			$className = 'Event_Signal_' . $signalName;
-			self::$signals[$signalName] = new $className;
+            if (IcEngine::getLoader()->tryLoad($className)) {
+                $signal = new $className;
+            } else {
+                $signal = new Event_Signal;
+            }
+            self::$signals[$signalName] = $signal;
 		}
 		return self::$signals[$signalName];
 	}
@@ -73,7 +79,7 @@ class Event_Manager
 	 * @param string $slotName
 	 * @return Event_Slot
 	 */
-	public static function getSlot($slotName)
+	public function getSlot($slotName)
 	{
 		if (!isset(self::$slots[$slotName])) {
 			$className = 'Event_Slot_' . $slotName;
@@ -88,12 +94,14 @@ class Event_Manager
 	 * @param Event_Signal $signal
 	 * @param Event_Slog $data
 	 */
-	public static function notify($signal, $data)
+	public function notify($signal, $data = array())
 	{
-		$slots = self::getMap()->getBySignal($signal);
+        $signal = $this->getSignal($signal);
+        $data = array_merge($signal->getData(), $data);
+		$slots = $this->getMap()->getBySignal($signal);
 		if ($slots) {
 			foreach ($slots as $slot) {
-				$slot->setParams($data);
+				$slot->setParams(array_merge($data, $slot->getParams()));
 				$slot->action();
 			}
 		}
@@ -105,9 +113,11 @@ class Event_Manager
 	 * @param Event_Signal $signal
 	 * @param Event_Slog $slot
 	 */
-	public static function register($signal, $slot)
+	public function register($signal, $slot)
 	{
-		self::getMap()->add($signal, $slot);
+        self::$signals[$signal->getName()] = $signal;
+        self::$slots[$slot->getName()] = $slot;
+		$this->getMap()->add($signal, $slot);
 	}
 
 	/**
@@ -115,7 +125,7 @@ class Event_Manager
 	 *
 	 * @param Event_Map $map
 	 */
-	public static function setMap($map)
+	public function setMap($map)
 	{
 		self::$map = $map;
 	}
@@ -126,9 +136,9 @@ class Event_Manager
 	 * @param Event_Signal $signal
 	 * @param Event_Slog $slot
 	 */
-	public static function unbind($signal, $slot)
+	public function unbind($signal, $slot)
 	{
-		self::getMap()->removeSlot($signal, $slot);
+		$this->getMap()->removeSlot($signal, $slot);
 	}
 
 	/**
@@ -137,8 +147,8 @@ class Event_Manager
 	 * @param Event_Signal $signal
 	 * @param Event_Slog $slot
 	 */
-	public static function unregister($signal, $slot)
+	public function unregister($signal, $slot)
 	{
-		self::getMap()->removeSignal($signal, $slot);
+		$this->getMap()->removeSignal($signal, $slot);
 	}
 }

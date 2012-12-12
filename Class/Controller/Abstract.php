@@ -121,6 +121,16 @@ class Controller_Abstract
 	{
 		return $this->input;
 	}
+    
+    /**
+     * Получить название контроллера без префикса Controller_
+     * 
+     * @return string
+     */
+    public function getName()
+    {
+        return substr(get_class($this), strlen('Controller_'));
+    }
 
     /**
      * Получить текущий выходной транспорт
