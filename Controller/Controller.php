@@ -16,20 +16,18 @@ class Controller_Controller extends Controller_Abstract
 	{
         $controllerManager = $this->getService('controllerManager');
         $_SERVER ['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
-		if (is_string($params))
-		{
-			$params = json_decode (
+		if (is_string($params)) {
+			$params = json_decode(
 				urldecode($params),
 				true
 			);
 		}
-		$result = $controllerManager->html (
-			urldecode ($call),
-			$params ? $params : array (),
+		$result = $controllerManager->html(
+			urldecode($call),
+			$params ? $params : array(),
 			false
 		);
-
-		$this->output->send (array (
+		$this->output->send(array(
 			'back'		=> $back,
 			'result'	=> $result
 		));

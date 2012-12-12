@@ -118,14 +118,10 @@ var Helper_Render_Smarty;
 				var parts = token.split (' ');
 				var foreach = parts [0];
 				var from = parts [1];
-
-				if (from.indexOf ('=') > 0)
-				{
+				if (from.indexOf ('=') > 0) {
 					fromVar = from.split ('=')[1];
 					from = from.split ('=')[0];
-				}
-				else
-				{
+				} else {
 					throw new etc.ParseError(tmplName, state.line, "bad for loop statement: " + stmtParts.join(' '));
 				}
 
