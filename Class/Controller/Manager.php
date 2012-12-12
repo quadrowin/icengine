@@ -62,7 +62,10 @@ class Controller_Manager extends Manager_Abstract
         'delegees'           => array(
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeParam',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeContext',
-            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeRole'
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeRole',
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeStatic',
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeBefore',
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeAfter'
         )
 	);
     
@@ -73,6 +76,14 @@ class Controller_Manager extends Manager_Abstract
 	 */
 	protected $currentTask;
 
+    /**
+     * Менеджер событий
+     * 
+     * @Inject("eventManager")
+     * @var Event_Manager
+     */
+    protected $eventManager;
+    
     /**
      * Менеджер провайдеров
      * 
@@ -218,6 +229,10 @@ class Controller_Manager extends Manager_Abstract
         if (!$controller->getTask()->getIgnore()) {
             call_user_func_array($callable, $context->getArgs());
             $task->setTransaction($output->endTransaction());
+            $this->eventManager->notify(
+                $controller->getName() . '/' . $actionName,
+                array('task'  => $task)
+            );
         }
 		$controller
 			->setInput($lastInput)
