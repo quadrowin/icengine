@@ -15,8 +15,8 @@ class Controller_Annotation_Route extends Controller_Abstract
         $routesWithoutGroups = array();
         $routesWithGroups = array();
         foreach ($data as $id => $data) {
-            list($controllerName, $methodName) = explode('/', $id);
-            $controllerName = substr($controllerName, strlen('Controller_'));
+            list($tmpName, $methodName) = explode('/', $id);
+            $controllerName = substr($tmpName, strlen('Controller_'));
             if (!$data) {
                 continue;
             }
@@ -48,7 +48,7 @@ class Controller_Annotation_Route extends Controller_Abstract
                 $components = $routeData['components'];
             }
             $weight = !empty($data['RouteWeight'])
-                ? reset($data['RouteWeight']['data']) : 0;
+                ? reset($data['RouteWeight']['data'][0]) : 0;
             if (!$weight && !empty($routeData['weight'])) {
                 $weight = $routeData['weight'];
             }
