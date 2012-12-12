@@ -243,7 +243,7 @@ class Model_Scheme extends Manager_Abstract
 	{
 		$prefix = $this->default['prefix'];
 		foreach ($this->models as $name => $model) {
-			if ($model['table'] == $table) {
+			if (isset($model['table']) && $model['table'] == $table) {
 				$parts = explode('_', $name);
                 $mappedParts = array_map('ucfirst', $parts);
 				return implode('_', $mappedParts);
