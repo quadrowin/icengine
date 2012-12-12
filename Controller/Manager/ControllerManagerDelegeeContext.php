@@ -27,7 +27,7 @@ class ControllerManagerDelegeeContext extends ControllerManagerDelegeeAbstract
             $params['context'] = isset($params['context'])
                 ? $defaultContext->merge($actionContext)
                 : $actionContext;
+            $context->setArgs($params);
         }
-        $context->setArgs($params);
     }
 }
