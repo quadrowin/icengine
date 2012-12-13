@@ -5,6 +5,7 @@ class Helper_Image_Resize
 	
 	/**
 	 * Качество сохранения JPEG изображений (от 1 до 100).
+     * @Service("helperImageResize")
 	 * @var integer
 	 */
 	public static $jpegQuality = 90;

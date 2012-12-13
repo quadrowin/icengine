@@ -2,6 +2,7 @@
 /**
  *
  * Класс для работы с изображениями
+ * @Service("helperImage")
  * @author Юрий
  *
  */
@@ -26,13 +27,13 @@ class Helper_Image
 	 * Загружен ли конфиг
 	 * @var boolean
 	 */
-	protected static $_configLoaded = false;
+	protected $_configLoaded = false;
 
 	/**
 	 * @desc Код ошибки, возникшей в процессе обработки изображения.
 	 * @var integer
 	 */
-	public static $code;
+	public $code;
 
 	/**
 	 *
@@ -71,7 +72,7 @@ class Helper_Image
 	 *		)
 	 *  );
 	 */
-	public static $config = array (
+	public $config = array (
 		'upload_path'	=> 'uploads/',
 		'upload_url'	=> '/uploads/',
 		'types'			=> array ()
@@ -87,13 +88,13 @@ class Helper_Image
 	 * @desc Последнее сообщение об ошибке
 	 * @var string
 	 */
-	public static $lastError = '';
+	public $lastError = '';
 
 	/**
 	 * @desc Шаблон для имени файла
 	 * @var string
 	 */
-	public static $template = '{name}/{prefix}/{key}.{ext}';
+	public $template = '{name}/{prefix}/{key}.{ext}';
 
 	/**
 	 * @desc Запись сообщения об ошибке
@@ -101,10 +102,10 @@ class Helper_Image
 	 * @param string $template
 	 * @return null
 	 */
-	protected static function _error ($error)
+	protected function _error ($error)
 	{
-		self::$code = 400;
-		self::$lastError = $error;
+		$this->code = 400;
+		$this->lastError = $error;
 		return null;
 	}
 
@@ -114,19 +115,17 @@ class Helper_Image
 	 * @param array $values
 	 * @return string
 	 */
-	protected static function _filename ($path, array $values = array ())
+	protected function _filename($path, array $values = array())
 	{
-		$filename = self::$template;
-		foreach ($values as $key => $value)
-		{
+		$filename = $this->template;
+		foreach ($values as $key => $value) {
 			$filename = str_replace ('{' . $key . '}', $value, $filename);
 		}
-		$path = rtrim ($path, '/') . '/' . $filename;
-		$dir = dirname ($path);
-		if (!is_dir ($dir))
-		{
-			mkdir ($dir, 0777, true);
-			chmod ($dir, 0777);
+		$path = rtrim($path, '/') . '/' . $filename;
+		$dir = dirname($path);
+		if (!is_dir($dir)) {
+			mkdir($dir, 0777, true);
+			chmod($dir, 0777);
 		}
 		return $path;
 	}
@@ -136,25 +135,26 @@ class Helper_Image
 	 * @param string $type
 	 * @return array
 	 */
-	protected static function _sizing ($type)
+	protected function _sizing($type)
 	{
-		self::initConfig ();
-
+		$this->initConfig();
 		return
-			(isset (self::$config ['types']) && isset (self::$config ['types'][$type])) ?
-			self::$config ['types'][$type]->asArray() :
-			self::$config ['types']['default']->asArray();
+			(isset ($this->config['types']) && 
+            isset ($this->config['types'][$type])) ?
+			$this->config['types'][$type]->asArray() :
+			$this->config['types']['default']->asArray();
 	}
 
-	public static function initConfig ()
+	public function initConfig()
 	{
-		if (self::$_configLoaded)
+        $serviceLocator = IcEngine::serviceLocator();
+        $configManager = $serviceLocator->getService('configManager');
+		if ($this->_configLoaded)
 		{
 			return;
 		}
-
-		self::$_configLoaded = true;
-		self::$config = Config_Manager::get (__CLASS__, self::$config);
+		$this->_configLoaded = true;
+		$this->config = $configManager->get(__CLASS__, $this->config);
 	}
 
     /**
@@ -164,29 +164,28 @@ class Helper_Image
      * @param array|string $types
      * 		Наименования типов из конфига.
      */
-    public static function initTempContent (Temp_Content $tc, $types)
+    public function initTempContent(Temp_Content $tc, $types)
     {
-    	self::initConfig ();
+    	$this->initConfig();
     	$types = (array) $types;
 
-    	$tc_types = array ();
+    	$tc_types = array();
     	foreach ($types as $type)
     	{
-    		if (isset (self::$config ['types'][$type]))
+    		if (isset ($this->config['types'][$type]))
     		{
-    			$tc_types [$type] = self::$config ['types'][$type];
+    			$tc_types[$type] = $this->config['types'][$type];
     		}
     	}
-
-    	$tc->attr (self::TEMP_CONTENT_ATTRIBUTE, $tc_types);
+    	$tc->attr($this->TEMP_CONTENT_ATTRIBUTE, $tc_types);
     }
 
-	private function _log ($message)
+	protected function _log ($message)
 	{
-		$filename = IcEngine::root () . '/log/image.log';
-		file_put_contents (
+		$filename = IcEngine::root() . '/log/image.log';
+		file_put_contents(
 			$filename,
-			date () . ' ' . $message . PHP_EOL . PHP_EOL,
+			date() . ' ' . $message . PHP_EOL . PHP_EOL,
 			FILE_APPEND
 		);
 	}
@@ -197,35 +196,27 @@ class Helper_Image
 	 * @param string $type
 	 * @return null|Component_Image
 	 */
-	public static function upload (Temp_Content $tc, $type = null)
+	public function upload(Temp_Content $tc, $type = null)
 	{
-		self::$code = 200;
-
-		$sizings = $tc->attr (self::TEMP_CONTENT_ATTRIBUTE);
-
-		if ($sizings && is_array ($sizings))
+    	$this->code = 200;
+		$sizings = $tc->attr($this->TEMP_CONTENT_ATTRIBUTE);
+		if ($sizings && is_array($sizings))
 		{
-			if ($type && isset ($sizings [$type]))
-			{
-				$sizing = $sizings [$type];
+			if ($type && isset($sizings[$type])) {
+				$sizing = $sizings[$type];
 			}
-			else
-			{
-				$sizing = reset ($sizings);
-				$type = key ($sizings);
+			else {
+				$sizing = reset($sizings);
+				$type = key($sizings);
 			}
 		}
-
-		if (!isset ($sizing))
-		{
-			self::$code = 400;
-			throw new Zend_Exception ('Type unsupported.', 400);
+		if (!isset ($sizing)) {
+			$this->code = 400;
+			throw new Zend_Exception('Type unsupported.', 400);
 			return;
 		}
-
-		$sizing = array_merge (self::_sizing ($type), $sizing);
-
-		return self::uploadSimple ($tc->table (), $tc->key (), $type, $sizing);
+		$sizing = array_merge($this->_sizing($type), $sizing);
+		return $this->uploadSimple($tc->table(), $tc->key(), $type, $sizing);
 	}
 
 	/**
@@ -236,13 +227,12 @@ class Helper_Image
 	 * @param array $sizing
 	 * @return Component_Image|null
 	 */
-	public static function uploadByUrl ($url, $table, $rowId, $type, $sizing = null)
+	public function uploadByUrl($url, $table, $rowId, $type, $sizing = null)
 	{
 		$info = getimagesize($url);
 		if (!$info) {
 			return;
 		}
-
 		$_FILES['image'] = array(
 			'name'		=> $url,
 			'tmp_name'	=> $url,
@@ -250,7 +240,7 @@ class Helper_Image
 			'size'		=> 1,
 			'error'		=> false
 		);
-		return Helper_Image::uploadSimple($table, $rowId, $type);
+		return $this->uploadSimple($table, $rowId, $type);
 	}
 
 	/**
@@ -261,169 +251,141 @@ class Helper_Image
 	 * @param array $sizing
 	 * @return Component_Image|null
 	 */
-	public static function uploadSimple ($table, $row_id, $type, $sizing = null)
+	public function uploadSimple($table, $row_id, $type, $sizing = null)
 	{
 		//$this->_log ('test');
-		$file = Request::fileByIndex (0);
-
-		$locator = IcEngine::serviceLocator();
-		$helperSiteLocation = $locator->getService('helperSiteLocation');
+        $locator = IcEngine::serviceLocator();
+        $requestService = $locator->getService('request');
+		$helperSiteLocation = $locator->getService('siteLocation');
+        $modelManager = $locator->getService('modelManager');
+        $helperImageResize = $locator->getService('helperImageResize');
 		$host = $helperSiteLocation->getLocation();
-		if ($host == 'localhost')
-		{
+        $userService = $locator->getService('user');
+        $helperDate = $locator->getService('date'); 
+        $file = $requestService->fileByIndex(0);
+		if ($host == 'localhost') {
 			$host = '';
 		}
-		else
-		{
+		else {
 			$host = 'http://' . $host;
 		}
-
-		if (!$file)
-		{
-			self::$code = 400;
-			return self::_error ('not_received');
+		if (!$file) {
+			$this->code = 400;
+			return $this->_error ('not_received');
 		}
-
-		if (!$sizing)
-		{
-			$sizing = self::_sizing ($type);
+		if (!$sizing) {
+			$sizing = $this->_sizing ($type);
 		}
-
-		$image = new Component_Image (array (
+		$image = $modelManager->create('Component_Image', array(
 			'table'			=> $table,
 			'rowId'			=> $row_id,
-			'date'			=> Helper_Date::toUnix (),
-			'name'			=> $type,
+			'date'			=> $helperDate->toUnix(),
 			'author'		=> '',
 			'text'			=> '',
+            'name'          => $type,
 			'largeUrl'		=> '',
 			'smallUrl'		=> '',
 			'originalUrl'	=> '',
-			'User__id'		=> User::id ()
+			'User__id'		=> $userService->id()
 		));
-		$image->save ();
-		$dst_path = self::$config ['upload_path'];
-
-		$original = self::_filename (
+		$image->save();
+		$dst_path = $this->config['upload_path'];
+		$original = $this->_filename(
 			$dst_path,
 			array (
 				'name'		=> $type,
-				'key'		=> $image->key (),
-				'prefix'	=> self::ORIGINAL,
+				'key'		=> $image->key(),
+				'prefix'	=> $this->ORIGINAL,
 				'ext'		=> $file->extension
 			)
 		);
-
-   		if (!$file->save ($original))
-		{
-			self::$code = 500;
-			return self::_error ('unable_to_move');
+   		if (!$file->save($original)) {
+			$this->code = 500;
+			return $this->_error('unable_to_move');
 		}
-
-   	 	$info = getimagesize ($original);
-
-		if (!$info)
-		{
-			unlink ($original);
-			$image->delete ();
-
-			self::$code = 400;
-			return self::_error ('unable_get_size');
+   	 	$info = getimagesize($original);
+		if (!$info) {
+			unlink($original);
+			$image->delete();
+			$this->$code = 400;
+			return $this->_error('unable_get_size');
 		}
-
-   	 	$info = Helper_Image_Resize::resize (
+   	 	$info = $helperImageResize->resize(
    	 		$original, $original,
-   	 		$info [0], $info [1]
+   	 		$info[0], $info[1]
    	 	);
-
-		if (!$info)
-		{
-			self::$code = 400;
-			unlink ($original);
-			$image->delete ();
-
-			return self::_error ('unable_to_resize');
+		if (!$info) {
+			$this->code = 400;
+			unlink($original);
+			$image->delete();
+			return $this->_error('unable_to_resize');
 		}
-
-		$filenames = array ();
+		$filenames = array();
 
 		if (!empty ($sizing ['sizes']))
 		{
 			$created = array ();
-
-			foreach ($sizing ['sizes'] as $prefix => $size)
-			{
-				$filename = self::_filename (
+			foreach ($sizing ['sizes'] as $prefix => $size) {
+				$filename = $this->_filename(
 					$dst_path,
 					array (
 						'name'		=> $type,
-						'key'		=> $image->key (),
+						'key'		=> $image->key(),
 						'prefix'	=> $prefix,
 						'ext'		=> $file->extension
 					)
 				);
 
-				$thumb = Helper_Image_Resize::resize (
+				$thumb = $helperImageResize->resize(
 					$original,
 					$filename,
-					min ($info [0], $size ['width']),
-					min ($info [1], $size ['height']),
-					isset ($size ['proportional']) ? $size ['proportional']: true,
-					isset ($size ['crop']) ? $size ['crop'] : false,
-					isset ($size ['fit']) ? $size ['fit']: false
+					min ($info[0], $size['width']),
+					min ($info[1], $size['height']),
+					isset ($size['proportional']) ? $size['proportional']: true,
+					isset ($size['crop']) ? $size['crop'] : false,
+					isset ($size['fit']) ? $size['fit']: false
 				);
 
 				if (!$thumb)
 				{
 					foreach ($filenames as $fn)
 					{
-						unlink ($fn);
+						unlink($fn);
 					}
-					$image->delete ();
+					$image->delete();
 
-					return self::_error ('unable_to_resize');
+					return $this->_error('unable_to_resize');
 				}
 				$filenames [$prefix] = $filename;
 			}
 		}
-
 		$attributes = array ();
-
-		if (!empty ($sizing ['attributes']))
-		{
-			foreach ($sizing ['attributes'] as $key => $v)
-			{
-				$attributes [$key] = Request::post ('attr_' . $key);
+		if (!empty ($sizing['attributes'])) {
+			foreach ($sizing['attributes'] as $key => $v) {
+				$attributes[$key] = $requestService->post('attr_' . $key);
 			}
 		}
-
-
-		$sizing ['sizes'] [self::ORIGINAL] = array (
-			'width'		=> $info [0],
-			'height'	=> $info [1]
+		$sizing ['sizes'][$this->ORIGINAL] = array(
+			'width'		=> $info[0],
+			'height'	=> $info[1]
 		);
-
-		$filenames [self::ORIGINAL] = $original;
-
+        $filenames [$this->ORIGINAL] = $original;
 		$i = 0;
 		foreach ($sizing ['sizes'] as $key => $size)
 		{
 			$tmp = array (
-				$key . 'Url'	=> str_replace (
-					self::$config ['upload_path'],
-					//$host . self::$config ['upload_url'],
-					self::$config ['upload_url'],
+				$key . 'Url' => str_replace(
+					$this->config['upload_path'],
+					$this->config ['upload_url'],
 					$filenames [$key]
 				),
 				$key . 'Width'	=> $size ['width'],
 				$key . 'Height'	=> $size ['height']
 			);
-			$attributes = array_merge ($attributes, $tmp);
+			$attributes = array_merge($attributes, $tmp);
 			$i++;
 		}
-
 		$image->update($attributes);
-
 		return $image;
 	}
 
