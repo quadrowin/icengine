@@ -103,11 +103,13 @@ class Config_Manager
 		if (!$storedConfig) {
             if (!$config && class_exists($type)) {
                 $reflection = new \ReflectionClass($type);
-                $property = $reflection->getProperty('config');
-                $property->setAccessible(true);
-                $config = $property->getValue(
-                    $reflection->newInstanceWithoutConstructor()
-                );
+                if ($reflection->hasProperty('config')) {
+                    $property = $reflection->getProperty('config');
+                    $property->setAccessible(true);
+                    $config = $property->getValue(
+                        $reflection->newInstanceWithoutConstructor()
+                    );
+                }
             }
 			$storedConfig = $this->load($type, $config);
 			$resourceManager->set('Config', $resourceKey, $storedConfig);
