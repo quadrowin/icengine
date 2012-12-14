@@ -186,7 +186,7 @@ class Helper_View_Resource
 		}
 		$content = '';
 		foreach (self::$files[$type] as $currentFilename) {
-			if (!is_file($currentFilename)) {
+            if (!is_file($currentFilename)) {
 				continue;
 			}
 			$fileContent = file_get_contents($currentFilename);
