@@ -138,7 +138,7 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 	 */
 	public function compile(array $packages)
 	{
-		return $this->compileFilePrefix () .
+		return $this->compileFilePrefix() .
 			implode("\n", $this->imports) . "\n" .
 			implode("\n", $packages);
 	}
@@ -179,8 +179,6 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 			$length = strlen($style);
 			$style = str_replace('  ', ' ', $style);
 		} while (strlen($style) != $length);
-		$fname = rtrim(IcEngine::root(), '/') . '/log/css.log';
-		file_put_contents($fname, time(). PHP_EOL, FILE_APPEND);
 		return $prefix . $style . $config->item_postfix;
 	}
 }
