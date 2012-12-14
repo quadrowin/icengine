@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @Service("helperImageResize")
+ */
 class Helper_Image_Resize
 {
 	
@@ -38,7 +41,7 @@ class Helper_Image_Resize
 	 * 		Данные об итоговом изображении (аналогично getimagesize)
 	 * 		или false в случае неудачи.
 	 */
-	public static function resize (
+	public function resize (
 		$input, $output, $width = 0, $height = 0, 
 		$proportional = false, $crop = true, $fit = false
 	)
