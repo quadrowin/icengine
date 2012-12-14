@@ -63,12 +63,12 @@ class Controller_Redis_Clear extends Controller_Abstract
 
 	public function clear()
 	{
-		$this->_task->setTemplate(null);
+		$this->task->setTemplate(null);
 		if (!$this->_checkAccess()) {
 			return;
 		}
-		$indexes = $this->_input->receive('index');
-		$controllers = $this->_input->receive('controllers');
+		$indexes = $this->input->receive('index');
+		$controllers = $this->input->receive('controllers');
 		if (!$indexes && !$controllers) {
 			return;
 		}
