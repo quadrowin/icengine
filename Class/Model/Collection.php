@@ -633,12 +633,29 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
             if ($this->paginator) {
                 $this->paginator->fullCount = $this->data('foundRows');
             }
+            if (!$columns) {
+                $modelScheme = $this->getService('modelScheme');
+                $scheme = $modelScheme->scheme($this->modelName());
+                $columns = array_keys($scheme->fields->asArray());
+            }
             $result = $helperArray->column($this->items, $columns, $keyField);
+        }
+        if (isset($this->data['collectionData'])) {
+            $collectionData = $this->data['collectionData'];
+            foreach ($this->items as $item) {
+                if (isset($collectionData[$item[$keyField]])) {
+                    $result[$item[$keyField]]['data'] =
+                        $collectionData[$item[$keyField]];
+                }
+            }
         }
 		foreach ($this->items as $item) {
 			if (isset($result[$item[$keyField]]) &&
 				isset($item['data'])) {
-				$result[$item[$keyField]]['data'] = $item['data'];
+				$result[$item[$keyField]]['data'] = array_merge(
+                    (array) $result[$item[$keyField]]['data'],
+                    $item['data']
+                );
 			}
 		}
         return array_values((array) $result);
