@@ -128,7 +128,7 @@ class Module_Manager extends Manager_Abstract
     /**
      * Получить конфиг для модуля
      *
-     * @param string $moduleName 
+     * @param string $moduleName
      * @param string $name
      * @author morph
      */

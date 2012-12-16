@@ -2,84 +2,84 @@
 
 /**
  * Класс необходимый для инициализации фреймворка.
- * 
+ *
  * @author goorus, morph
  */
 class IcEngine
 {
 	/**
 	 * Загрузчик
-	 * 
+	 *
      * @var Bootstrap_Abstract
 	 */
 	protected static $bootstrap;
 
 	/**
 	 * Экшин фронт контролера по умолчанию
-	 * 
+	 *
      * @var string
 	 */
 	protected static $frontAction = 'index';
 
 	/**
 	 * Фронт контролер по умолчанию
-	 * 
+	 *
      * @var string
 	 */
 	protected static $frontController = 'Front';
 
 	/**
 	 * Название транспорта по умолчанию
-	 * 
+	 *
      * @var string
 	 */
 	protected static $frontInput = 'default_input';
 
 	/**
 	 * Рендер по умолчанию
-	 * 
+	 *
      * @var string
 	 */
 	protected static $frontRender = 'Front';
 
 	/**
 	 * Лайаут
-	 * 
+	 *
      * @var string
 	 */
 	protected static $frontTemplate;
 
     /**
      * Загрузчик
-     * 
+     *
      * @var Loader
      */
     protected static $loader;
-    
+
 	/**
 	 * Зарегистрированные менеджеры
-	 * 
+	 *
      * @var array
 	 */
 	protected static $managers = array();
-    
+
     /**
 	 * Путь до движка
-	 * 
+	 *
      * @var string
 	 */
 	protected static $path;
 
 	/**
 	 * Путь до корня сайта.
-	 * 
+	 *
      * @var string
 	 */
 	protected static $root;
 
     /**
 	 * Задача фронт контроллера.
-	 * 
+	 *
      * @var Controller_Task
 	 */
 	protected static $task;
@@ -93,7 +93,7 @@ class IcEngine
 
 	/**
 	 * Получить текущий бутстрап
-	 * 
+	 *
      * @desc Bootstrap_Abstract
 	 */
 	public static function bootstrap()
@@ -103,7 +103,7 @@ class IcEngine
 
     /**
      * Создать экшин для фронт контроллера
-     * 
+     *
      * @return Controller_Action
      */
     protected static function createTaskAction()
@@ -115,7 +115,7 @@ class IcEngine
         ));
         return $action;
     }
-    
+
 	/**
 	 * Вывод результата работы.
 	 */
@@ -132,7 +132,7 @@ class IcEngine
 
 	/**
 	 * Инициализация лоадера.
-	 * 
+	 *
      * @param string $root Путь до корня сайта.
 	 * @param string $bootstap Путь до загрузчика.
 	 */
@@ -158,7 +158,7 @@ class IcEngine
 
 	/**
 	 * Подключает загрузчик и запускает его.
-	 * 
+	 *
      * @param string $path Путь до загрузчика.
 	 */
 	public static function initBootstrap($path)
@@ -208,7 +208,7 @@ class IcEngine
 	}
     /**
      * Получить frontTamplate
-     * 
+     *
      * @return string
      */
     public static function getFrontTemplate()
@@ -217,7 +217,7 @@ class IcEngine
     }
     /**
      * Получить имя сервиса менеджера для локатора сервисов
-     * 
+     *
      * @param string $name
      * @return string
      */
@@ -227,10 +227,10 @@ class IcEngine
         $parts[0] = strtolower($parts[0]);
         return implode('', $parts);
     }
-    
+
     /**
      * Получить загрузчик по умолчанию
-     * 
+     *
      * @return Loader
      */
     public static function getLoader()
@@ -240,7 +240,7 @@ class IcEngine
 
 	/**
 	 * Получить менеджера по имени
-	 * 
+	 *
      * @param string $name
 	 * @return Manager_Abstract
 	 */
@@ -261,22 +261,22 @@ class IcEngine
 		}
 		return self::$managers[$name];
 	}
-    
+
     /**
 	 * Возвращает путь до корня сайта.
-	 * 
+	 *
      * @return string
 	 */
 	protected static function getRoot()
 	{
-		return isset ($_SERVER['DOCUMENT_ROOT']) 
-            ? rtrim($_SERVER['DOCUMENT_ROOT'], '/') . '/' 
+		return isset ($_SERVER['DOCUMENT_ROOT'])
+            ? rtrim($_SERVER['DOCUMENT_ROOT'], '/') . '/'
             : rtrim(realpath(self::$path . '..'), '/') . '/';
 	}
-    
+
     /**
      * Получить сервис локатор
-     * 
+     *
      * @return Service_Locator
      */
     public static function getServiceLocator()
@@ -286,7 +286,7 @@ class IcEngine
 
 	/**
 	 * Путь до корня движка
-	 * 
+	 *
      * @return string
 	 */
 	public static function path()
@@ -296,12 +296,12 @@ class IcEngine
 
 	/**
 	 * Зарегистрировать нового менеджера по имени
-	 * 
+	 *
      * @param string $name
 	 * @param Manager_Abstract $manager
      * @param boolean $fromServiceLocator
 	 */
-	public static function registerManager($name, $manager, 
+	public static function registerManager($name, $manager,
         $fromServiceLocator = false)
 	{
 		self::$managers[$name] = $manager;
@@ -313,7 +313,7 @@ class IcEngine
 
 	/**
 	 * Путь до корня сайта.
-	 * 
+	 *
      * @return string
 	 */
 	public static function root()
@@ -365,90 +365,90 @@ class IcEngine
         }
         return self::$serviceLocator;
     }
-    
+
     /**
      * Изменить действие фронт контроллера
-     * 
+     *
      * @param string $action
      */
     public static function setFrontAction($action)
     {
         self::$frontAction = $action;
     }
-    
+
     /**
      * Изменить название контроллера фронт контроллера
-     * 
+     *
      * @param string $controller
      */
     public static function setFrontController($controller)
     {
         self::$frontController = $controller;
     }
-    
+
     /**
      * Изменить название транспорта для фронт контроллера
-     * 
+     *
      * @param string $inputName
      */
     public static function setFrontInput($inputName)
     {
         self::$frontInput = $inputName;
     }
-    
+
     /**
      * Изменить название рендера для фронт контроллера
-     * 
+     *
      * @param string $renderName
      */
     public static function setFrontRender($renderName)
     {
         self::$frontRender = $renderName;
     }
-    
+
     /**
      * Изменить название шаблона фронт контроллера
-     * 
+     *
      * @param string $template
      */
     public static function setFrontTemplate($template)
     {
         self::$frontTemplate = $template;
     }
-    
+
     /**
      * Изменить загрузчик классов по умолчанию
-     * 
+     *
      * @param Loader $loader
      */
     public static function setLoader($loader)
     {
         self::$loader = $loader;
     }
-    
+
     /**
      * Изменить путь до движка
-     * 
+     *
      * @param string $path
      */
     public static function setPath($path)
     {
         self::$path = $path;
     }
-    
+
     /**
      * Изменить путь до корня
-     * 
+     *
      * @param string $root
      */
     public static function setRoot($root)
     {
         self::$root = $root;
     }
-    
+
     /**
      * Изменить сервис локатор
-     * 
+     *
      * @param Service_Locator $serviceLocator
      */
     public static function setServiceLocator($serviceLocator)
