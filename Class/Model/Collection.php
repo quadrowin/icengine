@@ -636,7 +636,9 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
             if (!$columns) {
                 $modelScheme = $this->getService('modelScheme');
                 $scheme = $modelScheme->scheme($this->modelName());
-                $columns = array_keys($scheme->fields->asArray());
+                if ($scheme->fields) {
+                    $columns = array_keys($scheme->fields->asArray());
+                }
             }
             $result = $helperArray->column($this->items, $columns, $keyField);
         }
