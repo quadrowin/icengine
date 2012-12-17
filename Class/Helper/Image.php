@@ -177,10 +177,10 @@ class Helper_Image
     			$tc_types[$type] = $this->config['types'][$type];
     		}
     	}
-    	$tc->attr($this->TEMP_CONTENT_ATTRIBUTE, $tc_types);
+    	$tc->attr(Helper_Image::TEMP_CONTENT_ATTRIBUTE, $tc_types);
     }
 
-	protected function _log ($message)
+	protected function _log($message)
 	{
 		$filename = IcEngine::root() . '/log/image.log';
 		file_put_contents(
@@ -199,7 +199,7 @@ class Helper_Image
 	public function upload(Temp_Content $tc, $type = null)
 	{
     	$this->code = 200;
-		$sizings = $tc->attr($this->TEMP_CONTENT_ATTRIBUTE);
+		$sizings = $tc->attr(Helper_Image::TEMP_CONTENT_ATTRIBUTE);
 		if ($sizings && is_array($sizings))
 		{
 			if ($type && isset($sizings[$type])) {
@@ -274,7 +274,7 @@ class Helper_Image
 			return $this->_error ('not_received');
 		}
 		if (!$sizing) {
-			$sizing = $this->_sizing ($type);
+			$sizing = $this->_sizing($type);
 		}
 		$image = $modelManager->create('Component_Image', array(
 			'table'			=> $table,
@@ -295,7 +295,7 @@ class Helper_Image
 			array (
 				'name'		=> $type,
 				'key'		=> $image->key(),
-				'prefix'	=> $this->ORIGINAL,
+				'prefix'	=> Helper_Image::ORIGINAL,
 				'ext'		=> $file->extension
 			)
 		);
@@ -322,10 +322,10 @@ class Helper_Image
 		}
 		$filenames = array();
 
-		if (!empty ($sizing ['sizes']))
+		if (!empty ($sizing['sizes']))
 		{
-			$created = array ();
-			foreach ($sizing ['sizes'] as $prefix => $size) {
+			$created = array();
+			foreach ($sizing['sizes'] as $prefix => $size) {
 				$filename = $this->_filename(
 					$dst_path,
 					array (
@@ -339,17 +339,15 @@ class Helper_Image
 				$thumb = $helperImageResize->resize(
 					$original,
 					$filename,
-					min ($info[0], $size['width']),
-					min ($info[1], $size['height']),
-					isset ($size['proportional']) ? $size['proportional']: true,
-					isset ($size['crop']) ? $size['crop'] : false,
-					isset ($size['fit']) ? $size['fit']: false
+					min($info[0], $size['width']),
+					min($info[1], $size['height']),
+					isset($size['proportional']) ? $size['proportional']: true,
+					isset($size['crop']) ? $size['crop'] : false,
+					isset($size['fit']) ? $size['fit']: false
 				);
 
-				if (!$thumb)
-				{
-					foreach ($filenames as $fn)
-					{
+				if (!$thumb) {
+					foreach ($filenames as $fn) {
 						unlink($fn);
 					}
 					$image->delete();
@@ -359,7 +357,7 @@ class Helper_Image
 				$filenames [$prefix] = $filename;
 			}
 		}
-		$attributes = array ();
+		$attributes = array();
 		if (!empty ($sizing['attributes'])) {
 			foreach ($sizing['attributes'] as $key => $v) {
 				$attributes[$key] = $requestService->post('attr_' . $key);
@@ -388,5 +386,4 @@ class Helper_Image
 		$image->update($attributes);
 		return $image;
 	}
-
 }
