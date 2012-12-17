@@ -2,8 +2,9 @@
 
 /**
  * Хелпер для работы с mysql
- * @Service("helperMysql")
+ *
  * @author morph, goorus
+ * @Service("helperMysql")
  */
 class Helper_Mysql
 {
@@ -13,7 +14,7 @@ class Helper_Mysql
 
 	/**
 	 * Обособляет название mysql терма, если в этом есть необходимость.
-	 * 
+	 *
 	 *	Функция вернет исходную строку, если в ней присутствуют спец. символы
 	 * (точки, скобки, кавычки, знаки мат. операций и т.п.)
 	 * @param string $value Название терма.
@@ -40,7 +41,7 @@ class Helper_Mysql
 
 	/**
 	 * Заключает выражение в кавычки
-	 * 
+	 *
      * @param mixed $value
 	 * @return string
 	 */

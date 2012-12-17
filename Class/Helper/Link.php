@@ -3,6 +3,7 @@
  * Помощник для работы со связами многие-ко-многим моделей
  *
  * @author goorus, morph
+ * @Service("helperLink")
  */
 class Helper_Link extends Manager_Abstract
 {

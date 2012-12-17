@@ -53,8 +53,6 @@ class View_Resource_Packer_Js extends View_Resource_Packer_Abstract
             $packer = new JavaScriptPacker($resource->content(), 0);
 			$result .= $packer->pack();
 		}
-		$fname = IcEngine::root() . '/cache/js.pack.log';
-		file_put_contents($fname, time() . PHP_EOL, FILE_APPEND);
 		return $result . $config->item_postfix;
 	}
 }

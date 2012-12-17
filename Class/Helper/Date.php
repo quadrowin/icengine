@@ -355,9 +355,9 @@ class Helper_Date
 	{
 		return self::$monthesRu [$form][(int) $month_num];
 	}
-	
+
 	 /**
-	 * 
+	 *
 	 * @param string $date дата
 	 * @return string  месяц и год
 	 */
@@ -376,8 +376,8 @@ class Helper_Date
 			11 => 'Ноябрь',
 			12 => 'Декабрь'
 		);
-		
-		if (empty($date)) 
+
+		if (empty($date))
 		{
 			$date = new DateTime();
 			$m = $date->format('m');
@@ -387,7 +387,7 @@ class Helper_Date
 			$y =(int) $date[0];
 			$m=(int) $date[1];
 		}
-		
+
 		return $months[$m] . ' ' . $y;
 	}
 
@@ -440,71 +440,51 @@ class Helper_Date
 	}
 
 	/**
-	 * @desc Получение даты и времени из строки.
+	 * Получение даты и времени из строки.
+     *
 	 * @param mixed $date
 	 * @return DateTime|null
 	 */
-	public static function parseDateTime ($str)
+	public function parseDateTime($str)
 	{
-		if (is_numeric ($str))
-		{
-			$dt = new DateTime ('@' . $str);
-			$dt->setTimezone (new DateTimeZone (date_default_timezone_get ()));
+		if (is_numeric($str)) {
+			$dt = new DateTime('@' . $str);
+			$dt->setTimezone(new DateTimeZone(date_default_timezone_get()));
 			return $dt;
 		}
-
-		if (strlen ($str) < 8)
-		{
+		if (strlen($str) < 8) {
 			return null;
 		}
 		$n = 0;
-
-		$arr = array_fill (0, 6, '');
-
-		for ($i = 0; $i < strlen ($str); ++$i)
-		{
-			if (strpos ('-0123456789', $str [$i]) == 0)
-			{
-				if (strlen ($arr [$n]) > 0)
-				{
-					$arr [$n] = (int) $arr [$n];
+		$arr = array_fill(0, 6, '');
+		for ($i = 0; $i < strlen($str); ++$i) {
+			if (strpos('-0123456789', $str[$i]) == 0) {
+				if (strlen($arr[$n]) > 0) {
+					$arr[$n] = (int) $arr[$n];
 					++$n;
 				}
-			}
-			else
-			{
-				$arr [$n] .= $str [$i];
+			} else {
+				$arr[$n] .= $str[$i];
 			}
 		}
-
-		for ($i = $n; $i <= 5; ++$i)
-		{
-			$arr [$i] = (int) $arr [$i];
+		for ($i = $n; $i <= 5; ++$i) {
+			$arr[$i] = (int) $arr[$i];
 		}
-
-		$str = implode ('.', $arr);
-
-		if (strlen ($arr [0]) == 4)
-		{
+		$str = implode('.', $arr);
+		if (strlen ($arr [0]) == 4) {
 			// Y-m-d H:i:s
-			return DateTime::createFromFormat ('Y.m.d.H.i.s', $str);
-		}
-		elseif (strlen ($arr [2]) == 4)
-		{
+			return DateTime::createFromFormat('Y.m.d.H.i.s', $str);
+		} elseif (strlen($arr[2]) == 4) {
 			// d.m.Y H:i:s
-			return DateTime::createFromFormat ('d.m.Y.H.i.s', $str);
-		}
-		elseif (strlen ($arr [3]) == 4)
-		{
+			return DateTime::createFromFormat('d.m.Y.H.i.s', $str);
+		} elseif (strlen($arr [3]) == 4) {
 			// H:i:s Y-m-d
-			return DateTime::createFromFormat ('H.i.s.Y.m.d', $str);
+			return DateTime::createFromFormat('H.i.s.Y.m.d', $str);
 		}
-		elseif (strlen ($arr [5]) == 4)
-		{
+		elseif (strlen($arr[5]) == 4) {
 			// H:i:s d.m.Y
-			return DateTime::createFromFormat ('H.i.s.d.m.Y', $str);
+			return DateTime::createFromFormat('H.i.s.d.m.Y', $str);
 		}
-
 		return null;
 	}
 
@@ -673,22 +653,22 @@ class Helper_Date
 	}
 
 	/**
-	 * @desc Перевод даты из любого распознаваемого форматав формат в Unix.
+	 * Перевод даты из любого распознаваемого форматав формат в Unix.
+     *
 	 * @param string $date [optional] Если параметр не будет передан или будет
 	 * передано null, будет использована текущая дата.
 	 * @return string Дата в формате UNIX "YYYY-MM-DD HH:II:SS"
 	 */
-	public static function toUnix ($date = null)
+	public function toUnix($date = null)
 	{
-		if (!$date)
-		{
-			return date (self::UNIX_FORMAT);
+		if (!$date) {
+			return date(self::UNIX_FORMAT);
 		}
-		$date = self::parseDateTime ($date);
+		$date = $this->parseDateTime($date);
 		if (!$date) {
 			return null;
 		}
-		return $date->format (self::UNIX_FORMAT);
+		return $date->format(self::UNIX_FORMAT);
 	}
 
 }
