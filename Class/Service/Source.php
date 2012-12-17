@@ -197,16 +197,20 @@ class Service_Source
         }
         if (empty($serviceData['isAbstract'])) {
             $service = $this->buildService($serviceName, $serviceData);
-        }
+        } 
         $instanceCallback = array();
         if (!empty(self::$services[$serviceName]['instanceCallback'])) {
            $instanceCallback = self::$services[$serviceName]['instanceCallback'];
         }
-        $state = new Service_State(
-            $service,
-            self::$services[$serviceName]['class'],
-            $instanceCallback
-        );
+        if ($instanceCallback || empty($serviceData['isAbstract'])) {
+            $state = new Service_State(
+                $service,
+                self::$services[$serviceName]['class'],
+                $instanceCallback
+            );
+        } else {
+            $state = $service;
+        }
         return $state;
     }
 

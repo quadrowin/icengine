@@ -201,6 +201,11 @@ class Controller_Abstract
             $controllerManager = $this->getService('controllerManager');
 			$other = $controllerManager->get($controller);
 		}
+        $controller->send(array(
+            'origin'    => implode(
+                '/', $controller->getTask()->controllerAction()
+            )
+        ));
 		$this->task->setTemplate(
 			'Controller/' . str_replace('_', '/', $controller) . '/' . $action
 		);

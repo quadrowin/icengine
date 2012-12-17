@@ -689,7 +689,7 @@ class Controller_Model extends Controller_Abstract
 	 */
 	public function scheme ($name, $comment, $author)
 	{
-		$this->_task->setTemplate (null);
+		$this->task->setTemplate (null);
 
 		if (!$name)
 		{

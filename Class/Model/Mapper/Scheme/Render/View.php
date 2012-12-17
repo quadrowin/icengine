@@ -14,12 +14,6 @@ class Model_Mapper_Scheme_Render_View
 	public static function byName ($name)
 	{
 		$class_name = 'Model_Mapper_Scheme_Render_View_' . $name;
-		if (!Loader::load ($class_name))
-		{
-			throw new Model_Mapper_Scheme_Render_View_Exception (
-				'Render view had not found'
-			);
-		}
 		return new $class_name;
 	}
 }

@@ -16,10 +16,6 @@ class Model_Mapper_Method
 	public static function byName ($name)
 	{
 		$class_name = 'Model_Mapper_Method_' . $name;
-		if (!Loader::load ($class_name))
-		{
-			throw new Model_Mapper_Method_Exception ('Method had not found');
-		}
 		return new $class_name;
 	}
 
