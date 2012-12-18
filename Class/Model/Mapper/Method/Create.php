@@ -3,7 +3,8 @@
 /**
  * Метод схемы связей модели, создающий модель
  *
- * @author Илья Колесников
+ * @author morph
+ * @package Ice\Orm
  */
 class Model_Mapper_Method_Find extends Model_Mapper_Method_Abstract
 {
@@ -37,11 +38,10 @@ class Model_Mapper_Method_Find extends Model_Mapper_Method_Abstract
 	 * 
 	 * @return Model
 	 */
-	public function get ()
+	public function get()
 	{
 		return $this->getService('modelManager')->create(
-			$this->_params[0],
-			$this->_fields
+            $this->params[0], $this->fields
 		);
 	}
 }

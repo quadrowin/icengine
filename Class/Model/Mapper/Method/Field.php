@@ -1,14 +1,18 @@
 <?php
 
 /**
- * @desc Создание схемы поля
+ * Создание схемы поля
+ * 
+ * @author morph
+ * @package Ice\Orm
  */
 class Model_Mapper_Method_Field extends Model_Mapper_Method_Abstract
 {
 	/**
+     * @inheritdoc
 	 * @see Model_Mapper_Method_Abstract::execute
 	 */
-	public function execute ()
+	public function execute()
 	{
         $serviceLocator = IcEngine::serviceLocator();
         $modelMapperSchemePart = $serviceLocator->getService(
@@ -16,7 +20,8 @@ class Model_Mapper_Method_Field extends Model_Mapper_Method_Abstract
         );
 		$part = $modelMapperSchemePart->byName('Field');
 		return $part->set(
-			$this->_params[0],
-			isset ($this->_params[1]) ? $this->_params[1] : array());
+			$this->params[0],
+			isset($this->params[1]) ? $this->params[1] : array()
+        );
 	}
 }
