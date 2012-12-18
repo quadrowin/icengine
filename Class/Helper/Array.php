@@ -15,7 +15,7 @@ class Helper_Array
 	 * @param string $index Имя индекса
 	 * @return array Колонка $column исходного массива
 	 */
-	public static function column($input, $columns, $index = null)
+	public function column($input, $columns, $index = null)
 	{
         if (!$columns) {
             return $input;
@@ -48,7 +48,7 @@ class Helper_Array
      * @param array $filter
      * @return array
      */
-    public static function filter($rows, $filter)
+    public function filter($rows, $filter)
     {
 		$firstFields = array();
 		foreach ($filter as $field => $value) {
@@ -121,61 +121,57 @@ class Helper_Array
 	 * 		Если записи из $content, идущие подряд, имеют одинаковое поле $bock_mark,
 	 * 		разбиение между ними не будет.
 	 */
-	public static function markForColumns (
-		&$content, $cols_count,
-		$start_mark, $finish_mark, $block_mark = null
+	public function markForColumns ( &$content, $colsCount,
+		$startMark, $finishMark, $blockMark = null
 	)
 	{
-		$rows_count = count ($content);
-		if ($rows_count < 1)
+		$rowsCount = count ($content);
+		if ($rowsCount < 1)
 		{
 			return;
 		}
-		if ($rows_count == 1)
+		if ($rowsCount == 1)
 		{
-			$content [$start_mark] = true;
-			$content [$finish_mark] = true;
+			$content[$startMark] = true;
+			$content[$finishMark] = true;
 		}
 
-		$in_column = ceil ($rows_count / $cols_count);
-		//echo "rows_count: $rows_count; ";
-		//echo "in_column: $in_column; ";
-
-		if (empty ($block_mark))
+		$inColumn = ceil($rowsCount / $colsCount);
+		
+		if (empty($blockMark))
 		{
 			// без блоков
 			$index = $in_column;
-			$content [0][$start_mark] = true;
-			while ($index < $rows_count)
+			$content[0][$startMark] = true;
+			while ($index < $rowsCount)
 			{
-				$content [$index][$start_mark] = true;
-				$content [$index - 1][$finish_mark] = true;
+				$content[$index][$startMark] = true;
+				$content[$index - 1][$finishMark] = true;
 				$index += $in_column;
 			}
-			$content [$rows_count - 1][$finish_mark] = true;
+			$content [$rowsCount - 1][$finishMark] = true;
 			return;
 		}
 
 		// по блокам
-		$next_column_finish = $in_column;
+		$nextColumnFinish = $in_column;
 		$index = 1;
-		$content [0][$start_mark] = true;
+		$content[0][$start_mark] = true;
 		$index++;
-		while ($index < $rows_count)
-		{
+		while ($index < $rowsCount) {
 			if (
-				$index >= ($next_column_finish) &&
-				isset ($content [$index][$block_mark])
+				$index >= ($nextColumnFinish) &&
+				isset($content[$index][$blockMark])
 			)
 			{
-				$content [$index - 1][$finish_mark] = true;
-				$content [$index][$start_mark] = true;
+				$content[$index - 1][$finishMark] = true;
+				$content[$index][$startMark] = true;
 				//fb($index);
-				$next_column_finish += $in_column;
+				$nextColumnFinish += $inColumn;
 			}
 			$index++;
 		}
-		$content [$rows_count - 1][$finish_mark] = true;
+		$content[$rowsCount - 1][$finishMark] = true;
 	}
 
 	/**
@@ -184,36 +180,30 @@ class Helper_Array
 	 * @param string $sortby Поля сортировки через запятую
 	 * @return boolean true если успешно, иначе false.
 	 */
-	public static function masort ($data, $sortby)
+	public function masort($data, $sortby)
 	{
-		static $funcs = array ();
+		static $funcs = array();
 
-		if (empty ($funcs [$sortby]))
+		if (empty($funcs[$sortby]))
 		{
 			//Не существует функции сравнения, создаем
 			$code = "\$c=0;";
-			foreach (explode (',', $sortby) as $key)
+			foreach (explode(',', $sortby) as $key)
 			{
-				$key = trim ($key);
-				if (strlen ($key) > 5 && substr ($key, -5) == ' DESC')
-				{
+				$key = trim($key);
+				if (strlen($key) > 5 && substr($key, -5) == ' DESC') {
 					$asc = false;
-					$key = substr ($key, 0, strlen ($key) - 5);
+					$key = substr($key, 0, strlen ($key) - 5);
 				}
-				else
-				{
+				else {
 					$asc = true;
 				}
-
-				reset ($data);
-				$array = current ($data);
-
-				if (is_numeric ($array[$key]))
-				{
+				reset($data);
+				$array = current($data);
+				if (is_numeric($array[$key])) {
 					$code .= "if ( \$c = ((\$a['$key'] == \$b['$key']) ? 0 : ((\$a['$key'] " . (($asc) ? '<' : '>') . " \$b['$key']) ? -1 : 1 )) ) return \$c;";
 				}
-				else
-				{
+				else {
 					$code .= "if ( (\$c = strcasecmp(\$a['$key'], \$b['$key'])) != 0 ) return " . (($asc) ? '' : '-') . "\$c;\n";
 				}
 
@@ -221,10 +211,10 @@ class Helper_Array
 			$code .= 'return $c;';
 	//		predump($code);
 			// $c=0;if ( $c = (($a['rank'] == $b['rank']) ? 0 : (($a['rank'] < $b['rank']) ? -1 : 1 )) ) return $c;return $c;
-			$funcs [$sortby] = create_function ('$a, $b', $code);
+			$funcs[$sortby] = create_function('$a, $b', $code);
 		}
 
-		uasort ($data, $funcs [$sortby]);
+		uasort($data, $funcs[$sortby]);
 		return $data;
 	}
 
@@ -238,46 +228,37 @@ class Helper_Array
 	 * @access public
 	 * @return array Resulting array, once all have been merged
 	 */
-	public static function mergeReplaceRecursive ()
+	public function mergeReplaceRecursive()
 	{
 		// Holds all the arrays passed
-		$params = func_get_args ();
-
+		$params = func_get_args();
 		// First array is used as the base, everything else overwrites on it
-		$return = array_shift ($params);
-
+		$return = array_shift($params);
 		// Merge all arrays on the first array
 		foreach ($params as $array)
 		{
 			foreach ($array as $key => $value)
 			{
 				// Numeric keyed values are added (unless already there)
-				if (is_numeric ($key) && !in_array ($value, $return))
-				{
-					if (is_array ($value))
-					{
-						$return [] = self::mergeReplaceRecursive ($return [$key], $value);
+				if (is_numeric ($key) && !in_array ($value, $return)) {
+					if (is_array ($value)) {
+						$return[] = $this->mergeReplaceRecursive($return[$key], $value);
 					}
-					else
-					{
-						$return [] = $value;
+					else {
+						$return[] = $value;
 					}
 				}
-				else
-				{
+				else {
 					// String keyed values are replaced
-					if (isset ($return [$key]) && is_array ($value) && is_array ($return [$key]))
-					{
-						$return [$key] = self::mergeReplaceRecursive ($return [$key], $value);
+					if (isset($return[$key]) && is_array($value) && is_array($return[$key])) {
+						$return[$key] = $this->mergeReplaceRecursive($return[$key], $value);
 					}
-					else
-					{
-						$return [$key] = $value;
+					else {
+						$return[$key] = $value;
 					}
 				}
 			}
 		}
-
 		return $return;
 	}
 
@@ -287,41 +268,30 @@ class Helper_Array
 	 * @param array $data Массив объектов
 	 * @param string $sortby Поля для сортировки
 	 */
-	public static function mosort(&$data, $sortby)
+	public function mosort(&$data, $sortby)
 	{
-		if (count ($data) <= 1)
-		{
+		if (count($data) <= 1) {
 			return true;
 		}
-
-		static $funcs = array ();
-
-		if (empty ($funcs [$sortby]))
-		{
+		static $funcs = array();
+		if (empty ($funcs[$sortby])) {
 			//Не существует функции сравнения, создаем
 			$code = "\$c=0;";
-			foreach (explode (',', $sortby) as $key)
-			{
-				$key = trim ($key);
-				if (strlen ($key) > 5 && substr ($key, -5) == ' DESC')
-				{
+			foreach (explode(',', $sortby) as $key) {
+				$key = trim($key);
+				if (strlen($key) > 5 && substr($key, -5) == ' DESC') {
 					$asc = false;
-					$key = substr ($key, 0, strlen ($key) - 5);
+					$key = substr ($key, 0, strlen($key) - 5);
 				}
-				else
-				{
+				else {
 					$asc = true;
 				}
-
-				reset ($data);
-				$object = current ($data);
-
-				if (is_numeric ($object->{$key}))
-				{
+				reset($data);
+				$object = current($data);
+				if (is_numeric ($object->{$key})) {
 					$code .= "if ( \$c = ((\$a->$key == \$b->$key) ? 0 : ((\$a->$key " . (($asc) ? '<' : '>') . " \$b->$key) ? -1 : 1 )) ) return \$c;";
 				}
-				else
-				{
+				else {
 					$code .= "if ( (\$c = strcasecmp(\$a->$key, \$b->$key)) != 0 ) return " . (($asc) ? '' : '-') . "\$c;\n";
 				}
 
@@ -329,10 +299,10 @@ class Helper_Array
 			$code .= 'return $c;';
 	//		fb($code);
 	//		$c=0;if ( $c = (($a->rank == $b->rank) ? 0 : (($a->rank < $b->rank) ? -1 : 1 )) ) return $c;return $c;
-			$funcs [$sortby] = create_function ('$a, $b', $code);
+			$funcs[$sortby] = create_function('$a, $b', $code);
 		}
 
-		return uasort ($data, $funcs [$sortby]);
+		return uasort($data, $funcs [$sortby]);
 	}
 
 	/**
@@ -343,14 +313,12 @@ class Helper_Array
 	 */
 	public static function prefixed (array $array, $prefix)
 	{
-		$len = strlen ($prefix);
-		$result = array ();
-		foreach ($array as $k => $v)
-		{
-			if (strncmp ($k, $prefix, $len) == 0)
-			{
-				$k = substr ($k, $len);
-				$result [$k] = $v;
+		$len = strlen($prefix);
+		$result = array();
+		foreach ($array as $k => $v) {
+			if (strncmp ($k, $prefix, $len) == 0) {
+				$k = substr($k, $len);
+				$result[$k] = $v;
 			}
 		}
 		return $result;
@@ -364,14 +332,13 @@ class Helper_Array
 	 * 		Колонка, значения которой будут использованы в качестве ключей.
 	 * @return array
 	 */
-	public static function setKeyColumn (array $input, $column)
+	public function setKeyColumn (array $input, $column)
 	{
-		if (!$input)
-		{
-			return array ();
+		if (!$input) {
+			return array();
 		}
-		return array_combine (
-			self::column ($input, $column),
+		return array_combine(
+			$this->column($input, $column),
 			$input
 		);
 	}
@@ -383,11 +350,11 @@ class Helper_Array
      * @param array $filter
      * @return boolean
      */
-    public static function validateRow($row, $filter)
+    public function validateRow($row, $filter)
     {
 		$valid = true;
 		foreach ($filter as $field => $value) {
-			$value = (array) $value;
+			$value = (array)$value;
 			$trimedValue = array_map('trim', $value);
 			if (!isset($row[$field]) || !in_array($row[$field], $trimedValue)) {
 				$valid = false;
