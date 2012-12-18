@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Действие по выполнению контроллера 
- * 
+ * Действие по выполнению контроллера
+ *
  * @author morph
  */
 class Event_Slot_Controller_After extends Event_Slot
@@ -22,8 +22,7 @@ class Event_Slot_Controller_After extends Event_Slot
             $params['action'][0], $params['action'][1], array(
                 'before'    => $buffer,
                 'args'      => $params['context']->getArgs()
-            ),
-            $params['controller']->getTask()
+            )
         );
     }
 }
