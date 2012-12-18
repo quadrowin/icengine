@@ -1,14 +1,17 @@
 <?php
 
 /**
- * @desc Абстрактная аксессор схемы моделей
- * @author Илья Колесников
+ * Абстрактная аксессор схемы моделей
+ * 
+ * @author morph
+ * @packege Ice\Orm
  */
 class Model_Mapper_Scheme_Accessor_Abstract
 {
 	/**
-	 * @desc Получить значение части схемы
-	 * @param Model_Mapper_Scheme_Abstract $scheme
+	 * Получить значение части схемы
+	 * 
+     * @param Model_Mapper_Scheme_Abstract $scheme
 	 * @param mixed $entity
 	 * @return mixed
 	 */
@@ -18,11 +21,12 @@ class Model_Mapper_Scheme_Accessor_Abstract
 	}
 
 	/**
-	 * @desc Получить имя
-	 * @return string
+	 * Получить имя
+	 * 
+     * @return string
 	 */
 	public function getName()
 	{
-		return substr(get_class($this), 31);
+		return substr(get_class($this), strlen('Model_Mapper_Scheme_Accessor_'));
 	}
 }

@@ -1,58 +1,65 @@
 <?php
 
 /**
- * @desc Абстрактное поле схемы связей модели
- * @author Илья Колесников
+ * Абстрактное поле схемы связей модели
+ * 
+ * @author morph
+ * @package Ice\Orm
  */
 class Model_Mapper_Scheme_Field_Abstract
 {
 	/**
-	 * @desc Атрибуты поля
-	 * @var Model_Mapper_Scheme_Field_Attribute_Set
+	 * Атрибуты поля
+	 * 
+     * @var Model_Mapper_Scheme_Field_Attribute_Set
 	 */
-	protected $_attributes;
+	protected $attributes;
 
 	/**
-	 * (non-PHPDoc)
+	 * Конструктор
 	 */
 	public function __construct ()
 	{
-		$this->_attributes = new Model_Mapper_Scheme_Field_Attribute_Set;
+		$this->attributes = new Model_Mapper_Scheme_Field_Attribute_Set;
 	}
 
 	/**
-	 * @desc Получить атрибуты поля
-	 * @return Model_Mapper_Scheme_Field_Attribute_Set
+	 * Получить атрибуты поля
+	 * 
+     * @return Model_Mapper_Scheme_Field_Attribute_Set
 	 */
-	public function attributes ()
+	public function attributes()
 	{
-		return $this->_attributes;
+		return $this->attributes;
 	}
 
 	/**
-	 * @desc Получить имя фабрики
-	 * @return string
+	 * Получить имя фабрики
+	 * 
+     * @return string
 	 */
-	public function factoryName ()
+	public function factoryName()
 	{
 		return 'Field';
 	}
 
 	/**
-	 * @desc Получить имя поля
-	 * @return string
+	 * Получить имя поля
+	 * 
+     * @return string
 	 */
-	public function getName ()
+	public function getName()
 	{
-		return substr (get_class ($this), 26);
+		return substr(get_class($this), strlen('Model_Mapper_Scheme_Field_'));
 	}
 
 	/**
-	 * @desc Проверить значение поля на корректность
-	 * @param mixed $value
+	 * Проверить значение поля на корректность
+	 * 
+     * @param mixed $value
 	 * @return boolean
 	 */
-	public function validate ($value)
+	public function validate($value)
 	{
 		return true;
 	}

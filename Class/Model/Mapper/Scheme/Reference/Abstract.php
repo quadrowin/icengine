@@ -1,94 +1,108 @@
 <?php
 
 /**
- * @desc Абстрактная модель ссылки схемы связей модели
- * @author Илья Колесников
+ * Абстрактная модель ссылки схемы связей модели
+ * 
+ * @author morph
+ * @package Ice\Orm
  */
 class Model_Mapper_Scheme_Reference_Abstract
 {
 	/**
-	 * @desc Поле ссылки
-	 * @var string
+	 * Поле ссылки
+	 * 
+     * @var string
 	 */
-	protected $_field;
+	protected $field;
 
 	/**
-	 * @desc Модель для ссылки
-	 * @var string
+	 * Модель для ссылки
+	 * 
+     * @var string
 	 */
-	protected $_model;
+	protected $model;
 
 	/**
-	 * @desc Получить данные ссылки
-	 * @param string $model_name
+	 * Получить данные ссылки
+	 * 
+     * @param string $model_name
 	 * @param string $id
 	 * @return Model_Collection
 	 */
-	public function data ($model_name, $id)
+	public function data($modelName, $id)
 	{
 
 	}
 
 	/**
-	 * @desc Получить имя фабрики
-	 * @return string
+	 * Получить имя фабрики
+	 * 
+     * @return string
 	 */
-	public function factoryName ()
+	public function factoryName()
 	{
 		return 'Reference';
 	}
 
 	/**
-	 * @desc Получить имя поля ссылки
-	 * @return array
+	 * Получить имя поля ссылки
+	 * 
+     * @return array
 	 */
-	public function getField ()
+	public function getField()
 	{
-		return $this->_field;
+		return $this->field;
 	}
 
 	/**
-	 * @desc Получить имя модели для ссылки
-	 * @return string
+	 * Получить имя модели для ссылки
+	 * 
+     * @return string
 	 */
-	public function getModel ()
+	public function getModel()
 	{
-		return $this->_model;
+		return $this->model;
 	}
 
 	/**
-	 * @desc Получить имя индекса
-	 * @return string
+	 * Получить имя индекса
+	 * 
+     * @return string
 	 */
-	public function getName ()
+	public function getName()
 	{
-		return substr (get_class ($this), 30);
+		return substr(
+            get_class($this), strlen('Model_Mapper_Scheme_Reference_')
+        );
 	}
 
 	/**
-	 * @desc Возвращает ресурс схемы связей модели
-	 * @return Model_Mapper_Scheme_Resource
+	 * Возвращает ресурс схемы связей модели
+	 * 
+     * @return Model_Mapper_Scheme_Resource
 	 */
-	public function resource ()
+	public function resource()
 	{
-		return new Model_Mapper_Scheme_Resource ($this);
+		return new Model_Mapper_Scheme_Resource($this);
 	}
 
 	/**
-	 * @desc Изменить поле ссылки
-	 * @param string $field
+	 * Изменить поле ссылки
+	 * 
+     * @param string $field
 	 */
-	public function setField ($field)
+	public function setField($field)
 	{
-		$this->_field = $field;
+		$this->field = $field;
 	}
 
 	/**
-	 * @desc Изменить модель ссылки
-	 * @param string $model
+	 * Изменить модель ссылки
+	 * 
+     * @param string $model
 	 */
-	public function setModel ($model)
+	public function setModel($model)
 	{
-		$this->_model = $model;
+		$this->model = $model;
 	}
 }

@@ -1,70 +1,81 @@
 <?php
 
 /**
- * @desc Абстрактный атрибут поля схемы связей модели
- * @author Илья Колесников
+ * Абстрактный атрибут поля схемы связей модели
+ * 
+ * @author morph
+ * @package Ice\Orm
  */
 
 class Model_Mapper_Scheme_Field_Attribute_Abstract
 {
 	/**
-	 * @desc Значение атрибута поля
-	 * @var string
+	 * Значение атрибута поля
+	 * 
+     * @var string
 	 */
-	protected $_value;
+	protected $value;
 
 	/**
-	 * @desc Получить имя фабрики
-	 * @return string
+	 * Получить имя фабрики
+	 * 
+     * @return string
 	 */
-	public function factoryName ()
+	public function factoryName()
 	{
 		return 'Field_Attribute';
 	}
 
 	/**
-	 * @desc Получить имя атрибута
-	 * @return string
+	 * Получить имя атрибута
+	 * 
+     * @return string
 	 */
-	public function getName ()
+	public function getName()
 	{
-		return substr (get_class ($this), 36);
+		return substr(
+            get_class($this), strlen('Model_Mapper_Scheme_Field_Attribute_')
+        );
 	}
 
 	/**
-	 * @desc Получить значение атрибута поля
-	 * @return string
+	 * Получить значение атрибута поля
+	 * 
+     * @return string
 	 */
-	public function getValue ()
+	public function getValue()
 	{
-		return $this->_value;
+		return $this->value;
 	}
 
 	/**
-	 * @desc Корректировать значение поля
-	 * @param mixed $value
+	 * Корректировать значение поля
+	 * 
+     * @param mixed $value
 	 * @return mixed
 	 */
-	public function filter ($value)
+	public function filter($value)
 	{
 		return $value;
 	}
 
 	/**
-	 * @desc Установить значение атрибута поля
-	 * @param string $value
+	 * Установить значение атрибута поля
+	 * 
+     * @param string $value
 	 */
-	public function setValue ($value)
+	public function setValue($value)
 	{
-		$this->_value = $value;
+		$this->value = $value;
 	}
 
 	/**
-	 * @desc Проверить значение поля на корректность
-	 * @param mixed $value
+	 * Проверить значение поля на корректность
+	 * 
+     * @param mixed $value
 	 * @return boolean
 	 */
-	public function validate ($value)
+	public function validate($value)
 	{
 		return true;
 	}

@@ -1,153 +1,146 @@
 <?php
 
 /**
- * @desc Тип ссылки "многие-ко-многим"
- * @author Илья Колесников
+ * Тип ссылки "многие-ко-многим"
+ * 
+ * @author morph
+ * @package Ice\Orm
  */
-class Model_Mapper_Scheme_Reference_ManyToMany extends Model_Mapper_Scheme_Reference_Abstract
+class Model_Mapper_Scheme_Reference_ManyToMany extends 
+    Model_Mapper_Scheme_Reference_Abstract
 {
 	/**
-	 * @desc Таблицы для связи многие-ко-многим
-	 * @var array
+	 * Таблицы для связи многие-ко-многим
+	 * 
+     * @var array
 	 */
-	protected static $_tables;
+	protected static $tables;
 
 	/**
-	 * @desc Получить поле
-	 * @return Model_Mapper_Scheme_Field_Abstract
-	 */
-	protected function _field ()
-	{
-		return Model_Mapper::field (
-			'Int',
-			array (
-				'Size'		=> 11,
-				'Default'	=> 0,
-				'Not_Null'
-			)
-		);
-	}
-
-	/**
-	 * @desc Сформировать ключ связи "многие-ко-многим"
-	 * @param string $model_name
+	 * Сформировать ключ связи "многие-ко-многим"
+	 * 
+     * @param string $model_name
 	 * @return string
 	 */
-	public function key ($model_name)
+	public function key($modelName)
 	{
-		$key_table = array ($model_name, $this->getModel ());
-		sort ($key_table);
-		$key = implode ('_', $key_table);
-		$postfix = abs (crc32 ($key_table [0]) % crc32 ($key_table [1]));
+		$keyTable = array($modelName, $this->getModel());
+		sort($keyTable);
+		$key = implode('_', $keyTable);
+		$postfix = abs(crc32($keyTable[0]) % crc32($keyTable[1]));
 		$key .= $postfix;
 		return $key;
 	}
 
 	/**
-	 * @desc Получить схему
-	 * @param string $link_table
+	 * Получить схему
+	 * 
 	 * @param string $from_table
 	 * @param string $to_table
 	 * @return Model_Mapper_Scheme_Abstract
 	 */
-	protected function _scheme ($link_table, $from_table, $to_table)
+	protected function scheme($fromTable, $toTable)
 	{
-		$model = new Model_Proxy (
-			$link_table,
-			array (
-				'id'	=> 0
-			)
-		);
-		$scheme = Model_Mapper::scheme ($model);
-		$scheme->id = Model_Mapper::field (
-			'Int',
-			array (
-				'Size'	=> 11,
-				'Auto_Increment',
-				'Not_Null'
-			)
-		);
-		$fields = array ($from_table, $to_table);
-		foreach ($fields as $field)
-		{
-			$scheme->$field = $this->_field ();
-		}
-		$index = 'id_index';
-		$unique = $from_table . '_' . $to_table;
-		$scheme->$index = Model_Mapper::index (
-			'Primary', array ('id')
-		);
-		$scheme->$unique = Model_Mapper::index (
-			'Unique', array ($from_table, $to_table)
-		);
-		return $scheme;
+        $emptyField = array(
+            'Int',
+            array(
+                'Size'  => 11,
+                'Auto_Increment',
+                'Not_Null'
+            )
+        );
+        $fields = array(
+            $fromTable  => $emptyField,
+            $toTable    => $emptyField
+        );
+        $unique = $fromTable . '_' . $toTable;
+        $indexes = array(
+            'id'    => array('Primary', array('id')),
+            $unique => array('Unique', array($fromTable, $toTable))
+        );
+        return array(
+            'fields'    => $fields,
+            'indexes'   => $indexes
+        );
 	}
 
 	/**
+     * @inheritdoc
 	 * @see Model_Mapper_Scheme_Reference_Abstract::data
 	 */
-	public function data ($model_name, $id)
+	public function data($modelName, $id)
 	{
-		$key = $this->key ($model_name);
+		$key = $this->key($modelName);
 		$link_table = $key;
-		$fields = $this->getField ();
-		$link_fields = array ($model_name . '__id', $this->getModel () . '__id');
-		sort ($link_fields);
-		$fromField = $link_fields [0];
-		$toField = $link_fields [1];
-		if (!isset (self::$_tables [$key]))
-		{
-			if (isset ($fields [1]) && is_array ($fields [1]))
-			{
-				$link_table = $fields [0];
-				$fields = $fields [1];
+		$fields = $this->getField();
+		$linkFields = array($modelName . '__id', $this->getModel() . '__id');
+		sort ($linkFields);
+		$fromField = $linkFields [0];
+		$toField = $linkFields [1];
+        $serviceLocator = IcEngine::serviceLocator();
+        $modelScheme = $serviceLocator->getService('modelScheme');
+        $controllerManager = $serviceLocator->getService('controllerManager');
+		if (!isset(self::$tables[$key])) {
+            $linkTable = null;
+			if (isset($fields[1]) && is_array($fields[1])) {
+				$linkTable = $fields[0];
+				$fields = $fields[1];
+			} else {
+                return;
+            }
+			if ($fields) {
+				sort($fields);
+				$fromField = $fields[0];
+				$toField = $fields[1];
 			}
-			if ($fields)
-			{
-				sort ($fields);
-				$fromField = $fields [0];
-				$toField = $fields [1];
-			}
-			$exists =  (bool) Helper_Data_Source::table ($link_table);
-			self::$_tables [$key] = array (
-				'name'		=> $link_table,
+			$scheme = $modelScheme->scheme($modelName);
+            $exists = (bool) $scheme;
+			self::$ttables[$key] = array(
+				'name'		=> $linkTable,
 				'field'		=> $fields,
 				'exists'	=> $exists
 			);
-			if (!$exists)
-			{
-				$scheme = $this->_scheme ($link_table, $fromField, $toField);
-				$view = Model_Mapper_Scheme_Render_View::byName ('Mysql');
-				$sql = $view->render ($scheme);
-				mysql_query ($sql);
+			if (!$exists) {
+				$scheme = $this->scheme ($fromField, $toField);
+                $controllerManager->call('Model', 'scheme', array(
+                    'name'      => $linkTable,
+                    'fields'    => $scheme['fields'],
+                    'indexes'   => $scheme['indexes']
+                ));
+				$controllerManager->call('Model', 'create', array(
+                    'name'      => $linkTable
+                ));
 			}
 		}
 		$field = $fromField;
-		$dest_field = $toField;
-		if ($fromField != $model_name . '__id')
-		{
+		$targetField = $toField;
+		if ($fromField != $modelName . '__id') {
 			$field = $toField;
-			$dest_field = $fromField;
+			$targetField = $fromField;
 		}
-		$query = Query::instance ()
-			->select ($dest_field)
-			->from ($link_table)
-			->where ($field, $id);
-		$ids = DDS::execute ($query)->getResult ()->asColumn ();
-		$collection = Model_Collection_Manager::byQuery (
-			$this->getModel (),
-			Query::instance ()
-				->where (Model_Scheme::keyField ($this->getModel ()), $ids)
-		);
-		return $this->resource ()
-			->setItems ($collection->items ());
+        $queryBuilder = $serviceLocator->getService('query');
+        $dds = $serviceLocator->getService('dds');
+		$query = $queryBuilder
+			->select($targetField)
+			->from($link_table)
+			->where($field, $id);
+		$ids = $dds->execute($query)->getResult()->asColumn();
+        $collectionManager = $serviceLocator->getService('collectionManager');
+        $keyField = $modelScheme->keyField($this->getModel());
+        $itemsQuery = $queryBuilder
+            ->where($keyField, $ids);
+		$collection = $collectionManager->byQuery(
+            $this->getModel(), $itemsQuery
+        );
+		return $this->resource()->setItems($collection->items());
 	}
 
 	/**
+     * @inheritdoc
 	 * @see Model_Mapper_Scheme_Reference_Abstract::resource()
 	 */
-	public function resource ()
+	public function resource()
 	{
-		return new Model_Mapper_Scheme_Resource_ManyToMany ($this);
+		return new Model_Mapper_Scheme_Resource_ManyToMany($this);
 	}
 }

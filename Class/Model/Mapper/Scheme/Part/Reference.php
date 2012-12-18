@@ -1,43 +1,47 @@
 <?php
 
 /**
- * @desc Часть схемы моделей, отвечающая за ссылки
- * @author Илья Колесников
+ * Часть схемы моделей, отвечающая за ссылки
+ * 
+ * @author morph
+ * @package Ice\Orm
  */
-class Model_Mapper_Scheme_Part_Reference extends Model_Mapper_Scheme_Part_Abstract
+class Model_Mapper_Scheme_Part_Reference extends 
+    Model_Mapper_Scheme_Part_Abstract
 {
 	/**
+     * @inheritdoc
 	 * @see Model_Mapper_Scheme_Part_Abstract::$_specification
 	 */
-	protected static $_specification = 'references';
+	protected static $specification = 'references';
 
 	/**
-	 * @desc Создать ссылку схемы модели
-	 * @param string $name Название ссыдки
-	 * @param string $model Имя модели
-	 * @param string $field имя поля
-	 * @return Model_Mapper_Scheme_Reference_Abstract
+     * @inheritdoc
+	 * @see Model_Mapper_Scheme_Part_Abstract::set
 	 */
-	public static function set ($name, $model, $field)
+	public function set($name, $model, $field)
 	{
-		$reference = Model_Mapper_Scheme_Reference::byName ($name);
-		$reference->setModel ($model);
-		$reference->setField ($field);
-
+        $serviceLocator = IcEngine::serviceLocator();
+        $schemeReference = $serviceLocator->getService(
+            'modelMapperSchemeReference'
+        );
+		$reference = $schemeReference->byName($name);
+		$reference->setModel($model);
+		$reference->setField($field);
 		return $reference;
 	}
 
 	/**
+     * @inheritdoc
 	 * @see Model_Mapper_Scheme_Part_Abstract::execute
 	 */
-	public function execute ($scheme, $values)
+	public function execute($scheme, $values)
 	{
-		foreach ($values as $name => $params)
-		{
-			$scheme->$name = self::set (
-				$params [0],
-				$params [1],
-				isset ($params [2]) ? $params [2] : null
+		foreach ($values as $name => $params) {
+			$scheme->$name = $this->set(
+				$params[0],
+				$params[1],
+				isset($params[2]) ? $params[2] : null
 			);
 		}
 		return $scheme;

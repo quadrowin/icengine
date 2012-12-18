@@ -1,26 +1,30 @@
 <?php
 
 /**
- * @desc Абстрактный рендер схемы связей модели
- * @author Илья Колесников
+ * Абстрактный рендер схемы связей модели
+ * 
+ * @author morph
+ * @package Ice\Orm
  */
 class Model_Mapper_Scheme_Render_Abstract
 {
 	/**
-	 * @desc Получить имя рендера
-	 * @return string
+	 * Получить имя рендера
+	 * 
+     * @return string
 	 */
-	public function getName ()
+	public function getName()
 	{
-		return substr (get_class ($this), 27);
+		return substr(get_class($this), strlen('Model_Mapper_Scheme_Render_'));
 	}
 
 	/**
-	 * @desc Отрендерить элемент схемы
-	 * @param Model_Mapper_Scheme_Entity $entity
+	 * Отрендерить элемент схемы
+	 * 
+     * @param Model_Mapper_Scheme_State $state
 	 * @return string
 	 */
-	public function render ($entity)
+	public function render($state)
 	{
 
 	}

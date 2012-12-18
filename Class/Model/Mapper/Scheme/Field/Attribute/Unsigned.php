@@ -1,23 +1,19 @@
 <?php
 
 /**
- * @Атрибут поля unsigned для схемы связей модели
- * @author Илья Колесников
+ * Атрибут поля unsigned для схемы связей модели
+ * 
+ * @author morph
+ * @package Ice\Orm
  */
-class Model_Mapper_Scheme_Field_Attribute_Unsigned extends Model_Mapper_Scheme_Field_Attribute_Abstract
+class Model_Mapper_Scheme_Field_Attribute_Unsigned extends 
+Model_Mapper_Scheme_Field_Attribute_Abstract
 {
 	/**
-	 * @see Model_Mapper_Scheme_Field_Attribute_Abstract::filter
-	 */
-	public function filter ($value)
-	{
-		return abs ($value);
-	}
-
-	/**
+     * @inheritdoc
 	 * @see Model_Mapper_Scheme_Field_Attribute_Abstract::validate
 	 */
-	public function validate ($value)
+	public function validate($value)
 	{
 		return $value >= 0;
 	}

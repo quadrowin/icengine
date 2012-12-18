@@ -1,109 +1,118 @@
 <?php
 
 /**
- * @desc Абстрактная схема связей модели
- * @author Илья Колесников
+ * Абстрактная схема связей модели
+ * 
+ * @author morph
  */
-
 class Model_Mapper_Scheme_Abstract
 {
 	/**
-	 * @desc Конфигурация
-	 * @var array
+	 * Конфигурация
+	 * 
+     * @var array
 	 */
-	protected static $_config;
+	protected static $config;
 
 	/**
-	 * @desc Сущности схемы
-	 * @var array
+	 * Модель
+	 * 
+     * @var Model
 	 */
-	protected $_entities;
-
-	/**
-	 * @desc Модель
-	 * @var Model
+	protected $model;
+    
+    /**
+	 * Сущности схемы
+	 * 
+     * @var array
 	 */
-	protected $_model;
+	protected $states;
 
-	public function __get ($name)
+    /**
+     * @inheritdoc
+     */
+	public function __get($name)
 	{
-		if (!isset ($this->_entities [$name]))
-		{
-			throw new Model_Mapper_Scheme_Exception ('Entity had not found');
-		}
-		$entity = $this->_entities [$name];
-		return Model_Mapper_Scheme_Accessor::getAuto ($this, $entity);
+		$state = $this->states[$name];
+        $serviceLocator = IcEngine::serviceLocator();
+        $schemeAccessor = $serviceLocator->getService(
+            'modelMapperSchemeAccessor'
+        );
+		return $schemeAccessor->getAuto($this, $state);
 	}
 
 	/**
-	 * (non-PHPDoc)
+	 * @inheritdoc
 	 */
-	public function __set ($name, $value)
+	public function __set($name, $value)
 	{
 		$class = null;
-		$parents = get_parent_class ($value);
-		if (is_array ($parents))
-		{
-			$class = reset ($parents);
-		}
-		elseif ($parents)
-		{
+		$parents = get_parent_class($value);
+		if (is_array($parents)) {
+			$class = reset($parents);
+		} elseif ($parents) {
 			$class = $parents;
 		}
-		$this->_entities [$name] = new Model_Mapper_Scheme_Entity (
+		$this->states[$name] = new Model_Mapper_Scheme_State(
 			$class, $name, $value
 		);
 	}
 
 	/**
-	 * @desc Получить конфигурацию схемы
-	 * @return array
+	 * Получить конфигурацию схемы
+	 * 
+     * @return array
 	 */
-	public static function config ()
+	public static function config()
 	{
-		if (!is_object (self::$_config))
-		{
-			self::$_config = Config_Manager::get (
-				'Model_Mapper_Scheme',
-				self::$_config
+		if (!is_object(static::$config)) {
+            $serviceLocator = IcEngine::serviceLocator();
+            $configManager = $serviceLocator->getService('configManager');
+			static::$config = $configManager->get(
+				get_called_class(),
+				static::$config
 			);
 		}
-		return self::$_config;
+		return static::$config;
 	}
 
 	/**
-	 * @desc Получить сущности схемы
-	 * @return array
+	 * Возвращает модель
+	 * 
+     * @return Model
 	 */
-	public function entities ()
+	public function getModel()
 	{
-		return $this->_entities;
+		return $this->model;
 	}
 
 	/**
-	 * @desc Возвращает модель
-	 * @return Model
+	 * Получить имя схемы
+	 * 
+     * @return array
 	 */
-	public function getModel ()
+	public function getName()
 	{
-		return $this->_model;
+		return substr(get_class($this), strlen('Model_Mapper_Scheme_'));
 	}
 
 	/**
-	 * @desc Получить имя схемы
-	 * @return array
+	 * Изменяет модель
+	 * 
+     * @param Model $model
 	 */
-	public function getName ()
+	public function setModel($model)
 	{
-		return substr (get_class ($this), 20);
+		$this->model = $model;
 	}
-
-	/**
-	 * @desc Изменяет модель
-	 * @param Model $model
+    
+    /**
+	 * Получить сущности схемы
+	 * 
+     * @return array
 	 */
-	public function setModel ($model)
+	public function states()
 	{
-		$this->_model = $model;
+		return $this->states;
 	}
 }

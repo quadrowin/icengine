@@ -1,19 +1,22 @@
 <?php
 
 /**
- * @desc Абстрактная часть схемы моделей
- * @author Илья Колесников
+ * Абстрактная часть схемы моделей
+ * 
+ * @author morph
+ * @package Ice\Orm
  */
 class Model_Mapper_Scheme_Part_Abstract
 {
 	/**
-	 * @see Model_Mapper_Scheme_Part_Abstract::$_specification
+	 * Спецификации
 	 */
-	protected static $_specification;
+	protected static $specification;
 
 	/**
-	 * @desc Заполнить часть схемы
-	 * @param Model_Mapper_Scheme_Abstract $scheme
+	 * Заполнить часть схемы
+	 * 
+     * @param Model_Mapper_Scheme_Abstract $scheme
 	 * @param Objective $values
 	 * @return Model_Mapper_Scheme_Abstract
 	 */
@@ -23,12 +26,13 @@ class Model_Mapper_Scheme_Part_Abstract
 	}
 
 	/**
-	 * @desc Получить имя
-	 * @return string
+	 * Получить имя
+	 * 
+     * @return string
 	 */
 	public function getName()
 	{
-		return substr(get_class($this), 25);
+		return substr(get_class($this), strlen('Model_Mapper_Scheme_Part_'));
 	}
 
 	/**
@@ -37,6 +41,6 @@ class Model_Mapper_Scheme_Part_Abstract
 	 */
 	public function getSpecification()
 	{
-		return static::$_specification;
+		return static::$specification;
 	}
 }

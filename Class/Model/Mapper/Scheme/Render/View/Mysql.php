@@ -4,11 +4,13 @@
  * Представление рендера схемы связей модели для Mysql
  * 
  * @author morph
+ * @package Ice\Orm
  */
 class Model_Mapper_Scheme_Render_View_Mysql extends 
     Model_Mapper_Scheme_Render_View_Abstract
 {
 	/**
+     * @inheritdoc
 	 * @see Model_Mapper_Scheme_Render_View_Abstract::render
 	 */
 	public static function render($scheme)
@@ -16,7 +18,7 @@ class Model_Mapper_Scheme_Render_View_Mysql extends
 		$model = $scheme->getModel();
 		$modelName = $model->modelName();
         $serviceLocator = IcEngine::serviceLocator();
-		$modelConfig = $serviceLocator->configManager->get(
+		$modelConfig = $serviceLocator->getService('configManager')->get(
             'Model_Mapper_' . $modelName
         );
 		if (!$modelConfig) {

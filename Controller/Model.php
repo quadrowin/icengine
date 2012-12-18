@@ -687,7 +687,7 @@ class Controller_Model extends Controller_Abstract
 	 * @param string $comment
 	 * @param string $author
 	 */
-	public function scheme ($name, $comment, $author)
+	public function scheme ($name, $comment, $author, $fields, $indexes)
 	{
 		$this->task->setTemplate (null);
 
@@ -719,23 +719,26 @@ class Controller_Model extends Controller_Abstract
 
 		echo 'File: ' . $filename . PHP_EOL . PHP_EOL;
 
-		$fields = array (
-			'id'	=> array (
-				'Int',
-				array (
-					'Size'	=> 11,
-					'Not_Null',
-					'Auto_Increment'
-				)
-			)
-		);
-
-		$indexes = array (
-			'id'	=> array (
-				'Primary',
-				array ('id')
-			)
-		);
+        if (!$fields) {
+            $fields = array (
+                'id'	=> array (
+                    'Int',
+                    array (
+                        'Size'	=> 11,
+                        'Not_Null',
+                        'Auto_Increment'
+                    )
+                )
+            );
+        }
+        if (!$indexes) {
+            $indexes = array (
+                'id'	=> array (
+                    'Primary',
+                    array ('id')
+                )
+            );
+        }
 
 		$admin_panel = "'admin_panel' => array (
 			// Сортировки

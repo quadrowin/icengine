@@ -4,13 +4,13 @@ namespace IcEngine\Controller\Manager;
 
 /**
  * Делигат для добавления к действию контроллера статических файлов
- * 
+ *
  * @author morph
  */
 class ControllerManagerDelegeeStatic extends ControllerManagerDelegeeAbstract
 {
     /**
-     * @inheritdoc 
+     * @inheritdoc
      * @see IcEngine\Controller\Manager\ControllerManagerDelegeeAbstract::call
      */
     public function call($controller, $context)
@@ -25,10 +25,26 @@ class ControllerManagerDelegeeStatic extends ControllerManagerDelegeeAbstract
                 if (empty($static['file'])) {
                     continue;
                 }
-                $file = $static['file'];
-                $type = reset($static);
+                $files = $static['file'];
+                if (!is_array($files)) {
+                    $files = array($files => $files);
+                }
+                if (isset($static['dir'])) {
+                    $dir = ltrim($static['dir'], DIRECTORY_SEPARATOR) .
+                        DIRECTORY_SEPARATOR;
+                    foreach ($files as $index => $file) {
+                        $files[$index] = $dir . $file;
+                    }
+                }
+                if (isset($static['type'])) {
+                    $type = $static['type'];
+                } else {
+                    $type = reset($static);
+                }
                 $group = !empty($static['group']) ? $static['group'] : null;
-                $helperViewResource->append($type, array($file, $group));
+                foreach ($files as $file) {
+                    $helperViewResource->append($type, array($file, $group));
+                }
             }
         }
     }

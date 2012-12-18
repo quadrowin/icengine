@@ -103,7 +103,7 @@ class Controller_Abstract
 
     /**
      * Получить аннотацию текущего контроллера
-     * 
+     *
      * @return Annotation_Set
      */
     public function getAnnotations()
@@ -111,7 +111,7 @@ class Controller_Abstract
         return $this->getService('controllerManager')->annotationManager()
             ->getAnnotation($this);
     }
-    
+
     /**
      * Получить текущий входной транспорт
      *
@@ -121,10 +121,10 @@ class Controller_Abstract
 	{
 		return $this->input;
 	}
-    
+
     /**
      * Получить название контроллера без префикса Controller_
-     * 
+     *
      * @return string
      */
     public function getName()
@@ -155,10 +155,10 @@ class Controller_Abstract
         }
         return self::$serviceLocator->getService($serviceName);
     }
-    
+
     /**
      * Получить сервис локатор
-     * 
+     *
      * @return Service_Locator
      */
     public function getServiceLocator()
@@ -201,9 +201,9 @@ class Controller_Abstract
             $controllerManager = $this->getService('controllerManager');
 			$other = $controllerManager->get($controller);
 		}
-        $controller->send(array(
+        $this->input->send(array(
             'origin'    => implode(
-                '/', $controller->getTask()->controllerAction()
+                '/', $this->task->controllerAction()
             )
         ));
 		$this->task->setTemplate(
@@ -242,7 +242,7 @@ class Controller_Abstract
 		$this->input = $input;
 		return $this;
 	}
-    
+
 	/**
 	 * Устанавливает транспорт выходных данных
      *
@@ -254,10 +254,10 @@ class Controller_Abstract
 		$this->output = $output;
 		return $this;
 	}
-    
+
     /**
      * Изменить локатор сервисов
-     * 
+     *
      * @param Service_Locator $serviceLocator
      */
     public function setServiceLocator($serviceLocator)
