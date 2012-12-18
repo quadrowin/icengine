@@ -1,91 +1,82 @@
 <?php
 
 /**
- * @desc Абстрактное представление рендера схемы связей модели
- * @author Илья Колесников
+ * Абстрактное представление рендера схемы связей модели
+ * 
+ * @author morph
+ * @package Ice\Orm
  */
-class Model_Mapper_Scheme_Render_View_Abstract
+class Model_Mapper_Scheme_Render_View_Abstract extends Manager_Abstract
 {
 	/**
-	 * @desc Конфигурация
-	 * @var array
+	 * Конфигурация
+	 * 
+     * @var array
 	 */
-	protected static $_config = array (
-		'models'	=> array (
-			'default'	=> array (
-
-			)
+	protected $config = array(
+		'models'	=> array(
+			'default'	=> array()
 		)
 	);
 
 	/**
-	 * @desc Получить конфигурацию схемы
-	 * @return array
+	 * Получить имя схемы
+	 * 
+     * @return array
 	 */
-	public static function config ()
+	public function getName()
 	{
-		if (!is_object (self::$_config))
-		{
-			self::$_config = Config_Manager::get (
-				get_called_class (),
-				static::$_config
-			);
-		}
-		return self::$_config;
+		return substr(
+            get_class($this), strlen('Model_Mapper_Scheme_Render_View_')
+        );
 	}
 
 	/**
-	 * @desc Получить имя схемы
-	 * @return array
-	 */
-	public function getName ()
-	{
-		return substr (get_class ($this), 27);
-	}
-
-	/**
-	 * @desc Получить отрендеренные части схемы для рендеринга
-	 * @param Model_Mapper_Scheme_Abstract $scheme
+	 * Получить отрендеренные части схемы для рендеринга
+	 * 
+     * @param Model_Mapper_Scheme_Abstract $scheme
 	 * @return string
 	 */
-	public function getParts ($mapper_scheme)
+	public function getParts($mapperScheme)
 	{
-		$model = $mapper_scheme->getModel ();
-		$model_name = $model->modelName ();
-		$mapper_scheme_config = $mapper_scheme->config ();
-		$mapper_scheme_config = !isset ($mapper_scheme_config->$model_name)
-			? $mapper_scheme_config->default
-			: $mapper_scheme_config->$model_name;
-		$parts = array ();
-		$entities = $mapper_scheme->entities ();
-		if (!$entities)
-		{
+		$model = $mapperScheme->getModel();
+		$modelName = $model->modelName();
+		$mapperSchemeConfig = $mapperScheme->config();
+        if (!isset($mapperSchemeConfig->$modelName)) {
+            $mapperSchemeConfig = $mapperSchemeConfig->default;
+        } else {
+            $mapperSchemeConfig = $mapperSchemeConfig->$modelName;
+        }
+		$parts = array();
+		$states = $mapperScheme->states();
+		if (!$states) {
 			return;
 		}
-		foreach ($entities as $name => $entity)
-		{
-			$factory_name = $entity->getValue ()->factoryName ();
-			if (!isset ($parts [$factory_name]))
-			{
-				$parts [$factory_name] = array ();
+        $serviceLocator = IcEngine::serviceLocator();
+        $schemeRender = $serviceLocator->getService('modelMapperSchemeRender');
+		foreach ($states as $name => $state) {
+			$factoryName = $state->getValue()->factoryName();
+			if (!isset($parts[$factoryName])) {
+				$parts[$factoryName] = array();
 			}
-			$render = Model_Mapper_Scheme_Render::byArgs (
-				$mapper_scheme_config->translator,
-				$factory_name,
-				$entity->getValue ()->getName ()
+			$render = $schemeRender->byArgs(
+				$mapperSchemeConfig->translator,
+				$factoryName,
+				$state->getValue()->getName()
 			);
-			$result = $render->render ($entity);
-			$parts [$factory_name][$name] = $result;
+			$result = $render->render($state);
+			$parts[$factoryName][$name] = $result;
 		}
 		return $parts;
 	}
 
 	/**
-	 * @desc Отрендерить схему модели
-	 * @param Model_Mapper_Scheme_Abstract $scheme
+	 * Отрендерить схему модели
+	 * 
+     * @param Model_Mapper_Scheme_Abstract $scheme
 	 * @return string
 	 */
-	public static function render ($scheme)
+	public static function render($scheme)
 	{
 
 	}
