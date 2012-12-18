@@ -654,10 +654,14 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		foreach ($this->items as $item) {
 			if (isset($result[$item[$keyField]]) &&
 				isset($item['data'])) {
-				$result[$item[$keyField]]['data'] = array_merge(
-                    (array) $result[$item[$keyField]]['data'],
-                    $item['data']
-                );
+                if (isset($result[$item[$keyField]]['data'])) {
+                    $result[$item[$keyField]]['data'] = array_merge(
+                        (array) $result[$item[$keyField]]['data'],
+                        $item['data']
+                    );
+                } else {
+                     $result[$item[$keyField]]['data'] = $item['data'];
+                }
 			}
 		}
         return array_values((array) $result);
