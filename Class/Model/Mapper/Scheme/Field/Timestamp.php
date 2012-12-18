@@ -1,16 +1,20 @@
 <?php
 
 /**
- * @desc Тип поля timestamp схемы связей модели
- * @author Илья Колесников
+ * Тип поля timestamp схемы связей модели
+ * 
+ * @author morph
+ * @package Ice\Orm
  */
-class Model_Mapper_Scheme_Field_Timestamp extends Model_Mapper_Scheme_Field_Abstract
+class Model_Mapper_Scheme_Field_Timestamp extends 
+    Model_Mapper_Scheme_Field_Abstract
 {
 	/**
+     * @inheritdoc
 	 * @see Model_Mapper_Scheme_Field_Abstract::validate
 	 */
-	public function validate ($value)
+	public function validate($value)
 	{
-		return is_numeric ($value);
+		return is_numeric($value);
 	}
 }

@@ -1,23 +1,26 @@
 <?php
 
 /**
- * @desc Часть схемы моделей, отвечающая за поля
- * @author Илья Колесников
+ * Часть схемы моделей, отвечающая за поля
+ * 
+ * @author morph
+ * @package Ice\Orm
  */
 class Model_Mapper_Scheme_Part_Field extends Model_Mapper_Scheme_Part_Abstract
 {
 	/**
-	 * @see Model_Mapper_Scheme_Part_Abstract::$_specification
+     * @inheritdoc
 	 */
-	protected static $_specification = 'fields';
+	protected static $specification = 'fields';
 
 	/**
-	 * @desc Создать поле схемы модели
-	 * @param string $name Название поля
+	 * Создать поле схемы модели
+	 * 
+     * @param string $name Название поля
 	 * @param array $attributes Атрибуты
 	 * @return Model_Mapper_Scheme_Field_Abstract
 	 */
-	public static function set($name, array $attributes = array())
+	public function set($name, $attributes = array())
 	{
 		$serviceLocator = IcEngine::serviceLocator();
         $modelMapperSchemeField = $serviceLocator->getService(
@@ -27,10 +30,8 @@ class Model_Mapper_Scheme_Part_Field extends Model_Mapper_Scheme_Part_Abstract
             'modelMapperSchemeFieldAttribute'
         );
         $field = $modelMapperSchemeField->byName($name);
-		foreach ($attributes as $name => $value)
-		{
-			if (is_numeric($name))
-			{
+		foreach ($attributes as $name => $value) {
+			if (is_numeric($name)) {
 				$name = $value;
 				$value = null;
 			}
@@ -42,22 +43,17 @@ class Model_Mapper_Scheme_Part_Field extends Model_Mapper_Scheme_Part_Abstract
 	}
 
 	/**
+     * @inheritdoc
 	 * @see Model_Mapper_Scheme_Part_Abstract::execute
 	 */
 	public function execute($scheme, $values)
 	{
-		foreach ($values as $name => $params)
-		{
-			$attributes = array ();
-			if (!empty ($params[1]))
-			{
-				$attributes = $params[1];
-				$attributes = $attributes ? $attributes->__toArray() : array();
+		foreach ($values as $name => $params) {
+			$attributes = array();
+			if (!empty($params[1])) {
+				$attributes = $params[1] ? $params[1]->__toArray() : array();
 			}
-			$scheme->$name = self::set(
-				$params [0],
-				$attributes
-			);
+			$scheme->$name = $this->set($params[0], $attributes);
 		}
 		return $scheme;
 	}

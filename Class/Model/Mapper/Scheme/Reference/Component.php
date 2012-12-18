@@ -3,16 +3,19 @@
 /**
  * Тип ссылки через Model_Component
  *
- * @author Илья Колесников
+ * @author morph
+ * @package Ice\Orm
  */
-class Model_Mapper_Scheme_Reference_Component extends Model_Mapper_Scheme_Reference_Abstract
+class Model_Mapper_Scheme_Reference_Component extends 
+    Model_Mapper_Scheme_Reference_Abstract
 {
 	/**
+     * @inheritdoc
 	 * @see Model_Mapper_Scheme_Reference_Abstract::data
 	 */
-	public function data($model_name, $id)
+	public function data($modelName, $id)
 	{
-		$model = $this->getService('modelManager')->byKey($model_name, $id);
+		$model = $this->getService('modelManager')->byKey($modelName, $id);
 		if ($model) {
 			$collection = $model->component(
 				substr ($this->getModel(), strlen('Component_'))
