@@ -1,44 +1,41 @@
 <?php
 
 /**
- * @desc Фабрика рендеров схемы моделей
- * @author Илья Колесников
+ * Фабрика рендеров схемы моделей
+ * 
+ * @author morph
+ * @package Ice\Orm
+ * @Service("modelMapperSchemeRender")
  */
 class Model_Mapper_Scheme_Render
 {
 	/**
-	 * @desc Получить рендер по параметрам
-	 * @param string $translator_name Имя траслятор дата сорса
+	 * Получить рендер по параметрам
+	 * 
+     * @param string $translator_name Имя траслятор дата сорса
 	 * @param string $factory_name Имя фабрики сущности
 	 * @param string $name Имя сущности
 	 * @return Model_Mapper_Scheme_Render_Abstract
 	 */
-	public static function byArgs ($translator_name, $factory_name, $name)
+	public function byArgs($translatorName, $factoryName, $name)
 	{
-		$values = array ($translator_name, $factory_name, $name);
-		foreach ($values as $i => $value)
-		{
-			if (!$value)
-			{
-				unset ($values [$i]);
+		$values = array($translatorName, $factoryName, $name);
+		foreach ($values as $i => $value) {
+			if (!$value) {
+				unset($values[$i]);
 			}
 		}
-		return self::byName (implode ('_', $values));
+		return $this->byName(implode('_', $values));
 	}
 
 	/**
-	 * @desc Получить рендер по имени
-	 * @param string $name
+	 * Получить рендер по имени
+	 * 
+     * @param string $name
 	 */
-	public static function byName ($name)
+	public function byName($name)
 	{
-		$class_name = 'Model_Mapper_Scheme_Render_' . $name;
-		if (!Loader::load ($class_name))
-		{
-			throw new Model_Mapper_Scheme_Render_Exception (
-				'Render had not found'
-			);
-		}
-		return new $class_name;
+		$className = 'Model_Mapper_Scheme_Render_' . $name;
+		return new $className;
 	}
 }

@@ -1,39 +1,47 @@
 <?php
 
 /**
- * @desc Абстрактный метод связей модели
+ * Абстрактный метод связей модели
+ * 
+ * @author morph
+ * @package Ice\Orm
  */
 class Model_Mapper_Method_Abstract
 {
 	/**
-	 * @desc Параметры методв
-	 * @var array
+	 * Параметры методв
+	 * 
+     * @var array
 	 */
-	protected $_params;
+	protected $params;
 
 	/**
-	 * @desc Выполнить метод
+	 * Выполнить метод
+     * 
+     * @return Model_Mapper_Method_Abstract
 	 */
-	public function execute ()
+	public function execute()
 	{
 		return $this;
 	}
 
 	/**
-	 * @desc Получить имя метода
-	 * @return string
+	 * Получить имя метода
+	 * 
+     * @return string
 	 */
-	public function getName ()
+	public function getName()
 	{
-		return substr (get_class ($this), 20);
+		return substr(get_class($this), 'Model_Mapper_Method_');
 	}
 
 	/**
-	 * @desc Задать параметры метода
-	 * @param array $params
+	 * Задать параметры метода
+	 * 
+     * @param array $params
 	 */
-	public function setParams ($params)
+	public function setParams($params)
 	{
-		$this->_params = $params;
+		$this->params = $params;
 	}
 }
