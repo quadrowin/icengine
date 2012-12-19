@@ -30,6 +30,9 @@ class Controller_Annotation_Route extends Controller_Abstract
             if (!$hasAnnotation) {
                 continue;
             }
+            if (empty($data['Route']['data'])) {
+                continue;
+            }
             $route = reset($data['Route']['data'][0]);
             $routeData = $data['Route']['data'][0];
             $routeGroup = !empty($data['RouteGroup'])
