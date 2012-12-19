@@ -18,7 +18,7 @@ class Service_Injector_Context extends Service_Injector_Abstract
             if (isset($service['name'])) {
                 $serviceName = $service['name'];
                 $fieldName = reset($service);
-                $serviceData = array($serviceName => $fieldName);
+                $serviceData = array($fieldName => $serviceName);
             }
             foreach ($service as $serviceName => $fieldName) {
                 $fetchedService = $this->serviceLocator->getService(
