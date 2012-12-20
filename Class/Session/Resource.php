@@ -40,7 +40,7 @@ class Session_Resource extends Objective
      */
     public function exists($key)
     {
-        return parent::exists($this->name);
+        return isset($_SESSION[$this->name]);
     }
 
 	/**
