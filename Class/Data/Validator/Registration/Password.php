@@ -30,7 +30,15 @@ class Data_Validator_Registration_Password
 	public function validateEx ($field, $data, $scheme)
 	{
 		$length = strlen ($data->$field);
-		$param = $scheme->$field->__toArray ();
+		if ($scheme->$field instanceof Objective)
+		{
+			$param = $scheme->$field->__toArray ();
+		}
+		else
+		{
+			$param = $scheme->$field;
+		}
+		
 
 		$min = isset ($param ['minLength']) ? $param ['minLength'] : 6;
 		$max = isset ($param ['maxLength']) ? $param ['maxLength'] : 50;
