@@ -9,7 +9,7 @@ class Controller_Abstract
 {
 	/**
 	 * Последний вызванный экшен. В случае, если был вызван replaceAction,
-     * может отличаться от $_task
+     * может отличаться от $task
      *
 	 * @var string
 	 */
