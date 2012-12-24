@@ -1,17 +1,16 @@
 <?php
+
 /**
- *
- * @desc Данные по OpenID пользователя
- * @author Юрий Шведов
- * @package IcEngine
- *
+ * Данные по OpenID пользователя
+ * 
+ * @author goorus, morph
  */
 class User_Loginza extends Model
 {
-
 	/**
-	 * @desc находит данные пользователя по полученному ключу
-	 * @param Authorization_Loginza_Token $token.
+	 * Находит данные пользователя по полученному ключу
+	 * 
+     * @param Authorization_Loginza_Token $token.
 	 * @param boolean $email_search Искать по email. Необходимо, чтобы
 	 * $token содержал не пустое поле email.
 	 * @param boolean $user_search Создать модель, если таковой не существует
@@ -19,72 +18,61 @@ class User_Loginza extends Model
 	 * $token содержал не пустое поле email.
 	 * @return User_Loginza
 	 */
-	public static function byToken (Authorization_Loginza_Token $token,
-		$email_search = true, $user_search = true)
+	public static function byToken($token, $emailSearch = true, 
+        $userSearch = true)
 	{
 		if (!$token->identity) {
-			return null;
+			return;
 		}
 		$modelManager = $this->getService('modelManager');
 		$query = $this->getService('query');
 		$loginza = $modelManager->byQuery(
-			__CLASS__,
-			$query->where('identity', $token->identity)
+			__CLASS__, $query->where('identity', $token->identity)
 		);
-		if (!$loginza && $email_search && $token->email) {
-			$other_loginza = $modelManager->byQuery(
-				__CLASS__,
-				$query->where('email', $token->email)
+        $helperDate = $this->getService('helperDate');
+		if (!$loginza && $emailSearch && $token->email) {
+			$otherLoginza = $modelManager->byQuery(
+				__CLASS__, $query->where('email', $token->email)
 			);
-			if ($other_loginza) {
-				$loginza = new self (array (
-					'User__id'	=> $other_loginza->User__id,
+			if ($otherLoginza) {
+				$loginza = new self(array(
+					'User__id'	=> $otherLoginza->User__id,
 					'identity'	=> $token->identity,
 					'email'		=> $token->email,
 					'provider'	=> $token->provider,
 					'data'		=> $token->data,
-					'createdAt'	=> Helper_Date::toUnix ()
+					'createdAt'	=> $helperDate->toUnix()
 				));
-				return $loginza->save ();
+				return $loginza->save();
 			}
 		}
-
-		if (!$loginza && $user_search && $token->email)
-		{
-			$user = Model_Manager::byQuery (
-				'User',
-				Query::instance ()
-					->where ('email', $token->email)
+		if (!$loginza && $userSearch && $token->email) {
+			$user = $modelManager->byQuery(
+				'User', $query->where('email', $token->email)
 			);
-
-			if ($user)
-			{
-				$loginza = new self (array (
+			if ($user) {
+				$loginza = new self(array(
 					'User__id'		=> $user->id,
 					'identity'		=> $token->identity,
 					'email'			=> $token->email,
 					'provider'		=> $token->provider,
 					'data'			=> $token->data,
-					'createdAt'		=> Helper_Date::toUnix ()
+					'createdAt'		=> $helperDate->toUnix()
 				));
-				return $loginza->save ();
+				return $loginza->save();
 			}
 		}
-
-		if (!$loginza)
-		{
-			$loginza = new self (array (
+		if (!$loginza) {
+			$loginza = new self(array(
 				'User__id'		=> 0,
 				'identity'		=> $token->identity,
 				'email'			=> $token->email,
 				'provider'		=> $token->provider,
 				'data'			=> $token->data,
-				'createdAt'		=> Helper_Date::toUnix ()
+				'createdAt'		=> $helperDate->toUnix()
 			));
-			$loginza->save ();
+			$loginza->save();
 		}
-
 		return $loginza;
 	}
-
 }
