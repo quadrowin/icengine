@@ -1,16 +1,14 @@
 <?php
 
 /**
- * Авторизация через логинзу.
+ * Авторизация через логинзу
  *
- * @author Юрий Шведов
- * @package IcEngine
+ * @author goorus, morph
  */
 class Authorization_Loginza extends Authorization_Abstract
 {
-
 	/**
-	 * (non-PHPdoc)
+	 * @inheritdoc
 	 * @see Authorization_Abstract::authorize()
 	 */
 	public function authorize($data)
@@ -34,22 +32,18 @@ class Authorization_Loginza extends Authorization_Abstract
 	 * @param Authorization_Loginza_Token $token
 	 * @return User|string
 	 */
-	public function autoregister(Authorization_Loginza_Token $token)
+	public function autoregister($token)
 	{
 		if (!$token->email) {
-			return "Data_Validator_Loginza_Token::invalid";
+			return;
 		}
 		$data = $token->data('data');
 		$userService = $this->getService('user');
 		$user = $userService->create(array(
-			'name'		=> $token->extractName(),
+			'name'		=> (string) $token->email,
 			'login'		=> (string) $token->identity,
 			'email'		=> (string) $token->email,
 			'password'	=> md5(time()),
-			'phone'		=>
-				isset($data['phone']) && is_string($data['phone']) ?
-					$data['phone'] :
-					'',
 			'active'	=> 1
 		));
 		$modelManager = $this->getService('modelManager');
@@ -78,7 +72,7 @@ class Authorization_Loginza extends Authorization_Abstract
 	}
 
 	/**
-	 * (non-PHPdoc)
+	 * @inheritdoc
 	 * @see Authorization_Abstract::isRegistered()
 	 */
 	public function isRegistered($login)
@@ -87,7 +81,7 @@ class Authorization_Loginza extends Authorization_Abstract
 	}
 
 	/**
-	 * (non-PHPdoc)
+	 * @inheritdoc
 	 * @see Authorization_Abstract::isValidLogin()
 	 */
 	public function isValidLogin($login)
@@ -96,7 +90,7 @@ class Authorization_Loginza extends Authorization_Abstract
 	}
 
 	/**
-	 * (non-PHPdoc)
+	 * @inheritdoc
 	 * @see Authorization_Abstract::findUser()
 	 */
 	public function findUser($data)
@@ -106,7 +100,7 @@ class Authorization_Loginza extends Authorization_Abstract
 		);
 		$token = $authorizationLoginzaToken->tokenData();
 		$userLoginza = $this->getService('userLoginza');
-		$loginza = $userLoginza->byToken($token);
+		$loginza = $userLoginza->byToken($data);
 		return $loginza ? $loginza->User : null;
 	}
 }
