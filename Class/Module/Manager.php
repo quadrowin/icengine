@@ -188,7 +188,8 @@ class Module_Manager extends Manager_Abstract
 			if (empty($name)) {
 				continue;
 			}
-			$this->addModule($name);
+            $moduleName = reset($name);
+			$this->addModule($moduleName);
 		}
     }
 
