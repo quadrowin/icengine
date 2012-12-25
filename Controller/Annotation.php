@@ -17,7 +17,9 @@ class Controller_Annotation extends Controller_Abstract
         'methods'           => array(
             'Route', 'Cache'
         ),
-        'properties'        => array()
+        'properties'        => array(
+            'Service'
+        )
     );
     
     /**
@@ -134,16 +136,17 @@ class Controller_Annotation extends Controller_Abstract
                                 if (is_numeric($subAnnotationName)) {
                                     continue;
                                 }
-                                if (strpos($subAnnotationName, $delegee) 
-                                    !== false) {
-                                    $delegeeData[$delegee][$key]
-                                    [$subAnnotationName] = 
-                                    array(
-                                        'class' => $className,
-                                        'part'  => $annotationName,
-                                        'data'  => $subData
-                                    );
+                                if (strpos($subAnnotationName, $delegee) == 
+                                    false) {
+                                    continue;
                                 }
+                                $delegeeData[$delegee][$key]
+                                [$subAnnotationName] = 
+                                array(
+                                    'class' => $className,
+                                    'part'  => $annotationName,
+                                    'data'  => $subData
+                                );
                             }
                         }
                     }
