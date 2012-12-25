@@ -136,7 +136,7 @@ class Controller_Annotation extends Controller_Abstract
                                 if (is_numeric($subAnnotationName)) {
                                     continue;
                                 }
-                                if (strpos($subAnnotationName, $delegee) == 
+                                if (strpos($subAnnotationName, $delegee) === 
                                     false) {
                                     continue;
                                 }
