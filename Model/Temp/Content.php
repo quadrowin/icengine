@@ -1,31 +1,30 @@
 <?php
 
 /**
- *
- * @desc Временный контент - специальная модель, предназначенная для
+ * Временный контент - специальная модель, предназначенная для
  * хранения дополнительной информации о форме для редактирования.
- * @author Гурус
- * @package IcEngine
+ * 
+ * @author goorus, morph
  * @Service("tempContent")
  *
  */
 class Temp_Content extends Model
 {
-
 	/**
-	 * Дата
+	 * Данные
 	 *
 	 * @var type
 	 */
-	protected $_data = null;
+	protected $data = null;
 
 	/**
-	 * @desc Созданные за этот запрос
-	 * @param 0 = name
+	 * Созданные за этот запрос
+	 * 
+     * @param 0 = name
 	 * @param 1 = value
 	 * @var array
 	 */
-	protected $_created = array ();
+	protected $created = array ();
 
 	/**
 	 * Устанавливаем дату, ключ = значение
@@ -33,11 +32,11 @@ class Temp_Content extends Model
 	 * @param string $key
 	 * @param string $value
 	 */
-	protected function _setAttr($key, $value)
+	protected function setAttr($key, $value)
 	{
-		$this->_data[$key] = $value;
+		$this->data[$key] = $value;
 		$this->update(array(
-			'json' => json_encode($this->_data)
+			'json' => urlencode(json_encode($this->data))
 		));
 	}
 
@@ -48,8 +47,8 @@ class Temp_Content extends Model
 	 */
 	public function attr($key, $value = null)
 	{
-		if (is_null($this->_data)) {
-			$this->_data = json_decode($this->json, true);
+		if (is_null($this->data)) {
+			$this->data = json_decode(urlencode($this->json), true);
 		}
 		$args = func_get_args();
 		if (count($args) == 1 && !is_array($args[0])) {
