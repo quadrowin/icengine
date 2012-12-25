@@ -49,6 +49,9 @@ class Service_Source
     protected function buildService($serviceName, $serviceData)
     {
         $className = $serviceData['class'];
+        if (!$className && empty($serviceData['source'])) {
+            return;
+        }
         $object = null;
         if (!empty($serviceData['source']) || !empty($serviceData['args'])) {
             $args = !empty($serviceData['args']) ? $serviceData['args'] :
@@ -197,6 +200,9 @@ class Service_Source
         }
         if (empty($serviceData['isAbstract'])) {
             $service = $this->buildService($serviceName, $serviceData);
+            if (!$service) {
+                return null;
+            }
         } 
         $instanceCallback = array();
         if (!empty(self::$services[$serviceName]['instanceCallback'])) {
