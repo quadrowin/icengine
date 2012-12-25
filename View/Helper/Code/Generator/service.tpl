@@ -11,7 +11,7 @@ return array(
         {if !empty($service.args)}
         'args'  => array(
             {foreach from=$service.args item="arg" name="args"}
-            {$arg}{if !$smarty.foreach.args.last},{/if}
+            {if is_numeric($arg) || is_bool($arg)}{$arg}{else}'{$arg}'{/if}{if !$smarty.foreach.args.last},{/if}
             {/foreach}
         ),
         {/if}
