@@ -9,7 +9,7 @@ class Controller_Abstract
 {
 	/**
 	 * Последний вызванный экшен. В случае, если был вызван replaceAction,
-     * может отличаться от $_task
+     * может отличаться от $task
      *
 	 * @var string
 	 */
@@ -61,7 +61,7 @@ class Controller_Abstract
 	 * взято из $text.
 	 * @param string $tpl [optional] Шаблон.
 	 */
-	protected function sendError($text, $method = null, $tpl = true)
+	protected function sendError($text, $method = null, $tpl = false)
 	{
 		$this->output->send(array(
 			'error'	=> array(
@@ -69,9 +69,6 @@ class Controller_Abstract
 				'tpl'	=> $tpl
 			),
 		));
-		if (!$method) {
-			$method = $text;
-		}
 		if (!is_bool($tpl)) {
 			$this->task->setClassTpl($method, $tpl);
 		} elseif ($method) {

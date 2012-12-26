@@ -115,7 +115,6 @@ class Controller_Annotation_Route extends Controller_Abstract
                 if (in_array($route['route'], $routeIds)) {
                     continue;
                 }
-                $routeId[] = $route['route'];
                 $source = &$routesWithoutGroups;
                 if (!empty($route['group'])) {
                     $routeGroup = $route['group'];
