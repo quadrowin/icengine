@@ -139,7 +139,7 @@ class Helper_Image
 	{
 		$this->initConfig();
 		return
-			(isset ($this->config['types']) && 
+			(isset ($this->config['types']) &&
             isset ($this->config['types'][$type])) ?
 			$this->config['types'][$type]->asArray() :
 			$this->config['types']['default']->asArray();
@@ -261,7 +261,7 @@ class Helper_Image
         $helperImageResize = $locator->getService('helperImageResize');
 		$host = $helperSiteLocation->getLocation();
         $userService = $locator->getService('user');
-        $helperDate = $locator->getService('date'); 
+        $helperDate = $locator->getService('date');
         $file = $requestService->fileByIndex(0);
 		if ($host == 'localhost') {
 			$host = '';
@@ -295,7 +295,7 @@ class Helper_Image
 			array (
 				'name'		=> $type,
 				'key'		=> $image->key(),
-				'prefix'	=> Helper_Image::ORIGINAL,
+				'prefix'	=> self::ORIGINAL,
 				'ext'		=> $file->extension
 			)
 		);
@@ -363,11 +363,11 @@ class Helper_Image
 				$attributes[$key] = $requestService->post('attr_' . $key);
 			}
 		}
-		$sizing ['sizes'][$this->ORIGINAL] = array(
+		$sizing ['sizes'][self::ORIGINAL] = array(
 			'width'		=> $info[0],
 			'height'	=> $info[1]
 		);
-        $filenames [$this->ORIGINAL] = $original;
+        $filenames [self::ORIGINAL] = $original;
 		$i = 0;
 		foreach ($sizing ['sizes'] as $key => $size)
 		{
