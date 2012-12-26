@@ -66,7 +66,11 @@ class Helper_Array
                 continue;
             }
 			foreach ($filter as $field => $value) {
-                if (!isset($row[$field])) {
+                $fieldModificator = false;
+                if (strpos($field, '<') || strpos($field, '>')) {
+                    $fieldModificator = true;
+                }
+                if (!isset($row[$field]) && !$fieldModificator) {
                     $valid = false;
                     break;
                 }
@@ -137,7 +141,7 @@ class Helper_Array
 		}
 
 		$inColumn = ceil($rowsCount / $colsCount);
-		
+
 		if (empty($blockMark))
 		{
 			// без блоков
