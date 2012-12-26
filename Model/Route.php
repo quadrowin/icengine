@@ -25,8 +25,14 @@ class Route extends Model_Child
     /**
      * Провайдер для кэширования роутов
      * 
-     * @Service("routeCache",args={"Route_Cache"},
-     * source={name="dataProviderManager",method="get"})
+     * @Service(
+     *      "routeCache",
+     *      args={"Route_Cache"},
+     *      source={
+     *          name="dataProviderManager",
+     *          method="get"
+     *      }
+     * )
      * @var Data_Provider_Abstract
      */
     protected $provider;
