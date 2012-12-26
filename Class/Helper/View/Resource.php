@@ -41,7 +41,7 @@ class Helper_View_Resource
 			self::JS		=> '.js'
 		),
 		'packTemplates'	=> array(
-			self::CSS	=> '<link href="{$filename}" type="text/css" rel="stylesheet" />',
+			self::CSS	=> '<style type="text/css">@import url("{$filename}")</style>',
 			self::JS		=> '<script type="text/javascript" src="{$filename}"></script>'
 		),
 		'path'			=> 'cache/static/',

@@ -87,6 +87,7 @@ class Annotation_Source_Standart extends Annotation_Source_Simple
         $parts = explode(',', $value);
         $markedItems = array();
         $currentString = null;
+        $count = count($parts);
         foreach ($parts as $i => $part) {
             if (in_array($i, $markedItems)) {
                 continue;
@@ -101,7 +102,9 @@ class Annotation_Source_Standart extends Annotation_Source_Simple
                 if ($i == count($parts) - 1) {
                     continue;
                 }
-                $currentString = $parts[$i] . ',' . $parts[$i + 1];
+                if ($i < $count - 1) {
+                    $currentString = $parts[$i] . ',' . $parts[$i + 1];
+                }
                 $parts[$i + 1] = $currentString;
                 unset($parts[$i]);
             } else {
