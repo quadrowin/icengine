@@ -130,7 +130,6 @@ class Annotation_Source_Standart extends Annotation_Source_Simple
             $currentName = '';
             $currentValue = '';
             $valueChanged = false;
-            $valueFetched = false;
             $collectionValue = false;
             $hasEqual = false;
             for ($i = 0, $length = strlen($part); $i < $length; $i++) {
@@ -148,7 +147,6 @@ class Annotation_Source_Standart extends Annotation_Source_Simple
                             }
                             $source[$currentName] = $currentValue;
                         }
-                        $valueFetched = true;
                         $currentName = '';
                         $currentValue = '';
                         $valueChanged = false;
@@ -163,7 +161,6 @@ class Annotation_Source_Standart extends Annotation_Source_Simple
                             break;
                         }
                         $collectionValue = false; 
-                        $valueFetched = false;
                         end($stack);
                         $last = current($stack);
                         if ($currentName) {
@@ -181,11 +178,10 @@ class Annotation_Source_Standart extends Annotation_Source_Simple
                             $currentValue = $valueChanged 
                                 ? $currentValue : $currentName;
                         }
-                        if (!$valueFetched && $currentName) {
+                        if ($currentName) {
                             $source[$currentName] = $currentValue;
                             $currentName = '';
                             $currentValue = '';
-                            $valueFetched = true;
                             $valueChanged = false;
                             $collectionValue = false; 
                         }
@@ -203,7 +199,6 @@ class Annotation_Source_Standart extends Annotation_Source_Simple
             }
             if ($currentName) {
                 $source[$currentName] = $currentValue;
-                $valueFetched = true;
                 $collectionValue = false;
             }
         }
