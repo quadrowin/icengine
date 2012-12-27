@@ -116,7 +116,8 @@ class Controller_Authorization extends Controller_Abstract
 	}
 
 	/**
-	 * @desc Авторизация.
+	 * Авторизация.
+     * 
 	 * @param string login Логин.
 	 * @param string password Пароль.
 	 * @param string redirect [optional] Редирект после успешной авторизации.
@@ -181,6 +182,12 @@ class Controller_Authorization extends Controller_Abstract
 
 	/**
 	 * Выход
+     * 
+     *  @Route(
+     *      "/logout/",
+     *      "name"="logoutPage",
+     *      "weight"=10
+     * )
 	 */
 	public function logout()
 	{
