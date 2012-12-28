@@ -9,10 +9,17 @@ class Controller_Content_Abstract extends Controller_Abstract
 {
 	/**
 	 * Форма создания контента
+     * 
+     * @Route(
+     *      "/content/create",
+     *      "name"="contentCreatePage",
+     *      "weight"=20
+     * )
+     * @Context("tempContent")
 	 */
-	public function create($contentId, $categoryId, $referer)
+	public function create($contentId, $categoryId, $referer, $context)
 	{
-		$user = User::getCurrent ();
+		$user = $context->user->getCurrent();
 		if (!$user->hasRole ('editor')) {
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
@@ -29,30 +36,35 @@ class Controller_Content_Abstract extends Controller_Abstract
 		Registry::set ('category', $category);
 		$extending = $modelManager->get ($category->controller, $contentId);
 		Loader::load ('Temp_Content');
-		$tc = Temp_Content::create ($this, 'Content');
+		$tc = $context->tempContent->create($this, 'Content');
 		$tc->attr (array (
 			'referer'			=> $referer,
 			'contentId'			=> $contentId,
 			'categoryId'		=> $category->key ()
 		));
-		$this->_output->send (array (
+		$this->output->send (array (
 			'tc'			=> $tc,
 			'content'		=> $content,
 			'category'		=> $category,
 			'referer'		=> $referer
 		));
-		$data = $extending->beforeCreate ($this->_input);
+		$data = $extending->beforeCreate($this->input);
 		if ($data) {
-			$this->_output->send ($data);
+			$this->output->send ($data);
 		}
-		$this->_task->setTemplate (
+		$this->task->setTemplate (
 			'Controller/' . str_replace ('_', '/', $category->controller) .
 			'/create'
 		);
 	}
-
+    
 	/**
 	 * Удаление контента
+     * 
+     * @Route(
+     *      "/content/delete",
+     *      "weight"=20
+     * )
 	 */
 	public function delete($contentId, $referer)
 	{
@@ -151,6 +163,11 @@ class Controller_Content_Abstract extends Controller_Abstract
 
 	/**
 	 * Сохранить контент
+     * 
+     * @Route(
+     *      "/content/save/",
+     *      "weight"=20
+     * )
 	 */
 	public function save($title, $short, $text, $sort, $url, $utcode)
 	{

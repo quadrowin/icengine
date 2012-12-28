@@ -29,7 +29,7 @@ return array(
 {/if}
 
 {foreach from=$route item="i" name="field" key="field"}
-            '{$field}'          => {if !is_array($i)}{if is_numeric($i) || is_bool($i)}{$i}{else}'{$i}'{/if}{if !$smarty.foreach.field.last},
+            '{$field}'          => {if !is_array($i)}{if is_numeric($i) || is_bool($i) || in_array($i, array('true', 'false'))}{$i}{else}'{$i}'{/if}{if !$smarty.foreach.field.last},
 {/if}
 
 {else}array(
@@ -37,12 +37,12 @@ return array(
 {if is_numeric($subfield)}
                 '{$j}'
 {else}
-                '{$subfield}'   => {if !is_array($j)}{if is_numeric($j) || is_bool($j)}{$j}{else}'{$j}'{/if}{if !$smarty.foreach.subfield.last},
+                '{$subfield}'   => {if !is_array($j)}{if is_numeric($j) || is_bool($j) || in_array($j, array('true', 'false'))}{$j}{else}'{$j}'{/if}{if !$smarty.foreach.subfield.last},
 {/if}
 {else}
     array(
 {foreach from=$j item="k" key="subSubField" name="subSubField"}
-                    '{$subSubField}'    => {if is_numeric($k) || is_bool($k)}{$k}{else}'{$k}'{/if}{if !$smarty.foreach.subSubField.last},
+                    '{$subSubField}'    => {if is_numeric($k) || is_bool($k) || in_array($k, array('true', 'false'))}{$k}{else}'{$k}'{/if}{if !$smarty.foreach.subSubField.last},
 {/if}
 
 {/foreach}

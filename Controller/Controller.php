@@ -10,7 +10,18 @@ class Controller_Controller extends Controller_Abstract
 {
 
 	/**
-	 * @desc
+	 * Ajax вызов контроллера
+     * 
+     * @Route(
+     *      "/Controller/ajax/",
+     *      "name"="ajaxPage",
+     *      "weight"=10,
+     *      "components"={
+     *          "params"={
+     *              "View_Render__id"=3
+     *          }
+     *      }
+     * )
 	 */
 	public function ajax($call, $back, $params)
 	{
