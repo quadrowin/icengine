@@ -69,7 +69,8 @@ class Paginator
 	 * @param integer $full_count Полное количество элементов
 	 * @param boolean $notGet ЧПУ стиль
 	 */
-	public function __construct($page, $perPage = 30, $total = 0, $notGet = false)
+	public function __construct($page, $perPage = 30, 
+        $total = 0, $notGet = false)
 	{
 		$this->page = $page;
 		$this->perPage = $perPage;
