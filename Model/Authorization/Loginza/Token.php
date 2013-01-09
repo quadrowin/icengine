@@ -54,7 +54,7 @@ class Authorization_Loginza_Token extends Model
 		// Успешная авторизация
 		self::$current->data('data', $data);
 		self::$current->set(array (
-			'data'		=> $result,
+			'result'		=> $result,
 			'email'		=> isset($data['email']) ? $data['email'] : '',
 			'identity'	=> $data['identity'],
 			'provider'	=> isset($data['provider']) ? $data['provider'] : ''
