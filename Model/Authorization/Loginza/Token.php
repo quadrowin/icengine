@@ -39,7 +39,7 @@ class Authorization_Loginza_Token extends Model
             return self::$current;
         }
 		self::$current = new self(array(
-			'time'		=> $this->getService('date')->toUnix(),
+			'time'		=> $this->getService('helperDate')->toUnix(),
 			'token'		=> $token,
 		));
 		$url = str_replace(
