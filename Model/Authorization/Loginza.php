@@ -98,9 +98,9 @@ class Authorization_Loginza extends Authorization_Abstract
 		$authorizationLoginzaToken = $this->getService(
 			'authorizationLoginzaToken'
 		);
-		$token = $authorizationLoginzaToken->tokenData();
+		$token = $authorizationLoginzaToken->tokenData($data);
 		$userLoginza = $this->getService('userLoginza');
-		$loginza = $userLoginza->byToken($data);
+		$loginza = $userLoginza->byToken($token);
 		return $loginza ? $loginza->User : null;
 	}
 }
