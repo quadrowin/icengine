@@ -12,7 +12,7 @@ class Controller_Annotation extends Controller_Abstract
      */
     protected $config = array(
         'class'             => array(
-            'Service'
+            'Orm', 'Service'
         ),
         'methods'           => array(
             'Route', 'Cache'
@@ -44,7 +44,7 @@ class Controller_Annotation extends Controller_Abstract
     /**
      * Обновить аннотации
      */
-    public function update($path, $verbose, $context)
+    public function update($path, $verbose, $author, $context)
     {
         $this->task->setTemplate(null);
         $user = $context->user->getCurrent();
@@ -122,6 +122,10 @@ class Controller_Annotation extends Controller_Abstract
                 foreach ($annotationData as $annotationName => $data) {
                     foreach ($delegees[$delegeeType] as $delegee) {
                         if (strpos($annotationName, $delegee) === 0) {
+                            if (is_string($data)) {
+                                $annotationName = $data;
+                                $data = array(0);
+                            }
                             $keys = array_keys($data);
                             if (is_numeric($keys[0])) {
                                 $delegeeData[$delegee][$className]
@@ -132,6 +136,9 @@ class Controller_Annotation extends Controller_Abstract
                             }
                         } elseif ($data) {
                             $key = $className . '/' . $annotationName;
+                            if (!is_array($data)) {
+                                continue;
+                            }
                             foreach ($data as $subAnnotationName => $subData) {
                                 if (is_numeric($subAnnotationName)) {
                                     continue;
@@ -157,7 +164,8 @@ class Controller_Annotation extends Controller_Abstract
             $controllerName = 'Annotation_' . $delegeeName;
             $context->controllerManager->call(
                 $controllerName, 'update', array(
-                    'data'  => $data
+                    'data'      => $data,
+                    'author'    => $author
                 )
             );
         }
