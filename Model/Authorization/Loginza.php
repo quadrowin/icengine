@@ -37,20 +37,31 @@ class Authorization_Loginza extends Authorization_Abstract
 		if (!$token->email) {
 			return;
 		}
+        $identity = (string) $token->identity;
+        $email = (string) $token->email;
 		$data = $token->data('data');
 		$userService = $this->getService('user');
-		$user = $userService->create(array(
-			'firstName'		=> (string) $token->email,
-			'login'		=> (string) $token->identity,
-			'email'		=> (string) $token->email,
-			'password'	=> md5(time()),
-			'active'	=> 1
-		));
 		$modelManager = $this->getService('modelManager');
-		$query = $this->getService('query');
-		$ul = $modelManager->byKey(
+        $user = $modelManager->byOptions(
+            'User',
+            array(
+                'name'  => 'Login',
+                'value' => $identity
+            )
+        );
+        if (!$user) {
+            $user = $userService->create(array(
+                'firstName'		=> $email,
+                'login'         => $identity,
+                'email'         => $email,
+                'password'      => md5(time()),
+                'active'        => 1
+            ));
+        }
+		$queryBuilder = $this->getService('query');
+		$ul = $modelManager->byQuery(
 			'User_Loginza',
-			$query->where('identity', (string) $token->identity)
+			$queryBuilder->where('identity', $identity)
 		);
 		if ($ul) {
 			$ul->update(array(
@@ -60,8 +71,8 @@ class Authorization_Loginza extends Authorization_Abstract
 			$helperDate = $this->getService('helperDate');
 			$ul = new User_Loginza(array(
 				'User__id'	=> $user->key(),
-				'identity'	=> (string) $token->identity,
-				'email'		=> (string) $token->email,
+				'identity'	=> $identity,
+				'email'		=> $email,
 				'provider'	=> (string) $token->provider,
 				'result'		=> json_encode($data),
 				'createdAt'	=> $helperDate->toUnix()
