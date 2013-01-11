@@ -696,25 +696,36 @@ class Controller_Model extends Controller_Abstract
 	}
 
 	/**
-	 * @desc Создает схему модели
-	 * @param string $name
+	 * Создает схему модели
+	 * 
+     * @param string $name
 	 * @param string $comment
 	 * @param string $author
 	 */
-	public function scheme ($name, $comment, $author, $fields, $indexes)
+	public function scheme($name, $comment, $author, $fields, $indexes,
+        $references)
 	{
-		$this->task->setTemplate (null);
-
-		if (!$name)
-		{
+		$this->task->setTemplate(null);
+		if (!$name) {
 			echo 'Scheme must contains name.' . PHP_EOL;
 			return;
 		}
-		$dir = IcEngine::root () . 'Ice/Config/Model/Mapper/';
-		$name_dir = explode ('_', $name);
+        $task = $this->getService('controllerManager')->call(
+            'Annotation_Orm', 'create', array(
+                'className' => $name
+            )
+        );
+        $buffer = $task->getTransaction()->buffer();
+        if (isset($buffer['modelScheme'])) {
+            $comment = $buffer['modelScheme']['comment'];
+            $fields = $buffer['modelScheme']['fields'];
+            $indexes = $buffer['modelScheme']['indexes'];
+            $references = $buffer['modelScheme']['references'];
+        } 
+		$dir = IcEngine::root() . 'Ice/Config/Model/Mapper/';
+		$name_dir = explode('_', $name);
 		$filename = array_pop ($name_dir) . '.php';
-		if (is_file ($filename))
-		{
+		if (is_file ($filename)) {
 			return;
 		}
 		$current_dir = $dir;
@@ -730,7 +741,9 @@ class Controller_Model extends Controller_Abstract
 			}
 		}
 		$filename = $current_dir . $filename;
-
+        if (file_exists($filename)) {
+            return;
+        }
 		echo 'File: ' . $filename . PHP_EOL . PHP_EOL;
 
         if (!$fields) {
@@ -836,7 +849,8 @@ class Controller_Model extends Controller_Abstract
 					'author'	=> $author,
 					'comment'	=> $comment,
 					'fields'	=> $fields,
-					'indexes'	=> $indexes,
+					'indexes'       => $indexes,
+                    'references'    => $references,
 					'admin_panel'	=> $admin_panel
 				)
 			);
@@ -844,6 +858,10 @@ class Controller_Model extends Controller_Abstract
 		echo $output;
 
 		file_put_contents ($filename, $output);
+        
+        $this->output->send(array(
+            'success'   => true
+        ));
 	}
 
 	/**
