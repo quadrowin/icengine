@@ -66,7 +66,7 @@ class Event_Manager
             if (IcEngine::getLoader()->tryLoad($className)) {
                 $signal = new $className;
             } else {
-                $signal = new Event_Signal;
+                $signal = new Event_Signal(array(), $signalName);
             }
             self::$signals[$signalName] = $signal;
 		}

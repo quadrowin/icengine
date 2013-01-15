@@ -107,7 +107,7 @@ class Annotation_Source_Simple extends Annotation_Source_Abstract
 	 * @param string $string
 	 * @return array
 	 */
-	protected function parse($string)
+	public function parse($string)
 	{
 		$result = array();
 		$parts = $this->extract($string);
