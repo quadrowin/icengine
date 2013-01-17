@@ -231,13 +231,13 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 		}
 		$m = $this->queryMethods[$query->type()];
 		$result = $this->{$m}($query, $options);
-		if ($this->_errno) {
+		if ($this->errno) {
 			throw new Exception(
 				$this->error . "\n" . $this->sql,
 				$this->errno
 			);
 		}
-		if (!$this->_errno && is_null($result)) {
+		if (!$this->errno && is_null($result)) {
 			$result = array();
 		}
 		$finish = microtime(true);
