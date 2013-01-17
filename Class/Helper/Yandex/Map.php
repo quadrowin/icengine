@@ -1,12 +1,12 @@
 <?php
+
 /**
+ * Хелпер для работы с яндекс картами
  *
- * @desc Хелпер для работы с яндекс картами.
- * @author Yury Shvedov
- * @package IcEngine
- * @Service("helperYMaps")
+ * @author Yury Shvedov, neon
+ * @Service("helperYandexMap")
  */
-class Helper_YMaps
+class Helper_Yandex_Map
 {
 	/**
 	 * @desc Получить названия ближайших метро
@@ -32,7 +32,7 @@ class Helper_YMaps
 			return null;
 		}
 
-        // яндекс возвращает JS-коллбек, выдираем из него вызовы 
+        // яндекс возвращает JS-коллбек, выдираем из него вызовы
         // функции GR с описанием ближайших метро
         preg_match_all('/GR\(\[.+?\}{5}\)/', $response, $matches);
 
@@ -66,7 +66,7 @@ class Helper_YMaps
         }
 
         return $closest_metros;
-        
+
 //		$matches = array ();
 //		preg_match_all (
 //			"#метро ([^']+)#u",
@@ -173,7 +173,8 @@ class Helper_YMaps
 	}
 
 	/**
-	 * @desc Альтернативный метод расчета расстояния.
+	 * Альтернативный метод расчета расстояния
+     *
 	 * Функция найдена на просторах инета, в целом результаты не сильно
 	 * отличаются от функции яндекса.
 	 * @param float $long1
@@ -182,42 +183,31 @@ class Helper_YMaps
 	 * @param float $lat2
 	 * @return float
 	 */
-	public static function distanceAlt ($long1, $lat1, $long2, $lat2)
+	public function distanceAlt($long1, $lat1, $long2, $lat2)
 	{
 		static $D2R = 0.017453;
-		static $R2D = 57.295781;
-		static $a  = 6378137.0;
-		static $b  = 6356752.314245;
-		static $e2 = 0.006739496742337;
-		static $f  = 0.003352810664747;
-
+		static $a   = 6378137.0;
+		static $e2  = 0.006739496742337;
 		$fdLambda = ($long1 - $long2) * $D2R;
-		$fdPhi  = ($lat1 - $lat2) * $D2R;
-
+		$fdPhi = ($lat1 - $lat2) * $D2R;
 		$fPhimean = (($lat1 + $lat2) / 2.0) * $D2R;
-
-		$fTemp  = 1 - $e2 * (pow (sin ($fPhimean), 2));
-		$fRho  = ($a * (1 - $e2)) / pow ($fTemp, 1.5);
-		$fNu  = $a / (
+		$fTemp = 1 - $e2 * (pow(sin($fPhimean), 2));
+		$fRho = ($a * (1 - $e2)) / pow($fTemp, 1.5);
+		$fNu = $a / (
 			sqrt (1 - $e2 *
-			pow (sin ($fPhimean), 2))
+			pow(sin($fPhimean), 2))
 		);
-
-		$fz   = sqrt (
-			pow (sin ($fdPhi / 2.0), 2) + cos ($lat2 * $D2R) *
-			cos ($lat1 * $D2R) * pow (sin ($fdLambda / 2.0), 2)
+		$fz = sqrt(
+			pow(sin($fdPhi / 2.0), 2) + cos($lat2 * $D2R) *
+			cos($lat1 * $D2R) * pow(sin($fdLambda / 2.0), 2)
 		);
-		$fz   = 2 * asin ($fz);
-
-		$fAlpha  = cos ($lat2 * $D2R) * sin ($fdLambda) * 1 / sin ($fz);
-		$fAlpha  = asin ($fAlpha);
-
-		$fR   =
-			($fRho * $fNu) / (
-				($fRho * pow (sin ($fAlpha), 2)) +
-				($fNu * pow (cos ($fAlpha), 2))
-			);
-
+		$fzSquarted = 2 * asin($fz);
+		$fAlpha = cos($lat2 * $D2R) * sin($fdLambda) * 1 / sin($fzSquarted);
+		$fAlphaPrepared = asin($fAlpha);
+		$fR = ($fRho * $fNu) / (
+            ($fRho * pow(sin($fAlphaPrepared), 2)) +
+            ($fNu * pow(cos($fAlphaPrepared), 2))
+        );
 		return $fz * $fR;
 	}
 
