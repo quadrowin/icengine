@@ -37,10 +37,9 @@ class DDS
 			if ($fromParts){
 				$fromPart = reset($fromParts);
 				$from = $fromPart[Query::TABLE];
-			}
-			if ($fromPartTruncate) {
+			} elseif ($fromPartTruncate) {
 				$from = reset($fromPartTruncate);
-			} else {
+			} elseif ($fromPartUpdate) {
 				$from = $fromPartUpdate;
 			}
             $scheme = IcEngine::serviceLocator()->getService('modelScheme');

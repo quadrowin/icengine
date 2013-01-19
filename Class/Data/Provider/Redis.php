@@ -244,9 +244,12 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 		}
         $keys = array();
         foreach ($this->connections as $connection) {
-            $connectionKeys = $connection->keys(
-				$this->keyEncode($pattern) . '*'
-			);
+            if (strlen($pattern) > 1 &&
+                $pattern[strlen($pattern) - 1] === '*') {
+                $pattern = rtrim($pattern, '*');
+            }
+            $key = $this->keyEncode($pattern) . '*';
+            $connectionKeys = $connection->keys($key);
             if (!$connectionKeys) {
                 continue;
             }

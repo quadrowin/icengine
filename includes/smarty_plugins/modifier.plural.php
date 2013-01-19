@@ -1,19 +1,20 @@
 <?php
 
 /**
+ * Выводит слово с нужным окончанием
  *
- * @param type $string
- * @param type $forms
- * @return type
+ * @param int $number
+ * @param array $forms
+ * @return string
  */
-function smarty_modifier_plural($string, $forms)
+function smarty_modifier_plural($number, $forms)
 {
 	$locator = IcEngine::serviceLocator();
 	$viewHelperManager = $locator->getService('viewHelperManager');
 	return $viewHelperManager->get(
 		'Plural',
 		array(
-			'value'	=> $string,
+			'value'	=> $number,
 			'forms'	=> $forms
 		)
 	);
