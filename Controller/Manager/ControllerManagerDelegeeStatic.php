@@ -41,9 +41,15 @@ class ControllerManagerDelegeeStatic extends ControllerManagerDelegeeAbstract
                 } else {
                     $type = reset($static);
                 }
+                $params = array();
+                if (isset($static['params'])) {
+                    $params = $static['params'];
+                }
                 $group = !empty($static['group']) ? $static['group'] : 'default';
                 foreach ($files as $file) {
-                    $helperViewResource->append($type, array($file, $group));
+                    $helperViewResource->append(
+                        $type, array($file, $group, $params)
+                    );
                 }
             }
         }
