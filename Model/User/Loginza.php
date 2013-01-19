@@ -32,7 +32,9 @@ class User_Loginza extends Model
             if ($userSearch) {
                 $user = $modelManager->byQuery(
                     'User',
-                    $queryBuilder->where('email', $token->email)
+                    $queryBuilder
+                        ->where('email', $token->email)
+                        ->where('email != ""')
                 );
             }
 			$loginza = new self(array(
