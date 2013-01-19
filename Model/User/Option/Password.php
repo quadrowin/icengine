@@ -22,6 +22,8 @@ class User_Option_Password extends Model_Option
         } else {
             $password = md5($password);
         }
-        $this->query->where('password', $password);
+        $this->query
+            ->where('password', $password)
+            ->where('password != ""');
 	}
 }
