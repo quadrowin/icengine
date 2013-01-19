@@ -11,7 +11,7 @@ abstract class Model implements ArrayAccess
      * Название мета-поля с данными модели
      */
     const DATA_FIELD = 'data';
-    
+
 	/**
 	 * Конфигурация модели
      *
@@ -42,11 +42,11 @@ abstract class Model implements ArrayAccess
 
     /**
      * Помощник модели
-     * 
+     *
      * @var Helper_Model
      */
     protected static $helper;
-    
+
     /**
      * Имя первичного ключа
      */
@@ -129,7 +129,7 @@ abstract class Model implements ArrayAccess
         }
         $references = $this->scheme()->references;
         if (isset($references[$field])) {
-            return $this->getService('modelMapper')->scheme($this)->$field; 
+            return $this->getService('modelMapper')->scheme($this)->$field;
         }
 	}
 
@@ -243,10 +243,10 @@ abstract class Model implements ArrayAccess
 		}
 		return $this->joints[$modelName];
 	}
-    
+
     /**
      * Проинициализировать и получить помощник модели
-     * 
+     *
      * @return Model_Helper
      */
     protected function helper()
@@ -389,14 +389,14 @@ abstract class Model implements ArrayAccess
 
     /**
      * Получить помощника модели
-     * 
+     *
      * @return Model_Helper
      */
     public function getHelper()
     {
         return self::$helper;
     }
-    
+
     /**
      * Отложена ли модель для загрузки
      *
@@ -595,10 +595,10 @@ abstract class Model implements ArrayAccess
             $this->data($data);
         }
 	}
-    
+
     /**
      * Изменить помощник модели
-     * 
+     *
      * @param mixed $helper
      */
     public function setHelper($helper)
@@ -618,14 +618,14 @@ abstract class Model implements ArrayAccess
 
     /**
      * Изменить схему модели
-     * 
+     *
      * @param mixed $scheme
      */
     public function setScheme($scheme)
     {
         $this->scheme = $scheme;
     }
-    
+
     /**
      * Изменить локатор сервисов
      *

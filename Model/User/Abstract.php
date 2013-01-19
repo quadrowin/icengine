@@ -3,7 +3,7 @@
 /**
  * Абстрактная модель пользователя.
  *
- * @author goorus, morph
+ * @author goorus, morph, neon
  */
 class User_Abstract extends Model
 {
@@ -42,9 +42,10 @@ class User_Abstract extends Model
 	 *
      * @return boolean True, если пользователь авторизован, иначе false.
 	 */
-	public function authorized ()
+	public function authorized()
 	{
-		return (bool) $this->current;
+        $userService = $this->getService('user');
+		return $userService->current->id > 0 ? true : false;
 	}
 
 	/**

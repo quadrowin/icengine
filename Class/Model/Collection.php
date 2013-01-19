@@ -144,16 +144,22 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
      */
     protected function beforeLoad()
     {
+        $modelScheme = $this->getService('modelScheme');
         $keyField = $this->keyField();
 		$query = $this->query();
         $args = func_get_args();
 		$modelName = $this->table();
+        $scheme = $modelScheme->scheme($modelName);
+        $modelFields = array_keys($scheme->fields->asArray());
+        $modelFieldsFlipped = array_flip($modelFields);
         if (!$args || (count($args) == 1 && empty($args[0]))) {
 			$query->select($modelName . '.*');
             $query->select(array($modelName => $keyField));
 		} else {
             foreach ($args as $arg) {
-                $query->select($arg);
+                if (isset($modelFieldsFlipped[$arg])) {
+                    $query->select($arg);
+                }
             }
             if (!in_array($keyField, $args)) {
                 $query->select(array($modelName => $keyField));
@@ -167,7 +173,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 				$this->paginator->offset()
             );
 		}
-        $modelScheme = $this->getService('modelScheme');
 		$schemeOptions = $modelScheme->modelOptions($modelName);
 		if ($schemeOptions) {
 			$this->addOptions($schemeOptions);
@@ -349,8 +354,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function getIterator()
 	{
-		$this->items();
-		return new ArrayIterator($this->items);
+		return new ArrayIterator($this->items());
 	}
 
 	/**
@@ -411,8 +415,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function &items()
 	{
-		if (!is_array($this->items))
-		{
+		if (!is_array($this->items)) {
 			$this->load();
 		}
 		return $this->items;

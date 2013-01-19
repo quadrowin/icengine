@@ -164,7 +164,6 @@ class Query_Translator_KeyValue_Select extends Query_Translator_Abstract
 				$vals [] = urlencode ($values [$name]);
 			}
 			$vals [] = urlencode ($values [$key_field]);
-
 			$keys [] =
 				$table . $this->tableIndexDelim .
 				$i . $this->indexKeyDelim .
@@ -257,7 +256,7 @@ class Query_Translator_KeyValue_Select extends Query_Translator_Abstract
 			$pattern .= $this->valuesDelim;
 		}
 
-		return $pattern . '*';
+		return rtrim($pattern, ':') . '*';
 	}
 
 	/**
