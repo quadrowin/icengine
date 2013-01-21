@@ -6,7 +6,7 @@
  * @author ..., neon, markov
  */
 class Controller_Model extends Controller_Abstract
-{   
+{
     /**
 	 * Сравнение схем моделей и таблиц
 	 */
@@ -81,13 +81,13 @@ class Controller_Model extends Controller_Abstract
 						array_keys($deletedFields)
 					)
 				);
-				$helperControllerModel->compareAddedFields($addedFields, 
+				$helperControllerModel->compareAddedFields($addedFields,
                     $model, $table, $filename
                 );
                 $helperControllerModel->compareDeletedFields($deletedFields,
                     $model, $table, $filename
                 );
-                $helperControllerModel->compareRemainingFields($remainingFields, 
+                $helperControllerModel->compareRemainingFields($remainingFields,
                     $modelFields, $model, $filename
                 );
 			}
@@ -544,12 +544,12 @@ class Controller_Model extends Controller_Abstract
 
 	/**
 	 * Создает схему модели
-     * 
+     *
 	 * @param string $name
 	 * @param string $comment
 	 * @param string $author
 	 */
-	public function scheme($name, $comment, $author, $references, 
+	public function scheme($name, $comment, $author, $references,
         $fields, $indexes)
 	{
         $helperCodeGenerator = $this->getService('helperCodeGenerator');
@@ -558,10 +558,11 @@ class Controller_Model extends Controller_Abstract
 			echo 'Scheme must contains name.' . PHP_EOL;
 			return;
 		}
-		$dir = IcEngine::root() . 'Ice/Config/Model/Mapper/';
 		$dirname = explode('_', $name);
 		$filename = array_pop($dirname) . '.php';
-		if (is_file($dir.$filename)) {
+        $dir = IcEngine::root() . 'Ice/Config/Model/Mapper/' .
+            implode('/', $dirname) . '/';
+		if (is_file($dir . $filename)) {
 			return;
 		}
 		$currentDir = $dir;
@@ -632,7 +633,7 @@ class Controller_Model extends Controller_Abstract
 	/**
 	 * Обновляет схему модели
 	 */
-	public function schemeUpdate($name, $comment, $author, $fields, $indexes, 
+	public function schemeUpdate($name, $comment, $author, $fields, $indexes,
         $adminPanel)
 	{
 		$this->_task->setTemplate (null);
