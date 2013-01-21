@@ -98,6 +98,9 @@ abstract class Model implements ArrayAccess
 		$this->fields = $fields;
         $selfFields = $this->helper()->getVars($this);
         foreach ($selfFields as $fieldName) {
+			if (!$fieldName || $fieldName[0] == '_') {
+				continue;
+			}
             $this->fields[$fieldName] = $this->$fieldName;
         }
         $this->_afterConstruct();
