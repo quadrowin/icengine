@@ -16,11 +16,11 @@ class Model_Scheme extends Manager_Abstract
 
     /**
      * Название окружения
-     * 
+     *
      * @var string
      */
     protected $behavior;
-    
+
 	/**
 	 * Префикс по умолчанию для всех таблиц
 	 *
@@ -48,19 +48,19 @@ class Model_Scheme extends Manager_Abstract
 			 * @var string
 			 */
 			'key'		=> 'id',
-            
+
             /**
              * Генератор ключей по умолчанию
              * @var string
              */
             'keyGen'    => null,
-            
+
 			/**
 			 * Префикс таблицы.
 			 * @var string
 			 */
 			'prefix'	=> '',
-            
+
 			/**
 			 * Источник данных о модели.
 			 * @var string
@@ -124,24 +124,24 @@ class Model_Scheme extends Manager_Abstract
 
     /**
      * Получить название окружения
-     * 
+     *
      * @return string
      */
     public function getBehavior()
     {
         return $this->behavior;
     }
-    
+
     /**
      * Получить модели схемы
-     * 
+     *
      * @return array
      */
     public function getModels()
     {
         return $this->models;
     }
-    
+
     /**
 	 * Индексы модели
      *
@@ -155,7 +155,7 @@ class Model_Scheme extends Manager_Abstract
         $result = array();
         if ($indexes) {
             foreach ($indexes as $index) {
-                $result[] = $index[1];
+                $result[] = $index[1]->__toArray();
             }
         }
         return $result;
@@ -191,7 +191,7 @@ class Model_Scheme extends Manager_Abstract
 		}
 		return $this->models[$modelName]['key'];
 	}
-    
+
     /**
 	 * Получить опшины схемы для модели
      *
@@ -217,10 +217,10 @@ class Model_Scheme extends Manager_Abstract
         $configManager = $this->getService('configManager');
         return $configManager->get('Model_Mapper_' . $modelName);
     }
-    
+
     /**
      * Изменить название окружения
-     * 
+     *
      * @param string $behavior
      */
     public function setBehavior($behavior)
@@ -230,7 +230,7 @@ class Model_Scheme extends Manager_Abstract
 
     /**
      * Изменить источник данных модели
-     * 
+     *
      * @param string $modelName
      * @param string $dataSource
      */
@@ -238,10 +238,10 @@ class Model_Scheme extends Manager_Abstract
     {
         $this->models[strtolower($modelName)]['source'] = $dataSource;
     }
-    
+
     /**
      * Изменить значение первичного ключа
-     * 
+     *
      * @param string $modelName
      * @param string $keyField
      */
@@ -249,10 +249,10 @@ class Model_Scheme extends Manager_Abstract
     {
         $this->models[strtolower($modelName)]['key'] = $keyField;
     }
-    
+
     /**
      * Изменить название генератора ключей для модели
-     * 
+     *
      * @param string $modelName
      * @param string $keyGenerator
      */
@@ -260,10 +260,10 @@ class Model_Scheme extends Manager_Abstract
     {
         $this->models[strtolower($modelName)]['keyGen'] = $keyGenerator;
     }
-    
+
     /**
      * Изменить опции по умолчанию для модели
-     * 
+     *
      * @param string $modelName
      * @param string $options
      */
@@ -271,10 +271,10 @@ class Model_Scheme extends Manager_Abstract
     {
         $this->models[strtolower($modelName)]['options'] = $options;
     }
-    
+
     /**
      * Изменить префикс таблицы модели
-     * 
+     *
      * @param string $modelName
      * @param string $prefix
      */
@@ -282,10 +282,10 @@ class Model_Scheme extends Manager_Abstract
     {
         $this->models[strtolower($modelName)]['prefix'] = $prefix;
     }
-    
+
     /**
      * Изменить название таблицы модели
-     * 
+     *
      * @param string $modelName
      * @param string $table
      */

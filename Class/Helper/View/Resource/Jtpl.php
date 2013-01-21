@@ -13,7 +13,7 @@ class Helper_View_Resource_Jtpl
 	 * @param string $content
 	 * @return string
 	 */
-	public static function pack($content, $filename)
+	public static function pack($content, $filename, $params)
 	{
         $replacedContent = str_replace(
 			array('\\',	'"', "\r\n", "\n", "\r"),
@@ -21,7 +21,8 @@ class Helper_View_Resource_Jtpl
 			$content
 		);
         $filename = str_replace(IcEngine::root() . 'Ice/View/', '', $filename);
-        $result = 'View_Render.templates[\'' . $filename . '\']="' .
+        $name = isset($params['name']) ? $params['name'] : $filename;
+        $result = 'View_Render.templates[\'' . $name . '\']="' .
             $replacedContent . '";';
 		return $result;
 	}

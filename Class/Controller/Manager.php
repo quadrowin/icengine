@@ -76,13 +76,6 @@ class Controller_Manager extends Manager_Abstract
 	 * @var Controller_Task
 	 */
 	protected $currentTask;
-
-    /**
-     * Менеджер событий
-     * 
-     * @var Event_Manager
-     */
-    protected $eventManager;
     
     /**
      * Менеджер провайдеров
@@ -100,11 +93,39 @@ class Controller_Manager extends Manager_Abstract
     protected $defaultContext;
     
     /**
+     * "Выполнитель" по умочанию
+     * 
+     * @var Controller_Manager_Executor_Abstract
+     */
+    protected $defaultExecutor;
+    
+    /**
+     * Выходной транспорт по умолчанию
+     * 
+     * @var Data_Transport
+     */
+    protected $defaultOutput;
+    
+    /**
      * Созданные делегита менеджера контроллеров
      * 
      * @var array
      */
     protected $deleeges = array();
+    
+    /**
+     * Менеджер событий
+     * 
+     * @var Event_Manager
+     */
+    protected $eventManager;
+    
+    /**
+     * "Выполнитель" действия контроллера
+     * 
+     * @var Controller_Manager_Executor_Abstract
+     */
+    protected $executors;
     
 	/**
 	 * Транспорт входных данных
@@ -121,11 +142,11 @@ class Controller_Manager extends Manager_Abstract
     protected $lastError;
 
 	/**
-	 * ранспорт выходных данных
+	 * Транспорт выходных данных
      *
-	 * @var Data_Transport
+	 * @var array
 	 */
-	protected $output;
+	protected $outputs;
 
 	/**
 	 * Отложенные очереди заданий
@@ -199,24 +220,40 @@ class Controller_Manager extends Manager_Abstract
                 __CLASS__, __METHOD__, __LINE__, $controllerName, $actionName
             );
 		}
+        // Создает новое пустое с переданным контроллером/экшином если
+        // не передано задание, которое необходимо подхватить. Если задание
+        // передано, то будет использоваться его входной транспорт
 		if (!$task) {
-			$task = $this->createEmptyTask($controllerName, $actionName);
-		}
+			$task = $this->createEmptyTask($controllerName, $actionName); 
+		} elseif (!$input) {
+            $input = $task->getInput();
+        }
+        // Полуваем контроллер и запоминаем его транспорты и задание, чтобы
+        // можно было их вернуть по завершению работы менеджера. Сделано для 
+        // того, чтобы корректно отрабатывали конструкции подмены экшина и 
+        // прочие
 		$controller = $this->get($controllerName);
 		$lastInput = $controller->getInput();
 		$lastOutput = $controller->getOutput();
 		$lastTask = $controller->getTask();
+        // Если входной транспорт не передан или не установлен у подхваченного
+        // задания, то используем транспорт менеджера контроллеров. Если 
+        // входные данные переданы в виде массива, то создает транспорт с 
+        // провайдером Buffer на основании этого массива
 		if (is_null($input)) {
 			$input = $this->getInput();
 		} elseif (is_array($input)) {
             $input = $this->createTransport($input);
 		}
-        $output = $this->getOutput();
+        $output = $this->getOutput($task);
+        // Подменяем транспорты, на полученные из менеджера/задания
         $controller
             ->setInput($input)
             ->setOutput($output)
             ->setTask($task);
 		$config = $this->config();
+        // Создает контекст вызова контроллера, отдаем его before-делегатам
+        // менеджера контроллеров. 
         $context = $this->createControllerContext($controller, $actionName);
         $delegees = $config->delegees;
         if ($delegees) {
@@ -225,9 +262,11 @@ class Controller_Manager extends Manager_Abstract
             }
         } 
         $callable = array($controller, $actionName);
+        // Начинаем транзацию для экшина контроллера и выполняем его. Транспорты
+        // и задачу после этого возвращаем на место
         $output->beginTransaction();
         if (!$controller->getTask()->getIgnore()) {
-            call_user_func_array($callable, $context->getArgs());
+            $this->getExecutor($task)->execute($callable, $context->getArgs());
             $task->setTransaction($output->endTransaction());
             $this->eventManager()->notify(
                 $controller->getName() . '/' . $actionName,
@@ -487,6 +526,32 @@ class Controller_Manager extends Manager_Abstract
     }
     
     /**
+     * Получить "выполнитель" по умолчанию
+     * 
+     * @return Controller_Manager_Executor_Abstract 
+     */
+    public function getDefaultExecutor()
+    {
+        if (!isset($this->defaultExecutor)) {
+            $this->defaultExecutor = new Controller_Manager_Executor_Simple();
+        }
+        return $this->defaultExecutor;
+    }
+    
+    /**
+     * Получить выходной транспорт по умолчанию
+     * 
+     * @return Data_Transport
+     */
+    public function getDefaultOutput()
+    {
+        if (is_null($this->defaultOutput)) {
+            $this->defaultOutput = new Data_Transport();
+        }
+        return $this->defaultOutput;
+    }
+    
+    /**
      * Получить менеджер событий
      * 
      * @return Event_Manager
@@ -494,6 +559,21 @@ class Controller_Manager extends Manager_Abstract
     public function getEventManager()
     {
         return $this->eventManager;
+    }
+    
+    /**
+     * Получить "выполнитель" для задания
+     * 
+     * @param Controller_Task $task
+     * @param Controller_Manager_Executor_Abstract $executor
+     */
+    public function getExecutor($task) 
+    {
+        $key = $this->taskKey($task);
+        if (isset($this->executors[$key])) {
+            return $this->executors[$key];
+        }
+        return $this->getDefaultExecutor();
     }
     
 	/**
@@ -512,14 +592,16 @@ class Controller_Manager extends Manager_Abstract
 	/**
 	 * Возвращает транспорт для выходных данных по умолчанию.
 	 *
+     * @param Controller_Task $task
      * @return Data_Transport
 	 */
-	public function getOutput ()
+	public function getOutput($task)
 	{
-		if (!$this->output) {
-			$this->output = new Data_Transport();
-		}
-		return $this->output;
+        $key = $this->taskKey($task);
+        if (!isset($this->outputs[$key])) {
+            return $this->getDefaultOutput();
+        }
+        return $this->outputs[$key];
 	}
 
     /**
@@ -545,7 +627,7 @@ class Controller_Manager extends Manager_Abstract
 	 * 		html ('Controller', array ('param'	=> 'val'));
 	 * 		html ('Controller/action')
 	 */
-	public function html($controllerAction, array $args = array(),
+	public function html($controllerAction, $args = array(),
 		$options = true)
 	{
         $controllerAction = explode('/', $controllerAction);
@@ -580,8 +662,8 @@ class Controller_Manager extends Manager_Abstract
 	 * 		html ('Controller', array ('param'	=> 'val'));
 	 * 		html ('Controller/action')
 	 */
-	public function htmlUncached($controllerAction, array $args=array (),
-		$options = true)
+	public function htmlUncached($controllerAction, $args = array(), 
+        $options = true)
 	{
 		$controllerAction = is_array($controllerAction)
             ? $controllerAction : explode('/', $controllerAction);
@@ -778,6 +860,16 @@ class Controller_Manager extends Manager_Abstract
     }
     
     /**
+     * Изменить "выполнитель" по умолчанию
+     * 
+     * @param Controller_Manager_Executor_Abstract $defaultExecutor
+     */
+    public function setDefaultExecutor($defaultExecutor)
+    {
+        $this->defaultExecutor = $defaultExecutor;
+    }
+    
+    /**
      * Изменить менеджер событий
      * 
      * @param Event_Manager $eventManager
@@ -788,6 +880,39 @@ class Controller_Manager extends Manager_Abstract
     }
     
     /**
+     * Изменить "выполнитель" для действия контроллера
+     * 
+     * @param Controller_Task $task
+     * @param Controller_Manager_Executor_Abstract $executor
+     */
+    public function setExecutor($task, $executor)
+    {
+        $key = $this->taskKey($task);
+        $this->executors[$key] = $executor;
+    }
+    
+    /**
+     * Изменить выходной транспорт по умолчанию
+     * 
+     * @param Data_Transport $defaultOutput
+     */
+    public function setDefaultOutput($defaultOutput)
+    {
+        $this->defaultOutput = $defaultOutput;
+    }
+    
+    /**
+     * Изменить выходной транспорт по умолчанию
+     * 
+     * @param Data_Transport $output
+     */
+    public function setOutput($task, $output)
+    {
+        $key = $this->taskKey($task);
+        $this->outputs[$key] = $output;
+    }
+    
+    /**
      * Изменить инжектор сервисов
      *
      * @param Service_Injector_Abstract $serviceInjector
@@ -795,5 +920,16 @@ class Controller_Manager extends Manager_Abstract
     public function setServiceInjector($serviceInjector)
     {
         $this->serviceInjector = $serviceInjector;
+    }
+    
+    /**
+     * Получить ключ задания
+     * 
+     * @param Controller_Task $task
+     * @return string
+     */
+    public function taskKey($task)
+    {
+        return implode('/', $task->controllerAction());
     }
 }

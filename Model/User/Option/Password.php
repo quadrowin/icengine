@@ -14,17 +14,20 @@ class User_Option_Password extends Model_Option
 	{
 		$locator = IcEngine::serviceLocator();
 		$cryptManager = $locator->getService('cryptManager');
-		if ($this->params['value']) {
-			$password = $this->params['value'];
-			if (isset($this->params['type']) &&
-					$this->params['type'] == 'RSA') {
-				$rsa = $cryptManager->get('RSAW2');
-				$password = $rsa->encode($this->params['value']);
-			} else {
-				$password = md5($password);
-			}
-			$this->query
-				->where('password', $password);
-		}
+        $password = $this->params['value'];
+        $queryBuilder = $locator->getService('query');
+        $passwordMd5 = md5($password);
+        $passwordQueryWhere = $queryBuilder
+            ->where('password', $passwordMd5);
+        $configManager = $locator->getService('configManager');
+        $userConfig = $configManager->get('User');
+        if ($userConfig->cryptManager) {
+            $crypter = $cryptManager->get($userConfig->cryptManager);
+            $passwordCrypted = $crypter->encode($password);
+            $passwordQueryWhere->orWhere('password', $passwordCrypted);
+        }
+        $this->query
+            ->where($passwordQueryWhere)
+            ->where('password != ""');
 	}
 }

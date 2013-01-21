@@ -77,7 +77,8 @@ class Controller_Task
         $this->ignore = false;
         $serviceLocator = IcEngine::serviceLocator();
         $route = $serviceLocator->getService('router')->getRoute();
-        if ($route && $route->params && isset($route->params['View_Render__id'])) {
+        if ($route && $route->params && 
+            isset($route->params['View_Render__id'])) {
             $this->viewRender = $route->viewRender();
         } else {
             $viewRenderManager = $serviceLocator->getService(

@@ -5,7 +5,7 @@
  *
  * @author Юрий Шведов, neon
  * @package IcEngine
- * @Service("paginator", isAbstract="true")
+ * @Service("paginator", disableConstruct=true)
  */
 class Paginator
 {
@@ -159,18 +159,18 @@ class Paginator
 	}
 
 	/**
-	 * @param integer $full_count
+	 * @param integer $fullCount
 	 * @param string $prefix
 	 * @return Paginator
 	 */
-	public static function fromGet($full_count = 0, $prefix = '')
+	public function fromGet($fullCount = 0, $prefix = '')
 	{
 		$locator = IcEngine::serviceLocator();
 		$request = $locator->getService('request');
 		return new self(
 			max($request->get('page'), 1),
 			max($request->get('limit', 30), 10),
-			$full_count,
+			$fullCount,
 			false
 		);
 	}
@@ -182,7 +182,8 @@ class Paginator
 	 * @param integer $total Общее количество элементов.
 	 * @return Paginator
 	 */
-	public static function fromInput($input, $total = 0, $notGet = false) {
+	public function fromInput($input, $total = 0, $notGet = false) {
+        $locator = IcEngine::serviceLocator();
 		return new self(
 			max($input->receive('page'), 1),
 			max($input->receive('limit'), 10),

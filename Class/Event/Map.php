@@ -41,7 +41,8 @@ class Event_Map
 	 */
 	public function getBySignal($signal)
 	{
-		return $this->slots[$signal->getName()];
+        $name = $signal->getName();
+		return isset($this->slots[$name]) ? $this->slots[$name] : null;
 	}
 
 	/**
@@ -52,7 +53,8 @@ class Event_Map
 	 */
 	public function getBySlot($slot)
 	{
-		return $this->signals[$slot->getName()];
+        $name = $slot->getName();
+		return isset($this->signals[$name]) ? $this->signals[$name] : null;
 	}
 
 	/**

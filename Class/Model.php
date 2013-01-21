@@ -11,7 +11,7 @@ abstract class Model implements ArrayAccess
      * Название мета-поля с данными модели
      */
     const DATA_FIELD = 'data';
-    
+
 	/**
 	 * Конфигурация модели
      *
@@ -42,11 +42,11 @@ abstract class Model implements ArrayAccess
 
     /**
      * Помощник модели
-     * 
+     *
      * @var Helper_Model
      */
     protected static $helper;
-    
+
     /**
      * Имя первичного ключа
      */
@@ -123,16 +123,14 @@ abstract class Model implements ArrayAccess
         $joinField = $field . '__id';
         if (isset($this->joints[$field])) {
             return $this->joints[$field];
-        }
-        if (array_key_exists($field, $this->fields)) {
+        } elseif (array_key_exists($field, $this->fields)) {
             return $this->fields[$field];
-        }
-        if (array_key_exists($joinField, $this->fields)) {
+        } elseif (array_key_exists($joinField, $this->fields)) {
             return $this->joint($field, $this->fields[$joinField]);
         }
         $references = $this->scheme()->references;
         if (isset($references[$field])) {
-            return $this->getService('modelMapper')->scheme($this)->$field; 
+            return $this->getService('modelMapper')->scheme($this)->$field;
         }
 	}
 
@@ -158,7 +156,7 @@ abstract class Model implements ArrayAccess
         if (!$this->fields) {
             $this->load();
         }
-        if ($field == 'data') {
+        if ($field == self::DATA_FIELD) {
             return $this->data($value);
         }
         $fields = $this->scheme()->fields;
@@ -195,7 +193,7 @@ abstract class Model implements ArrayAccess
 	 */
 	public function asRow()
 	{
-		return $this->fields ? $this->fields : array();
+		return $this->fields ?: array();
 	}
 
     /**
@@ -246,10 +244,10 @@ abstract class Model implements ArrayAccess
 		}
 		return $this->joints[$modelName];
 	}
-    
+
     /**
      * Проинициализировать и получить помощник модели
-     * 
+     *
      * @return Model_Helper
      */
     protected function helper()
@@ -375,7 +373,7 @@ abstract class Model implements ArrayAccess
 	 *
 	 * @return array
 	 */
-	public function getData()
+	public function &getData()
 	{
 		return $this->data;
 	}
@@ -392,14 +390,14 @@ abstract class Model implements ArrayAccess
 
     /**
      * Получить помощника модели
-     * 
+     *
      * @return Model_Helper
      */
     public function getHelper()
     {
         return self::$helper;
     }
-    
+
     /**
      * Отложена ли модель для загрузки
      *
@@ -531,6 +529,17 @@ abstract class Model implements ArrayAccess
         }
 	}
 
+    /**
+     * Получить данные модели массивом
+     * @return array
+     */
+    public function raw()
+    {
+        return array_merge($this->asRow(), array(
+            'data'      => $this->data
+        ));
+    }
+
 	/**
 	 * Название ресурса модели. Состоит из название модели и первичного ключа
      *
@@ -598,10 +607,10 @@ abstract class Model implements ArrayAccess
             $this->data($data);
         }
 	}
-    
+
     /**
      * Изменить помощник модели
-     * 
+     *
      * @param mixed $helper
      */
     public function setHelper($helper)
@@ -621,14 +630,14 @@ abstract class Model implements ArrayAccess
 
     /**
      * Изменить схему модели
-     * 
+     *
      * @param mixed $scheme
      */
     public function setScheme($scheme)
     {
         $this->scheme = $scheme;
     }
-    
+
     /**
      * Изменить локатор сервисов
      *

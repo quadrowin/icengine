@@ -38,7 +38,8 @@ class Helper_View_Resource
                 'core'      => 'IcEngine/js/'
             ),
             self::JTPL  => array(
-                'default'   => 'Ice/View/js/'
+                'default'   => 'Ice/View/js/',
+                'view'      => 'Ice/View/'
             )
         ),
 		'packDelegates'	=> array(
@@ -76,8 +77,11 @@ class Helper_View_Resource
 	 *
 	 * @param string $type
 	 * @param string $filename
+     * @param string $pathName
+     * @param array $params
 	 */
-	public function append($type, $filename = null, $pathName = null)
+	public function append($type, $filename = null, $pathName = null, 
+        $params = array())
 	{
         $config = $this->config();
         $args = func_get_args();
@@ -104,7 +108,7 @@ class Helper_View_Resource
                         '/' . ltrim($filename, '/');
                 }
             }
-            array_push(self::$files[$type], $filename);
+            array_push(self::$files[$type], array($filename, $params));
         }
 	}
 
@@ -112,8 +116,10 @@ class Helper_View_Resource
 	 * Добавить css файл
 	 *
 	 * @param string $filename
+     * @param string $pathName
+     * @param array $params
 	 */
-	public function appendCss($filename, $pathName = null)
+	public function appendCss($filename, $pathName = null, $params = array())
 	{
 		$this->append(self::CSS, func_get_args());
 	}
@@ -123,8 +129,10 @@ class Helper_View_Resource
 	 *
      * @example appendJs('Controller/Loginza.js', 'noPack')
 	 * @param string $filename
+     * @param string $pathName
+     * @param array $params
 	 */
-	public function appendJs($filename, $pathName = null)
+	public function appendJs($filename, $pathName = null, $params = array())
 	{
 		$this->append(self::JS, func_get_args());
 	}
@@ -133,10 +141,12 @@ class Helper_View_Resource
 	 * Добавляет jtpl файлы
 	 *
 	 * @param string $filename
+     * @param string $pathName
+     * @param array $params
 	 */
-	public function appendJtpl($filename)
+	public function appendJtpl($filename, $pathName = null, $params = array())
 	{
-		$this->append(self::JTPL, array($filename, 'default'));
+		$this->append(self::JTPL, array($filename, 'default', $params));
 	}
 
 	/**
@@ -210,12 +220,15 @@ class Helper_View_Resource
 			return true;
 		}
 		$content = '';
-		foreach (self::$files[$type] as $currentFilename) {
+		foreach (self::$files[$type] as $data) {
+            $currentFilename = $data[0];
             if (!is_file($currentFilename)) {
 				continue;
 			}
 			$fileContent = file_get_contents($currentFilename);
-			$content .= $this->pack($type, $currentFilename, $fileContent);
+			$content .= $this->pack(
+                $type, $currentFilename, $fileContent, $data[1]
+            );
 		}
 		$resultContent = str_replace('$jsEmbedKey', $key, $content);
 		file_put_contents($fileName, $resultContent);
@@ -373,9 +386,10 @@ class Helper_View_Resource
 	 * @param string $type
      * @param string $filename
 	 * @param string $content
+     * @param array @params
 	 * @return string
 	 */
-	public function pack($type, $filename, $content)
+	public function pack($type, $filename, $content, $params = array())
 	{
 		$config = $this->config();
 		if (isset($config->packDelegates[$type])) {
@@ -384,7 +398,7 @@ class Helper_View_Resource
 			);
 			$content = call_user_func(
 				array($className, $methodName),
-				$content, $filename
+				$content, $filename, $params
 			);
 		}
 		return $content . PHP_EOL;

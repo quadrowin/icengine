@@ -1,8 +1,10 @@
 <?php
+
 /**
  * Description of Converter
  *
  * @author markov, neon
+ * @Service("helperConverter")
  */
 class Helper_Converter
 {

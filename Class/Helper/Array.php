@@ -1,8 +1,9 @@
 <?php
+
 /**
  * Помощник работы с массивами
  *
- * @author goorus, morph
+ * @author goorus, morph, neon
  * @Service("helperArray")
  */
 class Helper_Array
@@ -327,6 +328,23 @@ class Helper_Array
 		}
 		return $result;
 	}
+
+    /**
+     * Переиндексировать массив по полю
+     *
+     * @param array $array
+     * @param string $field
+     * @return array
+     */
+    public function reindex($array, $field = 'id')
+    {
+        $arrayElementFields = array_keys(reset($array));
+        $arrayElementFieldsFlipped = array_flip($arrayElementFields);
+        if (!isset($arrayElementFieldsFlipped[$field])) {
+            return $array;
+        }
+        return $this->column($array, $arrayElementFields, $field);
+    }
 
 	/**
 	 * @desc Установить в качестве ключей массива значения из колонки $column

@@ -15,6 +15,9 @@ return array(
             {/foreach}
         ),
         {/if}
+        {if !empty($service.disableConstruct)}
+        'disableConstruct'      => true,
+        {/if}
         {if !empty($service.source)}
         'source'    => array(
             {if !empty($service.source.name)}
@@ -25,7 +28,7 @@ return array(
             'isAbstract'    => true,
             {/if}
             {if !empty($service.source.isStatic)}
-            'isStatic'      => true,
+            'isStatic'      => true
             {/if}
         )
         {/if}

@@ -119,8 +119,9 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	}
 
 	/**
-	 * @desc Выполняет запрос на получение данных.
-	 * @param Query_Abstract $query
+	 * Выполняет запрос на получение данных.
+	 * 
+     * @param Query_Abstract $query
 	 * @param Query_Options $options
 	 * @return null|array
 	 */
@@ -164,6 +165,9 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 		}
         $this->sql = $query->translate('Mysql');
 		$rows = parent::_executeSelect($query, $options);
+        if (is_null($rows)) {
+            return null;
+        }
 		if (Tracer::$enabled) {
 			$endTime = microtime(true);
 			$delta = $endTime - $startTime;
@@ -181,9 +185,11 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 		}
 		$tags = $query->getTags();
         $providerTags = $this->cacher->getTags($tags);
-        foreach ($tags as $tag) {
-            self::$tagsValid[$tag] = true;
-            self::$tagsCaches[$tag][] = $key;
+        if ($tags) {
+            foreach ($tags as $tag) {
+                self::$tagsValid[$tag] = true;
+                self::$tagsCaches[$tag][] = $key;
+            }
         }
         $cache = array (
             'v' => $rows,

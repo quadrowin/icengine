@@ -49,6 +49,9 @@ class Annotation_Source_Simple extends Annotation_Source_Abstract
 	public function getClass($class)
 	{
 		$reflection = $this->getReflection($class);
+        if ($class == 'Controller_Fellow') {
+           // print_r($reflection->getDocComment());die;
+        }
 		$doc = $reflection->getDocComment();
 		$data = $this->parse($doc);
 		return $data;
@@ -107,7 +110,7 @@ class Annotation_Source_Simple extends Annotation_Source_Abstract
 	 * @param string $string
 	 * @return array
 	 */
-	protected function parse($string)
+	public function parse($string)
 	{
 		$result = array();
 		$parts = $this->extract($string);

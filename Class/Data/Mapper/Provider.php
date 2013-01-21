@@ -119,7 +119,7 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 		$rows = array();
 		// Выбираем ID всех записей, подходящих под условие
 		foreach ($this->translated as $pattern) {
-			if (strpos($pattern, '*') == false) {
+			if (strpos($pattern, '*') === false) {
                 $keys = array($pattern);
             } else {
                 $keys = $this->provider->keys($pattern);
