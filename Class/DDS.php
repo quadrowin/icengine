@@ -34,6 +34,7 @@ class DDS
             $fromParts = $query->getPart(Query::FROM);
 			$fromPartTruncate = $query->getPart(Query::TRUNCATE_TABLE);
 			$fromPartUpdate = $query->getPart(Query::UPDATE);
+            $fromPartInsert = $query->getPart(Query::INSERT);
 			if ($fromParts){
 				$fromPart = reset($fromParts);
 				$from = $fromPart[Query::TABLE];
@@ -41,8 +42,11 @@ class DDS
 				$from = reset($fromPartTruncate);
 			} elseif ($fromPartUpdate) {
 				$from = $fromPartUpdate;
-			}
+			} elseif ($fromPartInsert) {
+                $from = $fromPartInsert;
+            }
             $scheme = IcEngine::serviceLocator()->getService('modelScheme');
+            //var_dump($query->translate());
             $dataSource = $scheme->dataSource($from);
         }
 		return $dataSource->execute($query, $options);
