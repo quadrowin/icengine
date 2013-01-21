@@ -193,7 +193,7 @@ class Model_Manager extends Manager_Abstract
         $delegee = 'Model_Manager_Delegee_' .
             $config['delegee'][$parent];
         if ($config['delegee'][$parent] == 'Simple') {
-            $newModel = new $modelName($source);
+            $newModel = new $modelName($source ?: array());
         } else {
             if (!isset($this->delegees[$delegee])) {
                 $this->delegees[$delegee] = new $delegee;
