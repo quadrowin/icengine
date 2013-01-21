@@ -27,15 +27,16 @@ class Helper_Model_Collection
             }
             $currentData = $collectionData[$item[$keyField]];
             foreach ($currentData as $fieldName => $fieldValue) {
-                if ($fieldsFromData) {
-                    $item['data'][$fieldName] = $fieldValue;
-                    continue;
-                }
-                $data = array_merge((array) $item['data'], array(
-                    $fieldName  => $fieldValue
-                ));
-                foreach ($data as $key => $value) {
-                    $item['data'][$key] = $value;
+                if (in_array($fieldName, $fieldsFromData)) {
+                    $item[$fieldName] = $fieldValue;
+                    $collection->rawFields()[] = $fieldName;
+                } else {
+                    $data = array_merge((array) $item['data'], array(
+                        $fieldName  => $fieldValue
+                    ));
+                    foreach ($data as $key => $value) {
+                        $item['data'][$key] = $value;
+                    }
                 }
             }
         }

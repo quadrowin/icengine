@@ -85,6 +85,13 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	protected $queryResult;
 
     /**
+     * Включенные для raw-запроса поля
+     * 
+     * @var array
+     */
+    protected $rawFields = array();
+    
+    /**
      * Локатор сервисов
      *
      * @var Service_Locator
@@ -709,19 +716,23 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
             if ($this->paginator) {
                 $this->paginator->fullCount = $this->data('foundRows');
             }
+            if ($this->afterLoad) {
+                foreach ($this->afterLoad as $method) {
+                    call_user_func($method, $this);
+                }
+            }
             if (!$columns) {
                 $modelScheme = $this->getService('modelScheme');
                 $scheme = $modelScheme->scheme($this->modelName());
                 if ($scheme->fields) {
                     $columns = array_keys($scheme->fields->asArray());
                 }
+                if ($this->rawFields) { 
+                    $columns = array_merge($columns, $this->rawFields);
+                    $this->rawFields = array();
+                }
             }
             $result = $helperArray->column($this->items, $columns, $keyField);
-        }
-        if ($this->afterLoad) {
-            foreach ($this->afterLoad as $method) {
-                call_user_func($method, $this);
-            }
         }
         foreach ($this->items as $item) {
             if (!isset($item['data'])) {
@@ -735,6 +746,16 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
             );
         }
         return array_values((array) $result);
+    }
+    
+    /**
+     * Получить список полей для raw-запроса
+     * 
+     * @return array
+     */
+    public function &rawFields()
+    {
+        return $this->rawFields;
     }
 
 	/**
