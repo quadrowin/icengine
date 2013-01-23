@@ -4,7 +4,7 @@
  * @desc Хелпер для работы с датами.
  * @author Юрий
  * @package IcEngine
- * @Service("date")
+ * @Service("helperDate")
  */
 class Helper_Date
 {
