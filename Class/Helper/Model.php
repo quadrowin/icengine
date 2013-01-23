@@ -11,12 +11,13 @@ class Helper_Model
     /**
      * Накинуть на модель after опшены
      *
-     * @param Model $model
-     * @param array $options
      * @return Model
      */
-    public function appendAfterOptions($model, $options)
+    public function appendAfterOptions()
     {
+        $args = func_get_args();
+        $model = $args[0];
+        $options = array_slice($args, 1);
         $locator = IcEngine::serviceLocator();
         $collectionManager = $locator->getService('collectionManager');
         $modelCollection = $collectionManager->create($model->modelName());
