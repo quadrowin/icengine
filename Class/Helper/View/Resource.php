@@ -420,6 +420,14 @@ class Helper_View_Resource
 	}
 
     /**
+     * Сбросить файла css
+     */
+	public function resetCss()
+	{
+		self::$files[self::CSS] = array();
+	}
+    
+    /**
      * Сбросить файла js
      */
 	public function resetJs()
