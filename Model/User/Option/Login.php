@@ -12,9 +12,6 @@ class User_Option_Login extends Model_Option
 	 */
 	public function before()
 	{
-		if ($this->params['value']) {
-			$this->query
-				->where('login', $this->params['value']);
-		}
+		$this->query->where('login', $this->params['value']);
 	}
 }
