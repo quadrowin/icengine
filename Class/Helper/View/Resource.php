@@ -80,7 +80,7 @@ class Helper_View_Resource
      * @param string $pathName
      * @param array $params
 	 */
-	public function append($type, $filename = null, $pathName = null, 
+	public function append($type, $filename = null, $pathName = null,
         $params = array())
 	{
         $config = $this->config();
