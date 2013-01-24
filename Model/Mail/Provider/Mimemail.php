@@ -19,7 +19,7 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 	 * @desc Конфиг
 	 * @var array
 	 */
-	protected static $_config = array (
+	protected static $config = array (
 		// С ящика
 		'from_email'		=> 'root@icengine.com',
 		// От кого
@@ -122,7 +122,8 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 	 */
 	public function sendEx ($addresses, $subject, $body, $config)
 	{
-		Loader::requireOnce (
+        $loader = IcEngine::getLoader();
+		$loader->requireOnce (
 			$this->config ()->phpmailer_path,
 			'includes'
 		);
