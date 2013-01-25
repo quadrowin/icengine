@@ -14,7 +14,7 @@ class Event_Slot_Controller_After extends Event_Slot
     {
         $params = $this->getParams();
         $buffer = $params['task']->getTransaction()->buffer();
-        if (!empty($buffer['origin'])) {
+        if (!empty($buffer['origin']) || !$buffer) {
             return;
         }
         $controllerManager = $params['context']->getControllerManager();
