@@ -45,9 +45,10 @@ class DDS
 			} elseif ($fromPartInsert) {
                 $from = $fromPartInsert;
             }
-            $scheme = IcEngine::serviceLocator()->getService('modelScheme');
-            //var_dump($query->translate());
-            $dataSource = $scheme->dataSource($from);
+            if ($from) {
+                $scheme = IcEngine::serviceLocator()->getService('modelScheme');
+                $dataSource = $scheme->dataSource($from);
+            }
         }
 		return $dataSource->execute($query, $options);
 	}
