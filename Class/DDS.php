@@ -1,12 +1,12 @@
 <?php
 
 /**
- * @desc DDS Default Data Source
+ * DDS Default Data Source
  *
  * Easy way to call querys to DB like
- * DDS::execute ($query)
+ * DDS::execute($query)
  *
- * @author goorus
+ * @author goorus, morph
  * @Service("dds")
  */
 class DDS
@@ -31,6 +31,7 @@ class DDS
 	{
         $dataSource = $this->source;
         if ($auto) {
+            $from = null;
             $fromParts = $query->getPart(Query::FROM);
 			$fromPartTruncate = $query->getPart(Query::TRUNCATE_TABLE);
 			$fromPartUpdate = $query->getPart(Query::UPDATE);
@@ -61,16 +62,6 @@ class DDS
 	public function getDataSource()
 	{
 		return $this->source;
-	}
-
-	/**
-     * Инициализирован ли dds
-     *
-	 * @return boolean
-	 */
-	public function inited()
-	{
-		return (bool) $this->source;
 	}
 
 	/**
