@@ -565,16 +565,10 @@ class Controller_Model extends Controller_Abstract
 		if (is_file($dir . $filename)) {
 			return;
 		}
-		$currentDir = $dir;
-		if ($dirname) {
-			foreach ($dirname as $dir) {
-				$currentDir .= $dir . '/';
-				if (!is_dir($currentDir)){
-					mkdir($currentDir);
-				}
-			}
-		}
-		$filename = $currentDir . $filename;
+		if (!is_dir($dir)) {
+            mkdir ($dir, 0644, true);
+        }
+		$filename = $dir . $filename;
 		echo 'File: ' . $filename . PHP_EOL . PHP_EOL;
         $task = $this->getService('controllerManager')->call(
             'Annotation_Orm', 'create', array(
