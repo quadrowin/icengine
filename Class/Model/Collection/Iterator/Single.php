@@ -144,6 +144,6 @@ class Model_Collection_Iterator_Single extends Model_Collection_Iterator_Array
 	 */
 	public function valid()
 	{
-		return $this->current();
+		return isset($this->data[$this->index]);
 	}
 }
