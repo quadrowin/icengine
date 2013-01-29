@@ -198,14 +198,19 @@ class Controller_Abstract
             $controllerManager = $this->getService('controllerManager');
 			$other = $controllerManager->get($controller);
 		}
+        $controllerAction = implode(
+            '/', $this->task->controllerAction()
+        );
         $this->input->send(array(
-            'origin'    => implode(
-                '/', $this->task->controllerAction()
-            )
+            'origin'    => $controllerAction
         ));
 		$this->task->setTemplate(
 			'Controller/' . str_replace('_', '/', $controller) . '/' . $action
 		);
+        $eventManager = $this->getService('eventManager');
+        $signal = $eventManager->getSignal($controllerAction);
+        $slot = $eventManager->getSlot('Controller_After');
+        $signal->unbind($slot);
 		if ($controller == get_class($this)) {
 			return $this->$action();
 		} else {
