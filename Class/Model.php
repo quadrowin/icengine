@@ -140,6 +140,8 @@ abstract class Model implements ArrayAccess
         if (isset($references[$field])) {
             return $this->getService('modelMapper')->scheme($this)->$field;
         }
+        $value = null;
+        return $value;
 	}
 
     /**
