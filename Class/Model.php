@@ -3,7 +3,7 @@
 /**
  * Базовая модель для всех сущностей
  *
- * @author goorus, morph
+ * @author goorus, morph, neon
  */
 abstract class Model implements ArrayAccess
 {
@@ -167,7 +167,9 @@ abstract class Model implements ArrayAccess
             }
             $this->fields[$field] = $value;
 		} else {
-			throw new Exception ('Field unexists "' . $field . '".');
+			throw new Exception(
+                'Field unexists "' . $field . '" ' . get_class($this)
+            );
 		}
 	}
 
