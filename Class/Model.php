@@ -168,7 +168,6 @@ abstract class Model implements ArrayAccess
         }
         if ($field == self::DATA_FIELD) {
             $data = &$this->data($value);
-            echo $this->table() . PHP_EOL;
             return $data;
         }
         $fields = $this->scheme()->fields;
