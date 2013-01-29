@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Слот, делигирующий на другие слоты 
+ * Слот, делигирующий на другие слоты/сигналы
  * 
  * @author morph
  */
@@ -20,10 +20,16 @@ class Event_Slot_Delegee extends Event_Slot
         $controllerManager = $params['context']->getControllerManager();
         $serviceLocator = $controllerManager->getServiceLocator();
         $eventManager = $serviceLocator->getService('eventManager');
-        foreach ($params['slots'] as $slot) {
-            $slot = $eventManager->getSlot(reset($slot));
-            $slot->setParams($buffer);
-            $slot->action();
+        if (isset($params['slots'])) {
+            foreach ($params['slots'] as $slot) {
+                $slot = $eventManager->getSlot(reset($slot));
+                $slot->setParams($buffer);
+                $slot->action();
+            }
+        } elseif (isset($params['signal'])) {
+            foreach ($params['signal'] as $signal) {
+                $eventManager->getSignal(reset($signal));
+            }
         }
     }
 }
