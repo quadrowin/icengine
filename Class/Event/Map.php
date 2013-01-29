@@ -125,6 +125,9 @@ class Event_Map
 	{
 		$slots = $this->slots[$signal->getName()];
 		$newSlots = array();
+        if (!$slots) {
+            return;
+        }
 		foreach ($slots as $currentSlot) {
 			if ($currentSlot->getName() != $slot->getName()) {
 				$newSlots[] = $currentSlot;
