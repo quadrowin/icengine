@@ -12,15 +12,14 @@ var Helper_Element = {
      */
     fromAttr: function($element, scheme)
     {
-        console.log($element);
+        var index, result = {}, attrName = '';
+        for (index in scheme) {
+            attrName = scheme[index];
+            result[attrName] = $element.attr(attrName);
+        }
         if (typeof(scheme) == 'undefined') {
             scheme = [];
         }
-        var arr;
-	        arr = $.map($element.attributes, function (attribute) {
-	            return attribute.name + ' = ' + attribute.value;
-	        });
-	        alert(arr);
-        //console.log($element.attributes);
+        return result;
     }
 }
