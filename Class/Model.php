@@ -174,8 +174,9 @@ abstract class Model implements ArrayAccess
             }
             $this->fields[$field] = $value;
 		} else {
-            echo $this->table() . PHP_EOL;
-			throw new Exception ('Field unexists "' . $field . '".');
+			throw new Exception(
+                'Field unexists "' . $field . '" ' . $this->table()
+            );
 		}
 	}
 
