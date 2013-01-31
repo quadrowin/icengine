@@ -2,35 +2,35 @@
 
 /**
  * Транспорт данных
- * 
+ *
  * @author goorus, morph
  */
 class Data_Transport
 {
     /**
      * Поставщики данных.
-     * 
+     *
      * @var array <Data_Provider_Abstract>
      */
 	protected $providers = array();
 
     /**
      * Валидаторы выхода.
-     * 
+     *
      * @var Data_Validator_Collection
      */
 	protected $validators;
 
 	/**
 	 * Стек начатых транзакций
-	 * 
+	 *
      * @var array
 	 */
 	protected $transactions = array();
 
     /**
-     * Добавить провайдер 
-     * 
+     * Добавить провайдер
+     *
      * @param Data_Provider_Abstract $provider
      * @return Data_Transport
      */
@@ -42,7 +42,7 @@ class Data_Transport
 
 	/**
 	 * Начинает новую транзакцию
-     * 
+     *
 	 * @return Data_Transport_Transaction
 	 * 		Созданная транзакция
 	 */
@@ -55,7 +55,7 @@ class Data_Transport
 
 	/**
      * Получить текущую транзакцию
-     * 
+     *
 	 * @return Data_Transport_Transaction
 	 * 		Текущая транзакция
 	 */
@@ -66,7 +66,7 @@ class Data_Transport
 
 	/**
 	 * Заканчивает текущую транзакцию
-     * 
+     *
 	 * @return Data_Transport_Transaction
 	 * 		Законченная транзакция
 	 */
@@ -77,7 +77,7 @@ class Data_Transport
 
 	/**
 	 * Получить провайдер по индексу
-     * 
+     *
 	 * @param integer $index
 	 * @return Data_Provider_Abstract
 	 */
@@ -88,7 +88,7 @@ class Data_Transport
 
     /**
      * Получить весь пул провайдеров
-     * 
+     *
      * @return array
      */
 	public function getProviders()
@@ -97,7 +97,7 @@ class Data_Transport
 	}
     /**
      * Получение данных.
-     * 
+     *
      * @param mixed $_
      * @return mixed
      */
@@ -132,7 +132,7 @@ class Data_Transport
 	/**
 	 * Получает все значения из всех провайдеров.
 	 * Не рекомендуется использовать.
-     * 
+     *
 	 * @return array Массив пар (ключ => значение)
 	 */
 	public function receiveAll ()
@@ -150,9 +150,30 @@ class Data_Transport
 		return $result;
 	}
 
+    /**
+     * Получить с транспортов данные отфильтрованные по входному массиву
+     *
+     * @param array $array
+     * @return array
+     */
+    public function receiveAssoc($array)
+    {
+        if (!$array) {
+            return;
+        }
+        $keyValues = $this->receiveAll();
+        $result = array();
+        foreach ($array as $keyName) {
+            if (isset($keyValues[$keyName])) {
+                $result[$keyName] = $keyValues[$keyName];
+            }
+        }
+        return $result;
+    }
+
 	/**
 	 * Очистка данных всех провайдеров и сброс транзаций.
-	 * 
+	 *
      * @return Data_Transport
 	 */
 	public function reset ()
@@ -166,7 +187,7 @@ class Data_Transport
 
     /**
      * Отправить данные в транспорт или в буффер транзации, если она начата
-     * 
+     *
      * @param string|array $key
      * @param mixed $data
      * @return Data_Transport
@@ -183,7 +204,7 @@ class Data_Transport
 
 	/**
 	 * Отправить данные в транспорт
-     * 
+     *
 	 * @param string|array $key
 	 * @param mixed $data
 	 * @return Data_Transport
@@ -206,7 +227,7 @@ class Data_Transport
 
     /**
      * Изменить пул провайдеров
-     * 
+     *
      * @param array|Data_Provider_Abstract $providers
      * @return Data_Transport
      */

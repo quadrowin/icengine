@@ -3,7 +3,7 @@
 /**
  * Мэппер для работы с mysql, с кэшированием запросов.
  *
- * @author goorus, morph
+ * @author goorus, morph, neon
  */
 class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 {
@@ -23,11 +23,11 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 
     /**
      * Кэш запросов по тэгам
-     * 
+     *
      * @var array
      */
     protected static $tagsCaches = array();
-    
+
     /**
      * Валидны ли тэги
      *
@@ -111,7 +111,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 			$tags = $query->getTags();
 			for ($i = 0, $count = sizeof($tags); $i < $count; $i++) {
 				$tag = $tags[$i];
-				$this->cacher->tagDelete($tag);
+                $this->cacher->tagDelete($tag);
                 $this->tagDelete($tag);
 			}
 		}
@@ -119,8 +119,9 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	}
 
 	/**
-	 * @desc Выполняет запрос на получение данных.
-	 * @param Query_Abstract $query
+	 * Выполняет запрос на получение данных.
+	 *
+     * @param Query_Abstract $query
 	 * @param Query_Options $options
 	 * @return null|array
 	 */
@@ -164,6 +165,9 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 		}
         $this->sql = $query->translate('Mysql');
 		$rows = parent::_executeSelect($query, $options);
+        if (is_null($rows)) {
+            return null;
+        }
 		if (Tracer::$enabled) {
 			$endTime = microtime(true);
 			$delta = $endTime - $startTime;
@@ -181,9 +185,11 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 		}
 		$tags = $query->getTags();
         $providerTags = $this->cacher->getTags($tags);
-        foreach ($tags as $tag) {
-            self::$tagsValid[$tag] = true;
-            self::$tagsCaches[$tag][] = $key;
+        if ($tags) {
+            foreach ($tags as $tag) {
+                self::$tagsValid[$tag] = true;
+                self::$tagsCaches[$tag][] = $key;
+            }
         }
         $cache = array (
             'v' => $rows,
@@ -284,10 +290,10 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
         }
         return $validTags;
     }
-    
+
     /**
      * Удаляет внутренние сохраненные тэги и запросы
-     * 
+     *
      * @param string $tag
      */
     protected function tagDelete($tag)
@@ -297,10 +303,19 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
         }
         unset(self::$tagsValid[$tag]);
         foreach (self::$tagsCaches as $key) {
-            if (!isset(self::$caches[$key])) {
-                continue;
+            if (is_array($key)) {
+                foreach ($key as $tag) {
+                    if (!isset(self::$caches[$tag])) {
+                        continue;
+                    }
+                    unset(self::$caches[$tag]);
+                }
+            } else {
+                if (!isset(self::$caches[$key])) {
+                    continue;
+                }
+                unset(self::$caches[$key]);
             }
-            unset(self::$caches[$key]);
         }
     }
 

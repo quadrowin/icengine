@@ -2,7 +2,7 @@
 
 /**
  * Аннотации объектов
- * 
+ *
  * @author morph
  */
 class Controller_Annotation extends Controller_Abstract
@@ -12,7 +12,7 @@ class Controller_Annotation extends Controller_Abstract
      */
     protected $config = array(
         'class'             => array(
-            'Service'
+            'Orm', 'Service'
         ),
         'methods'           => array(
             'Route', 'Cache'
@@ -21,7 +21,7 @@ class Controller_Annotation extends Controller_Abstract
             'Service'
         )
     );
-    
+
     /**
      * Сброк аннотации
      */
@@ -34,17 +34,17 @@ class Controller_Annotation extends Controller_Abstract
         }
         $config = $context->configManager->get('Data_Provider_Manager');
         $annotationConfig = $config['Annotation'];
-        $filename = IcEngine::root() . $annotationConfig['params']['path'] . 
+        $filename = IcEngine::root() . $annotationConfig['params']['path'] .
             $name;
         if (file_exists($filename)) {
             unlink($filename);
         }
     }
-    
+
     /**
      * Обновить аннотации
      */
-    public function update($path, $verbose, $context)
+    public function update($path, $verbose, $author, $context)
     {
         $this->task->setTemplate(null);
         $user = $context->user->getCurrent();
@@ -65,7 +65,7 @@ class Controller_Annotation extends Controller_Abstract
             if (!$path || !is_dir($path)) {
                 continue;
             }
-            if (strpos($path, 'Class') === false && 
+            if (strpos($path, 'Class') === false &&
                 strpos($path, 'Controller') === false &&
                 strpos($path, 'Model') === false) {
                 continue;
@@ -106,7 +106,7 @@ class Controller_Annotation extends Controller_Abstract
         foreach ($classes as $i => $class) {
             IcEngine::getLoader()->load($class['class']);
             if ($verbose) {
-                echo '#' . ($i + 1) . ' ' . $class['class'] . 
+                echo '#' . ($i + 1) . ' ' . $class['class'] .
                     ' (' . $class['file'] . ') done.' . PHP_EOL;
             }
             $className = $class['class'];
@@ -122,6 +122,10 @@ class Controller_Annotation extends Controller_Abstract
                 foreach ($annotationData as $annotationName => $data) {
                     foreach ($delegees[$delegeeType] as $delegee) {
                         if (strpos($annotationName, $delegee) === 0) {
+                            if (is_string($data)) {
+                                $annotationName = $data;
+                                $data = array(0);
+                            }
                             $keys = array_keys($data);
                             if (is_numeric($keys[0])) {
                                 $delegeeData[$delegee][$className]
@@ -132,16 +136,19 @@ class Controller_Annotation extends Controller_Abstract
                             }
                         } elseif ($data) {
                             $key = $className . '/' . $annotationName;
+                            if (!is_array($data)) {
+                                continue;
+                            }
                             foreach ($data as $subAnnotationName => $subData) {
                                 if (is_numeric($subAnnotationName)) {
                                     continue;
                                 }
-                                if (strpos($subAnnotationName, $delegee) === 
+                                if (strpos($subAnnotationName, $delegee) ===
                                     false) {
                                     continue;
                                 }
                                 $delegeeData[$delegee][$key]
-                                [$subAnnotationName] = 
+                                [$subAnnotationName] =
                                 array(
                                     'class' => $className,
                                     'part'  => $annotationName,
@@ -157,7 +164,8 @@ class Controller_Annotation extends Controller_Abstract
             $controllerName = 'Annotation_' . $delegeeName;
             $context->controllerManager->call(
                 $controllerName, 'update', array(
-                    'data'  => $data
+                    'data'      => $data,
+                    'author'    => $author
                 )
             );
         }

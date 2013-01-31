@@ -5,7 +5,7 @@
  *
  * @author morph
  */
-class Model_Collection_Iterator implements Iterator
+class Model_Collection_Iterator_Single extends Model_Collection_Iterator_Array
 {
 	/**
 	 * Коллекция для итерации
@@ -20,20 +20,6 @@ class Model_Collection_Iterator implements Iterator
 	 * @var Model
 	 */
 	protected $current;
-
-	/**
-	 * Данные для итерации
-	 *
-	 * @var array
-	 */
-	protected $data;
-
-	/**
-	 * Индекс итерации
-	 *
-	 * @var integer
-	 */
-	protected $index;
 
 	/**
 	 * Является ли модель фабрикой
@@ -76,8 +62,9 @@ class Model_Collection_Iterator implements Iterator
 	 */
 	public function current()
 	{
-		$modelManager = $this->getService('modelManager');
-		$resourceManager = $this->getService('resourceManager');
+        $serviceLocator = IcEngine::serviceLocator();
+		$modelManager = $serviceLocator->getService('modelManager');
+		$resourceManager = $serviceLocator->getService('resourceManager');
 		$index = $this->index;
 		$fields = $this->data[$index];
 		if (!$this->isFactory) {
@@ -113,16 +100,6 @@ class Model_Collection_Iterator implements Iterator
 	}
 
 	/**
-	 * Получить данные для итерации
-	 *
-	 * @return array
-	 */
-	public function getData()
-	{
-		return $this->data;
-	}
-
-	/**
 	 * Получить индекс итерации
 	 *
 	 * @return integer
@@ -130,30 +107,6 @@ class Model_Collection_Iterator implements Iterator
 	public function getIndex()
 	{
 		return $this->index;
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function key()
-	{
-		return $this->index;
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function next()
-	{
-		++$this->index;
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function rewind()
-	{
-		$this->index = 0;
 	}
 
 	/**
@@ -177,16 +130,6 @@ class Model_Collection_Iterator implements Iterator
 	}
 
 	/**
-	 * Изменить данные для итерации
-	 *
-	 * @param array $data
-	 */
-	public function setData($data)
-	{
-		$this->data = $data;
-	}
-
-	/**
 	 * Изменить индекс итерации
 	 *
 	 * @param integer $index
@@ -195,8 +138,8 @@ class Model_Collection_Iterator implements Iterator
 	{
 		$this->index = $index;
 	}
-
-	/**
+    
+    /**
 	 * @inheritdoc
 	 */
 	public function valid()

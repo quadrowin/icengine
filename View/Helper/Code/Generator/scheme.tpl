@@ -1,8 +1,16 @@
 <?php
 
 return array (
-	{if !empty($admin_panel)}
-		{$admin_panel},
+	{if !empty($adminPanel)}
+		{$adminPanel},
+	{/if}
+
+    {if !empty($languageScheme)}
+		{$languageScheme},
+	{/if}
+
+    {if !empty($createScheme)}
+		{$createScheme},
 	{/if}
 
 	{if $comment}
@@ -16,7 +24,7 @@ return array (
 			'{$field[0]}'{if !empty($field[1])},
 
 			array (
-				{foreach from=$field[1] item="f" name="field1" key="field_name"}{if !$smarty.foreach.field1.first}	{/if}{if is_numeric($field_name)}'{$f}'{if !$smarty.foreach.field1.last},{/if}{else}{if !is_array($f)}'{$field_name}'	=> {if is_null($f)}null{elseif is_numeric($f)}{$f}{elseif $field[0]=='Enum'}{$f}{else}'{$f|addslashes}'{/if}{if !$smarty.foreach.field1.last},{/if}{else}'{$field_name}'	=> array ({foreach from=$f item="ff" name="fff"}{if $field[0]=='Enum'}{$ff}{else}{$ff|addslashes}{/if}{if !$smarty.foreach.fff.last}, {/if}{/foreach}){if !$smarty.foreach.field1.last},{/if}{/if}{/if}
+				{foreach from=$field[1] item="f" name="field1" key="field_name"}{if !$smarty.foreach.field1.first}	{/if}{if is_numeric($field_name) || is_bool($f)}{if is_numeric($field_name)}'{$f}'{else}'{$field_name}'{/if}{if !$smarty.foreach.field1.last},{/if}{else}{if !is_array($f)}'{$field_name}'	=> {if is_null($f)}null{elseif is_numeric($f)}{$f}{elseif $field[0]=='Enum'}{$f}{else}'{$f|addslashes}'{/if}{if !$smarty.foreach.field1.last},{/if}{else}'{$field_name}'	=> array ({foreach from=$f item="ff" name="fff"}{if $field[0]=='Enum'}{$ff}{else}{$ff|addslashes}{/if}{if !$smarty.foreach.fff.last}, {/if}{/foreach}){if !$smarty.foreach.field1.last},{/if}{/if}{/if}
 
 			{/foreach}){/if}
 
@@ -42,7 +50,19 @@ return array (
 'references'	=> array (
 		{foreach from=$references item="reference" name="references" key="name"}
 '{$name}'	=> array (
-			{foreach from=$reference item="r" name="reference1"}'{$r}'{if !$smarty.foreach.reference1.last}, {/if}{/foreach}
+            {$reference[0]}, array(
+                'Target'   => '{$reference[1]['Target']}',
+                {if isset($reference[1]['JoinColumn'])}
+                {if is_array($reference[1]['JoinColumn'])}
+                'JoinColumn'    => array({reset($reference[1]['JoinColumn'])}, {$reference[1]['JoinColumn']['on']}),    
+                {else}
+                'JoinColumn'    => '{$reference[1]['JoinColumn']}',    
+                {/if}
+                {/if}
+                {if isset($reference[1]['JoinTable'])}
+                'JoinTable'     => '{$reference[1]['JoinTable']}',    
+                {/if}
+            )
 		){if !$smarty.foreach.references.last},
 		{/if}
 

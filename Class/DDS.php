@@ -1,12 +1,12 @@
 <?php
 
 /**
- * @desc DDS Default Data Source
+ * DDS Default Data Source
  *
  * Easy way to call querys to DB like
- * DDS::execute ($query)
+ * DDS::execute($query)
  *
- * @author goorus
+ * @author goorus, morph
  * @Service("dds")
  */
 class DDS
@@ -31,20 +31,25 @@ class DDS
 	{
         $dataSource = $this->source;
         if ($auto) {
+            $from = null;
             $fromParts = $query->getPart(Query::FROM);
 			$fromPartTruncate = $query->getPart(Query::TRUNCATE_TABLE);
 			$fromPartUpdate = $query->getPart(Query::UPDATE);
+            $fromPartInsert = $query->getPart(Query::INSERT);
 			if ($fromParts){
 				$fromPart = reset($fromParts);
 				$from = $fromPart[Query::TABLE];
-			}
-			if ($fromPartTruncate) {
+			} elseif ($fromPartTruncate) {
 				$from = reset($fromPartTruncate);
-			} else {
+			} elseif ($fromPartUpdate) {
 				$from = $fromPartUpdate;
-			}
-            $scheme = IcEngine::serviceLocator()->getService('modelScheme');
-            $dataSource = $scheme->dataSource($from);
+			} elseif ($fromPartInsert) {
+                $from = $fromPartInsert;
+            }
+            if ($from) {
+                $scheme = IcEngine::serviceLocator()->getService('modelScheme');
+                $dataSource = $scheme->dataSource($from);
+            }
         }
 		return $dataSource->execute($query, $options);
 	}
@@ -57,16 +62,6 @@ class DDS
 	public function getDataSource()
 	{
 		return $this->source;
-	}
-
-	/**
-     * Инициализирован ли dds
-     *
-	 * @return boolean
-	 */
-	public function inited()
-	{
-		return (bool) $this->source;
 	}
 
 	/**

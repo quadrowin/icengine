@@ -6,7 +6,7 @@
  * @author goorus, morph
  * @Service("route")
  */
-class Route extends Model_Child
+class Route extends Objective
 {
 	/**
 	 * Загружены ли роуты из конфига
@@ -36,41 +36,6 @@ class Route extends Model_Child
      * @var Data_Provider_Abstract
      */
     protected $provider;
-
-	/**
-	 * Сформировать роут экшины, привязаннык роуту
-	 *
-	 * @return array
-	 */
-	public function actions()
-	{
-		$i = 0;
-        $resultActions = array();
-		$actions = $this->fields['actions'];
-		foreach ($actions as $action => $assign) {
-			if (is_numeric($action)) {
-				if (is_scalar($assign)) {
-					$action	= $assign;
-					$assign = 'content';
-				} else {
-					$assign = reset($assign);
-					$action = key($assign);
-				}
-			}
-			$tmp = explode('/', $action);
-			$controller = $tmp[0];
-			$controllerAction = !empty($tmp[1])
-                ? $tmp[1] : Controller_Manager::DEFAULT_ACTION;
-			$action = array(
-                'controller'	=> $controller,
-                'action'		=> $controllerAction,
-				'sort'			=> ++$i,
-				'assign'		=> $assign
-			);
-			$resultActions[] = $action;
-		}
-		return $resultActions;
-	}
 
 	/**
 	 * Добавить роут
@@ -172,6 +137,17 @@ class Route extends Model_Child
 		}
 		return $this->list;
 	}
+    
+    /**
+     * Получить сервис по имени
+     * 
+     * @param string $serviceName
+     * @return mixed
+     */
+    public function getService($serviceName)
+    {
+        return IcEngine::serviceLocator()->getService($serviceName);
+    }
 
 	/**
 	 * Возвращает объект рендера для роутера

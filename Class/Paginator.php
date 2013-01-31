@@ -5,7 +5,7 @@
  *
  * @author Юрий Шведов, neon
  * @package IcEngine
- * @Service("paginator")
+ * @Service("paginator", disableConstruct=true)
  */
 class Paginator
 {
@@ -69,7 +69,7 @@ class Paginator
 	 * @param integer $full_count Полное количество элементов
 	 * @param boolean $notGet ЧПУ стиль
 	 */
-	public function __construct($page, $perPage = 30, 
+	public function __construct($page, $perPage = 30,
         $total = 0, $notGet = false)
 	{
 		$this->page = $page;
@@ -159,31 +159,31 @@ class Paginator
 	}
 
 	/**
-	 * @param integer $full_count
+	 * @param integer $fullCount
 	 * @param string $prefix
 	 * @return Paginator
 	 */
-	public static function fromGet($full_count = 0, $prefix = '')
+	public function fromGet($fullCount = 0, $prefix = '')
 	{
 		$locator = IcEngine::serviceLocator();
 		$request = $locator->getService('request');
 		return new self(
 			max($request->get('page'), 1),
 			max($request->get('limit', 30), 10),
-			$full_count,
+			$fullCount,
 			false
 		);
 	}
 
 	/**
-	 *
-	 * @param Data_Transport $input Входные данные.
+	 * Создание пагинатора через транспорт
+     *
+	 * @param Data_Transport_Abstract $input Входные данные.
 	 * @param integer $total Общее количество элементов.
 	 * @return Paginator
 	 */
-	public function fromInput(Data_Transport $input,
-		$total = 0, $notGet = false)
-	{
+	public function fromInput($input, $total = 0, $notGet = false) {
+        $locator = IcEngine::serviceLocator();
 		return new self(
 			max($input->receive('page'), 1),
 			max($input->receive('limit'), 10),

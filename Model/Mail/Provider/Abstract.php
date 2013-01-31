@@ -1,10 +1,9 @@
 <?php
+
 /**
+ * Провайдер для отправки сообщений пользователя.
  *
- * @desc Провайдер для отправки сообщений пользователя.
- * @author Юрий Шведов
- * @package IcEngine
- *
+ * @author Юрий Шведов, neon
  */
 class Mail_Provider_Abstract extends Model_Factory_Delegate
 {
@@ -27,22 +26,42 @@ class Mail_Provider_Abstract extends Model_Factory_Delegate
 	 */
 	const MAIL_STATE_SUCCESS	= 'success';
 
+    /**
+     * Получить экземпляр по имени
+     *
+     * @param string $name
+     * @return Mail_Provider_Abstract
+     */
+    public function byName($name)
+	{
+		$modelManager = $this->getService('modelManager');
+        return $modelManager->byOptions(
+            'Mail_Provider',
+            array(
+                'name'  => '::Name',
+                'value' => $name
+            )
+        );
+	}
+
 	/**
-	 * @desc Запись в лог состояния сообщения.
+	 * Запись в лог состояния сообщения.
+     *
 	 * @param Mail_Message $message
 	 * @param string $state Состояние отправки
 	 * @param mixed $comment [optional] Дополнительная информация.
 	 */
-	public function logMessage (Mail_Message $message, $state, $comment = null)
+	public function logMessage(Mail_Message $message, $state, $comment = null)
 	{
-		$log = new Mail_Message_Log (array (
-			'time'				=> Helper_Date::toUnix (),
+        $helperDate = $this->getService('helperDate');
+		$log = new Mail_Message_Log(array(
+			'time'				=> $helperDate->toUnix(),
 			'Mail_Provider__id'	=> $this->id,
 			'Mail_Message__id'	=> $message->id,
 			'state'				=> $state,
-			'comment'			=> json_encode ($comment)
+			'comment'			=> json_encode($comment)
 		));
-		$log->save ();
+		$log->save();
 	}
 
     /**

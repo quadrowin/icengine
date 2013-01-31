@@ -3,7 +3,7 @@
 /**
  * Абстрактная модель пользователя.
  *
- * @author goorus, morph
+ * @author goorus, morph, neon
  */
 class User_Abstract extends Model
 {
@@ -33,7 +33,11 @@ class User_Abstract extends Model
 	{
         $session = $this->getService('session')->getCurrent();
 		$session->updateSession($this->key());
-		$this->current = $this;
+        $userService = $this->getService('user');
+        $userService->setCurrent($this);
+        $this->update(array(
+            'phpSessionId'  => $session->key()
+        ));
 		return $this;
 	}
 
@@ -42,9 +46,10 @@ class User_Abstract extends Model
 	 *
      * @return boolean True, если пользователь авторизован, иначе false.
 	 */
-	public function authorized ()
+	public function authorized()
 	{
-		return (bool) $this->current;
+        $userService = $this->getService('user');
+		return $userService->current->id > 0 ? true : false;
 	}
 
 	/**
@@ -82,7 +87,7 @@ class User_Abstract extends Model
 	 * $param ['password'] Пароль
 	 * $param ['active'] = 0 Активен
 	 * $param ['ip'] IP пользователя при регистрации
-	 * @return User
+	 * @return Model|false
 	 */
 	public function create($data)
 	{
@@ -92,6 +97,22 @@ class User_Abstract extends Model
 		if (!isset($data['ip'])) {
 			$data['ip'] = $this->getService('request')->ip();
 		}
+        //иначе пароля не будет в RSAW2
+        if (strlen($data['password']) < 4) {
+            return;
+        }
+        if (!isset($data['login']) && !isset($data['email'])) {
+            return false;
+        }
+        if (!isset($data['login'])) {
+            $data['login'] = $data['email'];
+        }
+        $cryptManager = $this->getService('cryptManager');
+        $configManager = $this->getService('configManager');
+        $userConfig = $configManager->get('User');
+        $crypt = $cryptManager->get($userConfig->cryptManager);
+        $passwordCrypted = $crypt->encode($data['password']);
+        $data['password'] = $passwordCrypted;
 		$user = new User($data);
 		return $user->save();
 	}
@@ -106,6 +127,15 @@ class User_Abstract extends Model
 	{
 		return $this->current;
 	}
+
+    /**
+     * Получить ид текущей сессии пользователя
+     * @return string
+     */
+    public function getSessionId()
+    {
+        return $this->phpSessionId;
+    }
 
 	/**
 	 * Возвращает id текущего пользователя.

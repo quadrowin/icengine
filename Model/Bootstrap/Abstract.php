@@ -28,6 +28,13 @@ abstract class Bootstrap_Abstract
 	 */
 	protected $runned = false;
 
+    /**
+     * Добавленные стратегии фронт контроллера
+     * 
+     * @var array
+     */
+    protected static $strategies = array();
+    
 	/**
 	 * Возвращает загрузчик.
 	 *
@@ -78,6 +85,16 @@ abstract class Bootstrap_Abstract
 		$this->initView();
 		$this->initUser();
 	}
+    
+    /**
+     * Получить добавленные стратегии
+     * 
+     * @return array
+     */
+    public function getStrategies()
+    {
+        return static::$strategies;
+    }
 
 	/**
 	 * Инициализация менеджера атрибутов.
@@ -119,6 +136,7 @@ abstract class Bootstrap_Abstract
         $configManager = $serviceLocator->getService('configManager');
         $config = $configManager->get('Model_Scheme', $name);
         $modelScheme->init($config);
+        $modelScheme->setBehavior($name);
 	}
 
 	/**

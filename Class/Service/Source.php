@@ -91,7 +91,13 @@ class Service_Source
                 self::$services[$serviceName]['class'] = $className;
             }
         } else {
-           $object = new $className;
+            if (!empty($serviceData['disableConstruct'])) {
+                $reflection = new \ReflectionClass($className);
+                $object = $reflection->newInstanceWithoutConstructor();
+                self::$services[$serviceName]['isAbstract'] = true;
+            } else {
+                $object = new $className;
+            }
         }
         if ($this->annotationManager) {
             $realObject = $object;
@@ -191,7 +197,7 @@ class Service_Source
         if (!isset(self::$services[$serviceName])) {
             return null;
         }
-        $serviceData = self::$services[$serviceName];
+        $serviceData = &self::$services[$serviceName];
         if (!isset($serviceData['class']) && !isset($serviceData['source'])) {
             return null;
         }
@@ -203,12 +209,12 @@ class Service_Source
             if (!$service) {
                 return null;
             }
-        } 
+        }
         $instanceCallback = array();
         if (!empty(self::$services[$serviceName]['instanceCallback'])) {
            $instanceCallback = self::$services[$serviceName]['instanceCallback'];
         }
-        if ($instanceCallback || empty($serviceData['isAbstract'])) {
+        if ($instanceCallback || !empty($serviceData['isAbstract'])) {
             $state = new Service_State(
                 $service,
                 self::$services[$serviceName]['class'],

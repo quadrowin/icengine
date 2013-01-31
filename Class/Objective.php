@@ -19,7 +19,7 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	 *
      * @param array $data
 	 */
-	public function __construct($data)
+	public function __construct($data = array())
 	{
         if (!$data || !is_array($data)) {
             return;
@@ -262,4 +262,25 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 			unset($this->data[$offset]);
 		}
 	}
+
+     /**
+     * Прикрепить массив
+     */
+    public function set()
+    {
+        $argsCount = func_num_args();
+        if ($argsCount == 1) {
+            $this->setArray(func_get_arg(0));
+        } elseif ($argsCount == 2) {
+            list($key, $value) = func_get_args();
+            $this->data[$key] = $value;
+        }
+    }
+
+    public function setArray($array)
+    {
+        foreach ($array as $key => $value) {
+            $this->data[$key] = $value;
+        }
+    }
 }
