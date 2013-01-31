@@ -33,7 +33,11 @@ class User_Abstract extends Model
 	{
         $session = $this->getService('session')->getCurrent();
 		$session->updateSession($this->key());
-        $userService = $this->getService('user')->setCurrent($this);
+        $userService = $this->getService('user');
+        $userService->setCurrent($this);
+        $this->update(array(
+            'phpSessionId'  => $session->key()
+        ));
 		return $this;
 	}
 
@@ -123,6 +127,15 @@ class User_Abstract extends Model
 	{
 		return $this->current;
 	}
+
+    /**
+     * Получить ид текущей сессии пользователя
+     * @return string
+     */
+    public function getSessionId()
+    {
+        return $this->phpSessionId;
+    }
 
 	/**
 	 * Возвращает id текущего пользователя.
