@@ -22,8 +22,7 @@ class Controller_Front extends Controller_Abstract
 			$subEndTime = microtime(true);
 			Tracer::setRoutingTime($subEndTime - $subStartTime);
 		}
-		try
-		{
+		try {
             if (Tracer::$enabled) {
 				$startTime = microtime(true);
 			}
