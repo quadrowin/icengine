@@ -231,7 +231,6 @@ class Helper_Date
 		if ($date === null) {
 			$date = time();
 		}
-
 		return self::eraDayNum($date) * 24 + (int) date('H', $date);
 	}
 
