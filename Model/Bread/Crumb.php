@@ -21,7 +21,7 @@ class Bread_Crumb
 	 * @param string $title Текст ссылки
 	 * @param string $url Href ссылки
 	 */
-	public function append($title, $url)
+	public function append($title, $url = null)
 	{
 		$this->list[] = array(
 			'url'	=> $url,
