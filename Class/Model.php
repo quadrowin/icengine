@@ -547,9 +547,17 @@ abstract class Model implements ArrayAccess
      * Получить данные модели массивом
      * @return array
      */
-    public function raw()
+    public function raw($schema = array())
     {
-        return array_merge($this->asRow(), array(
+        $result = $this->asRow();
+        if ($schema) {
+            foreach (array_keys($result) as $fieldName) {
+                if (!in_array($fieldName, $schema)) {
+                    unset($result[$fieldName]);
+                }
+            }
+        }
+        return array_merge($result, array(
             'data'      => $this->data
         ));
     }
