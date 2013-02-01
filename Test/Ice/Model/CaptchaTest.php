@@ -8,7 +8,7 @@ require_once dirname(__FILE__) . '/../../../../Ice/Model/Captcha.php';
  */
 class CaptchaTest extends PHPUnit_Framework_TestCase {
 
-
+ 
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
