@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * TODO переписать эту хрень
+ *
  * @Service("helperImageResize")
  */
 class Helper_Image_Resize
@@ -95,17 +97,19 @@ class Helper_Image_Resize
 		}
 
 		if (is_array($crop)) {
-
-			$scale = $info[0]/$crop['width'];
-			if ($scale<1) {
-				$scale = 1;
-			}
+            $scale = 1;
+            if (!$crop['noScale']) {
+                $scale = $info[0] / $crop['width'];
+                if ($scale < 1) {
+                    $scale = 1;
+            	}
+            }
 			$crop['x1'] *= $scale;
 			$crop['x2'] *= $scale;
 			$crop['y1'] *= $scale;
 			$crop['y2'] *= $scale;
-			$final_width = $crop['x2']-$crop['x1'];
-			$final_height = $crop['y2']-$crop['y1'];
+			$final_width = $crop['x2'] - $crop['x1'];
+			$final_height = $crop['y2'] - $crop['y1'];
 		}
 
 		switch ($info[2])
@@ -167,9 +171,35 @@ class Helper_Image_Resize
 			if (is_array($crop)) {
 				imagecopyresampled (
 					$image_resized, $image,
-					0, 0, $crop['x1'], $crop['y1'],
-					$crop['x2']-$crop['x1'], $crop['y2']-$crop['y1'],$crop['x2']-$crop['x1'], $crop['y2']-$crop['y1']
+					0, 0,
+                    $crop['x1'], $crop['y1'],
+					$crop['x2'] - $crop['x1'],
+                    $crop['y2'] - $crop['y1'],
+                    $crop['x2'] - $crop['x1'],
+                    $crop['y2'] - $crop['y1']
 				);
+                if (isset($crop['final'])) {
+                    /**
+                     * $dst_image, $src_image,
+                     * $dst_x, $dst_y,
+                     * $src_x, $src_y,
+                     * $dst_w, $dst_h,
+                     * $src_w, $src_h
+                     */
+                    $imageCropResized = imagecreatetruecolor(
+                        $crop['final']['width'],
+                        $crop['final']['height']
+                    );
+                    imagecopyresampled(
+                        $imageCropResized, $image_resized,
+                        0, 0, 0, 0,
+                        $crop['final']['height'],
+                        $crop['final']['width'],
+                        $crop['width'],
+                        $crop['height']
+                    );
+                    $image_resized = $imageCropResized;
+                }
 			} else
 			if ($crop == 'up')
 			{
