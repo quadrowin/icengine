@@ -12,7 +12,9 @@ class Dto
      * Параметры по умолчанию
      * @var array
      */
-    protected static $defaults = array();
+    protected static $defaults = array(
+        'sortDir'   => 'Desc'
+    );
 
     /**
      * Данные
