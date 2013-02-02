@@ -38,6 +38,8 @@ class User_Abstract extends Model
         $this->update(array(
             'phpSessionId'  => $session->key()
         ));
+        $authorizationLog = $this->getService("authorizationLog");
+        $authorizationLog->log();
 		return $this;
 	}
 
