@@ -10,11 +10,6 @@ class Controller_Content_Abstract extends Controller_Abstract
 	/**
 	 * Форма создания контента
      * 
-     * @Route(
-     *      "/content/create",
-     *      "name"="contentCreatePage",
-     *      "weight"=20
-     * )
      * @Context("tempContent")
 	 */
 	public function create($contentId, $categoryId, $referer, $context)
@@ -61,10 +56,6 @@ class Controller_Content_Abstract extends Controller_Abstract
 	/**
 	 * Удаление контента
      * 
-     * @Route(
-     *      "/content/delete",
-     *      "weight"=20
-     * )
 	 */
 	public function delete($contentId, $referer)
 	{
@@ -164,10 +155,6 @@ class Controller_Content_Abstract extends Controller_Abstract
 	/**
 	 * Сохранить контент
      * 
-     * @Route(
-     *      "/content/save/",
-     *      "weight"=20
-     * )
 	 */
 	public function save($title, $short, $text, $sort, $url, $utcode)
 	{
