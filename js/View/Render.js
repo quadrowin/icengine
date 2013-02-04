@@ -41,6 +41,11 @@ var View_Render = {
 		}
 	},
 
+    addTemplate: function(path, text)
+    {
+        View_Render.templates[path] = text;
+    },
+
 	/**
 	 * Компилировать шаблон в строку
      *
@@ -51,8 +56,10 @@ var View_Render = {
 	{
         Loader.load('Helper_Render_Smarty', 'engine');
 		if (!View_Render.templates[tpl]) {
-			Debug.echo('No template: ', tpl);
-			return null;
+            if (!Loader.loadJtpl(tpl)) {
+                Debug.echo('No template: ', tpl);
+                return null;
+            }
 		}
 		return Helper_Render_Smarty.processDOMTemplate(
 			View_Render.templates[tpl],
