@@ -129,7 +129,7 @@ class Attribute_Manager extends Manager_Abstract
 
 		if (self::$_provider)
 		{
-			$value = json_decode ($value, true);
+			$value = urldecode(json_decode ($value, true));
 
 			self::$_provider->set (
 				$prov_key,
@@ -144,7 +144,7 @@ class Attribute_Manager extends Manager_Abstract
 			return $value;
 		}
 
-		return json_decode ($value, true);
+		return urldecode(json_decode ($value, true));
 	}
 
 	/**
@@ -205,7 +205,7 @@ class Attribute_Manager extends Manager_Abstract
 						'table'	=> $table,
 						'rowId'	=> $row,
 						'key'	=> $k,
-						'value'	=> json_encode ($v)
+						'value'	=> json_encode (urlencode($v))
 					))
 			);
 
