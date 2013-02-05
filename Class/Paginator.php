@@ -56,12 +56,24 @@ class Paginator
 	 */
 	public $prev;
 
-	/**
+    /**
+     * Предыдущая страница от выбранной
+     * @var array 
+     */
+    public $prevPage;
+	
+    /**
 	 * Следующая страница
 	 * @var array
 	 */
 	public $next;
 
+    /**
+     * Следующая страница от выбранной
+     * @var array 
+     */
+    public $nextPage;
+    
 	/**
 	 *
 	 * @param integer $page Текущая страница
@@ -136,6 +148,16 @@ class Paginator
 					'prev'		=> ($this->page == $i + 1),
 					'selected'	=> ($this->page == $i)
 				);
+                if ($page['selected']) {
+                    if (!empty($this->pages)) {
+                        $this->prevPage = $this->pages[count($this->pages)-1];
+                    }
+                }
+                if (!empty($this->pages)) {
+                    if ($this->pages[count($this->pages)-1]['selected']) {
+                        $this->nextPage = $page;
+                    }
+                }
 				$this->pages[] = $page;
 				if ($page['prev']) {
 					$this->prev = $page;
