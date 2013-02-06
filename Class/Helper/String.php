@@ -561,19 +561,23 @@ class Helper_String
 	        return strtr($var, self::$_win1251utf8);
 	    }
 	}
-        
-       /**
-        * @desc Удаление из строки спец. символы
-        * @param string $value Исходна стока
-        * @return Результат очистки.
-        */
-       public static function removeSpecialChars($value)
-       {
-           $value = str_replace(
-                   array("\r", "\n", "\t", ',', '(', ')', '[', ']', '{', '}'), '', $value
-           );
-           return $value;
-       }
+
+    public static function replaceSpecialChars($string, $value=' ')
+    {
+        $value = str_replace(
+            array(
+                "\r", "\n", "\t", ',', '(', ')',
+                '[', ']', '{', '}', '-', '_',
+                '!', '@', '#', '$', '%', '^', ':',
+                '&', '*', ',', '.', '+', '=',
+                '/', ' \\', '|', '\'', '"', '~', ' '
+            ),
+            $value,
+            $string
+        );
+        return $value;
+    }
+
 }
 
 
