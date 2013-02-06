@@ -95,11 +95,8 @@ class Helper_Translit
 	public function translit($value, $lang = null)
 	{
 		$value = trim($value);
-		$value = str_replace(
-			array ("\r", "\n", "\t", ',', '.', '(', ')', '[', ']', '{', '}'),
-			'',
-			$value
-		);
+
+        $value = Helper_String::replaceSpecialChars($value, '');
 		if (!isset($lang)) {
 			$regexpRus = '/^[а-яА-Я]+/';
 			$lang = preg_match($regexpRus, $value) ? 'en' : 'ru';
