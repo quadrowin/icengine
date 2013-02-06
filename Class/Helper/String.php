@@ -600,6 +600,22 @@ class Helper_String
 	}
 }
 
+public static function replaceSpecialChars($string, $value=' ')
+{
+    $value = str_replace(
+        array(
+            "\r", "\n", "\t", ',', '(', ')',
+            '[', ']', '{', '}', '-', '_',
+            '!', '@', '#', '$', '%', '^', ':',
+            '&', '*', ',', '.', '+', '=',
+            '/', ' \\', '|', '\'', '"', '~', ' '
+        ),
+        $value,
+        $string
+    );
+    return $value;
+}
+
 
 /**
  * Для PHP < 5.3
