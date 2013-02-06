@@ -193,8 +193,8 @@ class Helper_Image_Resize
                     imagecopyresampled(
                         $imageCropResized, $image_resized,
                         0, 0, 0, 0,
-                        $crop['final']['height'],
                         $crop['final']['width'],
+                        $crop['final']['height'],
                         $crop['width'],
                         $crop['height']
                     );
