@@ -84,6 +84,16 @@ class Dto
     }
 
     /**
+     * Получить данные Dto
+     *
+     * @return array
+     */
+    public function getFields()
+    {
+        return $this->fields;
+    }
+
+    /**
      * Создаёт экземпляр класса
      * @return Dto
      */
