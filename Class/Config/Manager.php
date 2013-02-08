@@ -41,7 +41,6 @@ class Config_Manager
 				(is_string ($config) && $config ? '/' . $config : '') .
 				'.php';
 
-            Debug::logVar($filename);
 			if (is_file ($filename))
 			{
 				$ext = ucfirst (strtolower (substr (strrchr ($filename, '.'), 1)));
