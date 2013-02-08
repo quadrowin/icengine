@@ -33,6 +33,7 @@ class Config_Manager
 	{
 		$paths = (array) self::$_pathToConfig;
 		$result = null;
+        Debug::logVar($paths);
 		foreach ($paths as $path)
 		{
 			$filename =
@@ -41,6 +42,7 @@ class Config_Manager
 				(is_string ($config) && $config ? '/' . $config : '') .
 				'.php';
 
+            Debug::logVar($filename);
 			if (is_file ($filename))
 			{
 				$ext = ucfirst (strtolower (substr (strrchr ($filename, '.'), 1)));
@@ -55,16 +57,16 @@ class Config_Manager
 					$result = $result->merge (new $class ($filename));
 				}
 			}
-			else
-			{
-				$result = self::emptyConfig ();
-			}
 
 			if ($result)
 			{
 				return is_array ($config) ? $result->merge ($config) : $result;
 			}
 		}
+
+        $result = self::emptyConfig();
+
+        return is_array ($config) ? $result->merge ($config) : $result;
 	}
 
 	/**

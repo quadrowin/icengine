@@ -22,7 +22,7 @@ class Module_Manager extends Manager_Abstract
 		if (isset(self::$_modules[$module_name])) {
 			return;
 		}
-		$module_dir = IcEngine::root () . $module_name . '/';
+		$module_dir = $module_name . '/';
 		Loader::addPath ('Class', $module_dir . 'Class/');
 		Loader::addPath ('Class', $module_dir . 'Model/');
 		Loader::addPath ('Class', $module_dir);
