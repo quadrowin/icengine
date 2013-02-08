@@ -33,7 +33,6 @@ class Config_Manager
 	{
 		$paths = (array) self::$_pathToConfig;
 		$result = null;
-        Debug::logVar($paths);
 		foreach ($paths as $path)
 		{
 			$filename =
