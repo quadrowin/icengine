@@ -38,7 +38,7 @@ class Helper_View_Resource
                 'core'      => 'IcEngine/js/'
             ),
             self::JTPL  => array(
-                'default'   => 'Ice/View/js/',
+                'default'   => 'Ice/Static/jtpl/',
                 'view'      => 'Ice/View/'
             )
         ),

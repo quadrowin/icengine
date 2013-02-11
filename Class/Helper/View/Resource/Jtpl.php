@@ -20,7 +20,9 @@ class Helper_View_Resource_Jtpl
 			array('\\\\', '\\"', '"+"\\r\\n"+"', '"+"\\n"+"', '"+"\\r"+"'),
 			$content
 		);
-        $filename = str_replace(IcEngine::root() . 'Ice/View/', '', $filename);
+        $filename = str_replace(
+            IcEngine::root() . 'Ice/Static/jtpl/', '', $filename
+        );
         $name = isset($params['name']) ? $params['name'] : $filename;
         $result = 'View_Render.templates[\'' . $name . '\']="' .
             $replacedContent . '";';
