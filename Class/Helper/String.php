@@ -79,6 +79,37 @@ class Helper_String
     }
     
     /**
+     * Нормализовать строку по шаблону
+     *
+     * @param array $row
+     * @param array $fields
+     * @param array $params
+     */
+    public function normalizeFields($row, $fields, $params)
+    {
+        foreach ($fields as $field) {
+            $matches = array();
+            $template = $row[$field];
+            preg_match_all(
+                '#{\$([^\.]+)\.([^}]+)}#', $template, $matches
+            );
+            if (!empty($matches[1][0])) {
+                $template = $row[$field];
+                foreach ($matches[1] as $i => $table) {
+                    $key = $matches[2][$i];
+                    $template = str_replace(
+                        '{$' . $table . '.' . $key . '}',
+                        $params[$table]->sfield($key),
+                        $template
+                    );
+                }
+            }
+            $row[$field] = $template;
+        }
+        return $row;
+    }
+    
+    /**
 	 * Получение превью для текста
      * 
 	 * @param string $text
