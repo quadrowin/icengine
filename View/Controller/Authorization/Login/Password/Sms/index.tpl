@@ -6,9 +6,13 @@
 		</tr>
 		<tr>
 			<td><label for="pass" style="font-size:18px; margin-top:-5px"">Пароль</label></td>
-			<td><input name="pass" type="password" style="font-size: 170%; width: 370px;" /> 
-                <input style="margin-left:10px; margin-top:-10px" class="btn btn-success" name="btnSendCode" type="submit" value="Отправить код" /></td>
+			<td><input name="pass" type="password" style="font-size: 170%; width: 500px;" /></td>
 		</tr>
+        <tr>
+            <td colspan="2" align="right">
+                <span class="btnSendCode" style="border-bottom:dashed 1px; cursor:pointer" onclick="Authorization_Login_Password_Sms.login($(this).closest('form'));">Отправить код</span>
+            </td>
+        </tr>
 		<tr>
 			<td><label for="code" style="font-size:18px; margin-top:-5px"">Смс код</label></td>
 			<td><input name="code" type="text" value="" style="font-size: 170%; width: 500px;" /></td>
