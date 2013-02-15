@@ -355,6 +355,23 @@ class Helper_Date
 		return self::$monthesRu [$form][(int) $month_num];
 	}
 
+    /**
+	 *
+	 */
+	public static function dayAndMonth($date = null) {
+		if (empty($date)) {
+			$date = new DateTime();
+			$m = $date->format('m');
+			$d = $date->format('d');
+		} else {
+			$date = explode('-', $date);
+			$m =(int) $date[1];
+            $d =(int) $date[2];
+		}
+        $month = self::$monthesRu[2][$m];
+		return $d . ' ' . $month;
+	}
+    
 	 /**
 	 *
 	 * @param string $date дата
