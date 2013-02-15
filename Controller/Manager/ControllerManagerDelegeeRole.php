@@ -18,13 +18,13 @@ class ControllerManagerDelegeeRole extends ControllerManagerDelegeeAbstract
         $controllerManager = $context->getControllerManager();
         $scheme = $controllerManager->annotationManager()
             ->getAnnotation($controller);
-        $user = $controller->getService('user');
+        $user = $controller->getService('user')->getCurrent();
         $actionScheme = $scheme->getMethod($context->getAction());
         $request = $controller->getService('request');
         if (!empty($actionScheme['Role'])) {
             $roles = array();
-            foreach ($actionScheme['Role'] as $role) {
-                $roles[] = reset($role);
+            foreach ($actionScheme['Role'][0] as $role) {
+                $roles[] = $role;
             }
             if (!$user->hasRole($roles)) {
                 if ($request->isAjax() || $request->isPost()) {

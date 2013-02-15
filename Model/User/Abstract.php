@@ -4,6 +4,7 @@
  * Абстрактная модель пользователя.
  *
  * @author goorus, morph, neon
+ * @Service("user")
  */
 class User_Abstract extends Model
 {
@@ -184,9 +185,9 @@ class User_Abstract extends Model
 	{
         $roleNames = array();
         $roles = array();
-        $args = func_get_args();
-        if (count($args) == 1 && is_array($args[0])) {
-            $args = $args[0];
+        $args = $role;
+        if (count($role) == 1 && is_array($role[0])) {
+            $args = $role[0];
         }
 		foreach ($args as $role) {
 			if (!$role) {
@@ -197,7 +198,7 @@ class User_Abstract extends Model
             } else {
                 $roles[] = $role;
             }
-		}
+        }
         if ($roleNames) {
             $collectionManager = $this->getService('collectionManager');
             $roleCollection = $collectionManager->create('Acl_Role')
