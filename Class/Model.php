@@ -1080,4 +1080,31 @@ abstract class Model implements ArrayAccess
 		return $this;
 	}
 
+    public function saveCarefully()
+    {
+        $pseudos = array ();
+
+        // Список существующий в модели полей
+        $scheme = Model_Scheme::fieldsNames ($this->modelName ());
+
+        foreach ($this->_fields as $name => $value)
+        {
+            if (array_search ($name, $scheme) === false)
+            {
+                // Псевдополе
+                $pseudos [$name] = $value;
+                unset ($this->_fields [$name]);
+            }
+        }
+
+        $this->save ();
+
+        $this->_fields = array_merge (
+            $this->_fields,
+            $pseudos
+        );
+
+        return $this;
+    }
+
 }
