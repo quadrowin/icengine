@@ -66,10 +66,13 @@ class Router extends Manager_Abstract
 					if (!$i) {
 						continue;
 					}
+                    $part = $hashRoute['patterns'][$keys[$i - 1]];
 					if (!empty($data[0])) {
+                        if (isset($part['value'])) {
+                            $data[0] = $part['value'];
+                        }
 						$request->param($keys[$i - 1], $data[0]);
 					} else {
-						$part = $hashRoute['patterns'][$keys[$i - 1]];
 						if (isset($part['default'])) {
 							$request->param($keys[$i - 1], $part['default']);
 						}

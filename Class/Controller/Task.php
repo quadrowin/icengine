@@ -14,6 +14,13 @@ class Controller_Task
 	 */
 	protected $assignVar = 'content';
 
+    /**
+     * Подготовленные к выполнению контроллер и действие
+     * 
+     * @var array
+     */
+    protected $callable;
+    
 	/**
 	 * Действие контроллера
      *
@@ -113,6 +120,16 @@ class Controller_Task
 	{
 		return $this->assignVar;
 	}
+    
+    /**
+     * Получить полготовленные к выполнению контроллер и действие
+     * 
+     * @return array
+     */
+    public function getCallable()
+    {
+        return $this->callable;
+    }
 
 	/**
 	 * Узнать игнорируется ли текущая задача
@@ -200,6 +217,17 @@ class Controller_Task
 		);
 	}
 
+    /**
+     * Изменить действие задачи
+     * 
+     * @param Controller_Abstract $controller
+     * @param string $actionName
+     */
+    public function setCallable($controller, $actionName)
+    {
+        $this->callable = array($controller, $actionName);
+    }
+    
 	/**
 	 * Установить флаг игнорирования текущего задания
      *
