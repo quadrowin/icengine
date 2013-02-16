@@ -63,6 +63,7 @@ class Controller_Manager extends Manager_Abstract
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeParam',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeContext',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeRole',
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeValidator',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeStatic',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeConfig',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeBefore',
@@ -252,6 +253,7 @@ class Controller_Manager extends Manager_Abstract
             ->setInput($input)
             ->setOutput($output)
             ->setTask($task);
+        $task->setCallable($controller, $actionName);
 		$config = $this->config();
         // Создает контекст вызова контроллера, отдаем его before-делегатам
         // менеджера контроллеров.
@@ -266,7 +268,7 @@ class Controller_Manager extends Manager_Abstract
         // и задачу после этого возвращаем на место
         if (!$controller->getTask()->getIgnore()) {
             $output->beginTransaction();
-            $callable = array($controller, $actionName);
+            $callable = $task->getCallable();
             $this->getExecutor($task)->execute($callable, $context->getArgs());
             $lastTransaction = $output->endTransaction();
             $task->setTransaction($lastTransaction);
