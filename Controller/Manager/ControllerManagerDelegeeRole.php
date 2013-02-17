@@ -30,7 +30,14 @@ class ControllerManagerDelegeeRole extends ControllerManagerDelegeeAbstract
                 if ($request->isAjax() || $request->isPost()) {
                     $controller->getTask()->setIgnore(true);
                 } else {
-                    $controller->replaceAction('Error', 'accessDenied');
+                    $newController = $controllerManager->get('Error');
+                    $newController
+                        ->setTask($controller->getTask())
+                        ->setInput($controller->getInput())
+                        ->setOutput($controller->getOutput());
+                    $controller->getTask()->setCallable(
+                        $newController, 'accessDenied'
+                    );
                 }
             }
         }
