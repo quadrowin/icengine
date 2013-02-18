@@ -173,8 +173,8 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 	 */
 	public function packOne (View_Resource $resource)
 	{
-		$resource->urlPath = dirname ($resource->href) . '/';
-
+        $urlPath = str_replace(IcEngine::root(), '', dirname($resource->filePath));
+        $resource->urlPath = '/' . $urlPath . '/';
 		if (
 			$this->config ()->item_prefix &&
 			isset ($resource->filePath)

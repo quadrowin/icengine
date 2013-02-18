@@ -30,7 +30,7 @@ class Controller_View_Resource_Css extends Controller_Abstract
 		{
 			foreach ($config->sources as $source)
 			{
-				View_Resource_Loader::load (
+                View_Resource_Manager::load (
 					$source ['base_url'],
 					$source ['base_dir'],
 					$source ['patterns'],
