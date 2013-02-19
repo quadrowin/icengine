@@ -121,8 +121,7 @@ abstract class Model implements ArrayAccess
             $this->load();
         }
 		if ($field == self::DATA_FIELD) {
-			$data = &$this->data;
-            return $data;
+            return $this->getData();
 		}
         $joinField = $field . '__id';
         if (isset($this->joints[$field])) {
@@ -189,7 +188,7 @@ abstract class Model implements ArrayAccess
 			'class'     => get_class($this),
 			'model'     => $this->modelName(),
 			'fields'    => $this->asRow(),
-			'data'      => $this->data
+			'data'      => $this->getData()->__toArray()
 		);
 	}
 
@@ -315,6 +314,9 @@ abstract class Model implements ArrayAccess
 	 */
 	public function &data($key, $value = null)
 	{
+        if (!is_object($this->data)) {
+            $this->data = $this->getData();
+        }
 		if (func_num_args()  == 1) {
 			if (is_scalar($key)) {
 				return isset($this->data[$key]) ? $this->data[$key] : null;
@@ -383,6 +385,9 @@ abstract class Model implements ArrayAccess
 	 */
 	public function &getData()
 	{
+        if (!is_object($this->data)) {
+            $this->data = new Objective($this->data);
+        }
 		return $this->data;
 	}
 
