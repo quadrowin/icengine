@@ -154,6 +154,17 @@ class Resource_Manager extends Manager_Abstract
 		$this->resources[$type][$name] = $resource;
 	}
 
+    /**
+     * Изменить ресурс по типу
+     * 
+     * @param string $type
+     * @param array $resources
+     */
+    public function setResources($type, $resources)
+    {
+        $this->resources[$type] = $resources;
+    }
+    
 	/**
 	 * Обновить ресурс
 	 * 
