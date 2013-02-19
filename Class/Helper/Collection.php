@@ -37,7 +37,6 @@ class Helper_Collection
 	{
 		$list = $collection->items();
 		if (empty($list)) {
-			// Список пуст
 			return $collection;
 		}
 		$firstIDS = $collection->column('id');
@@ -51,36 +50,36 @@ class Helper_Collection
 		do {
 			$finish = true;
 			for ($i = 0; $i < count($list); ++$i) {
-				if ($list[$i]['parentId'] == $child_of) {
-					//
-					if (!isset($index[count($parents)])) {
-						$index[count($parents)] = 1;
-					} else {
-						$index[count($parents)]++;
-					}
-					$n = count($result);
-					$result[$n] = $list[$i];
-					$result[$n]['data']['level'] = count($parents);
-					$result[$n]['data']['index'] = $index[count($parents)];
-					$parents_count = count($parents);
-					if ($parents_count > 0) {
-						$full_index = $full_index[$parents_count - 1] .
-							$index[count($parents)];
-					} else {
-						$full_index = (string) $index[count($parents)];
-					}
-					$result[$n]['data']['full_index'] = $full_index;
-					$result[$n]['data']['broken_parent'] = false;
-					$full_index[$parents_count] = $full_index . '.';
-					array_push($parents, $child_of);
-					$child_of = $list[$i][$keyField];
-					for ($j = $i; $j < count($list) - 1; $j++) {
-						$list[$j] = $list[$j + 1];
-					}
-					array_pop($list);
-					$finish = false;
-					break;
-				}
+				if ($list[$i]['parentId'] != $child_of) {
+                    continue;
+                }
+                if (!isset($index[count($parents)])) {
+                    $index[count($parents)] = 1;
+                } else {
+                    $index[count($parents)]++;
+                }
+                $n = count($result);
+                $result[$n] = $list[$i];
+                $result[$n]['data']['level'] = count($parents);
+                $result[$n]['data']['index'] = $index[count($parents)];
+                $parents_count = count($parents);
+                if ($parents_count > 0) {
+                    $full_index = $full_index[$parents_count - 1] .
+                        $index[count($parents)];
+                } else {
+                    $full_index = (string) $index[count($parents)];
+                }
+                $result[$n]['data']['full_index'] = $full_index;
+                $result[$n]['data']['broken_parent'] = false;
+                $full_index[$parents_count] = $full_index . '.';
+                array_push($parents, $child_of);
+                $child_of = $list[$i][$keyField];
+                for ($j = $i; $j < count($list) - 1; $j++) {
+                    $list[$j] = $list[$j + 1];
+                }
+                array_pop($list);
+                $finish = false;
+                break;
 			}
 			// Элементы с неверно указанным предком
 			if ($finish && count($parents) > 0) {
