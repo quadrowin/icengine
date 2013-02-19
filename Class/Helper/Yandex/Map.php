@@ -189,6 +189,9 @@ class Helper_Yandex_Map
 		static $a   = 6378137.0;
 		static $e2  = 0.006739496742337;
 		$fdLambda = ($long1 - $long2) * $D2R;
+        if ($fdLambda && $lat1 == $lat2) {
+            return 0;
+        } 
 		$fdPhi = ($lat1 - $lat2) * $D2R;
 		$fPhimean = (($lat1 + $lat2) / 2.0) * $D2R;
 		$fTemp = 1 - $e2 * (pow(sin($fPhimean), 2));
