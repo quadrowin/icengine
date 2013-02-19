@@ -186,11 +186,10 @@ abstract class Data_Mapper_Abstract
 	public function execute (Data_Source_Abstract $source,
 		Query_Abstract $query, $options = null)
 	{
-		if (!($query instanceof Query))
+		if (!($query instanceof Query_Abstract))
 		{
 			return new Query_Result (null);
 		}
-
 		$start = microtime (true);
 
 		$result = $this->_execute ($query, $options);
@@ -203,7 +202,6 @@ abstract class Data_Mapper_Abstract
 			'result'		=> $result,
 			'touchedRows'	=> count ($result),
 			'insertKey'		=> 0,
-			'currency'		=> $this->_isCurrency ($result, $options),
 			'finishedAt'	=> $finish,
 			'source'		=> $source
 		));
