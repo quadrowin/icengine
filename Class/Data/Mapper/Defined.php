@@ -29,9 +29,11 @@ class Data_Mapper_Defined extends Data_Mapper_Abstract
             $rows = $helperArray->filter($rows, $criteria);
         }
         $select = $query->getPart(Query::SELECT);
-        if (reset($select) == '*') {
+        $keys = array_keys($select);
+        if ($keys[0] == '*') {
             return $rows;
         }
-        return $helperArray->column($rows, array_keys($select));
+        print_r($select);
+        return $helperArray->column($rows, $keys);
     }
 }
