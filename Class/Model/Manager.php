@@ -224,9 +224,12 @@ class Model_Manager extends Manager_Abstract
     public function getParentClass($modelName, $config)
     {
         $parents = class_parents($modelName);
-		$first = end($parents);
-		$second = prev($parents);
-		return isset($config[$second]) ? $second : $first;
+        $config = $this->config();
+        foreach ($parents as $parent) {
+            if (isset($config['delegee'][$parent])) {
+                return $parent;
+            }
+        }
     }
 
     /**

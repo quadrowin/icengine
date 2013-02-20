@@ -7,7 +7,6 @@
  */
 class Controller_Controller extends Controller_Abstract
 {
-
 	/**
 	 * Ajax вызов контроллера
      *
@@ -22,6 +21,7 @@ class Controller_Controller extends Controller_Abstract
 	 */
 	public function ajax($call, $back, $params)
 	{
+        //echo $GLOBALS['HTTP_RAW_POST_DATA'];
         $controllerManager = $this->getService('controllerManager');
         $_SERVER ['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
 		if (is_string($params)) {
@@ -92,28 +92,6 @@ class Controller_Controller extends Controller_Abstract
 			echo 'View: ' . $filename . PHP_EOL;
 			file_put_contents($filename, '');
 		}
-	}
-
-    /**
-     * Выполнить несколько action'ов и вернуть результаты
-     * @param array $actions
-     */
-	public function multiAction($actions)
-	{
-        $controllerManager = $this->getService('controllerManager');
-		$results = array();
-		foreach ($actions as $name => $action) {
-			$results[$name] = $controllerManager->html(
-				$action['action'],
-				$action
-			);
-		}
-		$this->output->send(array(
-			'data'	=> array(
-				'results' => $results
-			)
-		));
-		$this->task->setTemplate(null);
 	}
 
     /**

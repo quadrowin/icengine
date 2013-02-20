@@ -1,24 +1,24 @@
 <?php
 
 /**
- * @desc Модель ячейки данных. Может быть уже заполнена
- * @author Роман Кузнецов, Колесников Илья
- * @package IcEngine
+ * Модель ячейки данных. Может быть уже заполнена
+ * 
+ * @author morph
  */
 class Model_Defined extends Model
 {
-
 	/**
-	 * @desc
-	 * @var array
+	 * Модели
+     * 
+     * @param array
 	 */
-    public static $rows = array ();
+    public static $rows = array();
 
 	/**
 	 * (non-PHPDoc)
 	 * @see Model::delete
 	 */
-	public function delete ()
+	public function delete()
 	{
 		throw new Exception ('It\'s a defined model');
 	}

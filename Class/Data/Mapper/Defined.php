@@ -14,7 +14,11 @@ class Data_Mapper_Defined extends Data_Mapper_Abstract
     {
         $serviceLocator = IcEngine::serviceLocator();
         $helperArray = $serviceLocator->getService('helperArray');
-        $modelName = reset($query->getPart(Query::FROM))[Query::TABLE];
+        $from = $query->getPart(Query::FROM);
+        if (!$from) {
+            return array();
+        }
+        $modelName = reset($from)[Query::TABLE];
         $rows = $modelName::$rows;
         $where = $query->getPart(Query::WHERE);
         if ($where) {
