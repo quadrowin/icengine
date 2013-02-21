@@ -109,8 +109,16 @@ class Unit_Of_Work
 		);
 		$query = $this->queries[$key];
 		//echo $key . ' ' . $query['query']->translate() . '<br />';
-		$result = $modelScheme->dataSource($query['modelName'])
-			->execute($query['query']);
+        $ds = $modelScheme->dataSource($query['modelName']);
+		$result = $ds->execute($query['query']);
+        $mapper = $ds->getDataMapper();
+        if (method_exists($mapper, 'getCacher')) {
+            $cacher = $mapper->getCacher();
+            $tag = $modelScheme->table($query['modelName']);
+            //print_r($tag);die;
+            $mapper->tagDelete($tag);
+            $cacher->tagDelete($tag);
+        }
 		//print_r($result);die;
 		$this->rawCount--;
 		if (isset($query['loader'])) {

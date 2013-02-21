@@ -292,7 +292,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
      *
      * @param string $tag
      */
-    protected function tagDelete($tag)
+    public function tagDelete($tag)
     {
         if (isset(self::$tagsValid[$tag])) {
             unset(self::$tagsValid[$tag]);
