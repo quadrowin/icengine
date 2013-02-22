@@ -21,7 +21,7 @@ class Controller_Annotation_Orm extends Controller_Abstract
         if (!isset($annotation['class']['Orm\\Entity'])) {
             return;
         }
-        $entity = $annotation['class']['Orm\\Entity'][0]; 
+        $entity = $annotation['class']['Orm\\Entity'][0];
         if (is_array($entity)) {
             $scheme = $this->getService('modelScheme'); 
             $models = $scheme->getModels();
@@ -70,7 +70,7 @@ class Controller_Annotation_Orm extends Controller_Abstract
             'Unsigned', 'Auto_Increment', 'Not_Null', 'Null'
         );
         $profileName = isset($annotation['class']['Orm\\Profile']) 
-            ? reset($annotation['class']['Orm\Profile'][0]) : null;
+            ? reset($annotation['class']['Orm\\Profile'][0]) : null;
         $profileData= array();
         if ($profileName) {
             $profileData = $this->getService('configManager')
@@ -88,7 +88,7 @@ class Controller_Annotation_Orm extends Controller_Abstract
                 if (strpos($key, 'Orm\\') === false) {
                     continue;
                 }
-                $fieldData = $data[$key][0];
+                $fieldData = is_array($data[$key]) ? $data[$key][0] : array();
                 list(, $type, $value) = explode('\\', $key, 3);
                 if ($type == 'Field') {
                     $fieldComment = '';
@@ -116,13 +116,13 @@ class Controller_Annotation_Orm extends Controller_Abstract
                         if (isset($profileData['fields']) &&
                             isset($profileData['fields'][$value])) {
                             $profileFieldData = $profileData['fields'][$value];
-                            foreach ($profileFieldData as $arg => $value) {
+                            foreach ($profileFieldData as $arg => $argValue) {
                                 if (is_numeric($arg)) {
-                                    $arg = $value;
-                                    $value = true;
+                                    $arg = $argValue;
+                                    $argValue = true;
                                 }
                                 if (empty($fieldData[$arg])) {
-                                    $fieldData[$arg] = $value;
+                                    $fieldData[$arg] = $argValue;
                                 }
                             }
                         }
