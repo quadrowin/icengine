@@ -1,19 +1,48 @@
 <?php
+
 /**
+ * Шаблоны сообщений.
+ * 
+ * @author goorus, morph
  * @Service("mailTemplate")
- * @desc Шаблоны сообщений.
- * @author Юрий Шведов
- * @package IcEngine
- *
+ * @Orm\Entity
  */
 class Mail_Template extends Model_Child
 {
-
+    /**
+     * @Orm\Field\Int(Size=11, Not_Null, Auto_Incrment)
+     * @Orm\Index\Primary
+     */
+    public $id;
+    
+    /**
+     * @Orm\Field\Varchar(Size=128, Not_Null)
+     * @Orm\Index\Key
+     */
+    public $name;
+    
+    /**
+     * @Orm\Field\Int(Size=11, Not_Null)
+     * @Orm\Index\Key
+     */
+    public $parentId;
+    
+    /**
+     * @Orm\Field\Varchar(Size=128, Not_Null)
+     */
+    public $subject;
+    
+    /**
+     * @Orm\Field\Text(Not_Null)
+     */
+    public $body;
+    
 	/**
-	 * @desc Данные для пустого шаблона
+	 * Данные для пустого шаблона
+     * 
 	 * @var array
 	 */
-	public static $blankTemplate = array (
+	public static $blankTemplate = array(
 		'id'		=> 0,
 		'name'	    => 'empty',
 		'parentId'	=> 0,
@@ -21,84 +50,81 @@ class Mail_Template extends Model_Child
 		'body'	    => 'body'
 	);
 
+    /**
+	 * Получение тела по шаблону.
+	 * 
+     * @param array $data Переменные шаблона.
+	 * @return string
+	 */
+	public function body(array $data = array())
+	{
+		$viewRenderManager = $this->getService('viewRenderManager');
+		$smarty = $viewRenderManager->pushViewByName('Smarty')->smarty();
+		$smarty->assign($data);
+		$template = 'Mail/Template/' . $this->name . '.tpl';
+		if($smarty->templateExists($template)) {
+			$body = $smarty->fetch($template);
+		} else {
+			$body = $smarty->fetch('string:' . $this->body);
+		}
+		$viewRenderManager->popView ();
+        $parent = null;
+        if ($this->parentId) {
+            $parent = $this->getService('modelManager')->byOptions(
+                'Mail_Template',
+                array(
+                    'name'  => '::Parent',
+                    'id'    => $this->parentId
+                )
+            );
+        }
+		if ($parent) {
+		    $data['body'] = $body;
+		    $body = $parent->body($data);
+		}
+		return $body;
+	}
+    
 	/**
 	 * Возращается шаблон по имени, либо шаблон по умолчанию
+     * 
 	 * @param string $name
 	 * @param boolean $blank Вернуть базовый, если шаблон не найден
 	 * @return Mail_Template
 	 */
-	public function byName ($name, $blank = true)
+	public function byName($name, $blank = true)
 	{
-		$model_manager = $this->getService('modelManager');
-		$query = $this->getService('query');
-		$template = $model_manager->byQuery (
-		    'Mail_Template',
-		    $query->instance ()
-		   		->where ('name', $name)
-		);
-
-		if (!$template && $blank)
-		{
-			$template = new Mail_Template (self::$blankTemplate);
+		$modelManager = $this->getService('modelManager');
+		$template = $modelManager->byOptions(
+            'Mail_Template',
+            array(
+                'name'  => '::Name',
+                'value' => $name
+            )
+        );
+		if (!$template && $blank) {
+			$template = new Mail_Template(self::$blankTemplate);
 		}
-
 		return $template;
 	}
 
 	/**
-	 * @desc Получение тела по шаблону.
-	 * @param array $data Переменные шаблона.
+	 * Получение заголовка по шаблону.
+	 * 
+     * @param array $data
 	 * @return string
 	 */
-	public function body (array $data = array ())
+	public function subject(array $data = array())
 	{
-		$view_render_manager = $this->getService('viewRenderManager');
-		$smarty = $view_render_manager->pushViewByName ('Smarty')->smarty ();
-		$smarty->assign ($data);
-
-		$tpl_name = 'Mail/Template/' . $this->name . '.tpl';
-		if($smarty->templateExists($tpl_name))
-		{
-			$body = $smarty->fetch ($tpl_name);
-		}
-		else
-		{
-			$body = $smarty->fetch ('string:' . $this->body);
-		}
-
-		$view_render_manager->popView ();
-
-		$parent = $this->getParent ();
-
-		if ($parent)
-		{
-		    $data ['body'] = $body;
-		    $body = $parent->body ($data);
-		}
-
-		return $body;
-	}
-
-	/**
-	 * @desc Получение заголовка по шаблону.
-	 * @param array $data
-	 * @return string
-	 */
-	public function subject (array $data = array ())
-	{
-		if (!$this->subject)
-		{
+		if (!$this->subject) {
 			// пустая тема
 			return '';
 		}
-		
-		$view_render_manager = $this->getService('viewRenderManager');
-		$smarty = $view_render_manager->pushViewByName ('Smarty')->smarty ();
-
-		$smarty->assign ($data);
-
-		$result = $smarty->fetch ('string:' . $this->subject);
-		$view_render_manager->popView ();
+		$viewRenderManager = $this->getService('viewRenderManager');
+		$smarty = $viewRenderManager->pushViewByName('Smarty')->smarty();
+		$smarty->assign($data);
+		$result = $smarty->fetch('string:' . $this->subject);
+		$viewRenderManager->popView();
 		return $result;
 	}
 
