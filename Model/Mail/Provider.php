@@ -66,5 +66,23 @@ class Mail_Provider extends Model_Defined
             'active' => 1
         )
     );
-
+    
+     /**
+     * Получить экземпляр по имени
+     *
+     * @param string $name
+     * @return Mail_Provider_Abstract
+     */
+    public function byName($name)
+	{
+		$modelManager = $this->getService('modelManager');
+        return $modelManager->byOptions(
+            'Mail_Provider',
+            array(
+                'name'  => '::Name',
+                'value' => $name
+            )
+        );
+	}
+    
 }
