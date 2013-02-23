@@ -21,7 +21,7 @@ class ControllerManagerDelegeeLayout extends ControllerManagerDelegeeAbstract
         $actionScheme = $scheme->getMethod($context->getAction());
         if (!empty($actionScheme['Layout'])) {
             IcEngine::getTask()->setTemplate(
-                reset($actionScheme['Validator']) 
+                reset($actionScheme['Validator'][0]) 
             );
         }
     }

@@ -20,9 +20,11 @@ class ControllerManagerDelegeeTemplate extends ControllerManagerDelegeeAbstract
             ->getAnnotation($controller);
         $actionScheme = $scheme->getMethod($context->getAction());
         if (!empty($actionScheme['Template'])) {
-            $context->getTask()->setTemplate(
-                reset($actionScheme['Template']) 
-            );
+            $template = reset($actionScheme['Template'][0]);
+            if ($template == 'null') {
+                $template = null;
+            }
+            $controller->getTask()->setTemplate($template);
         }
     }
 }
