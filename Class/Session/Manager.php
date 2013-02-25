@@ -30,7 +30,7 @@ class Session_Manager extends Manager_Abstract
 		 * @desc Время жизни сессии
 		 * @var integer
 		 */
-		'TTL'			=> 3600,
+		'TTL'			=> 86400,
 		/**
 		 * @desc Используемый провайдер
 		 * @var string
@@ -136,7 +136,6 @@ class Session_Manager extends Manager_Abstract
 	 */
 	public function write($id, $data)
 	{
-        echo 1;
 		$this->provider->set($id, $data, (int) $this->config()->TTL);
 		return true;
 	}
