@@ -43,7 +43,12 @@ class Module_Manager extends Manager_Abstract
 	{
 		$moduleCollection = Model_Collection_Manager::create(
 			'Module'
-		);
+		)->addOptions(
+            array(
+                'name' => 'Main',
+                'value' => false
+            )
+            );
 		$moduleCollection->sort('id DESC');
 		foreach ($moduleCollection as $module) {
 			self::addModule($module->name);
