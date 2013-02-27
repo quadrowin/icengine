@@ -13,7 +13,7 @@ class Loader
 	 * @desc Пути.
 	 * @var array
 	 */
-	protected static $_pathes = array ();
+	public static $_pathes = array ();
 
 	/**
 	 * @desc Подключенные.
