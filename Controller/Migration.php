@@ -75,14 +75,21 @@ class Controller_Migration extends Controller_Abstract
         $helperMigration = $this->getService('helperMigration');
         $queue = $helperMigration->getQueue($base);
         $controllerManager = $this->getService('controllerManager');
+        $f = fopen(IcEngine::root() . 'log/migration.txt', 'w+');
         foreach ($queue as $migrationName) {
             echo $migrationName . PHP_EOL;
+            $start = time();
+            fwrite($f, $migrationName . ' : ');
             $controllerManager->call('Migration', 'apply', array(
                 'action'    => 'up',
                 'base'      => $base,
                 'name'      => $migrationName
             ));
+            $end = time();
+            $delta = $end - $start;
+            fwrite($f, $delta . ' сек.' . PHP_EOL);
         }
+        fclose($f);
     }
 
 	/**
