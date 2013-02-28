@@ -562,7 +562,7 @@ class Helper_String
 	    }
 	}
 
-    public static function replaceSpecialChars($string, $value=' ')
+    /*public static function replaceSpecialChars($string, $value=' ')
     {
         $value = str_replace(
             array(
@@ -574,6 +574,19 @@ class Helper_String
             ),
             $value,
             $string
+        );
+        return $value;
+    }*/
+
+    /**
+     * @desc Удаление из строки спец. символы
+     * @param string $value Исходна стока
+     * @return Результат очистки.
+     */
+    public static function replaceSpecialChars($value)
+    {
+        $value = str_replace(
+            array("\r", "\n", "\t", ',', '(', ')', '[', ']', '{', '}'), '', $value
         );
         return $value;
     }
