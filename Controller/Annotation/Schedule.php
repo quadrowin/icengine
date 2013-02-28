@@ -65,7 +65,7 @@ class Controller_Annotation_Schedule extends Controller_Abstract
                     ->values(array(
                         'controllerAction'  => $scheduleName,
                         'deltaSec'          => $deltaSec,
-                        'lastTs'            => 0,
+                        'lastTs'            => time(),
                         'priority'          => $scheduleData['priority']
                     ));
                 $unitOfWork->push($insertQuery);
