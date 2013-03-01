@@ -747,7 +747,8 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
                 }
             }
             $result[$item[$keyField]]['data'] = array_merge(
-                $result[$item[$keyField]]['data'], $data
+                is_array($result[$item[$keyField]]['data']) ?
+                    $result[$item[$keyField]]['data'] : array(), $data
             );
         }
         if ($this->rawFields) {

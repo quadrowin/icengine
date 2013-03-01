@@ -2,7 +2,7 @@
 
 /**
  * Авторизация через отправку пользователю СМС сообщения с кодом.
- * 
+ *
  * @author goorus, morph
  */
 class Authorization_Login_Password_Sms extends Authorization_Abstract
@@ -13,7 +13,7 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 	protected static $config = array(
 		// Авторизовать только пользователей, имеющих одну из ролей.
 		// Роли перечисляются через запятую.
-		'auth_roles_names'			=> 'admin',
+		'auth_roles_names'			=> 'admin,editor',
 		// Функция, вызываемая после успешной авторизации
 		'authorization_callback'	=> null,
 		// Минимальная длина кода
@@ -72,7 +72,7 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 	/**
 	 * Дополнительная проверка пользователя перед началом авторизации
 	 * до отправки кода СМС.
-	 * 
+	 *
      * @param User $user Пользователь.
 	 * @param string $login Указанный логин.
 	 * @param string $password Указанный пароль.
@@ -101,7 +101,7 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 	/**
 	 * Дополнительная проверка пользователя перед авторизацией после
 	 * проверки кода СМС.
-	 * 
+	 *
      * @param User $user Подходящий пользователь.
 	 * @param string $login Логин, указанный при авторизации.
 	 * @param string $password Пароль.
@@ -114,7 +114,7 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 
 	/**
 	 * Проверка на принадлежность пользователя к необходимой роли
-	 * 
+	 *
      * @param User $user Пользователь
 	 * @return boolean
 	 */
@@ -241,7 +241,7 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 
 	/**
 	 * Отправляет пользователю СМС для авторизации
-	 * 
+	 *
      * @param array $data
 	 * @param string $data ['login']
 	 * @param string $data ['password']
@@ -304,14 +304,14 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 		}
 		/**
 		 * Провайдер
-		 * 
+		 *
          * @var Mail_Provider_Abstract
 		 */
         $provider = $modelManager->byOptions(
             'Mail_Provider',
             array(
                 'name'  => '::Name',
-                'value' => !empty($data['provider']) 
+                'value' => !empty($data['provider'])
                     ? $data['provider'] : $config['sms_provider']
             )
         );
