@@ -338,6 +338,9 @@ class Helper_Array
      */
     public function reindex($array, $field = 'id')
     {
+        if (!is_array($array) || empty($array)) {
+            return $array;
+        }
         $arrayElementFields = array_keys(reset($array));
         $arrayElementFieldsFlipped = array_flip($arrayElementFields);
         if (!isset($arrayElementFieldsFlipped[$field])) {
