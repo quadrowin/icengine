@@ -13,7 +13,7 @@ class Query_Part_User extends Query_Part
 	{
 		$this->query->where($this->modelName . '.User__id',
 			$this->params['id']);
-        if ($this->params['notZero']) {
+        if (isset($this->params['notZero'])) {
             $this->query->where($this->modelName . '.User__id != 0');
         }
 	}
