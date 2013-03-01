@@ -21,6 +21,9 @@ class Helper_Array
         if (!$columns) {
             return $input;
         }
+        if (!is_array($input) || empty($input)) {
+            return array();
+        }
 		$result = array();
         $count = count($columns);
 		foreach ($input as $row) {
