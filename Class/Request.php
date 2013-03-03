@@ -3,7 +3,7 @@
 /**
  * Класс для работы с HTTP запросом.
  * @author Юрий Шведов, Илья Колесников, neon
- * 
+ *
  * @Service("request")
  */
 class Request
