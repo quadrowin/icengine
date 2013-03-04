@@ -18,6 +18,9 @@ class Controller_Annotation_Schedule extends Controller_Abstract
         }
         $schedules = array();
         foreach ($data as $controllerAction => $annotationData) {
+            $controllerAction = str_replace(
+                'Controller_', '', $controllerAction
+            );
             $subData = $annotationData['Schedule'];
             $scheduleData = $subData['data'][0];
             $interval = reset($scheduleData);
