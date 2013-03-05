@@ -1,17 +1,17 @@
 /**
  * @desc Контроллер для авторизации в универсальной админке
- */                                 
+ */
 var Authorization_Login_Password_Sms = {
-		
+
 	/**
 	 * @desc Провайдеры
-	 */	
+	 */
 	_providers: ['First_Success', 'Sms_Littlesms', 'Sms_Dcnk', 'Sms_Yakoon' ],
-	
+
 	_currentProvider: 0,
-	
+
 	_form: null,
-		
+
 	/**
 	 * @desc Авторизация или отправка кода
 	 * @param $form
@@ -23,12 +23,12 @@ var Authorization_Login_Password_Sms = {
 		var code = $form.find ('input[name=code]').val ();
 		var $btn = $form.find ('.btnSendCode');
 		$btn.nextAll ('div').remove ();
-		
+
 		if (!code)
 		{
 			$btn.hide ();
 		}
-		
+
 		function callback (result)
 		{
 			if (result && result.data && result.data.activation_id)
@@ -37,27 +37,26 @@ var Authorization_Login_Password_Sms = {
 					result.data.activation_id
 				);
 			}
-			
+
 			if (result.html)
 			{
 				$btn.after ('<div>' + result.html + '<div>');
 			}
-			
+
 			if (result.error)
 			{
 				$btn.show ();
 				alert (result.error);
 				return ;
 			}
-			
+
 			if (result.data.redirect)
 			{
 				window.location.href = result.data.redirect;
 			}
 		}
-		
+
 		var provider = cntr._providers [cntr._currentProvider];
-		
 		Controller.call (
 			'Authorization_Login_Password_Sms/login',
 			{
@@ -65,14 +64,14 @@ var Authorization_Login_Password_Sms = {
 				pass: $form.find ('input[name=pass]').val (),
 				a_id: $form.find ('input[name=activation_id]').val (),
 				code: code,
-				href: window.location.href,
+				href: '/cp/db/',
 				provider: provider,
 				send: send ? true : false
 			},
 			callback, true
 		);
 	},
-	
+
 	/**
 	 * @desc Деавторизация
 	 */
@@ -85,7 +84,7 @@ var Authorization_Login_Password_Sms = {
 					result.redirect :
 					window.location.href;
 		}
-		
+
 		Controller.call (
 			'Authorization_Login_Password_Sms/logout',
 			{
@@ -94,21 +93,21 @@ var Authorization_Login_Password_Sms = {
 			callback, true
 		);
 	},
-	
+
 	/**
 	 * @desc Отправить СМС еще раз
 	 */
 	rotate: function ()
 	{
 		var cntr = Authorization_Login_Password_Sms;
-		
+
 		cntr._currentProvider++;
-		
+
 		if (cntr._currentProvider >= cntr._providers.length)
 		{
 			cntr._currentProvider = 1;
 		}
-		
+
 		cntr.login (cntr._form, true);
 	}
 };
