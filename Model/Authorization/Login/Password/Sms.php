@@ -13,7 +13,7 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 	protected static $config = array(
 		// Авторизовать только пользователей, имеющих одну из ролей.
 		// Роли перечисляются через запятую.
-		'auth_roles_names'			=> 'admin,editor',
+		'auth_roles_names'			=> 'admin,editor,client-manager',
 		// Функция, вызываемая после успешной авторизации
 		'authorization_callback'	=> null,
 		// Минимальная длина кода

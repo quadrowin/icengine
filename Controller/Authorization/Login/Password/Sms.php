@@ -4,7 +4,7 @@
  * Контроллер для авторизации по емейлу, паролю и смс.
  * Предназначен для авторизации контентов в админке, поэтому
  * сверяет данные из БД с данными из файла конфига.
- * 
+ *
  * @author goorus, morph
  */
 class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
@@ -52,7 +52,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 
 	/**
 	 * Авторизация
-	 * 
+	 *
      * @param string $name Емейл пользователя
 	 * @param string $pass Пароль
 	 * @param string $code Код активации из СМС
@@ -159,7 +159,6 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 				),
 				array(
 					'name'	=> 'Password',
-					'type'	=> 'RSA',
 					'value'	=> $pass
 				)
 			);
