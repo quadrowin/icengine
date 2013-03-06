@@ -192,12 +192,22 @@ class Data_Transport
      * @param mixed $data
      * @return Data_Transport
      */
-	public function send($key, $data = null)
+	public function send($key, $data = null, $providerIndex = null)
 	{
 		if ($this->transactions) {
-			$this->currentTransaction()->send ($key, $data);
+			$this->currentTransaction()->send($key, $data);
 		} else {
-			$this->sendForce($key, $data);
+            $args = func_get_args();
+            if (count($args) == 1) {
+                $providerIndex = $data;
+                foreach ($key as $currentKey => $currentValue) {
+                    $this->sendForce(
+                        $currentKey, $currentValue, $providerIndex
+                    );
+                }
+            } else {
+                $this->sendForce($key, $data, $providerIndex);
+            }
 		}
 		return $this;
 	}
@@ -209,7 +219,7 @@ class Data_Transport
 	 * @param mixed $data
 	 * @return Data_Transport
 	 */
-	public function sendForce($key, $data = null)
+	public function sendForce($key, $data, $providerIndex)
 	{
 		if (!is_array($key)) {
 			$key = array($key => $data);
@@ -217,8 +227,12 @@ class Data_Transport
         $count = $count = sizeof($this->providers);
 		foreach ($key as $k => $v) {
             if($v){
-                for ($i = 0; $i < $count; $i++){
-                    $this->providers[$i]->set($k, $v);
+                if ($providerIndex) {
+                    $this->providers[$providerIndex]->set($k, $v);
+                } else {
+                    for ($i = 0; $i < $count; $i++){
+                        $this->providers[$i]->set($k, $v);
+                    }
                 }
             }
 		}
