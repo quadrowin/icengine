@@ -3,16 +3,24 @@
 /**
  * По полю phpSessionId
  *
- * @author markov
+ * @author neon
  */
 class Query_Part_Session extends Query_Part
 {
+
 	/**
 	 * @inheritdoc
 	 */
 	public function query()
 	{
-		$this->query->where($this->modelName . '.phpSessionId',
-			$this->params['id']);
+        if (isset($this->params['id'])) {
+            $sessionId = $this->params['id'];
+        } else {
+            $locator = IcEngine::serviceLocator();
+            $session = $locator->getService('session')->getCurrent();
+            $sessionId = $session->key();
+        }
+		$this->query->where($this->modelName . '.phpSessionId', $sessionId);
 	}
+
 }
