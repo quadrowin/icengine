@@ -19,7 +19,6 @@ class Query_Options extends Cache_Options
 
 	public function __construct ()
 	{
-	    parent::__construct ();
 		$this->_tags = array ();
 		$this->_notEmpty = false;
 	}
