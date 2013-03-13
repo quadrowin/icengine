@@ -241,7 +241,7 @@ class User_Abstract extends Model
             ->where('fromRowId', $roleIds)
             ->where('toRowId', $this->key());
         $dds = $this->getService('dds');
-        $existsRoleIds = (bool) $dds->execute($query)->getResult()->asColumn();
+        $existsRoleIds = $dds->execute($query)->getResult()->asColumn();
         if (!$existsRoleIds) {
             return false;
         }
