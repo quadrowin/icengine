@@ -426,7 +426,7 @@ class Helper_View_Resource
 	{
 		self::$files[self::CSS] = array();
 	}
-    
+
     /**
      * Сбросить файла js
      */
