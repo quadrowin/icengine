@@ -205,7 +205,7 @@ class User_Abstract extends Model
             if (!is_object($role)) {
                 $roleNames[] = $role;
             } else {
-                $roles[] = $role;
+                $roles[] = $role->asRow();
             }
         }
         if ($roleNames) {
@@ -216,7 +216,9 @@ class User_Abstract extends Model
                     'value' => $roleNames
                 ))->raw();
             if ($roleCollection) {
-                $roles = array_merge($roles, $roleCollection);
+                foreach ($roleCollection as $role) {
+                    $roles[] = $role;
+                }
             }
         }
         $helperArray = $this->getService('helperArray');
