@@ -31,6 +31,9 @@ class Helper_GeoIP
         $sessionResource = $locator->getService('sessionResource')
             ->newInstance('Geo');
         if (isset($sessionResource->cityId)) {
+            if (!$sessionResource->cityId) {
+                return;
+            }
             return $locator->getService('modelManager')->byKey(
                 'City', $sessionResource->cityId
             );
@@ -46,7 +49,8 @@ class Helper_GeoIP
         $netCityId = $dds->execute($netCityIdQuerySelect)
             ->getResult()->asValue();
         if (!$netCityId) {
-            return null;
+            $sessionResource->cityId = false;
+            return;
         }
         $modelManager = $locator->getService('modelManager');
         $city = $modelManager->byOptions(
@@ -58,6 +62,8 @@ class Helper_GeoIP
         if ($city) {
             $sessionResource->cityId = $city->key();
             return $city;
+        } else {
+            $sessionResource->cityId = false;
         }
 	}
 
