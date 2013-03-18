@@ -12,6 +12,6 @@ class Data_Provider_Cli extends Data_Provider_Buffer
 	 */
 	public function __construct()
 	{
-		$this->_buffer = &$_SERVER['argv'];
+		$this->buffer = &$_SERVER['argv'];
 	}
 }
