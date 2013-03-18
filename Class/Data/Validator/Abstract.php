@@ -1,31 +1,34 @@
 <?php
+
 /**
+ * Абстрактный класс валидатора
  * 
- * @desc Абстрактный класс валидатора
- * @author Юрий
- * @package IcEngine
- *
+ * @author goorus, morph
  */
 abstract class Data_Validator_Abstract 
 {
-	
+	/**
+     * Ошибка валидации
+     */
 	const INVALID = 'invalid';
 	
 	/**
-	 * @desc Валидация строки
-	 * @param string $data Данные.
+	 * Валидация строки
+	 * 
+     * @param string $data Данные.
 	 * @return true|string
 	 * 		true, если данные прошли валидацию или 
 	 * 		строка ошибки.
 	 */
-	public function validate ($data)
+	public function validate($data)
 	{
 		return true;
 	}
 	
 	/**
-	 * @desc Валидация поля с использованием схемы
-	 * @param string $field
+	 * Валидация поля с использованием схемы
+	 * 
+     * @param string $field
 	 * 		Название поля.
 	 * @param stdClass $data
 	 * 		Все данные.
@@ -35,11 +38,9 @@ abstract class Data_Validator_Abstract
 	 * 		true, если данные прошли валидацию или
 	 * 		строка ошибки.
 	 */
-	public function validateEx ($field, $data, $scheme)
+	public function validateEx($field, $data, $scheme)
 	{
-		return
-			$this->validate ($data->$field) === true ? 
-			true : get_class ($this) . '/' . self::INVALID;
+		return $this->validate($data->$field) === true 
+            ? true : get_class($this) . '/' . self::INVALID;
 	}
-	
 }
