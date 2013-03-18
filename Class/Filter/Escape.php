@@ -8,8 +8,6 @@ class Filter_Escape
 {
 	/**
 	 * @inheritdoc
-	 * @param string $data
-	 * @return string
 	 */
 	public function filter($data)
 	{

@@ -8,8 +8,6 @@ class Filter_Boolean
 {
 	/**
 	 * @inheritdoc
-	 * @param string $data
-	 * @return boolean
 	 */
 	public function filter($data)
 	{

@@ -3,8 +3,7 @@
 /**
  * Объект для хранения списка страниц.
  *
- * @author Юрий Шведов, neon
- * @package IcEngine
+ * @author goorus, neon
  * @Service("paginator", disableConstruct=true)
  */
 class Paginator
@@ -98,14 +97,12 @@ class Paginator
 		$locator = IcEngine::serviceLocator();
 		$request = $locator->getService('request');
 		$this->pages = array();
-		$pages_count = $this->pagesCount();
-		//Debug::logVar($pages_count);
-		if ($pages_count <= 1) {
-			return ;
+		$pagesCount = $this->pagesCount();
+		if ($pagesCount <= 1) {
+			return;
 		}
-		$half_page = round($pages_count / 2);
+		$halfPage = round($pagesCount / 2);
 		$spaced = false;
-		$href = isset($this->href) ? $this->href : $request->uri(false);
 		// Удаление из запроса GET параметра page
 		$p = 'page';
 		$href = preg_replace(
@@ -114,13 +111,13 @@ class Paginator
                 "(?:\=[^&]*)?(?=&|$))+|(\?$p(?:\=[^&]*)?".
                 "(?=(&$p(?:\=[^&]*)?)+))+/",
 			'',
-			$href
+			isset($this->href) ? $this->href : $request->uri(false)
 		);
 		/**
 		 * Для ссылок вида $page/, тоже учтём
 		 */
 		if (!$this->notGet) {
-			if (strpos ($href, '?') === false) {
+			if (strpos($href, '?') === false) {
 				$href .= '?page=';
 			} else {
 				$href .= '&page=';
@@ -128,17 +125,15 @@ class Paginator
 		} else {
 			if ($this->page > 1) {
 				$href = substr(
-					$href,
-					0,
-					(int) (strlen((string) $this->page) + 1) * -1
+					$href, 0, (int) (strlen((string) $this->page) + 1) * -1
 				);
 			}
 		}
-		for ($i = 1; $i <= $pages_count; $i++) {
+		for ($i = 1; $i <= $pagesCount; $i++) {
 			if (
 				$i <= 3 ||							// первые 3 страницы
-				($pages_count - $i) < 3 ||			// последние 3 страницы
-				abs($half_page - $i) < 3 ||			// середина
+				($pagesCount - $i) < 3 ||			// последние 3 страницы
+				abs($halfPage - $i) < 3 ||			// середина
 				abs($this->page - $i) < 3			// возле текущей
 			) {
 				$pageHref = $href . ($i > 1 ?
@@ -184,6 +179,8 @@ class Paginator
 	}
 
 	/**
+     * Инициализировать пагинатор из _GET
+     * 
 	 * @param integer $fullCount
 	 * @param string $prefix
 	 * @return Paginator
