@@ -1,42 +1,46 @@
 <?php
 
 /**
- * @desc Общий запрос
- * @author Илья Колесников, Юрий Шведов, neon
+ * Абстрактный запрос строителя запросов
+ * 
+ * @author morph, goorus, neon
  */
 class Query_Abstract
 {
 	/**
-	 * @desc Части запроса по умолчанию.
-	 * @var array
+	 * Части запроса по умолчанию.
+	 * 
+     * @var array
 	 */
-	public static $_defaults;
+	public $defaults;
 
 	/**
-	 * @desc Части запроса
-	 * @var array
+	 * Части запроса
+	 * 
+     * @var array
 	 */
-	protected $_parts;
+	protected $parts;
 
 	/**
-	 * @desc Тип запроса
-	 * @var string
+	 * Тип запроса
+	 * 
+     * @var string
 	 */
-	protected $_type;
+	protected $type;
 
 	/**
 	 * Флаги запроса
 	 *
 	 * @var array
 	 */
-	protected $_flags;
+	protected $flags;
 
 	/**
-	 * @desc Возвращает новый пустой запрос.
+	 * Конструктор
 	 */
 	public function __construct()
 	{
-		$this->reset ();
+		$this->reset();
 	}
 
 	/**

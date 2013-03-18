@@ -1,21 +1,18 @@
 <?php
+
 /**
+ * Шифрование md5.
  * 
- * @desc Шифрование md5.
- * @author Юрий Шведов
- * @package IcEngine
- *
+ * @author goorus
  */
 class Crypt_Md5 extends Crypt_Abstract
 {
-	
 	/**
-	 * (non-PHPdoc)
-	 * @see Crypt_Abstract::encode()
+	 * @inheritdoc
 	 */
-	public function encode ($input, $key = null)
+	public function encode($input, $key = null)
 	{
-		return md5 ($input);
+		return md5($input);
 	}
 	
 }

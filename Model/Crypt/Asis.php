@@ -1,28 +1,24 @@
 <?php
+
 /**
+ * Возвращает строку как есть
  * 
- * @desc Возвращает строку как есть.
- * @author Юрий Шведов
- * @package IcEngine
- *
+ * @author goorus
  */
 class Crypt_Asis extends Crypt_Abstract
 {
-	
 	/**
-	 * (non-PHPdoc)
-	 * @see Crypt_Abstract::decode()
+	 * @inheritdoc
 	 */
-	public function decode ($input, $key = null)
+	public function decode($input, $key = null)
 	{
 		return $input;
 	}
 	
 	/**
-	 * (non-PHPdoc)
-	 * @see Crypt_Abstract::encode()
+	 * @inheritdoc
 	 */
-	public function encode ($input, $key = null)
+	public function encode($input, $key = null)
 	{
 		return $input;
 	}

@@ -15,7 +15,7 @@ class Helper_Uri
 	 * @param array $params
 	 * @return string
 	 */
-	public static function fromRoute($routeName, $params = array())
+	public function fromRoute($routeName, $params = array())
 	{
         $locator = IcEngine::serviceLocator();
         $routeService = $locator->getService('route');
@@ -131,6 +131,12 @@ class Helper_Uri
 		return $url;
 	}
 
+    /**
+     * Получить основном домен
+     * 
+     * @param string $server_name
+     * @return string
+     */
 	public function mainDomain($server_name = null)
 	{
 		if (!$server_name) {

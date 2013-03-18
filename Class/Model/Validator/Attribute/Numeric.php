@@ -1,9 +1,19 @@
 <?php
 
-class Model_Validator_Attribute_Numeric extends Model_Validator_Attribute_Abstract
+/**
+ * Являет ли значение поля числом
+ * 
+ * @author morph
+ */
+class Model_Validator_Attribute_Numeric extends 
+    Model_Validator_Attribute_Abstract
 {
-	public static function validate ($model, $field, $value, $input)
+	public function doValidate()
 	{
-		return is_numeric ($model->sfield ($field)) === (bool) $value;
+        if (!is_null($this->value)) {
+            $this->value = true;
+        }
+		return is_numeric($this->model->sfield($this->field)) === 
+            (bool) $this->value;
 	}
 }

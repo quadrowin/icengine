@@ -53,7 +53,7 @@ class Controller_Front extends Controller_Abstract
 			$resultTasks = $controllerManager->runTasks($tasks);
 			$this->output->send('tasks', $resultTasks);
 		} catch (Exception $e) {
-            Error::render($e);
+            $this->getService('errorRender')->render($e);
 		}
 	}
 }
