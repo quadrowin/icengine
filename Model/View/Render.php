@@ -1,11 +1,9 @@
 <?php
 
 /**
- *
- * @desc Фабрика рендеров.
- * @author Юрий Шведов
- * @package IcEngine
- *
+ * Фабрика рендеров.
+ * 
+ * @author goorus
  */
 class View_Render extends Model_Defined
 {

@@ -1,69 +1,83 @@
 <?php
 
-class Error
+/**
+ * Рендер ошибок
+ * 
+ * @author morph
+ * @Service("errorRender")
+ */
+class Error_Render extends Manager_Abstract
 {
+    /**
+     * @inheritdoc
+     */
+    protected $config = array(
+        'path'      => 'Error/',
+        'layout'    => 'index.tpl'
+    );
+    
 	/**
-	 *
+	 * Рендер
+     * 
 	 * @var View_Render_Abstract
 	 */
-	private static $_render;
+	private $render;
 
-	/**
-	 *
+	/*
+     * Получить текущий рендер
+     * 
+	 * @return View_Render_Abstract
+	 */
+	public function getRender()
+	{
+		return $this->render;
+	}
+    
+    /**
+	 * Получить шаблон ошибок
+     * 
 	 * @param string $code
 	 * @return string
 	 */
-	private static function _getTemplate ($code)
+	public function getTemplate($code)
 	{
-		$query = Query::instance()
-			->select ('template')
-			->from ('Errors')
-			->where ('code=?', $code);
-		$ds = DDS::execute ($query);
-		return $ds->getResult ()->asRow ();
-	}
-
-	/*
-	 * @return View_Render_Abstract
-	 */
-	public static function getRender ()
-	{
-		return self::$_render;
+		return $this->config()->path . $code;
 	}
 
 	/**
-	 *
+	 * Рендеринг ошибки
+     * 
 	 * @param Exception $e
 	 */
-	public static function render (Exception $e)
+	public function render (Exception $e)
 	{
-		if (!self::$_render)
+		if ($this->render)
 		{
-			$msg =
-				'[' . $e->getFile () . '@' .
-				$e->getLine () . ':' .
-				$e->getCode () . '] ' .
+			$msg = '[' . $e->getFile() . '@' .
+				$e->getLine() . ':' .
+				$e->getCode() . '] ' .
 				$e->getMessage () . PHP_EOL;
-
-			error_log ($msg . PHP_EOL, E_USER_ERROR, 3);
-			echo '<pre>' . $msg . $e->getTraceAsString () . '</pre>';
-
+			error_log($msg . PHP_EOL, E_USER_ERROR, 3);
+			echo '<pre>' . $msg . $e->getTraceAsString() . '</pre>';
 			return;
 		}
-
-		self::$_render->assign ('e', $e);
-		self::$_render->display (self::_getTemplte ($e->getCode ()));
+		$this->render->assign('e', $e);
+        $template = $this->getTemplate($e->getCode());
+        $content = $this->render->fetch($template);
+        $this->render->assign('content', $content);
+        $layout = $this->config()->path . $this->config->layout;
+		$this->render->display($layout);
 	}
 
 	/**
-	 *
+	 * Изменить текущий рендер
+     * 
 	 * @param View_Render_Abstract $render
 	 */
-	public static function setRender (View_Render_Abstract $render)
+	public function setRender(View_Render_Abstract $render)
 	{
-		if ($render instanceof View_Render_Abstract)
-		{
-			self::$_render = $render;
+		if ($render instanceof View_Render_Abstract) {
+			$this->render = $render;
 		}
 	}
 }
