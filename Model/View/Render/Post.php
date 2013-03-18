@@ -1,31 +1,34 @@
 <?php
 
+/**
+ * Рендер post-запросов
+ * 
+ * @author morph
+ */
 class View_Render_Post extends View_Render_Abstract
 {
-
-	public function fetch ($tpl)
+    /**
+     * @inheritdoc
+     */
+	public function fetch($tpl)
 	{
-		$result = $this->_vars;
-		$this->_vars = array ();
+		$result = $this->vars;
+		$this->vars = array();
 		return $result;
 	}
 
-	public function display ($tpl)
+    /**
+     * @inheritdoc
+     */
+	public function display($tpl)
 	{
         $redirect = '/';
-        if ($this->_vars)
-        {
-	        $this->_vars = reset ($this->_vars);
-	        $redirect = isset ($this->_vars ['redirect'])
-	        	 ? $this->_vars ['redirect'] : '/';
+        if ($this->vars) {
+	        $this->vars = reset($this->vars);
+	        $redirect = isset($this->vars['redirect'])
+	        	 ? $this->vars['redirect'] : '/';
         }
-		Helper_Header::redirect ($redirect);
+		$this->getService('helperHeader')->redirect($redirect);
         die;
 	}
-
-	public function addHelper ($helper, $method)
-	{
-
-	}
-
 }
