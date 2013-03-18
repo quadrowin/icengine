@@ -1,16 +1,21 @@
 <?php
 
+/**
+ * Рендер php
+ * 
+ * @author morph
+ */
 class View_Render_Php extends View_Render_Abstract
 {
-	
-	public function fetch ($tpl)
+	/**
+     * @inheritdoc
+     */
+	public function fetch($tpl)
 	{
 		$result = '';
-		foreach ($this->_templatesPathes as $path)
-		{
+		foreach ($this->templatesPathes as $path) {
 			$file = $path . $tpl;
-			if (file_exists($file))
-			{
+			if (file_exists($file)) {
 				ob_start();
 				include $file;
 				$result = ob_get_contents();
@@ -18,19 +23,18 @@ class View_Render_Php extends View_Render_Abstract
 				break;	
 			}
 		}
-		
 		return $result;
 	}
 	
+    /**
+     * @inheritdoc
+     */
 	public function display ($tpl)
 	{
-		foreach ($this->_templatesPathes as $path)
-		{
+		foreach ($this->templatesPathes as $path) {
 			$file = $path . $tpl;
-			if (file_exists ($file))
-			{
-				foreach ($this->_vars as $key => $value)
-				{
+			if (file_exists($file)) {
+				foreach ($this->vars as $key => $value) {
 					$$key = $value;
 				}
 				include $file;
@@ -38,10 +42,4 @@ class View_Render_Php extends View_Render_Abstract
 			}
 		}
 	}
-	
-	public function addHelper ($helper, $method)
-	{
-		
-	}
-	
 }

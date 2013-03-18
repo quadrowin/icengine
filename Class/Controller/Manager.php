@@ -449,7 +449,7 @@ class Controller_Manager extends Manager_Abstract
     public function eventManager()
     {
         if (!$this->eventManager) {
-            $this->eventManager = new Event_Manager;
+            $this->eventManager = $this->getService('eventManager');
         }
         return $this->eventManager;
     }

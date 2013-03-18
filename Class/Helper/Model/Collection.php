@@ -2,6 +2,9 @@
 
 /**
  * Помощник коллекции моделей
+ * 
+ * @author morph
+ * @Service("helperModelCollection")
  */
 class Helper_Model_Collection
 {

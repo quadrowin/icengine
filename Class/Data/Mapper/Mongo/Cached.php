@@ -27,7 +27,8 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 	/**
 	 * @inheritdoc
 	 */
-	public function _executeDelete(Query_Abstract $query, Query_Options $options)
+	public function _executeDelete(Query_Abstract $query, 
+        Query_Options $options)
 	{
         $this->collection = $this->connect()->selectCollection(
 			$this->connectionOptions['database'],
@@ -43,7 +44,8 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 	/**
 	 * @inheritdoc
 	 */
-	public function _executeInsert(Query_Abstract $query, Query_Options $options)
+	public function _executeInsert(Query_Abstract $query, 
+        Query_Options $options)
 	{
         $this->collection = $this->connect()->selectCollection(
 			$this->connectionOptions['database'],
@@ -59,7 +61,8 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 	/**
 	 * @inheritdoc
 	 */
-	public function _executeSelect(Query_Abstract $query, Query_Options $options)
+	public function _executeSelect(Query_Abstract $query, 
+        Query_Options $options)
 	{
 		$key = $this->queryHash();
 		$expiration = $options->getExpiration();
@@ -97,7 +100,8 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
     /**
      * @inheritdoc
      */
-    public function _executeShow(Query_Abstract $query, Query_Options $options) {
+    public function _executeShow(Query_Abstract $query, Query_Options $options) 
+    {
         $this->connect();
         parent::_executeShow($query, $options);
     }
@@ -105,7 +109,8 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 	/**
 	 * @inheritdoc
 	 */
-	public function _executeUpdate(Query_Abstract $query, Query_Options $options)
+	public function _executeUpdate(Query_Abstract $query, 
+        Query_Options $options)
 	{
         $this->collection = $this->connect()->selectCollection(
 			$this->connectionOptions['database'],

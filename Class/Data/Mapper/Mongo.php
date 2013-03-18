@@ -103,6 +103,9 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 
 	/**
 	 * Запрос на вставку
+     * 
+     * @param Query_Abstract $query
+	 * @param Query_Options $options
 	 */
 	public function _executeInsert(Query_Abstract $query,
 		Query_Options $options)
@@ -127,6 +130,9 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 
 	/**
 	 * Запрос на выборку
+     * 
+     * @param Query_Abstract $query
+	 * @param Query_Options $options
 	 */
 	public function _executeSelect(Query_Abstract $query,
 		Query_Options $options)
@@ -165,7 +171,8 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 	 * @param Query $query
 	 * @param Query_Options $options
 	 */
-	public function _executeShow(Query_Abstract $query, Query_Options $options) {
+	public function _executeShow(Query_Abstract $query, Query_Options $options) 
+    {
 		$show = strtoupper($this->query['show']);
 		if ($show == 'DELETE_INDEXES') {
 			$this->result = array($this->collection->deleteIndexes());
@@ -197,7 +204,8 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 	 * @param Query_Options $options
 	 * @return void
 	 */
-	public function _executeUpdate(Query_Abstract $query, Query_Options $options)
+	public function _executeUpdate(Query_Abstract $query, 
+        Query_Options $options)
 	{
 		$this->query['criteria']['_id'] = $this->normalizeId(
 			$this->query['criteria']['_id']

@@ -1,59 +1,60 @@
 <?php
+
 /**
+ * Профиль шифрования
  * 
- * @desc Профиль шифрования
- * @author Юрий Шведов
- * @package IcEngine
- *
+ * @author goorus
  */
 class Crypt_Profile extends Crypt_Abstract
 {
-	
 	/**
-	 * @desc
-	 * @var array
+	 * Метод шифрования
+     * 
+     * @author array
 	 */
-	protected $_encode;
+	protected $encode;
 	
 	/**
-	 * @desc 
-	 * @var array
+	 * Метод расшифрования
+     * 
+     * @author morph
 	 */
-	protected $_decode;
+	protected $decode;
 	
 	/**
-	 * @desc 
+	 * Конструктор
+     * 
 	 * @param array $encode Методы для шифрования.
 	 * @param array $decode Методы для дешифрования.
 	 */
-	public function __construct ($encode, $decode)
+	public function __construct($encode, $decode)
 	{
-		$this->_encode = $encode ? (array) $encode : array ();
-		$this->_decode = $decode ? (array) $decode : array ();
+		$this->encode = $encode ? (array) $encode : array();
+		$this->decode = $decode ? (array) $decode : array();
 	}
 	
 	/**
-	 * (non-PHPdoc)
-	 * @see Crypt_Abstract::decode()
+	 * @inheritdoc
 	 */
-	public function decode ($input, $key = null)
+	public function decode($input, $key = null)
 	{
-		foreach ($this->_decode as $name)
-		{
-			$input = Crypt_Manager::decode ($name, $input, $key);
+        $serviceLocator = IcEngine::serviceLocator();
+        $cryptManager = $serviceLocator->getService('cryptManager');
+		foreach ($this->decode as $name) {
+			$input = $cryptManager->decode($name, $input, $key);
 		}
 		return $input;
 	}
 	
 	/**
-	 * (non-PHPdoc)
-	 * @see Crypt_Abstract::encode()
+	 * @inheritdoc
 	 */
-	public function encode ($input, $key = null)
+	public function encode($input, $key = null)
 	{
-		foreach ($this->_encode as $name)
-		{
-			$input = Crypt_Manager::encode ($name, $input, $key);
+        $serviceLocator = IcEngine::serviceLocator();
+        $cryptManager = $serviceLocator->getService('cryptManager');
+		foreach ($this->encode as $name) {
+			$input = $cryptManager->encod ($name, $input, $key);
 		}
 		return $input;
 	}
