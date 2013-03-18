@@ -1,9 +1,18 @@
 <?php
 
-class Model_Validator_Attribute_Required extends Model_Validator_Attribute_Abstract
+/**
+ * Проверка значения поля на null
+ * 
+ * @author morph
+ */
+class Model_Validator_Attribute_Required extends 
+    Model_Validator_Attribute_Abstract
 {
-	public static function validate ($model, $field, $value, $input)
+    /**
+     * @inheritdoc
+     */
+	public function doValidate()
 	{
-		return $model->sfield ($field) != null;
+		return !is_null($this->model->sfield($this->field));
 	}
 }

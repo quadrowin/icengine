@@ -3,7 +3,7 @@
 /**
  * Провайдер для отправки сообщений пользователя.
  *
- * @author Юрий Шведов, neon
+ * @author goorus, neon
  */
 class Mail_Provider_Abstract extends Model_Factory_Delegate
 {
@@ -73,7 +73,7 @@ class Mail_Provider_Abstract extends Model_Factory_Delegate
 	 */
 	public function send (Mail_Message $message, $config)
 	{
-		$this->logMessage ($message, self::MAIL_STATE_FAIL);
+		$this->logMessage($message, self::MAIL_STATE_FAIL);
 		return false;
 	}
 

@@ -1,14 +1,12 @@
 <?php
+
 /**
- *
- * @desc Компонент - комментарий
- * @author Юрий Шведов
- * @package IcEngine
- *
+ * Компонент - комментарий
+ * 
+ * @author goorus
  */
 class Component_Comment extends Model_Component
 {
-
 	/**
 	 * Возвращает родительский комментарий.
 	 *

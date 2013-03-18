@@ -3,7 +3,7 @@
 /**
  * Помощник для перевода текста в транслит
  *
- * @author Юрий Шведов, neon
+ * @author goorus, neon, markov
  * @package IcEngine
  * @Service("helperTranslit")
  */

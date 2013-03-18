@@ -1,10 +1,11 @@
 <?php
+
 /**
+ * Заглушка дли источника данных
  * 
- * @desc Заглушка дли источника данных.
- * @package IcEngine
- * 
+ * @author goorus, morph
  */
 class Data_Mapper_Null extends Data_Mapper_Abstract
 {
+    
 }
