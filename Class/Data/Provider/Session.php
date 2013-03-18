@@ -5,7 +5,7 @@
  * 
  * @author goorus, morph
  */
-class Data_Provider_Request extends Data_Provider_Buffer
+class Data_Provider_Session extends Data_Provider_Buffer
 {
     /**
      * @inheritdoc
