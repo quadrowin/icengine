@@ -2,15 +2,12 @@
 /**
  * Фильтр получения даты
  *
- * @author Юрий, neon
+ * @author goorus, neon
  */
 class Filter_Date
 {
 	/**
-	 * Получение даты в UNIX формате YYYY-MM-DD hh:mm:ss.
-	 *
-	 * @param string $data
-	 * @return string
+	 * @inheritdoc
 	 */
 	public function filter($data)
 	{
@@ -20,11 +17,7 @@ class Filter_Date
 	}
 
 	/**
-	 *
-	 * @param string $field
-	 * @param stdClass $data
-	 * @param stdClass|Objective $scheme
-	 * @return mixed
+	 * @inheritdoc
 	 */
 	public function filterEx($field, $data, $scheme)
 	{

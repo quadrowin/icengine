@@ -9,8 +9,6 @@ class Filter_Trim
 {
 	/**
 	 * @inheritdoc
-	 * @param string $data
-	 * @return string
 	 */
 	public function filter($data)
 	{
@@ -18,12 +16,7 @@ class Filter_Trim
 	}
 
 	/**
-	 * Удаляет начальные, концевые символы по схеме,
-	 * либо пробелыы
-	 *
-	 * @param string $field
-	 * @param Objective $data
-	 * @param Objective $scheme
+	 * @inheritdoc
 	 */
 	public function filterEx($field, $data, $scheme)
 	{

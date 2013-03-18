@@ -9,8 +9,6 @@ class Filter_Empty_Default
 {
 	/**
 	 * @inheritdoc
-	 * @param string $data
-	 * @return string
 	 */
 	public function filter($data)
 	{
@@ -19,9 +17,6 @@ class Filter_Empty_Default
 
 	/**
 	 * @inheridoc
-	 * @param string $field
-	 * @param Objective $data
-	 * @param Objective $scheme
 	 */
 	public function filterEx($field, $data, $scheme)
 	{
