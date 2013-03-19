@@ -285,20 +285,19 @@ class Model_Manager extends Manager_Abstract
 			}
 		}
 
-		$parents = class_parents ($model_name);
-		$first = end ($parents);
-		$second = prev ($parents);
+        $config = self::config();
 
-		$config = self::config ();
+        Loader::load($model_name);
+        $parents = class_parents($model_name);
 
-		$parent =
-			$second && isset ($config ['delegee'][$second]) ?
-			$second :
-			$first;
+        $delegee = null;
 
-		$delegee =
-			'Model_Manager_Delegee_' .
-			$config ['delegee'][$parent];
+        foreach ($parents as $parent) {
+            if (array_key_exists($parent, $config ['delegee']->asArray())) {
+                $delegee = 'Model_Manager_Delegee_' . $config ['delegee'][$parent];
+                break;
+            }
+        }
 
 		$result = call_user_func (
 			array ($delegee, 'get'),
