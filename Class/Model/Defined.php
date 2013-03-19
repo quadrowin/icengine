@@ -40,4 +40,9 @@ class Model_Defined extends Model
 	{
 		throw new Exception ('It\'s a defined model');
 	}
+
+    public function table ()
+    {
+        return get_class($this);
+    }
 }
