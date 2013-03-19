@@ -138,8 +138,13 @@ class Paginator
 				abs($half_page - $i) < 3 ||			// середина
 				abs($this->page - $i) < 3			// возле текущей
 			) {
-				$pageHref = $href . ($i > 1 ?
-					$i . ($this->notGet ? '/' : '') : '');
+                $pageHref = $href;
+                if (!($i == 1 && $this->notGet)) {
+                    $pageHref .= $i;
+                }
+                if ($this->notGet && $i != 1) {
+                    $pageHref .= '/';
+                }
 				// Ссылка с номером страницы
 				$page = array(
 					'href'	    => $pageHref,
