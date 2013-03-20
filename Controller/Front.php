@@ -39,8 +39,9 @@ class Controller_Front extends Controller_Abstract
 			 * выполняемых руот экшинов.
 			 */
             $dispatcher = $this->getService('controllerDispatcher');
+            $routeActions = $route ? $route->actions : array();
 			$actions = $dispatcher->loop(
-                $this->task->getActions() ?: $route->actions
+                $this->task->getActions() ?: $routeActions
             );
             $controllerManager = $this->getService('controllerManager');
 			// Создаем задания для выполнения. В них отдает входные данные.
