@@ -1,17 +1,14 @@
 <?php
+
 /**
  * Фильтр для декодирования Json
  *
- * @author Юрий, neon
- * @package IcEngine
+ * @author goorus, neon
  */
 class Filter_Json_Decode
 {
 	/**
-	 * Декодирование Json
-	 *
-	 * @param string $data
-	 * @return mixed
+	 * @inheritdoc
 	 */
 	public function filter($data)
 	{

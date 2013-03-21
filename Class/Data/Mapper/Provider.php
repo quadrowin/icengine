@@ -83,7 +83,10 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 	protected $query;
 
     /**
-     * @inheritdoc
+     * Запрос на удаление
+     * 
+     * @param Query_Abstract $query
+	 * @param Query_Options $options
      */
 	protected function _executeDelete(Query_Abstract $query,
         Query_Options $options)
@@ -96,7 +99,10 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 	}
 
 	/**
-	 * @inheritdoc
+	 * Запрос на вставку
+     * 
+     * @param Query_Abstract $query
+	 * @param Query_Options $options
 	 */
     protected function _executeInsert(Query_Abstract $query,
         Query_Options $options)
@@ -109,7 +115,10 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 	}
 
 	/**
-	 * @inheritdoc
+	 * Запрос на выборку
+     * 
+     * @param Query_Abstract $query
+	 * @param Query_Options $options
 	 */
     protected function _executeSelect(Query_Abstract $query,
         Query_Options $options)
@@ -139,7 +148,10 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
     }
 
     /**
-     * @inheritdoc
+     * Запрос на обновление
+     * 
+     * @param Query_Abstract $query
+	 * @param Query_Options $options
      */
     protected function _executeUpdate(Query_Abstract $query, Query_Options $options)
     {
@@ -187,8 +199,7 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 	}
 
     /**
-     * (non-PHPdoc)
-     * @see Data_Mapper_Abstract::execute()
+     * @inheritdoc
      */
 	public function execute(Data_Source_Abstract $source, Query_Abstract $query,
         $options = null)
@@ -238,8 +249,7 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 	}
 
 	/**
-	 * (non-PHPdoc)
-	 * @see Data_Mapper_Abstract::setOption()
+	 * @inheritdoc
 	 */
 	public function setOption($key, $value = null)
 	{
@@ -273,7 +283,7 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
      *
 	 * @return Query_Translator_KeyValue
 	 */
-	public function translator ()
+	public function translator()
 	{
         $serviceLocator = IcEngine::serviceLocator();
         $translator = $serviceLocator->getService('queryTranslator');
@@ -281,5 +291,4 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 			self::TRANSLATOR . '_' . $this->query->getName()
 		);
 	}
-
 }

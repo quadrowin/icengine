@@ -23,8 +23,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	}
 
 	/**
-	 * (non-PHPdoc)
-	 * @see Data_Provider_Abstract::_setOption()
+	 * @inheritdoc
 	 */
 	public function _setOption($key, $value)
 	{
@@ -44,8 +43,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	}
 
 	/**
-	 * (non-PHPdoc)
-	 * @see Data_Provider_Abstract::decrement()
+	 * @inheritdoc
 	 */
 	public function decrement($key, $value = 1)
 	{
@@ -55,10 +53,9 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	}
 
 	/**
-	 * (non-PHPdoc)
-	 * @see Data_Provider_Abstract::delete()
+	 * @inheritdoc
 	 */
-	public function delete($keys, $time = 0, $set_deleted = false)
+	public function delete($keys, $time = 0, $setDeleted = false)
 	{
 		if (!is_array($keys)) {
 			if (Tracer::$enabled) {
@@ -79,10 +76,9 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	}
 
 	/**
-	 * (non-PHPdoc)
-	 * @see Data_Provider_Abstract::deleteByPattern()
+	 * @inheritdoc
 	 */
-	public function deleteByPattern($pattern, $time = 0, $set_deleted = false)
+	public function deleteByPattern($pattern, $time = 0, $setDeleted = false)
 	{
         $this->delete($this->keys($pattern));
 	}
@@ -111,8 +107,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
     }
 
 	/**
-	 * (non-PHPdoc)
-	 * @see Data_Provider_Abstract::get()
+	 * @inheritdoc
 	 */
 	public function get($key, $plain = false)
 	{
@@ -147,14 +142,13 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	}
 
 	/**
-	 * (non-PHPdoc)
-	 * @see Data_Provider_Abstract::getMulti()
+	 * @inheritdoc
 	 */
-	public function getMulti(array $keys, $numeric_index = false)
+	public function getMulti(array $keys, $numericIndex = false)
 	{
         if (count($keys) == 1) {
             $value = $this->get($keys[0]);
-            if ($numeric_index) {
+            if ($numericIndex) {
                 return array($value);
             }
             return array($keys[0] => $value);
@@ -179,15 +173,14 @@ class Data_Provider_Redis extends Data_Provider_Abstract
             $sortedItems[$key] = isset($result[$key])
                 ? $this->valueDecode($result[$key]) : null;
         }
-        if ($numeric_index) {
+        if ($numericIndex) {
             return array_values($sortedItems);
         }
         return $sortedItems;
 	}
 
 	/**
-	 * (non-PHPdoc)
-	 * @see Data_Provider_Abstract::increment()
+	 * @inheritdoc
 	 */
 	public function increment($key, $value = 1)
 	{
@@ -197,10 +190,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	}
 
 	/**
-	 * Кодирование ключа для корректного сохранения в редисе.
-	 *
-     * @param string $key
-	 * @return string
+	 * @inheritdoc
 	 */
 	public function keyEncode($key)
 	{
@@ -208,10 +198,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	}
 
 	/**
-	 * Декодирование ключа.
-	 *
-     * @param string $key
-	 * @return string
+	 * @inheritdoc
 	 */
 	public function keyDecode($key)
 	{
@@ -219,8 +206,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	}
 
 	/**
-	 * (non-PHPdoc)
-	 * @see Data_Provider_Abstract::keys()
+	 * @inheritdoc
 	 */
 	public function keys($pattern, $server = null)
 	{
@@ -249,7 +235,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	}
 
 	/**
-	 * @see Data_Provider_Abstract::publish()
+	 * @inheritdoc
 	 */
 	public function publish($channel, $message)
 	{
@@ -259,8 +245,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	}
 
 	/**
-	 * (non-PHPdoc)
-	 * @see Data_Provider_Abstract::set()
+	 * @inheritdoc
 	 */
 	public function set($key, $value, $expiration = 3600, $tags = array())
 	{
@@ -287,7 +272,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	}
 
 	/**
-	 * @see Data_Provider_Abstract::subscribe()
+	 * @inheritdoc
 	 */
 	public function subscribe($channel)
 	{
@@ -297,7 +282,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	}
 
 	/**
-	 * @see Data_Provider_Abstract::unsubscribe()
+	 * @inheritdoc
 	 */
 	public function unsubscribe ($channel)
 	{

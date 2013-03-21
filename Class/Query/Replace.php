@@ -1,46 +1,29 @@
 <?php
 
 /**
- * @desc Запрос типа replace
+ * Запрос типа replace
+ * 
  * @author morph, goorus
  */
 class Query_Replace extends Query_Select
 {
+    /**
+     * @inheritdoc
+     */
+    protected $type = Query::REPLACE;
+    
 	/**
-	 * @see Query_Select::getTags();
+	 * @inheritdoc
 	 */
-	public function getTags ()
+	public function getTags()
 	{
-		$tags = array ();
-
-		$replace = $this->getPart (Query::REPLACE);
-		if ($replace)
-		{
-	   		$tags [] = Model_Scheme::table ($replace);
+		$tags = array();
+        $serviceLocator = IcEngine::serviceLocator();
+        $modelScheme = $serviceLocator->getService('modelScheme');
+		$replace = $this->getPart(Query::REPLACE);
+		if ($replace) {
+	   		$tags[] = $modelScheme->table($replace);
 		}
-
-		return array_unique ($tags);
-	}
-
-	/**
-	 * @see Query::reset()
-	 */
-	public function reset ()
-	{
-		parent::reset ();
-		$this->_type = Query::REPLACE;
-		return $this;
-	}
-
-	/**
-	 * @desc Запрос преобразуется в запрос на replace.
-	 * @param string $table таблица.
-	 * @return Query Этот запрос.
-	 */
-	public function replace ($table)
-	{
-		$this->_parts [Query::REPLACE] = $table;
-		$this->_type = Query::REPLACE;
-		return $this;
-	}
+		return array_unique($tags);
+    }
 }

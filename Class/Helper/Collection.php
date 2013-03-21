@@ -15,7 +15,7 @@ class Helper_Collection
 	 * @param Model_Collection $collection
 	 * @return void
 	 */
-	public static function rejoin($model, $collection)
+	public function rejoin($model, $collection)
 	{
 		$collection->update(array(
 			'table'	=> $model->modelName(),
@@ -32,7 +32,7 @@ class Helper_Collection
 	 *
 	 * @return Model_Collection
 	 */
-	public static function sortByParent($collection,
+	public function sortByParent($collection,
 		$include_unparented = false)
 	{
 		$list = $collection->items();

@@ -3,8 +3,7 @@
 /**
  * Приводит строку к верхнему регистру
  *
- * @author Юрий, neon
- * @package IcEngine
+ * @author goorus, neon
  */
 class Filter_UpperCase
 {

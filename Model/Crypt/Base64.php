@@ -1,30 +1,26 @@
 <?php
+
 /**
+ * Шифрование base64
  * 
- * @desc Шифрование base64
- * @author Юрий Шведов
- * @package IcEngine
- *
+ * @author goorus, morph
  */
 class Crypt_Base64 extends Crypt_Abstract
 {
-	
 	/**
-	 * (non-PHPdoc)
-	 * @see Crypt_Abstract::decode()
+	 * @inheritdoc
 	 */
-	public function decode ($input, $key = null)
+	public function decode($input, $key = null)
 	{
-		return base64_decode ($input);
+		return base64_decode($input);
 	}
 	
 	/**
-	 * (non-PHPdoc)
-	 * @see Crypt_Abstract::encode()
+	 * @inheritdoc
 	 */
-	public function encode ($input, $key = null)
+	public function encode($input, $key = null)
 	{
-		return base64_encode ($input);
+		return base64_encode($input);
 	}
 	
 }

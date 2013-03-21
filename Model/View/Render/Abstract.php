@@ -1,32 +1,33 @@
 <?php
+
 /**
- *
- * @desc Абстрактный класс рендера.
- * @author Гурус
- * @package IcEngine
- *
+ * Абстрактный класс рендера.
+ * 
+ * @author goorus, morph
  */
 abstract class View_Render_Abstract extends Model_Factory_Delegate
 {
+	/**
+	 * Пути к директориям шаблонов.
+	 * 
+     * @var array <string>
+	 */
+	protected $templatesPathes = array();
+
 
 	/**
-	 * @desc Пути к директориям шаблонов.
-	 * @var array <string>
+	 * Переменные шаблонизатора.
+	 * 
+     * @var array
 	 */
-	protected $_templatesPathes = array ();
-
-
-	/**
-	 * @desc Переменные шаблонизатора.
-	 * @var array
-	 */
-	protected $_vars = array ();
+	protected $vars = array();
 
 	/**
-	 * @desc Стек переменных.
-	 * @var array
+	 * Стек переменных.
+	 * 
+     * @var array
 	 */
-	protected $_varsStack = array ();
+	protected $varsStack = array();
 
 	/**
 	 * (non-PHPdoc)
@@ -34,114 +35,116 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	 */
 	protected function _afterConstruct ()
 	{
-		if (!isset ($this->fields ['id']))
-		{
+		if (!isset($this->fields['id'])) {
 			$this->fields['id'] = 1;
 		}
 	}
 
 	/**
-	 * @desc Добавление хелпера
-	 * @param mixed $helper
+	 * Добавление хелпера
+	 * 
+     * @param mixed $helper
 	 * @param string $method
 	 */
-	public function addHelper ($helper, $method)
+	public function addHelper($helper, $method)
 	{
 
 	}
 
 	/**
-	 * @desc Добавление пути до директории с шаблонами
-	 * @param string $path Директория с шаблонами.
+	 * Добавление пути до директории с шаблонами
+	 * 
+     * @param string $path Директория с шаблонами.
 	 */
-	public function addTemplatesPath ($path)
+	public function addTemplatesPath($path)
 	{
-		$dir = rtrim ($path, '/');
-		$this->_templatesPathes [] = $dir . '/';
+		$dir = rtrim($path, '/');
+		$this->templatesPathes[] = $dir . '/';
 	}
 
 	/**
-	 * @desc Устанавливает значение переменной в шаблоне
-	 * @param string|array $key Имя переменной или массив
+	 * Устанавливает значение переменной в шаблоне
+	 * 
+     * @param string|array $key Имя переменной или массив
 	 * пар (переменная => значение).
 	 * @param mixed $value [optional] Новое значение переменной.
 	 */
-	public function assign ($key, $value = null)
+	public function assign($key, $value = null)
 	{
-		if (is_array ($key))
-		{
-			$this->_vars = array_merge ($this->_vars, $key);
-		}
-		elseif (empty ($key))
-		{
-			throw new View_Render_Exception ('Empty key field.');
-		}
-		else
-		{
-			$this->_vars [$key] = $value;
+		if (is_array($key)) {
+			$this->vars = array_merge($this->vars, $key);
+		} elseif (empty($key)) {
+			throw new Exception('Empty key field.');
+		} else {
+			$this->vars[$key] = $value;
 		}
 	}
 
 	/**
-	 * @desc Выводит результат работы шаблонизатор в браузер.
-	 * @param string $tpl
+	 * Выводит результат работы шаблонизатор в браузер.
+	 * 
+     * @param string $tpl
 	 */
-	abstract public function display ($tpl);
+	abstract public function display($tpl);
 
 	/**
-	 * @desc Обрабатывает шаблон и возвращает результат.
-	 * @param string $tpl Шаблон
+	 * Обрабатывает шаблон и возвращает результат.
+	 * 
+     * @param string $tpl Шаблон
 	 * @return mixed Результат работы шаблонизатора.
 	 */
-	abstract public function fetch ($tpl);
+	abstract public function fetch($tpl);
 
 	/**
-	 * @desc Возвращает массив путей до шаблонов.
+	 * Возвращает массив путей до шаблонов
+     * 
 	 * @return array
 	 */
-	public function getTemplatesPathes ()
+	public function getTemplatesPathes()
 	{
-		return $this->_templatesPathes;
+		return $this->templatesPathes;
 	}
 
 	/**
-	 * @desc Возвращает значение переменной шаблонизатора.
-	 * @param string $key Имя переменной.
+	 * Возвращает значение переменной шаблонизатора.
+	 * 
+     * @param string $key Имя переменной.
 	 * @return mixed Значение переменной.
 	 */
-	public function getVar ($key)
+	public function getVar($key)
 	{
-		return $this->_vars [$key];
+		return $this->vars[$key];
 	}
 
 	/**
-	 * @desc Восстанавливает значения переменных шаблонизатора
+	 * Восстанавливает значения переменных шаблонизатора
 	 */
-	public function popVars ()
+	public function popVars()
 	{
-		$this->_vars = array_pop ($this->_varsStack);
+		$this->vars = array_pop($this->varsStack);
 	}
 
 	/**
-	 * @desc Сохраняет текущие значения переменных шаблонизатора и очищает их.
+	 * Сохраняет текущие значения переменных шаблонизатора и очищает их.
 	 */
 	public function pushVars ()
 	{
-		$this->_varsStack [] = $this->_vars;
-		$this->_vars = array ();
+		$this->varsStack[] = $this->vars;
+		$this->vars = array();
 	}
 
 	/**
-	 * @desc Обработка шаблонов из стека.
-	 * @param array $outputs
+	 * Обработка шаблонов из стека.
+	 * 
+     * @param array $outputs
 	 * @return mixed
 	 */
-	public function render (Controller_Task $task)
+	public function render(Controller_Task $task)
 	{
-		$transaction = $task->getTransaction ();
-		$this->assign ($transaction->buffer ());
-		$template = $task->getTemplate ();
-		$result = $template ? $this->fetch ($template) : null;
+		$transaction = $task->getTransaction();
+		$this->assign($transaction->buffer());
+		$template = $task->getTemplate();
+		$result = $template ? $this->fetch($template) : null;
 		return $result;
 	}
 
@@ -149,9 +152,8 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	 * (non-PHPdoc)
 	 * @see Model_Factory_Delegate::table()
 	 */
-	public function table ()
+	public function table()
 	{
 		return 'View_Render';
 	}
-
 }
