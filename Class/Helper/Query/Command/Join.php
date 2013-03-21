@@ -35,5 +35,6 @@ class Helper_Query_Command_Join
 				Query::JOIN		=> $type
 			);
 		}
+        return $result;
 	}
 }
