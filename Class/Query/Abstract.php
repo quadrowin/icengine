@@ -66,9 +66,13 @@ class Query_Abstract
                 $this->parts[$partName][] = $data[$partName];
                 break;
             case Query::MERGE:
-                $this->parts[$partName] = array_merge(
-                    $this->parts[$partName], $data[$partName]
-                );
+                if ($this->parts[$partName]) {
+                    $this->parts[$partName] = array_merge(
+                        $this->parts[$partName], $data[$partName]
+                    );
+                } else {
+                    $this->parts[$partName] = $data[$partName];
+                }
                 break;
             case Query::REPLACE:
                 $this->parts[$partName] = $data[$partName];
