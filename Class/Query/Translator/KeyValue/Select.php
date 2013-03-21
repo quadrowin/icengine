@@ -145,7 +145,7 @@ class Query_Translator_KeyValue_Select extends Query_Translator_Abstract
 	 * @param array $values
 	 * @return array
 	 */
-	public function compileKeys($table, array $values)
+	public function compileKeys($table, array $values = array())
 	{
         $modelScheme = $this->modelScheme();
 		$keyField = $modelScheme->keyField($table);
