@@ -128,7 +128,7 @@ abstract class Query_Command_Abstract
     {
         if (is_null(self::$pool)) {
             $serviceLocator = IcEngine::serviceLocator();
-            self::$pool = $serviceLocator->get('queryCommandPool');
+            self::$pool = $serviceLocator->getService('queryCommandPool');
         }
         return self::$pool;
     }
