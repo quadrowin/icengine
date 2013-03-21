@@ -10,7 +10,7 @@ class Query_Command_Distinct extends Query_Command_Abstract
     /**
      * @inheritdoc
      */
-    protected $mergeStategy = Query::REPLACE;
+    protected $mergeStrategy = Query::REPLACE;
     
     /**
      * @inheritdoc
