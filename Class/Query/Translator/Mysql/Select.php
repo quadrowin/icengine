@@ -524,7 +524,7 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
                 $columns[] = $source;
             } else {
                 $alias = $helper->escape($alias);
-                if ($alias != $source) {
+                if ($alias == $source) {
                     $columns[] = $source;
                 } else {
                     $columns[] = $source . ' ' . self::SQL_AS . ' ' . $alias;
