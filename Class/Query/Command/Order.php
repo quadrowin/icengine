@@ -10,6 +10,11 @@ class Query_Command_Order extends Query_Command_Abstract
     /**
      * @inheritdoc
      */
+    protected $mergeStrategy = Query::MERGE;
+    
+    /**
+     * @inheritdoc
+     */
     protected $part = Query::ORDER;
     
     /**
