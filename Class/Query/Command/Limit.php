@@ -24,7 +24,7 @@ class Query_Command_Limit extends Query_Command_Abstract
     {
         $this->data = array(
             Query::LIMIT_COUNT  => (int) $data[0],
-            Query::LIMIT_OFFSET => (int) $data[1]
+            Query::LIMIT_OFFSET => !empty($data[1]) ? (int) $data[1] : 0
         );
         return $this;
     }

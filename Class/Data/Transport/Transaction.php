@@ -51,7 +51,7 @@ class Data_Transport_Transaction
      */
     public function send($key, $data = null)
     {
-        if (is_array ($key)) {
+        if (is_array($key)) {
             $this->buffer = array_merge($this->buffer, $key);
         } else {
             $this->buffer[$key] = $data;
