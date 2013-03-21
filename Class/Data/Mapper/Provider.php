@@ -153,7 +153,8 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
      * @param Query_Abstract $query
 	 * @param Query_Options $options
      */
-    protected function _executeUpdate(Query_Abstract $query, Query_Options $options)
+    protected function _executeUpdate(Query_Abstract $query, 
+        Query_Options $options)
     {
     	// Удаление ненужных индексов
 		$this->fullDeleteByPatterns(
