@@ -160,14 +160,14 @@ class Query_Translator_KeyValue_Select extends Query_Translator_Abstract
 		$indexes = $modelScheme->indexes($table);
 		foreach ($indexes as $i => $index) {
 			$index = (array) $index;
-			$values = array();
+			$currentValues = array();
 			foreach ($index as $name) {
-				$values[] = urlencode($values[$name]);
+				$currentValues[] = urlencode($values[$name]);
 			}
-			$values[] = urlencode($values[$keyField]);
+			$currentValues[] = urlencode($values[$keyField]);
 			$keys[] = $table . $this->tableIndexDelim .
 				$i . $this->indexKeyDelim .
-				implode($this->valuesDelim, $values);
+				implode($this->valuesDelim, $currentValues);
 		}
 		return $keys;
 	}
