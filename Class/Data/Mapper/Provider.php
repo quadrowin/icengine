@@ -193,7 +193,7 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 			$key = $table . $translator->tableIndexDelim . 'k' .
                 $translator->indexKeyDelim . $id;
             $row = $this->provider->get($key);
-			$keys = $translator->_compileKeys($table, $row);
+			$keys = $translator->compileKeys($table, $row);
 			$this->provider->delete($keys);
 		}
 		return count($ids);
