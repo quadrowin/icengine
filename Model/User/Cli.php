@@ -31,7 +31,7 @@ class User_Cli extends User
 	 */
 	public function getInstance()
 	{
-		return new self($this->config()->fields->__toArray());
+		return new static($this->config()->fields->__toArray());
 	}
 
 	/**
