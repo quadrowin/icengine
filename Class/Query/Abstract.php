@@ -56,7 +56,7 @@ class Query_Abstract
         $data = $queryCommand->process($this, $args);
         $mergeStrategy = $queryCommand->getMergeStrategy();
         if (empty($data[$partName])) {
-            return array();
+            return $this;
         }
         if (!isset($this->parts[$partName])) {
             $this->parts[$partName] = array();
@@ -75,6 +75,7 @@ class Query_Abstract
                 break;
         }
         $queryCommand->free();
+        return $this;
     }
     
 	/**
