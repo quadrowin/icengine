@@ -145,6 +145,8 @@ class Helper_Translit
 			$value = self::u_strtr ($value, "ABVGDEZIYKLMNOPRSTUFH_", "АБВГДЕЗИЙКЛМНОПРСТУФХ ");
 		}
 
+        var_dump($value);
+
 		return $value;
 	}
 

@@ -91,7 +91,7 @@ abstract class Model_Option
 	public static function create ($name, Model_Collection $collection,
 		array $params)
 	{
-		$class = self::getClassName ($name, $collection);
+        $class = self::getClassName ($name, $collection);
 		return new $class ($collection, $params);
 	}
 
