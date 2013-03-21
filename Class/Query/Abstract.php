@@ -58,6 +58,9 @@ class Query_Abstract
         if (!isset($this->parts[$partName])) {
             $this->parts[$partName] = array();
         }
+        if (!array_key_exists($partName, $data)) {
+            return;
+        }
         switch ($mergeStrategy) {
             case Query::PUSH:
                 $this->parts[$partName][] = $data[$partName];
