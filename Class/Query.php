@@ -55,7 +55,6 @@ class Query
 	const CHANGE            	= 'CHANGE';
 	const DROP              = 'DROP';
 	const INDEX             = '__INDEX__';
-	const TYPE              = '__TYPE__';
 	const NAME              = '__NAME__';
 	const ALTER_TABLE       = 'ALTER TABLE';
     const DROP_TABLE        = 'DROP TABLE';
