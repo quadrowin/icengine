@@ -10,6 +10,11 @@ class Query_Command_From extends Query_Command_Abstract
     /**
      * @inheritdoc
      */
+    protected $mergeStrategy = Query::MERGE;
+    
+    /**
+     * @inheritdoc
+     */
     protected $part = Query::FROM;
     
     /**
