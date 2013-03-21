@@ -60,15 +60,15 @@ class Query_Abstract
         }
         switch ($mergeStrategy) {
             case Query::PUSH:
-                $this->parts[$partName][] = $data;
+                $this->parts[$partName][] = $data[$partName];
                 break;
             case Query::MERGE:
                 $this->parts[$partName] = array_merge(
-                    $this->parts[$partName], $data
+                    $this->parts[$partName], $data[$partName]
                 );
                 break;
             case Query::REPLACE:
-                $this->parts[$partName] = $data;
+                $this->parts[$partName] = $data[$partName];
                 break;
         }
         $queryCommand->free();
