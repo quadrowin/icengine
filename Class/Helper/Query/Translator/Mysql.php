@@ -27,11 +27,11 @@ class Helper_Query_Translator_Mysql extends Helper_Abstract
      */
     public function escapePartial($column)
     {
-        if (strpos($column, self::SQL_DOT) !== false) {
-            $columnParts = explode(self::SQL_DOT, $column);
+        if (strpos($column, '.') !== false) {
+            $columnParts = explode('.', $column);
             $callable = array($this, 'escape');
             $mappedColumnParts = array_map($callable, $columnParts);
-            $column = implode(self::SQL_DOT, $mappedColumnParts);
+            $column = implode('.', $mappedColumnParts);
         } elseif (!$this->isExpression($column) && 
             !$this->isEscaped($column)) {
             $column = $this->escape($column);
@@ -47,7 +47,7 @@ class Helper_Query_Translator_Mysql extends Helper_Abstract
      */
     protected function isEscaped($value)
     {
-        return strpos($value, self::SQL_ESCAPE) !== false;
+        return strpos($value, '`') !== false;
     }
 
     /**
