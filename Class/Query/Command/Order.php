@@ -31,8 +31,10 @@ class Query_Command_Order extends Query_Command_Abstract
 				$field = $direction;
 				$direction = Query::ASC;
 			}
-			$this->data[] = array($field, $direction);
-		}
+            foreach ((array) $field as $currentField) {
+                $this->data[] = array($currentField, $direction);
+            }
+        }
 		return $this;
     }
 }
