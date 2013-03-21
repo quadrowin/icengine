@@ -13,19 +13,11 @@ class Data_Provider_Redis extends Data_Provider_Abstract
      * @var Redis
 	 */
 	protected $connections = array();
-
+    
 	/**
 	 * @inheritdoc
 	 */
-	public function __construct($config = array())
-	{
-		parent::__construct($config);
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function _setOption($key, $value)
+	protected function setOption($key, $value)
 	{
 		switch ($key) {
 			case 'servers':

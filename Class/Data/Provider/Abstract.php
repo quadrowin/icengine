@@ -74,12 +74,9 @@ class Data_Provider_Abstract
 	 * @param string $key Параметр.
 	 * @param string $value Значение.
 	 */
-	protected function _setOption($key, $value)
+	protected function setOption($key, $value)
 	{
-		if ($key == 'tracer') {
-			$class = 'Tracer_' . $value;
-			$this->tracer = new $class();
-		} elseif ($key == 'prefix') {
+		if ($key == 'prefix') {
 			$this->prefix = $value;
 		}
 	}
