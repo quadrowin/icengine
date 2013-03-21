@@ -78,7 +78,7 @@ class View_Render_Smarty extends View_Render_Abstract
      * @param string $tpl
 	 * @return string
 	 */
-	protected function _compileId($tpl)
+	protected function compileId($tpl)
 	{
 		return crc32(json_encode($this->_smarty->template_dir));
 	}
