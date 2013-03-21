@@ -185,7 +185,7 @@ class Query_Abstract
 	 */
 	public function getPart($name)
 	{
-		return isset($this->parts[$name]) ? $this->parts[$name] : null;
+		return isset($this->parts[$name]) ? $this->parts[$name] : array();
 	}
 
     /**
