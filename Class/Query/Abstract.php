@@ -55,11 +55,11 @@ class Query_Abstract
         $partName = $queryCommand->getPart();
         $data = $queryCommand->process($this, $args);
         $mergeStrategy = $queryCommand->getMergeStrategy();
-        if (!isset($this->parts[$partName])) {
-            $this->parts[$partName] = array();
-        }
         if (!array_key_exists($partName, $data)) {
             return;
+        }
+        if (!isset($this->parts[$partName])) {
+            $this->parts[$partName] = array();
         }
         switch ($mergeStrategy) {
             case Query::PUSH:
