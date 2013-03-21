@@ -80,7 +80,7 @@ class View_Render_Smarty extends View_Render_Abstract
 	 */
 	protected function compileId($tpl)
 	{
-		return crc32(json_encode($this->_smarty->template_dir));
+		return crc32(json_encode($this->smarty->template_dir));
 	}
 
 	/**
@@ -91,7 +91,7 @@ class View_Render_Smarty extends View_Render_Abstract
 	public function addPluginsPath ($path)
 	{
 		$this->smarty->plugins_dir = array_merge(
-			(array) $this->_smarty->plugins_dir,
+			(array) $this->smarty->plugins_dir,
 			(array) $path
 		);
 	}
