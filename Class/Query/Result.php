@@ -53,7 +53,7 @@ class Query_Result
 	 * 
      * @return array|null
 	 */
-	public function asRow ()
+	public function asRow()
 	{
 		if (empty($this->result['result'])) {
 			return null;
