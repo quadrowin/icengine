@@ -236,6 +236,7 @@ class Query_Abstract
 	public function reset()
 	{
 		$this->parts = array();
+        return $this;
 	}
 
 	/**
