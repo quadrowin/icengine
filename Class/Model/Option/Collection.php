@@ -38,6 +38,8 @@ class Model_Option_Collection
 	 */
 	public function add ($item)
 	{
+
+
 		// Случай, если передано только название
 		if (is_string ($item))
 		{
@@ -50,23 +52,26 @@ class Model_Option_Collection
 				$item ['name'],
 				$this->_collection
 			);
+
+            Loader::load($class);
+
 			// Неизвестно, старая это или новая опция.
-			if (Loader::tryLoad ($class))
-			{
+//			if (Loader::tryLoad ($class))
+//			{
 				// Это новая опция
 				$item = new $class (
 					$this->_collection,
 					$item
 				);
-			}
-			else
-			{
-				$item = Model_Option::create (
-					'::Old',
-					$this->_collection,
-					$item
-				);
-			}
+//			}
+//			else
+//			{
+//				$item = Model_Option::create (
+//					'::Old',
+//					$this->_collection,
+//					$item
+//				);
+//			}
 
 	    }
 
