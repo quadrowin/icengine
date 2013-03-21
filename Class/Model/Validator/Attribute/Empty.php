@@ -11,6 +11,6 @@ class Model_Validator_Attribute_Empty extends
      */
 	public function doValidate()
 	{
-        return (bool) $this->model->sfield($this->field);
+        return !((bool) $this->model->sfield($this->field));
 	}
 }
