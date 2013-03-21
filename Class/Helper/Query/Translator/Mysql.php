@@ -45,7 +45,7 @@ class Helper_Query_Translator_Mysql extends Helper_Abstract
      * @param string $value
      * @return string
      */
-    protected function isEscaped($value)
+    public function isEscaped($value)
     {
         return strpos($value, '`') !== false;
     }
@@ -56,7 +56,7 @@ class Helper_Query_Translator_Mysql extends Helper_Abstract
      * @param string $value
      * @return string
      */
-    protected function isExpression($value)
+    public function isExpression($value)
     {
         return 
             strpos($value, '\'') === false && strpos($value, '"') === false &&
