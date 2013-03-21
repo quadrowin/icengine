@@ -50,7 +50,7 @@ class Query_Translator_KeyValue_Select extends Query_Translator_Abstract
 	 * @param array $where Часть запроса Query::WHERE
 	 * @return array Массив масок
 	 */
-	protected function compileKeyMask($table, array $where)
+	public function compileKeyMask($table, array $where)
 	{
         $modelScheme = $this->modelScheme();
 		$keyField = $modelScheme->keyField($table);
@@ -145,7 +145,7 @@ class Query_Translator_KeyValue_Select extends Query_Translator_Abstract
 	 * @param array $values
 	 * @return array
 	 */
-	protected function compileKeys($table, array $values)
+	public function compileKeys($table, array $values)
 	{
         $modelScheme = $this->modelScheme();
 		$keyField = $modelScheme->keyField($table);
@@ -179,7 +179,7 @@ class Query_Translator_KeyValue_Select extends Query_Translator_Abstract
 	 * @return string
 	 * @throws Exception
 	 */
-	protected function extractTable(Query_Abstract $query)
+	public function extractTable(Query_Abstract $query)
 	{
 		$tables = $query->part(Query::FROM);
 		// Отдельно хранятся таблицы для INSERT и UPDATE
@@ -201,7 +201,7 @@ class Query_Translator_KeyValue_Select extends Query_Translator_Abstract
      * @param string $key
 	 * @return string
 	 */
-	protected function extractId($key)
+	public function extractId($key)
 	{
 		$id = substr(strrchr($key, $this->valuesDelim), 1);
 		if (!$id) {
@@ -219,7 +219,7 @@ class Query_Translator_KeyValue_Select extends Query_Translator_Abstract
 	 * @param array $values
 	 * @return string
 	 */
-	protected function pattern($table, $indexPosition, $indexesUsed, 
+	public function pattern($table, $indexPosition, $indexesUsed, 
         array $values)
 	{
 		$pattern = $table . $this->tableIndexDelim . $indexPosition . 
