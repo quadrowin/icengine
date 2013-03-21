@@ -8,6 +8,9 @@
 class Model_Validator_Attribute_Numeric extends 
     Model_Validator_Attribute_Abstract
 {
+    /**
+     * @inheritdoc
+     */
 	public function doValidate()
 	{
         if (!is_null($this->value)) {

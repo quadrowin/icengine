@@ -7,6 +7,9 @@
  */
 class Model_Validator_Attribute_Regexp extends Model_Validator_Attribute_Abstract
 {
+    /**
+     * @inheritdoc
+     */
 	public function doValidate()
 	{
 		return preg_match(

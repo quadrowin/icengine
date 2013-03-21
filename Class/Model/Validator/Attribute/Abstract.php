@@ -40,7 +40,7 @@ abstract class Model_Validator_Attribute_Abstract
      * 
      * @return boolean
      */
-	abstract public static function doValidate();
+	abstract public function doValidate();
     
     /**
      * Начать вадилацию данных
