@@ -22,8 +22,7 @@ class Query_Translator_KeyValue_Update extends Query_Translator_KeyValue_Select
         $table = $this->extractTable($query);
 		return array(
 			$this->compileKeyMask($table, $query->part(Query::WHERE)),
-			$this->compileKeys($query->part(Query::UPDATE)),
-			$values
+			$this->compileKeys($query->part(Query::UPDATE), $values)
 		);
 	}
 }
