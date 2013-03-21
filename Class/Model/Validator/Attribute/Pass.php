@@ -10,7 +10,7 @@ class Model_Validator_Attribute_Pass extends Model_Validator_Attribute_Abstract
     /**
      * @inheritdoc
      */
-	public static function doValidate()
+	public function doValidate()
 	{
 		$result = true;
 		foreach ($this->value as $validator) {
