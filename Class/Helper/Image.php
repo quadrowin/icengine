@@ -2,7 +2,7 @@
 
 /**
  * Класс для работы с изображениями
- * 
+ *
  * @Service("helperImage")
  * @author goorus
  */
