@@ -17,7 +17,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	/**
 	 * @inheritdoc
 	 */
-	protected function setOption($key, $value)
+	protected function _setOption($key, $value)
 	{
 		switch ($key) {
 			case 'servers':

@@ -74,7 +74,7 @@ class Data_Provider_Abstract
 	 * @param string $key Параметр.
 	 * @param string $value Значение.
 	 */
-	protected function setOption($key, $value)
+	protected function _setOption($key, $value)
 	{
 		if ($key == 'prefix') {
 			$this->prefix = $value;
