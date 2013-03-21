@@ -10,6 +10,11 @@ class Query_Command_Select extends Query_Command_Abstract
     /**
      * @inheritdoc
      */
+    protected $mergeStrategy = Query::MERGE;
+    
+    /**
+     * @inheritdoc
+     */
     protected $part = Query::SELECT;
     
     /**
@@ -40,7 +45,7 @@ class Query_Command_Select extends Query_Command_Abstract
                 }
             } elseif ($columns) {
                 for ($i = 0, $count = count($data); $i < $count; $i++) {
-                    $this->data[$i] = $data[$i];
+                    $this->data[$data[$i]] = $data[$i];
                 }
             }
         }
