@@ -523,8 +523,13 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
                 strpos($alias, self::SQL_WILDCARD) !== false) {
                 $columns[] = $source;
             } else {
-                $columns[] = $source . ' ' . self::SQL_AS . ' ' . 
-                    $helper->escape($alias);
+                $alias = $helper->escape($alias);
+                if ($alias != $source) {
+                    $columns[] = $source;
+                } else {
+                    $columns[] = $source . ' ' . self::SQL_AS . ' ' . $alias;
+                }
+                    
             }    
         }
         return $columns ? $sql . implode(self::SQL_COMMA, $columns) : '';
