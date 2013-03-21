@@ -45,7 +45,6 @@ class Query
     const MERGE             = 'MERGE';
     const PUSH              = 'PUSH';
     const CREATE_TABLE		= 'CREATE TABLE';
-	const TABLE				= 'TABLE';
 	const IF_NOT_EXISTS		= 'IF NOT EXISTS';
 	const ENGINE            = 'ENGINE';
 	const DEFAULT_CHARSET	= 'DEFAULT CHARSET';
