@@ -51,7 +51,7 @@ class Error_Render extends Manager_Abstract
 	 */
 	public function render (Exception $e)
 	{
-		if ($this->render)
+		if (!$this->render)
 		{
 			$msg = '[' . $e->getFile() . '@' .
 				$e->getLine() . ':' .

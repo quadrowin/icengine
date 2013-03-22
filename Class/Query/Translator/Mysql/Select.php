@@ -508,7 +508,8 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
                 $subParts = explode(self::SQL_COMMA, $parts);
                 $subPartsTrimed = array_map('trim', $subParts);
                 $callable = array($helper, 'escapePartial');
-                $source = array_map($callable, $subPartsTrimed);
+                $sourceUnjoined = array_map($callable, $subPartsTrimed);
+                $source = implode(self::SQL_COMMA, $sourceUnjoined);
             } elseif (strpos($parts, self::SQL_WILDCARD) === false &&
                 !$helper->isExpression($parts))  {
                 $source = $helper->escapePartial($parts);
