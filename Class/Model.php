@@ -229,7 +229,7 @@ abstract class Model implements ArrayAccess
         try {
             $value = $this->_fields [$field];
         } catch (Exception $e) {
-            throw $e;
+            throw new Exception('Не найдено поле "' . $field . '" в модели ' . $this->modelName() . ': ' + $e->getMessage() . "\n" + $e->getTraceAsString());
         }
 
         return $value;
