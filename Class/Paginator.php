@@ -130,8 +130,7 @@ class Paginator
 			}
 		}
 		for ($i = 1; $i <= $pagesCount; $i++) {
-			if (
-				$i <= 3 ||							// первые 3 страницы
+			if ($i <= 3 ||							// первые 3 страницы
 				($pagesCount - $i) < 3 ||			// последние 3 страницы
 				abs($halfPage - $i) < 3 ||			// середина
 				abs($this->page - $i) < 3			// возле текущей

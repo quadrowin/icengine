@@ -69,15 +69,15 @@ class Request_File
      * 
 	 * @param array $file элемент из $_FILES
 	 */
-	public function __construct (array $file)
+	public function __construct(array $file)
 	{
 		$this->file = $file;
-		$this->name	= $file ['name'];
-		$this->type = $file ['type'];
-		$this->size = $file ['size'];
-		$this->tmp_name	= $file ['tmp_name'];
-		$this->error = $file ['error'];
-		$this->extension = strtolower(substr (strrchr ($this->name, '.'), 1));
+		$this->name	= $file['name'];
+		$this->type = $file['type'];
+		$this->size = $file['size'];
+		$this->tmp_name	= $file['tmp_name'];
+		$this->error = $file['error'];
+		$this->extension = strtolower(substr(strrchr($this->name, '.'), 1));
 	}
 
 	/**
