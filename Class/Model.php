@@ -224,7 +224,15 @@ abstract class Model implements ArrayAccess
 			}
 		}
 
-		return $this->_fields [$field];
+		$value = null;
+
+        try {
+            $value = $this->_fields [$field];
+        } catch (Exception $e) {
+            throw $e;
+        }
+
+        return $value;
 	}
 
 	/**
