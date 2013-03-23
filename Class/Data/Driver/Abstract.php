@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Абстрактный мэппер данных
+ * Абстрактный драйвер источника данных
  * 
  * @author goorus, morph
  */
-abstract class Data_Mapper_Abstract
+abstract class Data_Driver_Abstract
 {
 	/**
 	 * Опции по умолчанию
@@ -15,21 +15,24 @@ abstract class Data_Mapper_Abstract
 	protected $defaultOptions;
 
 	/**
-	 * Выполнить запрос через мэппер данных
+	 * Выполнить запрос через драйвер данных
      * 
-	 * @param Data_Source_Abstract $source
+	 * @param Data_Source $source
 	 * @param Query_Abstract $query
 	 * @param Query_Options $options
 	 * @return Query_Result
 	 */
-	public function execute(Data_Source_Abstract $source,
-		Query_Abstract $query, $options = null)
+	public function execute(Data_Source $source, Query_Abstract $query, 
+        $options = null)
 	{
 		if (!($query instanceof Query_Abstract)) {
 			return new Query_Result(null);
 		}
 		$start = microtime(true);
-		$rows = $this->_execute($query, $options);
+        if (!$options) {
+            $options = new Query_Options();
+        }
+		$rows = $this->executeCommand($query, $options);
 		$finish = microtime (true);
 		$result = new Query_Result(array (
 			'query'			=> $query,
@@ -43,13 +46,26 @@ abstract class Data_Mapper_Abstract
 		));
 		return $result;
 	}
+    
+    /**
+     * Выполняет базовый запрос к драйверу
+     * 
+     * @param Query_Abstract $query
+     * @param Query_Options $options
+     * @return array
+     */
+    protected function executeCommand(Query_Abstract $query, 
+        Query_Options $options)
+    {
+        return array();
+    }
 
 	/**
      * Получить опции по умолчанию
      * 
 	 * @return Query_Options
 	 */
-	public function getDefaultOptions ()
+	public function getDefaultOptions()
 	{
 		if (!$this->defaultOptions) {
 			$this->defaultOptions = new Query_Options();
@@ -61,7 +77,7 @@ abstract class Data_Mapper_Abstract
 	 * Изменить опции по умолчанию
      * 
 	 * @param Query_Options $options
-	 * @return Data_Mapper_Abstract
+	 * @return Data_Driver_Abstract
 	 */
 	public function setDefaultOptions(Query_Options $options)
 	{

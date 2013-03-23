@@ -6,14 +6,7 @@
  * @author morph, goorus
  */
 class Model_Manager_Delegee_Defined
-{
-    /**
-	 * Фабрики моделей
-     * 
-	 * @var array
-	 */
-	protected static $factories;
-    
+{   
 	/**
 	 * Создает предопределенную модель
      * 
@@ -24,10 +17,6 @@ class Model_Manager_Delegee_Defined
 	 */
 	public function get($modelName, $key, $object)
 	{
-        $factoryName = $modelName;
-		if (!isset(self::$factories[$factoryName])) {
-			self::$factories[$factoryName] = new $factoryName();
-		}
 		$rows = $modelName::$rows;
         $params = is_array($object) ? $object : array();
         $loader = IcEngine::serviceLocator()->getService('loader');
@@ -45,7 +34,6 @@ class Model_Manager_Delegee_Defined
             break;
 		}
         $model = new $modelName($params);
-        $model->setModelFactory(self::$factories[$factoryName]);
         return $model;
 	}
 }

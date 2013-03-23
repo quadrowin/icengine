@@ -1,20 +1,13 @@
 <?php
 
 /**
- * Мэппер для работы с MongoDB
+ * Драйвер для работы с MongoDB
  *
  * @author goorus, morph
  */
-class Data_Mapper_Mongo extends Data_Mapper_Abstract
+class Data_Driver_Mongo extends Data_Driver_Abstract
 {
-	/**
-	 * Соединение с монго
-     *
-	 * @var Mongo
-	 */
-	protected $connection;
-
-	/**
+    /**
 	 * Текущая коллекция
      *
 	 * @var MongoCollection
@@ -34,6 +27,27 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 		'charset'	=> 'utf8',
 		'options'	=> array()
 	);
+    
+    /**
+	 * Соединение с монго
+     *
+	 * @var Mongo
+	 */
+	protected $handler;
+    
+    /**
+     * Id последнего созданного документа
+     *
+     * @var integer
+     */
+	protected $insertId = null;
+    
+    /**
+     * Количество документов в полученной коллекции
+     *
+     * @var integer
+     */
+	protected $foundRows = 0;
 
 	/**
 	 * Последний оттранслированный запрос
@@ -41,6 +55,19 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 	 * @var array
 	 */
 	protected $query;
+    
+    /**
+	 * ОбMongoработчики по видам запросов
+     *
+	 * @var array
+	 */
+	protected $queryMethods = array (
+		Query::SELECT	=> 'executeSelect',
+		Query::SHOW		=> 'executeShow',
+		Query::DELETE	=> 'executeDelete',
+		Query::UPDATE	=> 'executeUpdate',
+		Query::INSERT	=> 'executeInsert'
+	);
 
     /**
      * Результат выполнения последнего запроса
@@ -56,40 +83,13 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
      */
 	protected $touchedRows = 0;
 
-    /**
-     * Количество документов в полученной коллекции
-     *
-     * @var integer
-     */
-	protected $foundRows = 0;
-
-    /**
-     * Id последнего созданного документа
-     *
-     * @var integer
-     */
-	protected $insertId = null;
-
-	/**
-	 * ОбMongoработчики по видам запросов
-     *
-	 * @var array
-	 */
-	protected $queryMethods = array (
-		Query::SELECT	=> '_executeSelect',
-		Query::SHOW		=> '_executeShow',
-		Query::DELETE	=> '_executeDelete',
-		Query::UPDATE	=> '_executeUpdate',
-		Query::INSERT	=> '_executeInsert'
-	);
-
 	/**
 	 * Запрос на удаление
 	 *
 	 * @param Query_Abstract $query
 	 * @param Query_Options $options
 	 */
-	public function _executeDelete(Query_Abstract $query,
+	protected function executeDelete(Query_Abstract $query,
 		Query_Options $options)
 	{
 		$this->query['criteria']['_id'] = $this->normalizeId(
@@ -107,18 +107,18 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
      * @param Query_Abstract $query
 	 * @param Query_Options $options
 	 */
-	public function _executeInsert(Query_Abstract $query,
+	protected function executeInsert(Query_Abstract $query,
 		Query_Options $options)
 	{
 		if (isset($this->query['a']['_id'])) {
 			$this->insertId = $this->query['a']['_id'];
 			$this->collection->update(
 				array(
-					'_id'		=> $this->insertId
+					'_id' => $this->insertId
 				),
 				$this->query['a'],
 				array(
-					'upsert'	=> true
+					'upsert' => true
 				)
 			);
 		} else {
@@ -134,7 +134,7 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
      * @param Query_Abstract $query
 	 * @param Query_Options $options
 	 */
-	public function _executeSelect(Query_Abstract $query,
+	protected function executeSelect(Query_Abstract $query,
 		Query_Options $options)
 	{
 		if ($this->query['find_one']) {
@@ -171,7 +171,8 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 	 * @param Query $query
 	 * @param Query_Options $options
 	 */
-	public function _executeShow(Query_Abstract $query, Query_Options $options) 
+	protected function executeShow(Query_Abstract $query, 
+        Query_Options $options) 
     {
 		$show = strtoupper($this->query['show']);
 		if ($show == 'DELETE_INDEXES') {
@@ -204,7 +205,7 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 	 * @param Query_Options $options
 	 * @return void
 	 */
-	public function _executeUpdate(Query_Abstract $query, 
+	protected function executeUpdate(Query_Abstract $query, 
         Query_Options $options)
 	{
 		$this->query['criteria']['_id'] = $this->normalizeId(
@@ -224,10 +225,10 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 	 * @param Objective|array $config [optional]
 	 * @return Mongo
 	 */
-	public function connect($config = null)
+	protected function connect($config = null)
 	{
-		if ($this->connection) {
-			return $this->connection;
+		if ($this->handler) {
+			return $this->handler;
 		}
 		if ($config) {
 			$this->setOption($config);
@@ -245,15 +246,15 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 			$options['replicaSet'] =
                 $this->connectionOptions['options']['replicaSet'];
 		}
-		$this->connection = new Mongo($url, $options);
-		$this->connection->selectDB($this->connectionOptions['database']);
-		return $this->connection;
+		$this->handler = new Mongo($url, $options);
+		$this->handler->selectDB($this->connectionOptions['database']);
+		return $this->handler;
 	}
 
     /**
      * @inheritdoc
      */
-	public function execute(Data_Source_Abstract $source, Query_Abstract $query,
+	public function execute(Data_Source $source, Query_Abstract $query,
 		$options = null)
 	{
 		if (!($query instanceof Query_Abstract)) {
@@ -298,7 +299,7 @@ class Data_Mapper_Mongo extends Data_Mapper_Abstract
 	public function linkIdentifier()
 	{
 		$this->connect();
-		return $this->connection;
+		return $this->handler;
 	}
 
 	/**

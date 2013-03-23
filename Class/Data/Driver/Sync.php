@@ -1,25 +1,18 @@
 <?php
 
 /**
- * Мэппер для синхронизирующихся моделей
+ * Драйвер для источника данных синхронизирующихся моделей
  *
  * @author morph
  */
-class Data_Mapper_Sync extends Data_Mapper_Abstract
+class Data_Driver_Sync extends Data_Driver_Abstract
 {
     /**
-     * Мэппер для работы с СУДБ
+     * Драйвер источника данных СУДБ
      * 
-     * @var Data_Mapper_Abstract
+     * @var Data_Driver_Abstract
      */
-    protected $dynamicMapper;
-
-    /**
-     * Мэппер для работы со справочниками
-     * 
-     * @var Data_Mapper_Abstract
-     */
-    protected $staticMapper;
+    protected $dynamicDriver;
     
 	/**
 	 * Обработчики по видам запросов.
@@ -27,11 +20,18 @@ class Data_Mapper_Sync extends Data_Mapper_Abstract
      * @var array
 	 */
 	protected $queryMethods = array(
-		Query::SELECT	=> '_executeStatic',
-		Query::DELETE	=> '_executeDynamic',
-		Query::UPDATE	=> '_executeDynamic',
-		Query::INSERT	=> '_executeDynamic'
+		Query::SELECT	=> 'executeStatic',
+		Query::DELETE	=> 'executeDynamic',
+		Query::UPDATE	=> 'executeDynamic',
+		Query::INSERT	=> 'executeDynamic'
 	);
+    
+    /**
+     * Драйвер источника данных справочника
+     * 
+     * @var Data_Driver_Abstract
+     */
+    protected $staticDriver;
 
 	/**
 	 * Запрос на изменение данных (Insert, Update или Delete).
@@ -40,10 +40,11 @@ class Data_Mapper_Sync extends Data_Mapper_Abstract
 	 * @param Query_Options $options Параметры запроса.
 	 * @return boolean
 	 */
-	protected function _executeDynamic(Query_Abstract $query, $options)
+	protected function executeDynamic(Query_Abstract $query, 
+        Query_Options $options)
 	{
         $modelName = $this->getModelName($query);
-        $this->dynamicMapper->execute($query, $options);
+        $this->dynamicDriver->execute($query, $options);
         $this->getService('helperModelSync')->resync($modelName);
 	}
 
@@ -54,7 +55,8 @@ class Data_Mapper_Sync extends Data_Mapper_Abstract
 	 * @param Query_Options $options Параметры запроса.
 	 * @return boolean
 	 */
-	protected function _executeStatic(Query_Abstract $query, $options)
+	protected function executeStatic(Query_Abstract $query, 
+        Query_Options $options)
 	{
 		$modelName = $this->getModelName($query);
         $rows = $modelName::$rows;
@@ -71,27 +73,26 @@ class Data_Mapper_Sync extends Data_Mapper_Abstract
         $criteriasNames = array_keys($criterias); 
         $filtersNames = array_keys($filters);
         if (!$filters && !$priorityFields) {
-            $result = $this->staticMapper->execute($ds, $query, $options);
+            $result = $this->staticDriver->execute($ds, $query, $options);
         } elseif (!array_diff($filtersNames, $criteriasNames) &&
             !array_diff($filters, $criterias)) {
-            $result = $this->staticMapper->execute($ds, $query, $options);
+            $result = $this->staticDriver->execute($ds, $query, $options);
         } elseif (!array_diff($criteriasNames, $priorityFields)) {
-            $result = $this->staticMapper->execute($ds, $query, $options);
+            $result = $this->staticDriver->execute($ds, $query, $options);
             if (!$result->touchedRows()) {
-                $result = $this->dynamicMapper->execute($ds, $query, $options);
+                $result = $this->dynamicDriver->execute($ds, $query, $options);
             }
         } else {
-            $result = $this->dynamicMapper->execute($ds, $query, $options);
+            $result = $this->dynamicDriver->execute($ds, $query, $options);
         }
         return $result->asTable();
 	}
 
 	/**
-	 * (non-PHPdoc)
-     * @inheritdoc
-	 * @see Data_Mapper_Abstract::_execute()
+	 * @inheritdoc
 	 */
-	public function _execute(Query_Abstract $query, $options = null)
+	public function executeCommand(Query_Abstract $query, 
+        Query_Options $options)
 	{
 		$m = $this->queryMethods[$query->type()];
 		$result = $this->{$m}($query, $options);
@@ -112,7 +113,7 @@ class Data_Mapper_Sync extends Data_Mapper_Abstract
             foreach ($where as $part) {
                 $where = $part[Query::WHERE];
                 if (strpos($where, '.') !== false) {
-                    list($table, $quotedfield) = explode('.', $where);
+                    list(,$quotedfield) = explode('.', $where);
                     $field = trim($quotedfield, '`');
                 } else {
                     $field = trim($where, '`');
@@ -124,13 +125,13 @@ class Data_Mapper_Sync extends Data_Mapper_Abstract
     }
     
     /**
-     * Получить мэпер для запросов к СУБД
+     * Получить драйвер для запросов к СУБД
      * 
-     * @return Data_Mapper_Abstract
+     * @return Data_Driver_Abstract
      */
-    public function getDynamicMapper()
+    public function getDynamicDriver()
     {
-        return $this->dynamicMapper;
+        return $this->dynamicDriver;
     }
     
     /**
@@ -161,35 +162,31 @@ class Data_Mapper_Sync extends Data_Mapper_Abstract
     }
     
     /**
-     * Получить мэпер для запросов к справочнику
+     * Получить драйвер для запросов к справочнику
      * 
-     * @return Data_Mapper_Abstract
+     * @return Data_Driver_Abstract
      */
-    public function getStaticMapper()
+    public function getStaticDriver()
     {
-        return $this->staticMapper;
+        return $this->staticDriver;
     }
     
 	/**
-	 * (non-PHPdoc)
-     * @inheritdoc
-	 * @see Data_Mapper_Abstract::setOption()
+	 * @inheritdoc
 	 */
 	public function setOption($key, $value = null)
 	{
-        $dataMapperManager = $this->getService('dataMapperManager');
+        $dataDriverManager = $this->getService('dataDriverManager');
 		switch ($key) {
-			case 'dynamicMapper':
+			case 'dynamicDriver':
                 $dds = $this->getService('dds');
                 $sourceConfig = $dds->getDataSource()->getConfig();
-                $mapperConfig = isset($sourceConfig['mapper_options'])
-                    ? $sourceConfig['mapper_options'] : array();
-                $this->dynamicMapper = $dataMapperManager->get(
-                    $value, $mapperConfig
-                );
+                $config = isset($sourceConfig['options'])
+                    ? $sourceConfig['options'] : array();
+                $this->dynamicDriver = $dataDriverManager->get($value, $config);
 				return;
-			case 'staticMapper':
-				$this->staticMapper = $dataMapperManager->get($value);
+			case 'staticDriver':
+				$this->staticDriver = $dataDriverManager->get($value);
 				return;
 		}
 		return parent::setOption($key, $value);

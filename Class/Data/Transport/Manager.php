@@ -17,7 +17,7 @@ class Data_Transport_Manager extends Manager_Abstract
 		 * @var array
 		 */
 		'transports'	=> array(
-			'cli_input'		=> array(
+			'cliInput'		=> array(
 				'providers'	=> array(
 					'Cli'
 				)
@@ -26,22 +26,21 @@ class Data_Transport_Manager extends Manager_Abstract
 			 * @desc транспорт входных данные по умолчанию
 			 * @var array
 			 */
-			'default_input'	=> array(
+			'defaultInput'	=> array(
 				/**
 				 * @desc Провайдеры, входящие в транспорт
 				 * @var array
 				 */
 				'providers'	=> array(
 					'Router',
-					'Request',
-					'Session'
+					'Request'
 				)
 			),
 			/**
 			 * @desc Транспорт исходящих данных
 			 * @var array
 			 */
-			'default_output'	=> array()
+			'defaultOutput'	=> array()
 		)
 	);
 	
