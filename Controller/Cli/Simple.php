@@ -12,7 +12,7 @@ class Controller_Cli_Simple extends Controller_Abstract
 	 * 
      * @return Data_Transport
 	 */
-	protected function parsedInput ()
+	protected function parsedInput()
 	{
 		$buffer = new Data_Provider_Buffer();
 		$argv = $this->input->receiveAll();
@@ -43,7 +43,7 @@ class Controller_Cli_Simple extends Controller_Abstract
 			);
 			$action = new Controller_Action($actionDispatched);
 			$task = new Controller_Task($action);
-			$task->setInput($this->parsedInput ());
+			$task->setInput($this->parsedInput());
 			/**
 			 * Выполненяем задания.
 			 * 
