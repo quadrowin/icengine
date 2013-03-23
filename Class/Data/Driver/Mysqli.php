@@ -1,25 +1,18 @@
 <?php
 
 /**
- * Мэппер для соединения с mysql
+ * Драйвер для соединения с mysql
  *
  * @author goorus, morph
  */
-class Data_Mapper_Mysqli extends Data_Mapper_Abstract
+class Data_Driver_Mysqli extends Data_Driver_Abstract
 {
     /**
      * Запрос на получение числа кортежей
      */
 	const SELECT_FOUND_ROWS_QUERY = 'SELECT FOUND_ROWS()';
 
-	/**
-	 * Соединение с mysql
-	 *
-     * @var resource
-	 */
-	protected $linkIdentifier = null;
-
-	/**
+    /**
 	 * Параметры соединения
 	 *
      * @var array
@@ -31,41 +24,48 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 		'database'	=> 'unknown',
 		'charset'	=> 'utf8'
 	);
-
-	/**
-	 * Последний оттранслированный запрос.
-	 *
-     * @var string
-	 */
-	protected $sql = '';
-
-    /**
-     * Код ошибки
-     *
-     * @var integer
-     */
-	protected $errno = 0;
-
-    /**
-     * Сообщение об ошибке
-     *
-     * @var string
-     */
-    protected $error = '';
-
+    
     /**
      * Количество затронутых последним запросом кортежей
      *
      * @var integer
      */
 	protected $affectedRows = 0;
-
+    
+    /**
+     * Код ошибки
+     *
+     * @var integer
+     */
+	protected $errno = 0;
+    
+    /**
+     * Сообщение об ошибке
+     *
+     * @var string
+     */
+    protected $error = '';
+    
     /**
      * Количество полученных рядов (игнорируя лимит)
      *
      * @var integer
      */
 	protected $foundRows = 0;
+    
+    /**
+     * id последней добавленной сущности
+     *
+     * @var mixed
+     */
+	protected $insertId = null;
+    
+	/**
+	 * Экземпляр mysqli
+	 *
+     * @var mysqli
+	 */
+	protected $handler = null;
 
     /**
      * Количество полученных рядов
@@ -73,14 +73,14 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
      * @var integer
      */
 	protected $numRows = 0;
-
-    /**
-     * id последней добавленной сущности
-     *
-     * @var mixed
-     */
-	protected $insertId = null;
-
+    
+	/**
+	 * Последний оттранслированный запрос.
+	 *
+     * @var string
+	 */
+	protected $sql = '';
+    
     /**
      * Опции маппера
      *
@@ -94,11 +94,11 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
      * @var array
 	 */
 	protected $queryMethods = array(
-		Query::SELECT	=> '_executeSelect',
-		Query::SHOW		=> '_executeSelect',
-		Query::DELETE	=> '_executeChange',
-		Query::UPDATE	=> '_executeChange',
-		Query::INSERT	=> '_executeInsert'
+		Query::SELECT	=> 'executeSelect',
+		Query::SHOW		=> 'executeSelect',
+		Query::DELETE	=> 'executeChange',
+		Query::UPDATE	=> 'executeChange',
+		Query::INSERT	=> 'executeInsert'
 	);
 
 	/**
@@ -108,15 +108,15 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 	 * @param Query_Options $options Параметры запроса.
 	 * @return boolean
 	 */
-	protected function _executeChange(Query_Abstract $query,
+	protected function executeChange(Query_Abstract $query,
         Query_Options $options)
 	{
-		if (!mysql_query($this->sql, $this->linkIdentifier)) {
-			$this->errno = mysql_errno($this->linkIdentifier);
-			$this->error = mysql_error($this->linkIdentifier);
+		if (!$this->handler->query($this->sql)) {
+			$this->errno = $this->handler->errno;
+			$this->error = $this->handler->error;
 			return false;
 		}
-		$this->affectedRows = mysql_affected_rows($this->linkIdentifier);
+		$this->affectedRows = $this->handler->affected_rows;
 		return true;
 	}
 
@@ -127,17 +127,16 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 	 * @param Query_Options $options Параметры запроса.
 	 * @return boolean
 	 */
-	protected function _executeInsert(Query_Abstract $query,
+	protected function executeInsert(Query_Abstract $query,
         Query_Options $options)
 	{
-		if (!mysql_query($this->sql, $this->linkIdentifier)) {
-			$this->errno = mysql_errno($this->linkIdentifier);
-			$this->error = mysql_error($this->linkIdentifier);
+		if (!$this->handler->query($this->sql)) {
+			$this->errno = $this->handler->errno;
+			$this->error = $this->handler->error;
 			return false;
 		}
-		$this->affectedRows = mysql_affected_rows($this->linkIdentifier);
-		$this->insertId = mysql_insert_id($this->linkIdentifier);
-
+		$this->affectedRows = $this->handler->affected_rows;
+		$this->insertId = $this->handler->insert_id;
 		return true;
 	}
 
@@ -148,29 +147,26 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 	 * @param Query_Options $options Параметры запроса.
 	 * @return array|null
 	 */
-	protected function _executeSelect(Query_Abstract $query,
+	protected function executeSelect(Query_Abstract $query,
         Query_Options $options)
 	{
-		$result = mysql_query($this->sql, $this->linkIdentifier);
+		$result = $this->handler->query($this->sql);
 		if (!$result) {
-			$this->errno = mysql_errno($this->linkIdentifier);
-			$this->error = mysql_error($this->linkIdentifier);
+			$this->errno = $this->handler->errno;
+			$this->error = $this->handler->error;
 			return null;
 		}
 		$rows = array();
-		while (false != ($row = mysql_fetch_assoc($result))) {
+		while (null !== ($row = $result->fetch_assoc())) {
 			$rows[] = $row;
 		}
-		mysql_free_result($result);
+		$result->free();
 		$this->numRows = count($rows);
 		if ($query->part(Query::CALC_FOUND_ROWS)) {
-			$result = mysql_query(
-				self::SELECT_FOUND_ROWS_QUERY,
-				$this->linkIdentifier
-			);
-			$row = mysql_fetch_row($result);
+			$result = $this->handler->query(self::SELECT_FOUND_ROWS_QUERY);
+			$row = $result->fetch_row();
 			$this->foundRows = reset($row);
-			mysql_free_result($result);
+			$result->free();
 		}
 		return $rows;
 	}
@@ -179,43 +175,48 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 	 * Подключение к БД
 	 *
      * @param Objective|array $config [optional]
+     * @return \mysqli
 	 */
 	public function connect($config = null)
 	{
-		if ($this->linkIdentifier) {
+		if ($this->handler) {
 			return;
 		}
 		if ($config) {
 			$this->setOption($config);
 		}
-		$this->linkIdentifier = mysql_connect(
-			$this->connectionOptions['host'],
-			$this->connectionOptions['username'],
-			$this->connectionOptions['password']
-		);
-		mysql_select_db(
-			$this->connectionOptions['database'],
-			$this->linkIdentifier
-		);
+        try {
+            $this->handler = new \mysqli(
+                $this->connectionOptions['host'],
+                $this->connectionOptions['username'],
+                $this->connectionOptions['password'],
+                $this->connectionOptions['database']
+            );
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode());
+        }
+        if ($this->handler->connect_errno) {
+            throw new Exception(
+                $this->handler->connect_error,
+                $this->handler->connect_errno
+            );
+        }
 		if (!empty($this->connectionOptions['charset'])) {
-			mysql_query(
-				'SET NAMES ' . $this->connectionOptions['charset'],
-				$this->linkIdentifier
-			);
+            $this->handler->set_charset($this->connectionOptions['charset']);
 		}
+        return $this->handler;
 	}
 
 	/**
-	 * (non-PHPdoc)
-	 * @see Data_Mapper_Abstract::execute()
+	 * @inheritdoc
 	 */
-	public function execute(Data_Source_Abstract $source, Query_Abstract $query,
+	public function execute(Data_Source $source, Query_Abstract $query,
         $options = null)
 	{
 		if (!($query instanceof Query_Abstract)) {
 			return new Query_Result(null);
 		}
-		if (!$this->linkIdentifier) {
+		if (!$this->handler) {
 			$this->connect();
 		}
 		$start = microtime(true);
@@ -256,21 +257,18 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 	}
 
 	/**
-	 * Возвращает ресурс соединения с mysql.
+	 * Возвращает экземпляр mysql соединения с mysql.
 	 *
-     * @return resource
+     * @return \mysqli
 	 */
 	public function linkIdentifier()
 	{
-        if (!$this->linkIdentifier) {
-            $this->connect();
-        }
-		return $this->linkIdentifier;
+        $this->connect();
+		return $this->handler;
 	}
 
 	/**
-	 * (non-PHPdoc)
-	 * @see Data_Mapper_Abstract::setOption()
+	 * @inheritdoc
 	 */
 	public function setOption($key, $value = null)
 	{

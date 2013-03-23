@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Мэппер для работы с mysql, с кэшированием запросов.
+ * Драйвер для работы с mysql, с кэшированием запросов.
  *
  * @author goorus, morph, neon
  */
-class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
+class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
 {
 	/**
 	 * Кэшер запросов.
@@ -28,29 +28,28 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
      */
     protected static $tagsCaches = array();
 
-	/**
-	 * Получение хэша запроса
-	 *
-     * @return string
-	 */
-	protected function sqlHash($query)
-	{
-		return md5(json_encode($query->getParts()));
-	}
-
+    /**
+     * Очистка кэша драйвера
+     */
+    public function clearCache()
+    {
+        self::$caches = array();
+        self::$tagsCaches = array();
+    }
+    
 	/**
 	 * @inheritdoc
 	 */
-	protected function _executeChange(Query_Abstract $query,
+	protected function executeChange(Query_Abstract $query,
         Query_Options $options)
 	{
-		if (!$this->linkIdentifier) {
+		if (!$this->handler) {
 			$this->connect();
 		}
 		if (Tracer::$enabled) {
 			$startTime = microtime(true);
 		}
-        $result = parent::_executeChange($query, $options);
+        $result = parent::executeChange($query, $options);
         if (!$result) {
             return false;
         }
@@ -80,16 +79,16 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	/**
 	 * @inheritdoc
 	 */
-	protected function _executeInsert(Query_Abstract $query,
+	protected function executeInsert(Query_Abstract $query,
         Query_Options $options)
 	{
-		if (!$this->linkIdentifier) {
+		if (!$this->handler) {
 			$this->connect();
 		}
 		if (Tracer::$enabled) {
 			$startTime = microtime(true);
 		}
-		$result = parent::_executeInsert($query, $options);
+		$result = parent::executeInsert($query, $options);
         if (!$result) {
             return false;
         }
@@ -118,7 +117,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	 * @param Query_Options $options
 	 * @return null|array
 	 */
-	protected function _executeSelect(Query_Abstract $query,
+	protected function executeSelect(Query_Abstract $query,
         Query_Options $options)
 	{
 		if (Tracer::$enabled) {
@@ -150,7 +149,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 			}
 			return $cache['v'];
 		}
-		if (!$this->linkIdentifier) {
+		if (!$this->handler) {
 			$this->connect();
 		}
 		if (Tracer::$enabled) {
@@ -158,7 +157,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 			Tracer::begin(__CLASS__, __METHOD__, __LINE__);
 		}
         $this->sql = $query->translate('Mysql');
-		$rows = parent::_executeSelect($query, $options);
+		$rows = parent::executeSelect($query, $options);
         if (is_null($rows)) {
             return null;
         }
@@ -195,17 +194,10 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 		return $rows;
 	}
 
-    public function clearCache()
-    {
-        self::$caches = array();
-        self::$tagsCaches = array();
-    }
-
 	/**
-	 * (non-PHPdoc)
-	 * @see Data_Mapper_Abstract::execute()
+	 * @inheritdoc
 	 */
-	public function execute(Data_Source_Abstract $source, Query_Abstract $query,
+	public function execute(Data_Source $source, Query_Abstract $query,
         $options = null)
 	{
 		if (!($query instanceof Query_Abstract)) {
@@ -270,6 +262,47 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
     {
         return $this->cacher->checkTags($tags);
     }
+    
+    /**
+	 * Изменить текущего кэшера
+     *
+	 * @param Data_Provider_Abstract $cacher
+	 */
+	public function setCacher(Data_Provider_Abstract $cacher)
+	{
+		$this->cacher = $cacher;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function setOption($key, $value = null)
+	{
+		switch ($key) {
+			case 'cacher':
+                $serviceLocator = IcEngine::serviceLocator();
+                $dataProviderManager = $serviceLocator->getService(
+                    'dataProviderManager'
+                );
+                $provider = $dataProviderManager->get($value);
+				$this->setCacher($provider);
+				return;
+			case 'expiration':
+				$this->getDefaultOptions()->setExpiration($value);
+				return;
+		}
+		return parent::setOption($key, $value);
+	}
+    
+    /**
+	 * Получение хэша запроса
+	 *
+     * @return string
+	 */
+	protected function sqlHash($query)
+	{
+		return md5(json_encode($query->getParts()));
+	}
 
     /**
      * Удаляет внутренние сохраненные тэги и запросы
@@ -288,36 +321,4 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
             }
         }
     }
-
-	/**
-	 * Изменить текущего кэшера
-     *
-	 * @param Data_Provider_Abstract $cacher
-	 */
-	public function setCacher(Data_Provider_Abstract $cacher)
-	{
-		$this->cacher = $cacher;
-	}
-
-	/**
-	 * (non-PHPdoc)
-	 * @see Data_Mapper_Mysqli::setOption()
-	 */
-	public function setOption($key, $value = null)
-	{
-		switch ($key) {
-			case 'cache_provider':
-                $serviceLocator = IcEngine::serviceLocator();
-                $dataProviderManager = $serviceLocator->getService(
-                    'dataProviderManager'
-                );
-                $provider = $dataProviderManager->get($value);
-				$this->setCacher($provider);
-				return;
-			case 'expiration':
-				$this->getDefaultOptions()->setExpiration($value);
-				return;
-		}
-		return parent::setOption($key, $value);
-	}
 }

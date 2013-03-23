@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Мэппер для работы с Mongodb, с кэшированием запросов
+ * Драйвер для работы с Mongodb, с кэшированием запросов
  *
  * @author goorus, morph
  */
-class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
+class Data_Driver_Mongo_Cached extends Data_Driver_Mongo
 {
 	/**
 	 * Кэшер запросов
@@ -15,26 +15,16 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 	protected $cacher;
 
 	/**
-	 * Получение хэша запроса
-     *
-	 * @return string
-	 */
-	protected function queryHash()
-	{
-		return md5(json_encode($this->query));
-	}
-
-	/**
 	 * @inheritdoc
 	 */
-	public function _executeDelete(Query_Abstract $query, 
+	protected function executeDelete(Query_Abstract $query, 
         Query_Options $options)
 	{
         $this->collection = $this->connect()->selectCollection(
 			$this->connectionOptions['database'],
 			$this->query['collection']
 		);
-		parent::_executeDelete($query, $options);
+		parent::executeDelete($query, $options);
 		$tags = $query->getTags();
 		for ($i = 0, $count = sizeof($tags); $i < $count; ++$i) {
 			$this->cacher->tagDelete($tags[$i]);
@@ -44,14 +34,14 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 	/**
 	 * @inheritdoc
 	 */
-	public function _executeInsert(Query_Abstract $query, 
+	protected function executeInsert(Query_Abstract $query, 
         Query_Options $options)
 	{
         $this->collection = $this->connect()->selectCollection(
 			$this->connectionOptions['database'],
 			$this->query['collection']
 		);
-		parent::_executeInsert($query, $options);
+		parent::executeInsert($query, $options);
 		$tags = $query->getTags();
 		for ($i = 0, $count = sizeof($tags); $i < $count; ++$i) {
 			$this->cacher->tagDelete($tags [$i]);
@@ -61,7 +51,7 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 	/**
 	 * @inheritdoc
 	 */
-	public function _executeSelect(Query_Abstract $query, 
+	protected function executeSelect(Query_Abstract $query, 
         Query_Options $options)
 	{
 		$key = $this->queryHash();
@@ -84,7 +74,7 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 			$this->connectionOptions['database'],
 			$this->query['collection']
 		);
-		parent::_executeSelect($query, $options);
+		parent::executeSelect($query, $options);
 		$tags = $query->getTags();
 		$this->cacher->set(
 			$key,
@@ -100,16 +90,16 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
     /**
      * @inheritdoc
      */
-    public function _executeShow(Query_Abstract $query, Query_Options $options) 
+    protected function executeShow(Query_Abstract $query, Query_Options $options) 
     {
         $this->connect();
-        parent::_executeShow($query, $options);
+        parent::executeShow($query, $options);
     }
 
 	/**
 	 * @inheritdoc
 	 */
-	public function _executeUpdate(Query_Abstract $query, 
+	protected function executeUpdate(Query_Abstract $query, 
         Query_Options $options)
 	{
         $this->collection = $this->connect()->selectCollection(
@@ -126,7 +116,7 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
     /**
      * @inheritdoc
      */
-	public function execute(Data_Source_Abstract $source, Query_Abstract $query,
+	public function execute(Data_Source $source, Query_Abstract $query,
 		$options = null)
 	{
 		if (!($query instanceof Query_Abstract)) {
@@ -168,6 +158,16 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 	{
 		return $this->cacher;
 	}
+    
+    /**
+	 * Получение хэша запроса
+     *
+	 * @return string
+	 */
+	protected function queryHash()
+	{
+		return md5(json_encode($this->query));
+	}
 
 	/**
 	 * Изменить кэшер запросов
@@ -185,7 +185,7 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 	public function setOption($key, $value = null)
 	{
 		switch ($key) {
-			case 'cache_provider':
+			case 'cacher':
                 $serviceLocator = IcEngine::serviceLocator();
                 $dataProviderManager = $serviceLocator->getService(
                     'dataProviderManager'
