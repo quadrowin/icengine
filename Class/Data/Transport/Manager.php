@@ -13,8 +13,9 @@ class Data_Transport_Manager extends Manager_Abstract
 	 */
 	protected $config = array(
 		/**
-		 * @desc Транспорты
-		 * @var array
+		 * Транспорты
+		 * 
+         * @var array
 		 */
 		'transports'	=> array(
 			'cliInput'		=> array(
@@ -23,8 +24,9 @@ class Data_Transport_Manager extends Manager_Abstract
 				)
 			),
 			/**
-			 * @desc транспорт входных данные по умолчанию
-			 * @var array
+			 * Транспорт входных данные по умолчанию
+			 * 
+             * @var array
 			 */
 			'defaultInput'	=> array(
 				/**
@@ -37,8 +39,9 @@ class Data_Transport_Manager extends Manager_Abstract
 				)
 			),
 			/**
-			 * @desc Транспорт исходящих данных
-			 * @var array
+			 * Транспорт исходящих данных
+			 * 
+             * @var array
 			 */
 			'defaultOutput'	=> array()
 		)

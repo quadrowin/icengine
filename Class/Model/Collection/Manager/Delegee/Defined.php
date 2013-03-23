@@ -34,7 +34,7 @@ class Model_Collection_Manager_Delegee_Defined
 		$order = $query->getPart(Query::ORDER);
 		$sort = array();
 		foreach ($order as $currentOrder) {
-			$sort[] = $$currentOrder[0];
+			$sort[] = $currentOrder[0]; 
 		}
         $result = $rows;
         if ($filter) {
