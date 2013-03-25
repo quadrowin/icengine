@@ -44,8 +44,10 @@ class Data_Mapper_Sync extends Data_Mapper_Abstract
 	{
         $modelName = $this->getModelName($query);
         $ds = $this->getService('modelScheme')->dataSource($modelName);
-        $this->dynamicMapper->execute($ds, $query, $options);
+        $result = $this->dynamicMapper->execute($ds, $query, $options);
+        $this->dynamicMapper->tagDelete($modelName);
         $this->getService('helperModelSync')->resync($modelName);
+        return $result;
 	}
 
 	/**
