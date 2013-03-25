@@ -201,6 +201,7 @@ abstract class Data_Mapper_Abstract
 			'startAt'		=> $start,
 			'result'		=> $result,
 			'touchedRows'	=> count($result),
+            'foundRows'     => count($result),
 			'insertKey'		=> 0,
 			'finishedAt'	=> $finish,
 			'source'		=> $source
