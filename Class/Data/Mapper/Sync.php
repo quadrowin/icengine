@@ -9,18 +9,18 @@ class Data_Mapper_Sync extends Data_Mapper_Abstract
 {
     /**
      * Мэппер для работы с СУДБ
-     * 
+     *
      * @var Data_Mapper_Abstract
      */
     protected $dynamicMapper;
 
     /**
      * Мэппер для работы со справочниками
-     * 
+     *
      * @var Data_Mapper_Abstract
      */
     protected $staticMapper;
-    
+
 	/**
 	 * Обработчики по видам запросов.
 	 *
@@ -68,22 +68,23 @@ class Data_Mapper_Sync extends Data_Mapper_Abstract
         $criterias = $this->getCriterias($query);
         ksort($criterias);
         ksort($filters);
-        $criteriasNames = array_keys($criterias); 
+        $criteriasNames = array_keys($criterias);
         $filtersNames = array_keys($filters);
         if (!$filters && !$priorityFields) {
             $result = $this->staticMapper->execute($ds, $query, $options);
         } elseif (!array_diff($filtersNames, $criteriasNames) &&
             !array_diff($filters, $criterias)) {
             $result = $this->staticMapper->execute($ds, $query, $options);
-        } elseif (!array_diff($criteriasNames, $priorityFields)) {
+        } elseif ($criteriasNames &&
+            !array_diff($criteriasNames, $priorityFields)) {
             $result = $this->staticMapper->execute($ds, $query, $options);
             if (!$result->touchedRows()) {
                 $result = $this->dynamicMapper->execute($ds, $query, $options);
             }
         } else {
             $result = $this->dynamicMapper->execute($ds, $query, $options);
-        }
-        return $result->asTable();
+        };
+        return $result;
 	}
 
 	/**
@@ -91,16 +92,28 @@ class Data_Mapper_Sync extends Data_Mapper_Abstract
      * @inheritdoc
 	 * @see Data_Mapper_Abstract::_execute()
 	 */
-	public function _execute(Query_Abstract $query, $options = null)
+	public function execute(Data_Source_Abstract $source,
+        Query_Abstract $query, $options = null)
 	{
 		$m = $this->queryMethods[$query->type()];
 		$result = $this->{$m}($query, $options);
-		return $result;
+		return new Query_Result(array(
+            'error'			=> '',
+			'errno'			=> 0,
+			'query'			=> $query,
+			'startAt'		=> 0,
+			'finishedAt'	=> 0,
+			'foundRows'		=> $result->foundRows(),
+			'result'		=> $result->asTable(),
+			'touchedRows'	=> $result->touchedRows(),
+			'insertKey'		=> $result->insertId(),
+			'source'		=> $source
+        ));
 	}
 
     /**
-     * Получить критерии запроса 
-     * 
+     * Получить критерии запроса
+     *
      * @param Query_Abstract $query
      * @return array
      */
@@ -122,20 +135,20 @@ class Data_Mapper_Sync extends Data_Mapper_Abstract
         }
         return $criteria;
     }
-    
+
     /**
      * Получить мэпер для запросов к СУБД
-     * 
+     *
      * @return Data_Mapper_Abstract
      */
     public function getDynamicMapper()
     {
         return $this->dynamicMapper;
     }
-    
+
     /**
      * Получить имя модели по запросу
-     * 
+     *
      * @param Query_Abstract $query
      * @return string
      */
@@ -148,10 +161,10 @@ class Data_Mapper_Sync extends Data_Mapper_Abstract
         $modelName = reset($from)[Query::TABLE];
         return $modelName;
     }
-    
+
     /**
      * Получить сервис по имени
-     * 
+     *
      * @param string $serviceName
      * @return mixed
      */
@@ -159,17 +172,17 @@ class Data_Mapper_Sync extends Data_Mapper_Abstract
     {
         return IcEngine::serviceLocator()->getService($serviceName);
     }
-    
+
     /**
      * Получить мэпер для запросов к справочнику
-     * 
+     *
      * @return Data_Mapper_Abstract
      */
     public function getStaticMapper()
     {
         return $this->staticMapper;
     }
-    
+
 	/**
 	 * (non-PHPdoc)
      * @inheritdoc
