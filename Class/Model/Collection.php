@@ -476,7 +476,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 			$index += count($this->items);
 		}
         if (isset($this->items[$index])) {
-            $item = $this->items[$index];
+            $item = &$this->items[$index];
             return $item;
         }
         return null;
@@ -714,7 +714,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
             }
             $optionManager->executeAfter($this, $this->options);
             if ($this->paginator) {
-                $this->paginator->fullCount = $this->data('foundRows');
+                $this->paginator->total = $this->data('foundRows');
             }
             if ($this->afterLoad) {
                 foreach ($this->afterLoad as $method) {
