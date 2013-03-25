@@ -43,7 +43,8 @@ class Data_Mapper_Sync extends Data_Mapper_Abstract
 	protected function _executeDynamic(Query_Abstract $query, $options)
 	{
         $modelName = $this->getModelName($query);
-        $this->dynamicMapper->execute($query, $options);
+        $ds = $this->getService('modelScheme')->dataSource($modelName);
+        $this->dynamicMapper->execute($ds, $query, $options);
         $this->getService('helperModelSync')->resync($modelName);
 	}
 
