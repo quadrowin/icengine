@@ -70,8 +70,11 @@ class Data_Source
 	 * @param Query_Options $options Опции запроса
 	 * @return Data_Source_Abstract 
 	 */
-	public function execute($query = null, $options = null)
+	public function execute(Query_Abstract $query, $options = null)
 	{
+        if (!$options) {
+            $options = new Query_Options();
+        }
         $this->setQuery($query);
         $result = $this->driver()->execute($this->query, $options);
         $result->setSource($this);
