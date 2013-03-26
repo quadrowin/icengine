@@ -22,7 +22,7 @@ class Query_Command_Truncate_Table extends Query_Command_Abstract
      */
     public function create($data)
     {
-        $this->data = array(self::NAME => reset($data));
+        $this->data = array(Query::NAME => reset($data));
 		return $this;
     }
 }

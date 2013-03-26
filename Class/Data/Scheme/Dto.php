@@ -14,6 +14,7 @@ class Data_Scheme_Dto extends Dto
         'modelName' => '',
         'info'      => array(),
         'fields'    => array(),
-        'indexes'   => array()
+        'indexes'   => array(),
+        'references'    => array()
     );  
 }
