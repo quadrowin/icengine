@@ -2,14 +2,14 @@
 
 /**
  * Транслятор запроса типа delete драйвера mysql
- * 
+ *
  * @author morph, goorus
  */
 class Query_Translator_Mysql_Delete extends Query_Translator_Mysql_Select
 {
 	/**
 	 * Рендерит часть запроса delete
-	 * 
+	 *
      * @param Query_Abstract $query
 	 * @return string
 	 */
@@ -26,7 +26,7 @@ class Query_Translator_Mysql_Delete extends Query_Translator_Mysql_Select
                 strtolower($modelScheme->table($table))
             );
 		}
-		$tables = count($delete) 
+		$tables = count($delete) > 1
             ? ' '. implode(self::SQL_COMMA, $delete) . ' ' : ' ';
 		return
 			self::SQL_DELETE . $tables .
