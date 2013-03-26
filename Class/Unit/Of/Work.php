@@ -88,7 +88,6 @@ class Unit_Of_Work
 	public function flush()
 	{
 		$this->build();
-        echo count($this->queries) . PHP_EOL;
 		foreach ($this->queries as $key=>$query) {
 			$this->_execute($key, $query);
 		}
@@ -174,7 +173,8 @@ class Unit_Of_Work
 		$unitOfWorkManager = $locator->getService('unitOfWorkManager');
 		$uowQuery = $unitOfWorkManager->get($query);
 		$uowQuery->push($query, $object, $loaderName);
-		if ($this->autoFlush && $this->autoFlush == $this->rawCount) {
+        echo $this->rawCount . ' ' . $this->autoFlush . PHP_EOL;
+		if ($this->autoFlush && $this->autoFlush >= $this->rawCount) {
 			$this->flush();
 		}
 		$this->rawCount++;
