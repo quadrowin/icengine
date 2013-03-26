@@ -42,7 +42,7 @@ class Helper_Model_Sync extends Helper_Abstract
         $syncSource = $dataSourceManager->get('Sync');
         $dataSourceManager->initDataDriver($syncSource);
         $dynamicDriver = $syncSource->getDataDriver()->getDynamicDriver();
-        $table = $dynamicDriver->execute($syncSource, $query)->asTable();
+        $table = $dynamicDriver->execute($query)->asTable();
         $output = $this->getService('helperCodeGenerator')->fromTemplate(
             'modelSync', array('data' => $table)
         );

@@ -30,14 +30,9 @@ class Controller_Manager extends Manager_Abstract
 	 */
 	protected $config = array(
 		/**
-		 * @desc Фильтры для выходных данных
-		 * @var array
-		 */
-		'output_filters'	=> array(),
-
-		/**
-		 * @desc Настройки кэширования для экшенов.
-		 * @var array
+		 * Настройки кэширования для экшенов.
+		 * 
+         * @var array
 		 */
 		'actions'			=> array(),
 

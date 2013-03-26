@@ -17,13 +17,11 @@ abstract class Data_Driver_Abstract
 	/**
 	 * Выполнить запрос через драйвер данных
      * 
-	 * @param Data_Source $source
 	 * @param Query_Abstract $query
 	 * @param Query_Options $options
 	 * @return Query_Result
 	 */
-	public function execute(Data_Source $source, Query_Abstract $query, 
-        $options = null)
+	public function execute(Query_Abstract $query, $options = null)
 	{
 		if (!($query instanceof Query_Abstract)) {
 			return new Query_Result(null);
@@ -41,8 +39,7 @@ abstract class Data_Driver_Abstract
             'foundRows'     => count($rows),
 			'touchedRows'	=> count($rows),
 			'insertKey'		=> 0,
-			'finishedAt'	=> $finish,
-			'source'		=> $source
+			'finishedAt'	=> $finish
 		));
 		return $result;
 	}

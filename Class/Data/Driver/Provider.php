@@ -202,8 +202,7 @@ class Data_Driver_Provider extends Data_Driver_Abstract
     /**
      * @inheritdoc
      */
-	public function execute(Data_Source $source, Query_Abstract $query,
-        $options = null)
+	public function execute(Query_Abstract $query, $options = null)
 	{
 		$this->query = $query;
 		$this->translated = $query->translate(self::TRANSLATOR);
@@ -234,8 +233,7 @@ class Data_Driver_Provider extends Data_Driver_Abstract
 		    'foundRows'		=> $this->foundRows,
 			'result'		=> $result,
 			'touchedRows'	=> $this->numRows + $this->affectedRows,
-			'insertKey'		=> $this->insertId,
-			'source'		=> $source
+			'insertKey'		=> $this->insertId
 		));
 	}
 

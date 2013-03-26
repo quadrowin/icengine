@@ -54,7 +54,38 @@ class Model_Field
 	{
 		return $this->attrs;
 	}
+    
+    /**
+     * Есть ли у поля флаг Auto_Increment
+     * 
+     * @return boolean
+     */
+    public function getAutoIncrement()
+    {
+        return !empty($this->attrs[self::ATTR_AUTO_INCREMENT]);
+    }
 
+    /**
+     * Получить комментарии поля
+     * 
+     * @return string
+     */
+    public function getComment()
+    {
+        return $this->attrs[self::ATTR_COMMENT];
+    }
+    
+    /**
+     * Получить значение по умолчанию
+     * 
+     * @return mixed
+     */
+    public function getDefault()
+    {
+        return array_key_exists(self::ATTR_DEFAULT, $this->attrs)
+            ? $this->attrs[self::ATTR_DEFAULT] : null;
+    }
+    
 	/**
 	 * Получить имя поля
 	 * 
@@ -64,7 +95,48 @@ class Model_Field
 	{
 		return $this->name;
 	}
+    
+    /**
+     * Получить флаг нулевости поля
+     * 
+     * @return boolean
+     */
+    public function getNullable()
+    {
+        return !empty($this->attrs[self::ATTR_NULL]);
+    }
+    
+    /**
+     * Получить размер поля
+     * 
+     * @return string
+     */
+    public function getSize()
+    {
+        return !empty($this->attrs[self::ATTR_SIZE])
+            ? $this->attrs[self::ATTR_SIZE] : 0;
+    }
+    
+    /**
+     * Получить тип
+     * 
+     * @return string
+     */
+    public function getType()
+    {
+        return $this->attrs[self::ATTR_TYPE];
+    }
 
+    /**
+     * Является ли поле unsigned
+     * 
+     * @return boolean
+     */
+    public function getUnsigned()
+    {
+        return !empty($this->attrs[self::ATTR_UNSIGNED]);
+    }
+    
 	/**
 	 * Изменить значение атрибута
 	 *
