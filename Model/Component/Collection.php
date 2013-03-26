@@ -1,41 +1,43 @@
 <?php
+
 /**
+ * Абстрактный класс коллекции компонентов
  * 
- * @desc Абстрактный класс коллекции компонентов.
- * @author Юрий Шведов
- * @package IcEngine
- *
+ * @author goorus
  */
 abstract class Component_Collection extends Model_Collection
 { 
+	/**
+	 * Модель, для которой выбрана коллекция
+	 * 
+     * @var Model
+	 */
+	protected $model;
 	
 	/**
-	 * @desc Модель, для которой выбрана коллекция.
-	 * @var Model
+	 * Возвращает первичный ключ модели
+	 * 
+     * @return mixed
 	 */
-	protected $_model;
-	
-	/**
-	 * @desc Возвращает первичный ключ модели.
-	 * @return mixed
-	 */
-	public function forRowId ()
+	public function forRowId()
 	{
-	    return $this->_model->key ();
+	    return $this->model->key();
 	}
 	
 	/**
-	 * @desc Возвращает таблицу модели
-	 * @return string
+	 * Возвращает таблицу модели
+	 * 
+     * @return string
 	 */
-	public function forTable ()
+	public function forTable()
 	{
-	    return $this->_model->table ();
+	    return $this->model->table();
 	}
 	
 	/**
-	 * @desc Загрузка списка компонент для записи.
-	 * @param Model $model Модель, для которой подгружаются объекты.
+	 * Загрузка списка компонент для записи.
+	 * 
+     * @param Model $model Модель, для которой подгружаются объекты.
 	 * @return Component_Collection Эта коллекция.
 	 */
 	public function getFor (Model $model)

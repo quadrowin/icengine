@@ -7,7 +7,6 @@
  */
 class View_Render_Ajax extends View_Render_Abstract
 {
-
     /**
      * Получить контент вида
      *
@@ -16,8 +15,8 @@ class View_Render_Ajax extends View_Render_Abstract
      */
 	public function fetch($tpl)
 	{
-		$result = $this->_vars;
-		$this->_vars = array();
+		$result = $this->vars;
+		$this->vars = array();
 		return json_encode($result);
 	}
 
@@ -29,7 +28,7 @@ class View_Render_Ajax extends View_Render_Abstract
      */
 	public function display($tpl)
 	{
-		reset($this->_vars);
-		echo json_encode(current($this->_vars));
+		reset($this->vars);
+		echo json_encode(current($this->vars));
 	}
 }

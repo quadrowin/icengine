@@ -1,75 +1,60 @@
 <?php
 
 /**
- *
- * @desc Провайдер сообщений, который отправляет сообщение по списку
+ * Провайдер сообщений, который отправляет сообщение по списку
  * провайдеров до первой успешной отправки.
- * @author Юрий Шведов
- * @package IcEngine
- *
+ * 
+ * @author goorus, morph
  */
 class Mail_Provider_First_Success extends Mail_Provider_Abstract
 {
-
 	/**
-	 * @desc Конфиг
-	 * @var array
+	 * @inheritdoc
 	 */
-	protected static $_config = array (
+	protected static $config = array (
 		// Набор провайдеров
 		'providers'		=> null//'Sms_Dcnk,Sms_Littlesms,Sms_Yakoon'
 	);
 
 	/**
-	 * (non-PHPdoc)
-	 * @see Mail_Provider_Abstract::send()
+	 * @inheritdoc
 	 */
-	public function send (Mail_Message $message, $config)
+	public function send(Mail_Message $message, $config)
 	{
-		$this->logMessage ($message, self::MAIL_STATE_SENDING);
-
-		$providers =
-			isset ($config ['providers']) ?
-				$config ['providers'] :
-				$this->config ()->providers;
-
-		if (!is_array ($providers))
-		{
-			$providers = explode (',', $providers);
+		$this->logMessage($message, self::MAIL_STATE_SENDING);
+		$providers = isset($config['providers']) 
+            ? $config['providers'] 
+            : $this->config()->providers;
+		if (!is_array($providers)) {
+			$providers = explode(',', $providers);
 		}
-
-		$model_manager = $this->getService('modelManager');
-		$query = $this->getService('query');
-		foreach ($providers as $provider_name)
-		{
+		$modelManager = $this->getService('modelManager');
+		foreach ($providers as $name) {
 			/**
-			 * @desc Реальный провайдер
-			 * @var Mail_Provider_Abstract $provider
+			 * Реальный провайдер
+			 * 
+             * @var Mail_Provider_Abstract $provider
 			 */
-			$provider = $model_manager->byQuery (
-				'Mail_Provider',
-				$query->instance ()
-				->where ('name', $provider_name)
+			$provider = $modelManager->byOptions(
+				'Mail_Provider', array(
+                    'name'  => '::Name',
+                    'value' => $name
+                )
 			);
-
-			if ($provider && $provider->send ($message, $config))
-			{
-				$this->logMessage (
+			if ($provider && $provider->send($message, $config)) {
+				$this->logMessage(
 					$message,
 					self::MAIL_STATE_SUCCESS,
-					'provider: ' . $provider_name
+					'provider: ' . $name
 				);
 				return true;
 			}
 		}
-
-		$this->logMessage (
+		$this->logMessage(
 			$message,
 			self::MAIL_STATE_FAIL,
-			'providers: ' . var_export ($providers, true)
+			'providers: ' . var_export($providers, true)
 		);
-
 		return false;
 	}
-
 }

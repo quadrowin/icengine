@@ -110,11 +110,11 @@ class Unit_Of_Work
 		$query = $this->queries[$key];
         $ds = $modelScheme->dataSource($query['modelName']);
 		$result = $ds->execute($query['query']);
-        $mapper = $ds->getDataMapper();
-        if (method_exists($mapper, 'getCacher')) {
-            $cacher = $mapper->getCacher();
+        $driver = $ds->getDataDriver();
+        if (method_exists($driver, 'getCacher')) {
+            $cacher = $driver->getCacher();
             $tag = $modelScheme->table($query['modelName']);
-            $mapper->tagDelete($tag);
+            $driver->tagDelete($tag);
             $cacher->tagDelete($tag);
         }
 		$this->rawCount--;
