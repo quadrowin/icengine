@@ -210,8 +210,7 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
 	/**
 	 * @inheritdoc
 	 */
-	public function execute(Data_Source $source, Query_Abstract $query,
-        $options = null)
+	public function execute(Query_Abstract $query, $options = null)
 	{
 		if (!($query instanceof Query_Abstract)) {
 			return new Query_Result(null);
@@ -251,8 +250,7 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
 			'foundRows'		=> $this->foundRows,
 			'result'		=> $result,
 			'touchedRows'	=> $this->numRows + $this->affectedRows,
-			'insertKey'		=> $this->insertId,
-			'source'		=> $source
+			'insertKey'		=> $this->insertId
 		));
 	}
 

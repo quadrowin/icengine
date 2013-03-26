@@ -116,8 +116,7 @@ class Data_Driver_Mongo_Cached extends Data_Driver_Mongo
     /**
      * @inheritdoc
      */
-	public function execute(Data_Source $source, Query_Abstract $query,
-		$options = null)
+	public function execute(Query_Abstract $query, $options = null)
 	{
 		if (!($query instanceof Query_Abstract)) {
 			return new Query_Result(null);
@@ -143,9 +142,7 @@ class Data_Driver_Mongo_Cached extends Data_Driver_Mongo
 			'foundRows'		=> $this->foundRows,
 			'result'		=> $this->result,
 			'touchedRows'	=> $this->touchedRows,
-			'insertKey'		=> $this->insertId,
-			'currency'		=> 1,
-			'source'		=> $source
+			'insertKey'		=> $this->insertId
 		));
 	}
 

@@ -7,6 +7,9 @@
  */
 class Mail_Message_Dto extends Dto
 {
+    /**
+     * @inheritdoc
+     */
     protected static $defaults = array(
         // имя шаблона
         'template'          => '',

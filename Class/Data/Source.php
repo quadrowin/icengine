@@ -73,7 +73,8 @@ class Data_Source
 	public function execute($query = null, $options = null)
 	{
         $this->setQuery($query);
-        $result = $this->driver()->execute($this, $this->query, $options);
+        $result = $this->driver()->execute($this->query, $options);
+        $result->setSource($this);
 		$this->setResult($result);
 		return $this;
 	}

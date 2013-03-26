@@ -1,10 +1,6 @@
 <?php
 
 return array (
-	{if !empty($adminPanel)}
-		{$adminPanel},
-	{/if}
-
     {if !empty($admin)}
 		{$admin},
 	{/if}

@@ -38,14 +38,15 @@ class Data_Driver_Sync extends Data_Driver_Abstract
 	 *
      * @param Query_Abstract $query Запрос
 	 * @param Query_Options $options Параметры запроса.
-	 * @return boolean
+	 * @return Query_Result
 	 */
 	protected function executeDynamic(Query_Abstract $query, 
         Query_Options $options)
 	{
         $modelName = $this->getModelName($query);
-        $this->dynamicDriver->execute($query, $options);
+        $result = $this->dynamicDriver->execute($query, $options);
         $this->getService('helperModelSync')->resync($modelName);
+        return $result;
 	}
 
 	/**
@@ -53,7 +54,7 @@ class Data_Driver_Sync extends Data_Driver_Abstract
 	 *
      * @param Query_Abstract $query Запрос.
 	 * @param Query_Options $options Параметры запроса.
-	 * @return boolean
+	 * @return Query_Result
 	 */
 	protected function executeStatic(Query_Abstract $query, 
         Query_Options $options)
@@ -73,30 +74,40 @@ class Data_Driver_Sync extends Data_Driver_Abstract
         $criteriasNames = array_keys($criterias); 
         $filtersNames = array_keys($filters);
         if (!$filters && !$priorityFields) {
-            $result = $this->staticDriver->execute($ds, $query, $options);
+            $result = $this->staticDriver->execute($query, $options);
         } elseif (!array_diff($filtersNames, $criteriasNames) &&
             !array_diff($filters, $criterias)) {
-            $result = $this->staticDriver->execute($ds, $query, $options);
+            $result = $this->staticDriver->execute($query, $options);
         } elseif (!array_diff($criteriasNames, $priorityFields)) {
-            $result = $this->staticDriver->execute($ds, $query, $options);
+            $result = $this->staticDriver->execute($query, $options);
             if (!$result->touchedRows()) {
-                $result = $this->dynamicDriver->execute($ds, $query, $options);
+                $result = $this->dynamicDriver->execute($query, $options);
             }
         } else {
-            $result = $this->dynamicDriver->execute($ds, $query, $options);
+            $result = $this->dynamicDriver->execute($query, $options);
         }
-        return $result->asTable();
+        return $result;
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function executeCommand(Query_Abstract $query, 
+	public function execute(Query_Abstract $query, 
         Query_Options $options)
 	{
 		$m = $this->queryMethods[$query->type()];
 		$result = $this->{$m}($query, $options);
-		return $result;
+		return new Query_Result(array(
+            'error'			=> '',
+			'errno'			=> 0,
+			'query'			=> $query,
+			'startAt'		=> 0,
+			'finishedAt'	=> 0,
+			'foundRows'		=> $result->foundRows(),
+			'result'		=> $result->asTable(),
+			'touchedRows'	=> $result->touchedRows(),
+			'insertKey'		=> $result->insertId()
+        ));
 	}
 
     /**
