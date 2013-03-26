@@ -201,16 +201,16 @@ class Helper_Model_Migrate_Rebuild extends Helper_Abstract
         $scheme = $this->getService('modelScheme')->scheme($modelName);
         $fields = $this->fieldsToScheme($dto->fields);
         $indexes = $this->indexesToScheme($dto->indexes);
+        $references = $dto->references;
         $author = null;
         $comment = null;
-        $references = array();
         $admin = array();
         $languageScheme = array();
         $createScheme = array();
         if ($scheme) {
             $author = $scheme->author;
             $comment = $scheme->comment ?: $dto->info['Comment'];
-            $references = $scheme->references
+            $references = $references ?: $scheme->references
                 ? $scheme->references->__toArray() : array();
             $admin = $scheme->admin ? $scheme->admin->__toArray() : array();
             $languageScheme = $scheme->languageScheme 
