@@ -10,19 +10,12 @@ class Controller_Model_Import extends Controller_Abstract
     /**
      * Начать инпорт модели
      * 
+     * @Template(null)
+     * @Validator("User_Cli")
      * @Context("modelScheme", "helperCodeGenerator", "helperDate")
      */
     public function run($name, $to, $author, $package, $copyright, $context)
     {
-        $this->task->setTemplate(null);
-        $user = $context->user->getCurrent();
-        if ($user->key() >= 0) {
-            $signal = new \Event_Signal(array(
-                'message'   => 'Should run only from console.',
-                'method'    => __METHOD__
-            ), 'RuntimeError');
-            return $signal->notify();
-        }
         if (!$to) {
             $to = $context->modelScheme->tableToModel($name);
         }

@@ -45,6 +45,16 @@ class Model_Field
 		$this->name = $name;
 	}
 
+    /**
+	 * Получить атрибут по имени
+	 * 
+     * @return array
+	 */
+	public function getAttr($name)
+	{
+		return isset($this->attr[$name]) ? $this->attr[$name] : null;
+	}
+    
 	/**
 	 * Получить атрибуты поля
 	 * 

@@ -90,6 +90,9 @@ class Helper_Model_Migrate_Rebuild extends Helper_Abstract
             if ($field->getUnsigned()) {
                 $attrs[] = 'Unsigned';
             }
+            if ($field->getAttr('Rename')) {
+                $attrs['Rename'] = $field->getAttr('Rename')['from'];
+            }
             $schemeFields[$field->getName()] = array(
                 $field->getType(), $attrs
             );
@@ -127,14 +130,13 @@ class Helper_Model_Migrate_Rebuild extends Helper_Abstract
         $dataSource = $modelScheme->dataSource($modelName);
         $dataSchemeDto = $this->getService('dto')->newInstance('Data_Scheme')
             ->setModelName($modelName);
-        $dataScheme = new Data_Scheme($dataSchemeDto);
-        $dataSource->getScheme($dataScheme);
-        $fields = $dataScheme->getDto()->fields;
-        $indexes = $dataScheme->getDto()->indexes;
+        $dataSource->getScheme(new Data_Scheme($dataSchemeDto));
+        $fields = $dataSchemeDto->fields;
+        $indexes = $dataSchemeDto->indexes;
         foreach ($fields as $field) {
             $this->rewriteField($modelName, $field, $indexes);
         }
-        $this->rewriteScheme($modelName, $dataScheme->getDto());
+        $this->rewriteScheme($modelName, $dataSchemeDto);
     }
     
     /**
@@ -207,16 +209,27 @@ class Helper_Model_Migrate_Rebuild extends Helper_Abstract
         $admin = array();
         $languageScheme = array();
         $createScheme = array();
+        $helperConverter = $this->getService('helperConverter');
         if ($scheme) {
             $author = $scheme->author;
-            $comment = $scheme->comment ?: $dto->info['Comment'];
-            $references = $references ?: $scheme->references
-                ? $scheme->references->__toArray() : array();
-            $admin = $scheme->admin ? $scheme->admin->__toArray() : array();
+            $comment = $scheme->comment ?: 
+                ($dto->info && !empty($dto->info['Comment']) 
+                    ? $dto->info['Comment'] : '');
+            $references = $references ?: 
+                ($scheme->references ? $helperConverter->arrayToString(
+                    $scheme->references->__toArray()
+                ) : null);
+            $admin = $scheme->admin 
+                ? $helperConverter->arrayToString($scheme->admin->__toArray()) 
+                : null;
             $languageScheme = $scheme->languageScheme 
-                ? $scheme->languageScheme->__toArray() : array();
+                ? $helperConverter->arrayToString(
+                    $scheme->languageScheme->__toArray()
+                ) : null;
             $createScheme = $scheme->createScheme 
-                ? $scheme->createScheme->__toArray() : array();
+                ? $helperConverter->arrayToString(
+                    $scheme->createScheme->__toArray()
+                ) : null;
         }
         $filename = IcEngine::root() . 'Ice/Config/Model/Mapper/' .
             str_replace('_', '/', $modelName) . '.php';
