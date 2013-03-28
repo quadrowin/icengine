@@ -199,5 +199,4 @@ class View_Render_Smarty extends View_Render_Abstract
 	{
 		return $this->smarty;
 	}
-
 }
