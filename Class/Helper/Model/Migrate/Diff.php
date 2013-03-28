@@ -43,9 +43,6 @@ class Helper_Model_Migrate_Diff extends Helper_Abstract
         if (array_diff($schemeAttributeNames, $sourceAttributeNames)) {
             return true;
         }
-        if (array_diff($sourceAttributeNames, $schemeAttributeNames)) {
-            return true;
-        }
         if (array_diff($schemeAttributes, $sourceAttributes)) {
             return true;
         }

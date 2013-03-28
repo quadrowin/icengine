@@ -66,7 +66,8 @@ class View_Render_Smarty extends View_Render_Abstract
 		$this->smarty->plugins_dir = $config['plugins_path']->__toArray();
 		// Фильтры
 		foreach ($config['filters'] as $filter) {
-			$filter = 'Helper_Smarty_Filter_' . $filter;
+			$filterClass = 'Helper_Smarty_Filter_' . $filter;
+            $filter = new $filterClass;
 			$filter->register($this->smarty);
 		}
 	}

@@ -18,6 +18,20 @@ class Controller_Model_Diff extends Controller_Abstract
     public function index($name, $context)
     {
         $migrations = $context->helperModelMigrateDiff->diff($name);
-        print_r($migrations);
+        $content = $this->getService('helperCodeGenerator')->fromTemplate(
+            'diffMigration', array(
+                'migrations' => $migrations,
+                'modelName'  => $name
+            )
+        );
+        echo $content;
+        die;
+        $date = date('Y_m_d');
+        $unique = $this->getService('helperUnique')->hash();
+        $migrationName = $name . '_' . $date . '_' . $unique;
+        $this->helperMigration->create($migrationName, 'modelDiff', array(
+            'content'   => $content,
+            'modelName' => $name
+        ));
     }
 }
