@@ -76,7 +76,7 @@ abstract class Query_Command_Abstract
      */
     public function getName()
     {
-        return substr(get_class(), strlen('Query_Command_'));
+        return substr(get_class($this), strlen('Query_Command_'));
     }
     
     /**
