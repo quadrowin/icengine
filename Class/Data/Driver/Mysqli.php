@@ -111,12 +111,13 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
 	protected function executeChange(Query_Abstract $query,
         Query_Options $options)
 	{
-		if (!$this->handler->real_query($this->sql)) {
-			$this->errno = $this->handler->errno;
-			$this->error = $this->handler->error;
+        $affectedRows = $this->handler->exec($this->sql);
+		if ($affectedRows === false) {
+			$this->errno = $this->handler->errorInfo()[1];
+			$this->error = $this->handler->errorInfo()[2];
 			return false;
 		}
-		$this->affectedRows = $this->handler->affected_rows;
+		$this->affectedRows = $affectedRows;
 		return true;
 	}
 
@@ -130,13 +131,14 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
 	protected function executeInsert(Query_Abstract $query,
         Query_Options $options)
 	{
-		if (!$this->handler->real_query($this->sql)) {
-			$this->errno = $this->handler->errno;
-			$this->error = $this->handler->error;
+        $affectedRows = $this->handler->exec($this->sql);
+		if ($affectedRows === false) {
+			$this->errno = $this->handler->errorInfo()[1];
+			$this->error = $this->handler->errorInfo()[2];
 			return false;
 		}
-		$this->affectedRows = $this->handler->affected_rows;
-		$this->insertId = $this->handler->insert_id;
+		$this->affectedRows = $affectedRows;
+		$this->insertId = $this->handler->lastInsertId();
 		return true;
 	}
 
@@ -151,22 +153,18 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
         Query_Options $options)
 	{
 		$result = $this->handler->query($this->sql);
-		if (!$result) {
-			$this->errno = $this->handler->errno;
-			$this->error = $this->handler->error;
+        $error = $result->errorInfo();
+		if ($error[1]) {
+			$this->errno = $error[1];
+			$this->error = $error[2];
 			return null;
 		}
-		$rows = array();
-		while (null !== ($row = $result->fetch_assoc())) {
-			$rows[] = $row;
-		}
-		$result->free();
+		$rows = $result->fetchAll();
 		$this->numRows = count($rows);
 		if ($query->part(Query::CALC_FOUND_ROWS)) {
 			$result = $this->handler->query(self::SELECT_FOUND_ROWS_QUERY);
-			$row = $result->fetch_row();
+			$row = $result->fetch();
 			$this->foundRows = reset($row);
-			$result->free();
 		}
 		return $rows;
 	}
@@ -186,23 +184,24 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
 			$this->setOption($config);
 		}
         try {
-            $this->handler = new \mysqli(
-                $this->connectionOptions['host'],
+            $dsn = 'mysql:dbname=' . $this->connectionOptions['database'] .
+                ';host=' . $this->connectionOptions['host'];
+            $this->handler = new \PDO(
+                $dsn,
                 $this->connectionOptions['username'],
-                $this->connectionOptions['password'],
-                $this->connectionOptions['database']
+                $this->connectionOptions['password']
             );
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode());
         }
-        if ($this->handler->connect_errno) {
-            throw new Exception(
-                $this->handler->connect_error,
-                $this->handler->connect_errno
-            );
+        $error = $this->handler->errorInfo();
+        if ($error[1]) {
+            throw new Exception($error[2], $error[1]);
         }
 		if (!empty($this->connectionOptions['charset'])) {
-            $this->handler->set_charset($this->connectionOptions['charset']);
+            $this->handler->exec(
+                'SET NAMES ' .$this->connectionOptions['charset']
+            );
 		}
         return $this->handler;
 	}
