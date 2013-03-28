@@ -1500,7 +1500,13 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
         }
         $this->_options->executeBefore($query);
         $this->_lastQuery = $query;
+
         return DDS::execute($query)->getResult();
+    }
+
+    public function raw($colums = null)
+    {
+        return $this->rawResult($colums)->asTable();
     }
 
 }
