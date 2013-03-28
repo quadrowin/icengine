@@ -130,7 +130,6 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
 	protected function executeInsert(Query_Abstract $query,
         Query_Options $options)
 	{
-        echo $this->sql . PHP_EOL;
 		if (!$this->handler->query($this->sql)) {
 			$this->errno = $this->handler->errno;
 			$this->error = $this->handler->error;

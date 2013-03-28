@@ -227,7 +227,6 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
 			$result = array();
 		}
 		$finish = microtime(true);
-        echo ($finish - $start) . PHP_EOL;
 		return new Query_Result(array(
 			'error'			=> $this->error,
 			'errno'			=> $this->errno,
