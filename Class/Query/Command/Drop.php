@@ -23,7 +23,7 @@ class Query_Command_Drop extends Query_Command_Abstract
             Query::FIELD => $fieldName
         );
         if ($field instanceof Model_Index) {
-            $add[Query::INDEX] = array(
+            $drop[Query::INDEX] = array(
                 Query::NAME     => $fieldName,
                 Query::TYPE     => $field->getType(),
                 Query::FIELD    => $field->getFields()

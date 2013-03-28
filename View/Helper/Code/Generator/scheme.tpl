@@ -2,15 +2,15 @@
 
 return array (
     {if !empty($admin)}
-		{$admin},
+		'admin' => {$admin},
 	{/if}
 
     {if !empty($languageScheme)}
-		{$languageScheme},
+		'languageScheme' => {$languageScheme},
 	{/if}
 
     {if !empty($createScheme)}
-		{$createScheme},
+		'createScheme' => {$createScheme},
 	{/if}
 
 	{if $comment}

@@ -16,12 +16,16 @@ class Helper_Model_Migrate_Sync extends Helper_Abstract
      */
     public function getAnnotations($modelName)
     {
-        $annotationManager = new Annotation_Manager_Standart();
+        $annotationManager = $this->getService('controllerManager')
+            ->annotationManager();
         $annotations = $annotationManager->getAnnotation($modelName)
             ->getData();
         $annotationProperties = $annotations['properties'];
         $resultAnnotations = array();
         foreach ($annotationProperties as $propertyName => $annotations) {
+            if (!$annotations) {
+                continue;
+            }
             foreach ($annotations as $annotationName => $data) {
                 if (strpos($annotationName, 'Orm') === false) {
                     continue;
@@ -45,7 +49,17 @@ class Helper_Model_Migrate_Sync extends Helper_Abstract
         $classReflection = new \ReflectionClass($modelName);
         foreach ($data as $propertyName => $annotations) {
             foreach ($annotations as $annotationName => $annotation) {
+                $annotation = reset($annotation);
                 if (strpos($annotationName, 'Orm\\Field') === false) {
+                    if (strpos($annotationName, 'Orm\\State') !== false) {
+                        list(,,$state) = explode('\\', $annotationName);
+                        $resultFields[$propertyName]->setAttr(
+                            $state, $annotation
+                        );
+                    }
+                    continue;
+                }
+                if (isset($resultFields[$propertyName])) {
                     continue;
                 }
                 $propertyReflection = $classReflection->getProperty(
@@ -54,7 +68,7 @@ class Helper_Model_Migrate_Sync extends Helper_Abstract
                 $comment = null;
                 $doc = $propertyReflection->getDocComment();
                 foreach (explode(PHP_EOL, $doc) as $line) {
-                    $line = trim($line, '* ');
+                    $line = trim($line, "\t *");
                     if (!$line || $line[0] == '/') {
                         continue;
                     } elseif ($line[0] == '@') {
@@ -92,6 +106,7 @@ class Helper_Model_Migrate_Sync extends Helper_Abstract
         $preIndexes = array();
         foreach ($data as $properyName => $annotations) {
             foreach ($annotations as $annotationName => $annotation) {
+                $annotation = reset($annotation);
                 if (strpos($annotationName, 'Orm\\Index') === false) {
                     continue;
                 }
@@ -117,7 +132,7 @@ class Helper_Model_Migrate_Sync extends Helper_Abstract
             $index
                 ->setType($data[0])
                 ->setFields($data[1]);
-            $resultIndexes[$indexName] = $indexName;
+            $resultIndexes[$indexName] = $index;
         }
         return $resultIndexes;
     }
@@ -130,7 +145,36 @@ class Helper_Model_Migrate_Sync extends Helper_Abstract
      */
     public function getAnnotationReferences($modelName)
     {
-        
+        $data = $this->getAnnotations($modelName);
+        $resultReferences = array();
+        foreach ($data as $properyName => $annotations) {
+            foreach ($annotations as $annotationName => $annotation) {
+                $annotation = reset($annotation);
+                if (strpos($annotationName, 'Orm\\Reference') === false) {
+                    continue;
+                }
+                list(,,$type) = explode('\\', $annotationName);
+                $reference = array(
+                    $type, array()
+                );
+                $reference[1]['Target'] = $annotation['Target'];
+                if (isset($annotation['JoinColumn'])) {
+                    if (isset($annotation['JoinColumn']['on'])) {
+                        $reference[1]['JoinColumn'] = array(
+                            0       => reset($annotation['JoinColumn']),
+                            'on'    => $annotation['JoinColumn']['on']
+                        );
+                    } else {
+                        $reference[1]['JoinColumn'] = $annotation['JoinColumn'];
+                    }
+                }
+                if (isset($annotation['JoinTable'])) {
+                    $reference[1]['JoinTable'] = $annotation['JoinTable'];
+                }
+                $resultReferences[$properyName] = $reference;
+            }
+        }
+        return $resultReferences;
     }
     
     /**
