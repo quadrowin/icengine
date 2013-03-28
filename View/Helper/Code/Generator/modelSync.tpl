@@ -5,9 +5,9 @@
         '{$field}' => '{$value|addslashes}'{if !$smarty.foreach.fields.last},
 {/if}
     {/foreach}
-    
+
     ){if !$smarty.foreach.models.last},
-    
+
 {/if}
 {/foreach}
 );{/if}
