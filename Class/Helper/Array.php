@@ -111,6 +111,26 @@ class Helper_Array
 		return $result;
     }
 
+    /**
+     * Переиндексировать массив по полю
+     *
+     * @param array $array
+     * @param string $field
+     * @return array
+     */
+    public function reindex($array, $field = 'id')
+    {
+        if (!is_array($array) || empty($array)) {
+            return $array;
+        }
+        $arrayElementFields = array_keys(reset($array));
+        $arrayElementFieldsFlipped = array_flip($arrayElementFields);
+        if (!isset($arrayElementFieldsFlipped[$field])) {
+            return $array;
+        }
+        return $this->column($array, $arrayElementFields, $field);
+    }
+    
 	/**
 	 * Сортирует многомерный массив по заданным полям
 	 * 
