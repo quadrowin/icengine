@@ -111,11 +111,13 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
 	protected function executeChange(Query_Abstract $query,
         Query_Options $options)
 	{
-		if (!$this->handler->query($this->sql, MYSQLI_USE_RESULT)) {
+        $result = $this->handler->query($this->sql, MYSQLI_USE_RESULT);
+		if (!$result) {
 			$this->errno = $this->handler->errno;
 			$this->error = $this->handler->error;
 			return false;
 		}
+        $result->free();
 		$this->affectedRows = $this->handler->affected_rows;
 		return true;
 	}
@@ -130,11 +132,13 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
 	protected function executeInsert(Query_Abstract $query,
         Query_Options $options)
 	{
-		if (!$this->handler->query($this->sql, MYSQLI_USE_RESULT)) {
+        $result = $this->handler->query($this->sql, MYSQLI_USE_RESULT);
+		if (!$result) {
 			$this->errno = $this->handler->errno;
 			$this->error = $this->handler->error;
 			return false;
 		}
+        $result->free();
 		$this->affectedRows = $this->handler->affected_rows;
 		$this->insertId = $this->handler->insert_id;
 		return true;
