@@ -1,50 +1,59 @@
 <?php
+
 /**
+ * Стандартный DES.
  * 
- * @desc Стандартный DES.
- * @author Юрий Шведов
- * @package IcEngine
- *
+ * @author goorus
  */
 class Crypt_Des extends Crypt_Abstract
 {
+	/**
+     * Ключ
+     * 
+     * @var string
+     */
+	protected static $desKey;
 	
-	protected static $_desKey;
-	
+    /**
+     * Смещение
+     * 
+     * @var string
+     */
 	protected static $_desIV;
 	
-	public function __construct ()
+    /**
+     * Конструктор
+     */
+	public function __construct()
 	{
-		self::$_desKey = chr(99).chr(78).chr(99).chr(78).chr(99).chr(78).chr(99).chr(78);
-		self::$_desIV = chr(99).chr(78).chr(99).chr(78).chr(99).chr(78).chr(99).chr(78);
+		self::$desKey = chr(99).chr(78).chr(99).chr(78).chr(99).
+            chr(78).chr(99).chr(78);
+		self::$desIV = self::$desKey;
 	}
 	
 	/**
-	 * (non-PHPdoc)
-	 * @see Crypt_Abstract::decode()
+	 * @inheritdoc
 	 */
-	public function decode ($input, $key = null)
+	public function decode($input, $key = null)
 	{
-		$td = mcrypt_module_open ('des', '', 'cbc', '');
-		mcrypt_generic_init ($td, self::$_desKey, self::$_desIV);
+		$td = mcrypt_module_open('des', '', 'cbc', '');
+		mcrypt_generic_init($td, self::$desKey, self::$desIV);
 		$dec_data = mdecrypt_generic($td, $input);
-		mcrypt_generic_deinit ($td);
-		mcrypt_module_close ($td);
+		mcrypt_generic_deinit($td);
+		mcrypt_module_close($td);
 		return $dec_data;
 	}
 	
 	/**
-	 * (non-PHPdoc)
-	 * @see Crypt_Abstract::encode()
+	 * @inheritdoc
 	 */
-	public function encode ($input, $key = null)
+	public function encode($input, $key = null)
 	{
-		$td = mcrypt_module_open ('des', '', 'cbc', '');
-		mcrypt_generic_init ($td, self::$_desKey, self::$_desIV);
-		$enc_data = mcrypt_generic ($td, $input);
-		mcrypt_generic_deinit ($td);
-		mcrypt_module_close ($td);
+		$td = mcrypt_module_open('des', '', 'cbc', '');
+		mcrypt_generic_init($td, self::$desKey, self::$desIV);
+		$enc_data = mcrypt_generic($td, $input);
+		mcrypt_generic_deinit($td);
+		mcrypt_module_close($td);
 		return $enc_data;
 	}
-	
 }

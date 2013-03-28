@@ -1,93 +1,98 @@
 <?php
+
 /**
- *
- * @desc Рендер с использованием шаблонизатора Smarty.
- * @author Yury Shvedov
- * @package IcEngine
- *
+ * Рендер с использованием шаблонизатора Smarty.
+ * 
+ * @author goorus
  */
 class View_Render_Smarty extends View_Render_Abstract
 {
+	/**
+	 * Объект шаблонизатора
+	 * 
+     * @var Smarty
+	 */
+	protected $smarty;
 
 	/**
-	 * @desc Объект шаблонизатора
-	 * @var Smarty
+	 * @inheritdoc
 	 */
-	protected $_smarty;
-
-	/**
-	 * @desc Конфиг
-	 * @var array
-	 */
-	protected static $config = array (
+	protected static $config = array(
 		/**
-		 * @desc Директория для скопилированных шаблонов Smarty
-		 * @var string
+		 * Директория для скопилированных шаблонов Smarty
+		 * 
+         * @var string
 		 */
 		'compile_path'		=> 'cache/templates',
 		/**
-		 * @desc Путь для лоадера до смарти
-		 * @var string
+		 * Путь для лоадера до смарти
+		 * 
+         * @var string
 		 */
 		'smarty_path'		=> 'smarty3/Smarty.class.php',
 		/**
-		 * @desc Пути до шаблонов
-		 * @var array
+		 * Пути до шаблонов
+		 * 
+         * @var array
 		 */
-		'templates_path'	=> array (),
+		'templates_path'	=> array(),
 		/**
-		 * @desc Пути до плагинов
-		 * @var array
+		 * Пути до плагинов
+		 * 
+         * @var array
 		 */
-		'plugins_path'		=> array (),
+		'plugins_path'		=> array(),
 		/**
-		 * @desc Фильры
-		 * @var array
+		 * Фильры
+		 * 
+         * @var array
 		 */
-		'filters'			=> array (
-			'Dblbracer'
-		)
+		'filters'			=> array()
 	);
 
-	protected function _afterConstruct ()
+    /**
+     * @inheritdoc
+     */
+	protected function _afterConstruct()
 	{
-		$config = $this->config ();
+		$config = $this->config();
         $loader = $this->getService('loader');
-		$loader->requireOnce ($config ['smarty_path'], 'includes');
-		$this->_smarty = new Smarty ();
-
-		$this->_smarty->compile_dir = $config ['compile_path'];
-		$this->_smarty->template_dir = array_reverse (
-			$config ['templates_path']->__toArray ()
+		$loader->requireOnce($config['smarty_path'], 'includes');
+		$this->smarty = new Smarty();
+		$this->smarty->compile_dir = $config['compile_path'];
+		$this->smarty->template_dir = array_reverse(
+			$config['templates_path']->__toArray()
 		);
-		$this->_smarty->plugins_dir = $config ['plugins_path']->__toArray ();
+		$this->smarty->plugins_dir = $config['plugins_path']->__toArray();
 		// Фильтры
-		foreach ($config ['filters'] as $filter)
-		{
-			$filter = 'Helper_Smarty_Filter_' . $filter;
-			$filter::register ($this->_smarty);
+		foreach ($config['filters'] as $filter) {
+			$filterClass = 'Helper_Smarty_Filter_' . $filter;
+            $filter = new $filterClass;
+			$filter->register($this->smarty);
 		}
 	}
 
 	/**
-	 * @desc Получает идентификатор компилятор для шаблона.
+	 * Получает идентификатор компилятор для шаблона.
 	 * Необходимо, т.к. шаблон зависит от путей шаблонизатора.
-	 * @param string $tpl
+	 * 
+     * @param string $tpl
 	 * @return string
 	 */
-	protected function _compileId ($tpl)
+	protected function compileId($tpl)
 	{
-		return crc32 (json_encode ($this->_smarty->template_dir));
+		return crc32(json_encode($this->smarty->template_dir));
 	}
 
 	/**
-	 * @desc Добавление пути до директории с плагинами Smarty
-	 * @param string|array $path Директории с плагинами
+	 * Добавление пути до директории с плагинами Smarty
+	 * 
+     * @param string|array $path Директории с плагинами
 	 */
 	public function addPluginsPath ($path)
 	{
-		$this->_smarty->plugins_dir = array_merge (
-			(array) $this->_smarty->plugins_dir,
+		$this->smarty->plugins_dir = array_merge(
+			(array) $this->smarty->plugins_dir,
 			(array) $path
 		);
 	}
@@ -96,11 +101,11 @@ class View_Render_Smarty extends View_Render_Abstract
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::addTemplatesPath()
 	 */
-	public function addTemplatesPath ($path)
+	public function addTemplatesPath($path)
 	{
-		$this->_smarty->template_dir = array_merge (
-			array_reverse ((array) $path),
-			(array) $this->_smarty->template_dir
+		$this->smarty->template_dir = array_merge(
+			array_reverse((array) $path),
+			(array) $this->smarty->template_dir
 		);
 	}
 
@@ -108,7 +113,7 @@ class View_Render_Smarty extends View_Render_Abstract
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::addHelper()
 	 */
-	public function addHelper ($helper, $method)
+	public function addHelper($helper, $method)
 	{
 	}
 
@@ -116,15 +121,12 @@ class View_Render_Smarty extends View_Render_Abstract
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::assign()
 	 */
-	public function assign ($key, $value = null)
+	public function assign($key, $value = null)
 	{
-		if (is_array ($key))
-		{
-			$this->_smarty->assign ($key);
-		}
-		else
-		{
-			$this->_smarty->assign ($key, $value);
+		if (is_array($key)) {
+			$this->smarty->assign($key);
+		} else {
+			$this->smarty->assign($key, $value);
 		}
 	}
 
@@ -132,68 +134,70 @@ class View_Render_Smarty extends View_Render_Abstract
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::display()
 	 */
-	public function display ($tpl)
+	public function display($tpl)
 	{
 		$tpl .= '.tpl';
-		return $this->_smarty->display ($tpl, null, $this->_compileId ($tpl));
+		return $this->smarty->display($tpl, null, $this->compileId($tpl));
 	}
 
 	/**
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::fetch()
 	 */
-	public function fetch ($tpl)
+	public function fetch($tpl)
 	{
 		$tpl .= '.tpl';
-		return $this->_smarty->fetch ($tpl);
+		return $this->smarty->fetch($tpl);
 	}
 
 	/**
-	 * @desc Возвращает массив путей до шаблонов.
-	 * @return array
+	 * Возвращает массив путей до шаблонов.
+	 * 
+     * @return array
 	 */
-	public function getTemplatesPathes ()
+	public function getTemplatesPathes()
 	{
-		return $this->_smarty->template_dir;
+		return $this->smarty->template_dir;
 	}
 
 	/**
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::getVar()
 	 */
-	public function getVar ($key)
+	public function getVar($key)
 	{
-		return $this->_smarty->getTemplateVars ($key);
+		return $this->smarty->getTemplateVars($key);
 	}
 
 	/**
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::popVars()
 	 */
-	public function popVars ()
+	public function popVars()
 	{
-		$this->_smarty->clearAllAssign();
-		$vars = array_pop ($this->_varsStack);
-        $this->_smarty->assign($vars);
+		$this->smarty->clearAllAssign();
+		$vars = array_pop($this->varsStack);
+        $this->smarty->assign($vars);
 	}
 
 	/**
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::pushVars()
 	 */
-	public function pushVars ()
+	public function pushVars()
 	{
-		$this->_varsStack [] = $this->_smarty->getTemplateVars ();
-		$this->_smarty->clearAllAssign ();
+		$this->varsStack[] = $this->smarty->getTemplateVars();
+		$this->smarty->clearAllAssign();
 	}
 
 	/**
-	 * @desc Возвращает используемый экземпляр шаблонизатора.
-	 * @return Smarty
+	 * Возвращает используемый экземпляр шаблонизатора.
+	 * 
+     * @return Smarty
 	 */
-	public function smarty ()
+	public function smarty()
 	{
-		return $this->_smarty;
+		return $this->smarty;
 	}
 
 }

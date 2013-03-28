@@ -1,11 +1,10 @@
 <?php
+
 /**
- *
  * Класс для работы с изображениями
  *
  * @Service("helperImage")
- * @author Юрий
- *
+ * @author goorus
  */
 class Helper_Image
 {

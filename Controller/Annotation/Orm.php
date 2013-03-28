@@ -96,8 +96,7 @@ class Controller_Annotation_Orm extends Controller_Abstract
                         $property
                     );
                     $doc = $propertyReflection->getDocComment();
-                    foreach (explode(PHP_EOL, $doc) as $line)
-                    {
+                    foreach (explode(PHP_EOL, $doc) as $line) {
                         $line = trim($line, '* ');
                         if (!$line || $line[0] == '/') {
                             continue;

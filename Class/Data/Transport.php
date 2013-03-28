@@ -14,13 +14,6 @@ class Data_Transport
      */
 	protected $providers = array();
 
-    /**
-     * Валидаторы выхода.
-     *
-     * @var Data_Validator_Collection
-     */
-	protected $validators;
-
 	/**
 	 * Стек начатых транзакций
 	 *
@@ -83,7 +76,8 @@ class Data_Transport
 	 */
 	public function getProvider($index)
 	{
-		return isset($this->providers[$index]) ? $this->providers[$index] : null;
+		return isset($this->providers[$index]) 
+            ? $this->providers[$index] : null;
 	}
 
     /**

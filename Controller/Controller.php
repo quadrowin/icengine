@@ -21,7 +21,6 @@ class Controller_Controller extends Controller_Abstract
 	 */
 	public function ajax($call, $back, $params)
 	{
-        //echo $GLOBALS['HTTP_RAW_POST_DATA'];
         $controllerManager = $this->getService('controllerManager');
         $_SERVER ['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
 		if (is_string($params)) {
