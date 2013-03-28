@@ -1,18 +1,258 @@
 <?php
 
 /**
- * TODO переписать эту хрень
- *
+ * @author neon
  * @Service("helperImageResize")
  */
-class Helper_Image_Resize
+class Helper_Image_Resize extends Helper_Abstract
 {
+
+    /**
+     * Путь куда будут сохранятся картинки, если не указать output
+     * @var string
+     */
+    protected static $tmpPath = '/tmp/';
 
 	/**
 	 * Качество сохранения JPEG изображений (от 1 до 100).
 	 * @var integer
 	 */
 	public static $jpegQuality = 90;
+
+    /**
+     * $params = array(
+     *      "input", "output", "width", "height", "offsetLeft", "offetTop",
+     *      "center"
+     * )
+     * center equal offsetLeft="center" and offsetTop="center"
+     * @param array $params
+     * @return array
+     */
+    public function crop($params)
+    {
+        $crop = array(
+            'width'     => $params['width'],
+            'height'    => $params['height']
+        );
+        if (isset($params['center'])) {
+            $crop['center'] = true;
+        }
+        if (isset($params['offsetLeft'])) {
+            $crop['offsetLeft'] = $params['offsetLeft'];
+        }
+        if (isset($params['offsetTop'])) {
+            $crop['offsetTop'] = $params['offsetTop'];
+        }
+        $paramsBuilded = array(
+            'input'         => $params['input'],
+            'output'        => $params['output'],
+            'width'         => $params['width'],
+            'height'        => $params['height'],
+            'crop'          => $crop,
+            'proportional'  => true
+        );
+        return $this->newResize($paramsBuilded);
+    }
+
+    /**
+     * $params = array(
+     *      "width", "height",
+     *      "crop"  => array("width", "height", "offsetLeft", "offsetTop", "center"),
+     *      "proportional", "fit"
+     * )
+     * Если заданы width и height и передан crop, если
+     *      width = 0 и height = 0, то кроп будет с исходной картинки
+     *      если они > 0, то сначало режется картинка, потом с неё кроп
+     * fit - не просто сжать, а максимально возможный кусок картинки вписать
+     * @param array $params
+     * @return false|array
+     */
+    public function newResize($params)
+    {
+        $width = isset($params['width']) ? $params['width'] : 0;
+        $height = isset($params['height']) ? $params['height'] : 0;
+        $crop = isset($params['crop']) ? $params['crop'] : false;
+        $proportional = isset($params['proportional']) ?
+            $params['proportional'] : false;
+        //$fit = isset($params['fit']) ? $params['fit'] : false;
+        $notResize = $width <= 0 && $height <= 0;
+        $scale = isset($params['scale']) ? $params['scale'] : null;
+        $isCrop = is_array($crop);
+        $output = isset($params['output']) ? $params['output'] : null;
+        if ($notResize && $isCrop) {
+			return false;
+		}
+        $input = isset($params['input']) ? $params['input'] : null;
+        if (!$input) {
+            return false;
+        }
+        if (!file_exists($input)) {
+            return false;
+        }
+        list($inputWidth, $inputHeight, $inputType) = getimageSize($input);
+        //пропорционально
+		if ($proportional || $scale) {
+            if (!$scale) {
+                if (!$width) {
+                    $scale = $inputHeight / $height;
+                } elseif (!$height) {
+                    $scale = $inputWidth / $width;
+                } else {
+                    $scale = min($inputWidth / $width, $inputHeight / $height);
+                }
+            }
+            echo 'width ' . $width . PHP_EOL;
+            echo 'height ' . $height . PHP_EOL;
+            $newWidth = ceil($inputWidth / $scale);
+            $newHeight = ceil($inputHeight / $scale);
+            $widthIsLow = $newWidth < $width;
+            $heightIsLow = $newHeight < $height;
+            $fixScale = 1;
+            if ($widthIsLow) {
+                $fixScale = $width / $newWidth;
+            } elseif ($heightIsLow) {
+                $fixScale = $height / $newHeight;
+            }
+            $fixWidth = $newWidth * $fixScale;
+            $fixHeight = $newHeight * $fixScale;
+			/*if ($fit) {
+
+				$final_width = $width;
+				$final_height = $height;
+			} else {
+				$final_width = round ($width_old * $factor);
+				$final_height = round ($height_old * $factor);
+			}*/
+        //сжать/растянуть
+		} elseif ($width && $height) {
+			$fixWidth = $width;
+			$fixHeight = $height;
+		} else {
+            $fixWidth = $inputWidth;
+            $fixHeight = $inputHeight;
+        }
+        $ext = '';
+		switch ($inputType) {
+			case IMAGETYPE_GIF:
+				$image = imagecreatefromgif($input);
+                $ext = 'gif';
+				break;
+			case IMAGETYPE_JPEG:
+				$image = imagecreatefromjpeg($input);
+                $ext = 'jpg';
+				break;
+			case IMAGETYPE_PNG:
+				$image = imagecreatefrompng($input);
+                $ext = 'png';
+				break;
+			default:
+				return false;
+		}
+        if (!$output) {
+            $output = $this->tmpPath . md5(uniqid('', true));
+        }
+        $output .= '.' . $ext;
+        $containerResized = imagecreatetruecolor($fixWidth, $fixHeight);
+        $isGif = $inputType == IMAGETYPE_GIF;
+        $isPng = $inputType == IMAGETYPE_PNG;
+		if ($isGif || $isPng){
+			$transparentIndex = imagecolortransparent($image);
+			// If we have a specific transparent color
+			if ($transparentIndex >= 0) {
+				// Get the original image's transparent color's RGB values
+				$transparentColor = imagecolorsforindex(
+                    $image, $transparentIndex
+                );
+				// Allocate the same color in the new image resource
+				$transparentIndex = imagecolorallocate (
+					$containerResized,
+					$transparentColor['red'],
+					$transparentColor['green'],
+					$transparentColor['blue']
+				);
+				// Completely fill the background of the new image with allocated color.
+				imagefill($containerResized, 0, 0, $transparentIndex);
+				// Set the background color for new image to transparent
+				imagecolortransparent($containerResized, $transparentIndex);
+            // Always make a transparent background color for PNGs that don't
+            // have one allocated already
+			} elseif ($isPng) {
+				// Turn off transparency blending (temporarily)
+				imagealphablending($containerResized, false);
+				// Create a new transparent color for image
+				$color = imagecolorallocatealpha($containerResized, 0, 0, 0, 100);
+				// Completely fill the background of the new image with allocated color.
+				imagefill($containerResized, 0, 0, $color);
+				// Restore transparency blending
+				imagesavealpha($containerResized, true);
+			}
+		}
+        //resize исходной картинки
+        imagecopyresampled(
+            $containerResized, $image,
+            0, 0, 0, 0,
+            $fixWidth, $fixHeight, $inputWidth, $inputHeight
+        );
+        if ($isCrop) {
+            $imageCrop = imagecreatetruecolor(
+                $crop['width'],
+                $crop['height']
+            );
+            $offsetLeft = 0;
+            $offsetTop = 0;
+            if (isset($crop['center'])) {
+                $offsetLeft = ($fixWidth - $crop['width']) / 2;
+                $offsetTop = ($fixHeight - $crop['height']) / 2;
+            } else {
+                if (isset($crop['offsetLeft'])) {
+                    $offsetLeft = $crop['offsetLeft'];
+                    if ($crop['offsetLeft'] == 'center') {
+                        $offsetLeft = ($fixWidth - $crop['width']) / 2;
+                    }
+                }
+                if (isset($crop['offsetTop'])) {
+                    $offsetTop = $crop['offsetTop'];
+                    if ($crop['offsetTop'] == 'center') {
+                        $offsetTop = ($fixHeight - $crop['height']) / 2;
+                    }
+                }
+            }
+            /*echo 'source Width ' . $fixWidth . PHP_EOL;
+            echo 'source Height ' . $fixHeight . PHP_EOL;
+            echo 'crop Width ' . $crop['width'] . PHP_EOL;
+            echo 'crop Height ' . $crop['height'] . PHP_EOL;
+            echo 'offsetLeft ' . $offsetLeft . PHP_EOL;
+            echo 'offsetTop ' . $offsetTop . PHP_EOL;*/
+            imagecopyresampled(
+                $imageCrop, $containerResized,
+                0, 0, $offsetLeft, $offsetTop,
+                $crop['width'], $crop['height'],
+                $crop['width'], $crop['height']
+            );
+            $containerResized = $imageCrop;
+        }
+		switch ($inputType) {
+			case IMAGETYPE_GIF:
+				imagegif($containerResized, $output);
+				break;
+			case IMAGETYPE_JPEG:
+				imagejpeg($containerResized, $output, self::$jpegQuality);
+				break;
+			case IMAGETYPE_PNG:
+				imagepng($containerResized, $output);
+				break;
+			default:
+				return false;
+		}
+        imagedestroy($image);
+        imagedestroy($containerResized);
+		return array(
+            'width'     => $fixWidth,
+            'height'    => $fixHeight,
+            'type'      => $inputType,
+            'ext'       => $ext
+        );
+    }
 
 	/**
 	 * Изменение размера изображения
