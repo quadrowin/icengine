@@ -15,10 +15,9 @@ class View_Render_JsHttpRequest extends View_Render_Abstract
 	protected $request;
 
 	/**
-	 * (non-PHPdoc)
-	 * @see View_Render_Abstract::_afterConstruct()
+	 * @inheritdoc
 	 */
-	protected function _afterConstruct()
+	public function __construct()
 	{
 		IcEngine::getLoader()->load('JsHttpRequest', 'includes');
 		$this->request = new JsHttpRequest('UTF-8');
@@ -42,7 +41,7 @@ class View_Render_JsHttpRequest extends View_Render_Abstract
 	public function display($tpl)
 	{
 		$GLOBALS['_RESULT'] = $this->vars;
-		die ();
+		die();
 	}
 
     /**

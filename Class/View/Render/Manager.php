@@ -51,21 +51,8 @@ class View_Render_Manager extends Manager_Abstract
 		if (isset($this->views[$name])) {
 			return $this->views[$name];
 		}
-        $modelManager = $this->getService('modelManager');
-		$view = $modelManager->byOptions(
-            'View_Render',
-            array(
-                'name'  => '::Name',
-                'value' => $name
-            )
-        );
-		if (!$view) {
-			$className = 'View_Render_' . $name;
-			$view = new $className(array(
-				'id'	=> null,
-				'name'	=> $name
-			));
-		}
+        $className = 'View_Render_' . $name;
+        $view = new $className;
 		$this->views[$name] = $view;
         return $view;
 	}
@@ -126,19 +113,7 @@ class View_Render_Manager extends Manager_Abstract
 		$view->pushVars();
 		return $view;
 	}
-
-	/**
-	 * Получить вид по id
-     * 
-	 * @param integer $id
-	 * @return View_Render_Abstract
-	 */
-	public function pushViewById($id)
-	{
-		$view = $this->getService('modelManager')->byKey('View_Render', $id);
-		return $this->pushView($view);
-	}
-
+    
 	/**
 	 * Получить вид по имени
 	 *

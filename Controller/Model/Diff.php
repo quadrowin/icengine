@@ -13,7 +13,7 @@ class Controller_Model_Diff extends Controller_Abstract
      * 
      * @Template(null)
      * @Validator("User_Cli")
-     * @Context("helperModelMigrateDiff")
+     * @Context("helperModelMigrateDiff", "helperMigration")
      */
     public function index($name, $context)
     {
@@ -24,12 +24,8 @@ class Controller_Model_Diff extends Controller_Abstract
                 'modelName'  => $name
             )
         );
-        echo $content;
-        die;
-        $date = date('Y_m_d');
-        $unique = $this->getService('helperUnique')->hash();
-        $migrationName = $name . '_' . $date . '_' . $unique;
-        $this->helperMigration->create($migrationName, 'modelDiff', array(
+        $migrationName = $context->helperMigration->getName($name);
+        $context->helperMigration->create($migrationName, 'modelDiff', array(
             'content'   => $content,
             'modelName' => $name
         ));

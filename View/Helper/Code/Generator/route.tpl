@@ -3,7 +3,7 @@
 
 return array(
 {if $empty_route}
-    'empty_route'   => array(
+    'emptyRoute'   => array(
 {foreach from=$empty_route item="i" key="field" name="field"}
         '{$field}'          => {if !is_array($i)}{if is_numeric($i) || is_bool($i)}{$i}{else}'{$i}'{/if}{if !$smarty.foreach.field.last},
 {/if}

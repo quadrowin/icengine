@@ -10,9 +10,9 @@ class View_Render_Front extends View_Render_Abstract
 	/**
 	 * @inheritdoc
 	 */
-	protected static $config = array(
+	protected $config = array(
 		// Render for layout
-		'layout_render'	=> 'Smarty'
+		'layoutRender'	=> 'Smarty'
 	);
 
 	/**
@@ -60,7 +60,7 @@ class View_Render_Front extends View_Render_Abstract
 		}
 		$config = $this->config();
         $viewRenderManager = $this->getService('viewRenderManager');
-		$render = $viewRenderManager->byName($config['layout_render']);
+		$render = $viewRenderManager->byName($config['layoutRender']);
 		$vars = $this->vars;
         if (isset($vars['tasks'])) {
             unset($vars['tasks']);

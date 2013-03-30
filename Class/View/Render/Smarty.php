@@ -17,31 +17,31 @@ class View_Render_Smarty extends View_Render_Abstract
 	/**
 	 * @inheritdoc
 	 */
-	protected static $config = array(
+	protected $config = array(
 		/**
 		 * Директория для скопилированных шаблонов Smarty
 		 * 
          * @var string
 		 */
-		'compile_path'		=> 'cache/templates',
+		'compilePath'		=> 'cache/templates',
 		/**
 		 * Путь для лоадера до смарти
 		 * 
          * @var string
 		 */
-		'smarty_path'		=> 'smarty3/Smarty.class.php',
+		'smartyPath'		=> 'smarty3/Smarty.class.php',
 		/**
 		 * Пути до шаблонов
 		 * 
          * @var array
 		 */
-		'templates_path'	=> array(),
+		'templatesPath'	=> array(),
 		/**
 		 * Пути до плагинов
 		 * 
          * @var array
 		 */
-		'plugins_path'		=> array(),
+		'pluginsPath'		=> array(),
 		/**
 		 * Фильры
 		 * 
@@ -53,17 +53,17 @@ class View_Render_Smarty extends View_Render_Abstract
     /**
      * @inheritdoc
      */
-	protected function _afterConstruct()
+	public function __construct()
 	{
 		$config = $this->config();
         $loader = $this->getService('loader');
-		$loader->requireOnce($config['smarty_path'], 'includes');
+		$loader->requireOnce($config['smartyPath'], 'includes');
 		$this->smarty = new Smarty();
-		$this->smarty->compile_dir = $config['compile_path'];
+		$this->smarty->compile_dir = $config['compilePath'];
 		$this->smarty->template_dir = array_reverse(
-			$config['templates_path']->__toArray()
+			$config['templatesPath']->__toArray()
 		);
-		$this->smarty->plugins_dir = $config['plugins_path']->__toArray();
+		$this->smarty->plugins_dir = $config['pluginsPath']->__toArray();
 		// Фильтры
 		foreach ($config['filters'] as $filter) {
 			$filterClass = 'Helper_Smarty_Filter_' . $filter;

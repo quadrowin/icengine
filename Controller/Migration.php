@@ -237,7 +237,7 @@ class Controller_Migration extends Controller_Abstract
 	 */
 	public function seq() {
 		$this->task->setTemplate(null);
-		$helperSiteLocation = $this->getService('siteLocation');
+		$helperSiteLocation = $this->getService('helperSiteLocation');
 		$url = $helperSiteLocation->get('seq_url');
 		if (!$url) {
 			return;

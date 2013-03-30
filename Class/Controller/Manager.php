@@ -66,6 +66,7 @@ class Controller_Manager extends Manager_Abstract
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeConfigExport',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeConfig',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeTemplate',
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeViewRender',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeLayout',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeBefore',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeAfter',

@@ -8,6 +8,23 @@
  */
 class Route extends Objective
 {
+    /**
+     * Конфигурация
+     * 
+     * @var array
+     */
+    protected $config = array(
+        'emptyRoute'    => array(
+            'route'     => '',
+            'params'    => array(
+                'viewRender'   => 'Smarty'
+            ),
+            'patterns'  => array(),
+            'actions'   => array(), 
+            'weight'    => 0
+        )
+    );
+    
 	/**
 	 * Загружены ли роуты из конфига
 	 *
@@ -61,8 +78,10 @@ class Route extends Objective
 			return $route ? new self($route) : null;
 		}
         $configManager = $this->getService('configManager');
-		$config = $configManager->get(__CLASS__);
-		$emptyRoute = $config['empty_route']->__toArray();
+        if (is_array($this->config)) {
+            $this->config = $configManager->get(__CLASS__, $this->config);
+        }
+		$emptyRoute = $this->config['emptyRoute']->__toArray();
 		$routes = $this->getList();
 		$row = null;
         $request = $this->getService('request');
@@ -157,10 +176,9 @@ class Route extends Objective
 	public function viewRender()
 	{
         $render = null;
-		if (!empty($this->params['View_Render__id'])) {
-			$viewRenderId = $this->params['View_Render__id'];
-            $modelManager = $this->getService('modelManager');
-            $render = $modelManager->byKey('View_Render', $viewRenderId);
+		if (!empty($this->params['viewRender'])) {
+            $viewRenderManager = $this->getService('viewRenderManager');
+            $render = $viewRenderManager->byName($this->params['viewRender']);
 		} else {
             $viewRenderManager = $this->getService('viewRenderManager');
 			$render = $viewRenderManager->getView();
