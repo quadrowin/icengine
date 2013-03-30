@@ -38,7 +38,7 @@ class Helper_Migration extends Helper_Abstract
      * @var Data_Transport
      * @Service(
      *      "helperMigrationInput", 
-     *      args={"defaultInput"},
+     *      args={"cliInput"},
      *      isStatic=true,
      *      source={
      *          name="dataTransportManager",
@@ -55,7 +55,7 @@ class Helper_Migration extends Helper_Abstract
      * @param string $category Категория миграции
      * @param array $params Аргументы
      */
-	public function create($name, $category, $params)
+	public function create($name, $category, $params = array())
     {
         $author = $this->input['author'];
         $comment = $this->input['comment'];

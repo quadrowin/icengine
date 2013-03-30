@@ -55,6 +55,13 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 * @var Query_Abstract
 	 */
 	protected $lastQuery;
+    
+    /**
+     * Имя моделей в коллекции
+     * 
+     * @var string
+     */
+    protected $modelName;
 
 	/**
 	 * Опции
@@ -77,7 +84,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	protected $query;
 
-	/**
+	/**и
 	 * Результат последнего выполненного запроса
      *
 	 * @var Query_Result
@@ -287,24 +294,23 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 
 	/**
-	 * @desc Удаление всех объектов коллекции
+	 * Удаление всех объектов коллекции
 	 */
 	public function delete()
 	{
 		if (!is_array($this->items)) {
             $this->load();
         }
-        $items = &$this->items;
         $queryBuilder = $this->getService('query');
-        $unitOfWork = $this->getService('unitOfWork');
-		foreach ($items as $item) {
-            $query = $queryBuilder
-                ->delete()
-                ->from($item->table())
-                ->where($item->keyField(), $item->key());
-            $unitOfWork->push($query);
-		}
-        $unitOfWork->flush();
+        $keyField = $this->keyField();
+        $ids = $this->column($keyField);
+        $modelName = $this->modelName();
+        $query = $queryBuilder
+            ->delete()
+            ->from($modelName)
+            ->where($keyField, $ids);
+        $dataSource = $this->getService('modelScheme')->dataSource($modelName);
+        $dataSource->execute($query);
 		$this->items = array();
 	}
 
@@ -838,6 +844,16 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		$this->items = $items;
 		return $this;
 	}
+    
+    /**
+     * Изменить имя моделей коллекции
+     * 
+     * @param string $modelName
+     */
+    public function setModelName($modelName)
+    {
+        $this->modelName = $modelName;
+    }
 
 	/**
 	 * Изменить паджинатор коллекции
@@ -932,7 +948,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function table ()
 	{
-		return substr(get_class($this), 0, -strlen('_Collection'));
+		return $this->modelName;
 	}
 
 	/**

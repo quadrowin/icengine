@@ -9,6 +9,13 @@
 class Controller_Model_Diff extends Controller_Abstract
 {
     /**
+     * @inheritdoc
+     */
+    protected $config = array(
+        'category' => 'modelDiff'
+    );
+    
+    /**
      * Создание миграции
      * 
      * @Template(null)
@@ -25,7 +32,8 @@ class Controller_Model_Diff extends Controller_Abstract
             )
         );
         $migrationName = $context->helperMigration->getName($name);
-        $context->helperMigration->create($migrationName, 'modelDiff', array(
+        $category = $this->config()->category;
+        $context->helperMigration->create($migrationName, $category, array(
             'content'   => $content,
             'modelName' => $name
         ));
