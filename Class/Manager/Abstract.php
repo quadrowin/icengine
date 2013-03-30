@@ -39,7 +39,7 @@ abstract class Manager_Abstract
 		}
 		return $this->config;
 	}
-
+    
     /**
      * Получить услугу по имени
      *

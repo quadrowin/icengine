@@ -256,7 +256,7 @@ class Helper_Image
 		//$this->_log ('test');
         $locator = IcEngine::serviceLocator();
         $request = $locator->getService('request');
-		$helperSiteLocation = $locator->getService('siteLocation');
+		$helperSiteLocation = $locator->getService('helperSiteLocation');
         $modelManager = $locator->getService('modelManager');
         $helperImageResize = $locator->getService('helperImageResize');
 		$host = $helperSiteLocation->getLocation();

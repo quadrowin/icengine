@@ -92,8 +92,7 @@ class Data_Driver_Sync extends Data_Driver_Abstract
 	/**
 	 * @inheritdoc
 	 */
-	public function execute(Query_Abstract $query, 
-        Query_Options $options)
+	public function execute(Query_Abstract $query, $options = null)
 	{
 		$m = $this->queryMethods[$query->type()];
 		$result = $this->{$m}($query, $options);

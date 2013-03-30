@@ -5,8 +5,15 @@
  * 
  * @author goorus, morph
  */
-abstract class View_Render_Abstract extends Model_Factory_Delegate
+abstract class View_Render_Abstract
 {
+    /**
+     * Конфигурация
+     * 
+     * @var array
+     */
+    protected $config = array();
+    
 	/**
 	 * Пути к директориям шаблонов.
 	 * 
@@ -28,17 +35,6 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
      * @var array
 	 */
 	protected $varsStack = array();
-
-	/**
-	 * (non-PHPdoc)
-	 * @see Model::_afterConstruct()
-	 */
-	protected function _afterConstruct ()
-	{
-		if (!isset($this->fields['id'])) {
-			$this->fields['id'] = 1;
-		}
-	}
 
 	/**
 	 * Добавление хелпера
@@ -79,6 +75,21 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 			$this->vars[$key] = $value;
 		}
 	}
+    
+    /**
+     * Получить конфигурацию
+     * 
+     * @return Config_Array
+     */
+    public function config()
+    {
+        if (is_array($this->config)) {
+            $this->config = $this->getService('configManager')->get(
+                get_class($this), $this->config
+            );
+        }
+        return $this->config;
+    }
 
 	/**
 	 * Выводит результат работы шаблонизатор в браузер.
@@ -95,6 +106,17 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	 */
 	abstract public function fetch($tpl);
 
+    /**
+     * Получить сервис по имени
+     * 
+     * @param string $serviceName
+     * @return mixed
+     */
+    public function getService($serviceName)
+    {
+        return IcEngine::serviceLocator()->getService($serviceName);
+    }
+    
 	/**
 	 * Возвращает массив путей до шаблонов
      * 
@@ -146,14 +168,5 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 		$template = $task->getTemplate();
 		$result = $template ? $this->fetch($template) : null;
 		return $result;
-	}
-
-	/**
-	 * (non-PHPdoc)
-	 * @see Model_Factory_Delegate::table()
-	 */
-	public function table()
-	{
-		return 'View_Render';
 	}
 }
