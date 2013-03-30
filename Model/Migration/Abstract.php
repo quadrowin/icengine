@@ -44,17 +44,8 @@ class Migration_Abstract extends Model
 	 */
 	public function getLast()
 	{
-		$lastData = $this->getService('helperMigration')->getLastLog();
-		if (!$lastData) {
-			return;
-		}
-		$name = $this->getName();
-		foreach ($lastData as $data) {
-			if ($data['name'] == $name) {
-				return $data;
-			}
-		}
-		return null;
+		$lastData = $this->getService('helperMigrationQueue')->lastFor($this);
+		return $lastData;
 	}
 
 	/**
@@ -84,28 +75,21 @@ class Migration_Abstract extends Model
 	 */
 	public function getState()
 	{
-        $helperMigration = $this->getService('helperMigration');
-		$queue = $helperMigration->getQueue();
-		$lastData = $helperMigration->getLastData();
+        $helperMigrationQueue = $this->getService('helperMigrationQueue');
+		$queue = $helperMigrationQueue->getQueue();
+		$lastData = $helperMigrationQueue->lastFor($this);
 		if (!$lastData) {
 			return self::ST_DOWN;
 		}
-		$lastName = $lastData['name'];
 		$name = $this->getName();
-		foreach ($queue as $migrationName => $params) {
-			if (!is_array($params))
-			{
-				$migrationName = $params;
-			}
-			if ($lastName == $migrationName) {
-				return self::ST_DOWN;
-			}
-			if ($name == $migrationName)
-			{
-				return self::ST_UP;
-			}
-		}
-		return self::ST_DOWN;
+        $helperArray = $this->getService('helperArray');
+        $needleMigration = $helperArray->filter($queue, array(
+            'name'  => $name
+        ));
+        if (!$needleMigration) {
+            return self::ST_DOWN;
+        }
+        return $needleMigration[0]['isFinished'] ? self::ST_UP : self::ST_DOWN;
 	}
 
 	/**
@@ -115,9 +99,7 @@ class Migration_Abstract extends Model
 	 */
 	public function log($action)
 	{
-        print $action;
-        print "\n";
-        $this->getService('helperMigration')->log($this->getName(), $action);
+        $this->getService('helperMigrationLog')->log($this->getName(), $action);
 	}
 
 	/**

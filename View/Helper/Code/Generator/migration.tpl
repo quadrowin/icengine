@@ -23,7 +23,7 @@
 	 * 
      * @var string
 	 */
-	public $model;
+	public $model{if $modelName} = '{$modelName}'{/if};
 
 	/**
 	 * @see Migration_Abstract::down()
