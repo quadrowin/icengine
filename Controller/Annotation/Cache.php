@@ -11,6 +11,8 @@ class Controller_Annotation_Cache extends Controller_Abstract
      * Распарсить аннотацию
      * 
      * @Context("helperCodeGenerator")
+     * @Template(null)
+     * @Validator("Not_Null={"data"})
      */
     public function update($data, $context) 
     {
