@@ -9,6 +9,10 @@ class Controller_Annotation_Route extends Controller_Abstract
 {
     /**
      * Распарсить аннотацию
+     * 
+     * @Context("helperCodeGenerator")
+     * @Template(null)
+     * @Validator("Not_Null={"data"})
      */
     public function update($data, $context) 
     {
@@ -159,7 +163,7 @@ class Controller_Annotation_Route extends Controller_Abstract
                 }
             }
         }
-        $output = Helper_Code_Generator::fromTemplate(
+        $output = $context->helperCodeGenerator->fromTemplate(
             'route',
             array (
                 'routes'        => $routes,
