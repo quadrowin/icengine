@@ -68,25 +68,24 @@ class Helper_Model_Collection
 	 *
 	 * @return Model_Collection
 	 */
-	public function sortByParent($collection,
-		$include_unparented = false)
+	public function sortByParent($collection, $includeUnparented = false)
 	{
 		$list = $collection->items();
 		if (empty($list)) {
 			return $collection;
 		}
-		$firstIDS = $collection->column('id');
+		$firstIds = $collection->column('id');
 		$parents = array();
-		$child_of = 0;
+		$childOf = 0;
 		$result = array();
 		$i = 0;
         $keyField = $collection->keyField();
 		$index = array(0 => 0);
-		$full_index = array(-1 => '');
+		$fullIndex = array(-1 => '');
 		do {
 			$finish = true;
 			for ($i = 0; $i < count($list); ++$i) {
-				if ($list[$i]['parentId'] != $child_of) {
+				if ($list[$i]['parentId'] != $childOf) {
                     continue;
                 }
                 if (!isset($index[count($parents)])) {
@@ -98,18 +97,18 @@ class Helper_Model_Collection
                 $result[$n] = $list[$i];
                 $result[$n]['data']['level'] = count($parents);
                 $result[$n]['data']['index'] = $index[count($parents)];
-                $parents_count = count($parents);
-                if ($parents_count > 0) {
-                    $full_index = $full_index[$parents_count - 1] .
+                $parentsCount = count($parents);
+                if ($parentsCount > 0) {
+                    $fullIndex = $fullIndex[$parentsCount - 1] .
                         $index[count($parents)];
                 } else {
-                    $full_index = (string) $index[count($parents)];
+                    $fullIndex = (string) $index[count($parents)];
                 }
-                $result[$n]['data']['full_index'] = $full_index;
-                $result[$n]['data']['broken_parent'] = false;
-                $full_index[$parents_count] = $full_index . '.';
-                array_push($parents, $child_of);
-                $child_of = $list[$i][$keyField];
+                $result[$n]['data']['fullIndex'] = $fullIndex;
+                $result[$n]['data']['brokenParent'] = false;
+                $fullIndex[$parentsCount] = $fullIndex . '.';
+                array_push($parents, $childOf);
+                $childOf = $list[$i][$keyField];
                 for ($j = $i; $j < count($list) - 1; $j++) {
                     $list[$j] = $list[$j + 1];
                 }
@@ -120,7 +119,7 @@ class Helper_Model_Collection
 			// Элементы с неверно указанным предком
 			if ($finish && count($parents) > 0) {
 				$index[count($parents)] = 0;
-				$child_of = array_pop($parents);
+				$childOf = array_pop($parents);
 				$finish = false;
 			}
 		} while (!$finish);
@@ -130,36 +129,36 @@ class Helper_Model_Collection
 		 *
 		 * сортируем по level 0, докидываем дочерних
 		 */
-		if ($include_unparented) {
+		if ($includeUnparented) {
 			//out досортированный
 			$newResult = array();
 			//без родителей, неотсортированные
-			$listIDS = array();
+			$listIds = array();
 			//отсортированные родители: level = 0
-			$resultIDS = array();
+			$resultIds = array();
 			//отсортированные дочерние: level > 0
-			$resultSubIDS = array();
+			$resultSubIds = array();
 			for ($i = 0; $i < count($list); $i++) {
-				$listIDS[$list[$i][$keyField]] = $i;
+				$listIds[$list[$i][$keyField]] = $i;
 			}
 			for ($i = 0; $i < count($result); $i++) {
-				if ($result[$i]->parentId == 0) {
+				if (!$result[$i]['parentId']) {
 					$parentId = $result[$i][$keyField];
-					$resultIDS[$result[$i][$keyField]] = $i;
+					$resultIds[$result[$i][$keyField]] = $i;
 				} else {
-					$resultSubIDS[$parentId][$result[$i][$keyField]] = $i;
+					$resultSubIds[$parentId][$result[$i][$keyField]] = $i;
 				}
 			}
-			for ($i = 0; $i < count($firstIDS); $i++) {
-				if (isset($resultIDS[$firstIDS[$i]])) {
-					$newResult[] = $result[$resultIDS[$firstIDS[$i]]];
-					if (isset($resultSubIDS[$firstIDS[$i]])) {
-						foreach ($resultSubIDS[$firstIDS[$i]] as $index) {
+			for ($i = 0; $i < count($firstIds); $i++) {
+				if (isset($resultIds[$firstIds[$i]])) {
+					$newResult[] = $result[$resultIds[$firstIds[$i]]];
+					if (isset($resultSubIds[$firstIds[$i]])) {
+						foreach ($resultSubIds[$firstIds[$i]] as $index) {
 							$newResult[] = $result[$index];
 						}
 					}
-				} elseif (isset($listIDS[$firstIDS[$i]])) {
-					$newResult[] = $list[$listIDS[$firstIDS[$i]]];
+				} elseif (isset($listIds[$firstIds[$i]])) {
+					$newResult[] = $list[$listIds[$firstIds[$i]]];
 				}
 			}
 			$result = $newResult;
