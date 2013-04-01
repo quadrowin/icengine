@@ -6,7 +6,7 @@
  * @author morph
  * @Service("helperAnnotationUpdate")
  */
-class Helper_Annotation_Update
+class Helper_Annotation_Update extends Helper_Abstract
 {
     /**
      * Получить имена классов для обновления
