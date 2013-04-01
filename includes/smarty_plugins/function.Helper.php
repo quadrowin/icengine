@@ -1,7 +1,8 @@
 <?php
 
 /**
- *
+ * Вызов хелпера представления
+ * 
  * @param array $params
  * @return string
  */

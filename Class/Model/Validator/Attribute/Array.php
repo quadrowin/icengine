@@ -1,9 +1,21 @@
 <?php
 
+/**
+ * Являет ли поле массивом
+ * 
+ * @author morph
+ */
 class Model_Validator_Attribute_Array extends Model_Validator_Attribute_Abstract
 {
-	public static function validate($model, $field, $value, $input)
+    /**
+     * @inheritdoc
+     */
+	public function doValidate()
 	{
-		return is_array ($model->sfield($field)) === (bool) $value;
+        if (is_null($this->value)) {
+            $this->value = true;
+        }
+		return is_array($this->model->sfield($this->field)) === 
+            (bool) $this->value;
 	}
 }

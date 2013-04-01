@@ -1,10 +1,19 @@
 <?php
 
-class Model_Validator_Attribute_MaxLength extends Model_Validator_Attribute_Abstract
+/**
+ * Проверка на максимальную длину
+ * 
+ * @author morph
+ */
+class Model_Validator_Attribute_MaxLength extends 
+    Model_Validator_Attribute_Abstract
 {
-	public static function validate ($model, $field, $value, $input)
+    /**
+     * @inheritdoc
+     */
+	public function doValidate()
 	{
-		$field = $model->sfield ($field);
-		return is_string ($field) && strlen ($field) <= $value;
+		$field = $this->model->sfield($this->field);
+		return is_string($field) && strlen($field) <= $this->value;
 	}
 }
