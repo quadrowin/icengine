@@ -8,6 +8,18 @@
 class Controller_Model_Scheme extends Controller_Abstract
 {
     /**
+     * Создание новой схемы моделей
+     * 
+     * @Validator("User_Cli")
+     * @Template(null)
+     * @Context("helperModelScheme")
+     */
+    public function create($name, $context)
+    {
+        $context->helperModelScheme->create($name);
+    }
+    
+    /**
      * Пересинхронизировать схему с аннотаций
      * 
      * @Template(null)

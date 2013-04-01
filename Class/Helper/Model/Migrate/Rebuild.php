@@ -231,21 +231,15 @@ class Helper_Model_Migrate_Rebuild extends Helper_Abstract
                     $scheme->createScheme->__toArray()
                 ) : null;
         }
-        $filename = IcEngine::root() . 'Ice/Config/Model/Mapper/' .
-            str_replace('_', '/', $modelName) . '.php';
-        $output = $this->getService('helperCodeGenerator')->fromTemplate(
-            'scheme',
-            array(
-                'author'            => $author,
-                'comment'           => $comment,
-                'fields'            => $fields,
-                'indexes'           => $indexes,
-                'references'        => $references,
-                'admin'             => $admin,
-                'languageScheme'    => $languageScheme,
-                'createScheme'      => $createScheme
-            )
-        );
-        file_put_contents($filename, $output);
+        $dto = $this->getService('dto')->newInstance('Model_Scheme')
+            ->setFields($fields)
+            ->setIndexes($indexes)
+            ->setAuthor($author)
+            ->setComment($comment)
+            ->setReferences($references)
+            ->setAdmin($admin)
+            ->setLanguageScheme($languageScheme)
+            ->setCreateScheme($createScheme);
+        $this->getService('helperModelScheme')->create($modelName, $dto);
     }
 }
