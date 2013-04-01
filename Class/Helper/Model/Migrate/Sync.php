@@ -178,6 +178,29 @@ class Helper_Model_Migrate_Sync extends Helper_Abstract
     }
     
     /**
+     * Получить комментарий класса
+     * 
+     * @param string $modelName
+     * @return string
+     */
+    public function getModelComment($modelName)
+    {
+        $classReflection = new \ReflectionClass($modelName);
+        $classComment = '';
+        $classDoc = $classReflection->getDocComment();
+        foreach (explode(PHP_EOL, $classDoc) as $line) {
+            $line = trim($line, "*\t ");
+            if (!$line || $line[0] == '/') {
+                continue;
+            } elseif ($line[0] == '@') {
+                break;
+            }
+            $classComment .= $line;
+        }
+        return $classComment;
+    }
+    
+    /**
      * Ресинхронизации схемы и аннотаций
      * 
      * @param string $modelName
@@ -187,11 +210,15 @@ class Helper_Model_Migrate_Sync extends Helper_Abstract
         $fields = $this->getAnnotationFields($modelName);
         $indexes = $this->getAnnotationIndexes($modelName);
         $references = $this->getAnnotationReferences($modelName);
+        $info = array(
+            'comment'   => $this->getModelComment($modelName)
+        );
         $dto = $this->getService('dto')->newInstance('Data_Scheme')
             ->setModelName($modelName)
             ->setFields($fields)
             ->setReferences($references)
-            ->setIndexes($indexes);
+            ->setIndexes($indexes)
+            ->setInfo($info);
         $this->getService('helperModelMigrateRebuild')->rewriteScheme(
             $modelName, $dto
         );
