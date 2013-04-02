@@ -15,7 +15,7 @@ class Controller_Annotation extends Controller_Abstract
             'Orm', 'Service', 'Override', 'AutoResync'
         ),
         'methods'           => array(
-            'Route', 'Cache', 'Schedule'
+            'Route', 'RouteImport', 'Cache', 'Schedule'
         ),
         'properties'        => array(
             'Service'

@@ -167,7 +167,7 @@ class Controller_Annotation_Route extends Controller_Abstract
             'route',
             array (
                 'routes'        => $routes,
-                'empty_route'   => $emptyRoute
+                'emptyRoute'    => $emptyRoute
             )
         );
         $result = array();

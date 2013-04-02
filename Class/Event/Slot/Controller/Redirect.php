@@ -20,7 +20,8 @@ class Event_Slot_Controller_Redirect extends Event_Slot
         $redirectUrl = !empty($params['redirect']) ? $params['redirect'] : 
             (!empty($buffer['redirect']) ? $buffer['redirect'] : null);
         if ($redirectUrl) {
-            $this->getService('helperHeader')->redirect($redirectUrl);
+            $serviceLocator = IcEngine::serviceLocator();
+            $serviceLocator->getService('helperHeader')->redirect($redirectUrl);
         }
     }
 }
