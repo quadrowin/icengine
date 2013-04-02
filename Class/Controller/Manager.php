@@ -65,12 +65,14 @@ class Controller_Manager extends Manager_Abstract
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeConfigMerge',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeConfigExport',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeConfig',
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeOutputFilter',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeTemplate',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeViewRender',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeLayout',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeBefore',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeAfter',
-            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeSlot'
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeSlot',
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeRedirect'
         )
 	);
 
