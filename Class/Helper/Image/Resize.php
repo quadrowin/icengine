@@ -54,6 +54,23 @@ class Helper_Image_Resize extends Helper_Abstract
         return $this->newResize($paramsBuilded);
     }
 
+    public function cropCustom($params)
+    {
+        $crop = $params['crop'];
+        if (isset($crop['x1'])) {
+            $crop['offsetLeft'] = $crop['x1'];
+        }
+        if (isset($crop['y1'])) {
+            $crop['offsetTop'] = $crop['y1'];
+        }
+        $paramsBuilded = array(
+            'input'         => $params['input'],
+            'output'        => $params['output'],
+            'crop'          => $crop
+        );
+        return $this->newResize($paramsBuilded);
+    }
+
     /**
      * $params = array(
      *      "width", "height",
@@ -79,7 +96,7 @@ class Helper_Image_Resize extends Helper_Abstract
         $scale = isset($params['scale']) ? $params['scale'] : null;
         $isCrop = is_array($crop);
         $output = isset($params['output']) ? $params['output'] : null;
-        if ($notResize && $isCrop) {
+        if ($notResize && !$isCrop) {
 			return false;
 		}
         $input = isset($params['input']) ? $params['input'] : null;
@@ -131,6 +148,8 @@ class Helper_Image_Resize extends Helper_Abstract
             $fixWidth = $inputWidth;
             $fixHeight = $inputHeight;
         }
+        //echo 'Fix Width ' . $fixWidth . PHP_EOL;
+        //echo 'Fix Height ' . $fixHeight . PHP_EOL;
         $ext = '';
 		switch ($inputType) {
 			case IMAGETYPE_GIF:
@@ -217,17 +236,28 @@ class Helper_Image_Resize extends Helper_Abstract
                     }
                 }
             }
-            /*echo 'source Width ' . $fixWidth . PHP_EOL;
+           /* echo 'source Width ' . $fixWidth . PHP_EOL;
             echo 'source Height ' . $fixHeight . PHP_EOL;
             echo 'crop Width ' . $crop['width'] . PHP_EOL;
             echo 'crop Height ' . $crop['height'] . PHP_EOL;
             echo 'offsetLeft ' . $offsetLeft . PHP_EOL;
             echo 'offsetTop ' . $offsetTop . PHP_EOL;*/
+            $sourceWidth = $crop['width'];
+            $sourceHeight = $crop['height'];
+            if ($notResize) {
+                $sourceWidth = $crop['x2'] - $crop['x1'];
+                $sourceHeight = $crop['y2'] - $crop['y1'];
+            }
+            /*echo 'Source Width ' . $sourceWidth . PHP_EOL;
+            echo 'Source Height ' . $sourceHeight . PHP_EOL;
+            echo 'Offset Left ' . $offsetLeft . PHP_EOL;
+            echo 'Offset top ' . $offsetTop . PHP_EOL;
+            die;*/
             imagecopyresampled(
                 $imageCrop, $containerResized,
                 0, 0, $offsetLeft, $offsetTop,
                 $crop['width'], $crop['height'],
-                $crop['width'], $crop['height']
+                $sourceWidth, $sourceHeight
             );
             $containerResized = $imageCrop;
         }
