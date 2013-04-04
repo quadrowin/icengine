@@ -244,7 +244,6 @@ class Controller_Manager extends Manager_Abstract
 		$controller = $this->get($controllerName);
 		$lastInput = $controller->getInput();
 		$lastOutput = $controller->getOutput();
-		$lastTask = $controller->getTask();
         // Если входной транспорт не передан или не установлен у подхваченного
         // задания, то используем транспорт менеджера контроллеров. Если
         // входные данные переданы в виде массива, то создает транспорт с
