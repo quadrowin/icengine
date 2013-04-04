@@ -271,7 +271,7 @@ class Controller_Manager extends Manager_Abstract
         }
         // Начинаем транзацию для экшина контроллера и выполняем его. Транспорты
         // и задачу после этого возвращаем на место
-        if (!$controller->getTask()->getIgnore()) {
+        if (!$task->getIgnore()) {
             $output->beginTransaction();
             $callable = $task->getCallable();
             $this->getExecutor($task)->execute($callable, $context->getArgs());
@@ -283,9 +283,6 @@ class Controller_Manager extends Manager_Abstract
             );
         }
 		$controller->setInput($lastInput)->setOutput($lastOutput);
-        if ($lastTask) {
-			$controller->setTask($lastTask);
-        }
 		if (Tracer::$enabled && !$notLogging) {
 			$deltaModelCount = Tracer::getDeltaModelCount();
 			$deltaQueryCount = Tracer::getDeltaQueryCount();
