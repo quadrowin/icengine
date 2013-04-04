@@ -208,9 +208,7 @@ class Controller_Abstract
             $controller = $other;
 			$controller->setInput($this->input);
 			$controller->setOutput($this->output);
-            if (!$controller->getTask()) {
-                $controller->setTask($this->task);
-            }
+            $controller->setTask($this->task);
 		} else {
             $controller = $this;
         }
