@@ -204,7 +204,7 @@ class Controller_Abstract
         $signal = $eventManager->getSignal($controllerAction);
         $slot = $eventManager->getSlot('Controller_After');
         $signal->unbind($slot);
-		if ($controller != get_class($this)) {
+		if ('Controller_' . $controller != get_class($this)) {
             $controller = $other;
 			$controller->setInput($this->input);
 			$controller->setOutput($this->output);
