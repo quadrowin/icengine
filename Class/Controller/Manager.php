@@ -256,10 +256,7 @@ class Controller_Manager extends Manager_Abstract
 		}
         $output = $this->getOutput($task);
         // Подменяем транспорты, на полученные из менеджера/задания
-        $controller
-            ->setInput($input)
-            ->setOutput($output)
-            ->setTask($task);
+        $controller->setInput($input)->setOutput($output)->setTask($task);
         $task->setCallable($controller, $actionName);
 		$config = $this->config();
         // Создает контекст вызова контроллера, отдаем его before-делегатам
@@ -285,10 +282,10 @@ class Controller_Manager extends Manager_Abstract
                 array('task' => $task)
             );
         }
-		$controller
-			->setInput($lastInput)
-			->setOutput($lastOutput)
-			->setTask($lastTask);
+		$controller->setInput($lastInput)->setOutput($lastOutput);
+        if ($lastTask) {
+			$controller->setTask($lastTask);
+        }
 		if (Tracer::$enabled && !$notLogging) {
 			$deltaModelCount = Tracer::getDeltaModelCount();
 			$deltaQueryCount = Tracer::getDeltaQueryCount();
