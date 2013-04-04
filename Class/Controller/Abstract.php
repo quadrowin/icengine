@@ -212,11 +212,11 @@ class Controller_Abstract
 		} else {
             $controller = $this;
         }
-        $controller->getTask()->setControllerAction(array(
+        $this->task->setControllerAction(array(
             'controller'    => $controller->name(),
             'action'        => $action
         ));
-        $controller->getTask()->setCallable($controller, $action);
+        $this->task->setCallable($controller, $action);
         $reflection = new \ReflectionMethod($controller, $action);
         $params = $reflection->getParameters();
         $currentInput = $controller->getInput();
@@ -234,17 +234,12 @@ class Controller_Abstract
                 $resultParams[$param->name] = $value;
             }
         }
-        $args = array_merge(
-            $controller->getTask()->getContext()->getArgs(), $resultParams
-        );
-        $controller->getTask()->getContext()->setArgs($args);
-        $reflection->invokeArgs($controller, $resultParams);
-        $controller->getTask()->setTemplate(
-			'Controller/' . str_replace('_', '/', $controller->name()) . 
+        $this->task->setTemplate(
+                        'Controller/' . str_replace('_', '/', $controller->name()) . 
                 '/' . $action
-		);
-	}
-
+                );
+	$reflection->invokeArgs($controller, $resultParams);
+}
 	/**
 	 * Заменить текущую задачу контроллера
      *
