@@ -212,7 +212,9 @@ class Controller_Abstract
             $controller = $other;
 			$controller->setInput($this->input);
 			$controller->setOutput($this->output);
-			//$controller->setTask($this->task);
+            if (!$controller->getTask()) {
+                $controller->setTask($this->task);
+            }
 		} else {
             $controller = $this;
         }
