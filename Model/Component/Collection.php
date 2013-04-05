@@ -40,28 +40,27 @@ abstract class Component_Collection extends Model_Collection
      * @param Model $model Модель, для которой подгружаются объекты.
 	 * @return Component_Collection Эта коллекция.
 	 */
-	public function getFor (Model $model)
+	public function getFor(Model $model)
 	{
-		$this->_model = $model;
-		
+		$this->model = $model;
 		$this
-		    ->where ('table', $this->_model->table ())
-		    ->where ('rowId', $this->_model->key ());
-			
+		    ->where ('table', $this->model->table())
+		    ->where ('rowId', $this->model->key());
 		return $this;
 	}
 	
 	/**
-	 * @desc Возвращает модель для которой выбрана коллекция.
-	 * @return Model Модель.
+	 * Возвращает модель для которой выбрана коллекция.
+	 * 
+     * @return Model Модель.
 	 */
-	public function model ()
+	public function model()
 	{
-	    return $this->_model;
+	    return $this->model;
 	}
 	
 	/**
-	 * @desc Привязывает элементы коллекции к заданной сущности.
+	 * Привязывает элементы коллекции к заданной сущности.
 	 * Существующая ранее связь будет утеряна.
 	 * 
 	 * @param Model $model
@@ -69,23 +68,23 @@ abstract class Component_Collection extends Model_Collection
 	 * @return Component_Collection
 	 * 		Эта коллекция
 	 */
-	public function rejoin (Model $model)
+	public function rejoin(Model $model)
 	{
         $this->update(array(
            'table'  => $model->table(),
-            'rowId' => $model->key()
+           'rowId'  => $model->key()
         ));
 	    return $this;
 	}
 	
 	/**
-	 * @desc Возвращает тип коллекции компонентов.
-	 * @return string
+	 * Возвращает тип коллекции компонентов.
+	 * 
+     * @return string
 	 * 		Имя класса без приставки "Component_" и без суффикса "_Collection"
 	 */
 	public function type ()
 	{
-	    return substr (get_class ($this), 10, -11);
+	    return substr(get_class($this), 10, -11);
 	}
-	
 }

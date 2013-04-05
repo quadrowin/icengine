@@ -202,7 +202,7 @@ class IcEngine
 			'Controller'	=> array(
 				self::$path . 'Controller/'
 			),
-			'includes'		=> self::$path . 'includes/'
+			'Vendor'		=> self::$path . 'Vendor/'
 		));
 	}
 

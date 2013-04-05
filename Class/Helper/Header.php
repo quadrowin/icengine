@@ -9,39 +9,44 @@
 class Helper_Header extends Helper_Abstract
 {
 	/**
-	 *
-	 * @desc Код ошибки "ресурс перемещен постоянно"
-	 * @var integer
+	 * Код ошибки "ресурс перемещен постоянно"
+	 * 
+     * @var integer
 	 */
 	const E301 = 301;
 
 	/**
-	 * @desc Код ошибки "доступ закрыт"
-	 * @var integer
+	 * Код ошибки "доступ закрыт"
+	 * 
+     * @var integer
 	 */
 	const E403 = 403;
 
 	/**
-	 * @desc Код ошибки "страница не найдена"
-	 * @var integer
+	 * Код ошибки "страница не найдена"
+	 * 
+     * @var integer
 	 */
 	const E404 = 404;
 
 	/**
-	 * @desc Код ошибки "страница удалена"
-	 * @var integer
+	 * Код ошибки "страница удалена"
+	 * 
+     * @var integer
 	 */
 	const E410 = 410;
 
 	/**
-	 * @desc Флаг кодирования gzip
-	 * @var string
+	 * Флаг кодирования gzip
+	 * 
+     * @var string
 	 */
 	const CONTENT_ENCODING_GZIP = 'gzip';
 
 	/**
-	 * @desc Сообщения с ошибками
-	 * @var array
+	 * Сообщения с ошибками
+	 * 
+     * @var array
 	 */
 	public static $statuses = array (
 		self::E403 => array (
@@ -67,7 +72,7 @@ class Helper_Header extends Helper_Abstract
 	 * 
      * @param integer $status Статус.
 	 */
-	public function setStatus ($status, $setCode = true)
+	public function setStatus($status, $setCode = true)
 	{
 		foreach (self::$statuses[$status] as $text) {
 			if ($setCode) {
@@ -89,9 +94,8 @@ class Helper_Header extends Helper_Abstract
 	 */
 	public function redirect($uri, $code = null)
 	{
-		$fullUri =
-			substr ($uri, 0, 7) == 'http://' ?
-			$uri :
+		$fullUri = substr ($uri, 0, 7) == 'http://' 
+            ? $uri :
 			('http://' . $this->getService('request')->host() . $uri);
 		if (!headers_sent()) {
 			if ($code) {
@@ -111,10 +115,7 @@ class Helper_Header extends Helper_Abstract
 	 */
 	public function jsRedirect($uri)
 	{
-		echo
-			'<script type="text/javascript">window.location.href="' .
-			$uri .
+		echo '<script type="text/javascript">window.location.href="' . $uri .
 			'"</script>';
 	}
-
 }

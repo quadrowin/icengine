@@ -59,7 +59,7 @@ abstract class Bootstrap_Abstract
 		$loader->addPath('Class', $path . 'Model/');
 		$loader->addPath('Class', $path);
 		$loader->addPath('Controller', $path . 'Controller/');
-		$loader->addPath('includes', $path . 'includes/');
+		$loader->addPath('Vendor', $path . 'Vendor/');
 	}
 
 	/**

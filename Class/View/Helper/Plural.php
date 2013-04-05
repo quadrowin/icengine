@@ -37,7 +37,7 @@ class View_Helper_Plural extends View_Helper_Abstract
 	 */
 	public function pluralMorphy($n, $word)
 	{
-		IcEngine::getLoader()->requireOnce('Morphy.php', 'includes');
+		IcEngine::getLoader()->requireOnce('Morphy.php', 'Vendor');
 		$morphy = Morphy::get();
 		$word = $morphy->getBaseForm($word);
 		$plural = ($n % 10 == 1 && $n % 100 != 11

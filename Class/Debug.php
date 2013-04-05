@@ -416,7 +416,7 @@ class Debug
 				// подключение файрпхп
 				if ($config == 'fb' && !function_exists ('fb'))
 				{
-					require dirname (__FILE__) . '/../includes/FirePHPCore/fb.php';
+					require dirname (__FILE__) . '/../Vendor/FirePHPCore/fb.php';
 				}
 				$config = self::$_configPresets [$config];
 			}
@@ -601,7 +601,7 @@ class Debug
 	 * @desc вывод в лог времени загрузки фаилов
 	 * @author Eriomin Ivan
 	 * @tutorial
-	 *	include $engine_dir . '/includes/FirePHPCore/fb.php';
+	 *	include $engine_dir . '/Vendor/FirePHPCore/fb.php';
 	 *	Debug::microtime ('some special message');
 	 */
 	public static function microtime ()
@@ -632,7 +632,7 @@ class Debug
 	 * @desc вывод в лог времени загрузки фаилов.
 	 * @author Yury Shvedov
 	 * @tutorial
-	 *	include $engine_dir . '/includes/FirePHPCore/fb.php';
+	 *	include $engine_dir . '/Vendor/FirePHPCore/fb.php';
 	 *	Debug::microtimeTotal ('some special message');
 	 */
 	public static function microtimeTotal ()

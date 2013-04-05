@@ -1,7 +1,7 @@
 <?php
 
 Loader::load('Debug');
-Loader::load('RSA', 'includes');
+Loader::load('RSA', 'Vendor');
 
 /**
  * Класс для работы с шифрованием RSA
