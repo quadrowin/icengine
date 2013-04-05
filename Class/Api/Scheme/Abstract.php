@@ -8,6 +8,13 @@
 abstract class Api_Scheme_Abstract
 {
     /**
+     * Измененные параметры схемы
+     * 
+     * @var array
+     */
+    protected $params;
+    
+    /**
      * Схема api
      * 
      * @var array
@@ -48,7 +55,23 @@ abstract class Api_Scheme_Abstract
                     ? $args[$i] : $arg;
             } 
         }
+        if ($this->params) {
+            foreach ($this->params as $paramName => $value) {
+                $resultArgs[$paramName] = $value;
+            }
+        }
         return $this->transport->send($methodScheme['call'], $resultArgs);
+    }
+    
+    /**
+     * Изменить параметр схемы
+     * 
+     * @param string $name
+     * @param mixed $value
+     */
+    public function setParam($name, $value)
+    {
+        $this->params[$name] = $value;
     }
     
     /**
