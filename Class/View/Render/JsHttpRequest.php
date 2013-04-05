@@ -19,7 +19,7 @@ class View_Render_JsHttpRequest extends View_Render_Abstract
 	 */
 	public function __construct()
 	{
-		IcEngine::getLoader()->load('JsHttpRequest', 'includes');
+		IcEngine::getLoader()->load('JsHttpRequest', 'Vendor');
 		$this->request = new JsHttpRequest('UTF-8');
 	}
 

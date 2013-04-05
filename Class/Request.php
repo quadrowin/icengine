@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Класс для работы с HTTP запросом.
- * @author Юрий Шведов, Илья Колесников, neon
- *
+ * Класс для работы с HTTP запросом
+ * 
+ * @author morph, goorus, neon
  * @Service("request")
  */
 class Request
@@ -264,7 +264,7 @@ class Request
      * 
      * @return string Часть URI до знака "?"
      */
-    public static function uri($withoutGet = true)
+    public function uri($withoutGet = true)
     {
         if (!isset($_SERVER['REQUEST_URI'])) {
             return '/';
@@ -284,7 +284,7 @@ class Request
      * 
      * @return string Часть URI после знака "?"
      */
-    public static function stringGet()
+    public function stringGet()
     {
         if (!isset($_SERVER['REQUEST_URI'])) {
             return '';
@@ -302,10 +302,11 @@ class Request
      *
      * @return string
      */
-    public static function subdomain($default = null)
+    public function subdomain($default = null)
     {
-        $host = self::host();
-        $main = Helper_Uri::mainDomain();
+        $host = $this->host();
+        $helperUri = IcEngine::serviceLocator()->getService('helperUri');
+        $main = $helperUri->mainDomain();
         $subdomain = trim(str_replace($main, '', $host), '.');
         return $subdomain ? : $default;
     }
@@ -315,7 +316,7 @@ class Request
      * 
      * @return string
      */
-    public static function referer()
+    public function referer()
     {
         return isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
     }
@@ -325,7 +326,7 @@ class Request
      * 
      * @return string
      */
-    public static function requestMethod()
+    public function requestMethod()
     {
         return isset($_SERVER['REQUEST_METHOD']) 
             ? $_SERVER['REQUEST_METHOD'] : 'GET';
@@ -337,7 +338,7 @@ class Request
      * 
      * @return string
      */
-    public static function server()
+    public function server()
     {
         return isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : '';
     }
@@ -347,7 +348,7 @@ class Request
      * 
      * @return string
      */
-    public static function sessionId()
+    public function sessionId()
     {
         if (!class_exists('Session_Manager')) {
             $serviceLocator = IcEngine::serviceLocator();

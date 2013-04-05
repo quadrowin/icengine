@@ -1,6 +1,6 @@
 <?php
 
-Loader::load('RSA2', 'includes');
+Loader::load('RSA2', 'Vendor');
 
 /**
  * Класс для работы с шифрованием RSA

@@ -94,7 +94,7 @@ class Mail_Provider_Sms_Yakoon extends Mail_Provider_Abstract
 	protected function _afterConstruct ()
 	{
 		$loader = $this->getService('loader');
-		$loader->requireOnce($this->config ()->nusoap_path, 'includes');
+		$loader->requireOnce($this->config()->nusoap_path, 'Vendor');
 		$this->_client = new yakoon_soapclient(
 			$this->config()->service_url, 'wsdl'
 		);

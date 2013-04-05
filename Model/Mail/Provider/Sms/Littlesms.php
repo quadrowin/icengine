@@ -37,8 +37,8 @@ class Mail_Provider_Sms_Littlesms extends Mail_Provider_Abstract
 	{
 		$config = $this->config();
 		$loader = $this->getService('loader');
-		$loader->requireOnce($config['original_path'], 'includes');
-		$loader->load('LittleSMSoriginal', 'includes');
+		$loader->requireOnce($config['original_path'], 'Vendor');
+		$loader->load('LittleSMSoriginal', 'Vendor');
 		$this->_client = new LittleSMSoriginal(
 			$config['service_login'],
 			$config['service_password'],

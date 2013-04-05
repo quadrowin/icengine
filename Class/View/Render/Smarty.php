@@ -57,7 +57,7 @@ class View_Render_Smarty extends View_Render_Abstract
 	{
 		$config = $this->config();
         $loader = $this->getService('loader');
-		$loader->requireOnce($config['smartyPath'], 'includes');
+		$loader->requireOnce($config['smartyPath'], 'Vendor');
 		$this->smarty = new Smarty();
 		$this->smarty->compile_dir = $config['compilePath'];
 		$this->smarty->template_dir = array_reverse(
