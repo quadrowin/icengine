@@ -20,6 +20,7 @@ class Controller_Migration_Sequence extends Controller_Abstract
      * @Context("helperMigrationSequence")
      * @ViewRender("Echo")
      * @Route("/migration/seq/next/")
+     * @Validator("Request_Method"={"get"})
      */
     public function next($context)
     {
@@ -35,6 +36,7 @@ class Controller_Migration_Sequence extends Controller_Abstract
      * 
      * @Route("/migration/seq/status/")
      * @ViewRender("Echo")
+     * @Validator("Request_Method"={"get"})
      */
     public function status()
     {
@@ -50,6 +52,7 @@ class Controller_Migration_Sequence extends Controller_Abstract
      * @Template(null)
      * @ViewRender("Echo")
      * @Route("/migration/seq/sync/")
+     * @Validator("Request_Method"={"get"})
      */
     public function sync($value, $context)
     {
