@@ -198,24 +198,25 @@ class Controller_Abstract
             $controllerManager = $this->getService('controllerManager');
 			$other = $controllerManager->get($controller);
 		}
-        $controllerAction = implode(
-            '/', $this->task->controllerAction()
-        );
-        $this->input->send(array(
-            'origin'    => $controllerAction
-        ));
+        $controllerAction = implode('/', $this->task->controllerAction());
+        $this->input->send(array('origin' => $controllerAction));
         $eventManager = $this->getService('eventManager');
         $signal = $eventManager->getSignal($controllerAction);
         $slot = $eventManager->getSlot('Controller_After');
         $signal->unbind($slot);
-		if ($controller != get_class($this)) {
+		if ('Controller_' . $controller != get_class($this)) {
             $controller = $other;
 			$controller->setInput($this->input);
 			$controller->setOutput($this->output);
-			$controller->setTask($this->task);
+            $controller->setTask($this->task);
 		} else {
             $controller = $this;
         }
+        $this->task->setControllerAction(array(
+            'controller'    => $controller->name(),
+            'action'        => $action
+        ));
+        $this->task->setCallable($controller, $action);
         $reflection = new \ReflectionMethod($controller, $action);
         $params = $reflection->getParameters();
         $currentInput = $controller->getInput();
@@ -233,13 +234,12 @@ class Controller_Abstract
                 $resultParams[$param->name] = $value;
             }
         }
-        $reflection->invokeArgs($controller, $resultParams);
         $this->task->setTemplate(
-			'Controller/' . str_replace('_', '/', $controller->name()) . 
+                        'Controller/' . str_replace('_', '/', $controller->name()) . 
                 '/' . $action
-		);
-	}
-
+                );
+	$reflection->invokeArgs($controller, $resultParams);
+}
 	/**
 	 * Заменить текущую задачу контроллера
      *

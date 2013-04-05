@@ -125,6 +125,7 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
             Tracer::appendQueryToVector($query->translate('Mysql'));
 		}
 		$key = $this->sqlHash($query);
+        //echo $query->translate() . PHP_EOL . PHP_EOL;
 		$expiration = $options->getExpiration();
         $fromCache = false;
         if (!isset(self::$caches[$key])) {

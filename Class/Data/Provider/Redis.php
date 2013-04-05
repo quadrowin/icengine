@@ -111,6 +111,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 		if (Tracer::$enabled) {
 			$endTime = microtime(true);
 			Tracer::incRedisGetCount();
+            Tracer::incRedisGetDelta();
 			Tracer::incRedisGetTime($endTime - $startTime);
 		}
 		$value = $this->valueDecode($result);
