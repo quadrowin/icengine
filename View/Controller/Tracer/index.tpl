@@ -91,7 +91,7 @@
 		<p><b>Вызовы запросов:</b></p>
 		<ul>
 			{foreach from=$sessions item="session" key="key" name="sessions"}
-				{if $session.args[0] == 'Data_Mapper_Mysqli_Cached'}
+				{if $session.args[0] == 'Data_Driver_Mysqli_Cached'}
 					<li>
 						<p><b>Запрос:</b> {$session.logs[0].args[0]}</p>
 						<p>Затраченно времени: {$session.logs[0].delta} с.</p>

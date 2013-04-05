@@ -33,7 +33,7 @@ class IcEngine
 	 *
      * @var string
 	 */
-	protected static $frontInput = 'default_input';
+	protected static $frontInput = 'defaultInput';
 
 	/**
 	 * Рендер по умолчанию

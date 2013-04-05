@@ -7,7 +7,6 @@
  */
 abstract class User_Session_Abstract extends Model
 {
-
     /**
      * Первый доступ
      *
@@ -86,7 +85,7 @@ abstract class User_Session_Abstract extends Model
 	 *
      * @return integer
 	 */
-	public function getDefaultUserId ()
+	public function getDefaultUserId()
 	{
 		return $this->defaultUserId;
 	}
@@ -150,5 +149,4 @@ abstract class User_Session_Abstract extends Model
         }
 		return $this;
 	}
-
 }

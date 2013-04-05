@@ -2,14 +2,12 @@
 /**
  * Стандартный фильтр чисел.
  *
- * @author Юрий, neon
+ * @author goorus, neon
  */
 class Filter_Integer extends Filter_Abstract
 {
 	/**
 	 * @inheritdoc
-	 * @param string $data
-	 * @return int
 	 */
 	public function filter($data)
 	{

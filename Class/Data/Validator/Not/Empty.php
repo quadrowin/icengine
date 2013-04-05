@@ -1,19 +1,16 @@
 <?php
+
 /**
+ * Валидатор истинности выражения
  * 
- * @desc Валидатор истинности выражения.
- * @author Юрий Шведов
- * @package IcEngine
- *
+ * @author goorus, morph
  */
 class Data_Validator_Not_Empty extends Data_Validator_Abstract
 {
-	
 	/**
-	 * (non-PHPdoc)
-	 * @see Data_Validator_Abstract::validate()
+	 * @inheritdoc
 	 */
-	public function validate ($data)
+	public function validate($data)
 	{
 		return (bool) $data;
 	}

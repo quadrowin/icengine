@@ -66,8 +66,6 @@ class Controller_View_Resource extends Controller_Abstract
 						);
 					}
 				}
-                $existsResources = array();
-                $resultResources = array();
                 foreach ($resources as $resource) {
                     if (in_array($resource->filePath, $existsResources)) {
                         continue;
