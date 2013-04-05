@@ -111,8 +111,11 @@ class User_Abstract extends Model
 		}
 
 		$user = new User ($data);
+        $user->save ();
 
-		return $user->save ();
+        User::updateSubUrl($user);
+
+		return $user;
 	}
 
 	/**
