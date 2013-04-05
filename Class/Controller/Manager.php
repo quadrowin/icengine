@@ -30,14 +30,9 @@ class Controller_Manager extends Manager_Abstract
 	 */
 	protected $config = array(
 		/**
-		 * @desc Фильтры для выходных данных
-		 * @var array
-		 */
-		'output_filters'	=> array(),
-
-		/**
-		 * @desc Настройки кэширования для экшенов.
-		 * @var array
+		 * Настройки кэширования для экшенов.
+		 * 
+         * @var array
 		 */
 		'actions'			=> array(),
 
@@ -70,11 +65,14 @@ class Controller_Manager extends Manager_Abstract
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeConfigMerge',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeConfigExport',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeConfig',
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeOutputFilter',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeTemplate',
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeViewRender',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeLayout',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeBefore',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeAfter',
-            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeSlot'
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeSlot',
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeRedirect'
         )
 	);
 
@@ -445,7 +443,7 @@ class Controller_Manager extends Manager_Abstract
     public function eventManager()
     {
         if (!$this->eventManager) {
-            $this->eventManager = new Event_Manager;
+            $this->eventManager = $this->getService('eventManager');
         }
         return $this->eventManager;
     }

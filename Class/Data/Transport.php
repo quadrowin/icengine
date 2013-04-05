@@ -5,7 +5,7 @@
  *
  * @author goorus, morph
  */
-class Data_Transport
+class Data_Transport implements ArrayAccess
 {
     /**
      * Поставщики данных.
@@ -13,13 +13,6 @@ class Data_Transport
      * @var array <Data_Provider_Abstract>
      */
 	protected $providers = array();
-
-    /**
-     * Валидаторы выхода.
-     *
-     * @var Data_Validator_Collection
-     */
-	protected $validators;
 
 	/**
 	 * Стек начатых транзакций
@@ -83,7 +76,8 @@ class Data_Transport
 	 */
 	public function getProvider($index)
 	{
-		return isset($this->providers[$index]) ? $this->providers[$index] : null;
+		return isset($this->providers[$index]) 
+            ? $this->providers[$index] : null;
 	}
 
     /**
@@ -95,6 +89,44 @@ class Data_Transport
 	{
 		return $this->providers;
 	}
+    
+    /**
+	 * Проверяет существование поля
+     *
+	 * @param string $offset Название поля
+	 * @return boolean true если поле существует
+	 */
+	public function offsetExists($offset)
+	{
+		return $this->receive($offset);
+	}
+
+	/**
+	 * @see Data_Transport::receive
+	 */
+	public function offsetGet($offset)
+	{
+        return $this->receive($offset);
+	}
+
+	/**
+	 * @see Data_Transport::send
+	 */
+	public function offsetSet($offset, $value)
+	{
+		$this->send($offset, $value);
+	}
+
+	/**
+	 * Исключение поля из модели
+     *
+	 * @param string $offset название поля
+	 */
+	public function offsetUnset($offset)
+	{
+
+	}
+    
     /**
      * Получение данных.
      *

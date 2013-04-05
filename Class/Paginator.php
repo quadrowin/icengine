@@ -4,7 +4,6 @@
  * Объект для хранения списка страниц.
  *
  * @author goorus, neon
- * @package IcEngine
  * @Service("paginator", disableConstruct=true)
  */
 class Paginator
@@ -98,26 +97,27 @@ class Paginator
 		$locator = IcEngine::serviceLocator();
 		$request = $locator->getService('request');
 		$this->pages = array();
-		$pages_count = $this->pagesCount();
-		//Debug::logVar($pages_count);
-		if ($pages_count <= 1) {
-			return ;
+		$pagesCount = $this->pagesCount();
+		if ($pagesCount <= 1) {
+			return;
 		}
-		$half_page = round($pages_count / 2);
+		$halfPage = round($pagesCount / 2);
 		$spaced = false;
-		$href = isset($this->href) ? $this->href : $request->uri(false);
 		// Удаление из запроса GET параметра page
 		$p = 'page';
 		$href = preg_replace(
-			"/((?:\?|&)$p(?:\=[^&]*)?$)+|((?<=[?&])$p(?:\=[^&]*)?&)+|((?<=[?&])$p(?:\=[^&]*)?(?=&|$))+|(\?$p(?:\=[^&]*)?(?=(&$p(?:\=[^&]*)?)+))+/",
+			"/((?:\?|&)$p(?:\=[^&]*)?$)+|((?<=[?&])$p" .
+                "(?:\=[^&]*)?&)+|((?<=[?&])$p" .
+                "(?:\=[^&]*)?(?=&|$))+|(\?$p(?:\=[^&]*)?".
+                "(?=(&$p(?:\=[^&]*)?)+))+/",
 			'',
-			$href
+			isset($this->href) ? $this->href : $request->uri(false)
 		);
 		/**
 		 * Для ссылок вида $page/, тоже учтём
 		 */
 		if (!$this->notGet) {
-			if (strpos ($href, '?') === false) {
+			if (strpos($href, '?') === false) {
 				$href .= '?page=';
 			} else {
 				$href .= '&page=';
@@ -125,17 +125,14 @@ class Paginator
 		} else {
 			if ($this->page > 1) {
 				$href = substr(
-					$href,
-					0,
-					(int) (strlen((string) $this->page) + 1) * -1
+					$href, 0, (int) (strlen((string) $this->page) + 1) * -1
 				);
 			}
 		}
-		for ($i = 1; $i <= $pages_count; $i++) {
-			if (
-				$i <= 3 ||							// первые 3 страницы
-				($pages_count - $i) < 3 ||			// последние 3 страницы
-				abs($half_page - $i) < 3 ||			// середина
+		for ($i = 1; $i <= $pagesCount; $i++) {
+			if ($i <= 3 ||							// первые 3 страницы
+				($pagesCount - $i) < 3 ||			// последние 3 страницы
+				abs($halfPage - $i) < 3 ||			// середина
 				abs($this->page - $i) < 3			// возле текущей
 			) {
                 $pageHref = $href;
@@ -186,6 +183,8 @@ class Paginator
 	}
 
 	/**
+     * Инициализировать пагинатор из _GET
+     * 
 	 * @param integer $fullCount
 	 * @param string $prefix
 	 * @return Paginator

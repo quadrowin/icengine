@@ -37,7 +37,7 @@ class Helper_View_Resource
             self::JS    => array(
                 'noPack'            => 'Ice/Static/js/noPack/',
                 'adminNoPack'       => 'Admin/Static/js/noPack/',
-                'core'              => 'IcEngine/js/'
+                'core'              => 'IcEngine/Static/js/'
             ),
             self::JTPL  => array(
                 'default'   => 'Ice/Static/jtpl/',

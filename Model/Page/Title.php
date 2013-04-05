@@ -1,9 +1,10 @@
 <?php
 
 /**
- * @desc Текст страницы
+ * Заголовки сайта
+ * 
  * Created at: 2012-10-04 09:57:43
- * @author 
+ * @author morph
  * @property integer $id 
  * @property integer $active Активность
  * @property integer $weight Порядок примения (обратный порядок)

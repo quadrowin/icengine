@@ -24,13 +24,15 @@ class Model_Manager_Delegee_Factory
 	{
 		$parents = class_parents($model);
 		foreach ($parents as $parent) {
-			if (substr ($parent, -9, 9) == '_Abstract') {
-				$factory = substr($parent, 0, -9);
-				if (isset (self::$factories[$factory])) {
-					return self::$factories[$factory];
-				}
-				return self::$factories[$factory] = new $factory();
-			}
+			if (substr($parent, -9, 9) != '_Abstract') {
+                continue;
+            }
+            $factory = substr($parent, 0, -9);
+            if (isset(self::$factories[$factory])) {
+                return self::$factories[$factory];
+            }
+            self::$factories[$factory] = new $factory();
+            return self::$factories[$factory];
 		}
 	}
 
@@ -46,7 +48,7 @@ class Model_Manager_Delegee_Factory
 	{
 		$factoryName = $modelName;
 		if (!isset(self::$factories[$factoryName])) {
-			self::$factories[$factoryName] = new $modelName();
+			self::$factories[$factoryName] = new $factoryName();
 		}
 		$delegeeModelName = self::$factories[$factoryName]
 			->delegateClass($modelName, $key, $object);
