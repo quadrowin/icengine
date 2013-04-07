@@ -9,9 +9,9 @@
 class Helper_String
 {
     /**
-     * Возвращает массив строк, разделенных через запятую, с убранными 
+     * Возвращает массив строк, разделенных через запятую, с убранными
      * пробелами по бокам
-     * 
+     *
      * @param string $text
      * @return array
      */
@@ -30,11 +30,11 @@ class Helper_String
         }
         return $result;
     }
-    
-    
+
+
     /**
      * Переносы строки
-     * 
+     *
      * @param string $title
      * @return string
      */
@@ -79,10 +79,10 @@ class Helper_String
 		}
 		return $result;
 	}
-    
+
     /**
      * Заменяет символы спец. символы на указанный
-     * 
+     *
      * @param string $string
      * @param string $value
      * @return string
@@ -101,7 +101,7 @@ class Helper_String
         );
         return $value;
     }
-    
+
     /**
      * Нормализовать строку по шаблону
      *
@@ -132,10 +132,10 @@ class Helper_String
         }
         return $row;
     }
-    
+
     /**
 	 * Получение превью для текста
-     * 
+     *
 	 * @param string $text
 	 * @param integer $length Ориентировочно ожидаемая длина превью
 	 * @return string
@@ -150,4 +150,15 @@ class Helper_String
 		$result = substr($text, 0, $spacePos);
 		return $result;
 	}
+
+    /**
+     * Первую букву в верхний регистр, остальные символы без изменений
+     *
+     * @param string $value
+     * @return string
+     */
+    public function ucfirst($value) {
+        return mb_strtoupper(mb_substr($value, 0, 1)) .
+            mb_substr($value, 1);
+    }
 }
