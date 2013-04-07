@@ -224,6 +224,7 @@ class Controller_Manager extends Manager_Abstract
 		if (Tracer::$enabled && !$notLogging) {
 			Tracer::resetDeltaModelCount();
 			Tracer::resetDeltaQueryCount();
+            Tracer::resetRedisGetDelta();
 			Tracer::begin(
                 __CLASS__, __METHOD__, __LINE__, $controllerName, $actionName
             );
@@ -243,7 +244,6 @@ class Controller_Manager extends Manager_Abstract
 		$controller = $this->get($controllerName);
 		$lastInput = $controller->getInput();
 		$lastOutput = $controller->getOutput();
-		$lastTask = $controller->getTask();
         // Если входной транспорт не передан или не установлен у подхваченного
         // задания, то используем транспорт менеджера контроллеров. Если
         // входные данные переданы в виде массива, то создает транспорт с
@@ -255,15 +255,13 @@ class Controller_Manager extends Manager_Abstract
 		}
         $output = $this->getOutput($task);
         // Подменяем транспорты, на полученные из менеджера/задания
-        $controller
-            ->setInput($input)
-            ->setOutput($output)
-            ->setTask($task);
+        $controller->setInput($input)->setOutput($output)->setTask($task);
         $task->setCallable($controller, $actionName);
 		$config = $this->config();
         // Создает контекст вызова контроллера, отдаем его before-делегатам
         // менеджера контроллеров.
         $context = $this->createControllerContext($controller, $actionName);
+        $task->setContext($context);
         $delegees = $config->delegees;
         if ($delegees) {
             foreach ($delegees as $delegeeName) {
@@ -272,7 +270,7 @@ class Controller_Manager extends Manager_Abstract
         }
         // Начинаем транзацию для экшина контроллера и выполняем его. Транспорты
         // и задачу после этого возвращаем на место
-        if (!$controller->getTask()->getIgnore()) {
+        if (!$task->getIgnore()) {
             $output->beginTransaction();
             $callable = $task->getCallable();
             $this->getExecutor($task)->execute($callable, $context->getArgs());
@@ -280,19 +278,17 @@ class Controller_Manager extends Manager_Abstract
             $task->setTransaction($lastTransaction);
             $this->eventManager()->notify(
                 $controller->getName() . '/' . $actionName,
-                array('task'  => $task)
+                array('task' => $task)
             );
         }
-		$controller
-			->setInput($lastInput)
-			->setOutput($lastOutput)
-			->setTask($lastTask);
+		$controller->setInput($lastInput)->setOutput($lastOutput);
 		if (Tracer::$enabled && !$notLogging) {
 			$deltaModelCount = Tracer::getDeltaModelCount();
 			$deltaQueryCount = Tracer::getDeltaQueryCount();
+            $deltaRedisGet = Tracer::getRedisGetDelta();
 			Tracer::incControllerCount();
 			Tracer::end($deltaModelCount, $deltaQueryCount,
-				memory_get_usage(), 0);
+				memory_get_usage(), 0, $deltaRedisGet);
 		}
 		return $task;
 	}
@@ -683,6 +679,7 @@ class Controller_Manager extends Manager_Abstract
 		if (Tracer::$enabled) {
 			Tracer::resetDeltaModelCount();
 			Tracer::resetDeltaQueryCount();
+            Tracer::resetRedisGetDelta();
 			Tracer::begin(
                 __CLASS__, __METHOD__, __LINE__,
                 $controllerAction[0], $controllerAction[1]
@@ -708,11 +705,12 @@ class Controller_Manager extends Manager_Abstract
             $endTime = microtime(true);
 			$deltaModelCount = Tracer::getDeltaModelCount();
 			$deltaQueryCount = Tracer::getDeltaQueryCount();
+            $deltaRedisGet = Tracer::getRedisGetDelta();
 			$delta = $endTime - $startTime;
 			Tracer::incRenderTime($delta);
 			Tracer::incControllerCount();
 			Tracer::end($deltaModelCount, $deltaQueryCount, memory_get_usage(),
-				$delta);
+				$delta, $deltaRedisGet);
 		}
 		if (!empty($options['with_buffer'])) {
 			$options = array('full_result' => true);
