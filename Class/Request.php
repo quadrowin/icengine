@@ -267,7 +267,7 @@ class Request
     public function uri($withoutGet = true)
     {
         if (!isset($_SERVER['REQUEST_URI'])) {
-            return '/';
+            return null;
         }
         $url = $_SERVER['REQUEST_URI'];
         if ($withoutGet) {

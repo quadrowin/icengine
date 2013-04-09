@@ -81,15 +81,17 @@ abstract class View_Render_Abstract
      * 
      * @return Config_Array
      */
-    public function config()
-    {
-        if (is_array($this->config)) {
-            $this->config = $this->getService('configManager')->get(
+	public function config()
+	{
+		if (is_array($this->config)) {
+			$configManager = $this->getService('configManager');
+            $this->config = $configManager->get(
                 get_class($this), $this->config
-            );
-        }
-        return $this->config;
-    }
+			);
+		}
+		return $this->config;
+	}
+
 
 	/**
 	 * Выводит результат работы шаблонизатор в браузер.

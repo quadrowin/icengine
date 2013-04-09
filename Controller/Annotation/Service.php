@@ -10,11 +10,11 @@ class Controller_Annotation_Service extends Controller_Abstract
     /**
      * Обновить аннотации
      * 
-     * @Context("Helper_Code_Generator")
+     * @Context("helperCodeGenerator")
      * @Template(null)
      * @Validator("Not_Null={"data"})
      */
-    public function update($data)
+    public function update($data, $context)
     {
         $services = array();
         foreach ($data as $className => $annotationData) {

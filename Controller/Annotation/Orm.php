@@ -33,7 +33,7 @@ class Controller_Annotation_Orm extends Controller_Abstract
                     $className, $entity
                 );
             }
-            $scheme = $context->getService('modelScheme')->scheme($className);
+            $scheme = $context->modelScheme->scheme($className);
             if (!$scheme) {
                 $context->helperModelMigrationSync->resync($className);
                 $context->helperModelTable->create($className);

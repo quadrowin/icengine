@@ -11,10 +11,10 @@ class Data_Scheme_Dto extends Dto
      * @inheritdoc
      */
     protected static $defaults = array(
-        'modelName' => '',
-        'info'      => array(),
-        'fields'    => array(),
-        'indexes'   => array(),
+        'modelName'     => '',
+        'info'          => array(),
+        'fields'        => array(),
+        'indexes'       => array(),
         'references'    => array()
     );  
 }

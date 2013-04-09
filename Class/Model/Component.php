@@ -8,7 +8,7 @@
  *
  * @author goorus
  */
-abstract class Model_Component extends Model_Child
+abstract class Model_Component extends Model
 {
 
     /**

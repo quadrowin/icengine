@@ -14,5 +14,4 @@ class Crypt_Md5 extends Crypt_Abstract
 	{
 		return md5($input);
 	}
-	
 }

@@ -477,7 +477,8 @@ abstract class Model implements ArrayAccess
 	public function key()
 	{
 		$keyField = $this->keyField();
-        return isset($this->fields[$keyField]) ? $this->fields[$keyField] : null;
+        return isset($this->fields[$keyField]) 
+            ? $this->fields[$keyField] : null;
 	}
 
 	/**
@@ -718,9 +719,7 @@ abstract class Model implements ArrayAccess
             $modelManager->get($this->table(), $this->key(), $this);
         }
         if (is_null($this->fields)) {
-            $this->fields = array(
-                $this->keyField() => null
-            );
+            $this->fields = array($this->keyField() => null);
         }
 		return $this;
 	}

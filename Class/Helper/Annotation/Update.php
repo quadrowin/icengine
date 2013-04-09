@@ -75,8 +75,9 @@ class Helper_Annotation_Update extends Helper_Abstract
     public function getDelegees($delegees, $className)
     {
         $delegeeData = array();
-        $annotationManager = $this->getService('annotationManager');
-        $annotation = $annotationManager->getAnnotation($class['class'])
+        $annotationManager = $this->getServiceLocator()
+            ->getSource()->getAnnotationManager();
+        $annotation = $annotationManager->getAnnotation($className)
             ->getData();
         $moduleName = !empty($annotation['class']['Module']) 
             ? reset($annotation['class']['Module'][0]) : null;
