@@ -44,11 +44,11 @@ class Controller_Annotation extends Controller_Abstract
      * 
      * @Template(null)
      * @Validator("User_Cli")
-     * @Context("helperAnnotationUpdate")
      */
     public function update($path, $verbose, $author, $context)
     {
-        $classes = $context->helperAnnotationUpdate->getClasses($path);
+        $helperAnnotationUpdate = $this->getService('helperAnnotationUpdate');
+        $classes = $helperAnnotationUpdate->getClasses($path);
         $delegees = $this->config();
         $delegeeData = array();
         $loader = IcEngine::getLoader();
@@ -63,7 +63,7 @@ class Controller_Annotation extends Controller_Abstract
                 'name'  => $class['class']
             ));
             $delegeeData = array_merge(
-                $delegeeData, $context->helperAnnotationUpdate->getDelegees(
+                $delegeeData, $helperAnnotationUpdate->getDelegees(
                     $delegees, $className
                 )
             );

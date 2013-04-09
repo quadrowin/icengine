@@ -183,8 +183,7 @@ class Data_Driver_Provider extends Data_Driver_Abstract
 		foreach ($patterns as $pattern) {
 			$keys = $this->provider->keys($pattern);
 			foreach ($keys as $key) {
-				$id = $translator->extractId($key);
-				$ids[$id] = $id;
+				$ids[$id] = $translator->extractId($key);
 			}
 		}
 		// Для каждого ID выбираем запись,

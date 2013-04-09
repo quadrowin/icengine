@@ -10,71 +10,82 @@ class Paginator
 {
 	/**
 	 * Флаг означает, что ссылки нам нужны без всяких ?&page
-	 * @var bool
+	 * 
+     * @var bool
 	 */
 	public $notGet = false;
 
 	/**
 	 * Общее количество элементов
-	 * @var integer
+	 * 
+     * @var integer
 	 */
 	public $total;
 
 	/**
 	 * Ссылка на страницу.
 	 * Если на задана, будешь использован адрес из запроса.
-	 * @var string
+	 * 
+     * @var string
 	 */
 	public $href;
 
 	/**
 	 * Текущая страница
-	 * @var integer
+	 * 
+     * @var integer
 	 */
 	public $page;
 
 	/**
 	 * Количество элементов на странице
+     * 
 	 * @var integer
 	 */
 	public $perPage = 30;
 
 	/**
 	 * Сформированные для вывода номера страниц
-	 * array (
-	 * 		'href'	=> ссылка на страница
+	 * array(
+	 *      'href'	=> ссылка на страница
 	 * 		'title'	=> номер страницы или многоточие
 	 * )
-	 * @var array
+	 * 
+     * @var array
 	 */
 	public $pages;
 
 	/**
 	 * Предыдущая страница
-	 * @var array
+	 * 
+     * @var array
 	 */
 	public $prev;
 
     /**
      * Предыдущая страница от выбранной
+     * 
      * @var array
      */
     public $prevPage;
 
     /**
 	 * Следующая страница
-	 * @var array
+	 * 
+     * @var array
 	 */
 	public $next;
 
     /**
      * Следующая страница от выбранной
+     * 
      * @var array
      */
     public $nextPage;
 
 	/**
-	 *
+	 * Конструктор
+     * 
 	 * @param integer $page Текущая страница
 	 * @param integer $page_limit Количество элементов на странице
 	 * @param integer $full_count Полное количество элементов
@@ -122,12 +133,10 @@ class Paginator
 			} else {
 				$href .= '&page=';
 			}
-		} else {
-			if ($this->page > 1) {
-				$href = substr(
-					$href, 0, (int) (strlen((string) $this->page) + 1) * -1
-				);
-			}
+		} elseif ($this->page > 1) {
+            $href = substr(
+                $href, 0, (int) (strlen((string) $this->page) + 1) * -1
+            );
 		}
 		for ($i = 1; $i <= $pagesCount; $i++) {
 			if ($i <= 3 ||							// первые 3 страницы
@@ -230,6 +239,8 @@ class Paginator
 	}
 
 	/**
+     * Получить количество страниц
+     * 
 	 * @return integer
 	 */
 	public function pagesCount()

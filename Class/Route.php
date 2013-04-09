@@ -72,6 +72,9 @@ class Route extends Objective
 	 */
 	public function byUrl($url)
 	{
+        if (!$url) {
+            return null;
+        }
 		$url = '/' . ltrim($url, '/');
 		$route = $this->provider->get($url);
 		if ($route) {

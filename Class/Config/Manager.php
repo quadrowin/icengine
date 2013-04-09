@@ -36,24 +36,23 @@ class Config_Manager
 
 	/**
 	 * Получить конфиг по пути, результат не кешируется
+     * 
+     * @param string $path
+     * @return array
 	 */
 	public function byPath($path)
 	{
 		$first = $path;
 		$path = str_replace('_', '/', $path);
-		$filename =
-            IcEngine::root() . (strstr($first, '__') ?
-                str_replace(
-                    '_',
-                    '/',
-                    str_replace('__', '/Config/', $first)
-                ) : $this->pathToConfig[0] . $path) .
-            '.php';
+        $pathReplaced = str_replace(
+            '_', '/', str_replace('__', '/Config/', $first)
+        );
+		$filename = IcEngine::root() . (strstr($first, '__') 
+            ? $pathReplaced : $this->pathToConfig[0] . $path) . '.php';
 		if (is_file($filename)) {
 			$ext = ucfirst(strtolower(substr(strrchr($filename, '.'), 1)));
 			$class = 'Config_' . $ext;
-
-			$result = new $class ($filename);
+			$result = new $class($filename);
 			return $result;
 		}
 		return array();
@@ -163,11 +162,12 @@ class Config_Manager
 	}
 
 	/**
-	 * @desc Меняет путь до конфига
-	 * @param mixed $path
+	 * Меняет путь до конфига
+	 * 
+     * @param mixed $path
 	 */
-	public static function setPathToConfig ($path)
+	public function setPathToConfig ($path)
 	{
-		self::$_pathToConfig = $path;
+		$this->pathToConfig = $path;
 	}
 }
