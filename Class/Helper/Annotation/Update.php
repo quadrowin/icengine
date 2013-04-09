@@ -45,6 +45,9 @@ class Helper_Annotation_Update extends Helper_Abstract
                 if (!$file || !is_file($file)) {
                     continue;
                 }
+                if (substr($file, -4, 4) != '.php') {
+                    continue;
+                }
                 $content = file_get_contents($file);
                 if (strpos($content, 'namespace IcEngine\\') !== false) {
                     continue;
