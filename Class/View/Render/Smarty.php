@@ -35,7 +35,7 @@ class View_Render_Smarty extends View_Render_Abstract
 		 * 
          * @var array
 		 */
-		'templatesPath'	=> array(),
+		'templatesPath'     => array(),
 		/**
 		 * Пути до плагинов
 		 * 
@@ -92,8 +92,7 @@ class View_Render_Smarty extends View_Render_Abstract
 	public function addPluginsPath ($path)
 	{
 		$this->smarty->plugins_dir = array_merge(
-			(array) $this->smarty->plugins_dir,
-			(array) $path
+			(array) $this->smarty->plugins_dir, (array) $path
 		);
 	}
 
@@ -115,6 +114,7 @@ class View_Render_Smarty extends View_Render_Abstract
 	 */
 	public function addHelper($helper, $method)
 	{
+        
 	}
 
 	/**

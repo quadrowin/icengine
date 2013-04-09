@@ -36,7 +36,7 @@ class Helper_Router extends Helper_Abstract
      * @param Request $request
      * @param array $hashRoute
      */
-    protected function setRouteData($url, $request, $hashRoute)
+    public function setRouteData($url, $request, $hashRoute)
     {
         $baseMatches = array();
         preg_match_all($hashRoute['pattern'], $url, $baseMatches);
@@ -66,7 +66,7 @@ class Helper_Router extends Helper_Abstract
      * @param Request $request
      * @param array $params
      */
-    protected function setRouteParams($request, $params)
+    public function setRouteParams($request, $params)
     {
         foreach ($params as $paramName => $paramValue) {
             if (is_string($paramValue) && strpos($paramValue, '::') !== false) {

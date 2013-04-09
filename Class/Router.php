@@ -57,7 +57,7 @@ class Router extends Manager_Abstract
 			isset($hashRoute['pattern'])) {
 			$this->helper->setRouteData($url, $request, $hashRoute);
 		}
-		$this->helper->setParamsFromRequest();
+		$this->helper->setParamsFromRequest($request);
 		return $this->route;
 	}
 

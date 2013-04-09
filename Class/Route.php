@@ -72,7 +72,7 @@ class Route extends Objective
 	 */
 	public function byUrl($url)
 	{
-        if (!$url) {
+        if (is_null($url)) {
             return null;
         }
 		$url = '/' . ltrim($url, '/');
