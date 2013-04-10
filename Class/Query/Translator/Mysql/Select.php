@@ -563,7 +563,7 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
             $subWhere = $where[Query::WHERE]->getPart(Query::WHERE);
             $subWhere[0]['empty'] = true;
             $where[Query::WHERE]->setPart(Query::WHERE, $subWhere);
-            return '(' . $this->renderSelect($where[Query::WHERE]) . ')';
+            return '(' . $this->doRenderSelect($where[Query::WHERE]) . ')';
         } else {
             return $this->quoteCondition($where[Query::WHERE]);
         }

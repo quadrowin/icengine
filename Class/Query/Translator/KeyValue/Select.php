@@ -148,7 +148,7 @@ class Query_Translator_KeyValue_Select extends Query_Translator_Abstract
 	public function compileKeys($table, array $values = array())
 	{
         $modelScheme = $this->modelScheme();
-		$keyField = $modelScheme->keyField($table);
+		$keyField = $modelScheme->keyField($table); 
 		if (!isset($values[$keyField])) {
 			throw new Exception("Primary key must be defined.");
 		}
