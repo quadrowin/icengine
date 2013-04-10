@@ -2,7 +2,7 @@
 
 /**
  * @author neon
- * @Service("session")
+ * @Service("userSession")
  */
 class User_Session extends User_Session_Abstract
 {
