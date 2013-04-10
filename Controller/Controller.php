@@ -15,7 +15,7 @@ class Controller_Controller extends Controller_Abstract
      *      "name"="ajaxPage",
      *      "weight"=10,
      *      "params"={
-     *          "View_Render__id"=3
+     *          "viewRender"="JsHttpRequest"
      *      }
      * )
 	 */
@@ -51,7 +51,7 @@ class Controller_Controller extends Controller_Abstract
      *      "name"="syncPage",
      *      "weight"=10,
      *      "params"={
-     *          "View_Render__id"=5
+     *          "viewRender"="Ajax"
      *      }
      * )
 	 */
