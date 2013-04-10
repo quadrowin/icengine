@@ -153,8 +153,11 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
         Query_Options $options)
 	{
 		$result = $this->handler->query($this->sql);
+        if (!$result) {
+            return null;
+        }
         $error = $result->errorInfo();
-		if ($error[1]) {
+		if (!empty($error[1])) {
 			$this->errno = $error[1];
 			$this->error = $error[2];
 			return null;
