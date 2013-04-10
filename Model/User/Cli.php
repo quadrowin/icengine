@@ -2,6 +2,7 @@
 
 /**
  * Модель консольного пользователя
+ * 
  * @author goorus, morph
  * @Service("userCli")
  */
@@ -11,10 +12,6 @@ class User_Cli extends User
      * @inheritdoc
      */
 	protected static $config = array(
-		/**
-		 * @desc Конфиг пользователя
-		 * @var array
-		 */
 		'fields'	=> array (
 			'id'		=> -1,
 			'active'	=> 1,
