@@ -33,6 +33,14 @@ class User_Cli extends User
 	{
 		return new static($this->config()->fields->__toArray());
 	}
+    
+    /**
+     * @inheritdoc
+     */
+    public function hasRole($role)
+    {
+        return false;
+    }
 
 	/**
 	 * Инициализирует модель гостя. Модель будет добавлена в менеджер ресурсов
