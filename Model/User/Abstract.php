@@ -208,7 +208,7 @@ class User_Abstract extends Model
         if (count($role) == 1 && is_array($role[0])) {
             $args = $role[0];
         }
-		foreach ($args as $role) {
+		foreach ((array) $args as $role) {
 			if (!$role) {
                 continue;
             }
