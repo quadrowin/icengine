@@ -40,7 +40,7 @@ abstract class Bootstrap_Abstract
 	 *
      * @param string $path путь до этого загрузчика
 	 */
-	public function __construct($path)
+	public function __construct($path = null)
 	{
 		$this->basePath = substr($path, 0,
 			- strlen('Model_' . get_class($this) . '.php')
