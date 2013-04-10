@@ -162,6 +162,9 @@ class Data_Driver_Provider extends Data_Driver_Abstract
 			$this->translated[0]
 		);
 		// Установка новых значений
+        if (!isset($this->translated[2])) {
+            return false;
+        }
 		foreach ($this->translated[1] as $key) {
 			$this->provider->set($key, $this->translated[2]);
 		}
@@ -183,7 +186,7 @@ class Data_Driver_Provider extends Data_Driver_Abstract
 		foreach ($patterns as $pattern) {
 			$keys = $this->provider->keys($pattern);
 			foreach ($keys as $key) {
-				$ids[$id] = $translator->extractId($key);
+				$ids[$key] = $translator->extractId($key);
 			}
 		}
 		// Для каждого ID выбираем запись,
