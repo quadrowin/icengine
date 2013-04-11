@@ -136,8 +136,7 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
 		$cacheValid = false;
 		if ($cache) {
             $tagsValid = $fromCache ?: $this->isTagsValid($cache['t']);
-            $expiresValid = $cache['a'] + $expiration > time() ||
-                $expiration === 0;
+            $expiresValid = $cache['a'] + $expiration > time() || !$expiration;
 			$cacheValid = $expiresValid && $tagsValid;
 		}
 		if ($cacheValid) {

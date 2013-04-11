@@ -46,7 +46,7 @@ class Controller_Manager extends Manager_Abstract
             'collectionManager' => 'collectionManager',
             'configManager'     => 'configManager',
             'controllerManager' => 'controllerManager',
-            'userSession'       => 'session',
+            'userSession'       => 'userSession',
             'user'              => 'user',
             'request'           => 'request'
         ),

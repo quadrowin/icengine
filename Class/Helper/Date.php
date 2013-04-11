@@ -157,7 +157,7 @@ class Helper_Date
 		$showTime = false)
 	{
 		$year = strtok($string, "-");
-        $month = self::$monthesRu[2][strtok("-")];
+        $month = self::$monthesRu[2][(int) strtok("-")];
 		$day = strtok("-");
 		$tmpDate = explode(' ', $string);
         $hour = 0;

@@ -75,7 +75,7 @@ class Data_Driver_Sync extends Data_Driver_Abstract
         $filtersNames = array_keys($filters);
         if (!$filters && !$priorityFields) {
             $result = $this->staticDriver->execute($query, $options);
-        } elseif (!array_diff($filtersNames, $criteriasNames) &&
+        } elseif (!array_diff($criteriasNames, $filtersNames) &&
             !array_diff($filters, $criterias)) {
             $result = $this->staticDriver->execute($query, $options);
         } elseif (!array_diff($criteriasNames, $priorityFields)) {
