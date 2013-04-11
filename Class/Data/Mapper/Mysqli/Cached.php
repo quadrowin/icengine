@@ -137,7 +137,6 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 		$key = $this->_sqlHash ();
 
 		$expiration = $options->getExpiration ();
-
 		$cache = $this->_cacher->get ($key);
 
 		$use_cache = false;
