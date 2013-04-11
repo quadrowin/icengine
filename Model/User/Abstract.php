@@ -39,7 +39,7 @@ class User_Abstract extends Model
 	 */
 	public function authorize()
 	{
-        $session = $this->getService('session')->getCurrent();
+        $session = $this->getService('userSession')->getCurrent();
 		$session->updateSession($this->key());
         $userService = $this->getService('user');
         $userService->setCurrent($this);
@@ -77,18 +77,12 @@ class User_Abstract extends Model
 		if (is_numeric($name)) {
 			$resource = $modelManager->get('Acl_Resource', $name);
 		} else {
-			$resource = $modelManager->byOptions(
-				'Acl_Resource',
-                array(
-                    'name'  => '::Name',
-                    'value' => $name
-                )
-			);
+			$resource = $modelManager->byOptions('Acl_Resource', array(
+                'name'  => '::Name',
+                'value' => $name
+            ));
 		}
-		if (!$resource) {
-			return false;
-		}
-		return $resource->userCan($this);
+		return !$resource ? false : $resource->userCan($this);
 	}
 
 	/**
@@ -282,9 +276,9 @@ class User_Abstract extends Model
             return;
         }
         $request = $this->getService('request');
-		$sessionId = $sessionId ?:$request->sessionId();
-        $session = $this->getService('session');
-        $userSession = $session->byPhpSessionId($sessionId ?: 'unknown');
+		$sessionId = $sessionId ?: $request->sessionId();
+        $session = $this->getService('userSession');
+        $userSession = $session->byPhpSessionId($sessionId ?: null);
         $session->setCurrent($userSession);
 		$this->current = $session->getCurrent()->User;
 		$session->getCurrent()->updateSession();
@@ -296,7 +290,7 @@ class User_Abstract extends Model
 	 */
 	public function logout()
 	{
-		$session = $this->getService('session');
+		$session = $this->getService('userSession');
 		$session->getCurrent()->delete();
 	}
 
