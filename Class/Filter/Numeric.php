@@ -10,8 +10,6 @@ class Filter_Numeric
 {
 	/**
 	 * @inheritdoc
-	 * @param string $data
-	 * @return int
 	 */
 	public function filter($data)
 	{
@@ -20,9 +18,6 @@ class Filter_Numeric
 
 	/**
 	 * @inheritdoc
-	 * @param string $field
-	 * @param string $data
-	 * @return int
 	 */
 	public function filterEx($field, $data)
 	{

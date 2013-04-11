@@ -3,7 +3,7 @@
 /**
  * Контроллер контроллеров.
  *
- * @author Юрий, neon
+ * @author goorus, morph, neon
  */
 class Controller_Controller extends Controller_Abstract
 {
@@ -15,26 +15,20 @@ class Controller_Controller extends Controller_Abstract
      *      "name"="ajaxPage",
      *      "weight"=10,
      *      "params"={
-     *          "View_Render__id"=3
+     *          "viewRender"="JsHttpRequest"
      *      }
      * )
 	 */
 	public function ajax($call, $back, $params)
 	{
-        //echo $GLOBALS['HTTP_RAW_POST_DATA'];
         $controllerManager = $this->getService('controllerManager');
         $_SERVER ['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
 		if (is_string($params)) {
-			$params = json_decode(
-				urldecode($params),
-				true
-			);
+			$params = json_decode(urldecode($params), true);
 		}
-		$result = $controllerManager->html(
-			urldecode($call),
-			$params ? $params : array(),
-			false
-		);
+        $params = $params ?: array();
+        $call = urldecode($call);
+		$result = $controllerManager->html($call, $params, false);
 		$this->output->send(array(
 			'back'		=> $back,
 			'result'	=> $result
@@ -48,52 +42,7 @@ class Controller_Controller extends Controller_Abstract
 	{
 		return $this->replaceAction($controller, $action);
 	}
-
-	public function create ($name, $action, $author, $comment)
-	{
-		$helperCodeGenerator = $this->getService('helperCodeGenerator');
-        $helperDate = $this->getService('helperDate');
-        $filename = IcEngine::root() . 'Ice/Controller/' .
-			str_replace('_', '/', $name) . '.php';
-		if (file_exists($filename)) {
-			return;
-		}
-		$dir = dirname($filename);
-		if (!is_dir($dir)) {
-			mkdir($dir, 0750, true);
-		}
-		$action = explode(',', $action);
-		foreach ($action as &$a) {
-			$a = trim ($a);
-		}
-		$output = $helperCodeGenerator->fromTemplate(
-			'controller',
-			array(
-				'name'		=> $name,
-				'actions'	=> $action,
-				'comment'	=> $comment,
-				'author'	=> $author,
-				'package'	=> 'Vipgeo',
-				'date'		=> $helperDate->toUnix()
-			)
-		);
-		echo 'File: ' . $filename . PHP_EOL;
-		file_put_contents($filename, $output);
-		$dir = IcEngine::root() . 'Ice/View/Controller/' .
-			str_replace('_', '/', $name) . '/';
-		if (!is_dir($dir)) {
-			mkdir($dir, 0750, true);
-		}
-		foreach ($action as $a) {
-			$filename = $dir . $a . '.tpl';
-			if (file_exists($filename)) {
-				continue;
-			}
-			echo 'View: ' . $filename . PHP_EOL;
-			file_put_contents($filename, '');
-		}
-	}
-
+    
     /**
 	 * Ajax вызов контроллера (синхронный)
      *
@@ -102,7 +51,7 @@ class Controller_Controller extends Controller_Abstract
      *      "name"="syncPage",
      *      "weight"=10,
      *      "params"={
-     *          "View_Render__id"=5
+     *          "viewRender"="Ajax"
      *      }
      * )
 	 */
@@ -110,16 +59,11 @@ class Controller_Controller extends Controller_Abstract
 	{
         $controllerManager = $this->getService('controllerManager');
 		if (is_string($params)) {
-			$params = json_decode(
-				urldecode($params),
-				true
-			);
+			$params = json_decode(urldecode($params), true);
 		}
-		$result = $controllerManager->html(
-			urldecode($call),
-			$params ? $params : array(),
-			false
-		);
+		$params = $params ?: array();
+        $call = urldecode($call);
+		$result = $controllerManager->html($call, $params, false);
 		$this->output->send(array(
 			'back'		=> $back,
 			'result'	=> $result

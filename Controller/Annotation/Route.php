@@ -9,6 +9,10 @@ class Controller_Annotation_Route extends Controller_Abstract
 {
     /**
      * Распарсить аннотацию
+     * 
+     * @Context("helperCodeGenerator")
+     * @Template(null)
+     * @Validator("Not_Null={"data"})
      */
     public function update($data, $context) 
     {
@@ -111,8 +115,8 @@ class Controller_Annotation_Route extends Controller_Abstract
             }
         }
         $config = $context->configManager->get('Route')->__toArray();
-        $emptyRoute = isset($config['empty_route']) 
-            ? $config['empty_route'] : array();
+        $emptyRoute = isset($config['emptyRoute']) 
+            ? $config['emptyRoute'] : array();
         if (!empty($config['routes'])) {
             foreach ($config['routes'] as $routeName => $route) {
                 if (empty($route['route'])) {
@@ -159,11 +163,11 @@ class Controller_Annotation_Route extends Controller_Abstract
                 }
             }
         }
-        $output = Helper_Code_Generator::fromTemplate(
+        $output = $context->helperCodeGenerator->fromTemplate(
             'route',
             array (
                 'routes'        => $routes,
-                'empty_route'   => $emptyRoute
+                'emptyRoute'    => $emptyRoute
             )
         );
         $result = array();
