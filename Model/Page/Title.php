@@ -19,6 +19,8 @@
  * @package Vipgeo
  * @category Models
  * @copyright i-complex.ru
+ *
+ * @Service("pageTitle")
  */
 class Page_Title extends Model
 {
