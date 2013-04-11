@@ -88,7 +88,14 @@ class Controller_View_Resource extends Controller_Abstract
                     $resultResources, $destinationFile, $packerConfig, true
                 );
 				$packer->popConfig();
-			}
-		}
+                $reses [$name] = array (
+                    'type'	=> $target->type,
+                    'url'	=> strtr ($target->url, $vars),
+                    'ts'	=> $packer->cacheTimestamp ()
+                );
+            }
+
+            $this->output->send ('reses', $reses);
+        }
 	}
 }
