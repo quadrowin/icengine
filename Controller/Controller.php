@@ -28,6 +28,17 @@ class Controller_Controller extends Controller_Abstract
 		}
         $params = $params ?: array();
         $call = urldecode($call);
+        $annotationManager = $controllerManager->getAnnotationManager();
+        $nameParts = explode('/', $call);
+        $controller = $nameParts[0];
+        $action = !empty($nameParts[1]) ? $nameParts[1] : 'index';
+        $annotation = $annotationManager->getAnnotation(
+            'Controller_' . $controller
+        )->getData()['methods'];
+        if (!isset($annotation[$action]) || 
+            !isset($annotation[$action]['Ajax'])) {
+            return;
+        }
 		$result = $controllerManager->html($call, $params, false);
 		$this->output->send(array(
 			'back'		=> $back,
@@ -63,6 +74,17 @@ class Controller_Controller extends Controller_Abstract
 		}
 		$params = $params ?: array();
         $call = urldecode($call);
+        $annotationManager = $controllerManager->getAnnotationManager();
+        $nameParts = explode('/', $call);
+        $controller = $nameParts[0];
+        $action = !empty($nameParts[1]) ? $nameParts[1] : 'index';
+        $annotation = $annotationManager->getAnnotation(
+            'Controller_' . $controller
+        )->getData()['methods'];
+        if (!isset($annotation[$action]) || 
+            !isset($annotation[$action]['Ajax'])) {
+            return;
+        }
 		$result = $controllerManager->html($call, $params, false);
 		$this->output->send(array(
 			'back'		=> $back,
