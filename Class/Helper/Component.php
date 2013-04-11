@@ -14,7 +14,7 @@ class Helper_Component extends Helper_Abstract
     public function component($name, $raw)
     {
         $collectionManager = $this->getService('collectionManager');
-        return $collectionManager->create('Component_' . ucfirst($name))
+        return $collectionManager->create('Component_' . $name)
             ->addOptions(
                 array(
                     'name'  => '::Table',
