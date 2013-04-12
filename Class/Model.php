@@ -391,7 +391,7 @@ abstract class Model implements ArrayAccess
         }
 		return $this->data;
 	}
-
+    
 	/**
 	 * Получить значения полей. Синоним asRow
      *

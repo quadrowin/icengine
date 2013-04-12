@@ -18,6 +18,7 @@ class Controller_Controller extends Controller_Abstract
      *          "viewRender"="JsHttpRequest"
      *      }
      * )
+     * @Validator("Ajax")
 	 */
 	public function ajax($call, $back, $params)
 	{
@@ -65,6 +66,7 @@ class Controller_Controller extends Controller_Abstract
      *          "viewRender"="Ajax"
      *      }
      * )
+     * @Validator("Ajax")
 	 */
 	public function sync($call, $back, $params)
 	{
