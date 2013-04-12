@@ -53,9 +53,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 	/**
 	 * Авторизация
 	 *
-     * @param string $name Емейл пользователя
-	 * @param string $pass Пароль
-	 * @param string $code Код активации из СМС
+     * @Ajax
 	 */
 	public function login($name, $pass, $a_id, $code, $href)
 	{
@@ -138,7 +136,6 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 	public function sendSmsCode($provider, $name, $pass, $send)
 	{
         $modelManager = $this->getService('modelManager');
-//        $this->task->setTemplate(null);
         if (!$name || !$pass) {
             return $this->sendError('empty login or password');
         }

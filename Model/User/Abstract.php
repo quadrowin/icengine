@@ -9,16 +9,6 @@
 class User_Abstract extends Model
 {
 	/**
-	 * @inheritdoc
-	 */
-	protected static $config = array(
-		// колбэк после авторизации
-		'login_callback'	=> null,
-		// функция, вызываемая при логауте.
-		'logout_callback'	=> null
-	);
-
-	/**
 	 * Текущий пользователь.
 	 *
      * @var User
@@ -43,10 +33,8 @@ class User_Abstract extends Model
 		$session->updateSession($this->key());
         $userService = $this->getService('user');
         $userService->setCurrent($this);
-        $this->update(array(
-            'phpSessionId'  => $session->key()
-        ));
-        $authorizationLog = $this->getService("authorizationLog");
+        $this->update(array('phpSessionId' => $session->key()));
+        $authorizationLog = $this->getService('authorizationLog');
         $authorizationLog->log();
         $afterCallbackManager = $this->getService('afterCallbackManager');
         $afterCallbackManager->apply();
@@ -62,27 +50,6 @@ class User_Abstract extends Model
 	{
         $userService = $this->getService('user');
 		return $userService->current->id > 0 ? true : false;
-	}
-
-	/**
-	 * Проверяет, имеет ли пользователь доступ.
-	 *
-     * @param string|integer $name
-	 * 		Алиас или id ресурса
-	 * @return boolean
-	 */
-	public function can($name)
-	{
-        $modelManager = $this->getService('modelManager');
-		if (is_numeric($name)) {
-			$resource = $modelManager->get('Acl_Resource', $name);
-		} else {
-			$resource = $modelManager->byOptions('Acl_Resource', array(
-                'name'  => '::Name',
-                'value' => $name
-            ));
-		}
-		return !$resource ? false : $resource->userCan($this);
 	}
 
 	/**
