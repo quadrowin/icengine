@@ -86,7 +86,7 @@ class Module_Manager extends Manager_Abstract
                 ltrim($selfConfig->configPath, '/');
         }
         if (!empty($configPath) && $configPath[0] != '/') {
-            $configPath = IcEngine::root() . ltrim($configPath, '/');
+            $configPath = ltrim($configPath, '/');
         }
         $configManager = $this->getService('configManager');
         if ($configPath) {
@@ -94,7 +94,7 @@ class Module_Manager extends Manager_Abstract
         }
         if ($moduleName != $selfConfig->defaultModule) {
             $configManager->addPath(
-                IcEngine::root() . $selfConfig->defaultModule .
+                $selfConfig->defaultModule .
                 '/Config/Module/' . $moduleName . '/'
             );
         }
