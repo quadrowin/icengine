@@ -20,7 +20,6 @@ class Config_Manager
 	/**
 	 * Путь до конфигов от корня сайта
 	 *
-     х\ъ=\ъ
      *  @var string
 	 */
 	protected $pathToConfig = array('Ice/Config/');
@@ -130,7 +129,6 @@ class Config_Manager
 	protected function load($type, $config = '')
 	{
 		$paths = (array) $this->pathToConfig;
-		$result = null;
         $resourceKey = $this->getKey($type, $config);
         $filename = apc_fetch($resourceKey);
         $fileExists = false;
@@ -145,19 +143,16 @@ class Config_Manager
                     break;
                 }
             }
-            if (!$fileExists) {
-                return;
-            }
         }
         if ($fileExists) {
             apc_store($resourceKey, $filename);
         }
         $ext = ucfirst(strtolower(substr(strrchr($filename, '.'), 1)));
         $className = 'Config_' . $ext;
-        if (is_null($result)) {
+        if ($filename) {
             $result = new $className($filename);
         } else {
-            $result = $result->merge(new $className($filename));
+            $result = $this->emptyConfig();
         }
         return is_array($config) ? $result->merge($config) : $result;
 	}
