@@ -132,10 +132,7 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 	public function sendEx ($addresses, $toName, $subject, $body, $config)
 	{
         $loader = IcEngine::getLoader();
-		$loader->requireOnce(
-			$this->config()->phpmailer_path,
-			'includes'
-		);
+		$loader->requireOnce($this->config()->phpmailer_path, 'Vendor');
 		$mail = $this->_mailer();
 		$mail->ClearAddresses();
 		$mail->ClearReplyTos();

@@ -1,9 +1,18 @@
 <?php
 
-class Model_Validator_Attribute_InstanceOf extends Model_Validator_Attribute_Abstract
+/**
+ * Является ли поле модели экземпяром класса
+ * 
+ * @author morph
+ */
+class Model_Validator_Attribute_InstanceOf extends 
+    Model_Validator_Attribute_Abstract
 {
-	public static function validate ($model, $field, $value, $input)
+    /**
+     * @inheritdoc
+     */
+	public function doValidate()
 	{
-		return get_class ($model->sfield ($field)) == $value;
+        return ($this->model->sfield($this->field) instanceof $this->value);
 	}
 }

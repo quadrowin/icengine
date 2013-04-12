@@ -63,7 +63,7 @@ class Controller_Front extends Controller_Abstract
 				Tracer::setFrontControllerTime($endTime - $subStartTime);
 			}
 		} catch (Exception $e) {
-            Error::render($e);
+            $this->getService('errorRender')->render($e);
 		}
 	}
 }

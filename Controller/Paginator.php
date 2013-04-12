@@ -3,8 +3,7 @@
 /**
  * Контроллер пагинатор.
  *
- * @author Юрий Шведов, neon
- * @package IcEngine
+ * @author goorus, neon
  */
 class Controller_Paginator extends Controller_Abstract
 {

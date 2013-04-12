@@ -9,13 +9,12 @@ class Controller_Annotation_Schedule extends Controller_Abstract
 {
     /**
      * Обновить аннотации
+     * 
+     * @Template(null)
+     * @Validator("Not_Null={"data"})
      */
     public function update($data)
     {
-        $this->task->setTemplate(null);
-        if (!$data) {
-            return;
-        }
         $schedules = array();
         foreach ($data as $controllerAction => $annotationData) {
             $controllerAction = str_replace(
