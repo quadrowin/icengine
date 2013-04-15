@@ -135,7 +135,7 @@ class Controller_Annotation_Route extends Controller_Abstract
                 }
                 if (is_numeric($routeName)) {
                     $source[] = $route;
-                } else {
+                } elseif (!isset($source[$routeName])) {
                     $source[$routeName] = $route;
                 }
             }

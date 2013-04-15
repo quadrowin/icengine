@@ -73,11 +73,11 @@ class Helper_Annotation_Update extends Helper_Abstract
      * 
      * @param array $delegees
      * @param string $className
+     * @param array $delegeeData
      * @return array
      */
-    public function getDelegees($delegees, $className)
+    public function getDelegees($delegees, $className, &$delegeeData)
     {
-        $delegeeData = array();
         $annotationManager = $this->getServiceLocator()
             ->getSource()->getAnnotationManager();
         $annotation = $annotationManager->getAnnotation($className)
