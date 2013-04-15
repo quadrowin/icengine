@@ -147,7 +147,7 @@ class Loader
 		return isset($this->required[$type][$file]) 
             ? $this->required[$type][$file] : false;
 	}
-
+    
     /**
 	 * Подключение класса.
 	 *

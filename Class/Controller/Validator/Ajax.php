@@ -13,7 +13,7 @@ class Controller_Validator_Ajax extends Controller_Validator_Abstract
     public function validate($params)
     {
         $request = $this->getService('request');
-        if (!$request->isAjax()) {
+        if (!$request->isAjax() && !$request->isJsHttpRequest()) {
             return $this->accessDenied();
         }
     }

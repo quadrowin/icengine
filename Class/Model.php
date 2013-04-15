@@ -31,7 +31,7 @@ abstract class Model implements ArrayAccess
      *
 	 * @var array
 	 */
-	protected $fields;
+	protected $fields = array();
 
 	/**
 	 * Подгруженные объекты
@@ -789,6 +789,9 @@ abstract class Model implements ArrayAccess
                 continue;
             }
             $this->updatedFields[$key] = $value;
+        }
+        if (!$this->updatedFields) {
+            return $this;
         }
         $this->set($this->updatedFields);
 		return $this->save($hardUpdate);

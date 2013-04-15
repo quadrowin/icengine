@@ -162,7 +162,7 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
 			$this->error = $error[2];
 			return null;
 		}
-		$rows = $result->fetchAll();
+		$rows = $result->fetchAll(PDO::FETCH_ASSOC);
 		$this->numRows = count($rows);
 		if ($query->part(Query::CALC_FOUND_ROWS)) {
 			$result = $this->handler->query(self::SELECT_FOUND_ROWS_QUERY);
