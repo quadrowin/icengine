@@ -79,7 +79,9 @@ class Data_Source
         if ($result->numRows()) {
             $tableName = reset($query[Query::FROM])[Query::TABLE];
             $signalName = 'Data_Source_Execute_' . $query->type();
-            $this->eventManager->getSignal($signalName)->notify(array(
+            $serviceLocator = IcEngine::serviceLocator();
+            $eventManager = $serviceLocator->getService('eventManager');
+            $eventManager->getSignal($signalName)->notify(array(
                 'result'    => $result,
                 'table'     => $tableName
             ));
