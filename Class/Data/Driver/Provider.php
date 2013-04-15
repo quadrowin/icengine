@@ -110,7 +110,7 @@ class Data_Driver_Provider extends Data_Driver_Abstract
         foreach ($this->translated[0] as $key) {
         	$this->provider->set($key, $this->translated[1]);
         }
-		$this->affectedRows = count($this->translated [0]);
+		$this->affectedRows = count($this->translated[0]);
 		return true;
 	}
 
@@ -139,7 +139,7 @@ class Data_Driver_Provider extends Data_Driver_Abstract
 					$ids[$id] = $id;
 					$row = $this->provider->get($key);
 					if ($row) {
-						$rows [] = $row;
+						$rows[] = $row;
 					}
 				}
 			}
@@ -200,7 +200,7 @@ class Data_Driver_Provider extends Data_Driver_Abstract
 		}
 		return count($ids);
 	}
-
+    
     /**
      * @inheritdoc
      */

@@ -245,7 +245,7 @@ class User_Abstract extends Model
         $request = $this->getService('request');
 		$sessionId = $sessionId ?: $request->sessionId();
         $session = $this->getService('userSession');
-        $userSession = $session->byPhpSessionId($sessionId ?: null);
+        $userSession = $session->getCurrent($sessionId);
         $session->setCurrent($userSession);
 		$this->current = $session->getCurrent()->User;
 		$session->getCurrent()->updateSession();

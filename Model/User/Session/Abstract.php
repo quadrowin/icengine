@@ -12,7 +12,7 @@ abstract class User_Session_Abstract extends Model
      *
      * @var User_Session
      */
-    protected $current;
+    protected static $current;
 
 	/**
 	 * id пользователя по умолчаиню
@@ -50,6 +50,7 @@ abstract class User_Session_Abstract extends Model
                 $sessionData, $this->getParams()
             ));
     		$session->save(true);
+            //die;
 		}
 		return $session;
 	}
@@ -57,16 +58,18 @@ abstract class User_Session_Abstract extends Model
 	/**
      * Получить текущую сессию пользователя
      *
+     * @param string $sessionId
 	 * @return User_Session
 	 */
-	public function getCurrent ()
+	public function getCurrent($sessionId = null)
 	{
-        if (!$this->current) {
-            $sessionId = $this->getService('request')->sessionId();
+        if (!self::$current) {
+            $sessionId = $sessionId ?: 
+                $this->getService('request')->sessionId();
             $userSession = $this->byPhpSessionId($sessionId);
             $this->setCurrent($userSession);
         }
-	    return $this->current;
+	    return self::$current;
 	}
 
 	/**
@@ -91,7 +94,7 @@ abstract class User_Session_Abstract extends Model
 	 */
 	public function setCurrent(User_Session $session)
 	{
-	    $this->current = $session;
+	    self::$current = $session;
 	}
 
 	/**
@@ -119,11 +122,13 @@ abstract class User_Session_Abstract extends Model
             'eraHourNum'	=> $date->eraHourNum(),
             'url'           => $this->getService('request')->uri()
         );
-		if ($newUserId) {
+        $updateData['User__id'] = $this->User__id;
+		if (!$this->User__id || $newUserId != $this->User__id) {
 			$updateData['User__id'] = $newUserId;
         }
         $data = array_merge($updateData, $this->getParams());
         $this->update($data);
+        $this->getService('userSession')->setCurrent($this);
 		return $this;
 	}
 }

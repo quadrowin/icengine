@@ -106,7 +106,8 @@ class Config_Manager
      */
     public function getKey($type, $config)
     {
-        return $type . (is_string($config) && $config ? '/' . $config : '');
+        return 'config:' . $type . 
+            (is_string($config) && $config ? '/' . $config : '');
     }
 
 	/**
