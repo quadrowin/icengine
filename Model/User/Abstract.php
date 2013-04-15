@@ -239,16 +239,12 @@ class User_Abstract extends Model
 	 */
 	public function init($sessionId = null)
 	{
-        if ($this->current) {
-            return;
-        }
         $request = $this->getService('request');
 		$sessionId = $sessionId ?: $request->sessionId();
         $session = $this->getService('userSession');
         $userSession = $session->getCurrent($sessionId);
-        $session->setCurrent($userSession);
-		$this->current = $session->getCurrent()->User;
-		$session->getCurrent()->updateSession();
+		$this->current = $userSession->User;
+		$session->getCurrent()->updateSession($this->current->key());
 		return $this->current;
 	}
 

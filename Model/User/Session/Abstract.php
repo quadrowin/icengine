@@ -19,7 +19,7 @@ abstract class User_Session_Abstract extends Model
 	 *
      * @var integer
 	 */
-	protected $defaultUserId = 0;
+	protected static $defaultUserId = 0;
 
 	/**
 	 * Получить сессию пользователя по phpSessionId
@@ -32,26 +32,21 @@ abstract class User_Session_Abstract extends Model
 	{
         $modelManager = $this->getService('modelManager');
 		$session = $modelManager->byKey('User_Session', $sessionId);
-        print_r($session);
-        $date = $this->getService('helperDate');
         $request = $this->getService('request');
 		if (!$session && $autocreate) {
             $sessionData = array(
     			'id'			=> $sessionId,
-    			'User__id'		=> $this->defaultUserId,
+    			'User__id'		=> self::$defaultUserId,
     			'phpSessionId'	=> $sessionId,
-    			'startTime'	    => $date->toUnix(),
-    			'lastActive'	=> $date->toUnix(),
+    			'lastActive'	=> time(),
                 'url'           => $request->uri(),
     			'remoteIp'		=> $request->ip(),
-				'eraHourNum'	=> $date->eraHourNum(),
     			'userAgent'	    => substr(getenv('HTTP_USER_AGENT'), 0, 64)
     		);
     		$session = $modelManager->create('User_Session', array_merge(
                 $sessionData, $this->getParams()
             ));
     		$session->save(true);
-            //die;
 		}
 		return $session;
 	}
@@ -80,7 +75,7 @@ abstract class User_Session_Abstract extends Model
 	 */
 	public function getDefaultUserId()
 	{
-		return $this->defaultUserId;
+		return self::$defaultUserId;
 	}
 
     /**
@@ -105,7 +100,7 @@ abstract class User_Session_Abstract extends Model
 	 */
 	public function setDefaultUserId($id)
 	{
-		$this->defaultUserId = $id;
+		self::$defaultUserId = $id;
 	}
 
 	/**
@@ -116,24 +111,25 @@ abstract class User_Session_Abstract extends Model
 	 */
 	public function updateSession($newUserId = null)
 	{
-        $date = $this->getService('helperDate');
-		$now = $date->toUnix();
-        $updateData = array(
-            'lastActive'	=> $now,
-            'eraHourNum'	=> $date->eraHourNum(),
-            'url'           => $this->getService('request')->uri()
-        );
+		$now = time();
+        $url = $this->getService('request')->uri();
+        $updateData = array();
+        if ($this->url != $url) {
+            $updateData['url'] = $url;
+        }
+        if ($now - $this->lastActive > 300) {
+            $updateData['lastActive'] = $now;
+        }
         if (!isset($this->User__id)) {
-            $this->User__id = $this->defaultUserId;
+            $this->User__id = self::$defaultUserId;
         }
-        $updateData['User__id'] = $this->User__id;
-		if (!$this->User__id || $newUserId != $this->User__id) {
-			$updateData['User__id'] = $newUserId;
-        }
+		if ($newUserId && $newUserId != $this->User__id) {
+			$updateData['User__id'] = (int) $newUserId;
+        } 
         $data = array_merge($updateData, $this->getParams());
-        //print_r($data);
-        $this->update($data);
-        $this->getService('userSession')->setCurrent($this);
+        if ($data) {
+            $this->update($data);
+        }
 		return $this;
 	}
 }

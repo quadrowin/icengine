@@ -227,6 +227,7 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
 			$startTime = microtime(true);
 			Tracer::begin(__CLASS__, __METHOD__, __LINE__);
 		}
+        $key = $this->sqlHash($query);
         $this->sql = $query->translate('Mysql');
 		$rows = parent::executeSelect($query, $options);
         if (is_null($rows)) {
