@@ -146,9 +146,89 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
 			if (Tracer::$enabled) {
 				Tracer::incCachedSelectQueryCount();
 			}
-			return $cache['v'];
+			$rows = $cache['v'];
+		} else {
+            $rows = $this->getRows($query, $options);
+            $this->numRows = count($rows);
+        }
+        return $rows;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function execute(Query_Abstract $query, $options = null)
+	{
+		if (!($query instanceof Query_Abstract)) {
+			return new Query_Result(null);
 		}
-		if (!$this->handler) {
+		$start = microtime(true);
+		$this->errno = 0;
+		$this->error = '';
+		$this->affectedRows = 0;
+		$this->foundRows = 0;
+		$this->numRows = 0;
+		$this->insertId = null;
+		if (!$options) {
+			$options = $this->getDefaultOptions();
+		}
+		$m = $this->queryMethods[$query->type()];
+        if ($m != 'executeSelect') {
+            $this->sql = $query->translate('Mysql');
+        }
+		$result = $this->{$m}($query, $options);
+		if ($this->errno) {
+			throw new Exception(
+				$this->error . "\n" . $this->sql,
+				$this->errno
+			);
+		}
+		if (!$this->errno && is_null($result)) {
+			$result = array();
+		}
+		$finish = microtime(true);
+		$queryResult = new Query_Result(array(
+			'error'			=> $this->error,
+			'errno'			=> $this->errno,
+			'query'			=> $query,
+			'startAt'		=> $start,
+			'finishedAt'	=> $finish,
+			'foundRows'		=> $this->foundRows,
+			'result'		=> $result,
+			'touchedRows'	=> $this->numRows + $this->affectedRows,
+			'insertKey'		=> $this->insertId
+		));
+        if ($this->numRows) {
+            $tableName = reset($query[Query::FROM])[Query::TABLE];
+            $signalName = 'Data_Source_Execute_' . $query->type();
+            $this->eventManager->getSignal($signalName)->notify(array(
+                'result'    => $queryResult,
+                'table'     => $tableName
+            ));
+        }
+        return $queryResult;
+	}
+
+	/**
+     * Получить текущего кэшера
+     *
+	 * @return Data_Provider_Abstract
+	 */
+	public function getCacher()
+	{
+		return $this->cacher;
+	}
+    
+    /**
+     * Вернуть ряды из источника
+     * 
+     * @param Query_Abstract $query
+     * @param Query_Options $options
+     * @return array
+     */
+    protected function getRows($query, $options)
+    {
+        if (!$this->handler) {
 			$this->connect();
 		}
 		if (Tracer::$enabled) {
@@ -191,63 +271,7 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
         self::$caches[$key] = $cache;
 		$this->cacher->set($key, $cache);
 		return $rows;
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function execute(Query_Abstract $query, $options = null)
-	{
-		if (!($query instanceof Query_Abstract)) {
-			return new Query_Result(null);
-		}
-		$start = microtime(true);
-		$this->errno = 0;
-		$this->error = '';
-		$this->affectedRows = 0;
-		$this->foundRows = 0;
-		$this->numRows = 0;
-		$this->insertId = null;
-		if (!$options) {
-			$options = $this->getDefaultOptions();
-		}
-		$m = $this->queryMethods[$query->type()];
-        if ($m != '_executeSelect') {
-            $this->sql = $query->translate('Mysql');
-        }
-		$result = $this->{$m}($query, $options);
-		if ($this->errno) {
-			throw new Exception(
-				$this->error . "\n" . $this->sql,
-				$this->errno
-			);
-		}
-		if (!$this->errno && is_null($result)) {
-			$result = array();
-		}
-		$finish = microtime(true);
-		return new Query_Result(array(
-			'error'			=> $this->error,
-			'errno'			=> $this->errno,
-			'query'			=> $query,
-			'startAt'		=> $start,
-			'finishedAt'	=> $finish,
-			'foundRows'		=> $this->foundRows,
-			'result'		=> $result,
-			'touchedRows'	=> $this->numRows + $this->affectedRows,
-			'insertKey'		=> $this->insertId
-		));
-	}
-
-	/**
-     * Получить текущего кэшера
-     *
-	 * @return Data_Provider_Abstract
-	 */
-	public function getCacher()
-	{
-		return $this->cacher;
-	}
+    }
 
     /**
      * Проверяет валидны ли тэги

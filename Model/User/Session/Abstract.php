@@ -32,6 +32,7 @@ abstract class User_Session_Abstract extends Model
 	{
         $modelManager = $this->getService('modelManager');
 		$session = $modelManager->byKey('User_Session', $sessionId);
+        print_r($session);
         $date = $this->getService('helperDate');
         $request = $this->getService('request');
 		if (!$session && $autocreate) {
@@ -122,11 +123,15 @@ abstract class User_Session_Abstract extends Model
             'eraHourNum'	=> $date->eraHourNum(),
             'url'           => $this->getService('request')->uri()
         );
+        if (!isset($this->User__id)) {
+            $this->User__id = $this->defaultUserId;
+        }
         $updateData['User__id'] = $this->User__id;
 		if (!$this->User__id || $newUserId != $this->User__id) {
 			$updateData['User__id'] = $newUserId;
         }
         $data = array_merge($updateData, $this->getParams());
+        //print_r($data);
         $this->update($data);
         $this->getService('userSession')->setCurrent($this);
 		return $this;

@@ -163,7 +163,7 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
 			return null;
 		}
 		$rows = $result->fetchAll(PDO::FETCH_ASSOC);
-		$this->numRows = count($rows);
+        $this->numRows = count($rows);
 		if ($query->part(Query::CALC_FOUND_ROWS)) {
 			$result = $this->handler->query(self::SELECT_FOUND_ROWS_QUERY);
 			$row = $result->fetch();
