@@ -159,14 +159,34 @@ class Query_Result
     }
     
     /**
+     * Получить количество рядов, полученных последним запросом
+     * 
+     * @return integer
+     */
+    public function numRows()
+    {
+        return isset($this->result['numRows']) ? $this->result['numRows'] : 0;
+    }
+    
+    /**
      * Получить схему результата
      * 
 	 * @return mixed
 	 */
-	public function result ()
+	public function result()
 	{
 		return $this->result['result'];
 	}
+    
+    /**
+     * Изменить результаты выборки
+     * 
+     * @param array $result
+     */
+    public function setResult($result)
+    {
+        $this->result['result'] = $result;
+    }
     
     /**
      * Изменить источник данных, для которого получался результат запроса
