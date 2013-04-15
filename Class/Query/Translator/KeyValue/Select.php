@@ -162,7 +162,8 @@ class Query_Translator_KeyValue_Select extends Query_Translator_Abstract
 			$index = (array) $index;
 			$currentValues = array();
 			foreach ($index as $name) {
-				$currentValues[] = urlencode($values[$name]);
+				$currentValues[] = isset($values[$name])
+                    ? urlencode($values[$name]) : null;
 			}
 			$currentValues[] = urlencode($values[$keyField]);
 			$keys[] = $table . $this->tableIndexDelim .

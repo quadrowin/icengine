@@ -62,10 +62,8 @@ class Controller_Annotation extends Controller_Abstract
             $context->controllerManager->call('Annotation', 'flush', array(
                 'name'  => $class['class']
             ));
-            $delegeeData = array_merge(
-                $delegeeData, $helperAnnotationUpdate->getDelegees(
-                    $delegees, $className
-                )
+            $helperAnnotationUpdate->getDelegees(
+                $delegees, $className, $delegeeData
             );
         }
         foreach ($delegeeData as $delegeeName => $data) {
