@@ -4,25 +4,9 @@
  * {$comment}
  * 
  * Created at: {$date}
-{if !empty($table)}
- * Imported for "{$table}"{/if}
 {if $author}
  * @author {$author}{/if}
-{if !empty($properties) && empty($notCommentedProperties)}
-{foreach from=$properties item="property"}
- * @property {$property.type} ${$property.field} {$property.comment}
-{/foreach}
-{/if}
-{if !empty($package)}
- * @package {$package}
-{/if} 
- * @category {$category}
-{if $copyright}
- * @copyright {$copyright}
-{/if}
-{if !empty($table)}
- * @Orm\Entity(table="{$table}")
-{/if}
+ * @Orm\Entity
  */
 class {$name} extends {$extends}
 {   

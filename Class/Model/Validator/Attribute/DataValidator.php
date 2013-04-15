@@ -1,24 +1,36 @@
 <?php
 
-class Model_Validator_Attribute_DataValidator extends Model_Validator_Attribute_Abstract
+/**
+ * Валидировать модель посредствам Data_Validator
+ * 
+ * @author morph
+ */
+class Model_Validator_Attribute_DataValidator extends 
+    Model_Validator_Attribute_Abstract
 {
-	public static function validate ($model, $field, $value, $input)
+    /**
+     * @inheritdoc
+     */
+	public function doValidate()
 	{
         $serviceLocator = IcEngine::serviceLocator();
-        $dataValidatorManager = $serviceLocator->getService('dataValidatorManager');
+        $dataValidatorManager = $serviceLocator->getService(
+            'dataValidatorManager'
+        );
 		$result = true;
-
-		foreach ($value as $validator)
-		{
+		foreach ($this->value as $validator) {
 			$validator = $dataValidatorManager->get($validator);
 			$current = false;
-			if ($validator)
-			{
-				$current = $validator->validate($model->sfield ($field));
+			if ($validator) {
+				$current = $validator->validate(
+                    $this->model->sfield($this->field)
+                );
 			}
 			$result &= $current;
+            if (!$result) {
+                break;
+            }
 		}
-
 		return $result;
 	}
 }

@@ -41,14 +41,11 @@ class Model_Mapper_Scheme_Reference_ManyToMany extends
 	 */
 	protected function scheme($fromTable, $toTable)
 	{
-        $emptyField = array(
-            'Int',
-            array(
-                'Size'  => 11,
-                'Auto_Increment',
-                'Not_Null'
-            )
-        );
+        $emptyField = array('Int', array(
+            'Size'  => 11,
+            'Auto_Increment',
+            'Not_Null'
+        ));
         $fields = array(
             $fromTable  => $emptyField,
             $toTable    => $emptyField

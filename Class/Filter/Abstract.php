@@ -1,9 +1,9 @@
 <?php
+
 /**
  * Абстрактный класс фильтра
  *
- * @author Юрий
- * @package IcEngine
+ * @author goorus
  */
 abstract class Filter_Abstract
 {

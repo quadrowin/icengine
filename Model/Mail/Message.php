@@ -2,8 +2,8 @@
 
 /**
  * Сообщение
- * @author neon, Юрий Шведов
- *
+ * 
+ * @author neon, goorus
  * @Service("mailMessage")
  */
 class Mail_Message extends Model

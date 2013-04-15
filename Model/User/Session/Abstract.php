@@ -7,20 +7,12 @@
  */
 abstract class User_Session_Abstract extends Model
 {
-
-    /**
-     * Первый доступ
-     *
-     * @var boolean
-     */
-    protected $firstAttend;
-
     /**
      * Сессия текущего пользователя.
      *
      * @var User_Session
      */
-    protected $current;
+    protected static $current;
 
 	/**
 	 * id пользователя по умолчаиню
@@ -52,12 +44,13 @@ abstract class User_Session_Abstract extends Model
                 'url'           => $request->uri(),
     			'remoteIp'		=> $request->ip(),
 				'eraHourNum'	=> $date->eraHourNum(),
-    			'userAgent'	    => substr(getenv('HTTP_USER_AGENT'), 0, 100)
+    			'userAgent'	    => substr(getenv('HTTP_USER_AGENT'), 0, 64)
     		);
     		$session = $modelManager->create('User_Session', array_merge(
                 $sessionData, $this->getParams()
             ));
     		$session->save(true);
+            //die;
 		}
 		return $session;
 	}
@@ -65,20 +58,18 @@ abstract class User_Session_Abstract extends Model
 	/**
      * Получить текущую сессию пользователя
      *
+     * @param string $sessionId
 	 * @return User_Session
 	 */
-	public function getCurrent ()
+	public function getCurrent($sessionId = null)
 	{
-        if (!$this->firstAttend) {
-            if (!$this->current) {
-                $sessionId = $this->getService('request')->sessionId();
-                $userSession = $this->byPhpSessionId($sessionId);
-                $this->setCurrent($userSession);
-            }
-            $this->current->updateSession();
-            $this->firstAttend = true;
+        if (!self::$current) {
+            $sessionId = $sessionId ?: 
+                $this->getService('request')->sessionId();
+            $userSession = $this->byPhpSessionId($sessionId);
+            $this->setCurrent($userSession);
         }
-	    return $this->current;
+	    return self::$current;
 	}
 
 	/**
@@ -86,7 +77,7 @@ abstract class User_Session_Abstract extends Model
 	 *
      * @return integer
 	 */
-	public function getDefaultUserId ()
+	public function getDefaultUserId()
 	{
 		return $this->defaultUserId;
 	}
@@ -103,7 +94,7 @@ abstract class User_Session_Abstract extends Model
 	 */
 	public function setCurrent(User_Session $session)
 	{
-	    $this->current = $session;
+	    self::$current = $session;
 	}
 
 	/**
@@ -126,29 +117,18 @@ abstract class User_Session_Abstract extends Model
 	{
         $date = $this->getService('helperDate');
 		$now = $date->toUnix();
-        $updateData = array();
-		if ($newUserId) {
-			$updateData = array(
-				'User__id'		=> $newUserId,
-				'lastActive'	=> $now,
-				'eraHourNum'	=> $date->eraHourNum()
-			);
-		} else {
-			// Обновляем сессию не чаще, чем раз в 15 минут.
-			// strlen ('YYYY-MM-DD HH:I_:__') =
-			if (strncmp($now, $this->lastActive, 15) == 0) {
-				return $this;
-			}
-			$updateData = array(
-				'lastActive'	=> $now,
-				'eraHourNum'	=> $date->eraHourNum()
-			);
-		}
-        $updateData['url'] = $this->getService('request')->uri();
-        if ($updateData) {
-            $this->update($updateData);
+        $updateData = array(
+            'lastActive'	=> $now,
+            'eraHourNum'	=> $date->eraHourNum(),
+            'url'           => $this->getService('request')->uri()
+        );
+        $updateData['User__id'] = $this->User__id;
+		if (!$this->User__id || $newUserId != $this->User__id) {
+			$updateData['User__id'] = $newUserId;
         }
+        $data = array_merge($updateData, $this->getParams());
+        $this->update($data);
+        $this->getService('userSession')->setCurrent($this);
 		return $this;
 	}
-
 }
