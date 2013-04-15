@@ -198,14 +198,6 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
 			'touchedRows'	=> $this->numRows + $this->affectedRows,
 			'insertKey'		=> $this->insertId
 		));
-        if ($this->numRows) {
-            $tableName = reset($query[Query::FROM])[Query::TABLE];
-            $signalName = 'Data_Source_Execute_' . $query->type();
-            $this->eventManager->getSignal($signalName)->notify(array(
-                'result'    => $queryResult,
-                'table'     => $tableName
-            ));
-        }
         return $queryResult;
 	}
 

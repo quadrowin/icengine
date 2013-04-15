@@ -72,12 +72,18 @@ class Data_Source
 	 */
 	public function execute(Query_Abstract $query, $options = null)
 	{
-        if (!$options) {
-            $options = new Query_Options();
-        }
+        $options = $options ?: new Query_Options();
         $this->setQuery($query);
         $result = $this->driver()->execute($this->query, $options);
         $result->setSource($this);
+        if ($result->numRows()) {
+            $tableName = reset($query[Query::FROM])[Query::TABLE];
+            $signalName = 'Data_Source_Execute_' . $query->type();
+            $this->eventManager->getSignal($signalName)->notify(array(
+                'result'    => $result,
+                'table'     => $tableName
+            ));
+        }
 		$this->setResult($result);
 		return $this;
 	}
