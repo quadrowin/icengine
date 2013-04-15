@@ -543,6 +543,12 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
         $keyField = Model_Scheme::keyField($modelName);
 		$collection = Model_Collection_Manager::create($modelName)
 			->reset();
+        $args = func_get_args();
+        if (!is_array($fields) && isset($args[0]) && isset($args[1])) {
+            $fields = array(
+                $args[0]    => $args[1]
+            );
+        }
         $result = Helper_Array::filter($this->items(), $fields);
 		if ($result) {
             $ids = Helper_Array::column($result, $keyField);
