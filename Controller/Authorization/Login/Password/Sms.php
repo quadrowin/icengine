@@ -57,7 +57,6 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 	 */
 	public function login($name, $pass, $a_id, $code, $href)
 	{
-		$this->task->setTemplate(null);
 		$modelManager = $this->getService('modelManager');
 		if (!$a_id && $code) {
             $user = $modelManager->byOptions(
