@@ -2,7 +2,7 @@
 
 /**
  * Хелпер для создания модели
- * 
+ *
  * @author morph
  * @Service("helperModelCreate")
  */
@@ -10,15 +10,15 @@ class Helper_Model_Create extends Helper_Abstract
 {
     /**
      * Хелпер по генерации кода
-     * 
+     *
      * @Inject("helperCodeGenerator")
      * @var Helper_Code_Generator
      */
     protected $helperCodeGenerator;
-    
+
     /**
      * Создает модель
-     * 
+     *
      * @param Model_Create_Dto $dto
      */
     public function create($dto)
@@ -36,29 +36,29 @@ class Helper_Model_Create extends Helper_Abstract
         $filename = $this->getFilename($dto->modelName);
         file_put_contents($filename, $output);
     }
-    
+
     /**
      * Получить имя файла по модели
-     * 
+     *
      * @param string $modelName
      * @return string
      */
     protected function getFilename($modelName)
     {
-        $parts = str_replace('_', '/', $modelName);
-        $lastName = array_shift($parts);
-        $path = IcEngine::root() . 'Ice/Model' . 
-            ($parts ? '/' . $parts : '');
-        if (!$path) {
+        $parts = explode('/', str_replace('_', '/', $modelName));
+        $lastName = array_pop($parts);
+        $path = IcEngine::root() . 'Ice/Model' .
+            ($parts ? '/' . implode('/', $parts) : '');
+        if (!is_dir($path)) {
             mkdir($path, 0755, true);
         }
-        $filename = $path . '/' . $lastName. '.php';
+        $filename = rtrim($path, '/') . '/' . ltrim($lastName, '/') . '.php';
         return $filename;
     }
-    
+
     /**
      * Изменить хелпер по генерации кода
-     * 
+     *
      * @param Helper_Code_Generator $helperCodeGenerator
      */
     public function setHelperCodeGenerator($helperCodeGenerator)

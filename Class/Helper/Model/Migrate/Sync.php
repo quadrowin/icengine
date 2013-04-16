@@ -2,7 +2,7 @@
 
 /**
  * Хелпер для синхронизации схемы моделей и аннотаций модели
- * 
+ *
  * @author morph
  * @Service("helperModelMigrateSync")
  */
@@ -10,7 +10,7 @@ class Helper_Model_Migrate_Sync extends Helper_Abstract
 {
     /**
      * Получить аннотации полей Orm для указаной модели
-     * 
+     *
      * @param string $modelName
      * @return array
      */
@@ -35,10 +35,10 @@ class Helper_Model_Migrate_Sync extends Helper_Abstract
         }
         return $resultAnnotations;
     }
-    
+
     /**
      * Получить аннотации полей
-     * 
+     *
      * @param string $modelName
      * @return array
      */
@@ -49,7 +49,8 @@ class Helper_Model_Migrate_Sync extends Helper_Abstract
         $classReflection = new \ReflectionClass($modelName);
         foreach ($data as $propertyName => $annotations) {
             foreach ($annotations as $annotationName => $annotation) {
-                $annotation = reset($annotation);
+                $arrayAnnotation = (array) $annotation;
+                $annotation = reset($arrayAnnotation);
                 if (strpos($annotationName, 'Orm\\Field') === false) {
                     if (strpos($annotationName, 'Orm\\State') !== false) {
                         list(,,$state) = explode('\\', $annotationName);
@@ -84,7 +85,7 @@ class Helper_Model_Migrate_Sync extends Helper_Abstract
                         !empty($annotation['Size']) ? $annotation['Size'] : 0
                     )
                     ->setNullable(!isset($annotation['Not_Null']))
-                    ->setDefault(isset($annotation['Default']) 
+                    ->setDefault(isset($annotation['Default'])
                         ? $annotation['Default'] : null)
                     ->setUnsigned(isset($annotation['Unsigned']))
                     ->setComment($comment);
@@ -93,10 +94,10 @@ class Helper_Model_Migrate_Sync extends Helper_Abstract
         }
         return $resultFields;
     }
-    
+
     /**
      * Получить аннотации индексов
-     * 
+     *
      * @param string $modelName
      * @return array
      */
@@ -106,12 +107,13 @@ class Helper_Model_Migrate_Sync extends Helper_Abstract
         $preIndexes = array();
         foreach ($data as $properyName => $annotations) {
             foreach ($annotations as $annotationName => $annotation) {
-                $annotation = reset($annotation);
+                $arrayAnnotation = (array) $annotation;
+                $annotation = reset($arrayAnnotation);
                 if (strpos($annotationName, 'Orm\\Index') === false) {
                     continue;
                 }
                 $indexNames = (array) $properyName;
-                if ($annotation) {
+                if (is_array($annotation)) {
                     $indexNames = $annotation;
                 }
                 foreach ($indexNames as $indexName) {
@@ -136,10 +138,10 @@ class Helper_Model_Migrate_Sync extends Helper_Abstract
         }
         return $resultIndexes;
     }
-    
+
     /**
-     * Получить ссылки на 
-     * 
+     * Получить ссылки на
+     *
      * @param string $modelName
      * @return array
      */
@@ -149,7 +151,8 @@ class Helper_Model_Migrate_Sync extends Helper_Abstract
         $resultReferences = array();
         foreach ($data as $properyName => $annotations) {
             foreach ($annotations as $annotationName => $annotation) {
-                $annotation = reset($annotation);
+                $arrayAnnotation = (array) $annotation;
+                $annotation = reset($arrayAnnotation);
                 if (strpos($annotationName, 'Orm\\Reference') === false) {
                     continue;
                 }
@@ -176,10 +179,10 @@ class Helper_Model_Migrate_Sync extends Helper_Abstract
         }
         return $resultReferences;
     }
-    
+
     /**
      * Получить комментарий класса
-     * 
+     *
      * @param string $modelName
      * @return string
      */
@@ -199,10 +202,10 @@ class Helper_Model_Migrate_Sync extends Helper_Abstract
         }
         return $classComment;
     }
-    
+
     /**
      * Ресинхронизации схемы и аннотаций
-     * 
+     *
      * @param string $modelName
      */
     public function resync($modelName)

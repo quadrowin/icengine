@@ -2,7 +2,7 @@
 
 /**
  * Хелпер по работе со схемой модели
- * 
+ *
  * @author morph
  * @Service("helperModelScheme")
  */
@@ -10,18 +10,18 @@ class Helper_Model_Scheme extends Helper_Abstract
 {
     /**
      * Хелпер по генерации кода
-     * 
+     *
      * @Inject("helperCodeGenerator")
      * @var Helper_Code_Generator
      */
     protected $helperCodeGenerator;
-    
+
     /**
      * Входящий транспорт
-     * 
+     *
      * @var Data_Transport
      * @Service(
-     *      "helperModelSchemeInput", 
+     *      "helperModelSchemeInput",
      *      args={"cliInput"},
      *      isStatic=true,
      *      source={
@@ -31,10 +31,10 @@ class Helper_Model_Scheme extends Helper_Abstract
      * )
      */
     protected $input;
-    
+
     /**
      * Создать пустую схему моделей
-     * 
+     *
      * @param string $modelName
      * @param Model_Scheme_Dto $dto
      */
@@ -42,11 +42,11 @@ class Helper_Model_Scheme extends Helper_Abstract
     {
         $author = $dto->author ?: $this->input['author'];
         $comment = $dto->comment ?: $this->input['comment'];
-        $parts = str_replace('_', '/', $modelName);
-        $lastName = array_shift($parts);
-        $path = IcEngine::root() . 'Ice/Config/Model/Mapper' . 
-            ($parts ? '/' . $parts : '');
-        if (!$path) {
+        $parts = explode('/', str_replace('_', '/', $modelName));
+        $lastName = array_pop($parts);
+        $path = IcEngine::root() . 'Ice/Config/Model/Mapper' .
+            ($parts ? '/' . implode('/', $parts) : '');
+        if (!is_dir($path)) {
             mkdir($path, 0755, true);
         }
         $filename = $path . '/' . $lastName. '.php';
@@ -65,10 +65,10 @@ class Helper_Model_Scheme extends Helper_Abstract
         );
         file_put_contents($filename, $output);
     }
-    
+
     /**
      * Создает dto для создания модели по схеме
-     * 
+     *
      * @param string $modelName
      * @return Model_Create_Dto
      */
@@ -82,10 +82,10 @@ class Helper_Model_Scheme extends Helper_Abstract
             ->setModelName($modelName);
         return $dto;
     }
-    
+
     /**
      * Получить список полей для создания из схемы
-     * 
+     *
      * @param string $modelName
      * @return array
      */
@@ -95,7 +95,7 @@ class Helper_Model_Scheme extends Helper_Abstract
         $fields = array();
         foreach ($scheme->fields as $fieldName => $data) {
             $output = array();
-            $size = !empty($data[1]) && !empty($data[1]['Size']) 
+            $size = !empty($data[1]) && !empty($data[1]['Size'])
                 ? $data[1]['Size'] : 0;
             if ($size) {
                 $output[] = 'Size=' . $size;
@@ -110,7 +110,7 @@ class Helper_Model_Scheme extends Helper_Abstract
             } else {
                 $output[] = 'Null';
             }
-            $autoIncrement = !empty($data[1]) && 
+            $autoIncrement = !empty($data[1]) &&
                 in_array('Auto_Increment', $data[1]);
             if ($autoIncrement) {
                 $output[] = 'Auto_Increment';
@@ -136,20 +136,20 @@ class Helper_Model_Scheme extends Helper_Abstract
         }
         return $fields;
     }
-    
+
     /**
      * Изменить хелпер по генерации кода
-     * 
+     *
      * @param Helper_Code_Generator $helperCodeGenerator
      */
     public function setHelperCodeGenerator($helperCodeGenerator)
     {
         $this->helperCodeGenerator = $helperCodeGenerator;
     }
-    
+
     /**
      * Изменить входящий транспорт
-     * 
+     *
      * @param Data_Transport $input
      */
     public function setInput($input)

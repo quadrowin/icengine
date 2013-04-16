@@ -2,7 +2,7 @@
 
 /**
  * Хелпер для обновления аннотаций
- * 
+ *
  * @author morph
  * @Service("helperAnnotationUpdate")
  */
@@ -10,7 +10,7 @@ class Helper_Annotation_Update extends Helper_Abstract
 {
     /**
      * Получить имена классов для обновления
-     * 
+     *
      * @param string $path
      * @return array
      */
@@ -67,10 +67,10 @@ class Helper_Annotation_Update extends Helper_Abstract
         }
         return $classes;
     }
-    
+
     /**
      * Получить делигаты
-     * 
+     *
      * @param array $delegees
      * @param string $className
      * @param array $delegeeData
@@ -82,7 +82,7 @@ class Helper_Annotation_Update extends Helper_Abstract
             ->getSource()->getAnnotationManager();
         $annotation = $annotationManager->getAnnotation($className)
             ->getData();
-        $moduleName = !empty($annotation['class']['Module']) 
+        $moduleName = !empty($annotation['class']['Module'])
             ? reset($annotation['class']['Module'][0]) : null;
         foreach ($annotation as $delegeeType => $annotationData) {
             if (!isset($delegees[$delegeeType]) || !$annotationData) {

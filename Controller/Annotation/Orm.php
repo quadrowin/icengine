@@ -2,14 +2,14 @@
 
 /**
  * Собирает схему модели по аннотациям
- * 
+ *
  * @author morph
  */
 class Controller_Annotation_Orm extends Controller_Abstract
 {
     /**
-     * Создать/обновить схему модели 
-     * 
+     * Создать/обновить схему модели
+     *
      * @Context(
      *      "helperAnnotationOrm", "modelScheme", "helperModelMigrateSync",
      *      "helperModelTable"
@@ -19,13 +19,14 @@ class Controller_Annotation_Orm extends Controller_Abstract
      */
     public function update($data, $context)
     {
-        foreach ($data as $className => $subdata) {
+        foreach (array_keys($data) as $className) {
             $annotationManager = IcEngine::serviceLocator()->getSource()
                 ->getAnnotationManager();
             $annotation = $annotationManager->getAnnotation($className)
                 ->getData();
             if (!isset($annotation['class']['Orm\\Entity'])) {
-                return;
+                echo $className . PHP_EOL;
+                continue;
             }
             $entity = $annotation['class']['Orm\\Entity'][0];
             if (is_array($entity)) {
@@ -34,8 +35,8 @@ class Controller_Annotation_Orm extends Controller_Abstract
                 );
             }
             $scheme = $context->modelScheme->scheme($className);
-            if (!$scheme) {
-                $context->helperModelMigrationSync->resync($className);
+            if (!$scheme->fields) {
+                $context->helperModelMigrateSync->resync($className);
                 $context->helperModelTable->create($className);
             }
         }

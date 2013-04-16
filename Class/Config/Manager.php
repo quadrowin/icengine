@@ -10,13 +10,13 @@ class Config_Manager
 {
     /**
      * Сохраненные конфиги
-     * 
+     *
      * @var array
      */
     protected $configs = array(
-        
+
     );
-    
+
 	/**
 	 * Путь до конфигов от корня сайта
 	 *
@@ -34,9 +34,9 @@ class Config_Manager
 		$this->pathToConfig[] = $path;
 	}
 
-    /**    
+    /**
      * Получить конфиг по рефлексии
-     * 
+     *
      * @param string $type
      * @return array
      */
@@ -53,7 +53,7 @@ class Config_Manager
         }
         return $config;
     }
-    
+
 	/**
 	 * Пустой конфиг.
 	 *
@@ -93,20 +93,22 @@ class Config_Manager
             $config = $this->byReflection($type);
         }
         $storedConfig = $this->load($type, $config);
-		$this->configs[$resourceKey] = $storedConfig;
+        if ($storedConfig->asArray()) {
+            $this->configs[$resourceKey] = $storedConfig;
+        }
 		return $storedConfig;
 	}
-    
+
     /**
      * Получить ключ для сохранения конфига
-     * 
+     *
      * @param string $type
      * @param string $config
      * @return string
      */
     public function getKey($type, $config)
     {
-        return 'config:' . $type . 
+        return 'config:' . $type .
             (is_string($config) && $config ? '/' . $config : '');
     }
 
@@ -160,7 +162,7 @@ class Config_Manager
 
 	/**
 	 * Меняет путь до конфига
-	 * 
+	 *
      * @param mixed $path
 	 */
 	public function setPathToConfig ($path)

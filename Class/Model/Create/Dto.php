@@ -5,7 +5,7 @@
  *
  * @author morph
  */
-class Model_Scheme_Dto extends Dto
+class Model_Create_Dto extends Dto
 {
     /**
      * @inheritdoc
