@@ -47,14 +47,14 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
 
     /**
      * Хелпер транслятора
-     * 
+     *
      * @var Helper_Query_Translator_Mysql
      */
     protected static $helper;
-    
+
     /**
 	 * Рендеринг SELECT запроса.
-	 * 
+	 *
      * @param Query_Abstract $query Запрос
 	 * @return string Сформированный SQL запрос
 	 */
@@ -69,10 +69,10 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
 			$this->renderOrder($query) . ' ' .
 			$this->renderLimitoffset($query);
 	}
-    
+
     /**
      * Получить имя таблицы для части from запроса
-     * 
+     *
      * @param Query_Select $from
      * @return string
      */
@@ -90,10 +90,10 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
         }
         return $table;
     }
-    
+
     /**
      * Получить (инициализировать) хелпер траслятора
-     * 
+     *
      * @return Helper_Query_Translator_Mysql
      */
     public function helper()
@@ -105,10 +105,10 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
         }
         return self::$helper;
     }
-    
+
     /**
      * Нормализовать часть запроса from
-     * 
+     *
      * @param array $from
      * @return array
      */
@@ -127,7 +127,7 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
         }
         return $from;
     }
-    
+
     /**
 	 * Рендерит часть SQL CALC FOUND ROWS
      *
@@ -139,7 +139,7 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
 		return $query->part(Query::CALC_FOUND_ROWS)
             ? self::SQL_CALC_FOUND_ROWS : '';
 	}
-    
+
     /**
 	 * Рендерит часть distinct
      *
@@ -153,7 +153,7 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
 
     /**
      * Рендеринг части запроса explain
-     * 
+     *
      * @param Query_Abstract $query
      * @return string
      */
@@ -161,10 +161,10 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
 	{
 		return $query->part(Query::EXPLAIN) ? self::SQL_EXPLAIN : '';
 	}
-    
+
     /**
      * Отрендерить условие с "?"
-     * 
+     *
      * @param string $condition
      * @param mixed $value
      * @return string
@@ -194,10 +194,10 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
         }
         return $condition;
     }
-    
+
     /**
      * Рендеринг отложенных условий
-     * 
+     *
      * @param string $condition
      * @param array $value
      * @return string
@@ -213,17 +213,17 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
                 continue;
             }
             $key = ':' . $key;
-            $keyValue = is_array($keyValue) 
-                ? $this->renderInArray($keyValue) 
+            $keyValue = is_array($keyValue)
+                ? $this->renderInArray($keyValue)
                 : $helper->quote($keyValue);
             $condition = str_replace($key, $keyValue, $condition);
         }
         return $condition;
     }
-    
+
     /**
      * Отрендерить условия без "?"
-     * 
+     *
      * @param string $condition
      * @param mixed $value
      * @return string
@@ -236,7 +236,7 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
         } else {
             $value = '=' . $helper->quote($value);
         }
-        if ($helper->isExpression($condition) || 
+        if ($helper->isExpression($condition) ||
             $helper->isEscaped($condition)) {
             return $condition . $value;
         } elseif (strpos($condition, self::SQL_DOT) !== false) {
@@ -245,10 +245,10 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
             return $helper->escape($condition) . $value;
         }
     }
-    
+
     /**
 	 * Экранирование условий запроса
-	 * 
+	 *
      * @param string $condition
 	 * @param mixed $value[optional]
 	 * @return string
@@ -267,10 +267,10 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
             return $this->quoteConditionSimple($condition, $value);
         }
 	}
-    
+
     /**
      * Отрендерить часть from с join
-     * 
+     *
      * @param string $alias
      * @param string $table
      * @param array $from
@@ -297,10 +297,10 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
             self::SQL_ON .
             '(' . $from[Query::WHERE] . ')';
     }
-    
+
     /**
      * Отрендерить обыкновенный from
-     * 
+     *
      * @param string $alias
      * @param string $table
      * @param boolean $useAlias
@@ -314,7 +314,7 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
             ($i ? self::SQL_COMMA : ' ') .
             ($a ? $table : ($table . ' ' . self::SQL_AS . ' ' . $alias));
     }
-    
+
 	/**
 	 * Рендерит часть запроса from
      *
@@ -343,14 +343,14 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
             $sql .= $part;
 			$i++;
 		}
-		return $sql . 
+		return $sql .
 			$this->renderUseIndex($query) .
 			$this->renderForceIndex($query);
 	}
 
 	/**
 	 * Рендерит часть запроса FORCE INDEX
-	 * 
+	 *
      * @param Query_Abstract $query
 	 * @return string
 	 */
@@ -361,7 +361,7 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
 
 	/**
 	 * Рендерит часть запроса group
-	 * 
+	 *
      * @param Query_Abstract $query
 	 * @return string
 	 */
@@ -382,7 +382,7 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
 
     /**
      * Рендеринг части запроса "having"
-     * 
+     *
      * @param Query_Abstract $query
      * @return string
      */
@@ -397,7 +397,7 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
 
 	/**
 	 * Рендерит mysql терм если он массив
-	 * 
+	 *
      * @param array $value
 	 * @return string
 	 */
@@ -413,7 +413,7 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
 
 	/**
 	 * Рендер части запроса limit
-	 * 
+	 *
      * @param Query_Abstract $query
 	 * @return string
 	 */
@@ -434,7 +434,7 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
 
 	/**
 	 * Рендер части запроса order
-	 * 
+	 *
      * @param Query_Abstract $query
 	 * @return string
 	 */
@@ -455,10 +455,10 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
 		}
 		return self::SQL_ORDER_BY . ' ' . implode(self::SQL_COMMA, $columns);
 	}
-    
+
     /**
      * Отрендерить часть выборки в массиве
-     * 
+     *
      * @param array $parts
      * @return string
      */
@@ -470,7 +470,7 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
             if (!empty($parts[0])) {
                 $source = $helper->escape($parts[0]) . self::SQL_DOT;
             }
-            if (!$helper->isEscaped($parts[1]) && 
+            if (!$helper->isEscaped($parts[1]) &&
                 !$helper->isExpression($parts[1])) {
                 $source .= $helper->escapePartial($parts[1]);
             } else {
@@ -483,10 +483,10 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
         }
         return $source;
     }
-    
+
     /**
      * Рендерить часть запроса select
-     * 
+     *
      * @param Query_Abstract $query
      * @return string
      */
@@ -497,7 +497,7 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
             return;
         }
         $sql = $this->partExplain($query) . ' ' . self::SQL_SELECT . ' ' .
-            $this->partCalcFoundRows($query) . ' ' . 
+            $this->partCalcFoundRows($query) . ' ' .
             $this->partDistinct($query);
         $columns = array();
         $helper = $this->helper();
@@ -510,6 +510,7 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
                 $callable = array($helper, 'escapePartial');
                 $sourceUnjoined = array_map($callable, $subPartsTrimed);
                 $source = implode(self::SQL_COMMA, $sourceUnjoined);
+                $alias = $source;
             } elseif (strpos($parts, self::SQL_WILDCARD) === false &&
                 !$helper->isExpression($parts))  {
                 $source = $helper->escapePartial($parts);
@@ -530,15 +531,15 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
                 } else {
                     $columns[] = $source . ' ' . self::SQL_AS . ' ' . $alias;
                 }
-                    
-            }    
+
+            }
         }
         return $columns ? $sql . implode(self::SQL_COMMA, $columns) : '';
     }
 
 	/**
 	 * Рендерит часть запроса USE INDEX
-	 * 
+	 *
      * @param Query_Abstract $query
 	 * @return string
 	 */
@@ -553,7 +554,7 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
 
     /**
      * Отрендерить условие без значения
-     * 
+     *
      * @param array $where
      * @return string
      */
@@ -568,26 +569,26 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
             return $this->quoteCondition($where[Query::WHERE]);
         }
     }
-    
+
     /**
      * Отрендерить часть условия со значением
-     * 
+     *
      * @param array $where
      * @return string
      */
     protected function renderWhereWithValue($where)
     {
         if ($where[Query::VALUE] instanceof Query_Select) {
-            $where[Query::VALUE] = '(' . 
+            $where[Query::VALUE] = '(' .
                 $this->doRenderSelect($where[Query::VALUE]) . ')';
         }
         $value = $where[Query::WHERE];
         return $this->quoteCondition($value, $where[Query::VALUE]);
     }
-    
+
 	/**
 	 * Рендер части запроса Where
-	 * 
+	 *
      * @param Query_Abstract $query
 	 * @return string
 	 */
