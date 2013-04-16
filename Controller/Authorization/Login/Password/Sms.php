@@ -181,9 +181,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 		$count = $user->attr(self::SMS_SEND_COUNTER_ATTR);
 		$time = $this->getService('helperDate')->toUnix();
 		$lastTime = $user->attr(self::SMS_SEND_TIME_ATTR);
-		$deltaTime = $this->getService('helperDate')->secondsBetween(
-            $lastTime
-        );
+		$deltaTime = time() - $lastTime;
         $config = $this->config();
         if ($count >= $config->sms_send_limit_1m && $deltaTime < 60) {
             return $this->sendError('smsLimit');
