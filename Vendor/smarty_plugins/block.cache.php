@@ -18,6 +18,9 @@ function smarty_block_cache($params, $content, $smarty, &$repeat)
     $dataProviderManager = $serviceLocator->getService('dataProviderManager');
     $configManager = $serviceLocator->getService('configManager');
     $blockConfig = $configManager->get('Block');
+    $controllerManager = $this->getService('controllerManager');
+    $task = $controllerManager->getCurrentTask();
+    $params = array_merge($params, $task->getInput()->receiveAll());
     $expiration = 0;
     $notCache = false;
     if ($blockConfig && $blockConfig[$blockName]) {

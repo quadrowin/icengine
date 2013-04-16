@@ -25,13 +25,14 @@ class Controller_Manager extends Manager_Abstract
      */
     protected $annotationManager;
 
+
     /**
 	 * @inheritdoc
 	 */
 	protected $config = array(
 		/**
 		 * Настройки кэширования для экшенов.
-		 * 
+		 *
          * @var array
 		 */
 		'actions'			=> array(),
@@ -260,6 +261,7 @@ class Controller_Manager extends Manager_Abstract
         // менеджера контроллеров.
         $context = $this->createControllerContext($controller, $actionName);
         $task->setContext($context);
+        $this->currentTask = $task;
         $delegees = $config->delegees;
         if ($delegees) {
             foreach ($delegees as $delegeeName) {
@@ -515,6 +517,16 @@ class Controller_Manager extends Manager_Abstract
         }
         return $controllerConfig;
 	}
+
+    /**
+     * Получить текущее задание
+     *
+     * @return Controller_Task
+     */
+    public function getCurrentTask()
+    {
+        return $this->currentTask;
+    }
 
     /**
      * Получить контекст контроллера по умолчанию

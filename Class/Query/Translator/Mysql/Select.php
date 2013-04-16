@@ -374,7 +374,7 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
 		$columns = array();
         $helper = $this->helper();
 		foreach ($groups as $column) {
-            $columns[] = $helper->escapePartial($column);
+            $columns[] = $helper->escapePartial(reset($column));
 		}
 		return self::SQL_GROUP_BY . ' ' .
 			implode(self::SQL_COMMA, $columns);
