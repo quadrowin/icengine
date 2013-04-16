@@ -38,9 +38,8 @@ var Authorization_Login_Password_Sms = {
 				);
 			}
 
-			if (result.html)
-			{
-				$btn.after ('<div>' + result.html + '<div>');
+			if (result.html) {
+                $('#resultHtml').html(result.html);
 			}
 
 			if (result.error)
