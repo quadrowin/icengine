@@ -2,14 +2,14 @@
 
 /**
  * Провайдер отправки сообщений через Littlesms
- * 
+ *
  * @author goorus, morph
  */
 class Mail_Provider_Sms_Littlesms extends Mail_Provider_Abstract
 {
 	/**
 	 * API для работы с LittleSMS
-	 * 
+	 *
      * @var LittleSMSoriginal
 	 */
 	protected $client;
@@ -39,7 +39,7 @@ class Mail_Provider_Sms_Littlesms extends Mail_Provider_Abstract
 		$loader = $this->getService('loader');
 		$loader->requireOnce($config['original_path'], 'Vendor');
 		$loader->load('LittleSMSoriginal', 'Vendor');
-		$this->_client = new LittleSMSoriginal(
+		$this->client = new LittleSMSoriginal(
 			$config['service_login'],
 			$config['service_password'],
 			false
@@ -74,7 +74,7 @@ class Mail_Provider_Sms_Littlesms extends Mail_Provider_Abstract
 
 	/**
 	 * Отправка СМС на номер
-	 * 
+	 *
      * @param string $phone Номер телефона.
 	 * @param string $text Текст сообщения
 	 * @return integer|false Номер сообщения, если успешно, иначе false.
