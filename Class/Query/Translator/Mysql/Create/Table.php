@@ -2,10 +2,10 @@
 
 /**
  * Транслятор запросов типа create table для mysql
- * 
+ *
  * @author morph, goorus
  */
-class Query_Translator_Mysql_Create_Table extends 
+class Query_Translator_Mysql_Create_Table extends
     Query_Translator_Mysql_Alter_Table
 {
 	const SQL_CREATE_TABLE		= 'CREATE TABLE';
@@ -18,7 +18,7 @@ class Query_Translator_Mysql_Create_Table extends
 
     /**
 	 * Рендер части запроса create table
-	 * 
+	 *
      * @param Query_Abstract $query
 	 * @return string
 	 */
@@ -39,10 +39,10 @@ class Query_Translator_Mysql_Create_Table extends
 			$this->renderCharset($query) . ' ' .
 			$this->renderComment($query);
 	}
-    
+
 	/**
 	 * Рендерит часть запроса default charset
-	 * 
+	 *
      * @param Query_Abstract $query
 	 */
 	protected function renderCharset(Query_Abstract $query)
@@ -56,7 +56,7 @@ class Query_Translator_Mysql_Create_Table extends
 
 	/**
 	 * Рендерит часть запроса comment
-	 * 
+	 *
      * @param Query_Abstract $query
 	 * @return string
 	 */
@@ -73,7 +73,7 @@ class Query_Translator_Mysql_Create_Table extends
 
 	/**
 	 * Рендерит часть запроса engine
-	 * 
+	 *
      * @param Query_Abstract $query
 	 * @return string
 	 */
@@ -88,7 +88,7 @@ class Query_Translator_Mysql_Create_Table extends
 
 	/**
 	 * Рендерит поля
-	 * 
+	 *
      * @param Query_Abstract $query
 	 * @return string
 	 */
@@ -101,8 +101,8 @@ class Query_Translator_Mysql_Create_Table extends
 		$fields = $createTable[Query::FIELD];
         foreach ($fields as &$field) {
             $field = "\t" . $this->renderField(
-                $field[Query_Create_Table::NAME],
-                $field[Query_Create_Table::ATTR]
+                $field[Query::FIELD],
+                $field[Query::ATTR]
             );
         }
         return implode(',' . PHP_EOL, $fields);
@@ -110,7 +110,7 @@ class Query_Translator_Mysql_Create_Table extends
 
 	/**
 	 * Рендерит игдексы
-	 * 
+	 *
      * @param Query_Abstract $query
 	 * @return string
 	 */

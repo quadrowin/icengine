@@ -162,12 +162,20 @@ class Controller_Manager extends Manager_Abstract
 	 */
 	protected $tasksBuffer = array();
 
+    /**
+     * Пул заданий
+     *
+     * @var array
+     */
+    protected $taskPool = array();
+
 	/**
 	 * Очередь заданий
      *
 	 * @var array <Router_Action>
 	 */
 	protected $tasksQueue = array();
+
 
 	/**
 	 * Результаты выполнения очереди
@@ -256,12 +264,16 @@ class Controller_Manager extends Manager_Abstract
         // Подменяем транспорты, на полученные из менеджера/задания
         $controller->setInput($input)->setOutput($output)->setTask($task);
         $task->setCallable($controller, $actionName);
+        $task->setInput($input);
 		$config = $this->config();
         // Создает контекст вызова контроллера, отдаем его before-делегатам
         // менеджера контроллеров.
         $context = $this->createControllerContext($controller, $actionName);
         $task->setContext($context);
-        $this->currentTask = $task;
+        if (!$task->getInput()) {
+            $task->setInput($input);
+        }
+        array_push($this->taskPool, $task);
         $delegees = $config->delegees;
         if ($delegees) {
             foreach ($delegees as $delegeeName) {
@@ -630,6 +642,16 @@ class Controller_Manager extends Manager_Abstract
         return $this->serviceInjector;
     }
 
+    /**
+     * Получить пул заданий
+     *
+     * @return array
+     */
+    public function getTaskPool()
+    {
+        return $this->taskPool;
+    }
+
 	/**
 	 * Выполняет указанный контроллер, экшен с заданными параметрами
      *
@@ -803,6 +825,7 @@ class Controller_Manager extends Manager_Abstract
 	 */
 	public function run($task)
 	{
+        array_push($this->taskPool, $task);
 		$parentTask = $this->currentTask;
 		$this->currentTask = $task;
 		$action = $task->controllerAction();

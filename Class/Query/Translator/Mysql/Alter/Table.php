@@ -2,7 +2,7 @@
 
 /**
  * Транслятор запроса типа alter table для mysql
- * 
+ *
  * @author morph, goorus
  */
 class Query_Translator_Mysql_Alter_Table extends Query_Translator_Abstract
@@ -11,17 +11,17 @@ class Query_Translator_Mysql_Alter_Table extends Query_Translator_Abstract
 	const SQL_ADD			= 'ADD';
 	const SQL_CHANGE        = 'CHANGE';
 	const SQL_DROP			= 'DROP';
-    
+
     /**
      * Хелпер транслятора
-     * 
+     *
      * @var Helper_Query_Translator_Mysql
      */
     protected static $helper;
-    
+
     /**
      * Типы индексов
-     * 
+     *
      * @var array
      */
     protected static $indexTypes = array(
@@ -30,10 +30,10 @@ class Query_Translator_Mysql_Alter_Table extends Query_Translator_Abstract
         'primary'	=> 'Primary key',
         'unique'	=> 'Unique key'
     );
-    
+
     /**
 	 * Рендеринг части запроса alter table
-	 * 
+	 *
      * @param Query_Abstract $query
 	 * @return string
 	 */
@@ -50,22 +50,22 @@ class Query_Translator_Mysql_Alter_Table extends Query_Translator_Abstract
 			$this->renderDrop($query);
 		return $sql;
 	}
-    
+
     /**
      * Есть ли размер у текущего поля
-     * 
+     *
      * @param array $params
      * @return boolean
      */
     protected function hasSize($params)
     {
-        return !empty($params[Model_Field::ATTR_ENUM]) || 
+        return !empty($params[Model_Field::ATTR_ENUM]) ||
             !empty($params[Model_Field::ATTR_SIZE]);
     }
-    
+
     /**
      * Получить (инициализировать) хелпер
-     * 
+     *
      * @return Helper_Query_Translator_Mysql
      */
     protected function helper()
@@ -80,7 +80,7 @@ class Query_Translator_Mysql_Alter_Table extends Query_Translator_Abstract
 
     /**
      * Является ли поле enum
-     * 
+     *
      * @param string $type
      * @return boolean
      */
@@ -89,10 +89,10 @@ class Query_Translator_Mysql_Alter_Table extends Query_Translator_Abstract
         $type = strtolower($type);
         return strpos($type, 'enum') !== false;
     }
-    
+
     /**
      * Является ли тип поля числовым
-     * 
+     *
      * @param array $type
      * @return string
      */
@@ -105,37 +105,37 @@ class Query_Translator_Mysql_Alter_Table extends Query_Translator_Abstract
             strpos($type, 'real') !== false ||
             strpos($type, 'decimal') !== false;
     }
-    
+
     /**
      * Проверить необходим ли для типа поля размер
-     * 
+     *
      * @param string $type
      * @return boolean
      */
     protected function isSizeble($type)
     {
         $type = strtolower($type);
-        return strpos($type, 'text') !== false ||
-			strpos($type, 'date') !== false ||
-			strpos($type, 'time') !== false;
+        return strpos($type, 'text') === false &&
+			strpos($type, 'date') === false &&
+			strpos($type, 'time') === false;
     }
-    
+
     /**
      * Является поле текстовым
-     * 
+     *
      * @param string $type
      * @return boolean
      */
     protected function isText($type)
     {
         $type = strtolower($type);
-        return strpos($type, 'text') !== false || 
+        return strpos($type, 'text') !== false ||
             strpos($type, 'char') !== false;
     }
-    
+
 	/**
 	 * Рендеринг части запроса add
-	 * 
+	 *
      * @param Query_Abstract $query
 	 * @return string
 	 */
@@ -158,7 +158,7 @@ class Query_Translator_Mysql_Alter_Table extends Query_Translator_Abstract
 
 	/**
 	 * Рендеринг части запроса change
-	 * 
+	 *
      * @param Query_Abstract $query
 	 * @return string
 	 */
@@ -178,7 +178,7 @@ class Query_Translator_Mysql_Alter_Table extends Query_Translator_Abstract
 
 	/**
 	 * Рендеринг части запроса drop
-	 * 
+	 *
      * @param Query_Abstract $query
 	 * @return string
 	 */
@@ -202,7 +202,7 @@ class Query_Translator_Mysql_Alter_Table extends Query_Translator_Abstract
 
 	/**
 	 * Рендеринг индекса
-	 * 
+	 *
      * @param string $name
 	 * @param array $params
 	 * @return string
@@ -210,7 +210,8 @@ class Query_Translator_Mysql_Alter_Table extends Query_Translator_Abstract
 	protected function renderIndex($name, $params)
 	{
         $helper = $this->helper();
-		$sql = strtoupper(self::$indexTypes[$params[Query::TYPE]]) .
+        $type = strtolower($params[Query::TYPE]);
+		$sql = strtoupper(self::$indexTypes[$type]) .
 			' ' . $helper->escape($name) . '(';
 		$fields = $params[Query::FIELD];
 		foreach ($fields as &$field) {
@@ -222,7 +223,7 @@ class Query_Translator_Mysql_Alter_Table extends Query_Translator_Abstract
 
     /**
      * Отрендерить размерность поля
-     * 
+     *
      * @para, string $type
      * @param array $params
      * @return string
@@ -238,13 +239,13 @@ class Query_Translator_Mysql_Alter_Table extends Query_Translator_Abstract
         } else {
             $sql .= implode(',', (array) $params[Model_Field::ATTR_SIZE]);
         }
-        $sql .= ')';
+        $sql .= ') ';
         return $sql;
     }
-    
+
     /**
      * Рендерить null/not null атрибут поля
-     * 
+     *
      * @param array $params
      * @return string
      */
@@ -258,10 +259,10 @@ class Query_Translator_Mysql_Alter_Table extends Query_Translator_Abstract
         $sql .= ' ';
         return $sql;
     }
-    
+
     /**
      * Отрендерить кодировку строки
-     * 
+     *
      * @param array $params
      * @return string
      */
@@ -278,10 +279,10 @@ class Query_Translator_Mysql_Alter_Table extends Query_Translator_Abstract
         }
         return $sql;
     }
-    
+
     /**
      * Отрендерить значение по умолчанию
-     * 
+     *
      * @param string $type
      * @param array $params
      * @return string
@@ -301,10 +302,10 @@ class Query_Translator_Mysql_Alter_Table extends Query_Translator_Abstract
             return ' ' . Model_Field::ATTR_DEFAULT . ' ' . $default;
         }
     }
-    
+
 	/**
 	 * Рендеринг поля
-	 * 
+	 *
      * @param string $name
 	 * @param array $params
 	 * @return string

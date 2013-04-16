@@ -2,49 +2,49 @@
 
 /**
  * Абстрактный запрос строителя запросов
- * 
+ *
  * @author morph, goorus, neon
  */
 class Query_Abstract
 {
     /**
      * Брокер частей запроса
-     * 
+     *
      * @var Query_Command_Broker
      */
     protected static $commandBroker;
-    
+
     /**
      * Пул частей запроса
-     * 
+     *
      * @var Query_Command_Pool
      */
     protected static $commandPool;
-    
+
     /**
 	 * Флаги запроса
 	 *
 	 * @var array
 	 */
 	protected $flags;
-    
+
 	/**
 	 * Части запроса
-	 * 
+	 *
      * @var array
 	 */
 	protected $parts;
 
 	/**
 	 * Тип запроса
-	 * 
+	 *
      * @var string
 	 */
 	protected $type;
 
     /**
-     * Магический метод 
-     * 
+     * Магический метод
+     *
      * @param string $method
      * @param array $args
      */
@@ -66,7 +66,7 @@ class Query_Abstract
                 $this->parts[$partName][] = $data[$partName];
                 break;
             case Query::MERGE:
-                $this->parts[$partName] = array_merge(
+                $this->parts[$partName] = array_merge_recursive(
                     $this->parts[$partName], $data[$partName]
                 );
                 break;
@@ -77,7 +77,7 @@ class Query_Abstract
         $queryCommand->free();
         return $this;
     }
-    
+
 	/**
 	 * Конструктор
 	 */
@@ -88,7 +88,7 @@ class Query_Abstract
 
 	/**
 	 * Преобразует части запроса в строку
-	 * 
+	 *
      * @return string
 	 */
 	public function __toString()
@@ -125,7 +125,7 @@ class Query_Abstract
 
     /**
      * Получить (инициализировать) брокер частей запроса
-     * 
+     *
      * @return Query_Command_Broker
      */
     public function commandBroker()
@@ -137,10 +137,10 @@ class Query_Abstract
         }
         return self::$commandBroker;
     }
-    
+
     /**
      * Получить (инициализировать) пул частей запроса
-     * 
+     *
      * @return Query_Command_Pool
      */
     public function commandPool()
@@ -152,7 +152,7 @@ class Query_Abstract
         }
         return self::$commandPool;
     }
-    
+
 	/**
 	 * Получить значение флага
 	 *
@@ -169,7 +169,7 @@ class Query_Abstract
 
 	/**
 	 * Возвращает имя запроса
-	 * 
+	 *
      * @return string
 	 */
 	public function getName()
@@ -179,7 +179,7 @@ class Query_Abstract
 
 	/**
 	 * Возвращает часть запроса
-	 * 
+	 *
      * @param string $name
 	 * @return mixed
 	 */
@@ -201,7 +201,7 @@ class Query_Abstract
 
 	/**
 	 * Возвращает тэги
-	 * 
+	 *
      * @return array
 	 */
 	public function getTags()
@@ -211,7 +211,7 @@ class Query_Abstract
 
 	/**
 	 * Возвращает часть запроса
-	 * 
+	 *
      * @param string $name
 	 * @param mixed $default
 	 * @return mixed
@@ -224,7 +224,7 @@ class Query_Abstract
 
 	/**
 	 * Возвращает все части запроса.
-	 * 
+	 *
      * @return array
 	 */
 	public function parts()
@@ -234,7 +234,7 @@ class Query_Abstract
 
 	/**
 	 * Сброс всех частей запроса.
-	 * 
+	 *
      * @return Query Этот запрос.
 	 */
 	public function reset()
@@ -245,7 +245,7 @@ class Query_Abstract
 
 	/**
 	 * Сбрасывает часть запроса
-	 * 
+	 *
      * @param string|array $parts
 	 * @return Query Этот запрос.
 	 */
@@ -274,7 +274,7 @@ class Query_Abstract
 
 	/**
 	 * Подменяет часть запроса
-	 * 
+	 *
      * @param string $name Часть запроса.
 	 * @param mixed $value Новое значение.
 	 * @return Query Этот запрос.
@@ -286,7 +286,7 @@ class Query_Abstract
 
 	/**
 	 * Транслирует запрос указанным транслятором
-	 * 
+	 *
      * @param string $translator Транслятор.
 	 * @return mixed Транслированный запрос.
 	 */
@@ -300,7 +300,7 @@ class Query_Abstract
 
 	/**
 	 * Тип запроса
-	 * 
+	 *
      * @return string
 	 */
 	public function type()

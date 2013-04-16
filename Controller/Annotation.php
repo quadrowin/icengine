@@ -24,7 +24,7 @@ class Controller_Annotation extends Controller_Abstract
 
     /**
      * Сброк аннотации
-     * 
+     *
      * @Template(null)
      * @Validator("User_Cli")
      */
@@ -41,7 +41,7 @@ class Controller_Annotation extends Controller_Abstract
 
     /**
      * Обновить аннотации
-     * 
+     *
      * @Template(null)
      * @Validator("User_Cli")
      */
