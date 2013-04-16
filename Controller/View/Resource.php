@@ -43,7 +43,7 @@ class Controller_View_Resource extends Controller_Abstract
 			}
 
             $vars['{$moduleName}'] = $module->name;
-			$vars['{$modulePath}'] = $module->path();
+			$vars['{$modulePath}'] = ltrim($module->path(), '/');
 			foreach ($config->targets as $targetName => $target) {
                 $existsResources = array();
                 $resultResources = array();
