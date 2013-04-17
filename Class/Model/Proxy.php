@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Проксирующая модель. Используется в случаях, когда невозможно использовать 
+ * Проксирующая модель. Используется в случаях, когда невозможно использовать
  * класс самой модели.
- * 
+ *
  * @author goorus, morph
  */
 class Model_Proxy extends Model
@@ -11,7 +11,7 @@ class Model_Proxy extends Model
 
 	/**
 	 * Представляемая модель.
-	 * 
+	 *
      * @var string
 	 */
 	protected $modelName;
@@ -34,14 +34,14 @@ class Model_Proxy extends Model
 
 	/**
      * Конструктор
-     * 
+     *
 	 * @param string $modelName
 	 * @param array $fields
 	 * @param boolean $autojoin
 	 */
 	public function __construct ($modelName, array $fields = array ())
 	{
-		$this->_modelName = $modelName;
+		$this->modelName = $modelName;
 		parent::__construct ($fields);
 	}
 
@@ -52,7 +52,7 @@ class Model_Proxy extends Model
     {
         return $this;
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -76,11 +76,11 @@ class Model_Proxy extends Model
 	{
 	    return $this;
 	}
-    
+
     /**
      * @inheritdoc
      */
-    public function update($data, $hardUpdate = false)
+    public function update(array $data, $hardUpdate = false)
     {
         return $this;
     }
