@@ -33,7 +33,7 @@ class Query_Abstract
 	 *
      * @var array
 	 */
-	protected $parts;
+	protected $parts = array();
 
 	/**
 	 * Тип запроса
@@ -58,7 +58,8 @@ class Query_Abstract
         if (empty($data[$partName])) {
             return $this;
         }
-        if (!isset($this->parts[$partName])) {
+        if ($mergeStrategy != Query::REPLACE &&
+            !isset($this->parts[$partName])) {
             $this->parts[$partName] = array();
         }
         switch ($mergeStrategy) {
