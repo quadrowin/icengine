@@ -239,7 +239,7 @@ class Crypt_AES extends Crypt_Abstract {
 	public function decode($input, $key = null) {
 		$deencrypt = "";
 		$resultd = "";
-		$decryptarray = split(" ", $input);
+		$decryptarray = explode(" ", $input);
 		for ($i = 0; $i < count($decryptarray); $i++)
 			$decryptarray[$i] = base_convert($decryptarray[$i], 35, 10);
 		for ($u = 0; $u < count($decryptarray); $u++) {

@@ -18,5 +18,6 @@ class Controller_Validator_Not_Null extends Controller_Validator_Abstract
         if (!$paramValue) {
             return $this->sendError('null');
         }
+        return true;
     }
 }

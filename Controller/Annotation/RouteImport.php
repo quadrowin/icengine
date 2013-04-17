@@ -19,12 +19,12 @@ class Controller_Annotation_RouteImport extends Controller_Abstract
         $routeConfig = $context->configManager->get('Route');
         $routes = $routeConfig->routes->__toArray();
         $emptyRoute = $routeConfig->emptyRoute;
-        foreach ($data as $id => $data) {
+        foreach ($data as $id => $currentData) {
             list($className,) = explode('/', $id, 2);
-            if (empty($data['RouteImport']['data'])) {
+            if (empty($currentData['RouteImport']['data'])) {
                 continue;
             }
-            $configKey = reset($data['RouteImport']['data'][0]);
+            $configKey = reset($currentData['RouteImport']['data'][0]);
             if (strpos($configKey, '.') !== false) {
                 list($className, $configKey) = explode('.', $configKey);
             }
