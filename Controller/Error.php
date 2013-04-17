@@ -34,7 +34,7 @@ class Controller_Error extends Controller_Abstract
 				'error' => 'access denied'
 			)
 		));
-		return $this->replaceAction('Authorization', 'accessDenied');
+		$this->replaceAction('Authorization', 'accessDenied');
 	}
 
 	/**

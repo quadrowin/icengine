@@ -45,10 +45,7 @@ var Helper_Email = {
      */
     isValid: function(email)
     {
-        if (!Helper_Email.parseEmail(email)) {
-            return false;
-        }
-        return true;
+        return !Helper_Email.parseEmail(email);
     },
 
 	/**

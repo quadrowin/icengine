@@ -1,8 +1,5 @@
 <?php
 
-Loader::load('Debug');
-Loader::load('RSA', 'Vendor');
-
 /**
  * Класс для работы с шифрованием RSA
  * W - wrapper
