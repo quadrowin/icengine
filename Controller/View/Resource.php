@@ -44,9 +44,7 @@ class Controller_View_Resource extends Controller_Abstract
 
             $vars['{$moduleName}'] = $module->name;
 			$vars['{$modulePath}'] = $module->path();
-			foreach ($config->targets as $targetName => $target) {
-                $existsResources = array();
-                $resultResources = array();
+			foreach ($config->targets as $targetName => $
                 if ($type && $type != $target->type) {
                     continue;
                 }
@@ -77,6 +75,8 @@ class Controller_View_Resource extends Controller_Abstract
 						);
 					}
 				}
+				$existsResources = array();
+                $resultResources = array();
                 foreach ($resources as $resource) {
                     if (in_array($resource->filePath, $existsResources)) {
                         continue;
