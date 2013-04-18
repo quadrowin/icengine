@@ -18,7 +18,7 @@ class Controller_Annotation extends Controller_Abstract
             'Route', 'RouteImport', 'Cache', 'Schedule'
         ),
         'properties'        => array(
-            'Service'
+            'Service', 'Generator'
         )
     );
 
@@ -63,7 +63,7 @@ class Controller_Annotation extends Controller_Abstract
                 'name'  => $class['class']
             ));
             $helperAnnotationUpdate->getDelegees(
-                $delegees, $className, $delegeeData
+                $delegees, $className, $delegeeData, $class['file']
             );
         }
         foreach ($delegeeData as $delegeeName => $data) {
