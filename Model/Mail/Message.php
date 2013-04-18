@@ -85,12 +85,9 @@ class Mail_Message extends Model
 			$provider = new Mail_Provider_Mimemail();
 		}
         $result = $provider->send(
-            $this,
-            (array) json_decode($this->params, true)
+            $this, (array) json_decode($this->params, true)
         );
-        $this->update(array(
-            'sended'	=> 1
-        ));
+        $this->update(array('sended' => 1));
         if (!$result) {
             $debug = $this->getService('debug');
 		    $debug->logVar('Sendmail error message');

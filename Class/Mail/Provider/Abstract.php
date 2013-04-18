@@ -5,7 +5,7 @@
  *
  * @author goorus, neon
  */
-class Mail_Provider_Abstract extends Model_Factory_Delegate
+class Mail_Provider_Abstract
 {
 
 	/**

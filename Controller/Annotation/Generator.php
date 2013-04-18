@@ -22,9 +22,9 @@ class Controller_Annotation_Generator extends Controller_Abstract
             if (!$classReflection->hasProperty($propertyName)) {
                 continue;
             }
-            $needGetter = empty($subData['Generator']['data'][0]) ||
+            $needGetter = !is_array($subData['Generator']['data']) ||
                 isset($subData['Generator']['data'][0]['get']);
-            $needSetter = empty($subData['Generator']['data'][0]) ||
+            $needSetter = !is_array($subData['Generator']['data']) ||
                 isset($subData['Generator']['data'][0]['set']);
             $propertyReflection = $classReflection->getProperty($propertyName);
             $propertyType = $context->helperAnnotationGenerator->getType(

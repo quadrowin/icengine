@@ -11,9 +11,7 @@ class Controller_View_Resource extends Controller_Abstract
 	/**
      * Процесс упаковки ресурсов
      *
-     * @Context("configManager")
-     * @Context("viewResourceManager")
-     * @Context("collectionManager")
+     * @Context("configManager", "viewResourceManager", "collectionManager")
      */
 	public function index($type, $params, $name, $context)
 	{
@@ -34,7 +32,9 @@ class Controller_View_Resource extends Controller_Abstract
             if ($module->isMain) {
                 $config = $context->configManager->get($configClassName);
             } else {
-                $config = $moduleManager->getConfig($module->name, $configClassName);
+                $config = $moduleManager->getConfig(
+                    $module->name, $configClassName
+                );
             }
 			if (!$config || !$config->targets) {
 				continue;
