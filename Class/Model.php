@@ -31,7 +31,7 @@ abstract class Model implements ArrayAccess
      *
 	 * @var array
 	 */
-	protected $fields;
+	protected $fields = array();
 
 	/**
 	 * Подгруженные объекты
@@ -95,7 +95,7 @@ abstract class Model implements ArrayAccess
 	 */
 	public function __construct(array $fields = array())
 	{
-		$this->fields = $fields;
+		$this->set($fields);
         $selfFields = $this->helper()->getVars($this);
         foreach (array_keys($selfFields) as $fieldName) {
             if (!$fieldName || $fieldName[0] == '_') {
@@ -391,7 +391,7 @@ abstract class Model implements ArrayAccess
         }
 		return $this->data;
 	}
-
+    
 	/**
 	 * Получить значения полей. Синоним asRow
      *
@@ -477,7 +477,8 @@ abstract class Model implements ArrayAccess
 	public function key()
 	{
 		$keyField = $this->keyField();
-        return isset($this->fields[$keyField]) ? $this->fields[$keyField] : null;
+        return isset($this->fields[$keyField]) 
+            ? $this->fields[$keyField] : null;
 	}
 
 	/**
@@ -670,6 +671,16 @@ abstract class Model implements ArrayAccess
     {
         self::$serviceLocator = $serviceLocator;
     }
+    
+    /**
+     * Изменить поля для обновления
+     * 
+     * @param array $fields
+     */
+    public function setUpdatedFields($fields)
+    {
+        $this->updatedFields = $fields;
+    }
 
 	/**
 	 * Тихое получение или установка поля
@@ -718,9 +729,7 @@ abstract class Model implements ArrayAccess
             $modelManager->get($this->table(), $this->key(), $this);
         }
         if (is_null($this->fields)) {
-            $this->fields = array(
-                $this->keyField() => null
-            );
+            $this->fields = array($this->keyField() => null);
         }
 		return $this;
 	}
@@ -776,7 +785,13 @@ abstract class Model implements ArrayAccess
             if (!isset($fields[$key])) {
                 continue;
             }
+            if ($value == $this->field($key)) {
+                continue;
+            }
             $this->updatedFields[$key] = $value;
+        }
+        if (!$this->updatedFields) {
+            return $this;
         }
         $this->set($this->updatedFields);
 		return $this->save($hardUpdate);

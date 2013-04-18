@@ -1,15 +1,30 @@
 <?php
 
+/**
+ * Абстрактный валидатор модели
+ * 
+ * @author morph
+ */
 class Model_Validator_Abstract
 {
-	protected static $_scheme = array (
+    /**
+     * Схема валидации
+     * 
+     * @var array
+     */
+	protected $scheme = array ();
 
-	);
-
-	public static function validate ($model, $input)
+    /**
+     * Валидация модели
+     * 
+     * @param Model $model
+     * @param Data_Transport|array $input
+     * @return array|boolean
+     */
+	public function validate($model, $input)
 	{
         $serviceLocator = IcEngine::serviceLocator();
         $modelValidator = $serviceLocator->getService('modelValidator');
-		return $modelValidator->validate($model, static::$_scheme, $input);
+		return $modelValidator->validate($model, $this->scheme, $input);
 	}
 }

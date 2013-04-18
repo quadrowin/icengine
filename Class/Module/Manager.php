@@ -20,7 +20,7 @@ class Module_Manager extends Manager_Abstract
             'Model'         => 'Class',
             ''              => 'Class',
             'Controller'    => 'Controller',
-            'includes'      => 'includes'
+            'Vendor'        => 'Vendor'
         ),
         'modules'           => array(),
         'viewPath'          => 'View'

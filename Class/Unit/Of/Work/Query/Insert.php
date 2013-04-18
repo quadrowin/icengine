@@ -43,6 +43,9 @@ class Unit_Of_Work_Query_Insert extends Unit_Of_Work_Query_Abstract
 		);
 	}
 
+    /**
+     * @inheritdoc
+     */
 	private function prepare()
 	{
 

@@ -1,9 +1,19 @@
 <?php
 
-class Model_Validator_Attribute_SameAs extends Model_Validator_Attribute_Abstract
+/**
+ * Является ли значение поля идентичным переданому в транспортe
+ * 
+ * @author morph
+ */
+class Model_Validator_Attribute_SameAs extends 
+    Model_Validator_Attribute_Abstract
 {
-	public static function validate ($model, $field, $value, $input)
+    /**
+     * @inheritdoc
+     */
+	public function doValidate()
 	{
-		return $model->sfield ($field) === $input->receive ($value);
+		return $this->model->sfield($this->field) === 
+            $this->input->receive($this->value);
 	}
 }
