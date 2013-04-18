@@ -154,8 +154,10 @@ class IcEngine
         self::$loader->load('Loader_Auto');
         $autoLoader = new Loader_Auto();
         $autoLoader->register();
-        $loaderProvider = new Data_Provider_Apc();
+        $loaderProvider = self::getManager('Data_Provider')->get('Loader');
         self::$loader->setProvider($loaderProvider);
+        $configProvider = self::getManager('Data_Provider')->get('Config');
+        self::getManager('Config')->setProvider($configProvider);
 		if ($bootstap) {
 			self::initBootstrap($bootstap);
 		}
