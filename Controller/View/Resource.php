@@ -30,18 +30,15 @@ class Controller_View_Resource extends Controller_Abstract
             if (!$module->isMain && !$module->hasResource) {
                 continue;
 			}
-
             $config = '';
             if ($module->isMain) {
                 $config = $context->configManager->get($configClassName);
             } else {
                 $config = $moduleManager->getConfig($module->name, $configClassName);
             }
-
 			if (!$config || !$config->targets) {
 				continue;
 			}
-
             $vars['{$moduleName}'] = $module->name;
 			$vars['{$modulePath}'] = ltrim($module->path(), '/');
 			foreach ($config->targets as $targetName => $target) {
@@ -101,7 +98,6 @@ class Controller_View_Resource extends Controller_Abstract
                     'ts'	=> $packer->cacheTimestamp ()
                 );
             }
-
             $this->output->send ('reses', $reses);
         }
 	}
