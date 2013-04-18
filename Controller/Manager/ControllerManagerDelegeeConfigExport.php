@@ -25,7 +25,9 @@ class ControllerManagerDelegeeConfigExport extends
             foreach ($actionScheme['ConfigExport'] as $data) {
                 $configField = reset($data);
                 $toField = isset($data['to']) ? $data['to'] : $configField;
-                $params[$toField] = $config[$configField];
+                if (empty($params[$toField])) {
+                    $params[$toField] = $config[$configField];
+                }
             }
             $context->setArgs($params);
         }

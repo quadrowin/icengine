@@ -239,6 +239,22 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
         return $user;
 	}
 
+    /**
+     * Сгенерировать код активации
+     *
+     * @param int $minLength
+     * @param int $maxLength
+     * @return string
+     */
+    public function genCode($minLength = 5, $maxLength = 7)
+	{
+        $code = (string) rand(
+			str_pad("1", $minLength, '0'),	// от 10000
+			str_repeat('9', $maxLength)		// до 9999999
+		);
+		return $code;
+	}
+
 	/**
 	 * Отправляет пользователю СМС для авторизации
 	 *
@@ -265,11 +281,10 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 			return 'Data_Validator_Authorization_User/denied';
 		}
 		$config = $this->config ();
-		$activationCode = $this->getService('helperActivation')
-            ->generateNumeric(
-                $config['code_min_length'],
-                $config['code_max_length']
-            );
+		$activationCode = $this->genCode(
+            $config['code_min_length'],
+            $config['code_max_length']
+        );
 		$modelManager = $this->getService('modelManager');
         $helperDate = $this->getService('helperDate');
 		$activationQuery = $this->getService('query')

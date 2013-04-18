@@ -20,15 +20,12 @@ class Controller_View_Resource extends Controller_Abstract
         $vars = array ();
 		if ($params) {
 			foreach ($params as $key => $value) {
-                if ($key != 'reses') {
-				    $vars['{$' . $key . '}'] = $value;
-                }
+				$vars['{$' . $key . '}'] = $value;
 			}
 		}
 		$moduleCollection = $context->collectionManager->create('Module');
         $configClassName = 'Controller_View_Resource';
         $moduleManager = $this->getService('moduleManager');
-        echo PHP_EOL;
 		foreach ($moduleCollection->items() as $module) {
             if (!$module->isMain && !$module->hasResource) {
                 continue;
@@ -46,20 +43,14 @@ class Controller_View_Resource extends Controller_Abstract
 			}
 
             $vars['{$moduleName}'] = $module->name;
-			$vars['{$modulePath}'] = $module->path();
+			$vars['{$modulePath}'] = ltrim($module->path(), '/');
 			foreach ($config->targets as $targetName => $target) {
-
-                if (isset($params['reses']) && is_array($params['reses']) && !in_array($targetName, $params['reses'])) {
-                    continue;
-                }
-
                 if ($type && $type != $target->type) {
                     continue;
                 }
                 if ($name && $name != $targetName) {
                     continue;
                 }
-                echo '  ' . $targetName . ' processed' . PHP_EOL;
 				$resources = array();
 				foreach ($target->sources as $source) {
 					if (is_string($source)) {
@@ -71,7 +62,6 @@ class Controller_View_Resource extends Controller_Abstract
 							? array($source->file)
                             : $source->file->__toArray();
 					}
-
 					foreach ($sourceFiles as $filename) {
                         $filename = strtr($filename, $vars);
                         $loadedResources = $context->viewResourceManager->load(
@@ -83,7 +73,7 @@ class Controller_View_Resource extends Controller_Abstract
 						);
 					}
 				}
-                $existsResources = array();
+				$existsResources = array();
                 $resultResources = array();
                 foreach ($resources as $resource) {
                     if (in_array($resource->filePath, $existsResources)) {
@@ -101,8 +91,7 @@ class Controller_View_Resource extends Controller_Abstract
 				}
 				$destinationFile = strtr($target->file, $vars);
 				$packer->pushConfig($packerConfig);
-//				var_dump($packer);
-                $packer->pack(
+				$packer->pack(
                     $resultResources, $destinationFile, $packerConfig, true
                 );
 				$packer->popConfig();

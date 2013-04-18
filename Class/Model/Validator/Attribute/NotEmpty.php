@@ -1,9 +1,16 @@
 <?php
 
-class Model_Validator_Attribute_NotEmpty extends Model_Validator_Attribute_Abstract
+/**
+ * Проверка на непустоту
+ */
+class Model_Validator_Attribute_NotEmpty extends 
+    Model_Validator_Attribute_Abstract
 {
-	public static function validate ($model, $field, $value, $input)
+    /**
+     * @inheritdoc
+     */
+	public function doValidate()
 	{
-		return !($model->sfield ($field) == (bool) $value);
+        return (bool) $this->model->sfield($this->field);
 	}
 }
