@@ -45,8 +45,6 @@ class Controller_View_Resource extends Controller_Abstract
             $vars['{$moduleName}'] = $module->name;
 			$vars['{$modulePath}'] = ltrim($module->path(), '/');
 			foreach ($config->targets as $targetName => $target) {
-                $existsResources = array();
-                $resultResources = array();
                 if ($type && $type != $target->type) {
                     continue;
                 }
@@ -64,8 +62,6 @@ class Controller_View_Resource extends Controller_Abstract
 							? array($source->file)
                             : $source->file->__toArray();
 					}
-
-//                    var_dump($source);
 					foreach ($sourceFiles as $filename) {
                         $filename = strtr($filename, $vars);
                         $loadedResources = $context->viewResourceManager->load(
@@ -77,6 +73,8 @@ class Controller_View_Resource extends Controller_Abstract
 						);
 					}
 				}
+				$existsResources = array();
+                $resultResources = array();
                 foreach ($resources as $resource) {
                     if (in_array($resource->filePath, $existsResources)) {
                         continue;

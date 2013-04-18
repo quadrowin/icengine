@@ -14,7 +14,7 @@ class Data_Provider_File extends Data_Provider_Abstract
 	{
         $filename = IcEngine::root() . $key;
         if (!is_file($filename)) {
-            return;
+            return null;
         }
         $content = file_get_contents($filename);
         return json_decode($content, true);

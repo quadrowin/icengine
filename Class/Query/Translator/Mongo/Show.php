@@ -17,7 +17,7 @@ class Query_Translator_Mongo_Show extends Query_Translator_Mongo_Select
 	{
 		$from = $query->part(Query::FROM);
 		if (!$from) {
-			return;
+			return null;
 		}
 		if (count($from) > 1) {
 			throw new Exception('Multi from not supported.');

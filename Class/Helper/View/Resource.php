@@ -157,7 +157,7 @@ class Helper_View_Resource
 	 * @param string $path базовый путь
 	 * @param string $source
 	 */
-	public static function appendJsMultiple($path, $source)
+	public function appendJsMultiple($path, $source)
 	{
 		$slashRight = strrpos($source, '/');
 		$directory = substr($source, 0, $slashRight);
