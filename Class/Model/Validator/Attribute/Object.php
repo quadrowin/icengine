@@ -1,9 +1,21 @@
 <?php
 
+/**
+ * Является ли поле модели объектом
+ * 
+ * @author morph
+ */
 class Model_Validator_Attribute_Object extends Model_Validator_Attribute_Abstract
 {
-	public static function validate ($model, $field, $value, $input)
+    /**
+     * @inheritdoc
+     */
+	public function doValidate()
 	{
-		return is_object ($model->sfield ($field)) === (bool) $value;
+        if (is_null($this->value)) {
+            $this->value = true;
+        }
+		return is_object($this->model->sfield($this->field)) === 
+            (bool) $this->value;
 	}
 }

@@ -24,4 +24,5 @@
             </td>
 		</tr>
 	</table>
+    <div id="resultHtml"></div>
 </form>

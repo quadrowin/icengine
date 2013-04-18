@@ -24,7 +24,7 @@ class Model_Mapper_Method_Find extends Model_Mapper_Method_Abstract
 	 */
 	public function by()
 	{
-		$args = func_get_args ();
+		$args = func_get_args();
 		if (count($args) == 2) {
 			$args = array($args[0] => $args[1]);
 		}

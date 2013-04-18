@@ -8,8 +8,6 @@ class Filter_LowerCase
 {
 	/**
 	 * @inheritdoc
-	 * @param string $data
-	 * @return string
 	 */
 	public function filter($data)
 	{

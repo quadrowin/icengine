@@ -7,7 +7,7 @@
  * @Service("mailTemplate")
  * @Orm\Entity
  */
-class Mail_Template extends Model_Child
+class Mail_Template extends Model
 {
     /**
      * @Orm\Field\Int(Size=11, Not_Null, Auto_Incrment)
@@ -73,8 +73,8 @@ class Mail_Template extends Model_Child
             $parent = $this->getService('modelManager')->byOptions(
                 'Mail_Template',
                 array(
-                    'name'  => '::Parent',
-                    'id'    => $this->parentId
+                    'name'  => '::Key',
+                    'key'    => $this->parentId
                 )
             );
         }
@@ -127,5 +127,4 @@ class Mail_Template extends Model_Child
 		$viewRenderManager->popView();
 		return $result;
 	}
-
 }

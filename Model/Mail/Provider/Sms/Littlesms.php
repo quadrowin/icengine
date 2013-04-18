@@ -1,20 +1,18 @@
 <?php
 
 /**
+ * Провайдер отправки сообщений через Littlesms
  *
- * @desc Провайдер отправки сообщений через Littlesms
- * @author Юрий Шведов
- * @package IcEngine
- *
+ * @author goorus, morph
  */
 class Mail_Provider_Sms_Littlesms extends Mail_Provider_Abstract
 {
-
 	/**
-	 * @desc API для работы с LittleSMS
-	 * @var LittleSMSoriginal
+	 * API для работы с LittleSMS
+	 *
+     * @var LittleSMSoriginal
 	 */
-	protected $_client;
+	protected $client;
 
 	/**
 	 * @desc Конфиг
@@ -39,9 +37,9 @@ class Mail_Provider_Sms_Littlesms extends Mail_Provider_Abstract
 	{
 		$config = $this->config();
 		$loader = $this->getService('loader');
-		$loader->requireOnce($config['original_path'], 'includes');
-		$loader->load('LittleSMSoriginal', 'includes');
-		$this->_client = new LittleSMSoriginal(
+		$loader->requireOnce($config['original_path'], 'Vendor');
+		$loader->load('LittleSMSoriginal', 'Vendor');
+		$this->client = new LittleSMSoriginal(
 			$config['service_login'],
 			$config['service_password'],
 			false
@@ -52,98 +50,52 @@ class Mail_Provider_Sms_Littlesms extends Mail_Provider_Abstract
 	 * (non-PHPdoc)
 	 * @see Mail_Provider_Abstract::send()
 	 */
-	public function send (Mail_Message $message, $config)
+	public function send(Mail_Message $message, $config)
 	{
-		$this->logMessage ($message, self::MAIL_STATE_SENDING);
-
-		$sms_id = $this->sendSms (
-			$message->address,
-			$message->body
-		);
-
-		if ($sms_id)
-		{
-			$this->logMessage (
+		$this->logMessage($message, self::MAIL_STATE_SENDING);
+		$smsId = $this->sendSms($message->address, $message->body);
+		if ($smsId) {
+			$this->logMessage(
 				$message,
 				self::MAIL_STATE_SUCCESS,
 				array (
-					'sms_id'	=> $sms_id
+					'sms_id'	=> $smsId
 				)
 			);
-		}
-		else
-		{
-			$this->logMessage (
+		} else {
+			$this->logMessage(
 				$message,
 				self::MAIL_STATE_FAIL,
-				$this->_client->getResponse ()
+				$this->client->getResponse()
 			);
 		}
-
-		return $sms_id;
+		return $smsId;
 	}
 
 	/**
-	 * @desc Отправка СМС на номер
-	 * @param string $phone Номер телефона.
+	 * Отправка СМС на номер
+	 *
+     * @param string $phone Номер телефона.
 	 * @param string $text Текст сообщения
 	 * @return integer|false Номер сообщения, если успешно, иначе false.
 	 */
-	public function sendSms ($phone, $text)
+	public function sendSms($phone, $text)
 	{
-		$this->_client->sendSMS (
+		$this->client->sendSMS(
 			$phone,
-			iconv (
-				$this->config ()->base_charset,
-				$this->config ()->send_charset,
+			iconv(
+				$this->config()->base_charset,
+				$this->config()->send_charset,
 				$text
 			),
-			$this->config ()->service_sender
+			$this->config()->service_sender
 		);
-		$result = $this->_client->getResponse ();
-
-		if (
-			!empty ($result) && is_array ($result) &&
-			isset ($result ['status']) && $result ['status'] == 'success' &&
-			isset ($result ['messages_id'][0])
-		)
-		{
+		$result = $this->client->getResponse();
+		if (!empty ($result) && is_array($result) &&
+			isset ($result['status']) && $result['status'] == 'success' &&
+			isset ($result['messages_id'][0])) {
 			return $result['messages_id'][0];
 		}
-
 		return false;
 	}
-
-	public function getStatus ($smsId)
-	{
-		$status = $this->_client->checkStatus ($smsId);
-		//print_r($status);
-		return
-			(is_array ($status) && !empty ($status [$smsId])) ?
-			array ('sms_status' => $status [$smsId]) :
-			null;
-	}
-
 }
-
-/*
-require_once 'LittleSMS.class.php';
-
-$api = new LittleSMS('vasya', 'qwerty123', true);
-
-// запрос баланса
-echo 'Мой баланс: ' . $api->getBalance(), PHP_EOL;
-
-// отправка СМС
-echo 'Отправка смс: ' . $api->sendSMS('79631112233', 'Бугагашенька!', 'vasya'), PHP_EOL;
-
-// ответ предыдущего запроса
-$response = $api->getResponse();
-
-// запрос статуса сообщения
-$result = $api->checkStatus($response['messages_id']);
-
-foreach ($result as $message_id => $status) {
-    echo sprintf('Статус сообщения %s: %s', $message_id, $status), PHP_EOL;
-}
-*/
