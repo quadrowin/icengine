@@ -12,6 +12,7 @@ class Controller_Schedule extends Controller_Abstract
      * 
      * @Template(null)
      * @Validator("User_Cli")
+     * @Context("helperSchedule")
      */
     public function index($context)
     {
@@ -32,7 +33,12 @@ class Controller_Schedule extends Controller_Abstract
                 'lastDate'  => $helperDate->toUnix()
             ));
             echo $schedule['controllerAction'] . PHP_EOL;
-            exec('./ice ' . $schedule['controllerAction']);
+            $params = $schedule['paramsJson'] 
+                ? $context->helperSchedule->get($schedule['paramsJson']) : null;
+            exec(
+                './ice ' . $schedule['controllerAction'] . 
+                ($params ? ' ' . $params : '')
+            );
         }
     }
 }
