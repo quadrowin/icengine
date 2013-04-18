@@ -52,7 +52,7 @@ class Controller_Controller extends Controller_Abstract
 	 */
 	public function auto($controller, $action)
 	{
-		return $this->replaceAction($controller, $action);
+		$this->replaceAction($controller, $action);
 	}
     
     /**

@@ -134,7 +134,7 @@ class Dto
      * Изменить данные
      * 
      * @param array $array
-     * @return void
+     * @return Dto
      */
     public function setArray($array)
     {

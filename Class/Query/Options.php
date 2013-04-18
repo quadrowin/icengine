@@ -84,7 +84,7 @@ class Query_Options extends Cache_Options
      * 
 	 * @return Query_Options
 	 */
-	public static function nocache()
+	public function nocache()
 	{
 	    if (!$this->nocache) {
 	        $this->nocache = new Query_Options();

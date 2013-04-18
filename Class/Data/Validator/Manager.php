@@ -58,7 +58,7 @@ class Data_Validator_Manager extends Manager_Abstract
 	 * 		Иначе - строкове представление ошибки в виде:
 	 * 		"Имя_Валидатора/ошибка"
 	 */
-	public static function validateEx($name, $field, $data, $scheme)
+	public function validateEx($name, $field, $data, $scheme)
 	{
 		return $this->get($name)->validateEx($field, $data, $scheme);
 	}
