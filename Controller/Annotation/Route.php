@@ -73,7 +73,8 @@ class Controller_Annotation_Route extends Controller_Abstract
                 }
                 $actions = array($controllerName . '/' . $methodName);
                 if (!empty($currentData['RouteAction'])) {
-                    foreach ($currentData['RouteAction']['data'] as $routeAction) {
+                    foreach ($currentData['RouteAction']['data'] as 
+                        $routeAction) {
                         $actions[] = reset($routeAction);
                     }
                 } elseif (!empty($routeData['actions'])) {
@@ -94,8 +95,9 @@ class Controller_Annotation_Route extends Controller_Abstract
                 if ($params) {
                     $theRoute['params'] = $params;
                 }
-                if ($data['Route']['module']) {
-                    $theRoute['params']['module'] = $data['Route']['module'];
+                if ($currentData['Route']['module']) {
+                    $theRoute['params']['module'] = 
+                        $currentData['Route']['module'];
                 }
                 if ($components) {
                     $theRoute['patterns'] = $components;
