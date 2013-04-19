@@ -38,7 +38,9 @@ class Controller_Controller extends Controller_Abstract
         )->getData()['methods'];
         if (!isset($annotation[$action]) || 
             !isset($annotation[$action]['Ajax'])) {
-            return;
+            $filename = IcEngine::root() . 'log/noajax.log';
+            file_put_contents($filename, $call . PHP_EOL, FILE_APPEND);
+            //return;
         }
 		$result = $controllerManager->html($call, $params, false);
 		$this->output->send(array(
@@ -85,7 +87,9 @@ class Controller_Controller extends Controller_Abstract
         )->getData()['methods'];
         if (!isset($annotation[$action]) || 
             !isset($annotation[$action]['Ajax'])) {
-            return;
+            $filename = IcEngine::root() . 'log/noajax.log';
+            file_put_contents($filename, $call . PHP_EOL, FILE_APPEND);
+            //return;
         }
 		$result = $controllerManager->html($call, $params, false);
 		$this->output->send(array(
