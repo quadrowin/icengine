@@ -322,13 +322,9 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 		 *
          * @var Mail_Provider_Abstract
 		 */
-        $provider = $modelManager->byOptions(
-            'Mail_Provider',
-            array(
-                'name'  => '::Name',
-                'value' => !empty($data['provider'])
-                    ? $data['provider'] : $config['sms_provider']
-            )
+        $provider = $this->getService('mailProvider')->byName(
+            !empty($data['provider'])
+                ? $data['provider'] : $config['sms_provider']
         );
 		$mailMessage = $this->getService('mailMessage');
         $dto = $this->getService('dto')->newInstance('Mail_Message')
