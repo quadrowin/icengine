@@ -45,6 +45,16 @@ class Mail_Provider_Abstract
 	}
     
     /**
+     * Получить имя провайдера
+     * 
+     * @return string
+     */
+    public function getName()
+    {
+        return substr(get_class($this), strlen('Mail_Provider_'));
+    }
+    
+    /**
      * Получить сервис по имени
      * 
      * @param string $serviceName
@@ -67,7 +77,7 @@ class Mail_Provider_Abstract
         $helperDate = $this->getService('helperDate');
 		$log = new Mail_Message_Log(array(
 			'time'				=> $helperDate->toUnix(),
-			'Mail_Provider__id'	=> $this->id,
+			'mailProvider'      => $this->getName(),
 			'Mail_Message__id'	=> $message->id,
 			'state'				=> $state,
 			'comment'			=> json_encode($comment)
