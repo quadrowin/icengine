@@ -6,7 +6,7 @@
  * @author morph, goorus
  */
 class Model_Manager_Delegee_Defined
-{
+{   
 	/**
 	 * Создает предопределенную модель
      * 

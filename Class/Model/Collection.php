@@ -56,6 +56,13 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	protected $lastQuery;
 
+    /**
+     * Имя моделей в коллекции
+     *
+     * @var string
+     */
+    protected $modelName;
+
 	/**
 	 * Опции
      *
@@ -77,7 +84,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	protected $query;
 
-	/**
+	/**и
 	 * Результат последнего выполненного запроса
      *
 	 * @var Query_Result
@@ -287,24 +294,23 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 
 	/**
-	 * @desc Удаление всех объектов коллекции
+	 * Удаление всех объектов коллекции
 	 */
 	public function delete()
 	{
 		if (!is_array($this->items)) {
             $this->load();
         }
-        $items = &$this->items;
         $queryBuilder = $this->getService('query');
-        $unitOfWork = $this->getService('unitOfWork');
-		foreach ($items as $item) {
-            $query = $queryBuilder
-                ->delete()
-                ->from($item->table())
-                ->where($item->keyField(), $item->key());
-            $unitOfWork->push($query);
-		}
-        $unitOfWork->flush();
+        $keyField = $this->keyField();
+        $ids = $this->column($keyField);
+        $modelName = $this->modelName();
+        $query = $queryBuilder
+            ->delete()
+            ->from($modelName)
+            ->where($keyField, $ids);
+        $dataSource = $this->getService('modelScheme')->dataSource($modelName);
+        $dataSource->execute($query);
 		$this->items = array();
 	}
 
@@ -476,7 +482,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 			$index += count($this->items);
 		}
         if (isset($this->items[$index])) {
-            $item = &$this->items[$index];
+            $item = $this->items[$index];
             return $item;
         }
         return null;
@@ -728,9 +734,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
                     $columns = array_keys($scheme->fields->asArray());
                 }
             }
-            if ($this->rawFields) {
-                $columns = array_merge($columns, $this->rawFields);
-            }
             $result = $helperArray->column($this->items, $columns, $keyField);
         }
         foreach ($this->items as $item) {
@@ -752,6 +755,12 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
             );
         }
         if ($this->rawFields) {
+            foreach ($this->items as $item) {
+                $subColumns = $helperArray->column(
+                    array((array) $item['data']), $this->rawFields
+                );
+                $result[$item[$keyField]] += reset($subColumns);
+            }
             $this->rawFields = array();
         }
         return array_values((array) $result);
@@ -838,6 +847,16 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		$this->items = $items;
 		return $this;
 	}
+
+    /**
+     * Изменить имя моделей коллекции
+     *
+     * @param string $modelName
+     */
+    public function setModelName($modelName)
+    {
+        $this->modelName = $modelName;
+    }
 
 	/**
 	 * Изменить паджинатор коллекции
@@ -932,7 +951,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function table ()
 	{
-		return substr(get_class($this), 0, -strlen('_Collection'));
+		return $this->modelName;
 	}
 
 	/**

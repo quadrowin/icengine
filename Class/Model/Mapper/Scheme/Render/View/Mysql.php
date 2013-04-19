@@ -2,11 +2,11 @@
 
 /**
  * Представление рендера схемы связей модели для Mysql
- * 
+ *
  * @author morph
  * @package Ice\Orm
  */
-class Model_Mapper_Scheme_Render_View_Mysql extends 
+class Model_Mapper_Scheme_Render_View_Mysql extends
     Model_Mapper_Scheme_Render_View_Abstract
 {
 	/**
@@ -16,7 +16,7 @@ class Model_Mapper_Scheme_Render_View_Mysql extends
 	public static function render($scheme)
 	{
 		$model = $scheme->getModel();
-		$modelName = $model->modelName();
+		$modelName = is_string($model) ? $model : $model->modelName();
         $serviceLocator = IcEngine::serviceLocator();
 		$modelConfig = $serviceLocator->getService('configManager')->get(
             'Model_Mapper_' . $modelName
@@ -26,13 +26,13 @@ class Model_Mapper_Scheme_Render_View_Mysql extends
 		}
 		$query = $serviceLocator->getService('query')
 			->createTable($modelName);
-        $schemeFields = $modelConfig['fields']->__toArray ();
+        $schemeFields = $modelConfig['fields']->__toArray();
 		foreach ($schemeFields as $fieldName => $values) {
 			$field = new Model_Field($fieldName);
 			$field->setType($values[0]);
 			$attr = $values[1];
 			foreach ($attr as $key => $value) {
-				if (is_numeric ($key)) {
+				if (is_numeric($key)) {
 					unset($attr[$key]);
 					$attr[$value] = true;
 				}
@@ -62,7 +62,7 @@ class Model_Mapper_Scheme_Render_View_Mysql extends
 			$query->addField($field);
 		}
 		if ($modelConfig['indexes']) {
-            $schemeIndexes = $modelConfig ['indexes']->__toArray(); 
+            $schemeIndexes = $modelConfig ['indexes']->__toArray();
 			foreach ($schemeIndexes as $indexName => $values) {
 				$index = new Model_Index($indexName . '_index');
 				$index->setType($values[0]);

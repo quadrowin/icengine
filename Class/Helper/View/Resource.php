@@ -37,7 +37,7 @@ class Helper_View_Resource
             self::JS    => array(
                 'noPack'            => 'Ice/Static/js/noPack/',
                 'adminNoPack'       => 'Admin/Static/js/noPack/',
-                'core'              => 'IcEngine/js/'
+                'core'              => 'IcEngine/Static/js/'
             ),
             self::JTPL  => array(
                 'default'   => 'Ice/Static/jtpl/',
@@ -157,7 +157,7 @@ class Helper_View_Resource
 	 * @param string $path базовый путь
 	 * @param string $source
 	 */
-	public static function appendJsMultiple($path, $source)
+	public function appendJsMultiple($path, $source)
 	{
 		$slashRight = strrpos($source, '/');
 		$directory = substr($source, 0, $slashRight);
