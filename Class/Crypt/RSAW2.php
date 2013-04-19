@@ -18,7 +18,7 @@ class Crypt_RSAW2 extends Crypt_Abstract
 	 */
 	public function __construct()
 	{
-        IcEngine::getLoader()->requireOnce('RSA2', 'Vendor');
+        IcEngine::getLoader()->load('RSA2', 'Vendor');
 		$this->_instance = new Crypt_RSA();
 		$this->keys = $this->_instance->generate_keys('9990454949', '9990450271');
 	}
