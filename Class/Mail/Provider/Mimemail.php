@@ -51,7 +51,7 @@ class Mail_Provider_Mimemail extends Mail_Provider_Abstract
 	 * 
      * @return PHPMailer
 	 */
-	protected function mailer ()
+	protected function mailer()
 	{
 		if (!$this->mailer) {
 			$this->mailer = new PHPMailer();
