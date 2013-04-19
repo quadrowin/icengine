@@ -43,6 +43,17 @@ class Mail_Provider_Abstract
             )
         );
 	}
+    
+    /**
+     * Получить сервис по имени
+     * 
+     * @param string $serviceName
+     * @return mixed
+     */
+    public function getService($serviceName)
+    {
+        return IcEngine::serviceLocator()->getService($serviceName);
+    }
 
 	/**
 	 * Запись в лог состояния сообщения.
