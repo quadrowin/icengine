@@ -21,7 +21,7 @@ class Crypt_RSAW extends Crypt_Abstract
 		$this->keyPath = IcEngine::root() . $this->keyPath;
 		$this->publicFile = $this->keyPath . $this->publicFile;
 		$this->privateFile = $this->keyPath . $this->privateFile;
-        IcEngine::getLoader()->load('Crypt_Rsa', 'Vendor');
+        IcEngine::getLoader()->requireOnce('Crypt_Rsa', 'Vendor');
 		$this->_instance = new Crypt_RSA();
 		$this->checkError($this->_instance);
 		$this->loadKeys();
