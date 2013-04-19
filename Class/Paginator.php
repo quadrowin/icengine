@@ -34,6 +34,12 @@ class Paginator
 	 */
 	public $page;
 
+    /**
+     * Количество страниц
+     * @var integer
+     */
+    public $pageCount;
+
 	/**
 	 * Количество элементов на странице
 	 * @var integer
@@ -86,6 +92,9 @@ class Paginator
 	{
 		$this->page = $page;
 		$this->perPage = $perPage;
+        $this->prevPage = $page > 1 ? ($page - 1) : 1;
+        $pageCount = ceil($total / $perPage);
+        $this->nextPage = $page < $pageCount ? ($page + 1) : $pageCount;
 		$this->total = $total;
 		$this->notGet = $notGet;
 	}
@@ -256,5 +265,8 @@ class Paginator
 	public function setPerPage($value)
 	{
 		$this->perPage = $value;
+        $this->pageCount = ceil($this->total / $this->perPage);
+        $this->nextPage = $this->page < $this->pageCount ? $this->page + 1 :
+            $this->pageCount;
 	}
 }
