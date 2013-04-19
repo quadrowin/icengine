@@ -210,10 +210,9 @@ class Helper_Image
 				$type = key($sizings);
 			}
 		}
-		if (!isset ($sizing)) {
+		if (!isset($sizing)) {
 			$this->code = 400;
-			throw new Zend_Exception('Type unsupported.', 400);
-			return;
+			throw new Exception('Type unsupported.', 400);
 		}
 		$sizing = array_merge($this->_sizing($type), $sizing);
 		return $this->uploadSimple($tc->table(), $tc->key(), $type, $sizing);

@@ -16,5 +16,6 @@ class Controller_Validator_Ajax extends Controller_Validator_Abstract
         if (!$request->isAjax() && !$request->isJsHttpRequest()) {
             return $this->accessDenied();
         }
+        return true;
     }
 }

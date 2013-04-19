@@ -18,7 +18,7 @@ class Mail_Provider_Sms_Littlesms extends Mail_Provider_Abstract
 	 * @desc Конфиг
 	 * @var array
 	 */
-	protected static $config = array (
+	protected $config = array (
 		'original_path'		=> 'LittlesmsOriginal.class.php',
 		'service_login'		=> '',
 		'service_password'	=> '',
@@ -33,7 +33,7 @@ class Mail_Provider_Sms_Littlesms extends Mail_Provider_Abstract
 	 * (non-PHPdoc)
 	 * @see Model::_afterConstruct()
 	 */
-	protected function _afterConstruct()
+	public function __construct()
 	{
 		$config = $this->config();
 		$loader = $this->getService('loader');

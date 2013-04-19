@@ -71,12 +71,10 @@ class Mail_Template extends Model
         $parent = null;
         if ($this->parentId) {
             $parent = $this->getService('modelManager')->byOptions(
-                'Mail_Template',
-                array(
-                    'name'  => '::Parent',
-                    'id'    => $this->parentId
-                )
-            );
+                'Mail_Template', array(
+                    'name'  => '::Key',
+                    'key'    => $this->parentId
+                ));
         }
 		if ($parent) {
 		    $data['body'] = $body;

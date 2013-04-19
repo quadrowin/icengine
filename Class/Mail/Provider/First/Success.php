@@ -11,7 +11,7 @@ class Mail_Provider_First_Success extends Mail_Provider_Abstract
 	/**
 	 * @inheritdoc
 	 */
-	protected static $config = array (
+	protected $config = array (
 		// Набор провайдеров
 		'providers'		=> null//'Sms_Dcnk,Sms_Littlesms,Sms_Yakoon'
 	);
@@ -35,12 +35,7 @@ class Mail_Provider_First_Success extends Mail_Provider_Abstract
 			 * 
              * @var Mail_Provider_Abstract $provider
 			 */
-			$provider = $modelManager->byOptions(
-				'Mail_Provider', array(
-                    'name'  => '::Name',
-                    'value' => $name
-                )
-			);
+			$provider = $this->getService('mailProvider')->byName($name);
 			if ($provider && $provider->send($message, $config)) {
 				$this->logMessage(
 					$message,
