@@ -46,7 +46,7 @@ class Controller_View_Resource extends Controller_Abstract
 			}
 
             $vars['{$moduleName}'] = $module->name;
-			$vars['{$modulePath}'] = $module->path();
+			$vars['{$modulePath}'] = ltrim($module->path(), '/');
 			foreach ($config->targets as $targetName => $target) {
 
                 if (isset($params['reses']) && is_array($params['reses']) && !in_array($targetName, $params['reses'])) {
@@ -61,6 +61,7 @@ class Controller_View_Resource extends Controller_Abstract
                 }
                 echo '  ' . $targetName . ' processed' . PHP_EOL;
 				$resources = array();
+                $existsResources = array();
 				foreach ($target->sources as $source) {
 					if (is_string($source)) {
 						$sourceDir = IcEngine::root();
@@ -83,7 +84,6 @@ class Controller_View_Resource extends Controller_Abstract
 						);
 					}
 				}
-                $existsResources = array();
                 $resultResources = array();
                 foreach ($resources as $resource) {
                     if (in_array($resource->filePath, $existsResources)) {
