@@ -53,13 +53,10 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 	/**
 	 * Авторизация
 	 *
-     * @param string $name Емейл пользователя
-	 * @param string $pass Пароль
-	 * @param string $code Код активации из СМС
+     * @Ajax
 	 */
 	public function login($name, $pass, $a_id, $code, $href)
 	{
-		$this->task->setTemplate(null);
 		$modelManager = $this->getService('modelManager');
 		if (!$a_id && $code) {
             $user = $modelManager->byOptions(
@@ -138,7 +135,6 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 	public function sendSmsCode($provider, $name, $pass, $send)
 	{
         $modelManager = $this->getService('modelManager');
-//        $this->task->setTemplate(null);
         if (!$name || !$pass) {
             return $this->sendError('empty login or password');
         }
@@ -184,9 +180,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 		$count = $user->attr(self::SMS_SEND_COUNTER_ATTR);
 		$time = $this->getService('helperDate')->toUnix();
 		$lastTime = $user->attr(self::SMS_SEND_TIME_ATTR);
-		$deltaTime = $this->getService('helperDate')->secondsBetween(
-            $lastTime
-        );
+		$deltaTime = time() - $lastTime;
         $config = $this->config();
         if ($count >= $config->sms_send_limit_1m && $deltaTime < 60) {
             return $this->sendError('smsLimit');

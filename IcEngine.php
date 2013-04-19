@@ -33,7 +33,7 @@ class IcEngine
 	 *
      * @var string
 	 */
-	protected static $frontInput = 'default_input';
+	protected static $frontInput = 'defaultInput';
 
 	/**
 	 * Рендер по умолчанию
@@ -156,6 +156,8 @@ class IcEngine
         $autoLoader->register();
         $loaderProvider = self::getManager('Data_Provider')->get('Loader');
         self::$loader->setProvider($loaderProvider);
+        $configProvider = self::getManager('Data_Provider')->get('Config');
+        self::getManager('Config')->setProvider($configProvider);
 		if ($bootstap) {
 			self::initBootstrap($bootstap);
 		}
@@ -202,7 +204,7 @@ class IcEngine
 			'Controller'	=> array(
 				self::$path . 'Controller/'
 			),
-			'includes'		=> self::$path . 'includes/'
+			'Vendor'		=> self::$path . 'Vendor/'
 		));
 	}
 
