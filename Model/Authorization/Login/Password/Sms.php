@@ -322,10 +322,8 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 		 *
          * @var Mail_Provider_Abstract
 		 */
-        $provider = $this->getService('mailProvider')->byName(
-            !empty($data['provider'])
-                ? $data['provider'] : $config['sms_provider']
-        );
+        $providerName = !empty($data['provider'])
+            ? $data['provider'] : $config['sms_provider'];
 		$mailMessage = $this->getService('mailMessage');
         $dto = $this->getService('dto')->newInstance('Mail_Message')
             ->setTemplate($config['sms_mail_template'])
@@ -337,7 +335,7 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
             ))
             ->setToUserId($user->key())
             ->setMailProviderParams($config['sms_provider_params']->__toArray())
-            ->setMailProviderId($provider->key());
+            ->setMailProvider($providerName);
         $message = $mailMessage->create($dto)->save();
 		if ($config['sms_test_mode']) {
 			echo 'sms test mode';
