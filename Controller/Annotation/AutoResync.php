@@ -16,7 +16,7 @@ class Controller_Annotation_AutoResync extends Controller_Abstract
      */
     public function update($data, $context)
     {
-        foreach ($data as $className => $annotationData) {
+        foreach (array_keys($data) as $className) {
             $context->helperModelSync->resync($className);
         }
     }

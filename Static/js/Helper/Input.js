@@ -89,13 +89,8 @@ var Helper_Input = {
 		}
 		
 		var p_dot = email.indexOf ('.', p_at);
-		
-		if (p_dot < 0 || p_dot == email.length - 1)
-		{
-			return false;
-		}
-		
-		return true;
+
+        return !(p_dot < 0 || p_dot == email.length - 1);
 	},
 	
 	/**

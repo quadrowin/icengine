@@ -13,7 +13,7 @@ class Api_Transport_Http extends Api_Transport_Abstract
     public function send($call, $args)
     {
         if (empty($args['url'])) {
-            return;
+            return null;
         }
         $url = $args['url'];
         unset($args['url']);

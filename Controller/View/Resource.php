@@ -11,9 +11,7 @@ class Controller_View_Resource extends Controller_Abstract
 	/**
      * Процесс упаковки ресурсов
      *
-     * @Context("configManager")
-     * @Context("viewResourceManager")
-     * @Context("collectionManager")
+     * @Context("configManager", "viewResourceManager", "collectionManager")
      */
 	public function index($type, $params, $name, $context)
 	{
@@ -30,23 +28,20 @@ class Controller_View_Resource extends Controller_Abstract
             if (!$module->isMain && !$module->hasResource) {
                 continue;
 			}
-
             $config = '';
             if ($module->isMain) {
                 $config = $context->configManager->get($configClassName);
             } else {
-                $config = $moduleManager->getConfig($module->name, $configClassName);
+                $config = $moduleManager->getConfig(
+                    $module->name, $configClassName
+                );
             }
-
 			if (!$config || !$config->targets) {
 				continue;
 			}
-
             $vars['{$moduleName}'] = $module->name;
 			$vars['{$modulePath}'] = ltrim($module->path(), '/');
 			foreach ($config->targets as $targetName => $target) {
-                $existsResources = array();
-                $resultResources = array();
                 if ($type && $type != $target->type) {
                     continue;
                 }
@@ -64,8 +59,6 @@ class Controller_View_Resource extends Controller_Abstract
 							? array($source->file)
                             : $source->file->__toArray();
 					}
-
-//                    var_dump($source);
 					foreach ($sourceFiles as $filename) {
                         $filename = strtr($filename, $vars);
                         $loadedResources = $context->viewResourceManager->load(
@@ -77,6 +70,8 @@ class Controller_View_Resource extends Controller_Abstract
 						);
 					}
 				}
+				$existsResources = array();
+                $resultResources = array();
                 foreach ($resources as $resource) {
                     if (in_array($resource->filePath, $existsResources)) {
                         continue;
@@ -103,7 +98,6 @@ class Controller_View_Resource extends Controller_Abstract
                     'ts'	=> $packer->cacheTimestamp ()
                 );
             }
-
             $this->output->send ('reses', $reses);
         }
 	}

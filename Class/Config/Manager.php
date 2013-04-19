@@ -13,9 +13,7 @@ class Config_Manager
      *
      * @var array
      */
-    protected $configs = array(
-
-    );
+    protected $configs = array();
 
 	/**
 	 * Путь до конфигов от корня сайта
@@ -23,6 +21,13 @@ class Config_Manager
      *  @var string
 	 */
 	protected $pathToConfig = array('Ice/Config/');
+    
+    /**
+     * Провайдер
+     * 
+     * @var Data_Provider_Abstract
+     */
+    protected $provider;
 
 	/**
 	 * Добавляет путь для загрузки конфигураций
@@ -133,7 +138,8 @@ class Config_Manager
 	{
 		$paths = (array) $this->pathToConfig;
         $resourceKey = $this->getKey($type, $config);
-        $filename = apc_fetch($resourceKey);
+        $filename = $this->provider 
+            ? $this->provider->get($resourceKey) : null;
         $fileExists = false;
         if (!$filename) {
             foreach ($paths as $path) {
@@ -147,8 +153,8 @@ class Config_Manager
                 }
             }
         }
-        if ($fileExists) {
-            apc_store($resourceKey, $filename);
+        if ($fileExists && $this->provider) {
+            $this->provider->set($resourceKey, $filename);
         }
         $ext = ucfirst(strtolower(substr(strrchr($filename, '.'), 1)));
         $className = 'Config_' . $ext;
@@ -169,4 +175,14 @@ class Config_Manager
 	{
 		$this->pathToConfig = $path;
 	}
+    
+    /**
+     * Изменить провайдер
+     * 
+     * @param Data_Provider_Abstract $provider
+     */
+    public function setProvider($provider)
+    {
+        $this->provider = $provider;
+    }
 }

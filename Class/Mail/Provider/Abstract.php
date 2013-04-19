@@ -5,7 +5,7 @@
  *
  * @author goorus, neon
  */
-class Mail_Provider_Abstract extends Model_Factory_Delegate
+class Mail_Provider_Abstract
 {
 
 	/**
@@ -43,6 +43,43 @@ class Mail_Provider_Abstract extends Model_Factory_Delegate
             )
         );
 	}
+    
+    /**
+	 * Загружает и возвращает конфиг для провайдера
+     *
+	 * @return Objective
+	 */
+	public function config()
+	{
+		if (!is_object($this->config)) {
+			$configManager = $this->getService('configManager');
+            $this->config = $configManager->get(
+				get_class($this), $this->config
+			);
+		}
+		return $this->config;
+	}
+    
+    /**
+     * Получить имя провайдера
+     * 
+     * @return string
+     */
+    public function getName()
+    {
+        return substr(get_class($this), strlen('Mail_Provider_'));
+    }
+    
+    /**
+     * Получить сервис по имени
+     * 
+     * @param string $serviceName
+     * @return mixed
+     */
+    public function getService($serviceName)
+    {
+        return IcEngine::serviceLocator()->getService($serviceName);
+    }
 
 	/**
 	 * Запись в лог состояния сообщения.
@@ -56,7 +93,7 @@ class Mail_Provider_Abstract extends Model_Factory_Delegate
         $helperDate = $this->getService('helperDate');
 		$log = new Mail_Message_Log(array(
 			'time'				=> $helperDate->toUnix(),
-			'Mail_Provider__id'	=> $this->id,
+			'mailProvider'      => $this->getName(),
 			'Mail_Message__id'	=> $message->id,
 			'state'				=> $state,
 			'comment'			=> json_encode($comment)
