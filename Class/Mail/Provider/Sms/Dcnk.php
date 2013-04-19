@@ -11,7 +11,7 @@ class Mail_Provider_Sms_Dcnk extends Mail_Provider_Abstract
 	/**
 	 * @inheritdoc
 	 */
-	protected static $config = array (
+	protected $config = array (
 		// Путь до клиента
 		'nusoap_path'	=> 'sms/nusoap.php',
 		// Логин

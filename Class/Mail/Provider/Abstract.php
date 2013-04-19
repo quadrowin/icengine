@@ -45,6 +45,22 @@ class Mail_Provider_Abstract
 	}
     
     /**
+	 * Загружает и возвращает конфиг для провайдера
+     *
+	 * @return Objective
+	 */
+	public function config()
+	{
+		if (!is_object($this->config)) {
+			$configManager = $this->getService('configManager');
+            $this->config = $configManager->get(
+				get_class($this), $this->config
+			);
+		}
+		return $this->config;
+	}
+    
+    /**
      * Получить имя провайдера
      * 
      * @return string
