@@ -22,7 +22,7 @@ class Mail_Message_Dto extends Dto
         // ид пользователя, который получит сообщение
         'toUserId'              => 0,
         // ид провайдера отправки
-        'mailProviderId'        => 1,
+        'mailProvider'        => 1,
         // параметры для провайдера отправки
         'mailProviderParams'    => array()
     );
