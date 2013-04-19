@@ -176,7 +176,6 @@ class Controller_Annotation_Schedule extends Controller_Abstract
                 $unitOfWork->flush();
             }
         }
-        die;
         sort($existsScheduleNames);
         sort($scheduleNames);
         $addedScheduleNames = array_diff($scheduleNames, $existsScheduleNames);
