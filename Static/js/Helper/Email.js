@@ -62,6 +62,7 @@ var Helper_Email = {
         if (typeof(email) == 'undefined') {
             return false;
         }
+        console.log('777');
 		var p_at = email.indexOf('@');
 		if (p_at < 0) {
 			return false;
