@@ -107,7 +107,7 @@ class Controller_Admin_Content_Category extends Controller_Abstract
 		$this->_output->send (array (
 			'contents'	=> $contents,
 			'data'		=> array (
-				'full_count'	=> $paginator->fullCount
+				'full_count'	=> $paginator->total
 			)
 		));
 	}
