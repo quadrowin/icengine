@@ -91,7 +91,7 @@ class Mail_Provider_Sms_Yakoon extends Mail_Provider_Abstract
 	 * (non-PHPdoc)
 	 * @see Model::_afterConstruct()
 	 */
-	protected function _afterConstruct ()
+	protected function __construct()
 	{
 		$loader = $this->getService('loader');
 		$loader->requireOnce($this->config()->nusoap_path, 'Vendor');
