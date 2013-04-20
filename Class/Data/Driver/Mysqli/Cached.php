@@ -36,7 +36,7 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
         self::$caches = array();
         self::$tagsCaches = array();
     }
-    
+
 	/**
 	 * @inheritdoc
 	 */
@@ -194,6 +194,7 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
 			'startAt'		=> $start,
 			'finishedAt'	=> $finish,
 			'foundRows'		=> $this->foundRows,
+            'numRows'       => $this->numRows,
 			'result'		=> $result,
 			'touchedRows'	=> $this->numRows + $this->affectedRows,
 			'insertKey'		=> $this->insertId
@@ -210,10 +211,10 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
 	{
 		return $this->cacher;
 	}
-    
+
     /**
      * Вернуть ряды из источника
-     * 
+     *
      * @param Query_Abstract $query
      * @param Query_Options $options
      * @return array
@@ -276,7 +277,7 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
     {
         return $this->cacher->checkTags($tags);
     }
-    
+
     /**
 	 * Изменить текущего кэшера
      *
@@ -307,7 +308,7 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
 		}
 		return parent::setOption($key, $value);
 	}
-    
+
     /**
 	 * Получение хэша запроса
 	 *

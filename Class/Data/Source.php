@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Источник данных 
- * 
+ * Источник данных
+ *
  * @author goorus, morph
  * @Service("dataSource")
  */
@@ -14,31 +14,31 @@ class Data_Source
      * @var array
      */
     protected $config;
-    
+
     /**
 	 * Текущий драйвер источника данных
-     * 
+     *
 	 * @var Data_Driver_Abstract
 	 */
 	protected $driver;
-    
+
 	/**
 	 * Текущий запрос
-	 * 
+	 *
      * @var Query
 	 */
 	private $query;
 
 	/**
 	 * Результат последнего выполненного запроса
-	 * 
+	 *
      * @var Query_Result
 	 */
 	private $result;
 
 	/**
 	 * Проверяет доступность источника данных
-	 * 
+	 *
      * @return boolean
 	 */
 	public function available()
@@ -48,7 +48,7 @@ class Data_Source
 
     /**
      * Получить (инициализировать) драйвер
-     * 
+     *
      * @return Data_Driver_Abstract
      */
     public function driver()
@@ -62,13 +62,13 @@ class Data_Source
         }
         return $this->driver;
     }
-    
+
 	/**
 	 * Выполняет запрос к источнику данных
-     * 
-	 * @param Query_Abstract $query Запрос 
+     *
+	 * @param Query_Abstract $query Запрос
 	 * @param Query_Options $options Опции запроса
-	 * @return Data_Source_Abstract 
+	 * @return Data_Source_Abstract
 	 */
 	public function execute(Query_Abstract $query, $options = null)
 	{
@@ -77,14 +77,17 @@ class Data_Source
         $result = $this->driver()->execute($this->query, $options);
         $result->setSource($this);
         if ($result->numRows()) {
-            $tableName = reset($query[Query::FROM])[Query::TABLE];
-            $signalName = 'Data_Source_Execute_' . $query->type();
+            $fromPart = $query->getPart(Query::FROM);
+            $keys = array_keys($fromPart);
+            $tableName = reset($keys);
             $serviceLocator = IcEngine::serviceLocator();
             $eventManager = $serviceLocator->getService('eventManager');
-            $eventManager->getSignal($signalName)->notify(array(
+            $signal = $eventManager->getSignal('queryResultLanguage');
+            $signal->setData(array(
                 'result'    => $result,
                 'table'     => $tableName
             ));
+            $signal->notify();
         }
 		$this->setResult($result);
 		return $this;
@@ -102,7 +105,7 @@ class Data_Source
 
 	/**
      * Получить текущий драйвер
-     * 
+     *
 	 * @return Data_Driver_Abstract
 	 */
 	public function getDataDriver()
@@ -112,7 +115,7 @@ class Data_Source
 
 	/**
 	 * Возвращает запрос
-	 * 
+	 *
      * @params null|string $translator
 	 * 		Ожидаемый вид запроса.
 	 * 		Если необходим объект запроса, ничего не указывется (по умолчанию).
@@ -126,17 +129,17 @@ class Data_Source
 
 	/**
      * Получить результат последнего выполненного запроса
-     * 
+     *
 	 * @return Query_Result
 	 */
 	public function getResult()
 	{
 		return $this->result;
 	}
-    
+
     /**
      * Наполнить схему данных через источник данных
-     * 
+     *
      * @param Data_Scheme $scheme
      * @return Data_Scheme
      */
@@ -147,7 +150,7 @@ class Data_Source
         $dataSchemeManager = $serviceLocator->getService('dataSchemeManager');
         return $dataSchemeManager->getScheme($scheme);
     }
-    
+
     /**
      * Изменить собственную конфигурация источника данных
      *
@@ -157,10 +160,10 @@ class Data_Source
     {
         $this->config = $config;
     }
-    
+
     /**
 	 * Устанавливает драйвер
-	 * 
+	 *
      * @param Data_Driver_Abstract $driver
 	 */
 	public function setDataDriver(Data_Driver_Abstract $driver)
@@ -168,10 +171,10 @@ class Data_Source
 		$this->driver = $driver;
 		return $this;
 	}
-    
+
     /**
 	 * Устанавливает запрос
-	 * 
+	 *
      * @param Query_Abstract $query
 	 * @return Data_Source_Abstract
 	 */
@@ -183,7 +186,7 @@ class Data_Source
 
 	/**
 	 * Устанавливает результат запроса.
-	 * 
+	 *
      * @param Query_Result $result
 	 * @return Data_Source_Abstract
 	 */
