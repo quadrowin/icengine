@@ -21,10 +21,11 @@ class Unit_Of_Work_Query_Update extends Unit_Of_Work_Query_Abstract
 		$locator = IcEngine::serviceLocator();
 		$queryBuilder = $locator->getService('query');
 		$query = $queryBuilder->insert($modelName);
+        $query->setMultiple(true);
+        $query->setFlag('onDuplicateKey', array_values($clearFields));
 		foreach ($dataPrepared as $values) {
-			$query->values($values, true);
+			$query->values($values);
 		}
-		$query->setFlag('onDuplicateKey', array_values($clearFields));
 		return array(
 			'modelName'	=> $modelName,
 			'query'		=>	$query

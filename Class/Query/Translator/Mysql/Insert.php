@@ -2,7 +2,7 @@
 
 /**
  * Транслятор запросов типа insert драйвера mysql
- * 
+ *
  * @author goorus, morph, neon
  */
 class Query_Translator_Mysql_Insert extends Query_Translator_Mysql_Select
@@ -20,7 +20,7 @@ class Query_Translator_Mysql_Insert extends Query_Translator_Mysql_Select
 		}
         $modelScheme = $this->modelScheme();
 		$table = $query->part(Query::INSERT);
-		$sql = self::SQL_INSERT . ' ' . 
+		$sql = self::SQL_INSERT . ' ' .
             strtolower($modelScheme->table($table)) . ' (';
 		$fields = array_keys($query->part(Query::VALUES));
 		$values = array_values($query->part(Query::VALUES));
@@ -31,8 +31,8 @@ class Query_Translator_Mysql_Insert extends Query_Translator_Mysql_Select
 		}
 		$resultFields = implode(', ', $fields);
 		$resultValues = implode(', ', $values);
-		return $sql . $resultFields . 
-            ') ' . self::SQL_VALUES . ' (' . 
+		return $sql . $resultFields .
+            ') ' . self::SQL_VALUES . ' (' .
             $resultValues . ')';
 	}
 
@@ -46,7 +46,7 @@ class Query_Translator_Mysql_Insert extends Query_Translator_Mysql_Select
 	{
 		$table = $query->part(Query::INSERT);
         $modelScheme = $this->modelScheme();
-		$sql = self::SQL_INSERT . ' ' . 
+		$sql = self::SQL_INSERT . ' ' .
             strtolower($modelScheme->table($table)) . ' (';
 		$fields = null;
 		$values = array();
@@ -70,12 +70,12 @@ class Query_Translator_Mysql_Insert extends Query_Translator_Mysql_Select
 		}
 		$fieldsImploded = implode(', ', $fields);
 		$valuesImploded = implode('), (', $valuesPrepared);
-		$sql = $sql . $fieldsImploded . ') ' . self::SQL_VALUES . 
+		$sql = $sql . $fieldsImploded . ') ' . self::SQL_VALUES .
             ' (' . $valuesImploded . ')';
 		if (($onDuplicateKey = $query->getFlag('onDuplicateKey'))) {
 			$duplicateArray = array();
 			foreach ($onDuplicateKey as $field) {
-				$duplicateArray[] = '`' . 
+				$duplicateArray[] = '`' .
                     $field . '` = ' . self::SQL_VALUES. '(`' . $field . '`)';
 			}
 			$sql .= ' ON DUPLICATE KEY UPDATE ' .
