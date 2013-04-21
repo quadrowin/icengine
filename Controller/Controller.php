@@ -23,7 +23,7 @@ class Controller_Controller extends Controller_Abstract
 	public function ajax($call, $back, $params)
 	{
         $controllerManager = $this->getService('controllerManager');
-        $_SERVER ['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+        $_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
 		if (is_string($params)) {
 			$params = json_decode(urldecode($params), true);
 		}
@@ -36,7 +36,7 @@ class Controller_Controller extends Controller_Abstract
         $annotation = $annotationManager->getAnnotation(
             'Controller_' . $controller
         )->getData()['methods'];
-        if (!isset($annotation[$action]) || 
+        if (!isset($annotation[$action]) ||
             !isset($annotation[$action]['Ajax'])) {
             $filename = IcEngine::root() . 'log/noajax.log';
             file_put_contents($filename, $call . PHP_EOL, FILE_APPEND);
@@ -56,7 +56,7 @@ class Controller_Controller extends Controller_Abstract
 	{
 		$this->replaceAction($controller, $action);
 	}
-    
+
     /**
 	 * Ajax вызов контроллера (синхронный)
      *
@@ -85,7 +85,7 @@ class Controller_Controller extends Controller_Abstract
         $annotation = $annotationManager->getAnnotation(
             'Controller_' . $controller
         )->getData()['methods'];
-        if (!isset($annotation[$action]) || 
+        if (!isset($annotation[$action]) ||
             !isset($annotation[$action]['Ajax'])) {
             $filename = IcEngine::root() . 'log/noajax.log';
             file_put_contents($filename, $call . PHP_EOL, FILE_APPEND);

@@ -10,14 +10,14 @@ class Paginator
 {
 	/**
 	 * Флаг означает, что ссылки нам нужны без всяких ?&page
-	 * 
+	 *
      * @var bool
 	 */
 	public $notGet = false;
 
 	/**
 	 * Общее количество элементов
-	 * 
+	 *
      * @var integer
 	 */
 	public $total;
@@ -25,21 +25,28 @@ class Paginator
 	/**
 	 * Ссылка на страницу.
 	 * Если на задана, будешь использован адрес из запроса.
-	 * 
+	 *
      * @var string
 	 */
 	public $href;
 
 	/**
 	 * Текущая страница
-	 * 
+	 *
      * @var integer
 	 */
 	public $page;
 
+    /**
+     * Количество страниц
+     *
+     * @var integer
+     */
+    public $pageCount;
+
 	/**
 	 * Количество элементов на странице
-     * 
+     *
 	 * @var integer
 	 */
 	public $perPage = 30;
@@ -50,42 +57,42 @@ class Paginator
 	 *      'href'	=> ссылка на страница
 	 * 		'title'	=> номер страницы или многоточие
 	 * )
-	 * 
+	 *
      * @var array
 	 */
 	public $pages;
 
 	/**
 	 * Предыдущая страница
-	 * 
+	 *
      * @var array
 	 */
 	public $prev;
 
     /**
      * Предыдущая страница от выбранной
-     * 
+     *
      * @var array
      */
     public $prevPage;
 
     /**
 	 * Следующая страница
-	 * 
+	 *
      * @var array
 	 */
 	public $next;
 
     /**
      * Следующая страница от выбранной
-     * 
+     *
      * @var array
      */
     public $nextPage;
 
 	/**
 	 * Конструктор
-     * 
+     *
 	 * @param integer $page Текущая страница
 	 * @param integer $page_limit Количество элементов на странице
 	 * @param integer $full_count Полное количество элементов
@@ -96,6 +103,9 @@ class Paginator
 	{
 		$this->page = $page;
 		$this->perPage = $perPage;
+        $this->prevPage = $page > 1 ? ($page - 1) : 1;
+        $pageCount = ceil($total / $perPage);
+        $this->nextPage = $page < $pageCount ? ($page + 1) : $pageCount;
 		$this->total = $total;
 		$this->notGet = $notGet;
 	}
@@ -193,7 +203,7 @@ class Paginator
 
 	/**
      * Инициализировать пагинатор из _GET
-     * 
+     *
 	 * @param integer $fullCount
 	 * @param string $prefix
 	 * @return Paginator
@@ -240,7 +250,7 @@ class Paginator
 
 	/**
      * Получить количество страниц
-     * 
+     *
 	 * @return integer
 	 */
 	public function pagesCount()
@@ -266,5 +276,8 @@ class Paginator
 	public function setPerPage($value)
 	{
 		$this->perPage = $value;
+        $this->pageCount = ceil($this->total / $this->perPage);
+        $this->nextPage = $this->page < $this->pageCount ? $this->page + 1 :
+            $this->pageCount;
 	}
 }
