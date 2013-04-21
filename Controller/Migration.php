@@ -33,7 +33,7 @@ class Controller_Migration extends Controller_Abstract
         $mapper->clearCache();
         echo 'Mapper clear' . PHP_EOL;
 	}
-    
+
 	/**
 	 * Создать миграцию
 	 *
@@ -48,7 +48,7 @@ class Controller_Migration extends Controller_Abstract
 
 	/**
 	 * Узнать текущую миграцию
-     * 
+     *
      * @Template(null)
      * @Validator("User_Cli")
      * @Content("helperMigrationQueue")
@@ -60,7 +60,7 @@ class Controller_Migration extends Controller_Abstract
 
 	/**
 	 * Откатить миграцию
-	 * 
+	 *
      * @Template(null)
      * @Validator("User_Cli")
      * @Context("helperMigrationQueue", "helperMigrationProcess")
@@ -75,7 +75,7 @@ class Controller_Migration extends Controller_Abstract
 
 	/**
 	 * Получить очередь миграций по категории
-     * 
+     *
      * @Template(null)
      * @Validator("User_Cli")
      * @Content("helperMigrationQueue")
@@ -87,7 +87,7 @@ class Controller_Migration extends Controller_Abstract
 
 	/**
 	 * Поднять миграцию
-	 * 
+	 *
      * @Template(null)
      * @Validator("User_Cli")
      * @Context("helperMigrationProcess")

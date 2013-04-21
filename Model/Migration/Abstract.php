@@ -2,21 +2,21 @@
 
 /**
  * Абстрактный класс миграции
- * 
+ *
  * @author morph
  */
 class Migration_Abstract extends Model
 {
 	/**
 	 * Миграция поднята
-	 * 
+	 *
      * @var interger
 	 */
 	const ST_UP = 1;
 
 	/**
 	 * Миграция откачена
-	 * 
+	 *
      * @var interger
 	 */
 	const ST_DOWN = 0;
@@ -24,7 +24,7 @@ class Migration_Abstract extends Model
 	/**
 	 * Параметры, переданные в миграцию контроллером,
 	 * который ее запустил
-	 * 
+	 *
      * @var array
 	 */
 	protected $params;
@@ -39,7 +39,7 @@ class Migration_Abstract extends Model
 
 	/**
 	 * Вернуть данные о последнем выполнение данной миграции
-	 * 
+	 *
      * @return array
 	 */
 	public function getLast()
@@ -50,7 +50,7 @@ class Migration_Abstract extends Model
 
 	/**
 	 * Получить имя миграции
-	 * 
+	 *
      * @return string
 	 */
 	public function getName()
@@ -60,7 +60,7 @@ class Migration_Abstract extends Model
 
 	/**
 	 * Вернуть параметры миграции
-	 * 
+	 *
      * @return array
 	 */
 	public function getParams()
@@ -70,7 +70,7 @@ class Migration_Abstract extends Model
 
 	/**
 	 * Узнать состояние (поднята/откачена) миграции
-	 * 
+	 *
      * @return integer
 	 */
 	public function getState()
@@ -94,7 +94,7 @@ class Migration_Abstract extends Model
 
 	/**
 	 * Залогировать выполнение миграции
-	 * 
+	 *
      * @param string $action
 	 */
 	public function log($action)
@@ -104,7 +104,7 @@ class Migration_Abstract extends Model
 
 	/**
 	 * Востановить данные, которые были до миграции
-	 * 
+	 *
      * @desc array $data
 	 */
 	public function restore($data)
@@ -114,7 +114,7 @@ class Migration_Abstract extends Model
 
 	/**
 	 * Изменить параметры миграции
-	 * 
+	 *
      * @param array $params
 	 */
 	public function setParams($params)
