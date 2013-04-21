@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Хелпер для пересбора аннотации модели конфигурации схемы или источника 
+ * Хелпер для пересбора аннотации модели конфигурации схемы или источника
  * данных
- * 
+ *
  * @author morph
  * @Service("helperModelMigrateRebuild")
  */
@@ -11,7 +11,7 @@ class Helper_Model_Migrate_Rebuild extends Helper_Abstract
 {
     /**
      * Получить вывод для поля
-     * 
+     *
      * @param Model_Field $field
      * @param Config_Array $fieldScheme
      * @param array<Model_Index> $indexes
@@ -30,7 +30,7 @@ class Helper_Model_Migrate_Rebuild extends Helper_Abstract
         $size = $field->getSize();
         $parts = array();
         if ($size) {
-            $parts[] = 'Size=' . 
+            $parts[] = 'Size=' .
                 (is_array($size) ? '{' . implode(',', $size) . '}' : $size);
         }
         if ($field->getNullable()) {
@@ -56,15 +56,15 @@ class Helper_Model_Migrate_Rebuild extends Helper_Abstract
                     implode(', ', $indexes) . ')';
             }
         }
-        $output .= PHP_EOL . "\t */" . PHP_EOL . "\tpublic $" . 
+        $output .= PHP_EOL . "\t */" . PHP_EOL . "\tpublic $" .
             $field->getName() . ';' . PHP_EOL . PHP_EOL;
-        return $output;    
+        return $output;
     }
-    
+
     /**
      * Преобразует поля полученные из схемы данных в необходимые для схемы
      * маппинга моделей
-     * 
+     *
      * @param array $fields
      * @return array
      */
@@ -79,6 +79,10 @@ class Helper_Model_Migrate_Rebuild extends Helper_Abstract
             $default = $field->getDefault();
             if (!is_null($default)) {
                 $attrs['Default'] = $default;
+            }
+            $comment = $field->getComment();
+            if ($comment) {
+                $attrs['Comment'] = $comment;
             }
             $notNull = !$field->getNullable();
             if ($notNull) {
@@ -99,11 +103,11 @@ class Helper_Model_Migrate_Rebuild extends Helper_Abstract
         }
         return $schemeFields;
     }
-    
+
     /**
      * Преобразует индексы полученные из схемы данных в необходимые для схемы
      * маппинга моделей
-     * 
+     *
      * @param array $fields
      * @return array
      */
@@ -117,11 +121,11 @@ class Helper_Model_Migrate_Rebuild extends Helper_Abstract
         }
         return $schemeIndexes;
     }
-    
+
     /**
      * Пересобрать модель основываясь на схеме данных из источника
      * данных
-     * 
+     *
      * @param string $modelModel
      */
     public function rebuild($modelName)
@@ -138,10 +142,10 @@ class Helper_Model_Migrate_Rebuild extends Helper_Abstract
         }
         $this->rewriteScheme($modelName, $dataSchemeDto);
     }
-    
+
     /**
      * Переписать поле модели
-     * 
+     *
      * @param string $modelName
      * @param Model_Field $field
      * @param array $indexes
@@ -179,7 +183,7 @@ class Helper_Model_Migrate_Rebuild extends Helper_Abstract
         $contentLastPart = mb_substr(
             $content, $endFieldPos, $contentLength - $endFieldPos, 'UTF-8'
         );
-        $output = $contentFirstPart . 
+        $output = $contentFirstPart .
             $this->fieldOutput($field, $fieldScheme, $indexes) .
             $contentLastPart;
         $outputParts = explode(PHP_EOL, $output);
@@ -192,10 +196,10 @@ class Helper_Model_Migrate_Rebuild extends Helper_Abstract
         $resultOutput = implode(PHP_EOL, $outputParts);
         file_put_contents($filename, $resultOutput);
     }
-    
+
     /**
      * Перезапись схемы модели
-     * 
+     *
      * @param string $modelName
      */
     public function rewriteScheme($modelName, $dto)
@@ -212,21 +216,21 @@ class Helper_Model_Migrate_Rebuild extends Helper_Abstract
         $helperConverter = $this->getService('helperConverter');
         if ($scheme) {
             $author = $scheme->author;
-            $comment = $scheme->comment ?: 
-                ($dto->info && !empty($dto->info['Comment']) 
+            $comment = $scheme->comment ?:
+                ($dto->info && !empty($dto->info['Comment'])
                     ? $dto->info['Comment'] : '');
-            $references = $references ?: 
+            $references = $references ?:
                 ($scheme->references ? $helperConverter->arrayToString(
                     $scheme->references->__toArray()
                 ) : null);
-            $admin = $scheme->admin 
-                ? $helperConverter->arrayToString($scheme->admin->__toArray()) 
+            $admin = $scheme->admin
+                ? $helperConverter->arrayToString($scheme->admin->__toArray())
                 : null;
-            $languageScheme = $scheme->languageScheme 
+            $languageScheme = $scheme->languageScheme
                 ? $helperConverter->arrayToString(
                     $scheme->languageScheme->__toArray()
                 ) : null;
-            $createScheme = $scheme->createScheme 
+            $createScheme = $scheme->createScheme
                 ? $helperConverter->arrayToString(
                     $scheme->createScheme->__toArray()
                 ) : null;
