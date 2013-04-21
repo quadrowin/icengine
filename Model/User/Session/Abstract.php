@@ -21,6 +21,14 @@ abstract class User_Session_Abstract extends Model
 	 */
 	protected static $defaultUserId = 0;
 
+    /**
+     * Данные для обновления, используется, чтобы не было лишних запросов на
+     * обновление
+     *
+     * @var array
+     */
+    protected $updateData = array();
+
 	/**
 	 * Получить сессию пользователя по phpSessionId
      *
@@ -60,7 +68,7 @@ abstract class User_Session_Abstract extends Model
 	public function getCurrent($sessionId = null)
 	{
         if (!self::$current) {
-            $sessionId = $sessionId ?: 
+            $sessionId = $sessionId ?:
                 $this->getService('request')->sessionId();
             $userSession = $this->byPhpSessionId($sessionId);
             $this->setCurrent($userSession);
@@ -103,6 +111,16 @@ abstract class User_Session_Abstract extends Model
 		self::$defaultUserId = $id;
 	}
 
+    /**
+     * Установить данные для обновления
+     *
+     * @param array $data
+     */
+    public function setUpdateData($data)
+    {
+        $this->updateData = array_merge($this->updateData, $data);
+    }
+
 	/**
      * Обновляет данные сессии
      *
@@ -125,8 +143,8 @@ abstract class User_Session_Abstract extends Model
         }
 		if ($newUserId && $newUserId != $this->User__id) {
 			$updateData['User__id'] = (int) $newUserId;
-        } 
-        $data = array_merge($updateData, $this->getParams());
+        }
+        $data = array_merge($updateData, $this->updateData);
         if ($data) {
             $this->update($data);
         }
