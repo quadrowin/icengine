@@ -29,12 +29,13 @@ class ControllerManagerDelegeeTitle extends ControllerManagerDelegeeAbstract
         foreach ($actionScheme['Title'] as $data) {
             $params = array_values($data);
             $specification = $params[0];
-            $pageTitle = $params[1][0];
-            $siteTitle = isset($params[1][1]) ? $params[1][1] : $pageTitle;
+            $dataTitles = array_values($params[1]);
+            $pageTitle = $dataTitles[0];
+            $siteTitle = isset($dataTitles[1]) ? $dataTitles[1] : $pageTitle;
             $titles[$specification] = array($pageTitle, $siteTitle);
         }
         $slot->setParams(array(
-            'titles'    => $actionScheme['Slot'],
+            'titles'    => $titles,
             'context'   => $context
         ));
         $eventManager->register($signal, $slot);

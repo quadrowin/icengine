@@ -12,7 +12,7 @@ class Controller_Annotation_RouteImport extends Controller_Abstract
      * 
      * @Context("helperCodeGenerator")
      * @Template(null)
-     * @Validator("Not_Null={"data"})
+     * @Validator("Not_Null"={"data"})
      */
     public function update($data, $context) 
     {
