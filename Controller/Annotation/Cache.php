@@ -12,7 +12,7 @@ class Controller_Annotation_Cache extends Controller_Abstract
      * 
      * @Context("helperCodeGenerator")
      * @Template(null)
-     * @Validator("Not_Null={"data"})
+     * @Validator("Not_Null"={"data"})
      */
     public function update($data, $context) 
     {
@@ -34,6 +34,9 @@ class Controller_Annotation_Cache extends Controller_Abstract
                 }
             }
             if (!$hasAnnotation) {
+                continue;
+            }
+            if (empty($subData['Cache'])) {
                 continue;
             }
             $cache = reset($subData['Cache']['data'][0]);

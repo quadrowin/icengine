@@ -138,6 +138,25 @@ class Page_Title extends Model
 		}
 		return $this;
 	}
+    
+    /**
+     * Компилирует тайтлы
+     * 
+     * @param string $titles
+     * @param array $data
+     */
+    public function compileTitles($titles, $data)
+    {
+        $helperString = $this->getService('helperString');
+        $row = array(
+            'pageTitle' => $titles[0],
+            'siteTitle' => $titles[1]
+        );
+        $fields = array('pageTitle', 'siteTitle');
+        return array_values(
+            $helperString->normalizeFields($row, $fields, $data)
+        );
+    }
 
 	/**
 	 * Создать пустую инфо о странице
