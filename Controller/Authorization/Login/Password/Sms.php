@@ -50,13 +50,23 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
         ));
 	}
 
-	/**
-	 * Авторизация
-	 *
+    /**
+     * Просто форма авторизации. Чисто форма без подмены лейаута)
+     */
+    public function form()
+    {
+        $this->task->setClassTpl(__Class__. '/index');
+    }
+
+    /**
+     * Авторизация
+     *
      * @param string $name Емейл пользователя
-	 * @param string $pass Пароль
-	 * @param string $code Код активации из СМС
-	 */
+     * @param string $pass Пароль
+     * @param $a_id
+     * @param string $code Код активации из СМС
+     * @param $href
+     */
 	public function login($name, $pass, $a_id, $code, $href)
 	{
 		$this->task->setTemplate(null);
@@ -121,9 +131,6 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 			self::SMS_SEND_COUNTER_ATTR	=> 0,
 			self::SMS_CODE_ATTR			=> ''
 		));
-        if ($user->hasRole('client-manager')) {
-            $href = '/admin/manager/';
-        }
 		$redirect = $this->getService('helperUri')->validRedirect($href);
 		$this->output->send(array(
             'data'  => array(
