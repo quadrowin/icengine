@@ -18,6 +18,28 @@ class Event_Slot_Title extends Event_Slot
             return;
         }
         $context = $params['context'];
-        print_r($params['titles']);
+        $titles = $params['titles'];
+        $serviceLocator = $context->getControllerManager()->getServiceLocator();
+        $registry = $serviceLocator->getService('registry');
+        $pageTitle = $serviceLocator->getService('pageTitle');
+        $pageTitleSpecificationManager = $serviceLocator->getService(
+            'pageTitleSpecificationManager'
+        );
+        foreach ($titles as $specificationName => $specificationTitles) {
+            $specification = $pageTitleSpecificationManager->get(
+                $specificationName
+            );
+            if (!$specification) {
+                return;
+            }
+            if ($specification->isSatisfiedBy($buffer)) {
+                list($pageTitle, $siteTitle) = $pageTitle->compileTitles(
+                    $specificationTitles, $buffer
+                );
+                $registry->set('pageTitle', $pageTitle);
+                $registry->set('siteTitle', $siteTitle);
+                break;
+            }
+        }
     }
 }

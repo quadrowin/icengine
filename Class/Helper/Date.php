@@ -243,6 +243,40 @@ class Helper_Date
 		return (int) ($this->eraDayNum($date) / 7);
 	}
 
+    /**
+	 * Получить дату в формате "Месяц YYYY"
+     * 
+	 * @param string $date дата
+	 * @return string  месяц и год
+	 */
+	public static function monthAndYear($date = null) 
+    {
+		static $months = array(
+			1 => 'Январь',
+			2 => 'Февраль',
+			3 => 'Март',
+			4 => 'Апрель',
+			5 => 'Май',
+			6 => 'Июнь',
+			7 => 'Июль',
+			8 => 'Август',
+			9 => 'Сентябрь',
+			10 => 'Октябрь',
+			11 => 'Ноябрь',
+			12 => 'Декабрь'
+		);
+		if (!$date) {
+			$date = new DateTime();
+			$m = $date->format('m');
+			$y =  $date->format('Y');
+		} else {
+			$date = explode('-', $date);
+			$y =(int) $date[0];
+			$m=(int) $date[1];
+		}
+		return $months[$m] . ' ' . $y;
+	}
+    
 	/**
 	 * Возвращает название месяца.
 	 * 

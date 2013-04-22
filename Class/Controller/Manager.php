@@ -73,6 +73,7 @@ class Controller_Manager extends Manager_Abstract
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeBefore',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeAfter',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeSlot',
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeTitle',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeRedirect'
         )
 	);

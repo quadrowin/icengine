@@ -7,6 +7,13 @@
  */
 abstract class Annotation_Source_Abstract
 {
+    /**
+     * Имя класса текущей аннотации
+     * 
+     * @var string
+     */
+    protected $className;
+    
 	/**
 	 * Получить набор аннотаций класса
 	 *
@@ -15,6 +22,7 @@ abstract class Annotation_Source_Abstract
 	 */
 	final public function get($class)
 	{
+        $this->className = is_object($class) ? get_class($class) : $class;
 		$classAnnotation = $this->getClass($class);
 		$methodAnnotations = $this->getMethods($class);
 		$propertyAnnotations = $this->getProperties($class);

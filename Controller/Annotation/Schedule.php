@@ -11,7 +11,7 @@ class Controller_Annotation_Schedule extends Controller_Abstract
      * Обновить аннотации
      * 
      * @Template(null)
-     * @Validator("Not_Null={"data"})
+     * @Validator("Not_Null"={"data"})
      * @Context("helperAnnotationSchedule", "helperArray")
      */
     public function update($data, $context)
