@@ -12,7 +12,7 @@ class Controller_Annotation_Override extends Controller_Abstract
      * 
      * @Template(null)
      * @Context("helperCodeGenerator")
-     * @Validator("Not_Null={"data"})
+     * @Validator("Not_Null"={"data"})
      */
     public function update($data, $context)
     {
