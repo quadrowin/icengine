@@ -469,7 +469,8 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function &item($index)
 	{
-		if (!is_array($this->items)) {
+		$item = null;
+        if (!is_array($this->items)) {
 			$this->load();
 		}
 		if ($index < 0) {
@@ -479,7 +480,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
             $item = &$this->items[$index];
             return $item;
         }
-        return null;
+        return $item;
 	}
 
 	/**

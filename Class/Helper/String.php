@@ -108,6 +108,7 @@ class Helper_String
      * @param array $row
      * @param array $fields
      * @param array $params
+     * @return array
      */
     public function normalizeFields($row, $fields, $params)
     {

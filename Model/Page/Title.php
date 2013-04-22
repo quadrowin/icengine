@@ -3,8 +3,8 @@
 /**
  * @desc Текст страницы
  * Created at: 2012-10-04 09:57:43
- * @author 
- * @property integer $id 
+ * @author
+ * @property integer $id
  * @property integer $active Активность
  * @property integer $weight Порядок примения (обратный порядок)
  * @property integer $City__id Город
@@ -30,31 +30,29 @@ class Page_Title extends Model
      * @param string $field
      * @return string
      */
-    public function _compile ($field = 'title')
+    public function _compile($field = 'title')
     {
         $vars = array();
 
-        if ($this->sfield ($field . 'Action'))
-        {
-            $a = explode ('/', $this->field ($field . 'Action'));
-            $task = $this->getService('controllerManager')->call (
+        if ($this->sfield($field . 'Action')) {
+            $a = explode('/', $this->field($field . 'Action'));
+            $task = $this->getService('controllerManager')->call(
                 $a [0],
                 isset ($a [1]) ? $a [1] : 'index',
-                $this->getService('request')->params ()
+                $this->getService('request')->params()
             );
 
-            $vars = $this->variable($task->getTransaction ()->buffer ());
+            $vars = $this->variable($task->getTransaction()->buffer());
         }
 
-        $keys = array_keys ($vars);
-        $vals = array_values ($vars);
+        $keys = array_keys($vars);
+        $vals = array_values($vars);
 
-        foreach ($keys as &$key)
-        {
+        foreach ($keys as &$key) {
             $key = '{$' . $key . '}';
         }
 
-        return str_replace (
+        return str_replace(
             $keys,
             $vals,
             $this->$field
@@ -70,17 +68,14 @@ class Page_Title extends Model
      * @internal param mixed $value [optional] Значение.
      * @return mixed Если передан только ключ, возвращает значение, иначе null.
      */
-    public static function variable ($key)
+    public static function variable($key)
     {
         $vars = array();
 
-        if (func_num_args () > 1)
-        {
-            $vars [$key] = func_get_arg (1);
-        }
-        elseif (is_array ($key))
-        {
-            $vars = array_merge (
+        if (func_num_args() > 1) {
+            $vars [$key] = func_get_arg(1);
+        } elseif (is_array($key)) {
+            $vars = array_merge(
                 $vars,
                 $key
             );
@@ -90,138 +85,157 @@ class Page_Title extends Model
     }
 
     /**
-	 * Получить тайтл по городу и урлу
-	 *
-	 * @param string $cityId
-	 * @param string $uri
+     * Получить тайтл по городу и урлу
+     *
+     * @param string $cityId
+     * @param string $uri
+     * @param null $host
      * @return null
      */
-	public function byAddress($cityId, $uri)
-	{
+    public function byAddress($cityId = null, $uri = null, $host = null)
+    {
+        if (!$cityId) {
+            $cityId = IcEngine::getServiceLocator()->getService('City')->getCurrent()->key();
+        }
+
+        if (!$uri) {
+            $uri = IcEngine::getServiceLocator()->getService('Request')->uri();
+        }
+
+        if (!$host) {
+            $host = IcEngine::getServiceLocator()->getService('Request')->host();
+        }
+
         $modelManager = $this->getService('modelManager');
-		$page = $modelManager->byOptions(
-			'Page_Title',
-			'::Active',
-			array(
-				'name'	=> '::City',
-				'id'	=> array(0, $cityId)
-			),
-			array(
-				'name'	=> 'Pattern',
-				'value'	=> $uri
-			),
-			array(
-				'name'	=> '::Order_Desc',
-				'field'	=> 'City__id'
-			),
-			array(
-				'name'	=> '::Order_Desc',
-				'field'	=> 'weight'
-			)
-		);
-		if (!$page || !$page->siteTitle) {
-			if (!$page) {
-				$page = $this->createEmpty();
-			}
-			if (!$page->siteTitle || !$page->pageTitle) {
+        $page = $modelManager->byOptions(
+            'Page_Title',
+            '::Active',
+            array(
+                'name' => '::City',
+                'id' => array(0, $cityId)
+            ),
+            array(
+                'name' => 'Host',
+                'value' => $host
+            ),
+            array(
+                'name' => 'Pattern',
+                'value' => $uri
+            ),
+            array(
+                'name' => '::Order_Desc',
+                'field' => 'City__id'
+            ),
+            array(
+                'name' => '::Order_Desc',
+                'field' => 'weight'
+            )
+        );
+
+        if (!$page || !$page->siteTitle) {
+            if (!$page) {
+                $page = $this->createEmpty();
+            }
+            if (!$page->siteTitle || !$page->pageTitle) {
                 $route = $this->getService('router')->getRoute();
-				if (isset($route->params) && !empty($route->params['title'])) {
-					$data = $route->params['title'];
-					static $keys = array('siteTitle', 'pageTitle',
-						'controllerAction');
-					foreach ($keys as $key) {
-						if (!empty($data[$key])) {
-							$page->set($key, $data[$key]);
-						}
-					}
-				}
-			}
-		}
-		return $page ? $page->compile() : null;
-	}
+                if (isset($route->params) && !empty($route->params['title'])) {
+                    $data = $route->params['title'];
+                    static $keys = array('siteTitle', 'pageTitle',
+                        'controllerAction');
+                    foreach ($keys as $key) {
+                        if (!empty($data[$key])) {
+                            $page->set($key, $data[$key]);
+                        }
+                    }
+                }
+            }
+        }
+        return $page ? $page->compile() : null;
+    }
 
-	/**
-	 * По шаблону
-	 *
-	 * @param string $pattern
-	 */
-	public function byPattern($pattern)
-	{
-		if (!$pattern) {
-			return;
-		}
-		$pageTitle = $this->getService('modelManager')->byOptions(
-			'Page_Title',
-			array(
-				'name'	=>	'Pattern',
-				'value'	=>	$pattern
-			)
-		);
-		if ($pageTitle) {
-			return $pageTitle;
-		}
-	}
+    /**
+     * По шаблону
+     *
+     * @param string $pattern
+     */
+    public function byPattern($pattern)
+    {
+        if (!$pattern) {
+            return;
+        }
+        $pageTitle = $this->getService('modelManager')->byOptions(
+            'Page_Title',
+            array(
+                'name' => 'Pattern',
+                'value' => $pattern
+            )
+        );
+        if ($pageTitle) {
+            return $pageTitle;
+        }
+    }
 
-	/**
-	 * Компилирует тайтл
-	 *
-	 * @return Page_Title
-	 */
-	public function compile()
-	{
-		if ($this->controllerAction &&
-			strpos($this->controllerAction, '/') !== false) {
+    /**
+     * Компилирует тайтл
+     *
+     * @return Page_Title
+     */
+    public function compile()
+    {
+        if ($this->titleAction &&
+            strpos($this->titleAction, '/') !== false
+        ) {
             $dataTransportManager = $this->getService('dataTransportManager');
-			$transport = $dataTransportManager->get('default_input');
-			list($controller, $action) = explode('/', $this->controllerAction);
+            $transport = $dataTransportManager->get('default_input');
+            list($controller, $action) = explode('/', $this->titleAction);
             $controllerManager = $this->getService('controllerManager');
-			$task = $controllerManager->call(
-				$controller, $action,
-				$transport->receiveAll()
-			);
-			if ($task) {
-				$transaction = $task->getTransaction();
-				if ($transaction) {
-					$buffer = $transaction->buffer();
-					if ($buffer) {
-						$fields = $this->getFields();
-						foreach ($fields as $field => $data) {
-							if (strpos($data, '{') === false) {
-								continue;
-							}
-							foreach ($buffer as $key => $value) {
-								if (!is_scalar($value)) {
-									continue;
-								}
-								$data = str_replace(
-									'{' . $key . '}', $value, $data);
-							}
-							$this->set($field, $data);
-						}
-					}
-				}
-			}
-		}
-		return $this;
-	}
+            $task = $controllerManager->call(
+                $controller, $action,
+                $transport->receiveAll()
+            );
+            if ($task) {
+                $transaction = $task->getTransaction();
+                if ($transaction) {
+                    $buffer = $transaction->buffer();
+                    if ($buffer) {
+                        $fields = $this->getFields();
+                        foreach ($fields as $field => $data) {
+                            if (strpos($data, '{') === false) {
+                                continue;
+                            }
+                            foreach ($buffer as $key => $value) {
+                                if (!is_scalar($value)) {
+                                    continue;
+                                }
+                                $data = str_replace(
+                                    '{$' . $key . '}', $value, $data);
+                            }
+                            $this->set($field, $data);
+                        }
+                    }
+                }
+            }
+        }
+        return $this;
+    }
 
-	/**
-	 * Создать пустую инфо о странице
-	 *
-	 * @return Site_Page
-	 */
-	public function createEmpty()
-	{
-		return $this->getService('modelManager')->create(
-			'Page_Title',
-			array(
-				'pageTitle'			=> '',
-				'siteTitle'			=> '',
-				'controllerAction'	=> '',
-				'pageText'			=> '',
-				'keywords'			=> '',
-				'description'		=> ''
-			)
-		);
-	}
+    /**
+     * Создать пустую инфо о странице
+     *
+     * @return Site_Page
+     */
+    public function createEmpty()
+    {
+        return $this->getService('modelManager')->create(
+            'Page_Title',
+            array(
+                'pageTitle' => '',
+                'siteTitle' => '',
+                'controllerAction' => '',
+                'pageText' => '',
+                'keywords' => '',
+                'description' => ''
+            )
+        );
+    }
 }
