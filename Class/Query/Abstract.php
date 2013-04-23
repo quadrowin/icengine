@@ -75,7 +75,6 @@ class Query_Abstract
                 $this->parts[$partName] = $data[$partName];
                 break;
         }
-        $queryCommand->free();
         return $this;
     }
 
