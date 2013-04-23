@@ -29,6 +29,13 @@ class Data_Source
 	 */
 	private $query;
 
+    /**
+     * Зарегистирированные таблицы
+     * 
+     * @var array
+     */
+    protected $registeredTables = array();
+    
 	/**
 	 * Результат последнего выполненного запроса
 	 *
@@ -75,19 +82,20 @@ class Data_Source
         $options = $options ?: new Query_Options();
         $this->setQuery($query);
         $result = $this->driver()->execute($this->query, $options);
-        $result->setSource($this);
         if ($result->numRows()) {
             $fromPart = $query->getPart(Query::FROM);
             $keys = array_keys($fromPart);
             $tableName = reset($keys);
-            $serviceLocator = IcEngine::serviceLocator();
-            $eventManager = $serviceLocator->getService('eventManager');
-            $signal = $eventManager->getSignal('queryResultLanguage');
-            $signal->setData(array(
-                'result'    => $result,
-                'table'     => $tableName
-            ));
-            $signal->notify();
+            if (in_array($tableName, $this->registeredTables)) {
+                $serviceLocator = IcEngine::serviceLocator();
+                $eventManager = $serviceLocator->getService('eventManager');
+                $signal = $eventManager->getSignal('queryResultLanguage');
+                $signal->setData(array(
+                    'result'    => $result,
+                    'table'     => $tableName
+                ));
+                $signal->notify();
+            }
         }
 		$this->setResult($result);
 		return $this;
@@ -124,7 +132,8 @@ class Data_Source
 	 */
 	public function getQuery($translator = null)
 	{
-		return $translator ? $this->query->translate($translator) : $this->query;
+		return $translator 
+            ? $this->query->translate($translator) : $this->query;
 	}
 
 	/**
@@ -151,6 +160,18 @@ class Data_Source
         return $dataSchemeManager->getScheme($scheme);
     }
 
+    /**
+     * Зарегистировать таблицу
+     * 
+     * @param mixed $table
+     */
+    public function registerTable($table)
+    {
+        foreach ((array) $table as $tableName) {
+            $this->registeredTables[] = $tableName;
+        }
+    }
+    
     /**
      * Изменить собственную конфигурация источника данных
      *

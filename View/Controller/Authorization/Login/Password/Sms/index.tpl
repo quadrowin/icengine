@@ -5,7 +5,7 @@
 			<td><input name="name" type="text" style="font-size: 170%; width: 500px;" /></td>
 		</tr>
 		<tr>
-			<td><label for="pass" style="font-size:18px; margin-top:-5px"">Пароль</label></td>
+			<td><label for="pass" style="font-size:18px; margin-top:-5px;">Пароль</label></td>
 			<td><input name="pass" type="password" style="font-size: 170%; width: 500px;" /></td>
 		</tr>
         <tr>
@@ -14,7 +14,7 @@
             </td>
         </tr>
 		<tr>
-			<td><label for="code" style="font-size:18px; margin-top:-5px"">Смс код</label></td>
+			<td><label for="code" style="font-size:18px; margin-top:-5px;">Смс код</label></td>
 			<td><input name="code" type="text" value="" style="font-size: 170%; width: 500px;" /></td>
 		</tr>
 		<tr>

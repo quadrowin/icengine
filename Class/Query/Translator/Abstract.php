@@ -54,9 +54,6 @@ class Query_Translator_Abstract
 				substr(strtolower($part), 1);
 		}
 		$resultType = implode('', $parts);
-        foreach ($this->getParts() as $part) {
-            $part->free();
-        }
         $callable = array($this, 'doRender' . $resultType);
 		return call_user_func($callable, $query);
 	}
