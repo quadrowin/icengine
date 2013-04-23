@@ -271,8 +271,8 @@ class Helper_Date
 			$y =  $date->format('Y');
 		} else {
 			$date = explode('-', $date);
-			$y =(int) $date[0];
-			$m=(int) $date[1];
+			$y = (int) $date[0];
+			$m = (int) $date[1];
 		}
 		return $months[$m] . ' ' . $y;
 	}
