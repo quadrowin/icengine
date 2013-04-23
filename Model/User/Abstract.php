@@ -14,10 +14,10 @@ class User_Abstract extends Model
      * @var User
 	 */
 	protected $current;
-    
+
     /**
      * Доступные пользователю роли
-     * 
+     *
      * @var array
      */
     protected $roleExists = array();
@@ -36,8 +36,8 @@ class User_Abstract extends Model
         $this->update(array('phpSessionId' => $session->key()));
         $authorizationLog = $this->getService('authorizationLog');
         $authorizationLog->log();
-        $afterCallbackManager = $this->getService('afterCallbackManager');
-        $afterCallbackManager->apply();
+//        $afterCallbackManager = $this->getService('afterCallbackManager');
+//        $afterCallbackManager->apply();
 		return $this;
 	}
 
@@ -135,14 +135,14 @@ class User_Abstract extends Model
 
     /**
      * Проверяет является ли пользователь консольным пользователем
-     * 
+     *
      * @return boolean
      */
     public function isCli()
     {
         return $this->key() < 0;
     }
-    
+
 	/**
 	 * Проверяет, является ли этот пользователем текущим.
 	 * Т.е. авторизован от имени этого пользователя.
@@ -168,6 +168,9 @@ class User_Abstract extends Model
         $args = $role;
         if (is_array($role) && count($role) == 1 && is_array($role[0])) {
             $args = $role[0];
+        }
+        if (!is_array($args)) {
+            $args = array($args);
         }
 		foreach ((array) $args as $role) {
 			if (!$role) {

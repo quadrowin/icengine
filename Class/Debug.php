@@ -276,14 +276,14 @@ class Debug
         $debugService = $locator->getService('debug');
 		$debugService->log($log_text, $errno);
         echo "<b>Terminated on fatal error.</b><br />" . str_replace("\n", "<br/>\n", $log_text);
-        if ($errno == E_ERROR || $errno == E_USER_ERROR) {
+        if ($errno ==
+            E_ERROR || $errno == E_USER_ERROR) {
             if (self::$config ['die_on_error']) {
                 exit;
-            } else {
-                throw new Exception($log_text);
             }
         }
 //        throw  new ErrorException($errstr, $errno, 0, $errfile, $errline);
+        die();
         return true;
 	}
 
@@ -300,7 +300,7 @@ class Debug
 
 		error_reporting (E_ALL | E_STRICT);
 
-		ini_set ('display_errors', false);
+		ini_set ('display_errors', true);
 		ini_set ('html_errors', true);
 		ini_set ('track_errors', true);
 

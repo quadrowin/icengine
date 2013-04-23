@@ -188,16 +188,6 @@ class Query_Result
         $this->result['result'] = $result;
     }
 
-    /**
-     * Изменить источник данных, для которого получался результат запроса
-     *
-     * @param Data_Source $source
-     */
-    public function setSource($source)
-    {
-        $this->result['source'] = $source;
-    }
-
 	/**
 	 * Количество затронутых запросом записей.
 	 * Количество удаленных, измененных, добавленных или выбранных записей.

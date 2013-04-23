@@ -294,6 +294,12 @@ class Query_Abstract
 	{
         $serviceLocator = IcEngine::serviceLocator();
         $queryTranslator = $serviceLocator->getService('queryTranslator');
+        foreach ($this->getParts() as $part) {
+            if (!is_object($part)) {
+                continue;
+            }
+            $part->free();
+        }
 		return $queryTranslator->byName($translator . '_' . $this->getName())
 			->translate($this);
 	}
