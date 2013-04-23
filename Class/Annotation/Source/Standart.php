@@ -107,8 +107,7 @@ class Annotation_Source_Standart extends Annotation_Source_Simple
                 $parts[$i] = $currentString;
                 $currentString = null;
             }
-        }
-        $verbose = false;
+        } 
         $result = new Objective(array());
         $indexes = array(0);
         foreach ($parts as $part) {
@@ -273,9 +272,6 @@ class Annotation_Source_Standart extends Annotation_Source_Simple
                 $index++;
                 array_push($indexes, $index);
             }
-        }
-        if ($verbose) {
-            print_r($result);
         }
         return $result->__toArray();
 	}
