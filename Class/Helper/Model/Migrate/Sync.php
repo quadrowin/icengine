@@ -21,7 +21,7 @@ class Helper_Model_Migrate_Sync extends Helper_Abstract
         $annotations = $annotationManager->getAnnotation($modelName)
             ->getData();
         $annotationProperties = $annotations['properties'];
-        $resultAnnotations = array();
+        $resultAnnotations = array();        
         foreach ($annotationProperties as $propertyName => $annotations) {
             if (!$annotations) {
                 continue;
@@ -30,7 +30,8 @@ class Helper_Model_Migrate_Sync extends Helper_Abstract
                 if (strpos($annotationName, 'Orm') === false) {
                     continue;
                 }
-                $resultAnnotations[$propertyName][$annotationName] = $data;
+                $resultAnnotations[$propertyName][$annotationName] =
+                    (array) $data;
             }
         }
         return $resultAnnotations;
@@ -47,6 +48,7 @@ class Helper_Model_Migrate_Sync extends Helper_Abstract
         $data = $this->getAnnotations($modelName);
         $resultFields = array();
         $classReflection = new \ReflectionClass($modelName);
+        $profile = $this->getProfile($modelName);
         foreach ($data as $propertyName => $annotations) {
             foreach ($annotations as $annotationName => $annotation) {
                 $arrayAnnotation = (array) $annotation;
@@ -78,16 +80,25 @@ class Helper_Model_Migrate_Sync extends Helper_Abstract
                     $comment .= $line;
                 }
                 list(,,$type) = explode('\\', $annotationName);
+                if (!is_array($annotation)) {
+                    if (!isset($profile[$type])) {
+                        continue;
+                    }
+                    $annotation = $profile[$type];
+                } elseif (isset($profile[$type])) {
+                    $annotation = array_merge($annotation, $profile[$type]);
+                }
                 $field = new Model_Field($propertyName);
                 $field
                     ->setType($type)
                     ->setSize(
                         !empty($annotation['Size']) ? $annotation['Size'] : 0
                     )
-                    ->setNullable(!isset($annotation['Not_Null']))
+                    ->setAutoIncrement(in_array('Auto_Increment', $annotation))
+                    ->setNullable(!in_array('Not_Null', $annotation))
                     ->setDefault(isset($annotation['Default'])
                         ? $annotation['Default'] : null)
-                    ->setUnsigned(isset($annotation['Unsigned']))
+                    ->setUnsigned(in_array('Unsigned', $annotation))
                     ->setComment($comment);
                 $resultFields[$propertyName] = $field;
             }
@@ -123,7 +134,7 @@ class Helper_Model_Migrate_Sync extends Helper_Abstract
                             $type, array($properyName)
                         );
                     } else {
-                        $preIndexes[$indexName][1] = $properyName;
+                        $preIndexes[$indexName][1][] = $properyName;
                     }
                 }
             }
@@ -203,6 +214,37 @@ class Helper_Model_Migrate_Sync extends Helper_Abstract
         return $classComment;
     }
 
+    /**
+     * Получить профиль схемы
+     * 
+     * @param string $modelName
+     * @return array
+     */
+    public function getProfile($modelName)
+    {
+        $annotationManager = $this->getService('controllerManager')
+            ->annotationManager();
+        $annotations = $annotationManager->getAnnotation($modelName)
+            ->getData();
+        $annotationClass = $annotations['class'];
+        if (!isset($annotationClass['Orm\\Profile'])) {
+            return array();
+        }
+        $configManager = $this->getService('configManager');
+        $config = $configManager->get('Orm_Profile');
+        $result = array();
+        foreach ($annotationClass['Orm\\Profile'] as $profile) {
+            $profile = reset($profile);
+            if (!$config[$profile]) {
+                continue;
+            }
+            $result = array_merge(
+                $result, $config[$profile]->fields->__toArray()
+            );
+        }
+        return $result;
+    }
+    
     /**
      * Ресинхронизации схемы и аннотаций
      *
