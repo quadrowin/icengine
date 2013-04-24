@@ -269,7 +269,7 @@ class Model_Field
 	 */
 	public function setSize($size)
 	{
-		$this->attrs[self::ATTR_SIZE] = (int) $size;
+		$this->attrs[self::ATTR_SIZE] = $size;
 		return $this;
 	}
 

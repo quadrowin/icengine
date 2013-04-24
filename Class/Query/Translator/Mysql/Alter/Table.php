@@ -230,16 +230,8 @@ class Query_Translator_Mysql_Alter_Table extends Query_Translator_Abstract
      */
     protected function renderFieldSize($type, $params)
     {
-        $helper = $this->helper();
-        $sql = '(';
-        if ($this->isEnum($type)) {
-            $callable = array($helper, 'quote');
-            $enum = array_map($callable, $params[Model_Field::ATTR_ENUM]);
-            $sql .= implode(',', $enum);
-        } else {
-            $sql .= implode(',', (array) $params[Model_Field::ATTR_SIZE]);
-        }
-        $sql .= ') ';
+        $sql = '(' . implode(',', (array) $params[Model_Field::ATTR_SIZE]) . 
+            ')';
         return $sql;
     }
 
@@ -324,13 +316,13 @@ class Query_Translator_Mysql_Alter_Table extends Query_Translator_Abstract
 		if (!empty($params[Model_Field::ATTR_BINARY])) {
 			$sql .= ' ' . Model_Field::ATTR_BINARY . ' ';
 		}
-		$sql .= $this->renderFieldNullable($params);
+		$sql .= ' ' . $this->renderFieldNullable($params) . ' ';
         if ($this->isText($type)) {
-            $sql .= $this->renderFieldCharset($params);
+            $sql .= ' ' . $this->renderFieldCharset($params) . ' ';
         }
         if (!empty($params[Model_Field::ATTR_DEFAULT]) &&
             empty($params[Model_Field::ATTR_AUTO_INCREMENT])) {
-            $sql .= $this->renderFieldDefault($type, $params);
+            $sql .= ' ' . $this->renderFieldDefault($type, $params) . ' ';
         } elseif (!empty($params[Model_Field::ATTR_AUTO_INCREMENT])) {
             $sql .= ' ' . Model_Field::ATTR_AUTO_INCREMENT . ' ';
         }
