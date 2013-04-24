@@ -28,23 +28,19 @@ class Controller_View_Resource extends Controller_Abstract
 		$moduleCollection = $context->collectionManager->create('Module');
         $configClassName = 'Controller_View_Resource';
         $moduleManager = $this->getService('moduleManager');
-        echo PHP_EOL;
 		foreach ($moduleCollection->items() as $module) {
             if (!$module->isMain && !$module->hasResource) {
                 continue;
 			}
-
             $config = '';
             if ($module->isMain) {
                 $config = $context->configManager->get($configClassName);
             } else {
                 $config = $moduleManager->getConfig($module->name, $configClassName);
             }
-
 			if (!$config || !$config->targets) {
 				continue;
 			}
-
             $vars['{$moduleName}'] = $module->name;
 			$vars['{$modulePath}'] = ltrim($module->path(), '/');
 			foreach ($config->targets as $targetName => $target) {
@@ -52,14 +48,12 @@ class Controller_View_Resource extends Controller_Abstract
                 if (isset($params['reses']) && is_array($params['reses']) && !in_array($targetName, $params['reses'])) {
                     continue;
                 }
-
                 if ($type && $type != $target->type) {
                     continue;
                 }
                 if ($name && $name != $targetName) {
                     continue;
                 }
-                echo '  ' . $targetName . ' processed' . PHP_EOL;
 				$resources = array();
                 $existsResources = array();
 				foreach ($target->sources as $source) {
@@ -72,7 +66,6 @@ class Controller_View_Resource extends Controller_Abstract
 							? array($source->file)
                             : $source->file->__toArray();
 					}
-
 					foreach ($sourceFiles as $filename) {
                         $filename = strtr($filename, $vars);
                         $loadedResources = $context->viewResourceManager->load(
