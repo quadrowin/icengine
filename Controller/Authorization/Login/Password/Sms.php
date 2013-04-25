@@ -71,6 +71,14 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 	{
 		$this->task->setTemplate(null);
 		$modelManager = $this->getService('modelManager');
+        if(!$name || !$pass)
+        {
+            return $this->sendError(
+                'authorization error: не указан логин или пароль',
+                __METHOD__,
+                '/passwordIncorrect'
+            );
+        }
 		if (!$a_id && $code) {
             $user = $modelManager->byOptions(
                 'User',
@@ -86,7 +94,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
             );
             if (!$user) {
                 return $this->sendError(
-                    'authorization error: ',
+                    'authorization error: пользователь не найден',
                     __METHOD__,
                     '/passwordIncorrect'
                 );
@@ -149,10 +157,6 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 	public function sendSmsCode($provider, $name, $pass, $send)
 	{
         $modelManager = $this->getService('modelManager');
-//        $this->task->setTemplate(null);
-        if (!$name || !$pass) {
-            return $this->sendError('empty login or password');
-        }
 		$user = $modelManager->byOptions(
 			'User',
 			array(
