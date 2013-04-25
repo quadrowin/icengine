@@ -335,10 +335,8 @@ class Controller_Model extends Controller_Abstract
 			$fields = $helperDataSource->fields('`' . $name . '`', $ds);
 			$info = $helperDataSource->table('`' . $name . '`', $ds);
 			$modelName = $modelScheme->tableToModel($name);
-			$dir = IcEngine::root() . 'Ice/Config/Model/Mapper/';
 			$nameDir = explode('_', $modelName);
 			$filename = array_pop($nameDir);
-			$currentDir = $dir;
 			$existsScheme = $configManager->get('Model_Mapper_' . $modelName);
 			$references = array();
 			$adminPanel = array();
@@ -353,6 +351,7 @@ class Controller_Model extends Controller_Abstract
                 $languageScheme = $existsScheme->languageScheme;
                 $createScheme = $existsScheme->createScheme;
 			}
+            $currentDir = IcEngine::root() . 'Ice/Config/Model/Mapper/';
 			if ($nameDir) {
 				foreach ($nameDir as $dir) {
 					$currentDir .= $dir . '/';

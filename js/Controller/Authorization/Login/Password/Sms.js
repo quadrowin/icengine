@@ -64,7 +64,7 @@ var Authorization_Login_Password_Sms = {
 				pass: $form.find ('input[name=pass]').val (),
 				a_id: $form.find ('input[name=activation_id]').val (),
 				code: code,
-				href: '/cp/db/',
+				href: location.href,
 				provider: provider,
 				send: send ? true : false
 			},

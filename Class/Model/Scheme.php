@@ -210,12 +210,17 @@ class Model_Scheme extends Manager_Abstract
      * Получить схему модели
      *
      * @param string $modelName
+     * @throws ErrorException
      * @return array
      */
     public function scheme($modelName)
     {
         $configManager = $this->getService('configManager');
-        return $configManager->get('Model_Mapper_' . $modelName);
+        $schemeConfig = $configManager->get('Model_Mapper_' . $modelName);
+        if (!$schemeConfig->count()) {
+            throw new ErrorException("scheme not found for model " . $modelName);
+        }
+        return $schemeConfig;
     }
 
     /**

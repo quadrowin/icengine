@@ -351,6 +351,7 @@ class IcEngine
         $transportManager = self::getManager('Data_Transport');
         $transport = $transportManager->get(self::$frontInput);
         self::$task->setStrategies(self::$bootstrap->getStrategies());
+
 		$controllerManager->call(
 			self::$frontController,
 			self::$frontAction,
