@@ -53,6 +53,7 @@ class Controller_Front extends Controller_Abstract
                 $tasks = $controllerManager->createTasks(
                     $actions, $this->getInput()
                 );
+
                 if (Tracer::$enabled) {
                     $endTime = microtime(true);
                     Tracer::setDispatcherTime($endTime - $startTime);

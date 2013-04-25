@@ -81,10 +81,10 @@ class Controller_Authorization extends Controller_Abstract
 		$this->_task->setTemplate (null);
 	}
 
-	/**
-	 * @desc Определение типа авторизации по данным формы
-	 * @param string $auth_login
-	 */
+    /**
+     * @desc Определение типа авторизации по данным формы
+     * @internal param string $auth_login
+     */
 	public function determine()
 	{
 		$login = $this->_input->receive(

@@ -28,11 +28,12 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
      */
     protected static $tagsCaches = array();
 
-	/**
-	 * Получение хэша запроса
-	 *
+    /**
+     * Получение хэша запроса
+     *
+     * @param $query
      * @return string
-	 */
+     */
 	protected function sqlHash($query)
 	{
 		return md5(json_encode($query->getParts()));
