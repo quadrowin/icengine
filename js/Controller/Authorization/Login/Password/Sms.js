@@ -21,7 +21,7 @@ var Authorization_Login_Password_Sms = {
 		var cntr = Authorization_Login_Password_Sms;
 		cntr._form = $form;
 		var code = $form.find ('input[name=code]').val ();
-		var $btn = $form.find ('input[name=btnSendCode]');
+		var $btn = $form.find ('span.btnSendCode');
 		$btn.nextAll ('div').remove ();
 
 		if (!code)
@@ -46,7 +46,6 @@ var Authorization_Login_Password_Sms = {
 			if (result.error)
 			{
 				$btn.show ();
-				alert (result.error);
 				return ;
 			}
 
