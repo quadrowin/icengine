@@ -85,7 +85,11 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
                 )
             );
             if (!$user) {
-                return;
+                return $this->sendError(
+                    'authorization error: ',
+                    __METHOD__,
+                    '/passwordIncorrect'
+                );
             }
             $activation = $modelManager->byOptions(
                 'Activation',
