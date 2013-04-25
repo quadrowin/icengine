@@ -166,6 +166,15 @@ class Model_Manager extends Manager_Abstract
                 array($modelName, 0, $row)
             );
         }
+        if (isset($scheme['createSignal'])) {
+            $eventManager = $this->getService('eventManager');
+            $signalName = 'create' . str_replace('_', '', $modelName);
+            $signal = $eventManager->getSignal($signalName);
+            if ($signal) {
+                $signal->setData($row);
+                $signal->notify();
+            }
+        }
 		$newModel->set($row);
 		return $newModel;
 	}
@@ -317,11 +326,21 @@ class Model_Manager extends Manager_Abstract
         $modelScheme = $this->getService('modelScheme');
         $queryBuilder = $this->getService('query');
         $dataSource = $modelScheme->dataSource($modelName);
+        $scheme = $modelScheme->scheme($modelName);
         $query = $queryBuilder
             ->delete()
             ->from($modelName)
             ->where($model->keyField(), $key);
         $dataSource->execute($query);
+        if (isset($scheme['deleteSignal'])) {
+            $eventManager = $this->getService('eventManager');
+            $signalName = 'delete' . str_replace('_', '', $modelName);
+            $signal = $eventManager->getSignal($signalName);
+            if ($signal) {
+                $signal->setData($model->raw());
+                $signal->notify();
+            }
+        }
 	}
 
 	/**
