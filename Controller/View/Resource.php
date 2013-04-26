@@ -28,7 +28,9 @@ class Controller_View_Resource extends Controller_Abstract
 		$moduleCollection = $context->collectionManager->create('Module');
         $configClassName = 'Controller_View_Resource';
         $moduleManager = $this->getService('moduleManager');
-		foreach ($moduleCollection->items() as $module) {
+
+        $reses = array();
+        foreach ($moduleCollection->items() as $module) {
             if (!$module->isMain && !$module->hasResource) {
                 continue;
 			}
@@ -44,16 +46,17 @@ class Controller_View_Resource extends Controller_Abstract
             $vars['{$moduleName}'] = $module->name;
 			$vars['{$modulePath}'] = ltrim($module->path(), '/');
 			foreach ($config->targets as $targetName => $target) {
-
                 if (isset($params['reses']) && is_array($params['reses']) && !in_array($targetName, $params['reses'])) {
                     continue;
                 }
+
                 if ($type && $type != $target->type) {
                     continue;
                 }
                 if ($name && $name != $targetName) {
                     continue;
                 }
+
 				$resources = array();
                 $existsResources = array();
 				foreach ($target->sources as $source) {
@@ -107,6 +110,6 @@ class Controller_View_Resource extends Controller_Abstract
             }
 
             $this->output->send ('reses', $reses);
-        }
+        }die();
 	}
 }
