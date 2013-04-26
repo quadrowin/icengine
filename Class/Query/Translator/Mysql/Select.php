@@ -392,7 +392,8 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
         if (!$having) {
             return;
         }
-		return self::SQL_HAVING . ' ' . $having;
+		return self::SQL_HAVING . ' ' . 
+            (is_array($having) ? reset($having) : $having);
 	}
 
 	/**
