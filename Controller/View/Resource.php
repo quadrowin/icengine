@@ -110,6 +110,6 @@ class Controller_View_Resource extends Controller_Abstract
             }
 
             $this->output->send ('reses', $reses);
-        }die();
+        }
 	}
 }
