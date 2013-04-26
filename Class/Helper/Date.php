@@ -768,4 +768,29 @@ class Helper_Date
         return $date;
     }
 
+    /**
+     * @desc перевод временной метки в количество прошедших лет до текущей
+     * временной метки (может использоваться для подсчета возраста пользователя)
+     * @param int $timestamp
+     * @return string $years_count
+     */
+    public static function timestampToYearsCount($timestamp)
+    {
+        $years_count = floor((time() - $timestamp) / (60 * 60 * 24 * 365.25)); //с учетом високосных годов
+        $years_count_temp = $years_count % 10;
+        if (($years_count_temp >= 5 || $years_count_temp == 0) || ($years_count >= 11 && $years_count <= 20))
+        {
+            $years_count = $years_count . ' лет';
+        }
+        elseif ($years_count_temp == 1)
+        {
+            $years_count = $years_count . ' год';
+        }
+        elseif ($years_count_temp >= 2 && $years_count_temp < 5)
+        {
+            $years_count = $years_count . ' года';
+        }
+
+        return $years_count;
+    }
 }
