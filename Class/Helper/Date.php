@@ -691,4 +691,81 @@ class Helper_Date
 		return $date->format(self::UNIX_FORMAT);
 	}
 
+    /**
+     * @desc перевод временной метки в количество прошедших дней/недель/лет до текущей
+     * временной метки (может использоваться для подсчета времени
+     * проведенном пользователем на сайте)
+     * @param int $timestamp
+     * @return string $date
+     */
+    public static function timestampToDaysCount($timestamp)
+    {
+        $days = round((time() - $timestamp) / (60 * 60 * 24));
+        if ($days <= 7)
+        {
+            if ($days <= 1)
+            {
+                $date = '1 день';
+            }
+            elseif ($days > 1 && $days <= 4)
+            {
+                $date = $days . ' дня';
+            }
+            elseif ($days > 4 && $days <= 7)
+            {
+                $date = $days . ' дней';
+            }
+        }
+        elseif ($days > 7 && $days <= 31)
+        {
+            $days = floor($days / 7);
+
+            if ($days < 2)
+            {
+                $date = '1 неделя';
+            }
+            elseif ($days >= 2)
+            {
+                $date = $days . ' недели';
+            }
+        }
+        elseif ($days > 31 && $days < 365)
+        {
+            $days = floor($days / 31);
+            if ($days < 2)
+            {
+                $date = '1 месяц';
+            }
+            elseif ($days >= 2 && $days < 5)
+            {
+                $date = $days . ' месяца';
+            }
+            elseif ($days >= 5 && $days <= 12)
+            {
+                $date = $days . ' месяцев';
+            }
+        }
+        elseif ($days > 365 && $days < 7500)
+        {
+            $days = floor($days / 365);
+            if ($days < 2)
+            {
+                $date = '1 год';
+            }
+            elseif ($days >= 2 && $days < 4)
+            {
+                $date = $days . ' года';
+            }
+            elseif ($days >= 5 && $days >= 5) //хватит до 20 лет, больше думаю не понадобится
+            {
+                $date = $days . ' лет';
+            }
+        }
+        else
+        {
+            $date = null;
+        }
+        return $date;
+    }
+
 }
