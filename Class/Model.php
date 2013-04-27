@@ -58,7 +58,14 @@ abstract class Model implements ArrayAccess
 	 * @var bool
 	 */
 	protected $lazy;
-
+    
+    /**
+     * Репозиторий модели
+     * 
+     * @var Model_Repository
+     */
+    protected $repository;
+    
 	/**
 	 * Схема модели
      *
@@ -88,6 +95,24 @@ abstract class Model implements ArrayAccess
 
     }
 
+    /**
+     * Вызов метода через репозиторий модели
+     * 
+     * @param string $method
+     * @param array $args
+     * @return mixed
+     */
+    public function __call($method, $args)
+    {
+        $repository = $this->repository();
+        if (!method_exists($repository, $method)) {
+            throw new Exception(
+                'Method "' . $method . '" unexists in repository'
+            );
+        }
+        return call_user_func_array(array($repository, $method), $args);
+    }
+    
 	/**
 	 * Создает и возвращает модель
      *
@@ -423,6 +448,16 @@ abstract class Model implements ArrayAccess
     }
 
     /**
+     * Получить репозиторий модели
+     * 
+     * @return Model_Repository
+     */
+    public function getRepository()
+    {
+        return $this->repository;
+    }
+    
+    /**
      * Получить услугу по имени
      *
      * @param string $serviceName
@@ -574,6 +609,22 @@ abstract class Model implements ArrayAccess
 		return $this->table() . '__' . $this->key();
 	}
 
+    /**
+     * Получить или инициализировать репозиторий модели
+     * 
+     * @return Model_Repository
+     */
+    protected function repository()
+    {
+        if (!$this->repository) {
+            $modelRepositoryManager = $this->getService(
+                'modelRepositoryManager'
+            );
+            $this->repository = $modelRepositoryManager->get($this);
+        }
+        return $this->repository;
+    }
+    
 	/**
 	 * Сохранение данных модели
      *
@@ -652,6 +703,16 @@ abstract class Model implements ArrayAccess
 		$this->lazy = $value;
 	}
 
+    /**
+     * Изменить репозиторий модели
+     * 
+     * @param Model_Repository $modelRepository
+     */
+    public function setRepository($modelRepository)
+    {
+        $this->repository = $modelRepository;
+    }
+    
     /**
      * Изменить схему модели
      *
