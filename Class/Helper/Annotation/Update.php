@@ -59,13 +59,14 @@ class Helper_Annotation_Update extends Helper_Abstract
                 if (empty($matches[1][0])) {
                     continue;
                 }
-                $classes[] = array(
+                $classes[$file] = array(
                     'class' => $matches[1][0],
                     'file'  => $file
                 );
             }
         }
-        return $classes;
+        ksort($classes);
+        return array_values($classes);
     }
 
     /**

@@ -16,7 +16,7 @@ class Controller_Authorization extends Controller_Abstract
      *      "weight"=10
      * )
 	 */
-	public function logout()
+	public function logout($redirect)
 	{
         if ($this->getService('request')->isAjax()) {
             $this->task->setTemplate(null);
@@ -26,7 +26,6 @@ class Controller_Authorization extends Controller_Abstract
 		$session = $this->getService('session')->getCurrent();
 		$session->delete();
 		$request = $this->getService('request');
-		$redirect = $this->input->receive('redirect');
 		if (!$redirect) {
 			$redirect = $request->referer();
 		}

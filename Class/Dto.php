@@ -104,13 +104,13 @@ class Dto
      * 
      * @return Dto
      */
-    public function newInstance($name)
+    public function newInstance($name = null)
     {
         if ($name) {
             $className = $name . '_Dto';
             return new $className();
         }
-        return new self();
+        return new static();
     }
 
     /**
@@ -138,11 +138,8 @@ class Dto
      */
     public function setArray($array)
     {
-        if (empty(static::$scheme)) {
-            return $this;
-        }
         foreach ($array as $key => $value) {
-            if (!in_array($key, static::$scheme)) {
+            if (!empty(static::$scheme) && !in_array($key, static::$scheme)) {
                 continue;
             }
             $this->fields[$key] = $value;

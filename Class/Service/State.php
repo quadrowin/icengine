@@ -20,7 +20,14 @@ class Service_State
      * @var \ReflectionClass
      */
     protected $classReflection;
-
+    
+    /**
+     * Внедренния в оригинальный объект
+     * 
+     * @var array
+     */
+    protected $injects = array();
+    
     /**
      * Обработчик нового вызова сервиса
      *
@@ -40,11 +47,13 @@ class Service_State
      *
      * @param mixed $object
      */
-    public function __construct($object, $className, $instanceCallback)
+    public function __construct($object, $className, $instanceCallback,
+        $injects)
     {
         $this->object = $object;
         $this->className = $className;
         $this->instanceCallback = $instanceCallback;
+        $this->injects = $injects;
     }
 
     /**
@@ -122,8 +131,18 @@ class Service_State
             $methodReflection = $this->classReflection->getMethod(
                 'newInstance'
             );
-            return $methodReflection->invokeArgs($this->object, $args);
+            $instance = $methodReflection->invokeArgs($this->object, $args);
+        } else {
+            $instance = $this->classReflection->newInstanceArgs($args);
         }
-        return $this->classReflection->newInstanceArgs($args);
+        if ($this->injects) {
+            foreach ($this->injects as $propertyName => $service) {
+                $setterName = 'set' . ucfirst($propertyName);
+                if (method_exists($instance, $setterName)) {
+                    $instance->$setterName($service);
+                } 
+            }
+        }
+        return $instance;
     }
 }

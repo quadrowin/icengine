@@ -65,6 +65,29 @@ class Helper_Model_Scheme extends Helper_Abstract
         );
         file_put_contents($filename, $output);
     }
+    
+    /**
+     * Создает dto для создания пустой схемы модели
+     * 
+     * @return Model_Scheme_Dto
+     */
+    public function createDefaultDto()
+    {
+        $dto = $this->getService('dto')->newInstance('Model_Scheme');
+        $dto->setFields(array(
+            'id'    => array(
+                'Int', array(
+                    'Size'      => 11,
+                    'Not_Null',
+                    'Auto_Increment'
+                )
+            )
+        ));
+        $dto->setIndexes(array(
+            'id'    => array('Primary', array('id'))
+        ));
+        return $dto;
+    }
 
     /**
      * Создает dto для создания модели по схеме

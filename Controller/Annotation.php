@@ -12,7 +12,7 @@ class Controller_Annotation extends Controller_Abstract
      */
     protected $config = array(
         'class'             => array(
-            'Orm', 'Service', 'Override', 'AutoResync'
+            'Orm', 'Service', 'Override', 'AutoResync', 'ServiceAccessor'
         ),
         'methods'           => array(
             'Route', 'RouteImport', 'Cache', 'Schedule'

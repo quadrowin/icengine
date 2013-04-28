@@ -18,6 +18,9 @@ class Controller_Annotation_Service extends Controller_Abstract
     {
         $services = array();
         foreach ($data as $className => $annotationData) {
+            if (!isset($annotationData['Service'])) {
+                continue;
+            }
             $subData = $annotationData['Service'];
             $serviceName = array_shift($subData['data'][0]);
             $services[$serviceName] = $subData['data'][0];

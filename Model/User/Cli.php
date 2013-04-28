@@ -28,7 +28,17 @@ class User_Cli extends User
 	 */
 	public function getInstance()
 	{
-		return new static($this->config()->fields->__toArray());
+        $fields = array_keys(
+            $this->getService('modelScheme')->scheme('User')->fields
+                ->__toArray()
+        );
+        $configFields = $this->config()->fields;
+        $resultFields = array();
+        foreach ($fields as $fieldName) {
+            $resultFields[$fieldName] = isset($configFields[$fieldName])
+                ? $configFields[$fieldName] : null;
+        }
+		return new static($resultFields);
 	}
     
     /**
