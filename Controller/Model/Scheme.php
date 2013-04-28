@@ -16,7 +16,8 @@ class Controller_Model_Scheme extends Controller_Abstract
      */
     public function create($name, $context)
     {
-        $context->helperModelScheme->create($name);
+        $dto = $context->helperModelScheme->createDefaultDto();
+        $context->helperModelScheme->create($name, $dto);
     }
     
     /**

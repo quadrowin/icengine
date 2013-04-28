@@ -60,6 +60,13 @@ abstract class Model implements ArrayAccess
 	protected $lazy;
     
     /**
+     * Схема связей модели
+     * 
+     * @var Model_Mapper_Scheme
+     */
+    protected $modelMapperScheme;
+    
+    /**
      * Репозиторий модели
      * 
      * @var Model_Repository
@@ -86,14 +93,6 @@ abstract class Model implements ArrayAccess
 	 * @var array
 	 */
 	protected $updatedFields = array();
-
-    /**
-     * Действие после выполнения конструктора
-     */
-    protected function _afterConstruct()
-    {
-
-    }
 
     /**
      * Вызов метода через репозиторий модели
@@ -131,7 +130,6 @@ abstract class Model implements ArrayAccess
             }
             unset($this->$fieldName);
         }
-        $this->_afterConstruct();
 	}
 
 	/**
@@ -158,7 +156,11 @@ abstract class Model implements ArrayAccess
         }
         $references = $this->scheme()->references;
         if (isset($references[$field])) {
-            return $this->getService('modelMapper')->scheme($this)->$field;
+            if (!$this->modelMapperScheme) {
+                $this->modelMapperScheme = $this->getService('modelMapper')
+                    ->scheme($this);
+            }
+            return $this->modelMapperScheme->get($field);
         }
         $value = null;
         return $value;

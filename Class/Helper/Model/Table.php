@@ -19,7 +19,7 @@ class Helper_Model_Table extends Helper_Abstract
         $modelMapper = $this->getService('modelMapper');
         $scheme = $modelMapper->scheme($modelName);
 		$modelMapperSchemeRenderView = $this->getService(
-			'modelMapperSchemeRenderView'
+			'modelMapperSchemeRender'
 		);
 		$dataSource = $modelScheme->dataSource($modelName);
 		$view = $modelMapperSchemeRenderView->byName('Mysql');

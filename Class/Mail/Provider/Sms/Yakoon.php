@@ -89,7 +89,6 @@ class Mail_Provider_Sms_Yakoon extends Mail_Provider_Abstract
 
 	/**
 	 * (non-PHPdoc)
-	 * @see Model::_afterConstruct()
 	 */
 	protected function __construct()
 	{
