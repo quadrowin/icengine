@@ -270,6 +270,9 @@ abstract class Model_Mapper_Reference_State_Abstract
      */
     protected function registerField($field, $value)
     {
+        if (!$this->validateField($this->model->modelName(), $field)) {
+            return null;
+        }
         $this->filters[$field] = $value;
     }
     
