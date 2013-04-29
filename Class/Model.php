@@ -58,7 +58,21 @@ abstract class Model implements ArrayAccess
 	 * @var bool
 	 */
 	protected $lazy;
-
+    
+    /**
+     * Схема связей модели
+     * 
+     * @var Model_Mapper_Scheme
+     */
+    protected $modelMapperScheme;
+    
+    /**
+     * Репозиторий модели
+     * 
+     * @var Model_Repository
+     */
+    protected $repository;
+    
 	/**
 	 * Схема модели
      *
@@ -81,13 +95,23 @@ abstract class Model implements ArrayAccess
 	protected $updatedFields = array();
 
     /**
-     * Действие после выполнения конструктора
+     * Вызов метода через репозиторий модели
+     * 
+     * @param string $method
+     * @param array $args
+     * @return mixed
      */
-    protected function _afterConstruct()
+    public function __call($method, $args)
     {
-
+        $repository = $this->repository();
+        if (!method_exists($repository, $method)) {
+            throw new Exception(
+                'Method "' . $method . '" unexists in repository'
+            );
+        }
+        return call_user_func_array(array($repository, $method), $args);
     }
-
+    
 	/**
 	 * Создает и возвращает модель
      *
@@ -106,7 +130,6 @@ abstract class Model implements ArrayAccess
             }
             unset($this->$fieldName);
         }
-        $this->_afterConstruct();
 	}
 
 	/**
@@ -133,7 +156,11 @@ abstract class Model implements ArrayAccess
         }
         $references = $this->scheme()->references;
         if (isset($references[$field])) {
-            return $this->getService('modelMapper')->scheme($this)->$field;
+            if (!$this->modelMapperScheme) {
+                $this->modelMapperScheme = $this->getService('modelMapper')
+                    ->scheme($this);
+            }
+            return $this->modelMapperScheme->get($field);
         }
         $value = null;
         return $value;
@@ -423,6 +450,16 @@ abstract class Model implements ArrayAccess
     }
 
     /**
+     * Получить репозиторий модели
+     * 
+     * @return Model_Repository
+     */
+    public function getRepository()
+    {
+        return $this->repository;
+    }
+    
+    /**
      * Получить услугу по имени
      *
      * @param string $serviceName
@@ -574,6 +611,22 @@ abstract class Model implements ArrayAccess
 		return $this->table() . '__' . $this->key();
 	}
 
+    /**
+     * Получить или инициализировать репозиторий модели
+     * 
+     * @return Model_Repository
+     */
+    protected function repository()
+    {
+        if (!$this->repository) {
+            $modelRepositoryManager = $this->getService(
+                'modelRepositoryManager'
+            );
+            $this->repository = $modelRepositoryManager->get($this);
+        }
+        return $this->repository;
+    }
+    
 	/**
 	 * Сохранение данных модели
      *
@@ -652,6 +705,16 @@ abstract class Model implements ArrayAccess
 		$this->lazy = $value;
 	}
 
+    /**
+     * Изменить репозиторий модели
+     * 
+     * @param Model_Repository $modelRepository
+     */
+    public function setRepository($modelRepository)
+    {
+        $this->repository = $modelRepository;
+    }
+    
     /**
      * Изменить схему модели
      *

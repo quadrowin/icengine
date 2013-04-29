@@ -124,6 +124,8 @@ class Annotation_Source_Standart extends Annotation_Source_Simple
             $openOnSingle = false;
             $hasClosed = false;
             $openOnDouble = false;
+            $levelCount = 0;
+            $lastClosedAtLevel = 0;
             for ($i = 0, $length = strlen($part); $i < $length; $i++) {
                 $ch = $part[$i];
                 if ($collectionValue) {
@@ -174,16 +176,16 @@ class Annotation_Source_Standart extends Annotation_Source_Simple
                         if (!$currentValue) {
                             $currentValue = $bufferValue;
                         }
-                        if ($hasClosed && count($stack) > 2) {
-                            $source = array_pop($stack);
+                        if ($hasClosed && $levelCount == $lastClosedAtLevel) {
+                            end($stack);
+                            $source = current($stack);
                         }
                         if ($currentName) {
                             $source[$currentName] = $currentValue;
                         } elseif ($currentValue !== '') {
                             $index = array_pop($indexes);
                             $source[$index] = $currentValue;
-                            $index++;
-                            array_push($indexes, $index);
+                            array_push($indexes, $index + 1);
                         }
                         $endOnString = false;
                         $lastValue = $currentValue;
@@ -213,23 +215,26 @@ class Annotation_Source_Standart extends Annotation_Source_Simple
                             $last = current($stack);
                             if ($currentName) {
                                 if (!isset($last[$currentName])) {
-                                    $last[$currentName] = array();
+                                    $last[$currentName] = new Objective();
                                 }
                                 $source = $last[$currentName];
                                 array_push($stack, $source);
                             }
                             $currentName = '';
                         } else {
-                            $collectionValue = true;
                             end($stack);
                             $last = current($stack);
                             $index = array_pop($indexes);
-                            $last[$index] = new Objective();
+                            if (!isset($last[$index])) {
+                                $last[$index] = new Objective();
+                            } 
                             $source = $last[$index];
                             array_push($stack, $source);
+                            array_push($indexes, $index + 1);
                             array_push($indexes, 0);
                         }
                         $currentValue = '';
+                        $levelCount++;
                         break;
                     case '}': 
                         if (!$collectionValue) {
@@ -239,19 +244,13 @@ class Annotation_Source_Standart extends Annotation_Source_Simple
                         if (!$currentValue) {
                             $currentValue = $bufferValue;
                         }
-                        if ($stack) {
-                            $source = array_pop($stack);
-                        }
+                        $source = array_pop($stack);
                         if ($currentName) {
                             $source[$currentName] = $currentValue;
                             $currentName = '';
                         } elseif ($currentValue !== '') {
                             $index = array_pop($indexes);
-                            if (!$source[$index]) {
-                                $source[$index] = $currentValue;
-                            } else {
-                                $source[count($source)] = $currentValue;
-                            }
+                            $source[$index] = $currentValue;
                         }
                         $valueChanged = false;
                         $collectionValue = false; 
@@ -259,6 +258,8 @@ class Annotation_Source_Standart extends Annotation_Source_Simple
                         $lastValue = '';
                         $currentValue = '';
                         $bufferValue = '';
+                        $levelCount--;
+                        $lastClosedAtLevel = $levelCount;
                         break;
                     default:
                         $bufferValue .= $ch;
@@ -269,8 +270,7 @@ class Annotation_Source_Standart extends Annotation_Source_Simple
             } elseif ($lastValue !== '' || $bufferValue !== '') {
                 $index = array_pop($indexes);
                 $source[$index] = $lastValue ?: $bufferValue;
-                $index++;
-                array_push($indexes, $index);
+                array_push($indexes, $index + 1);
             }
         }
         return $result->__toArray();

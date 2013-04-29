@@ -111,12 +111,7 @@ class Query
 	 */
 	public function normalizeName($name)
 	{
-		$matches = array();
-		$reg_exp = '#([A-Z]*[a-z]+)#';
-		preg_match_all($reg_exp, $name, $matches);
-		if (empty($matches[1][0])) {
-			return $name;
-		}
-		return implode('_', array_map('ucfirst', $matches[1]));
+        $locator = IcEngine::serviceLocator();
+        return $locator->getService('helperService')->normalizeName($name);
 	}
 }

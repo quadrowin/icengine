@@ -19,14 +19,6 @@ class Controller_Manager extends Manager_Abstract
     const DEFAULT_VIEW = 'Smarty';
 
     /**
-     * Менеджер аннотаций
-     *
-     * @var Annotation_Manager_Abstract
-     */
-    protected $annotationManager;
-
-
-    /**
 	 * @inheritdoc
 	 */
 	protected $config = array(
@@ -86,14 +78,6 @@ class Controller_Manager extends Manager_Abstract
 	protected $currentTask;
 
     /**
-     * Менеджер провайдеров
-     *
-     * @Inject("dataProviderManager")
-     * @var Data_Provider_Manager
-     */
-    protected $dataProviderManager;
-
-    /**
      * Контекст по умолчанию
      *
      * @var Objective
@@ -120,13 +104,6 @@ class Controller_Manager extends Manager_Abstract
      * @var array
      */
     protected $deleeges = array();
-
-    /**
-     * Менеджер событий
-     *
-     * @var Event_Manager
-     */
-    protected $eventManager;
 
     /**
      * "Выполнитель" действия контроллера
@@ -198,23 +175,6 @@ class Controller_Manager extends Manager_Abstract
      * @var Service_Injector_Abstract
      */
     protected $serviceInjector;
-
-    /**
-     * Получить менеджер аннотаций
-     *
-     * @return Annotation_Manager_Abstract
-     */
-    public function annotationManager()
-    {
-        if (!$this->annotationManager) {
-            $this->annotationManager = new Annotation_Manager_Standart();
-            $provider = $this->dataProviderManager->get('Annotation');
-            $annotationSource = new Annotation_Source_Standart();
-            $this->annotationManager->setRepository($provider);
-            $this->annotationManager->setSource($annotationSource);
-        }
-        return $this->annotationManager;
-    }
 
 	/**
 	 * Вызов экшена контроллера
@@ -450,19 +410,6 @@ class Controller_Manager extends Manager_Abstract
         return $this->delegees[$delegeeName];
     }
 
-    /**
-     * Получить менеджер событий
-     *
-     * @return Event_Manager
-     */
-    public function eventManager()
-    {
-        if (!$this->eventManager) {
-            $this->eventManager = $this->getService('eventManager');
-        }
-        return $this->eventManager;
-    }
-
 	/**
 	 * Очистка результатов работы контроллеров
 	 */
@@ -486,16 +433,6 @@ class Controller_Manager extends Manager_Abstract
         $controller = new $className;
         return $controller;
 	}
-
-    /**
-     * Вернуть менеджер аннотаций
-     *
-     * @return Annotation_Manager_Abstract
-     */
-    public function getAnnotationManager()
-    {
-        return $this->annotationManager;
-    }
 
     /**
 	 * Настройки кэширования для контроллера-экшена.
@@ -578,16 +515,6 @@ class Controller_Manager extends Manager_Abstract
             $this->defaultOutput = new Data_Transport();
         }
         return $this->defaultOutput;
-    }
-
-    /**
-     * Получить менеджер событий
-     *
-     * @return Event_Manager
-     */
-    public function getEventManager()
-    {
-        return $this->eventManager;
     }
 
     /**
@@ -882,16 +809,6 @@ class Controller_Manager extends Manager_Abstract
     }
 
     /**
-     * Изменить менеджер аннотаций
-     *
-     * @param Annotation_Manager_Abstract $annotationManager
-     */
-    public function setAnnotationManager($annotationManager)
-    {
-        $this->annotationManager = $annotationManager;
-    }
-
-    /**
      * Изменить контекст контроллера по умолчанию
      *
      * @param Objective $defaultContext
@@ -909,16 +826,6 @@ class Controller_Manager extends Manager_Abstract
     public function setDefaultExecutor($defaultExecutor)
     {
         $this->defaultExecutor = $defaultExecutor;
-    }
-
-    /**
-     * Изменить менеджер событий
-     *
-     * @param Event_Manager $eventManager
-     */
-    public function setEventManager($eventManager)
-    {
-        $this->eventManager = $eventManager;
     }
 
     /**
