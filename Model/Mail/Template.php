@@ -7,7 +7,7 @@
  * @Service("mailTemplate")
  * @Orm\Entity
  */
-class Mail_Template extends Model_Child
+class Mail_Template extends Model
 {
     /**
      * @Orm\Field\Int(Size=11, Not_Null, Auto_Incrment)
@@ -71,12 +71,10 @@ class Mail_Template extends Model_Child
         $parent = null;
         if ($this->parentId) {
             $parent = $this->getService('modelManager')->byOptions(
-                'Mail_Template',
-                array(
-                    'name'  => '::Parent',
-                    'id'    => $this->parentId
-                )
-            );
+                'Mail_Template', array(
+                    'name'  => '::Key',
+                    'key'    => $this->parentId
+                ));
         }
 		if ($parent) {
 		    $data['body'] = $body;
@@ -127,5 +125,4 @@ class Mail_Template extends Model_Child
 		$viewRenderManager->popView();
 		return $result;
 	}
-
 }

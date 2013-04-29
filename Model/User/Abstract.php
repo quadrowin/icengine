@@ -9,16 +9,6 @@
 class User_Abstract extends Model
 {
 	/**
-	 * @inheritdoc
-	 */
-	protected static $config = array(
-		// колбэк после авторизации
-		'login_callback'	=> null,
-		// функция, вызываемая при логауте.
-		'logout_callback'	=> null
-	);
-
-	/**
 	 * Текущий пользователь.
 	 *
      * @var User
@@ -39,17 +29,15 @@ class User_Abstract extends Model
 	 */
 	public function authorize()
 	{
-        $session = $this->getService('session')->getCurrent();
+        $session = $this->getService('userSession')->getCurrent();
 		$session->updateSession($this->key());
         $userService = $this->getService('user');
         $userService->setCurrent($this);
-        $this->update(array(
-            'phpSessionId'  => $session->key()
-        ));
-        $authorizationLog = $this->getService("authorizationLog");
+        $this->update(array('phpSessionId' => $session->key()));
+        $authorizationLog = $this->getService('authorizationLog');
         $authorizationLog->log();
-        $afterCallbackManager = $this->getService('afterCallbackManager');
-        $afterCallbackManager->apply();
+//        $afterCallbackManager = $this->getService('afterCallbackManager');
+//        $afterCallbackManager->apply();
 		return $this;
 	}
 
@@ -62,33 +50,6 @@ class User_Abstract extends Model
 	{
         $userService = $this->getService('user');
 		return $userService->current->id > 0 ? true : false;
-	}
-
-	/**
-	 * Проверяет, имеет ли пользователь доступ.
-	 *
-     * @param string|integer $name
-	 * 		Алиас или id ресурса
-	 * @return boolean
-	 */
-	public function can($name)
-	{
-        $modelManager = $this->getService('modelManager');
-		if (is_numeric($name)) {
-			$resource = $modelManager->get('Acl_Resource', $name);
-		} else {
-			$resource = $modelManager->byOptions(
-				'Acl_Resource',
-                array(
-                    'name'  => '::Name',
-                    'value' => $name
-                )
-			);
-		}
-		if (!$resource) {
-			return false;
-		}
-		return $resource->userCan($this);
 	}
 
 	/**
@@ -137,7 +98,7 @@ class User_Abstract extends Model
 	 */
 	public function getCurrent()
 	{
-		return $this->current;
+        return $this->current;
 	}
 
     /**
@@ -193,25 +154,24 @@ class User_Abstract extends Model
 		return $this->authorized() && ($this->id() == $this->key());
 	}
 
-	/**
-	 * Проверяет, имеет ли пользователь хотя бы одну из указанных ролей.
-	 *
-     * @param Acl_Role|string $role Роль или название роли
-	 * @param $_
-	 * @return boolean Имеет ли пользователь роль.
-	 */
+    /**
+     * Проверяет, имеет ли пользователь хотя бы одну из указанных ролей.
+     *
+     * @param Acl_Role|string $role Роль или название р оли
+     * @return boolean Имеет ли пользователь роль.
+     */
 	public function hasRole($role)
 	{
         $roleNames = array();
         $roles = array();
         $args = $role;
-        if (count($role) == 1 && is_array($role[0])) {
+        if (is_array($role) && count($role) == 1 && is_array($role[0])) {
             $args = $role[0];
         }
         if (!is_array($args)) {
             $args = array($args);
         }
-		foreach ($args as $role) {
+		foreach ((array) $args as $role) {
 			if (!$role) {
                 continue;
             }
@@ -272,25 +232,22 @@ class User_Abstract extends Model
         return $roleExists;
 	}
 
-	/**
-	 * Инициализация пользователя.
-	 * Создание моделей сессии и пользователя.
-	 *
-     * @param string $session_id Идентификатор сессии.
-	 * @return User Пользователь.
-	 */
+    /**
+     * Инициализация пользователя.
+     * Создание моделей сессии и пользователя.
+     *
+     * @param null $sessionId
+     * @internal param string $session_id Идентификатор сессии.
+     * @return User Пользователь.
+     */
 	public function init($sessionId = null)
 	{
-        if ($this->current) {
-            return;
-        }
         $request = $this->getService('request');
-		$sessionId = $sessionId ?:$request->sessionId();
-        $session = $this->getService('session');
-        $userSession = $session->byPhpSessionId($sessionId ?: 'unknown');
-        $session->setCurrent($userSession);
-		$this->current = $session->getCurrent()->User;
-		$session->getCurrent()->updateSession();
+		$sessionId = $sessionId ?: $request->sessionId();
+        $session = $this->getService('userSession');
+        $userSession = $session->getCurrent($sessionId);
+		$this->current = $userSession->User;
+		$session->getCurrent()->updateSession($this->current->key());
 		return $this->current;
 	}
 
@@ -299,9 +256,17 @@ class User_Abstract extends Model
 	 */
 	public function logout()
 	{
-		$session = $this->getService('session');
+		$session = $this->getService('userSession');
 		$session->getCurrent()->delete();
 	}
+    
+    /**
+     * @inheritdoc
+     */
+    public function table()
+    {
+        return 'User';
+    }
 
     /**
      *  @inheritodc

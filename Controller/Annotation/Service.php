@@ -9,13 +9,13 @@ class Controller_Annotation_Service extends Controller_Abstract
 {
     /**
      * Обновить аннотации
+     * 
+     * @Context("helperCodeGenerator")
+     * @Template(null)
+     * @Validator("Not_Null"={"data"})
      */
-    public function update($data)
+    public function update($data, $context)
     {
-        $this->task->setTemplate(null);
-        if (!$data) {
-            return;
-        }
         $services = array();
         foreach ($data as $className => $annotationData) {
             $subData = $annotationData['Service'];
@@ -39,7 +39,7 @@ class Controller_Annotation_Service extends Controller_Abstract
             }
         }
         ksort($services);
-        $output = Helper_Code_Generator::fromTemplate(
+        $output = $context->helperCodeGenerator->fromTemplate(
             'service',
             array (
                 'services'  => $services

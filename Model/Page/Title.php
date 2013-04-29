@@ -1,9 +1,10 @@
 <?php
 
 /**
- * @desc Текст страницы
+ * Заголовки сайта
+ * 
  * Created at: 2012-10-04 09:57:43
- * @author 
+ * @author morph
  * @property integer $id 
  * @property integer $active Активность
  * @property integer $weight Порядок примения (обратный порядок)
@@ -18,6 +19,8 @@
  * @package Vipgeo
  * @category Models
  * @copyright i-complex.ru
+ *
+ * @Service("pageTitle")
  */
 class Page_Title extends Model
 {
@@ -135,6 +138,25 @@ class Page_Title extends Model
 		}
 		return $this;
 	}
+    
+    /**
+     * Компилирует тайтлы
+     * 
+     * @param string $titles
+     * @param array $data
+     */
+    public function compileTitles($titles, $data)
+    {
+        $helperString = $this->getService('helperString');
+        $row = array(
+            'pageTitle' => $titles[0],
+            'siteTitle' => $titles[1]
+        );
+        $fields = array('pageTitle', 'siteTitle');
+        return array_values(
+            $helperString->normalizeFields($row, $fields, $data)
+        );
+    }
 
 	/**
 	 * Создать пустую инфо о странице

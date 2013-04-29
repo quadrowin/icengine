@@ -144,9 +144,10 @@ class Loader
         if (!isset($this->required[$type])) {
             return false;
         }
-		return isset($this->required[$type][$file]);
+		return isset($this->required[$type][$file]) 
+            ? $this->required[$type][$file] : false;
 	}
-
+    
     /**
 	 * Подключение класса.
 	 *
@@ -189,11 +190,11 @@ class Loader
         } else {
             $filename = $this->findFile($file, $type);
         }
-        if ($filename) {
+        if (is_file($filename)) {
             if (!isset($this->required[$type])) {
                 $this->required[$type] = array();
             }
-            $this->required[$type][$file] = true;
+            $this->required[$type][$file] = $filename;
             require_once $filename;
             if (class_exists('Tracer', false) && Tracer::$enabled) {
                 Tracer::incLoadedClassCount();

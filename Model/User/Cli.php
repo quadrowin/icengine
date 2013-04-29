@@ -2,6 +2,7 @@
 
 /**
  * Модель консольного пользователя
+ * 
  * @author goorus, morph
  * @Service("userCli")
  */
@@ -11,10 +12,6 @@ class User_Cli extends User
      * @inheritdoc
      */
 	protected static $config = array(
-		/**
-		 * @desc Конфиг пользователя
-		 * @var array
-		 */
 		'fields'	=> array (
 			'id'		=> -1,
 			'active'	=> 1,
@@ -31,8 +28,16 @@ class User_Cli extends User
 	 */
 	public function getInstance()
 	{
-		return new self($this->config()->fields->__toArray());
+		return new static($this->config()->fields->__toArray());
 	}
+    
+    /**
+     * @inheritdoc
+     */
+    public function hasRole($role)
+    {
+        return false;
+    }
 
 	/**
 	 * Инициализирует модель гостя. Модель будет добавлена в менеджер ресурсов

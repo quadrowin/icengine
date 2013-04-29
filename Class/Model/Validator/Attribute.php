@@ -18,9 +18,9 @@ class Model_Validator_Attribute
      * @param array $input
      * @return boolean
      */
-	public function validate ($name, $model, $field, $value, $input)
+	public function validate($name, $model, $field, $value, $input)
 	{
-		$model_name = 'Model_Validator_Attribute_' . ucfirst ($name);
-		return $model_name::validate ($model, $field, $value, $input);
+		$modelName = 'Model_Validator_Attribute_' . ucfirst ($name);
+		return $modelName::validate($model, $field, $value, $input);
 	}
 }

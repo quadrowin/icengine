@@ -42,10 +42,11 @@ class Model_Mapper extends Manager_Abstract
         );
 		if (is_object($model)) {
 			$modelName = $model->modelName();
+            $key = $modelName . '_' . $model->key();
 		} else {
 			$modelName = $model;
+            $key = $modelName . '_0';
 		}
-		$key = $modelName . '_' . $model->key();
 		if (!isset($this->schemes[$key])) {
 			$config = $configManager->get('Model_Mapper_' . $modelName);
 			if (!$config) {
