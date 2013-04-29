@@ -9,6 +9,13 @@ class Model_Mapper_Reference_State_ManyToMany extends
     Model_Mapper_Reference_State_Abstract
 {
     /**
+     * Прочие данные полученные из таблицы связей
+     * 
+     * @var array 
+     */
+    protected $data;
+    
+    /**
      * Фильтры перед загрузкой
      * 
      * @var array
@@ -58,6 +65,21 @@ class Model_Mapper_Reference_State_ManyToMany extends
              );
         $dds->execute($query);
         return $this;
+    }
+    
+    /**
+     * @inheritdoc
+     */
+    public function all()
+    {
+        $collection = parent::all();
+        if ($this->data) {
+            $fieldName = $this->dto->JoinColumn['on'];
+            foreach ($collection as $item) {
+                $item->data($this->data[$item[$fieldName]]);
+            }
+        }
+        return $collection;
     }
     
     /**
@@ -150,7 +172,8 @@ class Model_Mapper_Reference_State_ManyToMany extends
         $modelScheme = $this->getService('modelScheme');
         $keyField = $modelScheme->keyField($this->dto->Target);
         $this->collection = $this->collection();
-        if (!$modelScheme->scheme($this->dto->JoinTable)->fields) {
+        $joinTableFields = $modelScheme->scheme($this->dto->JoinTable)->fields;
+        if (!$joinTableFields) {
             $dto = $this->getSchemeForJoinTable();
             $this->getService('helperModelScheme')->create(
                 $this->dto->JoinTable, $dto
@@ -161,8 +184,11 @@ class Model_Mapper_Reference_State_ManyToMany extends
         } else {
             $queryBuilder = $this->getService('query');
             $dds = $this->getService('dds');
+            $fields = array_keys($joinTableFields->__toArray());
+            unset($fields[$modelScheme->keyField($this->dto->JoinTable)]);
+            unset($fields[$this->dto->JoinColumn[0]]);
             $query = $queryBuilder
-                ->select($this->dto->JoinColumn['on'])
+                ->select($fields)
                 ->from($this->dto->JoinTable)
                 ->where($this->dto->JoinColumn[0], $this->model->key());
             if ($this->preFilters) {
@@ -170,10 +196,58 @@ class Model_Mapper_Reference_State_ManyToMany extends
                     $query->where($fieldName, $value);
                 }
             }
-            $ids = $dds->execute($query)->getResult()->asColumn();
+            $data = $dds->execute($query)->getResult()->asTable(
+                $this->dto->JoinColumn['on']
+            );
+            $ids = array_keys($data);
+            $this->data = count($fields) > 1 ? $data : array();
             $this->collection->query()->where($keyField, $ids);
         }
         parent::load();
+    }
+    
+    /**
+     * @inheritdoc
+     */
+    public function one()
+    {
+        $model = parent::one();
+        if ($this->data) {
+            $fieldName = $this->dto->JoinColumn['on'];
+            $model->data($this->data[$model[$fieldName]]);
+        }
+        return $model;
+    }
+    
+    /**
+     * @inheritdoc
+     */
+    public function raw($columns = array())
+    {
+        $items = parent::raw($columns);
+        if ($this->data) {
+            $fieldName = $this->dto->JoinColumn['on'];
+            $modelScheme = $this->getService('modelScheme');
+            $joinTableFields = $modelScheme->scheme($this->dto->JoinTable)
+                ->fields;
+            $fields = array_keys($joinTableFields->__toArray());
+            unset($fields[$modelScheme->keyField($this->dto->JoinTable)]);
+            unset($fields[$this->dto->JoinColumn[0]]);
+            $fieldsToSelect = array();
+            if (!$columns) {
+                $fieldsToSelect = $fields;
+            } elseif (($intersect = array_intersect($columns, $fields))) {
+                $fieldsToSelect = $intersect;
+            }
+            if ($fieldsToSelect) {
+                foreach ($items as $i => $item) {
+                    $items[$i] = array_merge(
+                        $item, $this->data[$item[$fieldName]]
+                    );
+                }
+            }
+        }
+        return $items;
     }
     
     /**
@@ -183,8 +257,14 @@ class Model_Mapper_Reference_State_ManyToMany extends
     {
         if (strpos($field, '::') === 0) {
             $field = substr($field, 2);
+            if (!$this->validateField($this->dto->JoinTable, $field)) {
+                return null;
+            }
             $this->preFilters[$field] = $value;
         } else {
+            if (!$this->validateField($this->model->modelName(), $field)) {
+                return null;
+            }
             $this->filters[$field] = $value;
         }
     }
