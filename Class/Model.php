@@ -780,7 +780,8 @@ abstract class Model implements ArrayAccess
 		if (is_null($this->fields)) {
             $this->load();
         }
-        $fields = $this->scheme()->fields;
+        $scheme = $this->scheme();
+        $fields = $scheme->fields;
         foreach ($data as $key => $value) {
             if (!isset($fields[$key])) {
                 continue;
@@ -794,6 +795,16 @@ abstract class Model implements ArrayAccess
             return $this;
         }
         $this->set($this->updatedFields);
-		return $this->save($hardUpdate);
+        $result = $this->save($hardUpdate);
+        if (isset($scheme['updateSignal'])) {
+            $eventManager = $this->getService('eventManager');
+            $signalName = 'update' . str_replace('_', '', $this->modelName());
+            $signal = $eventManager->getSignal($signalName);
+            if ($signal) {
+                $signal->setData($this->getFields());
+                $signal->notify();
+            }
+        }
+		return $result;
 	}
 }
