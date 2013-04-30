@@ -2,7 +2,7 @@
 
 /**
  * Запрос типа update
- * 
+ *
  * @author morph, goorus
  */
 class Query_Update extends Query_Select
@@ -11,7 +11,7 @@ class Query_Update extends Query_Select
      * @inheritdoc
      */
     protected $type = Query::UPDATE;
-    
+
 	/**
 	 * @inheritdoc
 	 */
@@ -25,4 +25,12 @@ class Query_Update extends Query_Select
 		}
 		return array_unique($tags);
 	}
+
+    /**
+     * @inheritdoc
+     */
+    public function tableName()
+    {
+        return $this->getPart($this->type);
+    }
 }
