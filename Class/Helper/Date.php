@@ -684,7 +684,7 @@ class Helper_Date
 		if (!$date) {
 			return date(self::UNIX_FORMAT);
 		}
-		$date = $this->parseDateTime($date);
+		$date = self::parseDateTime($date);
 		if (!$date) {
 			return null;
 		}
