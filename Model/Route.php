@@ -90,6 +90,9 @@ class Route extends Objective
 					$pattern = str_replace($var, $replace, $pattern);
 				}
 			}
+                        if (!isset($route['weight'])) {
+                            $route['weight'] = 0;
+                        }
 			if (preg_match($pattern, $url) && (
 				!$row || (int) $route['weight'] > (int) $row['weight'])) {
                 if ($hostValid && !$lastWithHost) {
