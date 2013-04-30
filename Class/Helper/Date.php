@@ -679,7 +679,7 @@ class Helper_Date
 	 * передано null, будет использована текущая дата.
 	 * @return string Дата в формате UNIX "YYYY-MM-DD HH:II:SS"
 	 */
-	public function toUnix($date = null)
+	public static function toUnix($date = null)
 	{
 		if (!$date) {
 			return date(self::UNIX_FORMAT);

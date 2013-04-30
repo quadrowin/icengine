@@ -7,6 +7,26 @@
  */
 class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 {
+         /**
+	 * @desc Добавленные элементы
+	 * @var string
+	 */
+	const DIFF_EDIT_ADD		= 'added';
+
+	/**
+	 * @desc Неизмененные элементы
+	 * @var string
+	 */
+	const DIFF_EDIT_NO		= 'not_changed';
+
+	/**
+	 * @desc Удаленные элементы
+	 * @var string
+	 */
+	const DIFF_EDIT_DEL		= 'removed';
+
+    
+
     /**
      * Функции, которые будут применены после загрузки
      *

@@ -91,7 +91,7 @@ class Helper_Form
 		{
 			if (count ($value) == 2 && isset ($value [0], $value [1]))
 			{
-				$data->$field = call_user_func ($value);//, $input);
+                $data->$field = call_user_func ($value);//, $input);
 			}
 			elseif (isset ($value ['add']) && $is_new)
 			{
@@ -230,7 +230,7 @@ class Helper_Form
 
 			foreach ($filters as $filter)
 			{
-				$data->$field = Filter_Manager::filterEx (
+				$data->$field = IcEngine::getServiceLocator()->getService('filterManager')->filterEx (
 					$filter, $field, $data, $obj_scheme
 				);
 			}
