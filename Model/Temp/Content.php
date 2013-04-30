@@ -122,10 +122,10 @@ class Temp_Content extends Model
         $mname = $model->modelName();
         $mkey = $model->key();
         if (!isset($this->created[$mname])) {
-            $this->$_created[$mname] = array();
+            $this->$created[$mname] = array();
         }
         if (!isset($this->created[$mname][$mkey])) {
-            $this->$_created[$mname][$mkey] = self::create(
+            $this->$created[$mname][$mkey] = self::create(
                     $controller ? $controller->name() : '', $model->table(),
                     $mkey
             );
