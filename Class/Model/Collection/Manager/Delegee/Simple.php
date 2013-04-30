@@ -45,6 +45,11 @@ class Model_Collection_Manager_Delegee_Simple
             $helperArray = $serviceLocator->getService('helperArray');
             $items = $helperArray->column($rows, $needleFields);
             $addicts = $helperArray->column($rows, $addictFields);
+            if (count($addictFields) == 1) {
+                foreach ($addicts as $i => $addict) {
+                    $addicts[$i] = array(reset($addictFields) => $addict);
+                }
+            }
             $collection->data('addicts', $addicts);
         } else {
             $items = $rows;
