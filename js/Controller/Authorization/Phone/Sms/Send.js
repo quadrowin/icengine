@@ -11,7 +11,7 @@ var Controller_Authorization_Phone_Sms_Send = {
 	
 	/**
 	 * @desc Авторизация.
-	 * @param jQuery $form Элемент, содержащий поля авторизации.
+     * @param $form
 	 */
 	login: function ($form)
 	{
@@ -32,13 +32,11 @@ var Controller_Authorization_Phone_Sms_Send = {
 			{
 				// Удачная авторизация/регистрация
 				result.data.removeForm = false;
-				Helper_Form.defaultCallback ($form, result);
 				$('a.btn_green', $form).remove ();
 			}
 			else
 			{
 				$('div.loading', $form).hide ();
-				Helper_Form.defaultCallback ($form, result);
 				Authorization_Phone_Sms_Send.onSmsCodeChange ($sms_session_code);
 			}
 		}
