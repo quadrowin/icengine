@@ -9,19 +9,25 @@ class Controller_Annotation_Cache extends Controller_Abstract
 {
     /**
      * Распарсить аннотацию
+     * 
+     * @Context("helperCodeGenerator")
+     * @Template(null)
+     * @Validator("Not_Null"={"data"})
      */
     public function update($data, $context) 
     {
         $caches = array();
         $config = $context->configManager->get('Controller_Manager');
-        foreach ($data as $id => $data) {
-            list($controllerName, $methodName) = explode('/', $id);
-            if (!$data) {
+        foreach ($data as $id => $subData) {
+            list($preControllerName, $methodName) = explode('/', $id);
+            if (!$subData) {
                 continue;
             }
-            $controllerName = str_replace('Controller_', '', $controllerName);
+            $controllerName = str_replace(
+                'Controller_', '', $preControllerName
+            );
             $hasAnnotation = false;
-            foreach (array_keys($data) as $annotationName) {
+            foreach (array_keys($subData) as $annotationName) {
                 if (strpos($annotationName, 'Cache') === 0) {
                     $hasAnnotation = true;
                     break;
@@ -30,12 +36,15 @@ class Controller_Annotation_Cache extends Controller_Abstract
             if (!$hasAnnotation) {
                 continue;
             }
-            $cache = reset($data['Cache']['data'][0]);
+            if (empty($subData['Cache'])) {
+                continue;
+            }
+            $cache = reset($subData['Cache']['data'][0]);
             if (!$cache) {
                 continue;
             }
-            $expiration = !empty($data['CacheExpiration']['data'])
-                ? reset($data['CacheExpiration']['data'][0]) : 0;
+            $expiration = !empty($subData['CacheExpiration']['data'])
+                ? reset($subData['CacheExpiration']['data'][0]) : 0;
             $profile = !empty($cache['profile'])
                 ? $cache['profile'] : null;
             if ($profile) {
@@ -48,8 +57,8 @@ class Controller_Annotation_Cache extends Controller_Abstract
                 continue;
             }
             $tags = array();
-            if (!empty($data['CacheTags']['data'])) {
-                $tags = array_values($data['CacheTags']['data'][0]);
+            if (!empty($subData['CacheTags']['data'])) {
+                $tags = array_values($subData['CacheTags']['data'][0]);
             }
             $vars = array();
             if (!empty($data['CacheVars'])) {
@@ -78,7 +87,7 @@ class Controller_Annotation_Cache extends Controller_Abstract
             }
         }
         ksort($caches);
-        $output = Helper_Code_Generator::fromTemplate(
+        $output = $context->helperCodeGenerator->fromTemplate(
             'controllerCache',
             array (
                 'actions'   => $caches,

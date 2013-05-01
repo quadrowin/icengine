@@ -126,13 +126,20 @@ class Model_Manager extends Manager_Abstract
             return null;
         }
         $key = $data[$keyField];
+        $scheme = $modelScheme->scheme($modelName)->fields;
+        foreach (array_keys($scheme->__toArray()) as $fieldName) {
+            if (isset($data[$fieldName])) {
+                continue;
+            }
+            unset($data[$fieldName]);
+        }
         $model = $this->get($modelName, $key, $data);
         if ($lazy) {
             $model->setLazy(true);
         }
         return $model;
 	}
-
+     
 	/**
 	 * Создать модель из источника
      *
@@ -336,10 +343,12 @@ class Model_Manager extends Manager_Abstract
         $updatedFields = $model->getUpdatedFields();
         if (!$model->key() || $hardInsert) {
             $updatedFields = $model->getFields();
+            $model->setUpdatedFields($updatedFields);
         }
         if ($updatedFields) {
             $this->write($model, $hardInsert);
         }
+        $model->setUpdatedFields(array());
         $resourceManager = $this->getService('resourceManager');
 		$resourceManager->set('Model', $resourceKey, $model);
 		$resourceManager->setUpdated('Model', $resourceKey, $updatedFields);
@@ -359,10 +368,18 @@ class Model_Manager extends Manager_Abstract
         $modelScheme = $this->getService('modelScheme');
         $dataSource = $modelScheme->dataSource($modelName);
         $queryBuilder = $this->getService('query');
+        $modelFields = $model->getFields();
+        $schemeFields = $modelScheme->scheme($modelName)->fields;
+        foreach (array_keys($modelFields) as $fieldName) {
+            if (isset($schemeFields[$fieldName])) {
+                continue;
+            }
+            unset($modelFields[$fieldName]);
+        }
         if ($key && !$hardInsert) {
             $query = $queryBuilder
                 ->update($modelName)
-                ->values($model->getFields())
+                ->values($modelFields)
                 ->where($keyField, $key)
 				->limit(1);
             $dataSource->execute($query);
@@ -372,12 +389,16 @@ class Model_Manager extends Manager_Abstract
             }
             if ($key) {
                 $model->set($keyField, $key);
+                $modelFields[$keyField] = $key;
             } else {
                 $model->unsetField($keyField);
+                if (isset($modelFields[$keyField])) {
+                    unset($modelFields[$keyField]);
+                }
             }
             $query = $queryBuilder
                 ->insert($modelName)
-                ->values($model->getFields());
+                ->values($modelFields);
             $result = $dataSource->execute($query)->getResult();
             if (!$key) {
                 $key = $result->insertId();
