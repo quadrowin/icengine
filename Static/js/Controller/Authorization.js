@@ -89,7 +89,7 @@ var Controller_Authorization = {
 	
 	/**
 	 * @desc Авторизация
-	 * @param jQuery $form
+     * @param $form
 	 */
 	submit: function ($form)
 	{

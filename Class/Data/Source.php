@@ -31,11 +31,11 @@ class Data_Source
 
     /**
      * Зарегистирированные таблицы
-     * 
+     *
      * @var array
      */
     protected $registeredTables = array();
-    
+
 	/**
 	 * Результат последнего выполненного запроса
 	 *
@@ -82,14 +82,16 @@ class Data_Source
         $options = $options ?: new Query_Options();
         $this->setQuery($query);
         $result = $this->driver()->execute($this->query, $options);
-        if ($result->numRows()) {
-            $fromPart = $query->getPart(Query::FROM);
-            $keys = array_keys($fromPart);
-            $tableName = reset($keys);
-            if (in_array($tableName, $this->registeredTables)) {
+
+        if ($result->touchedRows()) {
+            $tableName = $query->tableName();
+            $queryType = $query->type();
+            $signalName = 'Data_Source_' . ucfirst(strtolower($queryType));
+            $isTableRegistered = in_array($tableName, $this->registeredTables);
+            if ($queryType != Query::SELECT || $isTableRegistered) {
                 $serviceLocator = IcEngine::serviceLocator();
                 $eventManager = $serviceLocator->getService('eventManager');
-                $signal = $eventManager->getSignal('queryResultLanguage');
+                $signal = $eventManager->getSignal($signalName);
                 $signal->setData(array(
                     'result'    => $result,
                     'table'     => $tableName
@@ -132,7 +134,7 @@ class Data_Source
 	 */
 	public function getQuery($translator = null)
 	{
-		return $translator 
+		return $translator
             ? $this->query->translate($translator) : $this->query;
 	}
 
@@ -162,7 +164,7 @@ class Data_Source
 
     /**
      * Зарегистировать таблицу
-     * 
+     *
      * @param mixed $table
      */
     public function registerTable($table)
@@ -171,7 +173,7 @@ class Data_Source
             $this->registeredTables[] = $tableName;
         }
     }
-    
+
     /**
      * Изменить собственную конфигурация источника данных
      *

@@ -10,9 +10,9 @@ class Data_Validator_Not_Empty extends Data_Validator_Abstract
 	/**
 	 * @inheritdoc
 	 */
-	public function validate($data)
+	public function validate($data, $value = true)
 	{
-		return (bool) $data;
+		return !empty($data);
 	}
 	
 }
