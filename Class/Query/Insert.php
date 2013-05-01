@@ -9,11 +9,11 @@ class Query_Insert extends Query_Abstract
 {
     /**
      * Множественная ли вствка выполняется
-     * 
+     *
      * @var boolean
      */
 	protected $multiple = false;
-    
+
     /**
      * @inheritdoc
      */
@@ -43,7 +43,7 @@ class Query_Insert extends Query_Abstract
 		}
 		return array_unique($tags);
 	}
-    
+
 	/**
 	 * Помечаем запрос, как запрос на множественный INSERT
 	 *

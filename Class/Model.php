@@ -797,24 +797,6 @@ abstract class Model implements ArrayAccess
 		return $this;
 	}
 
-    /**
-     * Валидация модели с использованием схемы валидации
-     *
-     * @param array|Data_Transport $input
-     * @param string $name
-     * @return boolean|array
-     */
-	public function validateWith($input, $name = 'default')
-	{
-        $scheme = $this->scheme();
-        if (!isset($scheme->validators) || !isset($scheme->validators[$name])) {
-            return true;
-        }
-        return $this->getService('modelValidator')->validate(
-            $this, $scheme->validators[$name], $input
-        );
-	}
-
 	/**
 	 * Удаляет поле из объекта
 	 * Используется в Model_Manager для удаления первичного ключа перед
@@ -854,7 +836,7 @@ abstract class Model implements ArrayAccess
             }
             $this->updatedFields[$key] = $value;
         }
-        if (!$this->updatedFields) {
+        if (!$this->updatedFields && $this->key() && !$hardUpdate) {
             return $this;
         }
         $this->set($this->updatedFields);

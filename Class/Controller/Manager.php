@@ -52,7 +52,9 @@ class Controller_Manager extends Manager_Abstract
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeContext',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeInputTransport',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeInputProvider',
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeInputFilter',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeParam',
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeInputValidator',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeValidator',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeStatic',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeConfigMerge',
@@ -649,7 +651,14 @@ class Controller_Manager extends Manager_Abstract
             $controllerAction[0], $controllerAction[1], $args, null, true
         );
         $this->lastError = null;
-		$buffer = $task->getTransaction()->buffer();
+        $transaction = $task->getTransaction();
+        if (!$transaction) {
+            $buffer = array(
+                'error' => $task->getErrorVector()
+            );
+        } else {
+            $buffer = $transaction->buffer();
+        }
 		$result = $this->createResult($buffer);
         $template = $task->getTemplate();
         if (Tracer::$enabled) {

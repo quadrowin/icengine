@@ -71,7 +71,7 @@ class Helper_Array
             }
 			foreach ($filter as $field => $value) {
                 $fieldModificator = false;
-                if (strpos($field, '<') || strpos($field, '>')) {
+                if (strpos($field, '<') || strpos($field, '>') || strpos($field, '!')) {
                     $fieldModificator = true;
                 }
                 if (!isset($row[$field]) && !$fieldModificator) {

@@ -70,6 +70,7 @@ class Helper_GeoIP
     /**
      * Получить город из базы геолокации
      *
+     * @param $title
      * @return int
      */
     public function netCityByTitle($title)

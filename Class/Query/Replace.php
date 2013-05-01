@@ -2,7 +2,7 @@
 
 /**
  * Запрос типа replace
- * 
+ *
  * @author morph, goorus
  */
 class Query_Replace extends Query_Select
@@ -11,7 +11,7 @@ class Query_Replace extends Query_Select
      * @inheritdoc
      */
     protected $type = Query::REPLACE;
-    
+
 	/**
 	 * @inheritdoc
 	 */
@@ -25,5 +25,13 @@ class Query_Replace extends Query_Select
 	   		$tags[] = $modelScheme->table($replace);
 		}
 		return array_unique($tags);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function tableName()
+    {
+        return $this->getPart($this->type);
     }
 }
