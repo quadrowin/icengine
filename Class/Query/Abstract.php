@@ -75,6 +75,7 @@ class Query_Abstract
                 $this->parts[$partName] = $data[$partName];
                 break;
         }
+        $queryCommand->free();
         return $this;
     }
 
@@ -284,6 +285,16 @@ class Query_Abstract
         $this->parts[$name] = $value;
 	}
 
+    /**
+     * Получить имя таблицы
+     *
+     * @return string
+     */
+    public function tableName()
+    {
+        return $this->getPart($this->type);
+    }
+
 	/**
 	 * Транслирует запрос указанным транслятором
 	 *
@@ -294,12 +305,6 @@ class Query_Abstract
 	{
         $serviceLocator = IcEngine::serviceLocator();
         $queryTranslator = $serviceLocator->getService('queryTranslator');
-        foreach ($this->getParts() as $part) {
-            if (!is_object($part)) {
-                continue;
-            }
-            $part->free();
-        }
 		return $queryTranslator->byName($translator . '_' . $this->getName())
 			->translate($this);
 	}

@@ -23,9 +23,9 @@ class Controller_Redis_Clear extends Controller_Abstract
 	/**
 	 * Очистка контента, не затрагивающего сессии пользователей.
 	 * Будут очищены результаты запросов, конфиги, виджеты.
-     * 
+     *
      * @Template(null)
-     * @Validator("User_Cli")
+     * @Validator("User_CliOrEditor")
 	 */
 	public function clearContent($context)
 	{

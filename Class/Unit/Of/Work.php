@@ -110,7 +110,7 @@ class Unit_Of_Work
 		);
 		$query = $this->queries[$key];
         $ds = $modelScheme->dataSource($query['modelName']);
-		$result = $ds->execute($query['query']);
+  		$result = $ds->execute($query['query']);
         $driver = $ds->getDataDriver();
         if (method_exists($driver, 'getCacher')) {
             $cacher = $driver->getCacher();

@@ -2,7 +2,7 @@
 
 /**
  * Запроса типа select
- * 
+ *
  * @author morph, goorus
  */
 class Query_Select extends Query_Abstract
@@ -11,7 +11,7 @@ class Query_Select extends Query_Abstract
      * @inheritdoc
      */
     protected $type = Query::SELECT;
-    
+
 	/**
 	 * @inheritdoc
 	 */
@@ -29,4 +29,15 @@ class Query_Select extends Query_Abstract
 		}
 		return array_unique($tags);
 	}
+
+    /**
+     * @inheritdoc
+     */
+    public function tableName()
+    {
+        $fromPart = $this->getPart(Query::FROM);
+        $keys = array_keys($fromPart);
+        $tableName = reset($keys);
+        return $tableName;
+    }
 }
