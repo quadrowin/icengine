@@ -38,6 +38,7 @@ class Page_Title extends Model
             $a = explode('/', $this->field($field . 'Action'));
             $params =  $this->getService('request')->params();
             $params['pageTitle'] = $this;
+            var_dump($a);
             $task = $this->getService('controllerManager')->call(
                 $a [0],
                 isset ($a [1]) ? $a [1] : 'index',
