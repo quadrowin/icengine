@@ -31,35 +31,4 @@ class Data_Validator_Manager extends Manager_Abstract
         $this->validators[$name] = $validator;
         return $validator;
 	}
-
-	/**
-	 * Валидация строки
-     * 
-	 * @param string $name Валидатор
-	 * @param mixed $data
-	 * @return true|string
-	 */
-	public function validate($name, $data)
-	{
-		return $this->get($name)->validate($data);
-	}
-
-	/**
-	 * Проверка данных валидатором с использованием схемы
-	 *
-	 * @param string $name
-	 * 		Валидатор.
-	 * @param string $field
-	 * 		Проверяемое поле
-	 * @param stdClass $data
-	 * @param stdClass|Objective $scheme
-	 * @return true|string
-	 * 		true, если данные прошли валидацию.
-	 * 		Иначе - строкове представление ошибки в виде:
-	 * 		"Имя_Валидатора/ошибка"
-	 */
-	public function validateEx($name, $field, $data, $scheme)
-	{
-		return $this->get($name)->validateEx($field, $data, $scheme);
-	}
 }
