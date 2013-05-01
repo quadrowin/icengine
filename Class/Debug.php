@@ -275,15 +275,15 @@ class Debug
         $locator = IcEngine::serviceLocator();
         $debugService = $locator->getService('debug');
 		$debugService->log($log_text, $errno);
-        echo "<b>Terminated on fatal error.</b><br />" . str_replace("\n", "<br/>\n", $log_text);
-        if ($errno ==
-            E_ERROR || $errno == E_USER_ERROR) {
+		if ($errno == E_ERROR || $errno == E_USER_ERROR) {
             if (self::$config ['die_on_error']) {
-                exit;
+                die("<b>Terminated on fatal error.</b><br />" .
+                    str_replace("\n", "<br/>\n", $log_text));
+            } else {
+                throw new Exception($log_text);
             }
-        }
-//        throw  new ErrorException($errstr, $errno, 0, $errfile, $errline);
-        return true;
+		}
+		return true;
 	}
 
 	/**
@@ -299,7 +299,7 @@ class Debug
 
 		error_reporting (E_ALL | E_STRICT);
 
-		ini_set ('display_errors', true);
+		ini_set ('display_errors', false);
 		ini_set ('html_errors', true);
 		ini_set ('track_errors', true);
 
@@ -416,7 +416,7 @@ class Debug
 				// подключение файрпхп
 				if ($config == 'fb' && !function_exists ('fb'))
 				{
-					require dirname (__FILE__) . '/../includes/FirePHPCore/fb.php';
+					require dirname (__FILE__) . '/../Vendor/FirePHPCore/fb.php';
 				}
 				$config = self::$_configPresets [$config];
 			}
@@ -601,7 +601,7 @@ class Debug
 	 * @desc вывод в лог времени загрузки фаилов
 	 * @author Eriomin Ivan
 	 * @tutorial
-	 *	include $engine_dir . '/includes/FirePHPCore/fb.php';
+	 *	include $engine_dir . '/Vendor/FirePHPCore/fb.php';
 	 *	Debug::microtime ('some special message');
 	 */
 	public static function microtime ()
@@ -632,7 +632,7 @@ class Debug
 	 * @desc вывод в лог времени загрузки фаилов.
 	 * @author Yury Shvedov
 	 * @tutorial
-	 *	include $engine_dir . '/includes/FirePHPCore/fb.php';
+	 *	include $engine_dir . '/Vendor/FirePHPCore/fb.php';
 	 *	Debug::microtimeTotal ('some special message');
 	 */
 	public static function microtimeTotal ()

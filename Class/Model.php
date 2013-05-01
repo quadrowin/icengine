@@ -31,7 +31,7 @@ abstract class Model implements ArrayAccess
      *
 	 * @var array
 	 */
-	protected $fields;
+	protected $fields = array();
 
 	/**
 	 * Подгруженные объекты
@@ -58,7 +58,21 @@ abstract class Model implements ArrayAccess
 	 * @var bool
 	 */
 	protected $lazy;
-
+    
+    /**
+     * Схема связей модели
+     * 
+     * @var Model_Mapper_Scheme
+     */
+    protected $modelMapperScheme;
+    
+    /**
+     * Репозиторий модели
+     * 
+     * @var Model_Repository
+     */
+    protected $repository;
+    
 	/**
 	 * Схема модели
      *
@@ -81,13 +95,23 @@ abstract class Model implements ArrayAccess
 	protected $updatedFields = array();
 
     /**
-     * Действие после выполнения конструктора
+     * Вызов метода через репозиторий модели
+     * 
+     * @param string $method
+     * @param array $args
+     * @return mixed
      */
-    protected function _afterConstruct()
+    public function __call($method, $args)
     {
-
+        $repository = $this->repository();
+        if (!method_exists($repository, $method)) {
+            throw new Exception(
+                'Method "' . $method . '" unexists in repository'
+            );
+        }
+        return call_user_func_array(array($repository, $method), $args);
     }
-
+    
 	/**
 	 * Создает и возвращает модель
      *
@@ -95,7 +119,7 @@ abstract class Model implements ArrayAccess
 	 */
 	public function __construct(array $fields = array())
 	{
-		$this->fields = $fields;
+		$this->set($fields);
         $selfFields = $this->helper()->getVars($this);
         foreach (array_keys($selfFields) as $fieldName) {
             if (!$fieldName || $fieldName[0] == '_') {
@@ -106,7 +130,6 @@ abstract class Model implements ArrayAccess
             }
             unset($this->$fieldName);
         }
-        $this->_afterConstruct();
 	}
 
 	/**
@@ -133,7 +156,11 @@ abstract class Model implements ArrayAccess
         }
         $references = $this->scheme()->references;
         if (isset($references[$field])) {
-            return $this->getService('modelMapper')->scheme($this)->$field;
+            if (!$this->modelMapperScheme) {
+                $this->modelMapperScheme = $this->getService('modelMapper')
+                    ->scheme($this);
+            }
+            return $this->modelMapperScheme->get($field);
         }
         $value = null;
         return $value;
@@ -391,7 +418,7 @@ abstract class Model implements ArrayAccess
         }
 		return $this->data;
 	}
-
+    
 	/**
 	 * Получить значения полей. Синоним asRow
      *
@@ -422,6 +449,16 @@ abstract class Model implements ArrayAccess
         return $this->lazy;
     }
 
+    /**
+     * Получить репозиторий модели
+     * 
+     * @return Model_Repository
+     */
+    public function getRepository()
+    {
+        return $this->repository;
+    }
+    
     /**
      * Получить услугу по имени
      *
@@ -477,7 +514,8 @@ abstract class Model implements ArrayAccess
 	public function key()
 	{
 		$keyField = $this->keyField();
-        return isset($this->fields[$keyField]) ? $this->fields[$keyField] : null;
+        return isset($this->fields[$keyField]) 
+            ? $this->fields[$keyField] : null;
 	}
 
 	/**
@@ -573,6 +611,22 @@ abstract class Model implements ArrayAccess
 		return $this->table() . '__' . $this->key();
 	}
 
+    /**
+     * Получить или инициализировать репозиторий модели
+     * 
+     * @return Model_Repository
+     */
+    protected function repository()
+    {
+        if (!$this->repository) {
+            $modelRepositoryManager = $this->getService(
+                'modelRepositoryManager'
+            );
+            $this->repository = $modelRepositoryManager->get($this);
+        }
+        return $this->repository;
+    }
+    
 	/**
 	 * Сохранение данных модели
      *
@@ -652,6 +706,16 @@ abstract class Model implements ArrayAccess
 	}
 
     /**
+     * Изменить репозиторий модели
+     * 
+     * @param Model_Repository $modelRepository
+     */
+    public function setRepository($modelRepository)
+    {
+        $this->repository = $modelRepository;
+    }
+    
+    /**
      * Изменить схему модели
      *
      * @param mixed $scheme
@@ -669,6 +733,16 @@ abstract class Model implements ArrayAccess
     public function setServiceLocator($serviceLocator)
     {
         self::$serviceLocator = $serviceLocator;
+    }
+    
+    /**
+     * Изменить поля для обновления
+     * 
+     * @param array $fields
+     */
+    public function setUpdatedFields($fields)
+    {
+        $this->updatedFields = $fields;
     }
 
 	/**
@@ -718,29 +792,9 @@ abstract class Model implements ArrayAccess
             $modelManager->get($this->table(), $this->key(), $this);
         }
         if (is_null($this->fields)) {
-            $this->fields = array(
-                $this->keyField() => null
-            );
+            $this->fields = array($this->keyField() => null);
         }
 		return $this;
-	}
-
-    /**
-     * Валидация модели с использованием схемы валидации
-     *
-     * @param array|Data_Transport $input
-     * @param string $name
-     * @return boolean|array
-     */
-	public function validateWith($input, $name = 'default')
-	{
-        $scheme = $this->scheme();
-        if (!isset($scheme->validators) || !isset($scheme->validators[$name])) {
-            return true;
-        }
-        return $this->getService('modelValidator')->validate(
-            $this, $scheme->validators[$name], $input
-        );
 	}
 
 	/**
@@ -776,7 +830,13 @@ abstract class Model implements ArrayAccess
             if (!isset($fields[$key])) {
                 continue;
             }
+            if ($value == $this->field($key)) {
+                continue;
+            }
             $this->updatedFields[$key] = $value;
+        }
+        if (!$this->updatedFields && $this->key() && !$hardUpdate) {
+            return $this;
         }
         $this->set($this->updatedFields);
 		return $this->save($hardUpdate);

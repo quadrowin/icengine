@@ -12,37 +12,37 @@ class Module_Manager extends Manager_Abstract
      * @inheritdoc
      */
     protected $config = array(
-        'configPath' => 'Config',
-        'defaultModule' => 'Ice',
-        'fromModel' => false,
-        'loaderPaths' => array(
-            'Class' => 'Class',
-            'Model' => 'Class',
-            '' => 'Class',
-            'Controller' => 'Controller',
-            'includes' => 'includes'
+        'configPath'        => 'Config',
+        'defaultModule'     => 'Ice',
+        'fromModel'         => false,
+        'loaderPaths'       => array(
+            'Class'         => 'Class',
+            'Model'         => 'Class',
+            ''              => 'Class',
+            'Controller'    => 'Controller',
+            'Vendor'        => 'Vendor'
         ),
-        'modules' => array(),
-        'viewPath' => 'View'
+        'modules'           => array(),
+        'viewPath'          => 'View'
     );
 
-    /**
-     * Текущие инициализированные модули
-     *
-     * @var array
-     */
-    protected $modules = array();
+	/**
+	 * Текущие инициализированные модули
+	 *
+	 * @var array
+	 */
+	protected $modules = array();
 
-    /**
-     * Добавить модуль в проект
-     *
+	/**
+	 * Добавить модуль в проект
+	 *
      * @param string $moduleName Название модуля
-     */
-    public function addModule($moduleName)
-    {
-        if (isset($this->modules[$moduleName])) {
-            return;
-        }
+	 */
+	public function addModule($moduleName)
+	{
+		if (isset($this->modules[$moduleName])) {
+			return;
+		}
         $selfConfig = $this->config();
         $moduleConfig = $this->getConfig($moduleName);
         if ($moduleConfig->baseDir) {
@@ -56,9 +56,9 @@ class Module_Manager extends Manager_Abstract
         }
         $loaderPaths = array();
         if ($selfConfig->loaderPaths) {
-            $loaderPaths = $selfConfig->loaderPaths->__toArray();
+             $loaderPaths = $selfConfig->loaderPaths->__toArray();
         } else {
-            $loaderPaths = array();
+             $loaderPaths = array();
         }
         if ($moduleConfig->loaderPaths) {
             foreach ($moduleConfig->loaderPaths as $prefix => $value) {
@@ -95,7 +95,7 @@ class Module_Manager extends Manager_Abstract
         if ($moduleName != $selfConfig->defaultModule) {
             $configManager->addPath(
                 $selfConfig->defaultModule .
-                    '/Config/Module/' . $moduleName . '/'
+                '/Config/Module/' . $moduleName . '/'
             );
         }
         $viewPath = null;
@@ -112,7 +112,7 @@ class Module_Manager extends Manager_Abstract
             $view = $viewRenderManager->getView();
             $view->addTemplatesPath(rtrim($viewPath, '/') . '/');
         }
-        $this->modules[$moduleName] = true;
+		$this->modules[$moduleName] = true;
         if ($moduleName != 'Ice') {
             $routeConfig = $this->getConfig($moduleName, 'Route');
             $routeService = $this->getService('route');
@@ -123,15 +123,13 @@ class Module_Manager extends Manager_Abstract
                 }
             }
         }
-    }
+	}
 
     /**
      * Получить конфиг для модуля
      *
      * @param string $moduleName
-     * @param string $className
-     * @internal param string $name
-     * @return \Config_Array
+     * @param string $name
      * @author morph
      */
     public function getConfig($moduleName, $className = 'Index')
@@ -160,7 +158,7 @@ class Module_Manager extends Manager_Abstract
             }
         }
         $config = new Config_Array($resultConfig);
-        if ($config->count()) {
+        if (!empty($resultConfig)) {
             $resourceManager->set('Config', $resourceKey, $config);
         }
         return $config;
@@ -169,8 +167,8 @@ class Module_Manager extends Manager_Abstract
     /**
      * Загрузка модулей
      */
-    public function init()
-    {
+	public function init()
+	{
         if ($this->modules) {
             return;
         }
@@ -180,7 +178,7 @@ class Module_Manager extends Manager_Abstract
         } else {
             $this->loadByNames($config->modules->__toArray());
         }
-    }
+	}
 
     /**
      * Загрузить модули по именам
@@ -190,8 +188,8 @@ class Module_Manager extends Manager_Abstract
     public function loadByNames($names)
     {
         foreach ($names as $name) {
-            $this->addModule($name);
-        }
+			$this->addModule($name);
+		}
     }
 
     /**
@@ -203,17 +201,17 @@ class Module_Manager extends Manager_Abstract
         $moduleCollection = $collectionManager->create('Module')
             ->addOptions(
                 array(
-                    'name' => '::Order_Desc',
-                    'field' => 'isMain'
+                    'name'   => '::Order_Desc',
+                    'field'  => 'isMain'
                 ),
                 array(
-                    'name' => '::Order_Desc',
-                    'field' => 'id'
+                    'name'   => '::Order_Desc',
+                    'field'  => 'id'
                 )
             );
-        foreach ($moduleCollection->raw() as $module) {
-            $this->addModule($module['name']);
-        }
+		foreach ($moduleCollection->raw() as $module) {
+			$this->addModule($module['name']);
+		}
     }
 
     /**

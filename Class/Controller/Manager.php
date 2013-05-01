@@ -19,25 +19,13 @@ class Controller_Manager extends Manager_Abstract
     const DEFAULT_VIEW = 'Smarty';
 
     /**
-     * Менеджер аннотаций
-     *
-     * @var Annotation_Manager_Abstract
-     */
-    protected $annotationManager;
-
-    /**
 	 * @inheritdoc
 	 */
 	protected $config = array(
 		/**
-		 * @desc Фильтры для выходных данных
-		 * @var array
-		 */
-		'output_filters'	=> array(),
-
-		/**
-		 * @desc Настройки кэширования для экшенов.
-		 * @var array
+		 * Настройки кэширования для экшенов.
+		 *
+         * @var array
 		 */
 		'actions'			=> array(),
 
@@ -51,7 +39,7 @@ class Controller_Manager extends Manager_Abstract
             'collectionManager' => 'collectionManager',
             'configManager'     => 'configManager',
             'controllerManager' => 'controllerManager',
-            'userSession'       => 'session',
+            'userSession'       => 'userSession',
             'user'              => 'user',
             'request'           => 'request'
         ),
@@ -64,17 +52,23 @@ class Controller_Manager extends Manager_Abstract
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeContext',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeInputTransport',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeInputProvider',
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeInputFilter',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeParam',
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeInputValidator',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeValidator',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeStatic',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeConfigMerge',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeConfigExport',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeConfig',
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeOutputFilter',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeTemplate',
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeViewRender',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeLayout',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeBefore',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeAfter',
-            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeSlot'
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeSlot',
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeTitle',
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeRedirect'
         )
 	);
 
@@ -84,14 +78,6 @@ class Controller_Manager extends Manager_Abstract
 	 * @var Controller_Task
 	 */
 	protected $currentTask;
-
-    /**
-     * Менеджер провайдеров
-     *
-     * @Inject("dataProviderManager")
-     * @var Data_Provider_Manager
-     */
-    protected $dataProviderManager;
 
     /**
      * Контекст по умолчанию
@@ -120,13 +106,6 @@ class Controller_Manager extends Manager_Abstract
      * @var array
      */
     protected $deleeges = array();
-
-    /**
-     * Менеджер событий
-     *
-     * @var Event_Manager
-     */
-    protected $eventManager;
 
     /**
      * "Выполнитель" действия контроллера
@@ -163,12 +142,20 @@ class Controller_Manager extends Manager_Abstract
 	 */
 	protected $tasksBuffer = array();
 
+    /**
+     * Пул заданий
+     *
+     * @var array
+     */
+    protected $taskPool = array();
+
 	/**
 	 * Очередь заданий
      *
 	 * @var array <Router_Action>
 	 */
 	protected $tasksQueue = array();
+
 
 	/**
 	 * Результаты выполнения очереди
@@ -190,23 +177,6 @@ class Controller_Manager extends Manager_Abstract
      * @var Service_Injector_Abstract
      */
     protected $serviceInjector;
-
-    /**
-     * Получить менеджер аннотаций
-     *
-     * @return Annotation_Manager_Abstract
-     */
-    public function annotationManager()
-    {
-        if (!$this->annotationManager) {
-            $this->annotationManager = new Annotation_Manager_Standart();
-            $provider = $this->dataProviderManager->get('Annotation');
-            $annotationSource = new Annotation_Source_Standart();
-            $this->annotationManager->setRepository($provider);
-            $this->annotationManager->setSource($annotationSource);
-        }
-        return $this->annotationManager;
-    }
 
 	/**
 	 * Вызов экшена контроллера
@@ -257,11 +227,16 @@ class Controller_Manager extends Manager_Abstract
         // Подменяем транспорты, на полученные из менеджера/задания
         $controller->setInput($input)->setOutput($output)->setTask($task);
         $task->setCallable($controller, $actionName);
+        $task->setInput($input);
 		$config = $this->config();
         // Создает контекст вызова контроллера, отдаем его before-делегатам
         // менеджера контроллеров.
         $context = $this->createControllerContext($controller, $actionName);
         $task->setContext($context);
+        if (!$task->getInput()) {
+            $task->setInput($input);
+        }
+        array_push($this->taskPool, $task);
         $delegees = $config->delegees;
         if ($delegees) {
             foreach ($delegees as $delegeeName) {
@@ -437,19 +412,6 @@ class Controller_Manager extends Manager_Abstract
         return $this->delegees[$delegeeName];
     }
 
-    /**
-     * Получить менеджер событий
-     *
-     * @return Event_Manager
-     */
-    public function eventManager()
-    {
-        if (!$this->eventManager) {
-            $this->eventManager = new Event_Manager;
-        }
-        return $this->eventManager;
-    }
-
 	/**
 	 * Очистка результатов работы контроллеров
 	 */
@@ -473,16 +435,6 @@ class Controller_Manager extends Manager_Abstract
         $controller = new $className;
         return $controller;
 	}
-
-    /**
-     * Вернуть менеджер аннотаций
-     *
-     * @return Annotation_Manager_Abstract
-     */
-    public function getAnnotationManager()
-    {
-        return $this->annotationManager;
-    }
 
     /**
 	 * Настройки кэширования для контроллера-экшена.
@@ -517,6 +469,16 @@ class Controller_Manager extends Manager_Abstract
         }
         return $controllerConfig;
 	}
+
+    /**
+     * Получить текущее задание
+     *
+     * @return Controller_Task
+     */
+    public function getCurrentTask()
+    {
+        return $this->currentTask;
+    }
 
     /**
      * Получить контекст контроллера по умолчанию
@@ -555,16 +517,6 @@ class Controller_Manager extends Manager_Abstract
             $this->defaultOutput = new Data_Transport();
         }
         return $this->defaultOutput;
-    }
-
-    /**
-     * Получить менеджер событий
-     *
-     * @return Event_Manager
-     */
-    public function getEventManager()
-    {
-        return $this->eventManager;
     }
 
     /**
@@ -618,6 +570,16 @@ class Controller_Manager extends Manager_Abstract
     public function getServiceInjector()
     {
         return $this->serviceInjector;
+    }
+
+    /**
+     * Получить пул заданий
+     *
+     * @return array
+     */
+    public function getTaskPool()
+    {
+        return $this->taskPool;
     }
 
 	/**
@@ -689,7 +651,14 @@ class Controller_Manager extends Manager_Abstract
             $controllerAction[0], $controllerAction[1], $args, null, true
         );
         $this->lastError = null;
-		$buffer = $task->getTransaction()->buffer();
+        $transaction = $task->getTransaction();
+        if (!$transaction) {
+            $buffer = array(
+                'error' => $task->getErrorVector()
+            );
+        } else {
+            $buffer = $transaction->buffer();
+        }
 		$result = $this->createResult($buffer);
         $template = $task->getTemplate();
         if (Tracer::$enabled) {
@@ -793,6 +762,7 @@ class Controller_Manager extends Manager_Abstract
 	 */
 	public function run($task)
 	{
+        array_push($this->taskPool, $task);
 		$parentTask = $this->currentTask;
 		$this->currentTask = $task;
 		$action = $task->controllerAction();
@@ -848,16 +818,6 @@ class Controller_Manager extends Manager_Abstract
     }
 
     /**
-     * Изменить менеджер аннотаций
-     *
-     * @param Annotation_Manager_Abstract $annotationManager
-     */
-    public function setAnnotationManager($annotationManager)
-    {
-        $this->annotationManager = $annotationManager;
-    }
-
-    /**
      * Изменить контекст контроллера по умолчанию
      *
      * @param Objective $defaultContext
@@ -875,16 +835,6 @@ class Controller_Manager extends Manager_Abstract
     public function setDefaultExecutor($defaultExecutor)
     {
         $this->defaultExecutor = $defaultExecutor;
-    }
-
-    /**
-     * Изменить менеджер событий
-     *
-     * @param Event_Manager $eventManager
-     */
-    public function setEventManager($eventManager)
-    {
-        $this->eventManager = $eventManager;
     }
 
     /**
