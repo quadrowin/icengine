@@ -37,7 +37,7 @@ class Helper_Date
      * @desc Названия дней недели
      * @var array
      */
-    public static $daysRu = array (
+    public $daysRu = array (
         1 => array (
             0 => 'воскресенье',
             1 => 'понедельник',
@@ -64,7 +64,7 @@ class Helper_Date
      * @desc Русские названия месяцев.
      * @var array
      */
-    public static $monthesRu = array (
+    public $monthesRu = array (
 		1 => array (
 			1 => 'январь',
 			2 => 'февраль',
@@ -111,9 +111,10 @@ class Helper_Date
 
     /**
      * @desc Получение даты по номеру недели в году
-     * @param integer $week_number Номер недели в году в формате ISO-8601.
+     * @param $week
      * @param integer $year Четырехзначный номер года.
      * Если параметр не указан, будет взят номер текущего года.
+     * @internal param int $week_number Номер недели в году в формате ISO-8601.
      * @return integer|false unix timestamp
      */
     public static function dateByWeek ($week, $year = null)
@@ -142,8 +143,9 @@ class Helper_Date
      * format = 1 : 15 мая 2012 года 10:40
      *
      * @param type $string
-     * @param type $showYear
-     * @param type $format
+     * @param bool|\type $showYear
+     * @param int|\type $format
+     * @param bool $showTime
      * @return type
      */
 	public static function datetime ($string, $showYear = false, $format = 0,
@@ -225,11 +227,11 @@ class Helper_Date
 		return (int) (365.25 * $y + 30.6 * $m + $d);
 	}
 
-	/**
-	 * @desc Возвращает номер часа от начала эры
-	 * @param integer $date Дата.
-	 * @return intger Номер недели.
-	 */
+    /**
+     * @desc Возвращает номер часа от начала эры
+     * @param bool|int $date Дата.
+     * @return intger Номер недели.
+     */
 	public static function eraHourNum($date = false)
 	{
 		if ($date === null) {
@@ -238,11 +240,12 @@ class Helper_Date
 		return self::eraDayNum($date) * 24 + (int) date('H', $date);
 	}
 
-	/**
-	 * @desc Возвращает номер минуты от начала эры
-	 * @param integer $date Дата.
-	 * @return intger Номер недели.
-	 */
+    /**
+     * @desc Возвращает номер минуты от начала эры
+     * @param $delta
+     * @param bool|int $date Дата.
+     * @return intger Номер недели.
+     */
 	public static function eraMinNum($delta, $date = false)
 	{
 		if ($date === null) {
@@ -252,11 +255,11 @@ class Helper_Date
 			(int) date('i', $date)) * ((int) (60 / $delta));
 	}
 
-	/**
-	 * @desc Возвращает номер недели от начала эры
-	 * @param integer $date Дата.
-	 * @return intger Номер недели.
-	 */
+    /**
+     * @desc Возвращает номер недели от начала эры
+     * @param bool|int $date Дата.
+     * @return intger Номер недели.
+     */
 	public static function eraWeekNum ($date = false)
 	{
 		return (int) (self::eraDayNum ($date) / 7);
@@ -273,6 +276,46 @@ class Helper_Date
 		$usec = substr ($usec, 0, 6);
 		return (float) ((float) $usec + $sec);
 	}
+
+    /**
+     * @desc перевод временной метки в человекопонятный вид с учетом разницы с
+     * текущей временной меткой.
+     * @param int $timestamp
+     * @return string Дата, формат зависит от разницы с текущей временной меткой
+     *
+     */
+    public function timestampToSpecialStr($timestamp)
+    {
+        $delta_time = ((int) date('d') - (int) date('d', $timestamp));
+        if ($delta_time < 1) //Для сообщений размещенных сегодня
+        {
+            $format_date = 'Сегодня в ' . date('H:i', $timestamp);
+        }
+        elseif ($delta_time >= 1 && $delta_time < 2) //Для сообщений размещенных вчера
+        {
+            $format_date = 'Вчера в ' . date('H:i', $timestamp);
+        }
+        elseif ($delta_time >= 2 && $delta_time < 7) //Для сообщений размещенных на этой неделе
+        {
+            $dateArray = getdate($timestamp);
+            $dayName = $this->daysRu[1][$dateArray['wday']];
+            $format_date = $dayName . ' в ' . date('H:i', $timestamp);
+        }
+        elseif ($delta_time >= 7 && $delta_time < 365) //Для сообщений размещенных в этом году
+        {
+            $dateArray = getdate($timestamp);
+            $monthName = $this->monthName($dateArray['mon'], 2);
+            $format_date = date('d', $timestamp) . ' ' . $monthName . ' в ' . date('H:i', $timestamp);
+        }
+        else  //Для всех других
+        {
+            $dateArray = getdate($timestamp);
+            $monthName = $this->monthName($dateArray['mon'], 2);
+            $format_date = date('d', $timestamp) . ' ' . $monthName . ' ' . date('Y', $timestamp) . ' г. в ' . date('H:i', $timestamp);
+        }
+
+        return $format_date;
+    }
 
 	/**
 	 * @desc Возвращает максимальную из дат
