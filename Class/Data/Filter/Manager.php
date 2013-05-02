@@ -26,7 +26,7 @@ class Data_Filter_Manager extends Manager_Abstract
 		if (isset($this->filters[$name])) {
 			return $this->filters[$name];
 		}
-		$className = 'Filter_' . $name;
+		$className = 'Data_Filter_' . $name;
         $filter = new $className;
 		$this->filters[$name] = $filter;
         return $filter;
