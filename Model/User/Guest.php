@@ -4,7 +4,7 @@
  * Модель гостя (незарегистрированного посетителя сайта).
  *
  * @author goorus, morph
- * @Service("userGuest")
+ * @Service("userGuest", disableConstruct=true)
  */
 class User_Guest extends User_Cli
 {

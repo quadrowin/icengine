@@ -90,11 +90,11 @@ class Helper_Model_Migrate_Sync extends Helper_Abstract
                 }
                 $field = new Model_Field($propertyName);
                 $field
+                    ->setAutoIncrement(in_array('Auto_Increment', $annotation))
                     ->setType($type)
                     ->setSize(
                         !empty($annotation['Size']) ? $annotation['Size'] : 0
                     )
-                    ->setAutoIncrement(in_array('Auto_Increment', $annotation))
                     ->setNullable(!in_array('Not_Null', $annotation))
                     ->setDefault(isset($annotation['Default'])
                         ? $annotation['Default'] : null)

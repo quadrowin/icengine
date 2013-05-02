@@ -24,15 +24,17 @@ class ControllerManagerDelegeeInputValidator extends ControllerManagerDelegeeAbs
             $dataValidator = $controllerManager->getService('dataValidator');
             $hasScheme = false;
             $scheme = array();
-            foreach ($actionScheme['InputValidator'] as $data) {
-                if (is_string($data)) {
-                    $hasScheme = true;
-                    $configScheme = $config['validatorSchemes'][$data] 
-                        ? $config['validatorSchemes'][$data]->__toArray()
-                        : array();
-                    $scheme = array_merge($scheme, $configScheme);
-                } else {
-                    $scheme = array_merge($scheme, reset($data));
+            if (is_array($actionScheme['InputValidator'])) {
+                foreach ($actionScheme['InputValidator'] as $data) {
+                    if (is_string($data)) {
+                        $hasScheme = true;
+                        $configScheme = $config['validatorSchemes'][$data] 
+                            ? $config['validatorSchemes'][$data]->__toArray()
+                            : array();
+                        $scheme = array_merge($scheme, $configScheme);
+                    } else {
+                        $scheme = array_merge($scheme, reset($data));
+                    }
                 }
             }
             if (!$hasScheme) {

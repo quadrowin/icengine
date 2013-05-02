@@ -147,20 +147,19 @@ abstract class Model implements ArrayAccess
             return $this->getData();
 		}
         $joinField = $field . '__id';
+        $references = $this->scheme()->references;
         if (isset($this->joints[$field])) {
             return $this->joints[$field];
-        } elseif (array_key_exists($field, $this->fields)) {
-            return $this->fields[$field];
-        } elseif (array_key_exists($joinField, $this->fields)) {
-            return $this->joint($field, $this->fields[$joinField]);
-        }
-        $references = $this->scheme()->references;
-        if (isset($references[$field])) {
+        } elseif (isset($references[$field])) {
             if (!$this->modelMapperScheme) {
                 $this->modelMapperScheme = $this->getService('modelMapper')
                     ->scheme($this);
             }
             return $this->modelMapperScheme->get($field);
+        } elseif (array_key_exists($field, $this->fields)) {
+            return $this->fields[$field];
+        } elseif (array_key_exists($joinField, $this->fields)) {
+            return $this->joint($field, $this->fields[$joinField]);
         }
         $value = null;
         return $value;
