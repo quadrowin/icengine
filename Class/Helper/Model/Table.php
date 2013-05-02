@@ -16,14 +16,22 @@ class Helper_Model_Table extends Helper_Abstract
     public function create($modelName)
     {
         $modelScheme = $this->getService('modelScheme');
-        $modelMapper = $this->getService('modelMapper');
-        $scheme = $modelMapper->scheme($modelName);
-		$modelMapperSchemeRenderView = $this->getService(
-			'modelMapperSchemeRender'
-		);
-		$dataSource = $modelScheme->dataSource($modelName);
-		$view = $modelMapperSchemeRenderView->byName('Mysql');
-		$query = $view->render($scheme);
-		$dataSource->execute($query);
+        $scheme = $this->getService('configManager')->get(
+            'Model_Mapper_' . $modelName
+        );
+        if ($scheme->count()) {
+            $modelMapperSchemeRenderView = $this->getService(
+                'modelMapperSchemeRender'
+            );
+            $dataSource = $modelScheme->dataSource($modelName);
+            $this->getService('dataSourceManager')->initDataDriver($dataSource);
+            $driver = $dataSource->getDataDriver();
+            if (strpos(get_class($driver), 'Mysql') === false) {
+                return;
+            }
+            $view = $modelMapperSchemeRenderView->byName('Mysql');
+            $query = $view->render($modelName);
+            $dataSource->execute($query);
+        }
     }
 }

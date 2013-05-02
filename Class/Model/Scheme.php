@@ -88,6 +88,13 @@ class Model_Scheme extends Manager_Abstract
 	);
 
     /**
+     * Полученные схемы моделей
+     *  
+     * @var array
+     */
+    protected $schemes = array();
+    
+    /**
 	 * Источник данных для модели
      *
 	 * @param string $modelName название модели.
@@ -222,11 +229,17 @@ class Model_Scheme extends Manager_Abstract
      */
     public function scheme($modelName)
     {
+        if (isset($this->schemes[$modelName])) {
+            return $this->schemes[$modelName];
+        }
         $configManager = $this->getService('configManager');
         $schemeConfig = $configManager->get('Model_Mapper_' . $modelName);
         if (!$schemeConfig->count()) {
-            throw new ErrorException("scheme not found for model " . $modelName);
+            throw new ErrorException(
+                'Scheme not found for model ' . $modelName
+            );
         }
+        $this->schemes[$modelName] = $schemeConfig;
         return $schemeConfig;
     }
 
@@ -295,6 +308,17 @@ class Model_Scheme extends Manager_Abstract
         $this->models[strtolower($modelName)]['prefix'] = $prefix;
     }
 
+    /**
+     * Изменить схему модели
+     * 
+     * @param string $modelName
+     * @param mixed $scheme
+     */
+    public function setScheme($modelName, $scheme) 
+    {
+        $this->schemes[$modelName] = $scheme;
+    }
+    
     /**
      * Изменить название таблицы модели
      *

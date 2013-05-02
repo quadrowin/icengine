@@ -4,7 +4,6 @@
  * Абстрактная модель пользователя.
  *
  * @author goorus, morph, neon
- * @Service("user")
  */
 class User_Abstract extends Model
 {

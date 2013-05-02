@@ -50,7 +50,7 @@ return array (
 'references'	=> array (
 		{foreach from=$references item="reference" name="references" key="name"}
 '{$name}'	=> array (
-            {$reference[0]}, array(
+            '{$reference[0]}', array(
                 'Target'   => '{$reference[1]['Target']}',
                 {if isset($reference[1]['JoinColumn'])}
                 {if is_array($reference[1]['JoinColumn'])}
