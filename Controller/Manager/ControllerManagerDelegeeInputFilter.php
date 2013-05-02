@@ -25,6 +25,7 @@ class ControllerManagerDelegeeInputFilter extends
                 'dataFilterManager'
             );
             $args = $context->getArgs();
+            $input = $controller->getInput();
             foreach ($actionScheme['InputFilter'] as $actionArgs) {
                 foreach ($actionArgs as $argName => $filters) {
                     if (!isset($args[$argName])) {
@@ -33,6 +34,7 @@ class ControllerManagerDelegeeInputFilter extends
                     foreach ($filters as $filterName) {
                         $filter = $filterManager->get($filterName);
                         $args[$argName] = $filter->filter($args[$argName]);
+                        $input->send($argName, $args[$argName]);
                     }
                 }
             }
