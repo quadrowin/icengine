@@ -61,7 +61,7 @@ class Data_Source_Manager extends Manager_Abstract
 	{
 		$config = $this->config();
 		if ($config['sourceDomainAlias'] == $name) {
-			$name = isset ($_SERVER['HTTP_HOST'])
+			$name = isset($_SERVER['HTTP_HOST'])
                 ? $_SERVER['HTTP_HOST'] : $config['emptyDomainSource'];
 		}
         if (isset($this->sources[$name])) {
@@ -82,7 +82,7 @@ class Data_Source_Manager extends Manager_Abstract
             return $source;
         }
         if (!$sourceConfig) {
-            $sourceConfig = array();
+            $sourceConfig = $config['sources'][$config['emptyDomainSource']];
         }
         $source = new Data_Source();
         $source->setConfig($sourceConfig);

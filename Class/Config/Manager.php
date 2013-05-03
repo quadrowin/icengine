@@ -166,6 +166,19 @@ class Config_Manager
         return is_array($config) ? $result->merge($config) : $result;
 	}
 
+    /**
+     * Сбросить конфиг
+     * 
+     * @param strng $type
+     * @param mixed $config
+     */
+    public function reset($type, $config = '')
+    {
+		$resourceKey = $this->getKey($type, $config);
+        $this->configs[$resourceKey] = null;
+        $this->provider->set($resourceKey, null);
+    }
+    
 	/**
 	 * Меняет путь до конфига
 	 *

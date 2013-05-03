@@ -19,7 +19,7 @@ class Helper_Model_Table extends Helper_Abstract
         $scheme = $this->getService('configManager')->get(
             'Model_Mapper_' . $modelName
         );
-        if ($scheme->count()) {
+        if ($scheme->fields) {
             $modelMapperSchemeRenderView = $this->getService(
                 'modelMapperSchemeRender'
             );
