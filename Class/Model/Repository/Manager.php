@@ -34,7 +34,12 @@ class Model_Repository_Manager extends Manager_Abstract
                 $className = $modelName . '_Repository';
             }
             try {
-                $repository = new $className;
+                $parts = explode('_', $className);
+                $parts[0] = lcfisrt($parts[0]);
+                $serviceName = implode('', $parts);
+                $repository = $this->getService($serviceName)->newInstance(
+                    array($model)
+                );
                 $this->repositories[$modelName] = $repository;
             } catch (Exception $e) {
                 throw new Exception(

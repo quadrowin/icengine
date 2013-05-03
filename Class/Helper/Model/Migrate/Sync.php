@@ -267,5 +267,6 @@ class Helper_Model_Migrate_Sync extends Helper_Abstract
         $this->getService('helperModelMigrateRebuild')->rewriteScheme(
             $modelName, $dto
         );
+        $this->getService('configManager')->reset('Model_Mapper_' . $modelName);
     }
 }
