@@ -30,7 +30,7 @@ class Module_Manager extends Manager_Abstract
      * Конфигурация по умолчанию
      */
     protected $defaultConfig = array(
-        'modules'   => 'Ice',
+        'modules'   => array('Ice'),
         'fromModel' => false
     );
 
