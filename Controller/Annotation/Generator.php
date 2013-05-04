@@ -23,9 +23,9 @@ class Controller_Annotation_Generator extends Controller_Abstract
                 continue;
             }
             $needGetter = !is_array($subData['Generator']['data']) ||
-                isset($subData['Generator']['data'][0]['get']);
+                in_array('get', $subData['Generator']['data'][0]);
             $needSetter = !is_array($subData['Generator']['data']) ||
-                isset($subData['Generator']['data'][0]['set']);
+                in_array('set', $subData['Generator']['data'][0]);
             $propertyReflection = $classReflection->getProperty($propertyName);
             $propertyType = $context->helperAnnotationGenerator->getType(
                 $propertyReflection->getDocComment()
