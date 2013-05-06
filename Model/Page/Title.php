@@ -36,10 +36,12 @@ class Page_Title extends Model
 
         if ($this->sfield($field . 'Action')) {
             $a = explode('/', $this->field($field . 'Action'));
+            $params =  $this->getService('request')->params();
+            $params['pageTitle'] = $this;
             $task = $this->getService('controllerManager')->call(
                 $a [0],
                 isset ($a [1]) ? $a [1] : 'index',
-                $this->getService('request')->params()
+                $params
             );
 
             $vars = $this->variable($task->getTransaction()->buffer());
@@ -52,11 +54,13 @@ class Page_Title extends Model
             $key = '{$' . $key . '}';
         }
 
-        return str_replace(
+        $this->title = str_replace(
             $keys,
             $vals,
             $this->$field
         );
+
+        return $this;
     }
 
     /**
@@ -150,7 +154,7 @@ class Page_Title extends Model
                 }
             }
         }
-        return $page ? $page->compile() : null;
+        return $page ? $page->_compile() : null;
     }
 
     /**
