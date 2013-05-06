@@ -23,7 +23,7 @@ class View_Helper_Paginator extends View_Helper_Abstract
 		 * @var Paginator $paginator
 		 */
 		$paginator = $params ['data'];
-		
+
 		$paginator->buildPages ();
 		
 		$this->_view->assign ('paginator', $paginator);
