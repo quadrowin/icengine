@@ -397,15 +397,15 @@ class Helper_Date
 	 * 2 - родительный.
 	 * @return string Название месяца.
 	 */
-	public static function monthName ($month_num, $form = 1)
+	public function monthName ($month_num, $form = 1)
 	{
-		return self::$monthesRu [$form][(int) $month_num];
+		return $this->monthesRu [$form][(int) $month_num];
 	}
 
     /**
 	 *
 	 */
-	public static function dayAndMonth($date = null) {
+	public function dayAndMonth($date = null) {
 		if (empty($date)) {
 			$date = new DateTime();
 			$m = $date->format('m');
@@ -415,7 +415,7 @@ class Helper_Date
 			$m =(int) $date[1];
             $d =(int) $date[2];
 		}
-        $month = self::$monthesRu[2][$m];
+        $month = $this->monthesRu[2][$m];
 		return $d . ' ' . $month;
 	}
     
@@ -680,7 +680,7 @@ class Helper_Date
 	 * @param string $date
 	 * @return string
 	 */
-	public static function toCasualDate ($date)
+	public function toCasualDate ($date)
 	{
 		$date = date ('Y-m-d', strtotime ($date));
 
@@ -697,7 +697,7 @@ class Helper_Date
 			$result =
 				(int) $day .
 				'&nbsp' .
-				self::$monthesRu [2][(int) $month] .
+				$this->monthesRu [2][(int) $month] .
 				($year != $currentYear ? ' ' . $year : '');
 
 			return $result;
@@ -722,12 +722,12 @@ class Helper_Date
 	 * передано null, будет использована текущая дата.
 	 * @return string Дата в формате UNIX "YYYY-MM-DD HH:II:SS"
 	 */
-	public static function toUnix($date = null)
+	public function toUnix($date = null)
 	{
 		if (!$date) {
 			return date(self::UNIX_FORMAT);
 		}
-		$date = self::parseDateTime($date);
+		$date = $this->parseDateTime($date);
 		if (!$date) {
 			return null;
 		}
