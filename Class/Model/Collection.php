@@ -7,6 +7,26 @@
  */
 class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 {
+         /**
+	 * @desc Добавленные элементы
+	 * @var string
+	 */
+	const DIFF_EDIT_ADD		= 'added';
+
+	/**
+	 * @desc Неизмененные элементы
+	 * @var string
+	 */
+	const DIFF_EDIT_NO		= 'not_changed';
+
+	/**
+	 * @desc Удаленные элементы
+	 * @var string
+	 */
+	const DIFF_EDIT_DEL		= 'removed';
+
+    
+
     /**
      * Функции, которые будут применены после загрузки
      *
@@ -123,13 +143,13 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		return $result;
 	}
 
-	/**
-	 * Добавить модель и не только в коллекцию
+    /**
+     * Добавить модель и не только в коллекцию
      *
-	 * @param Model|Model_Collection|array $item
-	 * @return Model_Collection
-	 * @throws Zend_Exception
-	 */
+     * @param Model|Model_Collection|array $item
+     * @throws Exception
+     * @return Model_Collection
+     */
 	public function add($item)
 	{
 		if ($item instanceof Model) {
@@ -146,12 +166,12 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		return $this;
 	}
 
-	/**
-	 * Добавление нескольких опций к коллекции аналогично
+    /**
+     * Добавление нескольких опций к коллекции аналогично
      *
-	 * @param $_
-	 * @return Model_Collection Эта коллекция
-	 */
+     * @internal param $_
+     * @return Model_Collection Эта коллекция
+     */
 	public function addOptions()
 	{
 		$options = func_get_args();
@@ -194,8 +214,8 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		$query = $this->query();
         $args = func_get_args();
 		$modelName = $this->table();
-        $scheme = $modelScheme->scheme($modelName);
-        $modelFields = array_keys($scheme->fields->asArray());
+        $schemeConfig = $modelScheme->scheme($modelName);
+        $modelFields = array_keys($schemeConfig->fields->asArray());
         $modelFieldsFlipped = array_flip($modelFields);
         if (!$args || (count($args) == 1 && empty($args[0]))) {
 			$query->select($modelName . '.*');
@@ -222,7 +242,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		if ($schemeOptions) {
 			$this->addOptions($schemeOptions);
 		}
-        $optionManager = $this->getService('collectionOptionManager');
+        $optionManager = $this->getService('modelOptionManager');
         $optionManager->executeBefore($this, $this->options);
 		$this->lastQuery = $query;
     }
@@ -573,7 +593,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		$this->beforeLoad($columns);
         $query = $this->lastQuery;
         $collectionManager = $this->getService('collectionManager');
-        $optionManager = $this->getService('collectionOptionManager');
+        $optionManager = $this->getService('modelOptionManager');
         $collectionManager->load($this, $query);
         $optionManager->executeAfter($this, $this->options);
 		if ($this->paginator) {
@@ -710,7 +730,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
                 $this->beforeLoad(array());
             }
             $collectionManager = $this->getService('collectionManager');
-            $optionManager = $this->getService('collectionOptionManager');
+            $optionManager = $this->getService('modelOptionManager');
             $pack = $collectionManager->callDelegee(
                 $this, $this->lastQuery
             );
@@ -751,10 +771,22 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
                     $columns = array_keys($scheme->fields->asArray());
                 }
             }
+            if (count($columns) == 1) {
+                $columnName = reset($columns);
+                $keyField = $columnName;
+            } elseif ($columns && !in_array($keyField, $columns)) {
+                $keyField = reset($columns);
+            }
             $result = $helperArray->column($this->items, $columns, $keyField);
+            if (count($columns) == 1) {
+                foreach ($result as $i => $row) {
+                    unset($result[$i]);
+                    $result[$row] = array($columnName => $row);
+                }
+            }
         }
         foreach ($this->items as $item) {
-            if (!isset($item['data'])) {
+            if (!is_array($this->items) || !isset($item['data'])) {
                 continue;
             }
             if (!isset($result[$item[$keyField]]['data'])) {

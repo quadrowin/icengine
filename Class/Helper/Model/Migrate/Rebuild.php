@@ -204,7 +204,9 @@ class Helper_Model_Migrate_Rebuild extends Helper_Abstract
      */
     public function rewriteScheme($modelName, $dto)
     {
-        $scheme = $this->getService('modelScheme')->scheme($modelName);
+        $scheme = $this->getService('configManager')->get(
+            'Model_Mapper_' . $modelName
+        );
         $fields = $this->fieldsToScheme($dto->fields);
         $indexes = $this->indexesToScheme($dto->indexes);
         $references = $dto->references;
@@ -214,7 +216,7 @@ class Helper_Model_Migrate_Rebuild extends Helper_Abstract
         $languageScheme = array();
         $createScheme = array();
         $helperConverter = $this->getService('helperConverter');
-        if ($scheme) {
+        if ($scheme->count()) {
             $author = $scheme->author;
             $comment = $scheme->comment ?:
                 ($dto->info && !empty($dto->info['Comment'])

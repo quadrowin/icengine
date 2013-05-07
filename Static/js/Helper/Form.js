@@ -211,7 +211,5 @@ var Helper_Form = {
 		var result;
 		result = this.asArray ($form, filter, true);
 		return !result['errorRequired'] ? result : false;
-	},
-
-
+	}
 };

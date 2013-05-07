@@ -90,6 +90,14 @@ class Data_Transport_Manager extends Manager_Abstract
                 $transport->appendProvider($provider);
 			}
 		}
+        $dataFilterManager = $this->getService('dataFilterManager');
+        if ($transportConfig && $transportConfig->inputFilters) {
+            $inputFilters = array();
+            foreach ($transportConfig->inputFilters as $filterName) {
+                $inputFilters[] = $dataFilterManager->get($filterName);
+            }
+            $transport->setInputFilters($inputFilters);
+        }
         $this->transorts[$name] = $transport;
 		return $transport;
 	}

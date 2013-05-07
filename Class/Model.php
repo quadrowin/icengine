@@ -147,20 +147,19 @@ abstract class Model implements ArrayAccess
             return $this->getData();
 		}
         $joinField = $field . '__id';
+        $references = $this->scheme()->references;
         if (isset($this->joints[$field])) {
             return $this->joints[$field];
-        } elseif (array_key_exists($field, $this->fields)) {
-            return $this->fields[$field];
-        } elseif (array_key_exists($joinField, $this->fields)) {
-            return $this->joint($field, $this->fields[$joinField]);
-        }
-        $references = $this->scheme()->references;
-        if (isset($references[$field])) {
+        } elseif (isset($references[$field])) {
             if (!$this->modelMapperScheme) {
                 $this->modelMapperScheme = $this->getService('modelMapper')
                     ->scheme($this);
             }
             return $this->modelMapperScheme->get($field);
+        } elseif (array_key_exists($field, $this->fields)) {
+            return $this->fields[$field];
+        } elseif (array_key_exists($joinField, $this->fields)) {
+            return $this->joint($field, $this->fields[$joinField]);
         }
         $value = null;
         return $value;
@@ -797,24 +796,6 @@ abstract class Model implements ArrayAccess
 		return $this;
 	}
 
-    /**
-     * Валидация модели с использованием схемы валидации
-     *
-     * @param array|Data_Transport $input
-     * @param string $name
-     * @return boolean|array
-     */
-	public function validateWith($input, $name = 'default')
-	{
-        $scheme = $this->scheme();
-        if (!isset($scheme->validators) || !isset($scheme->validators[$name])) {
-            return true;
-        }
-        return $this->getService('modelValidator')->validate(
-            $this, $scheme->validators[$name], $input
-        );
-	}
-
 	/**
 	 * Удаляет поле из объекта
 	 * Используется в Model_Manager для удаления первичного ключа перед
@@ -843,7 +824,8 @@ abstract class Model implements ArrayAccess
 		if (is_null($this->fields)) {
             $this->load();
         }
-        $fields = $this->scheme()->fields;
+        $scheme = $this->scheme();
+        $fields = $scheme->fields;
         foreach ($data as $key => $value) {
             if (!isset($fields[$key])) {
                 continue;
@@ -857,6 +839,16 @@ abstract class Model implements ArrayAccess
             return $this;
         }
         $this->set($this->updatedFields);
-		return $this->save($hardUpdate);
+        $result = $this->save($hardUpdate);
+        if (isset($scheme['updateSignal'])) {
+            $eventManager = $this->getService('eventManager');
+            $signalName = 'update' . str_replace('_', '', $this->modelName());
+            $signal = $eventManager->getSignal($signalName);
+            if ($signal) {
+                $signal->setData($this->getFields());
+                $signal->notify();
+            }
+        }
+		return $result;
 	}
 }
