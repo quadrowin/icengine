@@ -91,7 +91,14 @@ class Helper_Form
 		{
 			if (count ($value) == 2 && isset ($value [0], $value [1]))
 			{
-                $data->$field = call_user_func ($value);//, $input);
+                $service = IcEngine::getServiceLocator()->getService($value[0]);
+
+                if ($service) {
+                    $reflectionMethod = new ReflectionMethod(get_class($service), $value[1]);
+                    $data->$field = $reflectionMethod->invoke($service);
+                    fb($data->$field);
+                }
+
 			}
 			elseif (isset ($value ['add']) && $is_new)
 			{
