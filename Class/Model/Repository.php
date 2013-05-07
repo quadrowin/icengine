@@ -2,10 +2,10 @@
 
 /**
  * Репозиторий модели
- * 
+ *
  * @author morph
  */
-class Model_Repository 
+class Model_Repository
 {
     /**
      * Текущая модель
@@ -14,7 +14,7 @@ class Model_Repository
      * @Generator
      */
     protected $model;
-    
+
     /**
      * @see Model::__call
      */
@@ -22,7 +22,7 @@ class Model_Repository
     {
         return call_user_func_array(array($this->model, $method), $args);
     }
-    
+
     /**
      * @see Model::__get
      */
@@ -30,7 +30,7 @@ class Model_Repository
     {
         return $this->model->__get($key);
     }
-    
+
     /**
      * @see Model::__set
      */
@@ -39,10 +39,10 @@ class Model_Repository
         $this->model->__set($key, $value);
         return $this->model;
     }
-    
+
     /**
      * Получить сервис по имени
-     * 
+     *
      * @param string $serviceName
      * @return mixed
      */
@@ -50,7 +50,7 @@ class Model_Repository
     {
         return $this->model->getService($serviceName);
     }
-    
+
     /**
      * Getter for "model"
      *
@@ -60,7 +60,7 @@ class Model_Repository
     {
         return $this->model;
     }
-        
+
     /**
      * Setter for "model"
      *
@@ -70,5 +70,5 @@ class Model_Repository
     {
         $this->model = $model;
     }
-    
+
 }

@@ -185,4 +185,46 @@ class Cache_Block_Manager extends Manager_Abstract
             $dds->execute($insertQuery);
         }
     }
+    
+    /**
+     * Getter for "blockVector"
+     *
+     * @return array
+     */
+    public function getBlockVector()
+    {
+        return $this->blockVector;
+    }
+        
+    /**
+     * Setter for "blockVector"
+     *
+     * @param array blockVector
+     */
+    public function setBlockVector($blockVector)
+    {
+        $this->blockVector = $blockVector;
+    }
+    
+    
+    /**
+     * Getter for "currentHash"
+     *
+     * @return string
+     */
+    public function getCurrentHash()
+    {
+        return $this->currentHash;
+    }
+        
+    /**
+     * Setter for "currentHash"
+     *
+     * @param string currentHash
+     */
+    public function setCurrentHash($currentHash)
+    {
+        $this->currentHash = $currentHash;
+    }
+    
 }
