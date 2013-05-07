@@ -91,7 +91,7 @@ class Data_Transport_Manager extends Manager_Abstract
 			}
 		}
         $dataFilterManager = $this->getService('dataFilterManager');
-        if ($transportConfig->inputFilters) {
+        if ($transportConfig && $transportConfig->inputFilters) {
             $inputFilters = array();
             foreach ($transportConfig->inputFilters as $filterName) {
                 $inputFilters[] = $dataFilterManager->get($filterName);
