@@ -51,8 +51,8 @@ class Cache_Block_Manager extends Manager_Abstract
         if (!isset($this->blockVector[$hash])) {
             $this->blockVector[$hash] = array();
         }
-        foreach ((array) $blocks as $specificationName => $block) {
-            if (!is_numeric($specificationName)) {
+        foreach ((array) $blocks as $block => $specificationName) {
+            if (!is_numeric($block)) {
                 $specification = $this->specificationManager->get(
                     $specificationName
                 );
