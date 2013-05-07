@@ -13,10 +13,10 @@ class Service_Source
      * @var Annotation_Manager_Abstract
      */
     protected $annotationManager;
-    
+
     /**
      * Хелпер сервисов
-     * 
+     *
      * @Generator
      * @var Helper_String
      */
@@ -135,7 +135,7 @@ class Service_Source
                         $this->addService($serviceName, $data['Service'][0]);
                         $service = $this->locator->getService($serviceName);
                     }
-                    self::$services[$oldServiceName]['injects'][$propertyName] = 
+                    self::$services[$oldServiceName]['injects'][$propertyName] =
                         $service;
                     $methodName = 'set' . ucfirst($propertyName);
                     if (method_exists($realObject, $methodName)) {
@@ -239,7 +239,7 @@ class Service_Source
         }
         $instanceCallback = array();
         if (!empty(self::$services[$serviceName]['instanceCallback'])) {
-           $instanceCallback = 
+           $instanceCallback =
                self::$services[$serviceName]['instanceCallback'];
         }
         if ($instanceCallback || !empty($serviceData['isAbstract'])) {
@@ -257,7 +257,7 @@ class Service_Source
 
     /**
      * Получить/создать хелпер для работы с сервисами
-     * 
+     *
      * @return Helper_Service
      */
     protected function helper()
@@ -267,7 +267,7 @@ class Service_Source
         }
         return $this->helper;
     }
-    
+
     /**
      * Загрузить конфигурацию сервисов
      */
@@ -280,7 +280,7 @@ class Service_Source
             self::$services = array();
         }
     }
-    
+
     /**
      * Менеджер аннотаций
      *
@@ -300,7 +300,7 @@ class Service_Source
     {
         $this->locator = $locator;
     }
-    
+
     /**
      * Getter for "helper"
      *
@@ -310,7 +310,7 @@ class Service_Source
     {
         return $this->helper;
     }
-        
+
     /**
      * Setter for "helper"
      *
@@ -320,5 +320,5 @@ class Service_Source
     {
         $this->helper = $helper;
     }
-    
+
 }

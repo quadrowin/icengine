@@ -58,21 +58,21 @@ abstract class Model implements ArrayAccess
 	 * @var bool
 	 */
 	protected $lazy;
-    
+
     /**
      * Схема связей модели
-     * 
+     *
      * @var Model_Mapper_Scheme
      */
     protected $modelMapperScheme;
-    
+
     /**
      * Репозиторий модели
-     * 
+     *
      * @var Model_Repository
      */
     protected $repository;
-    
+
 	/**
 	 * Схема модели
      *
@@ -96,7 +96,7 @@ abstract class Model implements ArrayAccess
 
     /**
      * Вызов метода через репозиторий модели
-     * 
+     *
      * @param string $method
      * @param array $args
      * @return mixed
@@ -111,7 +111,7 @@ abstract class Model implements ArrayAccess
         }
         return call_user_func_array(array($repository, $method), $args);
     }
-    
+
 	/**
 	 * Создает и возвращает модель
      *
@@ -417,7 +417,7 @@ abstract class Model implements ArrayAccess
         }
 		return $this->data;
 	}
-    
+
 	/**
 	 * Получить значения полей. Синоним asRow
      *
@@ -450,14 +450,14 @@ abstract class Model implements ArrayAccess
 
     /**
      * Получить репозиторий модели
-     * 
+     *
      * @return Model_Repository
      */
     public function getRepository()
     {
         return $this->repository;
     }
-    
+
     /**
      * Получить услугу по имени
      *
@@ -513,7 +513,7 @@ abstract class Model implements ArrayAccess
 	public function key()
 	{
 		$keyField = $this->keyField();
-        return isset($this->fields[$keyField]) 
+        return isset($this->fields[$keyField])
             ? $this->fields[$keyField] : null;
 	}
 
@@ -612,7 +612,7 @@ abstract class Model implements ArrayAccess
 
     /**
      * Получить или инициализировать репозиторий модели
-     * 
+     *
      * @return Model_Repository
      */
     protected function repository()
@@ -625,7 +625,7 @@ abstract class Model implements ArrayAccess
         }
         return $this->repository;
     }
-    
+
 	/**
 	 * Сохранение данных модели
      *
@@ -706,14 +706,14 @@ abstract class Model implements ArrayAccess
 
     /**
      * Изменить репозиторий модели
-     * 
+     *
      * @param Model_Repository $modelRepository
      */
     public function setRepository($modelRepository)
     {
         $this->repository = $modelRepository;
     }
-    
+
     /**
      * Изменить схему модели
      *
@@ -733,10 +733,10 @@ abstract class Model implements ArrayAccess
     {
         self::$serviceLocator = $serviceLocator;
     }
-    
+
     /**
      * Изменить поля для обновления
-     * 
+     *
      * @param array $fields
      */
     public function setUpdatedFields($fields)
