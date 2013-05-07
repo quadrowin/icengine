@@ -32,6 +32,14 @@ class Cache_Block_Manager extends Manager_Abstract
     protected $data;
     
     /**
+     * Менеджер спецификаций блоков
+     * 
+     * @Inject("cacheBlockSpecificationManager")
+     * @var Cache_Block_Specification_Manager
+     */
+    protected $specificationManager;
+    
+    /**
      * Добавить блоки для загрузки
      * 
      * @param array $blocks
@@ -43,9 +51,17 @@ class Cache_Block_Manager extends Manager_Abstract
         if (!isset($this->blockVector[$hash])) {
             $this->blockVector[$hash] = array();
         }
-        $this->blockVector[$hash] = array_merge(
-            $this->blockVector[$hash], (array) $blocks
-        );
+        foreach ((array) $blocks as $specificationName => $block) {
+            if (!is_numeric($specificationName)) {
+                $specification = $this->specificationManager->get(
+                    $specificationName
+                );
+                if (!$specification->isSatisfiedBy()) {
+                    continue;
+                }
+            } 
+            $this->blockVector[$hash] = $block;
+        }
     }
     
     /**
@@ -122,8 +138,18 @@ class Cache_Block_Manager extends Manager_Abstract
         if ($setCurrentHash) {
             $this->currentHash = $hash;
         }
-        if ($config[$strategyName]) {
+        if ($config[$strategyName] && $config[$strategyName]['blocks']) {
             $this->addBlocks($config[$strategyName]->__toArray(), $params);
+            if ($config[$strategyName]['hash']) {
+                $hashMethod = $config[$strategyName]['hash'];
+                $hashService = $this->getService($hashMethod[0]);
+                $method = $hashMethod[1];
+                if (!$setCurrentHash) {
+                    $this->currentHash = $this->getHash(
+                        $hashService->$method()
+                    );
+                }
+            }
         }
     }
     
