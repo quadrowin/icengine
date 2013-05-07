@@ -52,7 +52,7 @@ class Controller_Manager extends Manager_Abstract
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeContext',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeInputTransport',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeInputProvider',
-            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeParam', 
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeParam',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeInputFilter',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeInputValidator',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeValidator',
@@ -191,6 +191,7 @@ class Controller_Manager extends Manager_Abstract
 	public function call($controllerName, $actionName, $input = array(),
 		$task = null, $notLogging = false)
 	{
+        echo $controllerName . ' ' . $actionName . '<br />';
 		if (Tracer::$enabled && !$notLogging) {
 			Tracer::resetDeltaModelCount();
 			Tracer::resetDeltaQueryCount();

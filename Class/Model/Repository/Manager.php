@@ -2,22 +2,22 @@
 
 /**
  * Менеджер репозиториев для модели
- * 
+ *
  * @author morph
  * @Service("modelRepositoryManager")
  */
 class Model_Repository_Manager extends Manager_Abstract
-{   
+{
     /**
      * Уже созданные репозитории
-     * 
-     * @var array 
+     *
+     * @var array
      */
     protected $repositories;
-    
+
     /**
      * Получить репозиторий модели
-     * 
+     *
      * @param Model $model
      * @return Model_Repository
      */
@@ -35,7 +35,7 @@ class Model_Repository_Manager extends Manager_Abstract
             }
             try {
                 $parts = explode('_', $className);
-                $parts[0] = lcfisrt($parts[0]);
+                $parts[0] = lcfirst($parts[0]);
                 $serviceName = implode('', $parts);
                 $repository = $this->getService($serviceName)->newInstance(
                     array($model)

@@ -23,22 +23,22 @@ class Data_Source_Manager extends Manager_Abstract
 		/**
 		 * Название источника, вместо которого будет браться название домена.
 		 * Название домена берется из $SERVER ['HTTP_HOST'].
-		 * 
+		 *
          * @var string
 		 */
 		'sourceDomainAlias'	=> 'domain',
-        
+
 		/**
 		 * Название источника, который будет использован вместо
 		 * имени домена, когда невозможно получить $SERVER ['HTTP_HOST'].
-		 * 
+		 *
          * @var string
 		 */
 		'emptyDomainSource'	=> 'default',
-        
+
 		/**
 		 * Массив источников
-		 * 
+		 *
          * @var array
 		 */
 		'sources'	=> array(
@@ -126,7 +126,7 @@ class Data_Source_Manager extends Manager_Abstract
         );
         $source->setDataDriver($currentDriver);
     }
-    
+
     /**
      * Изменить источник данных по имени
      *
