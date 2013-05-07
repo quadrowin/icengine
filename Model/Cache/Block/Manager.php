@@ -15,6 +15,14 @@ class Cache_Block_Manager extends Manager_Abstract
      * @Generator
      */
     protected $blockVector;
+ 
+    /**
+     * Текущий хэш
+     * 
+     * @var string
+     * @Generator
+     */
+    protected $currentHash;
     
     /**
      * Результат
@@ -26,10 +34,10 @@ class Cache_Block_Manager extends Manager_Abstract
     /**
      * Добавить блоки для загрузки
      * 
-     * @param array $params
      * @param array $blocks
+     * @param array $params
      */
-    public function addBlocks($params, $blocks)
+    public function addBlocks($blocks, $params = array())
     {
         $hash = $this->getHash($params);
         if (!isset($this->blockVector[$hash])) {
@@ -92,17 +100,40 @@ class Cache_Block_Manager extends Manager_Abstract
      */
     public function getHash($params)
     {
+        if ($this->currentHash) {
+            return $this->currentHash;
+        }
         ksort($params);
         return md5(json_encode($params));
     }
     
     /**
+     * Инициализация менеджера
+     * 
+     * @param string $strategyName
+     * @param array $params
+     * @param boolean $setCurrentHash
+     */
+    public function init($strategyName, $params = array(), 
+        $setCurrentHash = true)
+    {
+        $config = $this->config();
+        $hash = $this->getHash($params);
+        if ($setCurrentHash) {
+            $this->currentHash = $hash;
+        }
+        if ($config[$strategyName]) {
+            $this->addBlocks($config[$strategyName]->__toArray(), $params);
+        }
+    }
+    
+    /**
      * Удалить блок
      * 
-     * @param array $params
      * @param string $controllerAction
+     * @param array $params
      */
-    public function reset($params, $controllerAction)
+    public function reset($controllerAction, $params = array())
     {
         $hash = $this->getHash($params);
         if (!isset($this->blockVector[$hash])) {
