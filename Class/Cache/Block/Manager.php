@@ -73,6 +73,7 @@ class Cache_Block_Manager extends Manager_Abstract
      */
     public function get($controllerAction, $params = array())
     {
+        $controllerAction = str_replace('Controller_', '', $controllerAction);
         $hash = $this->getHash($params);
         if (isset($this->data[$controllerAction])) {
             if (!is_array($this->data[$controllerAction])) {
