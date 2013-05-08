@@ -191,7 +191,7 @@ class Controller_Manager extends Manager_Abstract
 	public function call($controllerName, $actionName, $input = array(),
 		$task = null, $notLogging = false)
 	{
-        echo $controllerName . ' ' . $actionName . '<br />';
+        //echo $controllerName . ' ' . $actionName . '<br />';
 		if (Tracer::$enabled && !$notLogging) {
 			Tracer::resetDeltaModelCount();
 			Tracer::resetDeltaQueryCount();

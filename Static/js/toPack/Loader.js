@@ -8,7 +8,7 @@ var Loader = {
      * Группы путей
      */
     groups: {
-        'engine':   '/IcEngine/js/',
+        'engine':   '/IcEngine/Static/js/',
         'ice':      '/Ice/Static/js/noPack/'
     },
 
