@@ -16,8 +16,7 @@ class Model_Mapper_Scheme_Render_Mysql extends
 	public function render($modelName)
 	{
         $serviceLocator = IcEngine::serviceLocator();
-        $configManager = $serviceLocator->getService('configManager');
-		$modelConfig = $configManager->get(
+		$modelConfig = $serviceLocator->getService('configManager')->get(
             'Model_Mapper_' . $modelName
         );
 		if (!$modelConfig) {

@@ -6,7 +6,7 @@
  * @author goorus, morph, neon
  * @Service("helperArray")
  */
-class Helper_Array
+class Helper_Array extends Helper_Abstract
 {
 	/**
 	 * Возвращает массив
@@ -130,10 +130,10 @@ class Helper_Array
         }
         return $this->column($array, $arrayElementFields, $field);
     }
-    
+
 	/**
 	 * Сортирует многомерный массив по заданным полям
-	 * 
+	 *
      * @param array $data Массив
 	 * @param string $sortby Поля сортировки через запятую
 	 * @return boolean true если успешно, иначе false.
@@ -212,6 +212,21 @@ class Helper_Array
 	}
 
     /**
+     * Заменить вхождения в строке
+     *
+     * @param array $data
+     * @param array $fields
+     */
+    public function normalizeFields($data, $fields, $params)
+    {
+        $helperString = $this->getService('helperString');
+        foreach ($data as $i => $item) {
+            $data[$i] = $helperString->normalizeFields($item, $fields, $params);
+        }
+        return $data;
+    }
+
+    /**
      * Проверить ячейку на соответствие фильтру
      *
      * @param array $row
@@ -233,5 +248,20 @@ class Helper_Array
 			}
 		}
 		return $valid;
+    }
+
+    public function unsetColumn($array, $columns = array())
+    {
+        if (!is_array($columns)) {
+            $columns = array($columns);
+        }
+        foreach ($array as $i => $items) {
+            foreach ($items as $j => $value) {
+                if (in_array($j, $columns)) {
+                    unset($array[$i][$j]);
+                }
+            }
+        }
+        return $array;
     }
 }
