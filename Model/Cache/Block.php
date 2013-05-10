@@ -2,7 +2,7 @@
 
 /**
  * Блок кэша
- * 
+ *
  * @author morph
  * @Orm\Entity
  */
@@ -13,24 +13,24 @@ class Cache_Block extends Model
      * @Orm\Index\Primary
      */
     public $id;
-    
+
     /**
      * @Orm\Field\Varchar(Size=33, Not_Null)
      * @Orm\Index\Key("hash", "action")
      */
     public $hash;
-    
+
     /**
      * @Orm\Field\Varchar(Size=128, Not_Null)
      * @Orm\Index\Key("action")
      */
     public $controllerAction;
-    
+
     /**
-     * @Orm\Field\Text(Not_Null)
+     * @Orm\Field\Mediumtext(Not_Null)
      */
     public $json;
-    
+
     /**
      * @Orm\Field\Datetime(Not_Null)
      */
