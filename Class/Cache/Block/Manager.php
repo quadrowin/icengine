@@ -2,7 +2,7 @@
 
 /**
  * Менеджер блоков кэша
- * 
+ *
  * @author morph
  * @Service("cacheBlockManager")
  */
@@ -10,38 +10,38 @@ class Cache_Block_Manager extends Manager_Abstract
 {
     /**
      * Блоки для загрузки
-     * 
+     *
      * @var array
      * @Generator
      */
     protected $blockVector;
- 
+
     /**
      * Текущий хэш
-     * 
+     *
      * @var string
      * @Generator
      */
     protected $currentHash;
-    
+
     /**
      * Результат
-     * 
+     *
      * @var array
      */
     protected $data;
-    
+
     /**
      * Менеджер спецификаций блоков
-     * 
+     *
      * @Inject("cacheBlockSpecificationManager")
      * @var Cache_Block_Specification_Manager
      */
     protected $specificationManager;
-    
+
     /**
      * Добавить блоки для загрузки
-     * 
+     *
      * @param array $blocks
      * @param array $params
      */
@@ -59,14 +59,14 @@ class Cache_Block_Manager extends Manager_Abstract
                 if (!$specification->isSatisfiedBy()) {
                     continue;
                 }
-            } 
+            }
             $this->blockVector[$hash] = $block;
         }
     }
-    
+
     /**
      * Получить блок кэша
-     * 
+     *
      * @param string $controllerAction
      * @param array $params
      * @return array
@@ -108,10 +108,10 @@ class Cache_Block_Manager extends Manager_Abstract
         }
         return $this->data[$controllerAction];
     }
-    
+
     /**
      * Получить хэш
-     * 
+     *
      * @param array $params
      * @return string
      */
@@ -123,15 +123,15 @@ class Cache_Block_Manager extends Manager_Abstract
         ksort($params);
         return md5(json_encode($params));
     }
-    
+
     /**
      * Инициализация менеджера
-     * 
+     *
      * @param string $strategyName
      * @param array $params
      * @param boolean $setCurrentHash
      */
-    public function init($strategyName, $params = array(), 
+    public function init($strategyName, $params = array(),
         $setCurrentHash = true)
     {
         $config = $this->config();
@@ -153,10 +153,10 @@ class Cache_Block_Manager extends Manager_Abstract
             }
         }
     }
-    
+
     /**
      * Удалить блок
-     * 
+     *
      * @param string $controllerAction
      * @param array $params
      */
@@ -172,16 +172,16 @@ class Cache_Block_Manager extends Manager_Abstract
             }
         }
     }
-    
+
     /**
      * Изменить блок
-     * 
+     *
      * @param string $controllerAction
      * @param array $json
      * @param array $params
      * @param boolean $throwUnitOfWork
      */
-    public function set($controllerAction, $json, $params = array(), 
+    public function set($controllerAction, $json, $params = array(),
         $throwUnitOfWork = false)
     {
         $hash = $this->getHash($params);
@@ -212,7 +212,7 @@ class Cache_Block_Manager extends Manager_Abstract
             $dds->execute($insertQuery);
         }
     }
-    
+
     /**
      * Getter for "blockVector"
      *
@@ -222,7 +222,7 @@ class Cache_Block_Manager extends Manager_Abstract
     {
         return $this->blockVector;
     }
-        
+
     /**
      * Setter for "blockVector"
      *
@@ -232,8 +232,8 @@ class Cache_Block_Manager extends Manager_Abstract
     {
         $this->blockVector = $blockVector;
     }
-    
-    
+
+
     /**
      * Getter for "currentHash"
      *
@@ -243,7 +243,7 @@ class Cache_Block_Manager extends Manager_Abstract
     {
         return $this->currentHash;
     }
-        
+
     /**
      * Setter for "currentHash"
      *
@@ -253,5 +253,5 @@ class Cache_Block_Manager extends Manager_Abstract
     {
         $this->currentHash = $currentHash;
     }
-    
+
 }

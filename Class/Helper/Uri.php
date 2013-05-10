@@ -133,7 +133,7 @@ class Helper_Uri
 
     /**
      * Получить основном домен
-     * 
+     *
      * @param string $server_name
      * @return string
      */
@@ -170,7 +170,7 @@ class Helper_Uri
 
     /**
      * Получить поддомен
-     * 
+     *
      * @param string $host
      * @return string
      */
