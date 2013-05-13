@@ -35,9 +35,8 @@ class Helper_Annotation_Orm extends Helper_Abstract
             'Model_Scheme_' . $behavior
         );
         $default = $schemeConfig->default;
-        $output = Helper_Code_Generator::fromTemplate(
-            'modelScheme',
-            array (
+        $output = $this->getService('helperCodeGenerator')->fromTemplate(
+            'modelScheme', array (
                 'default'   => $default,
                 'models'    => $models
             )
