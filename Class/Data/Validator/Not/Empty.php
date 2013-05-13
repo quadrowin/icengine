@@ -13,6 +13,5 @@ class Data_Validator_Not_Empty extends Data_Validator_Abstract
 	public function validate($data, $value = true)
 	{
 		return !empty($data);
-	}
-	
+	}   
 }

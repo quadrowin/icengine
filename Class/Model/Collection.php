@@ -7,7 +7,7 @@
  */
 class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 {
-         /**
+    /**
 	 * @desc Добавленные элементы
 	 * @var string
 	 */
@@ -24,9 +24,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 * @var string
 	 */
 	const DIFF_EDIT_DEL		= 'removed';
-
     
-
     /**
      * Функции, которые будут применены после загрузки
      *
