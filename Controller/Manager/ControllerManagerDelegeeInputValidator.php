@@ -7,7 +7,8 @@ namespace IcEngine\Controller\Manager;
  *
  * @author morph
  */
-class ControllerManagerDelegeeInputValidator extends ControllerManagerDelegeeAbstract
+class ControllerManagerDelegeeInputValidator extends 
+    ControllerManagerDelegeeAbstract
 {
     /**
      * @inheritdoc

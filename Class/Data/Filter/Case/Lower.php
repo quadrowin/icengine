@@ -5,7 +5,7 @@
  *
  * @author neon
  */
-class Data_Filter_LowerCase extends Data_Filter_Abstract
+class Data_Filter_Case_Lower extends Data_Filter_Abstract
 {
 	/**
 	 * @inheritdoc

@@ -10,8 +10,8 @@ class Data_Validator_Regexp extends Data_Validator_Abstract
     /**
      * @inheritdoc
      */
-	public function doValidate($data, $value)
+	public function validate($data, $value)
 	{
 		return preg_match('#' . $value. '#', $data);
-	}
+	}   
 }
