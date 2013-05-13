@@ -13,5 +13,5 @@ class Data_Validator_Is_Numeric extends Data_Validator_Abstract
 	public function validate($data)
 	{
 		return (bool) is_numeric($data);
-	}
+	}   
 }
