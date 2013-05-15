@@ -41,6 +41,13 @@ abstract class Model implements ArrayAccess
 	protected $joints = array();
 
     /**
+     * Флаг показывает, что модель новая и сохранена в текущем выполнение
+     *
+     * @var boolean
+     */
+    protected $isNew = false;
+
+    /**
      * Помощник модели
      *
      * @var Helper_Model
@@ -259,6 +266,16 @@ abstract class Model implements ArrayAccess
 	{
 		return get_class($this);
 	}
+
+    /**
+     * Говорит, новая ли модель
+     *
+     * @return boolean
+     */
+    public function isNew()
+    {
+        return $this->isNew;
+    }
 
 	/**
 	 * Присоединить сущность
@@ -635,6 +652,9 @@ abstract class Model implements ArrayAccess
 	 */
 	public function save($hardInsert = false)
 	{
+        if (!$this->key()) {
+            $this->isNew = true;
+        }
 		$this->getService('modelManager')->set($this, $hardInsert);
 		return $this;
 	}

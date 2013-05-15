@@ -2,14 +2,14 @@
 
 /**
  * Класс для создания определенных моделей
- * 
+ *
  * @author morph, goorus
  */
-class Model_Manager_Delegee_Defined
-{   
+class Model_Manager_Delegee_Defined extends Model_Manager_Delegee_Abstract
+{
 	/**
 	 * Создает предопределенную модель
-     * 
+     *
 	 * @param string $model Название модели
 	 * @param string $key Ключ (id)
 	 * @param Model|array $object Объект или данные
@@ -28,7 +28,7 @@ class Model_Manager_Delegee_Defined
                 continue;
             }
             $delegeeName = $modelName . '_' . $row['name'];
-            if ($loader->tryLoad($delegeeName)) { 
+            if ($loader->tryLoad($delegeeName)) {
                 $modelName = $delegeeName;
             }
             break;
