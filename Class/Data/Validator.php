@@ -46,9 +46,11 @@ class Data_Validator
             }
 			foreach ($validators as $validatorName => $value) {
                 $args = array($data[$fieldName]);
+                $params = array();
                 if (is_numeric($validatorName)) {
                     $validatorName = $value;
-                    $value = null;
+                } elseif (is_array($value)) {
+                    $params = $value;
                 } elseif (strpos($value, '::') === 0) {
                     $value = $input[substr($value, 2)];
                     $args[] = $value;
@@ -56,6 +58,9 @@ class Data_Validator
                     $args[] = $value;
                 }
                 $validator = $this->dataValidatorManager->get($validatorName);
+                if ($params) {
+                    $validator->setParams($params);
+                }
                 $result = call_user_func_array(
                     array($validator, 'validate'), $args
                 );

@@ -14,5 +14,4 @@ class Data_Validator_Not_Null extends Data_Validator_Abstract
 	{
 		return !is_null($data);
 	}
-	
 }
