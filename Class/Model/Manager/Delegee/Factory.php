@@ -2,21 +2,21 @@
 
 /**
  * Класс для создания моделей через фабрики
- * 
+ *
  * @author goorus, morph
  */
-class Model_Manager_Delegee_Factory
+class Model_Manager_Delegee_Factory extends Model_Manager_Delegee_Abstract
 {
 	/**
 	 * Фабрики моделей
-     * 
+     *
 	 * @var array
 	 */
 	protected static $factories;
 
 	/**
 	 * Находит фабрику модели
-     * 
+     *
 	 * @param Model $model Модель.
 	 * @return Model_Factory Фабрика.
 	 */
@@ -39,7 +39,7 @@ class Model_Manager_Delegee_Factory
 
 	/**
 	 * Получение данных модели
-     * 
+     *
 	 * @param string $model Название модели
 	 * @param string $key Ключ (id)
 	 * @param Model|array $object Объект или данные
@@ -54,7 +54,7 @@ class Model_Manager_Delegee_Factory
 		$delegeeModelName = self::$factories[$factoryName]
 			->delegateClass($modelName, $key, $object);
         if (!$delegeeModelName) {
-            $delegeeModelName = $modelName . '_Abstract';   
+            $delegeeModelName = $modelName . '_Abstract';
         }
 		$result = new $delegeeModelName(array());
 		$result->setModelFactory(self::$factories[$factoryName]);

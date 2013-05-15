@@ -24,13 +24,6 @@ class Model_Manager extends Manager_Abstract
         )
 	);
 
-    /**
-     * Созданные делегаты
-     *
-     * @var array
-     */
-    protected $delegees;
-
 	/**
 	 * Получение модели по первичному ключу
      *
@@ -107,7 +100,10 @@ class Model_Manager extends Manager_Abstract
 	public function byQuery($modelName, Query_Abstract $query, $lazy = false)
 	{
         $config = $this->config();
-        $parentClass = $this->getParentClass($modelName, $config['delegee']);
+        $helperModelManager = $this->getService('helperModelManager');
+        $parentClass = $helperModelManager->getParentClass(
+            $modelName, $config
+        );
         $heavyDelegees = $config->heavyDelegees->__toArray();
         if (!$query->getPart(Query::SELECT)) {
             $query->select(array($modelName => '*'));
@@ -139,7 +135,7 @@ class Model_Manager extends Manager_Abstract
         }
         return $model;
 	}
-     
+
 	/**
 	 * Создать модель из источника
      *
@@ -159,7 +155,10 @@ class Model_Manager extends Manager_Abstract
             $row[$field] = $value;
         }
 		$config = $this->config();
-        $parent = $this->getParentClass($modelName, $config['delegee']);
+        $helperModelManager = $this->getService('helperModelManager');
+        $parent = $helperModelManager->getParentClass(
+            $modelName, $config
+        );
 		$delegee = 'Model_Manager_Delegee_' . $config['delegee'][$parent];
 		if ($config['delegee'][$parent] == 'Simple') {
             $newModel = new $modelName($row);
@@ -196,17 +195,22 @@ class Model_Manager extends Manager_Abstract
 	 */
 	public function get($modelName, $key, $source = null)
 	{
+		$locator = IcEngine::serviceLocator();
 		if ($source instanceof Model) {
             return $source;
         }
-        $resourceManager = $this->getService('resourceManager');
+        $resourceManager = $locator->getService('resourceManager');
         $resourceKey = $modelName . '__' . $key;
         $model = $resourceManager->get('Model', $resourceKey);
         if ($model instanceof Model) {
             return $model;
         }
-        $config = $this->config();
-        $parent = $this->getParentClass($modelName, $config['delegee']);
+        $configManager = $locator->getService('configManager');
+        $config = $configManager->get('Model_Manager');
+        $helperModelManager = $locator->getService('helperModelManager');
+        $parent = $helperModelManager->getParentClass(
+            $modelName, $config
+        );
         $delegee = 'Model_Manager_Delegee_' .
             $config['delegee'][$parent];
         if ($config['delegee'][$parent] == 'Simple') {
@@ -224,30 +228,12 @@ class Model_Manager extends Manager_Abstract
         $keyField = $newModel->keyField();
         $newModel->set($keyField, $key);
         if (!$key) {
-            $this->read($newModel);
+            $helperModelManager->read($newModel);
             $resourceKey = $modelName . '__' . $newModel->key();
         }
         $resourceManager->set('Model', $resourceKey, $newModel);
 		return $newModel;
 	}
-
-    /**
-     * Получить имя родительского класса
-     *
-     * @param string $modelName
-     * @param array|Objective $config
-     * @return string
-     */
-    public function getParentClass($modelName, $config)
-    {
-        $parents = class_parents($modelName);
-        $config = $this->config();
-        foreach ($parents as $parent) {
-            if (isset($config['delegee'][$parent])) {
-                return $parent;
-            }
-        }
-    }
 
     /**
      * Отложенная загрузка модели по запросу
@@ -286,35 +272,6 @@ class Model_Manager extends Manager_Abstract
 		$this->getService('unitOfWork')->push($query, $model, 'Simple');
 		return $model;
     }
-
-    /**
-	 * Получение данных модели из источника данных.
-	 *
-     * @param Model $model
-	 * @return boolean
-	 */
-	protected function read(Model $model)
-	{
-		$key = $model->key();
-		if (!$key) {
-			return false;
-		}
-        $modelName = $model->table();
-        $queryBuilder = $this->getService('query');
-		$query = $queryBuilder
-			->select ('*')
-			->from($modelName)
-			->where($model->keyField(), $key);
-        $modelScheme = $this->getService('modelScheme');
-        $dataSource = $modelScheme->dataSource($modelName);
-        $data = $dataSource->execute($query)->getResult()->asRow();
-        if ($data) {
-            $data = array_merge($data, $model->asRow());
-            $model->set($data);
-            return true;
-        }
-        return false;
-	}
 
 	/**
 	 * Удаление данных модели из источника
@@ -358,71 +315,13 @@ class Model_Manager extends Manager_Abstract
 	 */
 	public function set(Model $model, $hardInsert = false)
 	{
-        $resourceKey = $model->resourceKey();
-        $updatedFields = $model->getUpdatedFields();
-        if (!$model->key() || $hardInsert) {
-            $updatedFields = $model->getFields();
-            $model->setUpdatedFields($updatedFields);
-        }
-        if ($updatedFields) {
-            $this->write($model, $hardInsert);
-        }
-        $model->setUpdatedFields(array());
-        $resourceManager = $this->getService('resourceManager');
-		$resourceManager->set('Model', $resourceKey, $model);
-		$resourceManager->setUpdated('Model', $resourceKey, $updatedFields);
-	}
-
-    /**
-	 * Сохранение модели в источник данных
-     *
-	 * @param Model $model
-	 * @param boolean $hardInsert
-	 */
-	protected function write(Model $model, $hardInsert = false)
-	{
-        $modelName = $model->table();
-        $key = $model->key();
-        $keyField = $model->keyField();
-        $modelScheme = $this->getService('modelScheme');
-        $dataSource = $modelScheme->dataSource($modelName);
-        $queryBuilder = $this->getService('query');
-        $modelFields = $model->getFields();
-        $schemeFields = $modelScheme->scheme($modelName)->fields;
-        foreach (array_keys($modelFields) as $fieldName) {
-            if (isset($schemeFields[$fieldName])) {
-                continue;
-            }
-            unset($modelFields[$fieldName]);
-        }
-        if ($key && !$hardInsert) {
-            $query = $queryBuilder
-                ->update($modelName)
-                ->values($modelFields)
-                ->where($keyField, $key)
-				->limit(1);
-            $dataSource->execute($query);
-        } else {
-            if (!$key) {
-                $key = $modelScheme->generateKey($model);
-            }
-            if ($key) {
-                $model->set($keyField, $key);
-                $modelFields[$keyField] = $key;
-            } else {
-                $model->unsetField($keyField);
-                if (isset($modelFields[$keyField])) {
-                    unset($modelFields[$keyField]);
-                }
-            }
-            $query = $queryBuilder
-                ->insert($modelName)
-                ->values($modelFields);
-            $result = $dataSource->execute($query)->getResult();
-            if (!$key) {
-                $key = $result->insertId();
-                $model->set($keyField, $key);
-            }
-        }
+        $config = $this->config();
+        $helperModelManager = $this->getService('helperModelManager');
+        $parent = $helperModelManager->getParentClass(
+            $model->modelName(), $config
+        );
+        $className = 'Model_Manager_Delegee_' . $config['delegee'][$parent];
+        $theDelegee = new $className();
+        $theDelegee->set($model, $hardInsert);
 	}
 }
