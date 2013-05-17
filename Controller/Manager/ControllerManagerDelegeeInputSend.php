@@ -19,8 +19,10 @@ class ControllerManagerDelegeeInputSend extends ControllerManagerDelegeeAbstract
         $actionScheme = $scheme->getMethod($context->getAction());
         if (!empty($actionScheme['InputSend'])) {
             $input = $controller->getInput();
-            foreach ($actionScheme['InputSend'] as $vars) {
-                $input->send($vars);
+            foreach ($actionScheme['InputSend'] as $data) {
+                foreach ($data as $vars) {
+                    $input->send($vars);
+                }
             }
         }
     }
