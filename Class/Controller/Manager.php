@@ -49,7 +49,6 @@ class Controller_Manager extends Manager_Abstract
          */
         'delegees'           => array(
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeRole',
-            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeContext',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeInputTransport',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeInputProvider',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeInputSend',
@@ -57,6 +56,7 @@ class Controller_Manager extends Manager_Abstract
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeInputValidator',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeConfigExport',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeParam',
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeContext',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeValidator',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeStatic',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeConfigMerge',
