@@ -721,7 +721,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 					$fullResult, $columns, $keyField
 				);
             }
-        } else {
+        } elseif (is_null($this->items)) {
             if ($columns) {
                 call_user_func_array(array($this, 'beforeLoad'), $columns);
             } else {
@@ -782,6 +782,8 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
                     $result[$row] = array($columnName => $row);
                 }
             }
+        } else {
+            return array();
         }
         foreach ($this->items as $item) {
             if (!is_array($this->items) || !isset($item['data'])) {
@@ -912,6 +914,16 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
     public function setModelName($modelName)
     {
         $this->modelName = $modelName;
+    }
+    
+    /**
+     * Изменить опшины
+     * 
+     * @param array $options
+     */
+    public function setOptions($options)
+    {
+        $this->options = $options;
     }
 
 	/**
