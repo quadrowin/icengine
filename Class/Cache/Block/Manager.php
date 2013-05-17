@@ -101,6 +101,10 @@ class Cache_Block_Manager extends Manager_Abstract
         foreach ($data as $row) {
             $this->data[$row['controllerAction']] = $row['json'];
         }
+        if (empty($this->data[$controllerAction])) {
+            $this->data[$controllerAction] = array();
+            return array();
+        }
         if (!is_array($this->data[$controllerAction])) {
             $this->data[$controllerAction] = json_decode(
                 urldecode($this->data[$controllerAction]), true
