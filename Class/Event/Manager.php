@@ -92,6 +92,24 @@ class Event_Manager
 		return $this->slots[$slotName];
 	}
 
+    /**
+     * Проверяет зарегистрирован ли сигнал в конфиге
+     *
+     * @param string $signalName
+     * @return boolean
+     */
+    public function isSignalRegistered($signalName)
+    {
+        $locator = IcEngine::serviceLocator();
+        $configManager = $locator->getService('configManager');
+        $config = $configManager->get('Event_Manager');
+        $signals = $config->__toArray();
+        if (isset($signals[$signalName])) {
+            return true;
+        }
+        return false;
+    }
+
 	/**
 	 * Выполнить сигнал
 	 *
@@ -105,7 +123,8 @@ class Event_Manager
 		$slots = $this->getMap()->getBySignal($signal);
 		if ($slots) {
 			foreach ($slots as $slot) {
-				$slot->setParams(array_merge($data, $slot->getParams()));
+				//$slot->setParams(array_merge($data, $slot->getParams()));
+				$slot->setParams($data);
 				$slot->action();
 			}
 		}
