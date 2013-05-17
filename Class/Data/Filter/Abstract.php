@@ -17,16 +17,4 @@ abstract class Data_Filter_Abstract
 	{
 		return $data;
 	}
-
-	/**
-	 * Фильтрация с использование схемы
-	 *
-	 * @param string $field Имя поля.
-	 * @param stdClass $data Все данные.
-	 * @param stdClass|Objective $scheme Схема.
-	 */
-	public function filterEx($field, $data, $scheme)
-	{
-		return $this->filter($data->$field);
-	}
 }
