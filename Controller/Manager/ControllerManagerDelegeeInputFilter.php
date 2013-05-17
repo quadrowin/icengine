@@ -24,24 +24,16 @@ class ControllerManagerDelegeeInputFilter extends
             $filterManager = $controllerManager->getService(
                 'dataFilterManager'
             );
-            $args = $context->getArgs();
             $input = $controller->getInput();
             foreach ($actionScheme['InputFilter'] as $actionArgs) {
                 foreach ($actionArgs as $argName => $filters) {
-                    if ($argName == 'context') {
-                        continue;
-                    }
-                    if (!isset($args[$argName])) {
-                        $args[$argName] = null;
-                    }
                     foreach ($filters as $filterName) {
                         $filter = $filterManager->get($filterName);
-                        $args[$argName] = $filter->filter($args[$argName]);
-                        $input->send($argName, $args[$argName], 0);
+                        $arg = $filter->filter($input[$argName]);
+                        $input->send($argName, $arg, 0);
                     }
                 }
             }
-            $context->setArgs($args);
         }
     }
 }
