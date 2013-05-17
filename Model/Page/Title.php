@@ -46,20 +46,20 @@ class Page_Title extends Model
 
             $vars = $this->variable($task->getTransaction()->buffer());
         }
-
+        
         $keys = array_keys($vars);
         $vals = array_values($vars);
 
         foreach ($keys as &$key) {
-            $key = '{$' . $key . '}';
+            $key = '{$' . $key . '}'; 
         }
 
-        $this->title = str_replace(
+        $this->$field = str_replace(
             $keys,
             $vals,
             $this->$field
         );
-
+        
         return $this;
     }
 
