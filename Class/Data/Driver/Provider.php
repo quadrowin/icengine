@@ -64,9 +64,7 @@ class Data_Driver_Provider extends Data_Driver_Abstract
 	protected $query;
     
     /**
-     * Методы, через которые будут выполнены операции
-     *
-     * @var array
+     * @inheritdoc
      */
     protected $queryMethods = array(
         Query::SELECT    => 'executeSelect',
@@ -217,8 +215,7 @@ class Data_Driver_Provider extends Data_Driver_Abstract
 		if (!$options) {
 		    $options = $this->getDefaultOptions();
 		}
-		$m = $this->queryMethods[$query->type()];
-		$result = $this->{$m}($query, $options);
+		$result = $this->callMethod($query, $options);
 		if ($this->errno) {
 			throw new Exception(
 			    $this->error . "\n" . $this->query->translate('Mysql'),

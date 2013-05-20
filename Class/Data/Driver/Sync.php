@@ -15,9 +15,7 @@ class Data_Driver_Sync extends Data_Driver_Abstract
     protected $dynamicDriver;
     
 	/**
-	 * Обработчики по видам запросов.
-	 *
-     * @var array
+	 * @inheritdoc
 	 */
 	protected $queryMethods = array(
 		Query::SELECT	=> 'executeStatic',
@@ -94,8 +92,7 @@ class Data_Driver_Sync extends Data_Driver_Abstract
 	 */
 	public function execute(Query_Abstract $query, $options = null)
 	{
-		$m = $this->queryMethods[$query->type()];
-		$result = $this->{$m}($query, $options);
+		$result = $this->callMethod($query, $options);
 		return new Query_Result(array(
             'error'			=> '',
 			'errno'			=> 0,

@@ -14,6 +14,29 @@ abstract class Data_Driver_Abstract
 	 */
 	protected $defaultOptions;
 
+    /**
+	 * Обработчики по видам запросов.
+	 *
+     * @var array
+	 */
+	protected $queryMethods = array();
+    
+    /**
+     * Вызвать метод
+     * 
+     * @param string $method
+     * @param Query_Options $options
+     * @return Query_Result
+     */
+    public function callMethod($query, $options)
+    {
+        $callable = $this->queryMethods[$query->type()];
+        if (is_string($callable)) {
+            $callable = array($this, $callable);
+        }
+        return call_user_func_array($callable, array($query, $options));
+    }
+    
 	/**
 	 * Выполнить запрос через драйвер данных
      * 
@@ -51,7 +74,7 @@ abstract class Data_Driver_Abstract
      * @param Query_Options $options
      * @return array
      */
-    protected function executeCommand(Query_Abstract $query, 
+    public function executeCommand(Query_Abstract $query, 
         Query_Options $options)
     {
         return array();
@@ -70,6 +93,17 @@ abstract class Data_Driver_Abstract
 		return $this->defaultOptions;
     }
     
+    /**
+     * Получить метод
+     * 
+     * @param string $methodType
+     * @return mixed
+     */
+    public function getQueryMethod($methodType)
+    {
+        return $this->queryMethods[$methodType];
+    }
+    
 	/**
 	 * Изменить опции по умолчанию
      * 
@@ -81,6 +115,17 @@ abstract class Data_Driver_Abstract
 		$this->defaultOptions = $options;
 		return $this;
 	}
+    
+    /**
+     * Изменить метод выполнения
+     * 
+     * @param string $methodType
+     * @param mixed $callable
+     */
+    public function setQueryMethod($methodType, $callable)
+    {
+        $this->queryMethods[$methodType] = $callable;
+    }
 
 	/**
 	 * Установка параметров

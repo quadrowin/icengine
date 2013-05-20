@@ -159,29 +159,24 @@ class Model_Manager extends Manager_Abstract
         $parent = $helperModelManager->getParentClass(
             $modelName, $config
         );
-		$delegee = 'Model_Manager_Delegee_' . $config['delegee'][$parent];
+		$delegeeClass = 'Model_Manager_Delegee_' . $config['delegee'][$parent];
 		if ($config['delegee'][$parent] == 'Simple') {
             $newModel = new $modelName($row);
         } else {
-            if (!isset($this->delegees[$delegee])) {
-                $this->delegees[$delegee] = new $delegee;
+            if (!isset($this->delegees[$delegeeClass])) {
+                $this->delegees[$delegeeClass] = new $delegeeClass;
             }
-            $delegee = $this->delegees[$delegee];
-            $newModel = call_user_func_array(
-                array($delegee, 'get'),
-                array($modelName, 0, $row)
-            );
+            $delegee = $this->delegees[$delegeeClass];
+            $newModel = $delegee->get($modelName, 0, $row);
         }
-        if (isset($scheme['createSignal'])) {
-            $eventManager = $this->getService('eventManager');
-            $signalName = 'create' . str_replace('_', '', $modelName);
-            $signal = $eventManager->getSignal($signalName);
-            if ($signal) {
-                $signal->setData($row);
-                $signal->notify();
-            }
+        $newModel->set($row);
+        $helperModelManager->notifySignal(
+            $helperModelManager->getDefaultSignal(__METHOD__, $newModel), 
+            $newModel
+        );
+        if ($scheme['onCreate']) {
+            $helperModelManager->notifySignal($scheme['onCreate'], $newModel);
         }
-		$newModel->set($row);
 		return $newModel;
 	}
 
@@ -220,10 +215,7 @@ class Model_Manager extends Manager_Abstract
                 $this->delegees[$delegee] = new $delegee;
             }
             $delegee = $this->delegees[$delegee];
-            $newModel = call_user_func_array(
-                array($delegee, 'get'),
-                array($modelName, $key, $source)
-            );
+            $newModel = $delegee->get($modelName, $key, $source);
         }
         $keyField = $newModel->keyField();
         $newModel->set($keyField, $key);
@@ -232,6 +224,15 @@ class Model_Manager extends Manager_Abstract
             $resourceKey = $modelName . '__' . $newModel->key();
         }
         $resourceManager->set('Model', $resourceKey, $newModel);
+        $helperModelManager->notifySignal(
+            $helperModelManager->getDefaultSignal(__METHOD__, $newModel), 
+            $newModel
+        );
+        if ($newModel->scheme()['onGet']) {
+            $helperModelManager->notifySignal(
+                $newModel->scheme()['onGet'], $newModel
+            );
+        }
 		return $newModel;
 	}
 
@@ -284,26 +285,32 @@ class Model_Manager extends Manager_Abstract
         if (!$key) {
             return;
         }
+        $config = $this->config();
+        $helperModelManager = $this->getService('helperModelManager');
+        $parent = $helperModelManager->getParentClass(
+            $model->modelName(), $config
+        );
+        $delegeeClass = 'Model_Manager_Delegee_' .
+            $config['delegee'][$parent];
         $resourceManager = $this->getService('resourceManager');
         $resourceManager->set('Model', $model->resourceKey(), null);
-        $modelName = $model->table();
-        $modelScheme = $this->getService('modelScheme');
-        $queryBuilder = $this->getService('query');
-        $dataSource = $modelScheme->dataSource($modelName);
-        $scheme = $modelScheme->scheme($modelName);
-        $query = $queryBuilder
-            ->delete()
-            ->from($modelName)
-            ->where($model->keyField(), $key);
-        $dataSource->execute($query);
-        if (isset($scheme['deleteSignal'])) {
-            $eventManager = $this->getService('eventManager');
-            $signalName = 'delete' . str_replace('_', '', $modelName);
-            $signal = $eventManager->getSignal($signalName);
-            if ($signal) {
-                $signal->setData($model->raw());
-                $signal->notify();
-            }
+        if (!isset($this->delegees[$delegeeClass])) {
+            $this->delegees[$delegee] = new $delegeeClass;
+        }
+        $delegee = $this->delegees[$delegeeClass];
+        $helperModelManager->notifySignal(
+            $this->getDefaultSignal(__METHOD__, $model), $model
+        );
+        if ($model->scheme()['beforeDelete']) {
+            $helperModelManager->notifySignal(
+                $model->scheme()['beforeDelete'], $model
+            );
+        }
+        $delegee->remove($model);
+        if ($model->scheme()['afterDelete']) {
+            $helperModelManager->notifySignal(
+                $model->scheme()['afterDelete'], $model
+            );
         }
 	}
 
@@ -320,8 +327,27 @@ class Model_Manager extends Manager_Abstract
         $parent = $helperModelManager->getParentClass(
             $model->modelName(), $config
         );
-        $className = 'Model_Manager_Delegee_' . $config['delegee'][$parent];
-        $theDelegee = new $className();
-        $theDelegee->set($model, $hardInsert);
+        $delegeeClass = 'Model_Manager_Delegee_' .
+            $config['delegee'][$parent];
+        $resourceManager = $this->getService('resourceManager');
+        $resourceManager->set('Model', $model->resourceKey(), null);
+        if (!isset($this->delegees[$delegeeClass])) {
+            $this->delegees[$delegeeClass] = new $delegeeClass;
+        }
+        $delegee = $this->delegees[$delegeeClass];
+        $helperModelManager->notifySignal(
+            $helperModelManager->getDefaultSignal(__METHOD__, $model), $model
+        );
+        if ($model->scheme()['beforeSet']) {
+            $helperModelManager->notifySignal(
+                $model->scheme()['beforeSet'], $model
+            );
+        }
+        $delegee->set($model, $hardInsert);
+        if ($model->scheme()['afterSet']) {
+            $helperModelManager->notifySignal(
+                $model->scheme()['afterSet'], $model
+            );
+        }
 	}
 }

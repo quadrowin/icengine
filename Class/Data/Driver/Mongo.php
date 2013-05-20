@@ -57,9 +57,7 @@ class Data_Driver_Mongo extends Data_Driver_Abstract
 	protected $query;
     
     /**
-	 * ОбMongoработчики по видам запросов
-     *
-	 * @var array
+	 * @inheritdoc
 	 */
 	protected $queryMethods = array (
 		Query::SELECT	=> 'executeSelect',
@@ -272,8 +270,7 @@ class Data_Driver_Mongo extends Data_Driver_Abstract
 		if (!$options) {
 			$options = $this->getDefaultOptions();
 		}
-		$m = $this->queryMethods[$query->type()];
-		$this->{$m}($query, $options);
+		$this->callMethod($query, $options);
 		$finish = microtime(true);
 		return new Query_Result(array(
 			'error'			=> '',
