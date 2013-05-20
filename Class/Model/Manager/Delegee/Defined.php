@@ -36,4 +36,22 @@ class Model_Manager_Delegee_Defined extends Model_Manager_Delegee_Abstract
         $model = new $modelName($params);
         return $model;
 	}
+    
+    /**
+     * @inheritdoc
+     */
+    public function remove($model)
+    {
+        throw new Exception('Model defined "' . $model->modelName() . 
+            '" can not remove');
+    }
+    
+    /**
+     * @inheritdoc
+     */
+    public function set(Model $model, $hardInsert = false)
+    {
+        throw new Exception('Model defined "' . $model->modelName() . 
+            '" can not set');
+    }
 }

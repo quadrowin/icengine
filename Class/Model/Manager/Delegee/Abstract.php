@@ -28,6 +28,25 @@ class Model_Manager_Delegee_Abstract
         $model = new $modelName($params);
 		return $model;
 	}
+    
+    /**
+     * Удаление модели
+     * 
+     * @param Model $model
+     */
+    public function remove($model)
+    {
+        $modelScheme = $this->getService('modelScheme');
+        $modelName = $model->modelName();
+        $dataSource = $modelScheme->dataSource($modelName);
+        $queryBuilder = $this->getService('query');
+        $query = $queryBuilder
+            ->delete()
+            ->from($modelName)
+            ->where($model->keyField(), $model->key())
+            ->limit(1);
+        $dataSource->execute($query);
+    }
 
     /**
 	 * Сохранение данных модели
@@ -35,7 +54,7 @@ class Model_Manager_Delegee_Abstract
 	 * @param Model $model Объект модели.
 	 * @param boolean $hardInsert Объект будет вставлен в источник данных.
 	 */
-	public function set(\Model $model, $hardInsert = false)
+	public function set(Model $model, $hardInsert = false)
 	{
         $locator = IcEngine::serviceLocator();
         $resourceKey = $model->resourceKey();

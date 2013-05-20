@@ -130,8 +130,7 @@ class Data_Driver_Mongo_Cached extends Data_Driver_Mongo
 		if (!$options) {
 			$options = $this->getDefaultOptions();
 		}
-		$m = $this->queryMethods[$query->type()];
-		$this->{$m}($query, $options);
+		$this->callMethod($query, $options);
 		$finish = microtime (true);
 		return new Query_Result(array(
 			'error'			=> '',

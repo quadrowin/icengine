@@ -9,6 +9,19 @@
 class Helper_Model_Manager extends Helper_Abstract
 {
     /**
+     * Получить название сигнала по умолчанию
+     * 
+     * @param string $methodName
+     * @param Model $model
+     * @return string
+     */
+    public function getDefaultSignal($methodName, $model)
+    {
+        list(, $method) = explode('::', $methodName);
+        return strtolower($method) . implode('', explode('_', $model->table()));
+    }
+    
+    /**
      * Получить имя родительского класса
      *
      * @param string $modelName
@@ -22,6 +35,20 @@ class Helper_Model_Manager extends Helper_Abstract
                 return $parent;
             }
         }
+    }
+    
+    /**
+     * Вызвать сигнал
+     * 
+     * @param string $signalName
+     * @param Model $model
+     */
+    public function notifySignal($signalName, $model)
+    {
+        $eventManager = $this->getService('eventManager');
+        $signal = $eventManager->getSignal($signalName);
+        $signal->setData(array('model' => $model));
+        $signal->notify();
     }
 
     /**

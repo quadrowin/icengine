@@ -29,6 +29,18 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
     protected static $tagsCaches = array();
 
     /**
+     * @inheritdoc
+     */
+    public function callMethod($query, $options)
+    {
+        $method = $this->queryMethods[$query->type()];
+        if ($method != 'executeSelect') {
+            $this->sql = $query->translate('Mysql');
+        }
+        return parent::callMethod($query, $options);
+    }
+    
+    /**
      * Очистка кэша драйвера
      */
     public function clearCache()
@@ -172,16 +184,9 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
 		if (!$options) {
 			$options = $this->getDefaultOptions();
 		}
-		$m = $this->queryMethods[$query->type()];
-        if ($m != 'executeSelect') {
-            $this->sql = $query->translate('Mysql');
-        }
-		$result = $this->{$m}($query, $options);
+		$result = $this->callMethod($query, $options);
 		if ($this->errno) {
-			throw new Exception(
-				$this->error . "\n" . $this->sql,
-				$this->errno
-			);
+			throw new Exception($this->error . "\n" . $this->sql, $this->errno);
 		}
 		if (!$this->errno && is_null($result)) {
 			$result = array();

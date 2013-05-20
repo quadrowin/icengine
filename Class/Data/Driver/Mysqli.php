@@ -89,9 +89,7 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
 	protected $options;
 
 	/**
-	 * Обработчики по видам запросов.
-	 *
-     * @var array
+	 * @inheritdoc
 	 */
 	protected $queryMethods = array(
 		Query::SELECT	=> 'executeSelect',
@@ -231,13 +229,9 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
 		if (!$options) {
 			$options = $this->getDefaultOptions();
 		}
-		$m = $this->queryMethods[$query->type()];
-		$result = $this->{$m}($query, $options);
+		$result = $this->callMethod($query, $options);
 		if ($this->errno) {
-			throw new Exception(
-				$this->error . "\n" . $this->sql,
-				$this->errno
-			);
+			throw new Exception($this->error . "\n" . $this->sql, $this->errno);
 		}
 		if (!$this->errno && is_null($result)) {
 			$result = array();
