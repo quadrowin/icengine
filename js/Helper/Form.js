@@ -187,6 +187,7 @@ var Helper_Form = {
 							errorRequired = true;
 						} else {
 							$(this).removeClass('errorRequired');
+                            data[this.name] = value;
 						}
 					}
 				}
