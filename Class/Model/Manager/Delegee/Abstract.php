@@ -44,8 +44,7 @@ class Model_Manager_Delegee_Abstract
         $query = $queryBuilder
             ->delete()
             ->from($modelName)
-            ->where($model->keyField(), $model->key())
-            ->limit(1);
+            ->where($model->keyField(), $model->key());
         $dataSource->execute($query);
     }
 
