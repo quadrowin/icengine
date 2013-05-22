@@ -295,7 +295,7 @@ class Model_Manager extends Manager_Abstract
         }
         $delegee = $this->delegees[$delegeeClass];
         $helperModelManager->notifySignal(
-            $this->getDefaultSignal(__METHOD__, $model), $model
+            $helperModelManager->getDefaultSignal(__METHOD__, $model), $model
         );
         if ($model->scheme()['beforeDelete']) {
             $helperModelManager->notifySignal(
