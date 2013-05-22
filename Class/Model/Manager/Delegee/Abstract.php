@@ -36,10 +36,11 @@ class Model_Manager_Delegee_Abstract
      */
     public function remove($model)
     {
-        $modelScheme = $this->getService('modelScheme');
+        $locator = IcEngine::serviceLocator();
+        $modelScheme = $locator->getService('modelScheme');
         $modelName = $model->modelName();
         $dataSource = $modelScheme->dataSource($modelName);
-        $queryBuilder = $this->getService('query');
+        $queryBuilder = $locator->getService('query');
         $query = $queryBuilder
             ->delete()
             ->from($modelName)
