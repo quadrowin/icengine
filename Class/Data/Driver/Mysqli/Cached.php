@@ -236,9 +236,6 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
         $key = $this->sqlHash($query);
         $this->sql = $query->translate('Mysql');
 		$rows = parent::executeSelect($query, $options);
-        if (is_null($rows)) {
-            return null;
-        }
 		if (Tracer::$enabled) {
 			$endTime = microtime(true);
 			$delta = $endTime - $startTime;
@@ -254,6 +251,9 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
             );
 			Tracer::incDeltaQueryCount();
 		}
+        if (is_null($rows)) {
+            return null;
+        }
 		$tags = $query->getTags();
         $providerTags = $this->cacher->getTags($tags);
         if ($tags) {
