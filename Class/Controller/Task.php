@@ -100,7 +100,12 @@ class Controller_Task
         $serviceLocator = IcEngine::serviceLocator();
         $route = $serviceLocator->getService('router')->getRoute();
         if ($route && !empty($route->params['viewRender'])) {
-            $this->viewRender = $route->viewRender();
+            $viewRenderManager = $serviceLocator->getService(
+                'viewRenderManager'
+            );
+            $this->viewRender = $viewRenderManager->byName(
+                $route->params['viewRender']
+            );
         } else {
             $viewRenderManager = $serviceLocator->getService(
                 'viewRenderManager'
