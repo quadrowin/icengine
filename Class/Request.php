@@ -125,12 +125,7 @@ class Request
     public function isJsHttpRequest()
     {
         global $JsHttpRequest_Active;
-        return (
-            isset($_SERVER['REQUEST_METHOD']) &&
-            $_SERVER['REQUEST_METHOD'] == 'POST' &&
-            isset($JsHttpRequest_Active) &&
-            $JsHttpRequest_Active
-        );
+        return $this->isPost() && !empty($JsHttpRequest_Active);
     }
 
     /**
