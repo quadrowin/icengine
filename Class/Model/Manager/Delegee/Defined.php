@@ -15,7 +15,7 @@ class Model_Manager_Delegee_Defined extends Model_Manager_Delegee_Abstract
 	 * @param Model|array $object Объект или данные
 	 * @return Model В случае успеха объект, иначе null.
 	 */
-	public function get($modelName, $key, $object)
+	public function get($modelName, $key, $object = null)
 	{
 		$rows = $modelName::$rows;
         $params = is_array($object) ? $object : array();
@@ -36,22 +36,22 @@ class Model_Manager_Delegee_Defined extends Model_Manager_Delegee_Abstract
         $model = new $modelName($params);
         return $model;
 	}
-    
+
     /**
      * @inheritdoc
      */
     public function remove($model)
     {
-        throw new Exception('Model defined "' . $model->modelName() . 
+        throw new Exception('Model defined "' . $model->modelName() .
             '" can not remove');
     }
-    
+
     /**
      * @inheritdoc
      */
     public function set(Model $model, $hardInsert = false)
     {
-        throw new Exception('Model defined "' . $model->modelName() . 
+        throw new Exception('Model defined "' . $model->modelName() .
             '" can not set');
     }
 }
