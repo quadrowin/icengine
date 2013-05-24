@@ -36,15 +36,15 @@ class Model_Manager_Delegee_Abstract
      */
     public function remove($model)
     {
-        $modelScheme = $this->getService('modelScheme');
+        $locator = IcEngine::serviceLocator();
+        $modelScheme = $locator->getService('modelScheme');
         $modelName = $model->modelName();
         $dataSource = $modelScheme->dataSource($modelName);
-        $queryBuilder = $this->getService('query');
+        $queryBuilder = $locator->getService('query');
         $query = $queryBuilder
             ->delete()
             ->from($modelName)
-            ->where($model->keyField(), $model->key())
-            ->limit(1);
+            ->where($model->keyField(), $model->key());
         $dataSource->execute($query);
     }
 
@@ -54,7 +54,7 @@ class Model_Manager_Delegee_Abstract
 	 * @param Model $model Объект модели.
 	 * @param boolean $hardInsert Объект будет вставлен в источник данных.
 	 */
-	public function set(Model $model, $hardInsert = false)
+	public function set($model, $hardInsert = false)
 	{
         $locator = IcEngine::serviceLocator();
         $resourceKey = $model->resourceKey();

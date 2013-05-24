@@ -61,10 +61,8 @@ class Helper_Site_Location extends Manager_Abstract
 	public function load()
 	{
 		if (!$this->location) {
-			$file = IcEngine::root() . 'Ice/Var/Helper/Site/Location.txt';
-			if (file_exists($file)) {
-				$this->location = trim(file_get_contents($file));
-			} else {
+            $this->location = $this->getService('helperBehavior')->get();
+			if (!$this->location) {
 				$this->location = $_SERVER['HTTP_HOST'];
 			}
 		}
