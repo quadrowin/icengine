@@ -514,7 +514,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function &items()
 	{
-		if (!is_array($this->items)) {
+		if (is_null($this->items)) {
 			$this->load();
 		}
 		return $this->items;
@@ -585,9 +585,9 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function load($columns = array())
 	{
-            if (is_array($this->items)) {
-                return $this;
-            }
+        if ($this->items) {
+            return $this;
+        }
 		$this->beforeLoad($columns);
         $query = $this->lastQuery;
         $collectionManager = $this->getService('collectionManager');
@@ -704,31 +704,18 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
     public function raw($columns = array())
     {
         $helperArray = $this->getService('helperArray');
-        $result = array();
 		$keyField = $this->keyField();
         $this->isRaw = true;
-        if ($this->items) {
-            if (is_array($this->items[0])) {
-                $result = $helperArray->column(
-					$this->items, $columns, $keyField
-				);
-            } else {
-                $fullResult = array();
-                foreach ($this->items as $item) {
-                    $fullResult[] = $item->asRow();
-                }
-                $result = $helperArray->column(
-					$fullResult, $columns, $keyField
-				);
-            }
-        } elseif (is_null($this->items)) {
+        $isNew = false;
+        $optionManager = $this->getService('modelOptionManager');
+        if (is_null($this->items)) {
+            $isNew = true;
             if ($columns) {
                 call_user_func_array(array($this, 'beforeLoad'), $columns);
             } else {
                 $this->beforeLoad(array());
             }
             $collectionManager = $this->getService('collectionManager');
-            $optionManager = $this->getService('modelOptionManager');
             $pack = $collectionManager->callDelegee(
                 $this, $this->lastQuery
             );
@@ -748,11 +735,25 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
                     $this->items = $pack['items'];
                 }
             }
-            foreach ($this->items as $key => $data) {
-                $this->items[$key]['data'] = new ArrayIterator(
-                    isset($data['data']) ? $data['data'] : array()
-                );
+        } elseif (!$this->items) {
+            return array();
+        } else {
+            $items = array();
+            foreach ($this->items as $item) {
+                if (!isset($item[$keyField])) {
+                    $items[] = $item;
+                } else {
+                    $items[$item[$keyField]] = $item;
+                }
             }
+            $this->items = $items;
+        }
+        foreach ($this->items as $key => $data) {
+            $this->items[$key]['data'] = new ArrayIterator(
+                isset($data['data']) ? (array) $data['data'] : array()
+            );
+        }
+        if ($isNew) {
             $optionManager->executeAfter($this, $this->options);
             if ($this->paginator) {
                 $this->paginator->total = $this->data('foundRows');
@@ -762,28 +763,26 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
                     call_user_func($method, $this);
                 }
             }
-            if (!$columns) {
-                $modelScheme = $this->getService('modelScheme');
-                $scheme = $modelScheme->scheme($this->modelName());
-                if ($scheme->fields) {
-                    $columns = array_keys($scheme->fields->asArray());
-                }
+        } 
+        if (!$columns) {
+            $modelScheme = $this->getService('modelScheme');
+            $scheme = $modelScheme->scheme($this->modelName());
+            if ($scheme->fields) {
+                $columns = array_keys($scheme->fields->asArray());
             }
-            if (count($columns) == 1) {
-                $columnName = reset($columns);
-                $keyField = $columnName;
-            } elseif ($columns && !in_array($keyField, $columns)) {
-                $keyField = reset($columns);
+        }
+        if (count($columns) == 1) {
+            $columnName = reset($columns);
+            $keyField = $columnName;
+        } elseif ($columns && !in_array($keyField, $columns)) {
+            $keyField = reset($columns);
+        }
+        $result = $helperArray->column($this->items, $columns, $keyField);
+        if (count($columns) == 1) {
+            foreach ($result as $i => $row) {
+                unset($result[$i]);
+                $result[$row] = array($columnName => $row);
             }
-            $result = $helperArray->column($this->items, $columns, $keyField);
-            if (count($columns) == 1) {
-                foreach ($result as $i => $row) {
-                    unset($result[$i]);
-                    $result[$row] = array($columnName => $row);
-                }
-            }
-        } else {
-            return array();
         }
         foreach ($this->items as $item) {
             if (!is_array($this->items) || !isset($item['data'])) {
@@ -948,6 +947,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function setQuery(Query_Abstract $query)
 	{
+        $this->lastQuery = null;
 		$this->query = $query;
 	}
 

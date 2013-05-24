@@ -74,15 +74,17 @@
 	<ul>
 		{foreach from=$sessions item="session" key="key" name="sessions"}
 			{if $session.args[0] == 'Controller_Manager'}
-				<li>
-					<p><b>Вызов:</b> {$session.args[3]}/{$session.args[4]}</p>
-					<p>Затраченно времени: {$session.logs[0].delta} с.</p>
-					<p>Создано моделей: {$session.logs[0].args[1]}</p>
-					<p>Выполнено запросов не из кэша: {$session.logs[0].args[1]}</p>
-					<p>Затраты памяти: {$session.logs[0].args[2]/1024/1024}/{$maxMemory}</p>
-					<p>Время рендеринга: {$session.logs[0].args[3]} с.</p>
-                    <p>Обращений get к redis: {$session.logs[0].args[4]}</p>
-				</li>
+                {if !empty($session.logs)}
+                    <li>
+                        <p><b>Вызов:</b> {$session.args[3]}/{$session.args[4]}</p>
+                        <p>Затраченно времени: {$session.logs[0].delta} с.</p>
+                        <p>Создано моделей: {$session.logs[0].args[1]}</p>
+                        <p>Выполнено запросов не из кэша: {$session.logs[0].args[1]}</p>
+                        <p>Затраты памяти: {$session.logs[0].args[2]/1024/1024}/{$maxMemory}</p>
+                        <p>Время рендеринга: {$session.logs[0].args[3]} с.</p>
+                        <p>Обращений get к redis: {$session.logs[0].args[4]}</p>
+                    </li>
+                {/if}    
 			{/if}
 		{/foreach}
 	</ul>

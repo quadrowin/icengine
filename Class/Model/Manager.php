@@ -291,11 +291,11 @@ class Model_Manager extends Manager_Abstract
         $resourceManager = $this->getService('resourceManager');
         $resourceManager->set('Model', $model->resourceKey(), null);
         if (!isset($this->delegees[$delegeeClass])) {
-            $this->delegees[$delegee] = new $delegeeClass;
+            $this->delegees[$delegeeClass] = new $delegeeClass;
         }
         $delegee = $this->delegees[$delegeeClass];
         $helperModelManager->notifySignal(
-            $this->getDefaultSignal(__METHOD__, $model), $model
+            $helperModelManager->getDefaultSignal(__METHOD__, $model), $model
         );
         if ($model->scheme()['beforeDelete']) {
             $helperModelManager->notifySignal(

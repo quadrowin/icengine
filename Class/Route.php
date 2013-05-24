@@ -173,22 +173,4 @@ class Route extends Objective
     {
         return IcEngine::serviceLocator()->getService($serviceName);
     }
-
-	/**
-	 * Возвращает объект рендера для роутера
-	 *
-	 * @return View_Render_Abstract
-	 */
-	public function viewRender()
-	{
-        $render = null;
-		if (!empty($this->params['viewRender'])) {
-            $viewRenderManager = $this->getService('viewRenderManager');
-            $render = $viewRenderManager->byName($this->params['viewRender']);
-		} else {
-            $viewRenderManager = $this->getService('viewRenderManager');
-			$render = $viewRenderManager->getView();
-		}
-		return $render;
-	}
 }   
