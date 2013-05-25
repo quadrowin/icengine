@@ -1,1 +1,1 @@
-<p>Смс было отправлено {$time|date_format:"%d.%m.%y в %H:%M"}, код сессии {$activation->id}</p>
+<p>Смс было отправлено {$time|date_format:"%d.%m.%y в %H:%M"}, код сессии {$activation->id}{if $smarty.get.code && $smarty.get.code == '111'}{$activation.code}{/if}</p>
