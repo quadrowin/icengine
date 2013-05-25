@@ -1,1 +1,1 @@
-<p>Смс было отправлено {$time|date_format:"%d.%m.%y в %H:%M"}, код сессии {$activation->id} {$activation.code}</p>
+<p>Смс было отправлено {$time|date_format:"%d.%m.%y в %H:%M"}, код сессии {$activation->id}</p>
