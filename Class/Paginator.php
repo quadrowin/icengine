@@ -80,13 +80,15 @@ class Paginator
      */
     public $nextPage;
 
-	/**
-	 *
-	 * @param integer $page Текущая страница
-	 * @param integer $page_limit Количество элементов на странице
-	 * @param integer $full_count Полное количество элементов
-	 * @param boolean $notGet ЧПУ стиль
-	 */
+    /**
+     *
+     * @param integer $page Текущая страница
+     * @param int $perPage
+     * @param int $total
+     * @param boolean $notGet ЧПУ стиль
+     * @internal param int $page_limit Количество элементов на странице
+     * @internal param int $full_count Полное количество элементов
+     */
 	public function __construct($page, $perPage = 30,
         $total = 0, $notGet = false)
 	{
