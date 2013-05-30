@@ -3,7 +3,7 @@
 /**
  * Базовый менеджер сущностей
  *
- * @author morph
+ * @author morph, neon
  */
 class Manager_Simple extends Manager_Abstract
 {
