@@ -155,8 +155,13 @@ var Helper_Form = {
 				//можно на наследование переделать всё это, вверху input ещё
 				if (check && this.tagName.toLowerCase () == 'textarea') {
 					if ($(this).attr('required')) {
+                        var placeholder = '';
+                        if ($(this).attr('placeholder')) {
+                            placeholder = $(this).attr('placeholder');
+                        }
 						if ($(this).is(':visible')) {
-							if ($(this).val() == '') {
+                            var thisValue = $(this).val();
+							if (thisValue == '' || thisValue == placeholder) {
 								$(this).addClass('errorRequired');
 								errorRequired = true;
 							} else {
