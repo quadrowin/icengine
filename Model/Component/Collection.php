@@ -42,7 +42,7 @@ abstract class Component_Collection extends Model_Collection
 	{
 		$this->_model = $model;
 		
-		$this
+		$this->query()
 		    ->where ('table', $this->_model->table ())
 		    ->where ('rowId', $this->_model->key ());
 			
