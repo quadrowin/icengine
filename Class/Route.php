@@ -92,16 +92,14 @@ class Route extends Objective
 		$row = null;
         $lastWithHost = false;
 		foreach ($routes as $route) {
-			if (!is_array($route) || empty($route['route'])) {
+			if (!is_array($route) || empty($route['route']) || 
+                is_array($route['route'])) {
 				continue;
 			}
             if (!is_array($route['actions'])) {
                 $route['actions'] = (array) $route['actions'];
             }
 			$route = array_merge($emptyRoute, (array) $route);
-            if (is_string($route)) {
-                return null;
-            }
 			$pattern = '#^' . $route['route'] . '$#';
             $hostValid = true;
             $withHost = false;

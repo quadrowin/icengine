@@ -47,7 +47,7 @@ class Helper_GeoIP
         $city = $modelManager->byOptions(
             'City', array(
                 'name'  => 'Net_City',
-                'id'    => $netCity['id']
+                'id'    => $netCity['Net_City__id']
             )
         );
         if ($city) {
@@ -77,7 +77,7 @@ class Helper_GeoIP
             ->where('begin_ip <= ?', $ip)
             ->where('end_ip >= ?', $ip);
         $netCity = $dds->execute($netCityQuerySelect)
-            ->getResult()->asTable();
+            ->getResult()->asRow();
         return $netCity;
     }
 
