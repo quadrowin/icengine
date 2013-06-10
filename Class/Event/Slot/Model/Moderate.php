@@ -34,7 +34,7 @@ class Event_Slot_Model_Moderate extends Event_Slot
             array_unshift($afterSet, $signalName);
             $scheme['afterSet'] = $afterSet;
         }
-        $signal = $this->getService('eventManager')->getSignal($modelName);
+        $signal = $this->getService('eventManager')->getSignal($signalName);
         $signal->setData(array(
             'model'     => $model,
             'oldMethod' => $oldMethod    

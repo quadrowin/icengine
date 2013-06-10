@@ -98,7 +98,6 @@ class Controller_View_Resource extends Controller_Abstract
                     'ts'	=> $packer->cacheTimestamp ()
                 );
             }
-            $this->output->send ('reses', $reses);
         }
 	}
 }
