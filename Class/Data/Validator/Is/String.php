@@ -1,0 +1,17 @@
+<?php
+
+/**
+ * Являет ли значение переменная строкой
+ * 
+ * @author morph
+ */
+class Data_Validator_Is_String extends Data_Validator_Abstract
+{
+    /**
+     * @inheritdoc
+     */
+	public function validate($data, $value = true)
+	{
+        return is_string($data) == $value;
+	}
+}
