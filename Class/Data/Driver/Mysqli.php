@@ -152,6 +152,8 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
 	{
 		$result = $this->handler->query($this->sql);
         if (!$result) {
+            $this->errno = -1;
+            $this->error = 'Incorrect result';
             return array();
         }
         $error = $result->errorInfo();
@@ -170,12 +172,13 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
 		return $rows;
 	}
 
-	/**
-	 * Подключение к БД
-	 *
+    /**
+     * Подключение к БД
+     *
      * @param Objective|array $config [optional]
+     * @throws Exception
      * @return \mysqli
-	 */
+     */
 	public function connect($config = null)
 	{
 		if ($this->handler) {
@@ -192,7 +195,8 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
                 $this->connectionOptions['username'],
                 $this->connectionOptions['password']
             );
-        } catch (Exception $e) {
+            $this->handler->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        } catch (PDOException $e) {
             throw new Exception($e->getMessage(), $e->getCode());
         }
         $error = $this->handler->errorInfo();
