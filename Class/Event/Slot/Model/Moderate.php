@@ -2,7 +2,7 @@
 
 /**
  * Слот для модерации модели
- * 
+ *
  * @author morph
  */
 class Event_Slot_Model_Moderate extends Event_Slot
@@ -34,10 +34,10 @@ class Event_Slot_Model_Moderate extends Event_Slot
             array_unshift($afterSet, $signalName);
             $scheme['afterSet'] = $afterSet;
         }
-        $signal = $this->getService('eventManager')->getSignal($modelName);
+        $signal = $this->getService('eventManager')->getSignal($signalName);
         $signal->setData(array(
             'model'     => $model,
-            'oldMethod' => $oldMethod    
+            'oldMethod' => $oldMethod
         ));
         $signal->bind('Model_Driver_Back');
     }
