@@ -152,6 +152,8 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
 	{
 		$result = $this->handler->query($this->sql);
         if (!$result) {
+            $this->errno = -1;
+            $this->error = 'Incorrect result';
             return array();
         }
         $error = $result->errorInfo();

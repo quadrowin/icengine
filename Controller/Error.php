@@ -12,7 +12,7 @@ class Controller_Error extends Controller_Abstract
      */
     public function e403 ()
     {
-        $this->getService('helperHeader')->setStatus(Header::E403);
+        $this->getService('helperHeader')->setStatus(Helper_Header::E403);
     }
 
     /**
@@ -20,7 +20,7 @@ class Controller_Error extends Controller_Abstract
      */
 	public function e404 ()
 	{
-		$this->getService('helperHeader')->setStatus(Header::E404);
+		$this->getService('helperHeader')->setStatus(Helper_Header::E404);
 	}
 
 	/**
@@ -28,6 +28,9 @@ class Controller_Error extends Controller_Abstract
 	 */
 	public function accessDenied()
 	{
+        $task = IcEngine::getTask();
+        $task->setTemplate('Controller/Front/index');
+        $this->getService('helperHeader')->setStatus(Helper_Header::E403);
 		$this->output->send(array(
 			'error'	=> 'access denied',
 			'data'	=> array(
@@ -48,6 +51,9 @@ class Controller_Error extends Controller_Abstract
 	 */
 	public function notFound ()
 	{
+        $task = IcEngine::getTask();
+        $task->setTemplate('Controller/Front/index');
+        $this->getService('helperHeader')->setStatus(Helper_Header::E404);
 		$this->output->send(array(
 			'error'	=> 'not found',
 			'data'	=> array(

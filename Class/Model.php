@@ -362,8 +362,10 @@ abstract class Model implements ArrayAccess
         }
 		if (func_num_args()  == 1) {
 			if (is_scalar($key)) {
-                $result = isset($this->data[$key]) ? $this->data[$key] : null;
-				return $result;
+                $data = isset($this->data[$key]) ? $this->data[$key] : null;
+				$result = $data instanceof Objective
+                    ? $data->__toArray() : $data;
+                return $result;
 			}
 			$this->data = array_merge($this->data->__toArray(), $key);
 		} else {
@@ -612,7 +614,7 @@ abstract class Model implements ArrayAccess
                 }
             }
         }
-        $data = $data ?: array();
+        $data = $this->data() ?: array();
         if (is_object($data)) {
             $data = $data->__toArray();
         }
