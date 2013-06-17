@@ -10,7 +10,7 @@ class Helper_Model_Manager extends Helper_Abstract
 {
     /**
      * Получить название сигнала по умолчанию
-     * 
+     *
      * @param string $methodName
      * @param Model $model
      * @return string
@@ -20,7 +20,7 @@ class Helper_Model_Manager extends Helper_Abstract
         list(, $method) = explode('::', $methodName);
         return strtolower($method) . implode('', explode('_', $model->table()));
     }
-    
+
     /**
      * Получить имя родительского класса
      *
@@ -36,19 +36,22 @@ class Helper_Model_Manager extends Helper_Abstract
             }
         }
     }
-    
+
     /**
      * Вызвать сигнал
-     * 
-     * @param string $signalName
+     *
+     * @param array $signals
      * @param Model $model
      */
-    public function notifySignal($signalName, $model)
+    public function notifySignal($signals, $model)
     {
-        $eventManager = $this->getService('eventManager');
-        $signal = $eventManager->getSignal($signalName);
-        $signal->setData(array('model' => $model));
-        $signal->notify();
+        foreach ((array) $signals as $signalName) {
+            $eventManager = $this->getService('eventManager');
+            $signal = $eventManager->getSignal($signalName);
+            echo $signalName . PHP_EOL . PHP_EOL;
+            $signal->setData(array('model' => $model));
+            $signal->notify();
+        }
     }
 
     /**

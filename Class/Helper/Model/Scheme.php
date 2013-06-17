@@ -60,15 +60,16 @@ class Helper_Model_Scheme extends Helper_Abstract
                 'references'        => $dto->references,
                 'admin'             => $dto->admin,
                 'languageScheme'    => $dto->languageScheme,
-                'createScheme'      => $dto->createScheme
+                'createScheme'      => $dto->createScheme,
+                'signals'           => $dto->signals
             )
         );
         file_put_contents($filename, $output);
     }
-    
+
     /**
      * Создает dto для создания пустой схемы модели
-     * 
+     *
      * @return Model_Scheme_Dto
      */
     public function createDefaultDto()

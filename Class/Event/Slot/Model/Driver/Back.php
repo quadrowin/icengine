@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Слот, который возвращает метод драйвера вставки назад, после сохранения 
+ * Слот, который возвращает метод драйвера вставки назад, после сохранения
  * модели
- * 
+ *
  * @author morph
  */
 class Event_Slot_Model_Driver_Back extends Event_Slot
@@ -20,9 +20,9 @@ class Event_Slot_Model_Driver_Back extends Event_Slot
         $modelScheme = $serviceLocator->getService('modelScheme');
         $dataSource = $modelScheme->dataSource($modelName);
         $dataDriver = $dataSource->driver();
-        $dataDriver->setQueryMethod(
-            Query::UPDATE, $params['oldMethod']
-        );
+        foreach ($params['oldMethods'] as $methodName => $method) {
+            $dataDriver->setQueryMethod($methodName, $method);
+        }
         $signalName = 'Model_Driver_Back_' . $modelName;
         $this->getService('eventManager')->getSignal($signalName)
             ->unBind('Model_Driver_Back');

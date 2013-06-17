@@ -171,11 +171,13 @@ class Model_Manager extends Manager_Abstract
         }
         $newModel->set($row);
         $helperModelManager->notifySignal(
-            $helperModelManager->getDefaultSignal(__METHOD__, $newModel), 
+            $helperModelManager->getDefaultSignal(__METHOD__, $newModel),
             $newModel
         );
-        if ($scheme['onCreate']) {
-            $helperModelManager->notifySignal($scheme['onCreate'], $newModel);
+        if ($scheme['signals']['onCreate']) {
+            $helperModelManager->notifySignal(
+                $scheme['signals']['onCreate']->__toArray(), $newModel
+            );
         }
 		return $newModel;
 	}
@@ -225,12 +227,12 @@ class Model_Manager extends Manager_Abstract
         }
         $resourceManager->set('Model', $resourceKey, $newModel);
         $helperModelManager->notifySignal(
-            $helperModelManager->getDefaultSignal(__METHOD__, $newModel), 
+            $helperModelManager->getDefaultSignal(__METHOD__, $newModel),
             $newModel
         );
-        if ($newModel->scheme()['onGet']) {
+        if ($newModel->scheme()['signals']['onGet']) {
             $helperModelManager->notifySignal(
-                $newModel->scheme()['onGet'], $newModel
+                $newModel->scheme()['signals']['onGet']->__toArray(), $newModel
             );
         }
 		return $newModel;
@@ -297,15 +299,15 @@ class Model_Manager extends Manager_Abstract
         $helperModelManager->notifySignal(
             $helperModelManager->getDefaultSignal(__METHOD__, $model), $model
         );
-        if ($model->scheme()['beforeDelete']) {
+        if ($model->scheme()['signals']['beforeDelete']) {
             $helperModelManager->notifySignal(
-                $model->scheme()['beforeDelete'], $model
+                $model->scheme()['signals']['beforeDelete']->__toArray(), $model
             );
         }
         $delegee->remove($model);
-        if ($model->scheme()['afterDelete']) {
+        if ($model->scheme()['signals']['afterDelete']) {
             $helperModelManager->notifySignal(
-                $model->scheme()['afterDelete'], $model
+                $model->scheme()['signals']['afterDelete']->__toArray(), $model
             );
         }
 	}
@@ -334,15 +336,15 @@ class Model_Manager extends Manager_Abstract
         $helperModelManager->notifySignal(
             $helperModelManager->getDefaultSignal(__METHOD__, $model), $model
         );
-        if ($model->scheme()['beforeSet']) {
+        if ($model->scheme()['signals']['beforeSet']) {
             $helperModelManager->notifySignal(
-                $model->scheme()['beforeSet'], $model
+                $model->scheme()['signals']['beforeSet']->__toArray(), $model
             );
         }
         $delegee->set($model, $hardInsert);
-        if ($model->scheme()['afterSet']) {
+        if ($model->scheme()['signals']['afterSet']) {
             $helperModelManager->notifySignal(
-                $model->scheme()['afterSet'], $model
+                $model->scheme()['signals']['afterSet']->__toArray(), $model
             );
         }
 	}

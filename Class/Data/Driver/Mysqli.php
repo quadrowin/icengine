@@ -24,42 +24,42 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
 		'database'	=> 'unknown',
 		'charset'	=> 'utf8'
 	);
-    
+
     /**
      * Количество затронутых последним запросом кортежей
      *
      * @var integer
      */
 	protected $affectedRows = 0;
-    
+
     /**
      * Код ошибки
      *
      * @var integer
      */
 	protected $errno = 0;
-    
+
     /**
      * Сообщение об ошибке
      *
      * @var string
      */
     protected $error = '';
-    
+
     /**
      * Количество полученных рядов (игнорируя лимит)
      *
      * @var integer
      */
 	protected $foundRows = 0;
-    
+
     /**
      * id последней добавленной сущности
      *
      * @var mixed
      */
 	protected $insertId = null;
-    
+
 	/**
 	 * Экземпляр mysqli
 	 *
@@ -73,14 +73,14 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
      * @var integer
      */
 	protected $numRows = 0;
-    
+
 	/**
 	 * Последний оттранслированный запрос.
 	 *
      * @var string
 	 */
 	protected $sql = '';
-    
+
     /**
      * Опции маппера
      *
@@ -249,7 +249,8 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
 			'finishedAt'	=> $finish,
 			'foundRows'		=> $this->foundRows,
 			'result'		=> $result,
-			'touchedRows'	=> $this->numRows + $this->affectedRows,
+			'touchedRows'	=> $this->touchedRows ?:
+                $this->numRows + $this->affectedRows,
 			'insertKey'		=> $this->insertId
 		));
 	}

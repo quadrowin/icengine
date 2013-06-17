@@ -675,7 +675,9 @@ abstract class Model implements ArrayAccess
         if (!is_null($this->scheme)) {
             return $this->scheme;
         }
-		return $this->getService('modelScheme')->scheme($this->table());
+		$scheme = $this->getService('modelScheme')->scheme($this->table());
+        $scheme['signals'] = $scheme['signals'] ?: array();
+        return $scheme;
 	}
 
 	/**

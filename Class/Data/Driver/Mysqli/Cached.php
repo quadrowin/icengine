@@ -39,7 +39,7 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
         }
         return parent::callMethod($query, $options);
     }
-    
+
     /**
      * Очистка кэша драйвера
      */
@@ -201,7 +201,8 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
 			'foundRows'		=> $this->foundRows,
             'numRows'       => $this->numRows,
 			'result'		=> $result,
-			'touchedRows'	=> $this->numRows + $this->affectedRows,
+			'touchedRows'	=> $this->touchedRows ?:
+                $this->numRows + $this->affectedRows,
 			'insertKey'		=> $this->insertId
 		));
         return $queryResult;
