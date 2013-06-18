@@ -175,8 +175,10 @@ class Model_Manager extends Manager_Abstract
             $newModel
         );
         if ($scheme['signals']['onCreate']) {
+            $signals = $scheme['signals']['onCreate']->__toArray();
+            $signalName = reset($signals);
             $helperModelManager->notifySignal(
-                $scheme['signals']['onCreate']->__toArray(), $newModel
+                $signalName, $newModel
             );
         }
 		return $newModel;
@@ -342,10 +344,5 @@ class Model_Manager extends Manager_Abstract
             );
         }
         $delegee->set($model, $hardInsert);
-        if ($model->scheme()['signals']['afterSet']) {
-            $helperModelManager->notifySignal(
-                $model->scheme()['signals']['afterSet']->__toArray(), $model
-            );
-        }
 	}
 }
