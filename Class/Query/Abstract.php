@@ -28,6 +28,13 @@ class Query_Abstract
 	 */
 	protected $flags;
 
+    /**
+     * Флаг указывает, позволять ли вызывать сигналы
+     *
+     * @var boolean
+     */
+    protected $notSignal = false;
+
 	/**
 	 * Части запроса
 	 *
@@ -178,6 +185,16 @@ class Query_Abstract
 		return substr(get_class($this), strlen('Query_'));
 	}
 
+    /**
+     * Получить значение флага сигналов
+     *
+     * @return boolean
+     */
+    public function getNotSignal()
+    {
+        return $this->notSignal;
+    }
+
 	/**
 	 * Возвращает часть запроса
 	 *
@@ -284,6 +301,16 @@ class Query_Abstract
 	{
         $this->parts[$name] = $value;
 	}
+
+    /**
+     * Установить значение флага сигналов
+     *
+     * @param boolean $value
+     */
+    public function setNotSignal($value)
+    {
+        $this->notSignal = $value;
+    }
 
     /**
      * Получить имя таблицы

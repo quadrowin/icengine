@@ -48,7 +48,6 @@ class Helper_Model_Manager extends Helper_Abstract
         foreach ((array) $signals as $signalName) {
             $eventManager = $this->getService('eventManager');
             $signal = $eventManager->getSignal($signalName);
-            echo $signalName . PHP_EOL . PHP_EOL;
             $signal->setData(array('model' => $model));
             $signal->notify();
         }

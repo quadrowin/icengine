@@ -20,5 +20,6 @@ class Data_Driver_Null extends Data_Driver_Abstract
         $dataSource = $modelScheme->dataSource($modelName);
         $dataDriver = $dataSource->getDataDriver();
         $dataDriver->setTouchedRows(1);
+        return array();
     }
 }

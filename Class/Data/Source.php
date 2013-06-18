@@ -86,13 +86,23 @@ class Data_Source
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
-        if ($result->touchedRows()) {
-            $tableName = $query->tableName();
+        $tableName = $query->tableName();
+        $serviceLocator = IcEngine::serviceLocator();
+        $modelScheme = $serviceLocator->getService('modelScheme');
+        $scheme = $modelScheme->scheme($tableName);
+        if ($scheme['signals']['afterSet']) {
+            $signals = $scheme['signals']['afterSet']->__toArray();
+            $signalName = reset($signals);
+            $eventManager = $serviceLocator->getService('eventManager');
+            $signal = $eventManager->getSignal($signalName);
+            $signal->notify();
+        }
+        if (!$query->getNotSignal() && $result->touchedRows()) {
             $queryType = $query->type();
             $signalName = 'Data_Source_' . ucfirst(strtolower($queryType));
             $isTableRegistered = in_array($tableName, $this->registeredTables);
-            if ($queryType != Query::SELECT || $isTableRegistered) {
-                $serviceLocator = IcEngine::serviceLocator();
+            $allowSignal = $queryType != Query::SELECT || $isTableRegistered;
+            if ($tableName != 'Moderation_Unit' && $allowSignal) {
                 $eventManager = $serviceLocator->getService('eventManager');
                 $signal = $eventManager->getSignal($signalName);
                 $signal->setData(array(

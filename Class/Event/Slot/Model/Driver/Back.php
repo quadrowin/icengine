@@ -24,7 +24,8 @@ class Event_Slot_Model_Driver_Back extends Event_Slot
             $dataDriver->setQueryMethod($methodName, $method);
         }
         $signalName = 'Model_Driver_Back_' . $modelName;
-        $this->getService('eventManager')->getSignal($signalName)
+        $serviceLocator->getService('eventManager')->getSignal($signalName)
             ->unBind('Model_Driver_Back');
+        $this->setParams(array());
     }
 }

@@ -31,14 +31,12 @@ class Event_Slot_Model_Moderate extends Event_Slot
             );
         }
         $scheme = $model->scheme()->__toArray();
-        $afterSet = $scheme['afterSet'];
-        if (!$afterSet) {
-            $afterSet = array();
-        }
+        $afterSet = isset($scheme['signals']['afterSet']) ?
+            $scheme['signals']['afterSet'] : array();
         $signalName = 'Model_Driver_Back_' . $modelName;
-        if (!in_array($signalName, $scheme['afterSet'])) {
+        if (!in_array($signalName, $afterSet)) {
             array_unshift($afterSet, $signalName);
-            $model->scheme()['afterSet'] = $afterSet;
+            $model->scheme()['signals']['afterSet'] = $afterSet;
         }
         $signal = $serviceLocator->getService('eventManager')
             ->getSignal($signalName);
