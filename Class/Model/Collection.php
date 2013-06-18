@@ -674,10 +674,11 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		unset($this->items[$offset]);
 	}
 
-	/**
-	 * @param offset
-	 * @return Model
-	 */
+    /**
+     * @param mixed $offset
+     * @internal param $offset
+     * @return Model
+     */
 	public function offsetGet($offset)
 	{
 		return $this->item($offset);
@@ -696,11 +697,12 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		return $this->query;
 	}
 
-	/**
-	 * Получить результат запроса коллекции
+    /**
+     * Получить результат запроса коллекции
      *
-	 * @return Query_Result
-	 */
+     * @param null $result
+     * @return Query_Result
+     */
 	public function queryResult($result = null)
 	{
 		if ($result) {
@@ -881,12 +883,12 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
         return $this;
 	}
 
-	/**
-	 * Меняет поля модели
+    /**
+     * Меняет поля модели
      *
-	 * @param mixed (string,sting|array<string>) $fields
-	 * @return Model_Collection
-	 */
+     * @internal param mixed $fields
+     * @return Model_Collection
+     */
 	public function set()
 	{
 		$args = func_get_args();
@@ -1015,13 +1017,13 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		return $this;
 	}
 
-	/**
-	 * Сортировка коллекции
+    /**
+     * Сортировка коллекции
      *
-	 * @param string $fields Список полей для сортировки.
-	 * Например: "id", "id DESC", "id, rating DESC".
-	 * @return Model_Collection
-	 */
+     * @internal param string $fields Список полей для сортировки.
+     * Например: "id", "id DESC", "id, rating DESC".
+     * @return Model_Collection
+     */
 	public function sort()
 	{
 		$items = &$this->items();

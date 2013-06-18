@@ -173,15 +173,16 @@ class Debug
 		set_error_handler ('internal_error_handler_hide');
 	}
 
-	/**
-	 * Внутренний обработчик ошибок.
+    /**
+     * Внутренний обработчик ошибок.
      *
-	 * @param string $errno Код ошибки.
-	 * @param string $errstr Текст ошибки.
-	 * @param string $errfile Файл.
-	 * @param string $errline Строка.
-	 * @return boolean
-	 */
+     * @param string $errno Код ошибки.
+     * @param string $errstr Текст ошибки.
+     * @param string $errfile Файл.
+     * @param string $errline Строка.
+     * @throws Exception
+     * @return boolean
+     */
 	public static function errorHandler($errno, $errstr, $errfile, $errline)
 	{
 		if (
@@ -299,7 +300,13 @@ class Debug
 
 		error_reporting (E_ALL | E_STRICT);
 
-		ini_set ('display_errors', false);
+
+        if (defined('IS_PRODUCTION') && !IS_PRODUCTION) {
+            ini_set ('display_errors', true);
+        } else {
+            ini_set ('display_errors', false);
+        }
+
 		ini_set ('html_errors', true);
 		ini_set ('track_errors', true);
 
