@@ -432,9 +432,9 @@ class Debug
 				$path = rtrim (substr ($config, 4), '\\/') . '/';
 				$config = array (
 					'file_active'		=> true,
-					'file_error'		=> $path . 'error.txt',
-					'file_warn'			=> $path . 'warning.txt',
-					'file_log'			=> $path . 'notice.txt'
+					'file_error'		=> $path . 'error_' . date('Y_m') . '.log',
+					'file_warn'			=> $path . 'warning_' . date('Y_m') . '.log',
+					'file_log'			=> $path . 'notice_' . date('Y_m') . '.log'
 				);
 			}
 		}
