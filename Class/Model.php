@@ -355,12 +355,12 @@ abstract class Model implements ArrayAccess
 	 * @param mixed $value [optional] Значение (не обязательно).
 	 * @return mixed Текущее значение или null.
 	 */
-	public function &data($key, $value = null)
+	public function &data($key = null, $value = null)
 	{
         if (!is_object($this->data)) {
             $this->data = $this->getData();
         }
-		if (func_num_args()  == 1) {
+		if (func_num_args() == 1) {
 			if (is_scalar($key)) {
                 $data = isset($this->data[$key]) ? $this->data[$key] : null;
 				$result = $data instanceof Objective
@@ -368,7 +368,7 @@ abstract class Model implements ArrayAccess
                 return $result;
 			}
 			$this->data = array_merge($this->data->__toArray(), $key);
-		} else {
+		} elseif (func_num_args() == 2) {
 			$this->data[$key] = $value;
 		}
         return $this->data;
