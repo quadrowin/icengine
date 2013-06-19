@@ -301,16 +301,24 @@ class Model_Manager extends Manager_Abstract
         $helperModelManager->notifySignal(
             $helperModelManager->getDefaultSignal(__METHOD__, $model), $model
         );
-        if ($model->scheme()['signals']['beforeDelete']) {
-            $helperModelManager->notifySignal(
-                $model->scheme()['signals']['beforeDelete']->__toArray(), $model
-            );
+        $scheme = $model->scheme()['signals']->__toArray();
+        $eventManager = $this->getService('eventManager');
+        if (isset($scheme['beforeDelete'])) {
+            $signalName = $scheme['beforeDelete'];
+            $signal = $eventManager->getSignal($signalName);
+            $signal->setData(array(
+                'model' => $model
+            ));
+            $signal->notify();
         }
         $delegee->remove($model);
-        if ($model->scheme()['signals']['afterDelete']) {
-            $helperModelManager->notifySignal(
-                $model->scheme()['signals']['afterDelete']->__toArray(), $model
-            );
+        if (isset($scheme['afterDelete'])) {
+            $signalName = $scheme['afterDelete'];
+            $signal = $eventManager->getSignal($signalName);
+            $signal->setData(array(
+                'model' => $model
+            ));
+            $signal->notify();
         }
 	}
 

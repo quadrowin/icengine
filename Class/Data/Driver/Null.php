@@ -15,6 +15,10 @@ class Data_Driver_Null extends Data_Driver_Abstract
     {
         $from = $query->getPart(Query::FROM);
         $modelName = reset($from);
+        if ($query->type() == Query::DELETE) {
+            $from = $query->getPart(Query::FROM);
+            $modelName = reset($from)[Query::TABLE];
+        }
         $locator = IcEngine::serviceLocator();
         $modelScheme = $locator->getService('modelScheme');
         $dataSource = $modelScheme->dataSource($modelName);
