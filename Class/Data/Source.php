@@ -86,7 +86,13 @@ class Data_Source
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
+        $queryType = $query->type();
         $tableName = $query->tableName();
+        if ($queryType == Query::DELETE) {
+            $from = $query->getPart(Query::FROM);
+            $fromRaw = reset($from);
+            $tableName = $fromRaw[Query::TABLE];
+        }
         $serviceLocator = IcEngine::serviceLocator();
         $modelScheme = $serviceLocator->getService('modelScheme');
         $scheme = $modelScheme->scheme($tableName);
@@ -98,7 +104,6 @@ class Data_Source
             $signal->notify();
         }
         if (!$query->getNotSignal() && $result->touchedRows()) {
-            $queryType = $query->type();
             $signalName = 'Data_Source_' . ucfirst(strtolower($queryType));
             $isTableRegistered = in_array($tableName, $this->registeredTables);
             $allowSignal = $queryType != Query::SELECT || $isTableRegistered;
