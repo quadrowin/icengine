@@ -2,7 +2,7 @@
 
 /**
  * Слот для модерации модели
- * 
+ *
  * @author morph
  */
 class Event_Slot_Model_Moderate extends Event_Slot
@@ -19,25 +19,30 @@ class Event_Slot_Model_Moderate extends Event_Slot
         $modelScheme = $serviceLocator->getService('modelScheme');
         $dataSource = $modelScheme->dataSource($modelName);
         $dataDriver = $dataSource->driver();
-        $oldMethod = $dataDriver->getQueryMethod(Query::UPDATE);
-        $dataDriverNull = new Data_Driver_Null();
-        $dataDriver->setQueryMethod(
-            Query::UPDATE, array($dataDriverNull, 'executeCommand')
+        static $methods = array(
+            Query::INSERT, Query::UPDATE, Query::DELETE
         );
-        $scheme = $model->scheme();
-        $afterSet = $scheme['afterSet'];
-        if (!$afterSet) {
-            $afterSet = array();
+        $oldMethods = array();
+        $dataDriverNull = new Data_Driver_Null();
+        foreach ($methods as $method) {
+            $oldMethods[$method] = $dataDriver->getQueryMethod($method);
+            $dataDriver->setQueryMethod(
+                $method, array($dataDriverNull, 'executeCommand')
+            );
         }
+        $scheme = $model->scheme()->__toArray();
+        $afterSet = isset($scheme['signals']['afterSet']) ?
+            $scheme['signals']['afterSet'] : array();
         $signalName = 'Model_Driver_Back_' . $modelName;
-        if (!in_array($signalName, $scheme->__toArray())) {
+        if (!in_array($signalName, $afterSet)) {
             array_unshift($afterSet, $signalName);
-            $scheme['afterSet'] = $afterSet;
+            $model->scheme()['signals']['afterSet'] = $afterSet;
         }
-        $signal = $this->getService('eventManager')->getSignal($signalName);
+        $signal = $serviceLocator->getService('eventManager')
+            ->getSignal($signalName);
         $signal->setData(array(
-            'model'     => $model,
-            'oldMethod' => $oldMethod    
+            'model'      => $model,
+            'oldMethods' => $oldMethods
         ));
         $signal->bind('Model_Driver_Back');
     }

@@ -8,6 +8,9 @@ return array (
     {if !empty($languageScheme)}
 		'languageScheme' => {$languageScheme},
 	{/if}
+    {if !empty($signals)}
+		'signals' => {$signals},
+	{/if}
 
     {if !empty($createScheme)}
 		'createScheme' => {$createScheme},
@@ -16,7 +19,7 @@ return array (
 	{if $comment}
 'comment'		=> '{$comment|addslashes}',
 	{/if}
-{if $author}'author'		=> '{$author|addslashes}', 
+{if $author}'author'		=> '{$author|addslashes}',
 	{/if}
 'fields'		=> array (
 	{foreach from=$fields item="field" name="fields" key="name"}
@@ -32,10 +35,10 @@ return array (
                         {else}
                             '{$field_name}'
                         {/if}
-                        {if !$smarty.foreach.field1.last},{/if} 
+                        {if !$smarty.foreach.field1.last},{/if}
                     {else}
                         {if !is_array($f)}
-                            '{$field_name}'	=> 
+                            '{$field_name}'	=>
                                 {if is_null($f)}
                                     null
                                 {elseif is_numeric($f)}
