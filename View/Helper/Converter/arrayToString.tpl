@@ -4,7 +4,7 @@
 {if $data}
 {if is_array($data) || is_object($data)}
 array(
-{if count($data)}
+{if $data}
     {foreach from=$data item="field" key="name" name="field"}
     {$pad}{if !is_numeric($name)}'{$name}' => {/if}{Helper_Converter::arrayToString($field,$offs+1)}{if !$smarty.foreach.field.last},{/if}
 

@@ -28,10 +28,10 @@ class Model_Manager_Delegee_Abstract
         $model = new $modelName($params);
 		return $model;
 	}
-    
+
     /**
      * Удаление модели
-     * 
+     *
      * @param Model $model
      */
     public function remove($model)

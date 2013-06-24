@@ -2,14 +2,14 @@
 
 /**
  * Абстрактный драйвер источника данных
- * 
+ *
  * @author goorus, morph
  */
 abstract class Data_Driver_Abstract
 {
 	/**
 	 * Опции по умолчанию
-     * 
+     *
 	 * @var Query_Options
 	 */
 	protected $defaultOptions;
@@ -20,10 +20,17 @@ abstract class Data_Driver_Abstract
      * @var array
 	 */
 	protected $queryMethods = array();
-    
+
+    /**
+     * Кол-во затронутых строк
+     *
+     * @var int
+     */
+    protected $touchedRows = 0;
+
     /**
      * Вызвать метод
-     * 
+     *
      * @param string $method
      * @param Query_Options $options
      * @return Query_Result
@@ -36,10 +43,10 @@ abstract class Data_Driver_Abstract
         }
         return call_user_func_array($callable, array($query, $options));
     }
-    
+
 	/**
 	 * Выполнить запрос через драйвер данных
-     * 
+     *
 	 * @param Query_Abstract $query
 	 * @param Query_Options $options
 	 * @return Query_Result
@@ -54,8 +61,8 @@ abstract class Data_Driver_Abstract
             $options = new Query_Options();
         }
 		$rows = $this->executeCommand($query, $options);
-		$finish = microtime (true);
-		$result = new Query_Result(array (
+		$finish = microtime(true);
+		$result = new Query_Result(array(
 			'query'			=> $query,
 			'startAt'		=> $start,
 			'result'		=> $rows,
@@ -66,15 +73,15 @@ abstract class Data_Driver_Abstract
 		));
 		return $result;
 	}
-    
+
     /**
      * Выполняет базовый запрос к драйверу
-     * 
+     *
      * @param Query_Abstract $query
      * @param Query_Options $options
      * @return array
      */
-    public function executeCommand(Query_Abstract $query, 
+    public function executeCommand(Query_Abstract $query,
         Query_Options $options)
     {
         return array();
@@ -82,7 +89,7 @@ abstract class Data_Driver_Abstract
 
 	/**
      * Получить опции по умолчанию
-     * 
+     *
 	 * @return Query_Options
 	 */
 	public function getDefaultOptions()
@@ -92,10 +99,10 @@ abstract class Data_Driver_Abstract
 		}
 		return $this->defaultOptions;
     }
-    
+
     /**
      * Получить метод
-     * 
+     *
      * @param string $methodType
      * @return mixed
      */
@@ -103,10 +110,10 @@ abstract class Data_Driver_Abstract
     {
         return $this->queryMethods[$methodType];
     }
-    
+
 	/**
 	 * Изменить опции по умолчанию
-     * 
+     *
 	 * @param Query_Options $options
 	 * @return Data_Driver_Abstract
 	 */
@@ -115,10 +122,10 @@ abstract class Data_Driver_Abstract
 		$this->defaultOptions = $options;
 		return $this;
 	}
-    
+
     /**
      * Изменить метод выполнения
-     * 
+     *
      * @param string $methodType
      * @param mixed $callable
      */
@@ -129,7 +136,7 @@ abstract class Data_Driver_Abstract
 
 	/**
 	 * Установка параметров
-	 * 
+	 *
      * @param string|Objective $key Параметр.
 	 * @param string $value [optional] Значение.
 	 * @return boolean true, если удачно, иначе - false.
@@ -137,5 +144,15 @@ abstract class Data_Driver_Abstract
 	public function setOption($key, $value = null)
 	{
 		return false;
+    }
+
+    /**
+     * Засетить
+     * 
+     * @param int $touchedRows
+     */
+    public function setTouchedRows($touchedRows)
+    {
+        $this->touchedRows = $touchedRows;
     }
 }

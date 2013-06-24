@@ -20,7 +20,7 @@ class Data_Driver_Provider extends Data_Driver_Abstract
      * @var integer
      */
     protected $affectedRows = 0;
-    
+
     /**
      * Код ошибки
      *
@@ -62,7 +62,7 @@ class Data_Driver_Provider extends Data_Driver_Abstract
      * @var mixed
      */
 	protected $query;
-    
+
     /**
      * @inheritdoc
      */
@@ -72,7 +72,7 @@ class Data_Driver_Provider extends Data_Driver_Abstract
         Query::UPDATE    => 'executeUpdate',
         Query::INSERT    => 'executeInsert'
     );
-    
+
     /**
      * Оттранслированный запрос
      *
@@ -82,7 +82,7 @@ class Data_Driver_Provider extends Data_Driver_Abstract
 
     /**
      * Запрос на удаление
-     * 
+     *
      * @param Query_Abstract $query
 	 * @param Query_Options $options
      */
@@ -98,7 +98,7 @@ class Data_Driver_Provider extends Data_Driver_Abstract
 
 	/**
 	 * Запрос на вставку
-     * 
+     *
      * @param Query_Abstract $query
 	 * @param Query_Options $options
 	 */
@@ -114,7 +114,7 @@ class Data_Driver_Provider extends Data_Driver_Abstract
 
 	/**
 	 * Запрос на выборку
-     * 
+     *
      * @param Query_Abstract $query
 	 * @param Query_Options $options
 	 */
@@ -147,11 +147,11 @@ class Data_Driver_Provider extends Data_Driver_Abstract
 
     /**
      * Запрос на обновление
-     * 
+     *
      * @param Query_Abstract $query
 	 * @param Query_Options $options
      */
-    protected function executeUpdate(Query_Abstract $query, 
+    protected function executeUpdate(Query_Abstract $query,
         Query_Options $options)
     {
     	// Удаление ненужных индексов
@@ -198,7 +198,7 @@ class Data_Driver_Provider extends Data_Driver_Abstract
 		}
 		return count($ids);
 	}
-    
+
     /**
      * @inheritdoc
      */
@@ -231,7 +231,8 @@ class Data_Driver_Provider extends Data_Driver_Abstract
 			'query'			=> $query,
 		    'foundRows'		=> $this->foundRows,
 			'result'		=> $result,
-			'touchedRows'	=> $this->numRows + $this->affectedRows,
+			'touchedRows'	=> $this->touchedRows ?:
+                $this->numRows + $this->affectedRows,
 			'insertKey'		=> $this->insertId
 		));
 	}
