@@ -139,7 +139,7 @@ class Helper_Model_Scheme extends Helper_Abstract
             if ($autoIncrement) {
                 $output[] = 'Auto_Increment';
             }
-            $comment = !empty($data) && !empty($data['Comment'])
+            $comment = !empty($data[1]) && !empty($data[1]['Comment'])
                 ? $data[1]['Comment'] : '';
             $fields[$fieldName] = array(
                 'type'          => $data[0],
