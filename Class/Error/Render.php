@@ -44,17 +44,24 @@ class Error_Render extends Manager_Abstract
 		return $this->config()->path . $code;
 	}
 
-	/**
-	 * Рендеринг ошибки
-     * 
-	 * @param Exception $e
-	 */
+    /**
+     * Рендеринг ошибки
+     *
+     * @param Exception $e
+     * @throws Exception
+     */
 	public function render (Exception $e)
 	{
         $msg = '[' . $e->getFile() . '@' .
             $e->getLine() . ':' .
             $e->getCode() . '] ' .
             $e->getMessage () . PHP_EOL;
+
+        $previous = $e->getPrevious();
+        if ($previous) {
+           $msg .= $previous->getMessage() . "\n" . $previous->getTraceAsString();
+        }
+
         $this->getService('debug')->log($msg, E_ERROR);
         $isVerbose = $this->getService('helperSiteLocation')->get(
             'displayErrors'

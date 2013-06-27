@@ -273,6 +273,7 @@ class Debug
 				break;
 			}
 		}
+
         $locator = IcEngine::serviceLocator();
         $debugService = $locator->getService('debug');
 		$debugService->log($log_text, $errno);
