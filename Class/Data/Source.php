@@ -70,13 +70,14 @@ class Data_Source
         return $this->driver;
     }
 
-	/**
-	 * Выполняет запрос к источнику данных
+    /**
+     * Выполняет запрос к источнику данных
      *
-	 * @param Query_Abstract $query Запрос
-	 * @param Query_Options $options Опции запроса
-	 * @return Data_Source_Abstract
-	 */
+     * @param Query_Abstract $query Запрос
+     * @param Query_Options $options Опции запроса
+     * @throws Exception
+     * @return Data_Source_Abstract
+     */
 	public function execute(Query_Abstract $query, $options = null)
 	{
         $options = $options ?: new Query_Options();
@@ -84,7 +85,7 @@ class Data_Source
         try {
             $result = $this->driver()->execute($this->query, $options);
         } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+            throw new Exception('query error: ' . $this->query->translate(), 0, $e);
         }
         $queryType = $query->type();
         $tableName = $query->tableName();
@@ -141,15 +142,16 @@ class Data_Source
 		return $this->driver;
 	}
 
-	/**
-	 * Возвращает запрос
-	 *
+    /**
+     * Возвращает запрос
+     *
      * @params null|string $translator
-	 * 		Ожидаемый вид запроса.
-	 * 		Если необходим объект запроса, ничего не указывется (по умолчанию).
-	 * 		Если указать транслятор, то результом будет результат трансляции.
-	 * @return Query|mixed
-	 */
+     *        Ожидаемый вид запроса.
+     *        Если необходим объект запроса, ничего не указывется (по умолчанию).
+     *        Если указать транслятор, то результом будет результат трансляции.
+     * @param null $translator
+     * @return Query|mixed
+     */
 	public function getQuery($translator = null)
 	{
 		return $translator
