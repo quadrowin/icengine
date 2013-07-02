@@ -87,7 +87,7 @@ class Unit_Of_Work
 	 */
 	public function flush()
 	{
-        echo 'flush' . PHP_EOL;
+        //echo 'flush' . PHP_EOL;
 		$this->build();
 		foreach ($this->queries as $key=>$query) {
 			$this->_execute($key, $query);
