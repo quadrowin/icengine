@@ -185,15 +185,14 @@ var Helper_Form = {
 					}
 				}
 				if (this.tagName.toLowerCase() == 'select') {
-					if($(this).attr('required')) {
-						value = $(this).val();
-						if (!value || value == 0) {
-							$(this).addClass('errorRequired');
-							errorRequired = true;
-						} else {
-							$(this).removeClass('errorRequired');
-						}
-					}
+                    value = $(this).val();
+                    if (!value || value == 0) {
+                        $(this).addClass('errorRequired');
+                        errorRequired = true;
+                    } else {
+                        $(this).removeClass('errorRequired');
+                        data[this.name] = value;
+                    }
 				}
 				if ($(this).attr ('placeholder') == $(this).val ()) {
 					_setValue (this.name, '');
