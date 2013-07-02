@@ -1,66 +1,65 @@
 <?php
-
 /**
- * Абстрактный класс коллекции компонентов
  * 
- * @author goorus
+ * @desc Абстрактный класс коллекции компонентов.
+ * @author Юрий Шведов
+ * @package IcEngine
+ *
  */
 abstract class Component_Collection extends Model_Collection
 { 
-	/**
-	 * Модель, для которой выбрана коллекция
-	 * 
-     * @var Model
-	 */
-	protected $model;
 	
 	/**
-	 * Возвращает первичный ключ модели
-	 * 
-     * @return mixed
+	 * @desc Модель, для которой выбрана коллекция.
+	 * @var Model
 	 */
-	public function forRowId()
+	protected $_model;
+	
+	/**
+	 * @desc Возвращает первичный ключ модели.
+	 * @return mixed
+	 */
+	public function forRowId ()
 	{
-	    return $this->model->key();
+	    return $this->_model->key ();
 	}
 	
 	/**
-	 * Возвращает таблицу модели
-	 * 
-     * @return string
+	 * @desc Возвращает таблицу модели
+	 * @return string
 	 */
-	public function forTable()
+	public function forTable ()
 	{
-	    return $this->model->table();
+	    return $this->_model->table ();
 	}
 	
 	/**
-	 * Загрузка списка компонент для записи.
-	 * 
-     * @param Model $model Модель, для которой подгружаются объекты.
+	 * @desc Загрузка списка компонент для записи.
+	 * @param Model $model Модель, для которой подгружаются объекты.
 	 * @return Component_Collection Эта коллекция.
 	 */
-	public function getFor(Model $model)
+	public function getFor (Model $model)
 	{
-		$this->model = $model;
-		$this
-		    ->where ('table', $this->model->table())
-		    ->where ('rowId', $this->model->key());
+		$this->_model = $model;
+		
+		$this->query()
+		    ->where ('table', $this->_model->table ())
+		    ->where ('rowId', $this->_model->key ());
+			
 		return $this;
 	}
 	
 	/**
-	 * Возвращает модель для которой выбрана коллекция.
-	 * 
-     * @return Model Модель.
+	 * @desc Возвращает модель для которой выбрана коллекция.
+	 * @return Model Модель.
 	 */
-	public function model()
+	public function model ()
 	{
-	    return $this->model;
+	    return $this->_model;
 	}
 	
 	/**
-	 * Привязывает элементы коллекции к заданной сущности.
+	 * @desc Привязывает элементы коллекции к заданной сущности.
 	 * Существующая ранее связь будет утеряна.
 	 * 
 	 * @param Model $model
@@ -68,23 +67,23 @@ abstract class Component_Collection extends Model_Collection
 	 * @return Component_Collection
 	 * 		Эта коллекция
 	 */
-	public function rejoin(Model $model)
+	public function rejoin (Model $model)
 	{
         $this->update(array(
            'table'  => $model->table(),
-           'rowId'  => $model->key()
+            'rowId' => $model->key()
         ));
 	    return $this;
 	}
 	
 	/**
-	 * Возвращает тип коллекции компонентов.
-	 * 
-     * @return string
+	 * @desc Возвращает тип коллекции компонентов.
+	 * @return string
 	 * 		Имя класса без приставки "Component_" и без суффикса "_Collection"
 	 */
 	public function type ()
 	{
-	    return substr(get_class($this), 10, -11);
+	    return substr (get_class ($this), 10, -11);
 	}
+	
 }
