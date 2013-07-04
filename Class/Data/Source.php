@@ -111,7 +111,9 @@ class Data_Source
         try {
             $result = $this->driver()->execute($query, $options);
         } catch (Exception $e) { 
-            throw new Exception('query error: ' . $this->query->translate(), 0, $e);
+            throw new Exception(
+                'query error: ' . $this->query->translate(), 0, $e
+            );
         }
         if ($result->touchedRows()) {
             $this->notifySignal($query, $result);
