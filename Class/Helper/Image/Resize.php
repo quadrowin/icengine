@@ -225,13 +225,13 @@ class Helper_Image_Resize
             } else {
                 if (isset($crop['offsetLeft'])) {
                     $offsetLeft = $crop['offsetLeft'];
-                    if ($crop['offsetLeft'] == 'center') {
+                    if ($crop['offsetLeft'] === 'center') {
                         $offsetLeft = ($fixWidth - $crop['width']) / 2;
                     }
                 }
                 if (isset($crop['offsetTop'])) {
                     $offsetTop = $crop['offsetTop'];
-                    if ($crop['offsetTop'] == 'center') {
+                    if ($crop['offsetTop'] === 'center') {
                         $offsetTop = ($fixHeight - $crop['height']) / 2;
                     }
                 }

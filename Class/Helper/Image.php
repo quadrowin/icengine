@@ -297,7 +297,9 @@ class Helper_Image
 			'largeUrl'		=> '',
 			'smallUrl'		=> '',
 			'originalUrl'	=> '',
-			'User__id'		=> User::id ()
+			'User__id'		=> User::id (),
+            'sort'          => 0,
+            'active'        => 1
 		));
 		$image->save ();
 		$dst_path = self::$config ['upload_path'];
