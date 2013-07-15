@@ -195,6 +195,11 @@ class Controller_Content_Abstract extends Controller_Abstract
 		}
 		$tc->component ('Image')->rejoin ($content);
 		$extending->afterSave ($this->_input);
+        $this->_output->send(array(
+            'data'  => array(
+                'redirectUrl'   => $referer
+            )
+        ));
 		Helper_Header::redirect ($referer);
 	}
 

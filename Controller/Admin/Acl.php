@@ -152,25 +152,21 @@ class Controller_Admin_Acl extends Controller_Abstract
 	}
 
 	/**
-	 * @desc Получаем список ролей
+	 * Получаем список ролей
 	 */
-	public function roll ()
+	public function roll()
 	{
-		if (!$this->_checkAccess ())
-		{
+		if (!$this->_checkAccess()) {
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
-
-		$role_names = $this->config ()->control_roles->asArray ();
-
-		$role_collection = Model_Collection_Manager::byQuery (
+		$roleNames = $this->config()->control_roles->asArray();
+		$roleCollection = Model_Collection_Manager::byQuery(
 			'Acl_Role',
-			Query::instance ()
-				->where ('name', $role_names)
+			Query::instance()
+				->where('name', $roleNames)
 		);
-
-		$this->_output->send (array (
-			'role_collection'	=> $role_collection
+		$this->_output->send(array(
+			'role_collection'	=> $roleCollection
 		));
 	}
 
