@@ -61,7 +61,7 @@ class Controller_Abstract
      * взято из $text.
      * @param bool|string $tpl [optional] Шаблон.
      */
-	protected function sendError($text, $method = null, $tpl = false)
+	public function sendError($text, $method = null, $tpl = false)
 	{
 		$this->output->send(array(
 			'error'	=> array(
