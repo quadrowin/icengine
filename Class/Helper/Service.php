@@ -4,10 +4,23 @@
  * Хелпер для работы с сервисами
  * 
  * @author morph
- * @Service("helperString")
+ * @Service("helperService")
  */
 class Helper_Service
 {
+    /**
+     * Получить название сервиса по названию класса
+     *
+     * @param string $name
+     * @return string
+     */
+    public function byClass($name)
+    {
+        $tmp = explode('_', $name);
+        $tmp[0] = strtolower($tmp[0]);
+        return implode('', $tmp);
+    }
+    
     /**
      * Привести имя, написаное вида className в Class_Name
      * 
