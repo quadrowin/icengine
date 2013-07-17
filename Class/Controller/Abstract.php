@@ -107,8 +107,7 @@ class Controller_Abstract
      */
     public function getAnnotations()
     {
-        return $this->getService('controllerManager')->annotationManager()
-            ->getAnnotation($this);
+        return $this->getService('helperAnnotation')->getAnnotation($this);
     }
 
     /**

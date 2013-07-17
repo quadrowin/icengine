@@ -40,7 +40,7 @@ class Query_Translator_Mysql_Alter_Table extends Query_Translator_Abstract
 	public function doRenderAlterTable(Query_Abstract $query)
 	{
 		$alterTable = $query->part(Query::ALTER_TABLE);
-		$table = strtolower($this->modelScheme->table(
+		$table = strtolower($this->modelScheme()->table(
             $alterTable[Query::NAME]
         ));
 		$sql = self::SQL_ALTER_TABLE . ' ' .
@@ -141,18 +141,28 @@ class Query_Translator_Mysql_Alter_Table extends Query_Translator_Abstract
 	 */
 	protected function renderAdd(Query_Abstract $query)
 	{
-		$alterTable = $query->part(Query::ALTER_TABLE);
-		if (empty($alterTable[Query::ADD])) {
-			return;
-		}
+		$alterTable = $query->part(Query::CREATE_TABLE);
 		$sql = self::SQL_ADD . ' ';
-        $add = $alterTable[Query::ADD];
-		$name = $add[Query::FIELD];
-		if (!empty($add[Query::ATTR])) {
-			$sql .= $this->renderField($name, $add[Query::ATTR]);
-		} elseif (!empty($add[Query::INDEX])) {
-			$sql .= $this->renderIndex($name, $add[Query::INDEX]);
-		}
+        $fields = isset($alterTable[Query::FIELD])
+            ? $alterTable[Query::FIELD] : array();
+        $indexes = isset($alterTable[Query::INDEX])
+            ? $alterTable[Query::INDEX] : array();
+        $result = array();
+        foreach ($fields as $field) {
+            if ($field[Query::TYPE] != Query::ADD) {
+                continue;
+            }
+            $name = $field[Query::FIELD];
+            $result[] = $this->renderField($name, $field[Query::ATTR]);
+        }
+        foreach ($indexes as $index) {
+            $name = $index[Query::NAME];
+            $result[] = $this->renderIndex($name, $index);
+        }
+        if (!$result) {
+            return null;
+        }
+        $sql .= implode($result, ',');
 		return $sql;
 	}
 
@@ -165,14 +175,25 @@ class Query_Translator_Mysql_Alter_Table extends Query_Translator_Abstract
 	protected function renderChange(Query_Abstract $query)
 	{
 		$alterTable = $query->part(Query::ALTER_TABLE);
-		if (empty($alterTable[Query::CHANGE])) {
+		if (empty($alterTable[Query::FIELD])) {
 			return;
 		}
-        $change = $alterTable[Query::CHANGE];
-		$name = $change[Query::FIELD];
+        $fields = $alterTable[Query::FIELD];
+        $result = array();
+        $sql = self::SQL_CHANGE . ' COLUMN ';
         $helper = $this->helper();
-		$sql = self::SQL_CHANGE . ' ' . $helper->escape($name) . ' ';
-		$sql .= $this->renderField($change[Query::NAME], $change[Query::ATTR]);
+        foreach ($fields as $field) {
+            if ($field[Query::TYPE] != Query::CHANGE) {
+                continue;
+            }
+            $name = $field[Query::NAME];
+            $result[] = $helper->escape($name) . ' ' .
+                $this->renderField($field[Query::FIELD], $field[Query::ATTR]);
+        }
+        if (!$result) {
+            return null;
+        }
+		$sql .= implode($result, ',');
 		return $sql;
 	}
 
@@ -185,18 +206,33 @@ class Query_Translator_Mysql_Alter_Table extends Query_Translator_Abstract
 	protected function renderDrop(Query_Abstract $query)
 	{
 		$alterTable = $query->part(Query::ALTER_TABLE);
-		if (empty($alterTable[Query::DROP])) {
-			return;
-		}
-        $drop = $alterTable[Query::DROP];
-		$name = $drop[Query::FIELD];
 		$sql = self::SQL_DROP . ' ';
-		if (!empty($drop[Query::INDEX])) {
-            $index = $drop[Query::INDEX];
-			$indexType = self::$indexTypes[$index[Query::TYPE]];
-			$sql .= ' ' . strtoupper($indexType) . ' ';
-		}
-		$sql .= $this->helper()->escape($name);
+        $fields = isset($alterTable[Query::FIELD])
+            ? $alterTable[Query::FIELD] : array();
+        $indexes = isset($alterTable[Query::INDEX])
+            ? $alterTable[Query::INDEX] : array();
+        $result = array();
+        $helper = $this->helper();
+        foreach ($fields as $field) {
+            if ($field[Query::TYPE] != Query::DROP) {
+                continue;
+            }
+            $name = $field[Query::FIELD];
+            $result[] = $helper->escape($name);
+        }
+        foreach ($indexes as $index) {
+            if ($index[Query::TYPE] != Query::DROP) {
+                continue;
+            }
+            $name = $index[Query::NAME];
+            $type = $index[Query::TYPE];
+            $indexType = self::$indexTypes[$type];
+            $result[] = strtoupper($indexType) . ' ' . $helper->escape($name); 
+        }
+        if (!$result) {
+            return null;
+        }
+		$sql .= implode(',', $result);
 		return $sql;
 	}
 

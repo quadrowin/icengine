@@ -18,7 +18,7 @@ class Controller_Annotation extends Controller_Abstract
             'Route', 'RouteImport', 'Cache', 'Schedule'
         ),
         'properties'        => array(
-            'Service', 'Generator'
+            'Service', 'Generator', 'Acl'
         )
     );
 
@@ -45,7 +45,7 @@ class Controller_Annotation extends Controller_Abstract
      * @Template(null)
      * @Validator("User_Cli")
      */
-    public function update($path, $verbose, $author, $context)
+    public function update($path, $name, $verbose, $author, $context)
     {
         $helperAnnotationUpdate = $this->getService('helperAnnotationUpdate');
         $classes = $helperAnnotationUpdate->getClasses($path);
@@ -53,6 +53,9 @@ class Controller_Annotation extends Controller_Abstract
         $delegeeData = array();
         $loader = IcEngine::getLoader();
         foreach ($classes as $i => $class) {
+            if ($name && $class['class'] != $name) {
+                continue;
+            }
             $loader->load($class['class']);
             if ($verbose) {
                 echo '#' . ($i + 1) . ' ' . $class['class'] .
@@ -68,6 +71,7 @@ class Controller_Annotation extends Controller_Abstract
         }
         foreach ($delegeeData as $delegeeName => $data) {
             $controllerName = 'Annotation_' . $delegeeName;
+            echo 'Run: ' . $delegeeName . PHP_EOL;
             $context->controllerManager->call(
                 $controllerName, 'update', array(
                     'data'      => $data,

@@ -22,6 +22,9 @@ class Controller_Annotation_Generator extends Controller_Abstract
             if (!$classReflection->hasProperty($propertyName)) {
                 continue;
             }
+            if (!isset($subData['Generator'])) {
+                continue;
+            }
             $needGetter = !is_array($subData['Generator']['data']) ||
                 in_array('get', $subData['Generator']['data'][0]);
             $needSetter = !is_array($subData['Generator']['data']) ||
