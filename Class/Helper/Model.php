@@ -51,4 +51,15 @@ class Helper_Model
     {
         return get_object_vars($model);
     }
+    
+    /**
+     * Сформировать путь до модели
+     * 
+     * @param string $modelName
+     * @return string
+     */
+    public function makePath($modelName)
+    {
+        return str_replace('_', '/', $modelName) . '.php';
+    }
 }
