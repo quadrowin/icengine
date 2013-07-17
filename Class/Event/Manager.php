@@ -124,7 +124,7 @@ class Event_Manager
 		if ($slots) {
 			foreach ($slots as $slot) {
                 $slotParams = $slot->getParams();
-				$slot->setParams(array_merge($data, $slotParams));
+				$slot->setParams(array_merge($slotParams, $data));
 				$slot->action();
                 $slot->setParams($slotParams);
 			}
