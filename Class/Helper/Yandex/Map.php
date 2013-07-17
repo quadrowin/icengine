@@ -7,10 +7,10 @@
  * @Service("helperYandexMap")
  */
 class Helper_Yandex_Map
-{
+{  
 	/**
 	 * Находит положение по названию (адресу)
-	 * 
+	 *
      * @param string $key
 	 * @param string $address
 	 * @param integer $limit
@@ -49,7 +49,7 @@ class Helper_Yandex_Map
 	/**
 	 * Фукнция возвращает расстояние между двумя точками.
 	 * Функция взята из YMaps.GeoCoordSystem
-	 * 
+	 *
      * @param array $A Координаты первой точки в градусах
 	 * $A [0] широта (longitude), $a долгота (latitude)
 	 * @param array $z
@@ -100,7 +100,7 @@ class Helper_Yandex_Map
 		$fdLambda = ($long1 - $long2) * $D2R;
         if ($fdLambda && $lat1 == $lat2) {
             return 0;
-        } 
+        }
 		$fdPhi = ($lat1 - $lat2) * $D2R;
 		$fPhimean = (($lat1 + $lat2) / 2.0) * $D2R;
 		$fTemp = 1 - $e2 * (pow(sin($fPhimean), 2));

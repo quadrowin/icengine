@@ -22,6 +22,13 @@ class Data_Source
 	 */
 	protected $driver;
 
+    /**
+     * Фильтры
+     *  
+     * @var array
+     */
+    protected $filters = array();
+    
 	/**
 	 * Текущий запрос
 	 *
@@ -43,6 +50,22 @@ class Data_Source
 	 */
 	private $result;
 
+    /**
+     * Применить фильтры
+     * 
+     * @param Query_Abstract $query
+     */
+    public function applyFilters(Query_Abstract $query)
+    {
+        foreach ($this->filters as $filter) {
+            $query = $filter->filter($query);
+            if (!$query) {
+                break;
+            }
+        }
+        return $query;
+    }
+    
 	/**
 	 * Проверяет доступность источника данных
 	 *
@@ -80,24 +103,20 @@ class Data_Source
 	public function execute(Query_Abstract $query, $options = null)
 	{
         $options = $options ?: new Query_Options();
+        $query = $this->applyFilters($query);
+        if (!$query) {
+            return $this;
+        }
         $this->setQuery($query);
-        $result = $this->driver()->execute($this->query, $options);
-
+        try {
+            $result = $this->driver()->execute($query, $options);
+        } catch (Exception $e) { 
+            throw new Exception(
+                'query error: ' . $this->query->translate(), 0, $e
+            );
+        }
         if ($result->touchedRows()) {
-            $tableName = $query->tableName();
-            $queryType = $query->type();
-            $signalName = 'Data_Source_' . ucfirst(strtolower($queryType));
-            $isTableRegistered = in_array($tableName, $this->registeredTables);
-            if ($queryType != Query::SELECT || $isTableRegistered) {
-                $serviceLocator = IcEngine::serviceLocator();
-                $eventManager = $serviceLocator->getService('eventManager');
-                $signal = $eventManager->getSignal($signalName);
-                $signal->setData(array(
-                    'result'    => $result,
-                    'table'     => $tableName
-                ));
-                $signal->notify();
-            }
+            $this->notifySignal($query, $result);
         }
 		$this->setResult($result);
 		return $this;
@@ -123,6 +142,16 @@ class Data_Source
 		return $this->driver;
 	}
 
+    /**
+     * Получить фильтры
+     * 
+     * @return array
+     */
+    public function getFilters()
+    {
+        return $this->filters;
+    }
+    
 	/**
 	 * Возвращает запрос
 	 *
@@ -163,6 +192,30 @@ class Data_Source
     }
 
     /**
+     * Нотификация сигнала
+     * 
+     * @param Query_Abstract $query
+     * @param Query_Result $result
+     */
+    public function notifySignal(Query_Abstract $query, Query_Result $result)
+    {
+        $tableName = $query->tableName();
+        $queryType = $query->type();
+        $signalName = 'Data_Source_' . ucfirst(strtolower($queryType));
+        $isTableRegistered = in_array($tableName, $this->registeredTables);
+        if ($queryType != Query::SELECT || $isTableRegistered) {
+            $serviceLocator = IcEngine::serviceLocator();
+            $eventManager = $serviceLocator->getService('eventManager');
+            $signal = $eventManager->getSignal($signalName);
+            $signal->setData(array(
+                'result'    => $result,
+                'table'     => $tableName
+            ));
+            $signal->notify();
+        }
+    }
+    
+    /**
      * Зарегистировать таблицу
      *
      * @param mixed $table
@@ -188,18 +241,30 @@ class Data_Source
 	 * Устанавливает драйвер
 	 *
      * @param Data_Driver_Abstract $driver
+     * @return Data_Source
 	 */
 	public function setDataDriver(Data_Driver_Abstract $driver)
 	{
 		$this->driver = $driver;
 		return $this;
 	}
+    
+    /**
+     * 
+     * @param type $filters
+     * @return Data_Source
+     */
+    public function setFilters($filters)
+    {
+        $this->filters = $filters;
+        return $this;
+    }
 
     /**
 	 * Устанавливает запрос
 	 *
      * @param Query_Abstract $query
-	 * @return Data_Source_Abstract
+	 * @return Data_Source
 	 */
 	public function setQuery(Query_Abstract $query)
 	{
@@ -211,7 +276,7 @@ class Data_Source
 	 * Устанавливает результат запроса.
 	 *
      * @param Query_Result $result
-	 * @return Data_Source_Abstract
+	 * @return Data_Source
 	 */
 	public function setResult(Query_Result $result)
 	{

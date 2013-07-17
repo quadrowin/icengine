@@ -77,6 +77,11 @@ class Model_Proxy extends Model
 	    return $this;
 	}
 
+    public function scheme()
+    {
+        return $this->getService('modelScheme')->scheme($this->modelName);
+    }
+
     /**
      * @inheritdoc
      */

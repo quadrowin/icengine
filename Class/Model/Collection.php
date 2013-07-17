@@ -8,6 +8,24 @@
 class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 {
     /**
+	 * @desc Добавленные элементы
+	 * @var string
+	 */
+	const DIFF_EDIT_ADD		= 'added';
+
+	/**
+	 * @desc Неизмененные элементы
+	 * @var string
+	 */
+	const DIFF_EDIT_NO		= 'not_changed';
+
+	/**
+	 * @desc Удаленные элементы
+	 * @var string
+	 */
+	const DIFF_EDIT_DEL		= 'removed';
+    
+    /**
      * Функции, которые будут применены после загрузки
      *
      * @var array
@@ -123,13 +141,13 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		return $result;
 	}
 
-	/**
-	 * Добавить модель и не только в коллекцию
+    /**
+     * Добавить модель и не только в коллекцию
      *
-	 * @param Model|Model_Collection|array $item
-	 * @return Model_Collection
-	 * @throws Zend_Exception
-	 */
+     * @param Model|Model_Collection|array $item
+     * @throws Exception
+     * @return Model_Collection
+     */
 	public function add($item)
 	{
 		if ($item instanceof Model) {
@@ -146,12 +164,12 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		return $this;
 	}
 
-	/**
-	 * Добавление нескольких опций к коллекции аналогично
+    /**
+     * Добавление нескольких опций к коллекции аналогично
      *
-	 * @param $_
-	 * @return Model_Collection Эта коллекция
-	 */
+     * @internal param $_
+     * @return Model_Collection Эта коллекция
+     */
 	public function addOptions()
 	{
 		$options = func_get_args();
@@ -194,8 +212,8 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		$query = $this->query();
         $args = func_get_args();
 		$modelName = $this->table();
-        $scheme = $modelScheme->scheme($modelName);
-        $modelFields = array_keys($scheme->fields->asArray());
+        $schemeConfig = $modelScheme->scheme($modelName);
+        $modelFields = array_keys($schemeConfig->fields->asArray());
         $modelFieldsFlipped = array_flip($modelFields);
         if (!$args || (count($args) == 1 && empty($args[0]))) {
 			$query->select($modelName . '.*');
@@ -222,7 +240,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		if ($schemeOptions) {
 			$this->addOptions($schemeOptions);
 		}
-        $optionManager = $this->getService('collectionOptionManager');
+        $optionManager = $this->getService('modelOptionManager');
         $optionManager->executeBefore($this, $this->options);
 		$this->lastQuery = $query;
     }
@@ -467,6 +485,20 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
         return $this->helper;
     }
 
+    /**
+     * Получить/изменить значение поля isRaw
+     * 
+     * @param boolean $value
+     * @return mixed
+     */
+    public function isRaw($value = null)
+    {
+        if (is_null($value)) {
+            return $this->isRaw;
+        }
+        $this->isRaw = $value;
+    }
+    
 	/**
 	 * Возвращает модель из коллекции
      *
@@ -496,7 +528,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function &items()
 	{
-		if (!is_array($this->items)) {
+		if (is_null($this->items)) {
 			$this->load();
 		}
 		return $this->items;
@@ -567,18 +599,22 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function load($columns = array())
 	{
-            if (is_array($this->items)) {
-                return $this;
+        if ($this->items) {
+            return $this;
+        }
+        if ($this->isRaw) {
+            $this->raw();
+        } else {
+            $this->beforeLoad($columns);
+            $query = $this->lastQuery;
+            $collectionManager = $this->getService('collectionManager');
+            $optionManager = $this->getService('modelOptionManager');
+            $collectionManager->load($this, $query);
+            $optionManager->executeAfter($this, $this->options);
+            if ($this->paginator) {
+                $this->paginator->total = $this->data['foundRows'];
             }
-		$this->beforeLoad($columns);
-        $query = $this->lastQuery;
-        $collectionManager = $this->getService('collectionManager');
-        $optionManager = $this->getService('collectionOptionManager');
-        $collectionManager->load($this, $query);
-        $optionManager->executeAfter($this, $this->options);
-		if ($this->paginator) {
-			$this->paginator->total = $this->data['foundRows'];
-		}
+        }
 		return $this;
 	}
 
@@ -638,10 +674,11 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		unset($this->items[$offset]);
 	}
 
-	/**
-	 * @param offset
-	 * @return Model
-	 */
+    /**
+     * @param mixed $offset
+     * @internal param $offset
+     * @return Model
+     */
 	public function offsetGet($offset)
 	{
 		return $this->item($offset);
@@ -660,11 +697,12 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		return $this->query;
 	}
 
-	/**
-	 * Получить результат запроса коллекции
+    /**
+     * Получить результат запроса коллекции
      *
-	 * @return Query_Result
-	 */
+     * @param null $result
+     * @return Query_Result
+     */
 	public function queryResult($result = null)
 	{
 		if ($result) {
@@ -686,31 +724,18 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
     public function raw($columns = array())
     {
         $helperArray = $this->getService('helperArray');
-        $result = array();
 		$keyField = $this->keyField();
         $this->isRaw = true;
-        if ($this->items) {
-            if (is_array($this->items[0])) {
-                $result = $helperArray->column(
-					$this->items, $columns, $keyField
-				);
-            } else {
-                $fullResult = array();
-                foreach ($this->items as $item) {
-                    $fullResult[] = $item->asRow();
-                }
-                $result = $helperArray->column(
-					$fullResult, $columns, $keyField
-				);
-            }
-        } else {
+        $isNew = false;
+        $optionManager = $this->getService('modelOptionManager');
+        if (is_null($this->items)) {
+            $isNew = true;
             if ($columns) {
                 call_user_func_array(array($this, 'beforeLoad'), $columns);
             } else {
                 $this->beforeLoad(array());
             }
             $collectionManager = $this->getService('collectionManager');
-            $optionManager = $this->getService('collectionOptionManager');
             $pack = $collectionManager->callDelegee(
                 $this, $this->lastQuery
             );
@@ -730,11 +755,25 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
                     $this->items = $pack['items'];
                 }
             }
-            foreach ($this->items as $key => $data) {
-                $this->items[$key]['data'] = new ArrayIterator(
-                    isset($data['data']) ? $data['data'] : array()
-                );
+        } elseif (!$this->items) {
+            return array();
+        } else {
+            $items = array();
+            foreach ($this->items as $item) {
+                if (!isset($item[$keyField])) {
+                    $items[] = $item;
+                } else {
+                    $items[$item[$keyField]] = $item;
+                }
             }
+            $this->items = $items;
+        }
+        foreach ($this->items as $key => $data) {
+            $this->items[$key]['data'] = new ArrayIterator(
+                isset($data['data']) ? (array) $data['data'] : array()
+            );
+        }
+        if ($isNew) {
             $optionManager->executeAfter($this, $this->options);
             if ($this->paginator) {
                 $this->paginator->total = $this->data('foundRows');
@@ -744,17 +783,29 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
                     call_user_func($method, $this);
                 }
             }
-            if (!$columns) {
-                $modelScheme = $this->getService('modelScheme');
-                $scheme = $modelScheme->scheme($this->modelName());
-                if ($scheme->fields) {
-                    $columns = array_keys($scheme->fields->asArray());
-                }
+        } 
+        if (!$columns) {
+            $modelScheme = $this->getService('modelScheme');
+            $scheme = $modelScheme->scheme($this->modelName());
+            if ($scheme->fields) {
+                $columns = array_keys($scheme->fields->asArray());
             }
-            $result = $helperArray->column($this->items, $columns, $keyField);
+        }
+        if (count($columns) == 1) {
+            $columnName = reset($columns);
+            $keyField = $columnName;
+        } elseif ($columns && !in_array($keyField, $columns)) {
+            $keyField = reset($columns);
+        }
+        $result = $helperArray->column($this->items, $columns, $keyField);
+        if (count($columns) == 1) {
+            foreach ($result as $i => $row) {
+                unset($result[$i]);
+                $result[$row] = array($columnName => $row);
+            }
         }
         foreach ($this->items as $item) {
-            if (!isset($item['data'])) {
+            if (!is_array($this->items) || !isset($item['data'])) {
                 continue;
             }
             if (!isset($result[$item[$keyField]]['data'])) {
@@ -832,12 +883,12 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
         return $this;
 	}
 
-	/**
-	 * Меняет поля модели
+    /**
+     * Меняет поля модели
      *
-	 * @param mixed (string,sting|array<string>) $fields
-	 * @return Model_Collection
-	 */
+     * @internal param mixed $fields
+     * @return Model_Collection
+     */
 	public function set()
 	{
 		$args = func_get_args();
@@ -883,6 +934,16 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
     {
         $this->modelName = $modelName;
     }
+    
+    /**
+     * Изменить опшины
+     * 
+     * @param array $options
+     */
+    public function setOptions($options)
+    {
+        $this->options = $options;
+    }
 
 	/**
 	 * Изменить паджинатор коллекции
@@ -906,6 +967,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function setQuery(Query_Abstract $query)
 	{
+        $this->lastQuery = null;
 		$this->query = $query;
 	}
 
@@ -955,13 +1017,13 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		return $this;
 	}
 
-	/**
-	 * Сортировка коллекции
+    /**
+     * Сортировка коллекции
      *
-	 * @param string $fields Список полей для сортировки.
-	 * Например: "id", "id DESC", "id, rating DESC".
-	 * @return Model_Collection
-	 */
+     * @internal param string $fields Список полей для сортировки.
+     * Например: "id", "id DESC", "id, rating DESC".
+     * @return Model_Collection
+     */
 	public function sort()
 	{
 		$items = &$this->items();

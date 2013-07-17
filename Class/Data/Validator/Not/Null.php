@@ -10,9 +10,8 @@ class Data_Validator_Not_Null extends Data_Validator_Abstract
 	/**
 	 * @inheritdoc
 	 */
-	public function validate($data)
+	public function validate($data, $value = true)
 	{
-		return $data !== null;
+		return !is_null($data);
 	}
-	
 }

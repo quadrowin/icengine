@@ -23,22 +23,22 @@ class Data_Source_Manager extends Manager_Abstract
 		/**
 		 * Название источника, вместо которого будет браться название домена.
 		 * Название домена берется из $SERVER ['HTTP_HOST'].
-		 * 
+		 *
          * @var string
 		 */
 		'sourceDomainAlias'	=> 'domain',
-        
+
 		/**
 		 * Название источника, который будет использован вместо
 		 * имени домена, когда невозможно получить $SERVER ['HTTP_HOST'].
-		 * 
+		 *
          * @var string
 		 */
 		'emptyDomainSource'	=> 'default',
-        
+
 		/**
 		 * Массив источников
-		 * 
+		 *
          * @var array
 		 */
 		'sources'	=> array(
@@ -61,7 +61,7 @@ class Data_Source_Manager extends Manager_Abstract
 	{
 		$config = $this->config();
 		if ($config['sourceDomainAlias'] == $name) {
-			$name = isset ($_SERVER['HTTP_HOST'])
+			$name = isset($_SERVER['HTTP_HOST'])
                 ? $_SERVER['HTTP_HOST'] : $config['emptyDomainSource'];
 		}
         if (isset($this->sources[$name])) {
@@ -82,7 +82,7 @@ class Data_Source_Manager extends Manager_Abstract
             return $source;
         }
         if (!$sourceConfig) {
-            $sourceConfig = array();
+            $sourceConfig = $config['sources'][$config['emptyDomainSource']];
         }
         $source = new Data_Source();
         $source->setConfig($sourceConfig);
@@ -116,7 +116,7 @@ class Data_Source_Manager extends Manager_Abstract
     {
         $sourceConfig = $source->getConfig();
         if (empty($sourceConfig['driver'])) {
-            return;
+            return null;
         }
         $driverManager = $this->getService('dataDriverManager');
         $driverConfig = isset($sourceConfig['options'])
@@ -126,7 +126,7 @@ class Data_Source_Manager extends Manager_Abstract
         );
         $source->setDataDriver($currentDriver);
     }
-    
+
     /**
      * Изменить источник данных по имени
      *

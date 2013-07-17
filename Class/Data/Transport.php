@@ -8,6 +8,22 @@
 class Data_Transport implements ArrayAccess
 {
     /**
+     * Входящие фильтры (для метода receive)
+     * 
+     * @var array
+     * @Generator
+     */
+    protected $inputFilters = array();
+    
+    /**
+     * Выходящие фильтры
+     * 
+     * @var array
+     * @Generator
+     */
+    protected $outputFilters = array();
+    
+    /**
      * Поставщики данных.
      *
      * @var array <Data_Provider_Abstract>
@@ -33,6 +49,21 @@ class Data_Transport implements ArrayAccess
 		return $this;
 	}
 
+    /**
+     * Применить фильтры
+     * 
+     * @param array $filters
+     * @param mixed $data
+     * @return mixed
+     */
+    public function applyFilters($filters, $data)
+    {
+        foreach ($filters as $filter) {
+            $data = $filter->filter($data);
+        }
+        return $data;
+    }
+    
 	/**
 	 * Начинает новую транзакцию
      *
@@ -142,6 +173,9 @@ class Data_Transport implements ArrayAccess
 			foreach ($keys as $key) {
 				$data = null;
 				$chunk = isset($buffer[$key]) ? $buffer[$key] : null;
+                if ($this->inputFilters && !is_null($chunk)) {
+                    $chunk = $this->applyFilters($this->inputFilters, $chunk);
+                }
 				$results[] = $chunk;
 			}
 		} else {
@@ -152,7 +186,9 @@ class Data_Transport implements ArrayAccess
 					$provider = $this->providers[$j];
 					$chunk = $provider->get($keys[$i]);
                     if (!is_null($chunk)) {
-                        $data = $chunk;
+                        $data = $this->inputFilters 
+                            ? $this->applyFilters($this->inputFilters, $chunk)
+                            : $chunk;
                     }
 				}
 				$results[] = $data;
@@ -165,20 +201,23 @@ class Data_Transport implements ArrayAccess
 	 * Получает все значения из всех провайдеров.
 	 * Не рекомендуется использовать.
      *
+     * @param boolean $raw
 	 * @return array Массив пар (ключ => значение)
 	 */
-	public function receiveAll ()
+	public function receiveAll($raw = false)
 	{
 		if ($this->transactions) {
 			return end($this->transactions)->buffer();
 		}
 		$result = array ();
 		foreach ($this->providers as $provider){
-			$result = array_merge(
-				$result,
-				$provider->getAll()
-			);
+			$result = array_merge($result, $provider->getAll());
 		}
+        if ($this->inputFilters && !$raw) {
+            foreach ($result as &$value) {
+                $value = $this->applyFilters($this->inputFilters, $value);
+            }
+        }
 		return $result;
 	}
 
@@ -227,6 +266,11 @@ class Data_Transport implements ArrayAccess
 	public function send($key, $data = null, $providerIndex = null)
 	{
 		if ($this->transactions) {
+            if ($this->outputFilters) {
+                foreach ($data as &$value) {
+                    $value = $this->applyFilters($this->outputFilters, $value);
+                }
+            }
 			$this->currentTransaction()->send($key, $data);
 		} else {
             $args = func_get_args();
@@ -257,13 +301,20 @@ class Data_Transport implements ArrayAccess
 			$key = array($key => $data);
 		}
         $count = $count = sizeof($this->providers);
-		foreach ($key as $k => $v) {
-            if($v){
+		foreach ($key as $currentKey => $currentValue) {
+            if (!is_null($currentValue)) {
+                if ($this->outputFilters) {
+                    $currentValue = $this->applyFilters(
+                        $this->outputFilters, $currentValue
+                    );
+                }
                 if ($providerIndex) {
-                    $this->providers[$providerIndex]->set($k, $v);
+                    $this->providers[$providerIndex]->set(
+                        $currentKey, $currentValue
+                    );
                 } else {
                     for ($i = 0; $i < $count; $i++){
-                        $this->providers[$i]->set($k, $v);
+                        $this->providers[$i]->set($currentKey, $currentValue);
                     }
                 }
             }
@@ -282,4 +333,46 @@ class Data_Transport implements ArrayAccess
 		$this->providers = $providers;
 		return $this;
 	}
+    
+    /**
+     * Getter for "inputFilters"
+     *
+     * @return array
+     */
+    public function getInputFilters()
+    {
+        return $this->inputFilters;
+    }
+        
+    /**
+     * Setter for "inputFilters"
+     *
+     * @param array inputFilters
+     */
+    public function setInputFilters($inputFilters)
+    {
+        $this->inputFilters = $inputFilters;
+    }
+    
+    
+    /**
+     * Getter for "outputFilters"
+     *
+     * @return array
+     */
+    public function getOutputFilters()
+    {
+        return $this->outputFilters;
+    }
+        
+    /**
+     * Setter for "outputFilters"
+     *
+     * @param array outputFilters
+     */
+    public function setOutputFilters($outputFilters)
+    {
+        $this->outputFilters = $outputFilters;
+    }
+    
 }

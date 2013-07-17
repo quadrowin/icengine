@@ -33,7 +33,7 @@ class Model_Mapper extends Manager_Abstract
      */
     public function scheme($model)
     {
-        $modelName = $model->modelName();
+        $modelName = is_object($model) ? $model->modelName() : $model; 
         $references = isset($this->references[$modelName])
             ? $this->references[$modelName]
             : $this->getReferences($modelName);

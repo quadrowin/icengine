@@ -272,19 +272,27 @@ class Model_Mapper_Reference_State_ManyToMany extends
     /**
      * Обновить данные связи
      * 
-     * @param Model $model
      * @param array $data
+     * @param Model $model
      * @return Model_Mapper_Reference_State_Abstract
      */
-    public function update($model, $data)
+    public function update($data, $model = null)
     {
         $queryBuilder = $this->getService('query');
         $dds = $this->getService('dds');
+        if ($model) {
+            $modelId = $model->key();
+        } else {
+            if (!$this->collection) {
+                $this->load();
+            }
+            $modelId = $this->collection->column($this->dto->JoinColumn['on']);
+        }
         $query = $queryBuilder
             ->update($this->dto->JoinTable)
             ->values($data)
             ->where($this->dto->JoinColumn[0], $this->model->key())
-            ->where($this->dto->JoinColumn['on'], $model->key());
+            ->where($this->dto->JoinColumn['on'], $modelId);
         $dds->execute($query);
         return $this;
     }

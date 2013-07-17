@@ -27,21 +27,21 @@ class Data_Driver_Mongo extends Data_Driver_Abstract
 		'charset'	=> 'utf8',
 		'options'	=> array()
 	);
-    
+
     /**
 	 * Соединение с монго
      *
 	 * @var Mongo
 	 */
 	protected $handler;
-    
+
     /**
      * Id последнего созданного документа
      *
      * @var integer
      */
 	protected $insertId = null;
-    
+
     /**
      * Количество документов в полученной коллекции
      *
@@ -55,11 +55,9 @@ class Data_Driver_Mongo extends Data_Driver_Abstract
 	 * @var array
 	 */
 	protected $query;
-    
+
     /**
-	 * ОбMongoработчики по видам запросов
-     *
-	 * @var array
+	 * @inheritdoc
 	 */
 	protected $queryMethods = array (
 		Query::SELECT	=> 'executeSelect',
@@ -75,13 +73,6 @@ class Data_Driver_Mongo extends Data_Driver_Abstract
      * @var Query_Result
      */
 	protected $result = null;
-
-    /**
-     * Количество затронутых документов
-     *
-     * @var integer
-     */
-	protected $touchedRows = 0;
 
 	/**
 	 * Запрос на удаление
@@ -103,7 +94,7 @@ class Data_Driver_Mongo extends Data_Driver_Abstract
 
 	/**
 	 * Запрос на вставку
-     * 
+     *
      * @param Query_Abstract $query
 	 * @param Query_Options $options
 	 */
@@ -130,7 +121,7 @@ class Data_Driver_Mongo extends Data_Driver_Abstract
 
 	/**
 	 * Запрос на выборку
-     * 
+     *
      * @param Query_Abstract $query
 	 * @param Query_Options $options
 	 */
@@ -171,8 +162,8 @@ class Data_Driver_Mongo extends Data_Driver_Abstract
 	 * @param Query $query
 	 * @param Query_Options $options
 	 */
-	protected function executeShow(Query_Abstract $query, 
-        Query_Options $options) 
+	protected function executeShow(Query_Abstract $query,
+        Query_Options $options)
     {
 		$show = strtoupper($this->query['show']);
 		if ($show == 'DELETE_INDEXES') {
@@ -205,7 +196,7 @@ class Data_Driver_Mongo extends Data_Driver_Abstract
 	 * @param Query_Options $options
 	 * @return void
 	 */
-	protected function executeUpdate(Query_Abstract $query, 
+	protected function executeUpdate(Query_Abstract $query,
         Query_Options $options)
 	{
 		$this->query['criteria']['_id'] = $this->normalizeId(
@@ -272,8 +263,7 @@ class Data_Driver_Mongo extends Data_Driver_Abstract
 		if (!$options) {
 			$options = $this->getDefaultOptions();
 		}
-		$m = $this->queryMethods[$query->type()];
-		$this->{$m}($query, $options);
+		$this->callMethod($query, $options);
 		$finish = microtime(true);
 		return new Query_Result(array(
 			'error'			=> '',

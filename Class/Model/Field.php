@@ -159,6 +159,16 @@ class Model_Field
 		$this->attrs[$attr] = $value;
 		return $this;
 	}
+    
+    /**
+     * Изменить все атрибуты
+     * 
+     * @param array $attrs
+     */
+    public function setAttrs($attrs)
+    {
+        $this->attrs = $attrs;
+    }
 
 	/**
 	 * Устанавливает атрибут поля "AUTO_INCREMENT"

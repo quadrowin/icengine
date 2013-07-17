@@ -155,8 +155,13 @@ var Helper_Form = {
 				//можно на наследование переделать всё это, вверху input ещё
 				if (check && this.tagName.toLowerCase () == 'textarea') {
 					if ($(this).attr('required')) {
+                        var placeholder = '';
+                        if ($(this).attr('placeholder')) {
+                            placeholder = $(this).attr('placeholder');
+                        }
 						if ($(this).is(':visible')) {
-							if ($(this).val() == '') {
+                            var thisValue = $(this).val();
+							if (thisValue == '' || thisValue == placeholder) {
 								$(this).addClass('errorRequired');
 								errorRequired = true;
 							} else {
@@ -180,15 +185,14 @@ var Helper_Form = {
 					}
 				}
 				if (this.tagName.toLowerCase() == 'select') {
-					if($(this).attr('required')) {
-						value = $(this).val();
-						if (!value || value == 0) {
-							$(this).addClass('errorRequired');
-							errorRequired = true;
-						} else {
-							$(this).removeClass('errorRequired');
-						}
-					}
+                    value = $(this).val();
+                    if (!value || value == 0) {
+                        $(this).addClass('errorRequired');
+                        errorRequired = true;
+                    } else {
+                        $(this).removeClass('errorRequired');
+                        data[this.name] = value;
+                    }
 				}
 				if ($(this).attr ('placeholder') == $(this).val ()) {
 					_setValue (this.name, '');
@@ -211,7 +215,5 @@ var Helper_Form = {
 		var result;
 		result = this.asArray ($form, filter, true);
 		return !result['errorRequired'] ? result : false;
-	},
-
-
+	}
 };

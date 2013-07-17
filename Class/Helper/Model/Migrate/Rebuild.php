@@ -204,46 +204,41 @@ class Helper_Model_Migrate_Rebuild extends Helper_Abstract
      */
     public function rewriteScheme($modelName, $dto)
     {
-        $scheme = $this->getService('modelScheme')->scheme($modelName);
+        $scheme = $this->getService('configManager')->get(
+            'Model_Mapper_' . $modelName
+        );
         $fields = $this->fieldsToScheme($dto->fields);
         $indexes = $this->indexesToScheme($dto->indexes);
-        $references = $dto->references;
+        $helperConverter = $this->getService('helperConverter');
+        $references = $dto->references ?: $scheme->references;
         $author = null;
         $comment = null;
-        $admin = array();
-        $languageScheme = array();
-        $createScheme = array();
-        $helperConverter = $this->getService('helperConverter');
-        if ($scheme) {
+        static $convertingFields = array(
+            'admin', 'languageScheme', 'createScheme', 'signals'
+        );
+        $dataConverted = array();
+        if ($scheme->count()) {
             $author = $scheme->author;
             $comment = $scheme->comment ?:
                 ($dto->info && !empty($dto->info['Comment'])
                     ? $dto->info['Comment'] : '');
-            $references = $references ?:
-                ($scheme->references ? $helperConverter->arrayToString(
-                    $scheme->references->__toArray()
-                ) : null);
-            $admin = $scheme->admin
-                ? $helperConverter->arrayToString($scheme->admin->__toArray())
-                : null;
-            $languageScheme = $scheme->languageScheme
-                ? $helperConverter->arrayToString(
-                    $scheme->languageScheme->__toArray()
-                ) : null;
-            $createScheme = $scheme->createScheme
-                ? $helperConverter->arrayToString(
-                    $scheme->createScheme->__toArray()
-                ) : null;
+            foreach ($convertingFields as $field) {
+                $key = ucfirst($field);
+                $dataConverted[$key] = $scheme[$field]
+                     ? $helperConverter->arrayToString(
+                         $scheme[$field]->__toArray()
+                     ) : null;
+            }
         }
         $dto = $this->getService('dto')->newInstance('Model_Scheme')
             ->setFields($fields)
             ->setIndexes($indexes)
-            ->setAuthor($author)
-            ->setComment($comment)
             ->setReferences($references)
-            ->setAdmin($admin)
-            ->setLanguageScheme($languageScheme)
-            ->setCreateScheme($createScheme);
+            ->setAuthor($author)
+            ->setComment($comment);
+        foreach ($dataConverted as $key => $data) {
+            call_user_func(array($dto, 'set' . $key), $data);
+        }
         $this->getService('helperModelScheme')->create($modelName, $dto);
     }
 }

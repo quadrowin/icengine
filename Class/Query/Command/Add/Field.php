@@ -25,8 +25,9 @@ class Query_Command_Add_Field extends Query_Command_Abstract
         $field = $data[0];
         $name = $field->getName();
         $addField = array(
-            Query::FIELD => $name,
-            Query::ATTR => $field->getAttrs()
+            Query::TYPE     => Query::ADD,
+            Query::FIELD    => $name,
+            Query::ATTR     => $field->getAttrs()
         );
         $this->data = array(Query::FIELD => array($name => $addField));
         return $this;

@@ -80,9 +80,8 @@ class Helper_Annotation_Update extends Helper_Abstract
      */
     public function getDelegees($delegees, $className, &$delegeeData, $filename)
     {
-        $annotationManager = $this->getServiceLocator()
-            ->getSource()->getAnnotationManager();
-        $annotation = $annotationManager->getAnnotation($className)
+        $annotation = $this->getService('helperAnnotation')
+            ->getAnnotation($className)
             ->getData();
         $moduleName = !empty($annotation['class']['Module'])
             ? reset($annotation['class']['Module'][0]) : null;
@@ -120,7 +119,7 @@ class Helper_Annotation_Update extends Helper_Abstract
                                 continue;
                             }
                             $delegeeData[$delegee][$key][$subAnnotationName] =
-                                array(
+                               array( 
                                     'class'     => $className,
                                     'part'      => $annotationName,
                                     'module'    => $moduleName,
@@ -132,6 +131,6 @@ class Helper_Annotation_Update extends Helper_Abstract
                 }
             }
         }
-        return $delegeeData;
+        return $delegeeData;   
     }
 }

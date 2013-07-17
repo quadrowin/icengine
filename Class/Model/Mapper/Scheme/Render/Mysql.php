@@ -13,10 +13,8 @@ class Model_Mapper_Scheme_Render_Mysql extends
      * @inheritdoc
 	 * @see Model_Mapper_Scheme_Render_View_Abstract::render
 	 */
-	public function render($scheme)
+	public function render($modelName)
 	{
-		$model = $scheme->getModel();
-		$modelName = is_string($model) ? $model : $model->modelName();
         $serviceLocator = IcEngine::serviceLocator();
 		$modelConfig = $serviceLocator->getService('configManager')->get(
             'Model_Mapper_' . $modelName

@@ -12,6 +12,7 @@ class Helper_Model_Create extends Helper_Abstract
      * Хелпер по генерации кода
      *
      * @Inject("helperCodeGenerator")
+     * @Generator
      * @var Helper_Code_Generator
      */
     protected $helperCodeGenerator;
@@ -65,4 +66,25 @@ class Helper_Model_Create extends Helper_Abstract
     {
         $this->helperCodeGenerator = $helperCodeGenerator;
     }
+    
+    /**
+     * Getter for "helperCodeGenerator"
+     *
+     * @return Helper_Code_Generator
+     */
+    public function getHelperCodeGenerator()
+    {
+        return $this->helperCodeGenerator;
+    }
+        
+    /**
+     * Setter for "helperCodeGenerator"
+     *
+     * @param Helper_Code_Generator helperCodeGenerator
+     */
+    public function setHelperModelAclConfig($helperCodeGenerator)
+    {
+        $this->helperCodeGenerator = $helperCodeGenerator;
+    }
+    
 }
