@@ -24,42 +24,42 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
 		'database'	=> 'unknown',
 		'charset'	=> 'utf8'
 	);
-    
+
     /**
      * Количество затронутых последним запросом кортежей
      *
      * @var integer
      */
 	protected $affectedRows = 0;
-    
+
     /**
      * Код ошибки
      *
      * @var integer
      */
 	protected $errno = 0;
-    
+
     /**
      * Сообщение об ошибке
      *
      * @var string
      */
     protected $error = '';
-    
+
     /**
      * Количество полученных рядов (игнорируя лимит)
      *
      * @var integer
      */
 	protected $foundRows = 0;
-    
+
     /**
      * id последней добавленной сущности
      *
      * @var mixed
      */
 	protected $insertId = null;
-    
+
 	/**
 	 * Экземпляр mysqli
 	 *
@@ -73,14 +73,14 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
      * @var integer
      */
 	protected $numRows = 0;
-    
+
 	/**
 	 * Последний оттранслированный запрос.
 	 *
      * @var string
 	 */
 	protected $sql = '';
-    
+
     /**
      * Опции маппера
      *
@@ -89,9 +89,7 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
 	protected $options;
 
 	/**
-	 * Обработчики по видам запросов.
-	 *
-     * @var array
+	 * @inheritdoc
 	 */
 	protected $queryMethods = array(
 		Query::SELECT	=> 'executeSelect',
@@ -154,13 +152,15 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
 	{
 		$result = $this->handler->query($this->sql);
         if (!$result) {
-            return null;
+            $this->errno = -1;
+            $this->error = 'Incorrect result';
+            return array();
         }
         $error = $result->errorInfo();
 		if (!empty($error[1])) {
 			$this->errno = $error[1];
 			$this->error = $error[2];
-			return null;
+			return array();
 		}
 		$rows = $result->fetchAll(PDO::FETCH_ASSOC);
         $this->numRows = count($rows);
@@ -172,12 +172,13 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
 		return $rows;
 	}
 
-	/**
-	 * Подключение к БД
-	 *
+    /**
+     * Подключение к БД
+     *
      * @param Objective|array $config [optional]
+     * @throws Exception
      * @return \mysqli
-	 */
+     */
 	public function connect($config = null)
 	{
 		if ($this->handler) {
@@ -186,16 +187,18 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
 		if ($config) {
 			$this->setOption($config);
 		}
+        $dsn = 'mysql:dbname=' . $this->connectionOptions['database'] .
+            ';host=' . $this->connectionOptions['host'];
+
         try {
-            $dsn = 'mysql:dbname=' . $this->connectionOptions['database'] .
-                ';host=' . $this->connectionOptions['host'];
             $this->handler = new \PDO(
                 $dsn,
                 $this->connectionOptions['username'],
                 $this->connectionOptions['password']
             );
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode());
+            $this->handler->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        } catch (PDOException $e) {
+            throw new Exception('connect failed: ' . $dsn, 0, $e);
         }
         $error = $this->handler->errorInfo();
         if ($error[1]) {
@@ -231,13 +234,9 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
 		if (!$options) {
 			$options = $this->getDefaultOptions();
 		}
-		$m = $this->queryMethods[$query->type()];
-		$result = $this->{$m}($query, $options);
+		$result = $this->callMethod($query, $options);
 		if ($this->errno) {
-			throw new Exception(
-				$this->error . "\n" . $this->sql,
-				$this->errno
-			);
+			throw new Exception($this->error . "\n" . $this->sql, $this->errno);
 		}
 		if (!$this->errno && is_null($result)) {
 			$result = array();
@@ -251,7 +250,8 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
 			'finishedAt'	=> $finish,
 			'foundRows'		=> $this->foundRows,
 			'result'		=> $result,
-			'touchedRows'	=> $this->numRows + $this->affectedRows,
+			'touchedRows'	=> $this->touchedRows ?:
+                $this->numRows + $this->affectedRows,
 			'insertKey'		=> $this->insertId
 		));
 	}

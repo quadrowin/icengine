@@ -34,7 +34,7 @@ class Helper_Mysql extends Helper_Abstract
 	 */
 	public function escape ($value)
 	{
-		if (
+ 		if (
 			strpos($value, self::SQL_WILDCARD) === false &&
 			strpos($value, '(') === false &&
 			strpos($value, ' ') === false &&

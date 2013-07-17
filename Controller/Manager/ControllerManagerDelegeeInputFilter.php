@@ -7,7 +7,8 @@ namespace IcEngine\Controller\Manager;
  *
  * @author morph
  */
-class ControllerManagerDelegeeValidator extends ControllerManagerDelegeeAbstract
+class ControllerManagerDelegeeInputFilter extends 
+    ControllerManagerDelegeeAbstract
 {
     /**
      * @inheritdoc
@@ -20,20 +21,19 @@ class ControllerManagerDelegeeValidator extends ControllerManagerDelegeeAbstract
             ->getAnnotation($controller);
         $actionScheme = $scheme->getMethod($context->getAction());
         if (!empty($actionScheme['InputFilter'])) {
-            $filterManager = $controllerManager->getService('filterManager');
-            $args = $context->getArgs();
+            $filterManager = $controllerManager->getService(
+                'dataFilterManager'
+            );
+            $input = $controller->getInput();
             foreach ($actionScheme['InputFilter'] as $actionArgs) {
                 foreach ($actionArgs as $argName => $filters) {
-                    if (!isset($args[$argName])) {
-                        $args[$argName] = null;
-                    }
                     foreach ($filters as $filterName) {
                         $filter = $filterManager->get($filterName);
-                        $args[$argName] = $filter->filter($args[$argName]);
+                        $arg = $filter->filter($input[$argName]);
+                        $input->send($argName, $arg, 0);
                     }
                 }
             }
-            $context->setArgs($args);
         }
     }
 }

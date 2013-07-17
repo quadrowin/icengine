@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Блок для кэширования
  *
@@ -12,61 +13,18 @@
  */
 function smarty_block_cache($params, $content, $smarty, &$repeat)
 {
-    $key = md5(json_encode($params));
-    $blockName = $params['key'];
     $serviceLocator = IcEngine::serviceLocator();
-    $dataProviderManager = $serviceLocator->getService('dataProviderManager');
-    $configManager = $serviceLocator->getService('configManager');
-    $blockConfig = $configManager->get('Block');
-    $controllerManager = $serviceLocator->getService('controllerManager');
-    $tasks = $controllerManager->getTaskPool();
-    $task = end($tasks);
-    $params = array_merge($params, $task->getInput()->receiveAll());
-    $expiration = 0;
-    $notCache = false;
-    if ($blockConfig && $blockConfig[$blockName]) {
-        $blockConfig = $blockConfig[$blockName];
-        $expiration = $blockConfig['expiration'];
-        $notCacheConfig = $blockConfig['notCache'];
-        if ($notCacheConfig) {
-            foreach ($notCacheConfig as $param => $value) {
-                if (isset($params[$param]) && $params[$param] == $value) {
-                    $notCache = true;
-                    break;
-                }
-            }
-        }
+    $viewCacheFragmentManager = $serviceLocator->getService(
+        'viewCacheFragmentManager'
+    );
+    $fragmentName = $params['key'];
+    unset($params['key']);
+    $fragment = $viewCacheFragmentManager->get($fragmentName, $params);
+    if (!$content && $fragment->isValid()) {
+        $repeat = false;
+        echo $fragment->content();
+        return true;
     }
-    if (!$notCache) {
-        $helperSiteLocation = $serviceLocator->getService('helperSiteLocation');
-        if (!$helperSiteLocation->get('enabledBlockCache')) {
-            $notCache = true;
-        }
-    }
-    if (!$notCache) {
-        $user = $serviceLocator->getService('user')->getCurrent();
-        if ($user->key()) {
-            $notCache = $user->hasRole('editor');
-        }
-    }
-    $time = time();
-    $provider = $dataProviderManager->get('Block');
-    if (!$content && !$notCache && $expiration) {
-        $cache = $provider->get($key);
-        if ($cache) {
-            if ($cache['e'] + $expiration > $time) {
-                $repeat = false;
-                echo $cache['v'];
-                return true;
-            }
-        }
-    }
-    if (!$notCache && $expiration) {
-        $cache = array(
-            'e' => $time,
-            'v' => $content
-        );
-        $provider->set($key, $cache);
-    }
+    $viewCacheFragmentManager->set($fragmentName, $content, $params);
     return $content;
 }

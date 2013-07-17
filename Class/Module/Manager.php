@@ -25,6 +25,14 @@ class Module_Manager extends Manager_Abstract
         'modules'           => array(),
         'viewPath'          => 'View'
     );
+    
+    /**
+     * Конфигурация по умолчанию
+     */
+    protected $defaultConfig = array(
+        'modules'   => array('Ice'),
+        'fromModel' => false
+    );
 
 	/**
 	 * Текущие инициализированные модули
@@ -183,10 +191,15 @@ class Module_Manager extends Manager_Abstract
             return;
         }
         $config = $this->config();
-        if ($config->fromModel) {
+        if ($config->modules->count()) {
+            $config = $config->__toArray();
+        } else {
+            $config = $this->defaultConfig;
+        }
+        if ($config['fromModel']) {
             $this->loadFromModel();
         } else {
-            $this->loadByNames($config->modules->__toArray());
+            $this->loadByNames($config['modules']);
         }
 	}
 

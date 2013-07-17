@@ -2,7 +2,7 @@
 
 /**
  * Класс для работы с HTTP запросом
- * 
+ *
  * @author morph, goorus, neon
  * @Service("request")
  */
@@ -15,14 +15,14 @@ class Request
 
     /**
      * Параметры с роута
-     * 
+     *
      * @var array
      */
     public $params = array();
 
     /**
      * Проверка формата входных данных
-     * 
+     *
      * @return boolean
      */
     public function altFilesFormat()
@@ -36,7 +36,7 @@ class Request
 
     /**
      * Получить текущий хост
-     * 
+     *
      * @return Ambigous <string, NULL>
      */
     public function host()
@@ -46,7 +46,7 @@ class Request
 
     /**
      * Получение параметра GET.
-     * 
+     *
      * @param string $name Имя параметра
      * @param mixed $default Значение по умолчанию
      * @return mixed
@@ -58,7 +58,7 @@ class Request
 
     /**
      * IP источника запроса
-     * 
+     *
      * @return string
      */
     public function ip()
@@ -72,7 +72,7 @@ class Request
 
     /**
      * Проверить пришел ли запрос через xmlhttprequest
-     * 
+     *
      * @return boolean
      */
     public function isAjax()
@@ -85,7 +85,7 @@ class Request
 
     /**
      * Проверяет, что скрипт был вызван через консоль.
-     * 
+     *
      * @return boolean true, если скрипт был вызван из командной строки,
      * иначе - false.
      */
@@ -96,7 +96,7 @@ class Request
 
     /**
      * Проверяет, передены ли файлы от пользователя.
-     * 
+     *
      * @return boolean
      */
     public function isFiles()
@@ -106,7 +106,7 @@ class Request
 
     /**
      * Проверяет, переданы ли GET параметры.
-     * 
+     *
      * @return boolean
      */
     public function isGet()
@@ -119,23 +119,18 @@ class Request
 
     /**
      * Проверяет, был ли это запрос через JsHttpRequest
-     * 
+     *
      * @return boolean
      */
     public function isJsHttpRequest()
     {
         global $JsHttpRequest_Active;
-        return (
-            isset($_SERVER['REQUEST_METHOD']) &&
-            $_SERVER['REQUEST_METHOD'] == 'POST' &&
-            isset($JsHttpRequest_Active) &&
-            $JsHttpRequest_Active
-        );
+        return $this->isPost() && !empty($JsHttpRequest_Active);
     }
 
     /**
      * Проверяет, что это был POST запрос
-     * 
+     *
      * @return boolean
      */
     public function isPost()
@@ -148,7 +143,7 @@ class Request
 
     /**
      * Проверяет пришел ли запрос через ssi
-     * 
+     *
      * @return bolean
      */
     public function isSsi()
@@ -179,7 +174,7 @@ class Request
 
     /**
      * Возвращает все параметры адресной строки.
-     * 
+     *
      * Это не GET параметры, а параметры, определяемые роутом.
      * @return array
      */
@@ -190,7 +185,7 @@ class Request
 
     /**
      * Получение параметра POST.
-     * 
+     *
      * @param string $name Имя параметра
      * @param mixed $default Значение по умолчанию
      * @return mixed
@@ -202,7 +197,7 @@ class Request
 
     /**
      * Получить файл из запроса
-     * 
+     *
      * @param string $name Имя поля
      * @return PostedFile|false
      */
@@ -217,7 +212,7 @@ class Request
 
     /**
      * Возвращает объект переданного файла.
-     * 
+     *
      * @param integer $index Индекс.
      * @return Request_File Переданный файл.
      * 		Если файлов меньше, чем указанный индекс - null.
@@ -247,7 +242,7 @@ class Request
 
     /**
      * Возвращает массив объектов переданных файлов.
-     * 
+     *
      * @return array Request_File
      */
     public static function files()
@@ -261,7 +256,7 @@ class Request
 
     /**
      * Возвращает часть адреса без параметров GET.
-     * 
+     *
      * @return string Часть URI до знака "?"
      */
     public function uri($withoutGet = true)
@@ -281,7 +276,7 @@ class Request
 
     /**
      * Возвращает часть запроса GET
-     * 
+     *
      * @return string Часть URI после знака "?"
      */
     public function stringGet()
@@ -313,7 +308,7 @@ class Request
 
     /**
      * Получить реферер
-     * 
+     *
      * @return string
      */
     public function referer()
@@ -322,20 +317,20 @@ class Request
     }
 
     /**
-     * Получить метод пересылки 
-     * 
+     * Получить метод пересылки
+     *
      * @return string
      */
     public function requestMethod()
     {
-        return isset($_SERVER['REQUEST_METHOD']) 
+        return isset($_SERVER['REQUEST_METHOD'])
             ? $_SERVER['REQUEST_METHOD'] : 'GET';
     }
 
     /**
      * Возвращает название сервера.
      * В зависимости от настроек nginx может вернуть "*.server.com"
-     * 
+     *
      * @return string
      */
     public function server()
@@ -345,7 +340,7 @@ class Request
 
     /**
      * Получить id сессии
-     * 
+     *
      * @return string
      */
     public function sessionId()

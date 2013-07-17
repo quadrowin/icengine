@@ -60,15 +60,16 @@ class Helper_Model_Scheme extends Helper_Abstract
                 'references'        => $dto->references,
                 'admin'             => $dto->admin,
                 'languageScheme'    => $dto->languageScheme,
-                'createScheme'      => $dto->createScheme
+                'createScheme'      => $dto->createScheme,
+                'signals'           => $dto->signals
             )
         );
         file_put_contents($filename, $output);
     }
-    
+
     /**
      * Создает dto для создания пустой схемы модели
-     * 
+     *
      * @return Model_Scheme_Dto
      */
     public function createDefaultDto()
@@ -138,7 +139,7 @@ class Helper_Model_Scheme extends Helper_Abstract
             if ($autoIncrement) {
                 $output[] = 'Auto_Increment';
             }
-            $comment = !empty($data) && !empty($data['Comment'])
+            $comment = !empty($data[1]) && !empty($data[1]['Comment'])
                 ? $data[1]['Comment'] : '';
             $fields[$fieldName] = array(
                 'type'          => $data[0],

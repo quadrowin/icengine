@@ -29,6 +29,18 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
     protected static $tagsCaches = array();
 
     /**
+     * @inheritdoc
+     */
+    public function callMethod($query, $options)
+    {
+        $method = $this->queryMethods[$query->type()];
+        if ($method != 'executeSelect') {
+            $this->sql = $query->translate('Mysql');
+        }
+        return parent::callMethod($query, $options);
+    }
+
+    /**
      * Очистка кэша драйвера
      */
     public function clearCache()
@@ -172,16 +184,9 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
 		if (!$options) {
 			$options = $this->getDefaultOptions();
 		}
-		$m = $this->queryMethods[$query->type()];
-        if ($m != 'executeSelect') {
-            $this->sql = $query->translate('Mysql');
-        }
-		$result = $this->{$m}($query, $options);
+		$result = $this->callMethod($query, $options);
 		if ($this->errno) {
-			throw new Exception(
-				$this->error . "\n" . $this->sql,
-				$this->errno
-			);
+			throw new Exception($this->error . "\n" . $this->sql, $this->errno);
 		}
 		if (!$this->errno && is_null($result)) {
 			$result = array();
@@ -196,7 +201,8 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
 			'foundRows'		=> $this->foundRows,
             'numRows'       => $this->numRows,
 			'result'		=> $result,
-			'touchedRows'	=> $this->numRows + $this->affectedRows,
+			'touchedRows'	=> $this->touchedRows ?:
+                $this->numRows + $this->affectedRows,
 			'insertKey'		=> $this->insertId
 		));
         return $queryResult;
@@ -231,9 +237,6 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
         $key = $this->sqlHash($query);
         $this->sql = $query->translate('Mysql');
 		$rows = parent::executeSelect($query, $options);
-        if (is_null($rows)) {
-            return null;
-        }
 		if (Tracer::$enabled) {
 			$endTime = microtime(true);
 			$delta = $endTime - $startTime;
@@ -249,6 +252,9 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
             );
 			Tracer::incDeltaQueryCount();
 		}
+        if (is_null($rows)) {
+            return null;
+        }
 		$tags = $query->getTags();
         $providerTags = $this->cacher->getTags($tags);
         if ($tags) {

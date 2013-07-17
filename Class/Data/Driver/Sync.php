@@ -15,9 +15,7 @@ class Data_Driver_Sync extends Data_Driver_Abstract
     protected $dynamicDriver;
 
 	/**
-	 * Обработчики по видам запросов.
-	 *
-     * @var array
+	 * @inheritdoc
 	 */
 	protected $queryMethods = array(
 		Query::SELECT	=> 'executeStatic',
@@ -67,13 +65,19 @@ class Data_Driver_Sync extends Data_Driver_Abstract
         $result = null;
         $filters = $modelName::$filters;
         $priorityFields = $modelName::$priorityFields;
+        $ignoreFields = $modelName::$ignoreFields;
         $criterias = $this->getCriterias($query);
+        $fetchingFields = $this->getFetchingFields($query);
         ksort($criterias);
         ksort($filters);
+        ksort($fetchingFields);
         $criteriasNames = array_keys($criterias);
         $filtersNames = array_keys($filters);
-        if (!$filters && !$priorityFields) {
+        if (!$filters && !$priorityFields && !$ignoreFields) {
             $result = $this->staticDriver->execute($query, $options);
+        } elseif ($ignoreFields && 
+            array_intersect($fetchingFields, $ignoreFields)) {
+            $result = $this->dynamicDriver->execute($query, $options);
         } elseif (!array_diff($criteriasNames, $filtersNames) &&
             !array_diff($filters, $criterias)) {
             $result = $this->staticDriver->execute($query, $options);
@@ -93,8 +97,7 @@ class Data_Driver_Sync extends Data_Driver_Abstract
 	 */
 	public function execute(Query_Abstract $query, $options = null)
 	{
-		$m = $this->queryMethods[$query->type()];
-		$result = $this->{$m}($query, $options);
+		$result = $this->callMethod($query, $options);
 		return new Query_Result(array(
             'error'			=> '',
 			'errno'			=> 0,
@@ -127,7 +130,22 @@ class Data_Driver_Sync extends Data_Driver_Abstract
                 } else {
                     $field = trim($where, '`');
                 }
-                $criteria[$field] = $part[Query::VALUE];
+                if (isset($part[Query::VALUE])) {
+                    $criteria[$field] = $part[Query::VALUE];
+                } else {
+                    if (strpos($where, '.') !== false) {
+                        list(,$last) = explode('.', $where);
+                        $where = str_replace('`', '', $last);
+                    }
+                    static $regexp = '#([\w\d_]+)\s*([<>!=])+\s*(.*?)$#';
+                    $matches = array();
+                    preg_match_all($regexp, $where, $matches);
+                    if (isset($matches[2][0])) {
+                        $matches[2][0] = trim($matches[2][0], '\'"');
+                        $criteria[$matches[1][0] . $matches[2][0]] = 
+                            $matches[3][0];
+                    }
+                }
             }
         }
         return $criteria;
@@ -141,6 +159,34 @@ class Data_Driver_Sync extends Data_Driver_Abstract
     public function getDynamicDriver()
     {
         return $this->dynamicDriver;
+    }
+    
+    /**
+     * Получить поля для выборки
+     * 
+     * @param Query_Abstract $query
+     * @return array
+     */
+    protected function getFetchingFields($query)
+    {
+        $select = $query->getPart(Query::SELECT);
+        $keys = array_keys($select);
+        $keysExploded = array();
+        foreach ($keys as $key) {
+            if (strpos($key, ',') === false) {
+                $keysExploded[] = $key;
+                continue;
+            }
+            $exploded = explode(',', $key);
+            foreach ($exploded as $item) {
+                $keysExploded[] = trim($item);
+            }
+        }
+        $resultKeys = array_unique($keysExploded);
+        if (strpos($resultKeys[0], '*') !== false) {
+            $resultKeys = array();
+        }
+        return $resultKeys;
     }
 
     /**

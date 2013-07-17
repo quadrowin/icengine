@@ -5,7 +5,7 @@
  *
  * @author morph
  */
-class Migration_Abstract extends Model
+class Migration_Abstract
 {
 	/**
 	 * Миграция поднята
@@ -28,6 +28,11 @@ class Migration_Abstract extends Model
      * @var array
 	 */
 	protected $params;
+
+    /**
+     * Сервис локатор
+     */
+    protected $serviceLocator = null;
 
 	/**
 	 * Откат миграции
@@ -91,6 +96,19 @@ class Migration_Abstract extends Model
         }
         return $needleMigration[0]['isFinished'] ? self::ST_UP : self::ST_DOWN;
 	}
+
+    /**
+     * Получить сервис
+     *
+     * @param string $serviceName
+     */
+    public function getService($serviceName)
+    {
+        if (!$this->serviceLocator) {
+            $this->serviceLocator = IcEngine::serviceLocator();
+        }
+        return $this->serviceLocator->getService($serviceName);
+    }
 
 	/**
 	 * Залогировать выполнение миграции

@@ -34,9 +34,14 @@ class Controller_Annotation_Orm extends Controller_Abstract
                     $className, $entity
                 );
             }
-            $scheme = $context->modelScheme->scheme($className);
-            if (!$scheme->fields) {
+            $scheme = $context->configManager->get(
+                'Model_Mapper_' . $className
+            );
+            if (!$scheme->fields || 
+                !$context->helperAnnotationOrm->compare($className)) {
                 $context->helperModelMigrateSync->resync($className);
+            }
+            if (!$scheme->fields) {
                 $context->helperModelTable->create($className);
             }
         }

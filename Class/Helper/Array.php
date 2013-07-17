@@ -6,7 +6,7 @@
  * @author goorus, morph, neon
  * @Service("helperArray")
  */
-class Helper_Array
+class Helper_Array extends Helper_Abstract
 {
 	/**
 	 * Возвращает массив
@@ -71,7 +71,7 @@ class Helper_Array
             }
 			foreach ($filter as $field => $value) {
                 $fieldModificator = false;
-                if (strpos($field, '<') || strpos($field, '>')) {
+                if (strpos($field, '<') || strpos($field, '>') || strpos($field, '!')) {
                     $fieldModificator = true;
                 }
                 if (!isset($row[$field]) && !$fieldModificator) {
@@ -130,16 +130,19 @@ class Helper_Array
         }
         return $this->column($array, $arrayElementFields, $field);
     }
-    
+
 	/**
 	 * Сортирует многомерный массив по заданным полям
-	 * 
+	 *
      * @param array $data Массив
 	 * @param string $sortby Поля сортировки через запятую
 	 * @return boolean true если успешно, иначе false.
 	 */
 	public function masort($data, $sortby)
 	{
+        if (!$data) {
+            return array();
+        }
 		static $funcs = array();
 		if (empty($funcs[$sortby])) {
 			//Не существует функции сравнения, создаем
@@ -154,6 +157,10 @@ class Helper_Array
 				}
 				reset($data);
 				$array = current($data);
+                $first = reset($array);
+                if (!isset($first[$key])) {
+                    return $data;
+                }
 				if (is_numeric($array[$key])) {
 					$code .= "if ( \$c = ((\$a['$key'] == \$b['$key']) ? 0 : ((\$a['$key'] " . (($asc) ? '<' : '>') . " \$b['$key']) ? -1 : 1 )) ) return \$c;";
 				} else {
@@ -212,6 +219,131 @@ class Helper_Array
 	}
 
     /**
+     * Заменить вхождения в строке
+     *
+     * @param array $data
+     * @param array $fields
+     */
+    public function normalizeFields($data, $fields, $params)
+    {
+        $helperString = $this->getService('helperString');
+        foreach ($data as $i => $item) {
+            $data[$i] = $helperString->normalizeFields($item, $fields, $params);
+        }
+        return $data;
+    }
+
+    /**
+	 * Упорядочивание списка для вывода дерева по полю parentId
+	 *
+	 * @param array $collection
+	 * @param boolean $include_unparented Оставить элементы без предка.
+	 * Если false, элементы будут исключены из списка.
+	 * @param strign $keyField
+     * @param string $parentField
+	 * @return array
+	 */
+	public function sortByParent($collection, $includeUnparented = false,
+        $keyField = 'id', $parentField = 'parentId')
+	{
+		$list = $collection;
+		if (empty($list)) {
+			return $collection;
+		}
+        $keyField = $keyField ?: 'id';
+        $parentField = $parentField ?: 'parentId';
+		$firstIds = $this->column($collection, $keyField);
+		$parents = array();
+		$childOf = 0;
+		$result = array();
+		$i = 0;
+		$index = array(0 => 0);
+		$fullIndex = array(-1 => '');
+		do {
+			$finish = true;
+			for ($i = 0; $i < count($list); ++$i) {
+				if ($list[$i][$parentField] != $childOf) {
+                    continue;
+                }
+                if (!isset($index[count($parents)])) {
+                    $index[count($parents)] = 1;
+                } else {
+                    $index[count($parents)]++;
+                }
+                $n = count($result);
+                $result[$n] = $list[$i];
+                $result[$n]['data']['level'] = count($parents);
+                $result[$n]['data']['index'] = $index[count($parents)];
+                $parentsCount = count($parents);
+                if ($parentsCount > 0) {
+                    $fullIndex = $fullIndex[$parentsCount - 1] .
+                        $index[count($parents)];
+                } else {
+                    $fullIndex = (string) $index[count($parents)];
+                }
+                $result[$n]['data']['fullIndex'] = $fullIndex;
+                $result[$n]['data']['brokenParent'] = false;
+                $fullIndex[$parentsCount] = $fullIndex . '.';
+                array_push($parents, $childOf);
+                $childOf = $list[$i][$keyField];
+                for ($j = $i; $j < count($list) - 1; $j++) {
+                    $list[$j] = $list[$j + 1];
+                }
+                array_pop($list);
+                $finish = false;
+                break;
+			}
+			// Элементы с неверно указанным предком
+			if ($finish && count($parents) > 0) {
+				$index[count($parents)] = 0;
+				$childOf = array_pop($parents);
+				$finish = false;
+			}
+		} while (!$finish);
+		/**
+		 * чтобы не портить сортировку, если таковая есть у
+		 * коллекции, с использованием элементов без родителей
+		 *
+		 * сортируем по level 0, докидываем дочерних
+		 */
+		if ($includeUnparented) {
+			//out досортированный
+			$newResult = array();
+			//без родителей, неотсортированные
+			$listIds = array();
+			//отсортированные родители: level = 0
+			$resultIds = array();
+			//отсортированные дочерние: level > 0
+			$resultSubIds = array();
+			for ($i = 0; $i < count($list); $i++) {
+				$listIds[$list[$i][$keyField]] = $i;
+			}
+			for ($i = 0; $i < count($result); $i++) {
+				if (!$result[$i][$parentField]) {
+					$parentId = $result[$i][$keyField];
+					$resultIds[$result[$i][$keyField]] = $i;
+				} else {
+					$resultSubIds[$parentId][$result[$i][$keyField]] = $i;
+				}
+			}
+			for ($i = 0; $i < count($firstIds); $i++) {
+				if (isset($resultIds[$firstIds[$i]])) {
+					$newResult[] = $result[$resultIds[$firstIds[$i]]];
+					if (isset($resultSubIds[$firstIds[$i]])) {
+						foreach ($resultSubIds[$firstIds[$i]] as $index) {
+							$newResult[] = $result[$index];
+						}
+					}
+				} elseif (isset($listIds[$firstIds[$i]])) {
+					$newResult[] = $list[$listIds[$firstIds[$i]]];
+				}
+			}
+			$result = $newResult;
+		}
+		return $result;
+	}
+    
+    /**
      * Проверить ячейку на соответствие фильтру
      *
      * @param array $row
@@ -233,5 +365,20 @@ class Helper_Array
 			}
 		}
 		return $valid;
+    }
+
+    public function unsetColumn($array, $columns = array())
+    {
+        if (!is_array($columns)) {
+            $columns = array($columns);
+        }
+        foreach ($array as $i => $items) {
+            foreach ($items as $j => $value) {
+                if (in_array($j, $columns)) {
+                    unset($array[$i][$j]);
+                }
+            }
+        }
+        return $array;
     }
 }

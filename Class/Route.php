@@ -76,7 +76,10 @@ class Route extends Objective
             return null;
         }
 		$url = '/' . ltrim($url, '/');
-		$route = $this->provider->get($url);
+        $request = $this->getService('request');
+        $host = $request->host();
+        $cacheKey = $host . $url;
+		$route = $this->provider->get($cacheKey);
 		if ($route) {
 			return $route ? new self($route) : null;
 		}
@@ -87,20 +90,22 @@ class Route extends Objective
 		$emptyRoute = $this->config['emptyRoute']->__toArray();
 		$routes = $this->getList();
 		$row = null;
-        $request = $this->getService('request');
-        $host = $request->host();
         $lastWithHost = false;
 		foreach ($routes as $route) {
-			if (empty($route['route'])) {
+			if (!is_array($route) || empty($route['route']) || 
+                is_array($route['route'])) {
 				continue;
 			}
-			$route = array_merge($emptyRoute, $route);
+            if (!is_array($route['actions'])) {
+                $route['actions'] = (array) $route['actions'];
+            }
+			$route = array_merge($emptyRoute, (array) $route);
 			$pattern = '#^' . $route['route'] . '$#';
             $hostValid = true;
             $withHost = false;
             if (!empty($route['host'])) {
                 $withHost = true;
-                $hostValid = $this->checkHost($host['route'], $host);
+                $hostValid = $this->checkHost($route['host'], $host);
             }
 			if (!empty($route['patterns'])) {
 				foreach ($route['patterns'] as $var => $routeData) {
@@ -112,6 +117,9 @@ class Route extends Objective
 					$pattern = str_replace($var, $replace, $pattern);
 				}
 			}
+            if (!isset($route['weight'])) {
+                $route['weight'] = 0;
+            }
 			if (preg_match($pattern, $url) && (
 				!$row || (int) $route['weight'] > (int) $row['weight'])) {
                 if ($hostValid && !$lastWithHost) {
@@ -123,7 +131,7 @@ class Route extends Objective
                 }
 			}
 		}
-		$this->provider->set($url, $row);
+		$this->provider->set($cacheKey, $row);
 		return $row ? new self($row) : null;
 	}
 
@@ -170,22 +178,4 @@ class Route extends Objective
     {
         return IcEngine::serviceLocator()->getService($serviceName);
     }
-
-	/**
-	 * Возвращает объект рендера для роутера
-	 *
-	 * @return View_Render_Abstract
-	 */
-	public function viewRender()
-	{
-        $render = null;
-		if (!empty($this->params['viewRender'])) {
-            $viewRenderManager = $this->getService('viewRenderManager');
-            $render = $viewRenderManager->byName($this->params['viewRender']);
-		} else {
-            $viewRenderManager = $this->getService('viewRenderManager');
-			$render = $viewRenderManager->getView();
-		}
-		return $render;
-	}
 }   

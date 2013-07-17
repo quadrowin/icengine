@@ -228,9 +228,14 @@ class Paginator
 	 * @return Paginator
 	 */
 	public function fromInput($input, $total = 0, $notGet = false) {
-		return new self(
+		$perPage = $input->receive('limit');
+        if ($input->receive('perPage')) {
+            $perPage = $input->receive('perPage');
+        }
+        $resultRerPage = $perPage ? $perPage : 10;
+        return new self(
 			max($input->receive('page'), 1),
-			max($input->receive('limit'), 10),
+			$resultRerPage,
 			$total,
 			$notGet
 		);
