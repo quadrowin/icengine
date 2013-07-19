@@ -9,6 +9,37 @@
 class Helper_Model_Manager extends Helper_Abstract
 {
     /**
+     * Применить генераторы к модели
+     * 
+     * @param Model $model
+     */
+    public function applyGenerators($model)
+    {
+        $annotations = $model->getAnnotations()['properties'];
+        foreach (array_keys($model->scheme()->fields->__toArray()) as 
+            $fieldName) {
+            if (!isset($annotations[$fieldName]['Data\\Generator'])) {
+                continue;
+            }
+            $generatorData = reset($annotations[$fieldName]['Data\\Generator']);
+            list($generatorName, $method) = explode('.', reset($generatorData));
+            $params = array();
+            if (!is_numeric(key($generatorData))) {
+                $params = $generatorName;
+                $generatorName = key($generatorData);
+            }
+            $generator = $this->getService($generatorName);
+            if (!$generator) {
+                throw new ErrorException('Incorrect data generator');
+            }
+            $value = call_user_func_array(
+                array($generator, $method), array_merge(array($model), $params)
+            );
+            $model->set($fieldName, $value);
+        }
+    }
+    
+    /**
      * Получить название сигнала по умолчанию
      *
      * @param string $methodName
@@ -68,7 +99,7 @@ class Helper_Model_Manager extends Helper_Abstract
         $modelName = $model->table();
         $queryBuilder = $this->getService('query');
 		$query = $queryBuilder
-			->select ('*')
+			->select('*')
 			->from($modelName)
 			->where($model->keyField(), $key);
         $modelScheme = $this->getService('modelScheme');

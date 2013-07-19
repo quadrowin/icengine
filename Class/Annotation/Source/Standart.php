@@ -274,14 +274,4 @@ class Annotation_Source_Standart extends Annotation_Source_Simple
         }
         return $result->__toArray();
 	}
-    
-    /**
-     * Изменить рефлексию класса
-     * 
-     * @param ReflectionClass $reflection
-     */
-    public function setReflection($reflection)
-    {
-        $this->reflection = $reflection;
-    }
 }

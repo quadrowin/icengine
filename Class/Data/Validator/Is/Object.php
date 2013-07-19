@@ -12,6 +12,7 @@ class Data_Validator_Is_Object extends Data_Validator_Abstract
      */
 	public function validate($data, $value = true)
 	{
-        return (bool) (is_object($data) == $value);
+        $value = is_null($value) ? true : $value;
+        return (bool) (is_object($data) === $value);
     }
 }

@@ -6,7 +6,7 @@
  * @author morph, neon
  * @Service("helperModel")
  */
-class Helper_Model
+class Helper_Model 
 {
     /**
      * Накинуть на модель after опшены
@@ -28,6 +28,37 @@ class Helper_Model
         return $modelCollection->first();
     }
 
+    /**
+     * Фильтрация значения
+     * 
+     * @param Model $model
+     * @param string $field
+     * @param mixed value
+     * @return boolean
+     */
+    public function filterValue($model, $field, $value)
+    {
+        $annotations = $model->getAnnotations()['properties'];
+        if (!isset($annotations[$field])) {
+            return $value;
+        }
+        if (isset($annotations[$field]['Data\\Filter'])) {
+            $serviceLocator = IcEngine::serviceLocator();
+            $dataFilterManager = $serviceLocator->getService(
+                'dataFilterManager'
+            );
+            $dataFilters = reset($annotations[$field]['Data\\Filter']);
+            foreach ($dataFilters as $dataFilterName) {
+                $dataFilter = $dataFilterManager->get($dataFilterName);
+                if (!$dataFilter) {
+                    throw new ErrorException('Incorrect data filter');
+                }
+                $value = $dataFilter->filter($value);
+            }
+        }
+        return $value;
+    }
+    
     /**
      * Получить константу класса
      * 
@@ -61,5 +92,45 @@ class Helper_Model
     public function makePath($modelName)
     {
         return str_replace('_', '/', $modelName) . '.php';
+    }
+    
+    /**
+     * Валидация поля
+     * 
+     * @param Model $model
+     * @param string $field
+     * @param mixed value
+     * @return boolean
+     */
+    public function validateField($model, $field, $value)
+    {
+        $annotations = $model->getAnnotations()['properties'];
+        if (!isset($annotations[$field])) {
+            return true;
+        }
+        if (isset($annotations[$field]['Data\\Validator'])) {
+            $dataValidatorName = 
+            $serviceLocator = IcEngine::serviceLocator();
+            $dataValidatorManager = $serviceLocator->getService(
+                'dataValidatorManager'
+            );
+            $dataValidators = reset($annotations[$field]['Data\\Validator']);
+            $isValid = true;
+            foreach ($dataValidators as $dataValidatorName => $params) {
+                if (is_numeric($dataValidatorName)) {
+                    $dataValidatorName = $params;
+                    $params = null;
+                }
+                $dataValidator = $dataValidatorManager->get($dataValidatorName);
+                if (!$dataValidator) {
+                    throw new ErrorException('Incorrect data validator');
+                }
+                $isValid = $isValid & $dataValidator->validate($value, $params);
+                if (!$isValid) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

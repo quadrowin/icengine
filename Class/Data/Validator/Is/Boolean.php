@@ -12,6 +12,7 @@ class Data_Validator_Is_Boolean extends Data_Validator_Abstract
      */
 	public function validate($data, $value = true)
 	{
-        return is_bool($data) == $value;
+        $value = is_null($value) ? true : $value;
+        return is_bool($data) === $value;
 	}
 }

@@ -12,6 +12,13 @@ abstract class Model implements ArrayAccess
      */
     const DATA_FIELD = 'data';
 
+    /**
+     * Аннотации моделей
+     * 
+     * @var array
+     */
+    protected static $annotations = array();
+    
 	/**
 	 * Конфигурация модели
      *
@@ -19,6 +26,13 @@ abstract class Model implements ArrayAccess
 	 */
 	protected static $config;
 
+    /**
+     * Ошибки
+     * 
+     * @var array
+     */
+    protected $errors = array();
+    
 	/**
 	 * Связанные данные
      *
@@ -200,9 +214,7 @@ abstract class Model implements ArrayAccess
         }
         $fields = $this->scheme()->fields;
 		if (isset($fields[$field])) {
-            $this->fields[$field] = $value;
-		} elseif (property_exists($this, $field)) {
-            $this->$field = $value;
+            $this->set($field, $value);
 		} else {
 			throw new Exception(
                 'Field or property unexists "' . $field . '" ' . $this->table()
@@ -434,6 +446,27 @@ abstract class Model implements ArrayAccess
 		}
 	}
 
+    /**
+     * Получить аннотации модели
+     * 
+     * @return array
+     */
+    public function getAnnotations()
+    {
+        return $this->getService('helperAnnotation')
+            ->getAnnotation($this->modelName())->getData();
+    }
+    
+    /**
+     * Получить ошбики
+     * 
+     * @return array
+     */
+    public function getErrors()
+    {
+        return $this->errors;
+    }
+    
 	/**
 	 * Получить все хранимые данные модели
 	 *
@@ -699,17 +732,28 @@ abstract class Model implements ArrayAccess
             $schemeFields = array_keys($scheme->fields->__toArray());
         }
         $updatedFields = array();
+        $helper = $this->helper();
         foreach ($fields as $field => $value) {
             if (!$schemeFields || in_array($field, $schemeFields)) {
-                $this->fields[$field] = $value;
-                $updatedFields[$field] = $value;
+                $value = $helper->filterValue($this, $field, $value);
+                if ($helper->validateField($this, $field, $value)) {
+                    $this->fields[$field] = $value;
+                    $updatedFields[$field] = $value;
+                    if (isset($this->errors[$field])) {
+                        unset($this->errors[$field]);
+                    }
+                } else {
+                    $this->errors[$field] = true;
+                }
             } else {
                 $data[$field] = $value;
             }
         }
         if ($updatedFields) {
             $oldUpdatedFields = $this->getUpdatedFields();
-            $this->setUpdatedFields(array_merge($oldUpdatedFields, $updatedFields));
+            $this->setUpdatedFields(
+                array_merge($oldUpdatedFields, $updatedFields)
+            );
         }
         if ($data) {
             $this->data($data);

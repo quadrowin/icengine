@@ -170,6 +170,7 @@ class Model_Manager extends Manager_Abstract
             $newModel = $delegee->get($modelName, 0, $row);
         }
         $newModel->set($row);
+        $helperModelManager->applyGenerators($newModel);
         $helperModelManager->notifySignal(
             $helperModelManager->getDefaultSignal(__METHOD__, $newModel),
             $newModel
