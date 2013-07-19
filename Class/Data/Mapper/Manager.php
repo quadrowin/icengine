@@ -23,10 +23,10 @@ class Data_Mapper_Manager extends Manager_Abstract
 	 */
 	public function get($name, $params = array())
 	{
-		if (!isset($this->mappers[$name])) {
+//		if (!isset($this->mappers[$name])) {
 			$className = 'Data_Mapper_' . $name;
 			$this->mappers[$name] = new $className;
-		}
+//		}
         if ($params) {
             foreach ($params as $key => $value) {
                 $this->mappers[$name]->setOption($key, $value);

@@ -16,7 +16,7 @@ class DDS
 	 *
      * @var Data_Source_Abstract
 	 */
-	protected $source;
+	private $source;
 
 	/**
 	 * Выполняет запрос и возвращает текущний источник
@@ -71,6 +71,6 @@ class DDS
 	 */
 	public function setDataSource(Data_Source_Abstract $source)
 	{
-		$this->source = $source;
+        $this->source = $source;
 	}
 }
