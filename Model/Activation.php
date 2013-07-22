@@ -111,17 +111,18 @@ class Activation extends Model
 		return $this;
 	}
 
-	/**
-	 * Находит активацию по коду, при условии, что она не истекла по времени.
-	 *
-	 * @param string $code Код активации.
-	 * @return Activation|null Найденная активация.
-	 */
+    /**
+     * Находит активацию по коду, при условии, что она не истекла по времени.
+     *
+     * @param string $code Код активации.
+     * @param string $type
+     * @return Activation|null Найденная активация.
+     */
 	public function byCode($code, $type = '')
 	{
         $helperDate = $this->getService('helperDate');
         $activationQuery = $this->getService('query')
-            ->select('id')
+            ->select('Activation.id')
             ->from('Activation')
             ->where('type', $type)
             ->where('code', $code)

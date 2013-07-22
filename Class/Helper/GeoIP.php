@@ -92,7 +92,7 @@ class Helper_GeoIP
         $locator = IcEngine::serviceLocator();
         $queryBuilder = $locator->getService('query');
         $dds = $locator->getService('dds');
-        $netCityQuerySelect = $queryBuilder->select('id')
+        $netCityQuerySelect = $queryBuilder->select('Net_City.id')
             ->from('Net_City')
             ->where('name_ru', $title);
         $netCity = $dds->execute($netCityQuerySelect)
