@@ -168,7 +168,8 @@ class Attribute_Manager extends Manager_Abstract
      * Получить дата сорс по имени модели
      * 
 	 * @param string $modelName
-	 */
+     * @return \Data_Source_Abstract
+     */
 	protected function getSource($modelName)
 	{
 		$config = $this->config();
