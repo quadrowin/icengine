@@ -13,8 +13,8 @@ class Metagraphy_Strategy_Default extends Metagraphy_Strategy_Abstract
 	public function process($text, $lang = null)
 	{
         $serviceLocator = IcEngine::serviceLocator();
-        $helperString = $serviceLocator->getService('helperString'); 
-        $textTrimed = trim($text);   
+        $helperString = $serviceLocator->getService('helperString');
+        $textTrimed = trim($text);
         $textScreened = $helperString->replaceSpecialChars($textTrimed, '');
 		if (!isset($lang)) {
 			$regexpRus = '/^[а-яА-Я]+/';
@@ -27,19 +27,19 @@ class Metagraphy_Strategy_Default extends Metagraphy_Strategy_Abstract
 		}
 		return $textProcessed;
     }
-    
+
     /**
 	 * @inheritdoc
 	 */
     public function processToEn($text)
     {
         // Сначала заменяем "односимвольные" фонемы.
-        $textChangedDown = $this->u_strtr($text, 
-            "абвгдеёзийклмнопрстуфхыэ ", 
+        $textChangedDown = $this->u_strtr($text,
+            "абвгдеёзийклмнопрстуфхыэ ",
             "abvgdeeziyklmnoprstufhie_"
         );
-        $textChangedUp = $this->u_strtr($textChangedDown, 
-            "АБВГДЕЁЗИЙКЛМНОПРСТУФХЫЭ ", 
+        $textChangedUp = $this->u_strtr($textChangedDown,
+            "АБВГДЕЁЗИЙКЛМНОПРСТУФХЫЭ ",
             "ABVGDEEZIYKLMNOPRSTUFHIE_"
         );
         // Затем - "многосимвольные".
@@ -55,7 +55,7 @@ class Metagraphy_Strategy_Default extends Metagraphy_Strategy_Abstract
         );
         return $textChanged;
     }
-    
+
     /**
 	 * @inheritdoc
 	 */
@@ -82,13 +82,13 @@ class Metagraphy_Strategy_Default extends Metagraphy_Strategy_Abstract
         );
         return $textChangedUp;
     }
-    
+
     /**
 	 * @inheritdoc
 	 */
 	public function makeUrlLink($text)
 	{
-		$link = $this->translit($text, 'en');
+		$link = $this->process($text, 'en');
 		$linkReplaced = preg_replace('/([^0-9a-zA-Z_])+/', '', $link);
 		$linkReplaced2 = preg_replace('/[_]{2,}/', '_', $linkReplaced);
 		$linkReplaced3 = preg_replace('/^_/', '', $linkReplaced2);
