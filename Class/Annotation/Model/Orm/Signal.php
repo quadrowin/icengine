@@ -41,9 +41,9 @@ class Annotation_Model_Orm_Signal extends Annotation_Model_Abstract
         $serviceLocator = IcEngine::serviceLocator();
         $helperConverter = $serviceLocator->getService('helperConverter');
         if ($dto->signals) {
-            return $helperConverter->arrayToString($dto->signals->__toArray());
+            return $helperConverter->arrayToString($dto->signals);
         }
-        return true;
+        return array();
     }
     
     /**
@@ -58,7 +58,8 @@ class Annotation_Model_Orm_Signal extends Annotation_Model_Abstract
         $result = array();
         foreach ($classData as $annotationName => $data) {
             if (strpos($annotationName, 'Orm\\After') !== false ||
-                strpos($annotationName, 'Orm\\Before') !== false) {
+                strpos($annotationName, 'Orm\\Before') !== false ||
+                strpos($annotationName, 'Orm\\On') !== false) {
                 $parts = explode('\\', $annotationName);
                 array_shift($parts);
                 $parts[0] = lcfirst($parts[0]);

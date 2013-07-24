@@ -19,13 +19,12 @@ class Controller_Annotation_Orm extends Controller_Abstract
      */
     public function update($data, $context)
     {
-        $annotationManager = IcEngine::serviceLocator()->getSource()
-            ->getAnnotationManager();
         foreach (array_keys($data) as $className) {
+            $annotationManager = IcEngine::serviceLocator()->getSource()
+                ->getAnnotationManager();
             $annotation = $annotationManager->getAnnotation($className)
                 ->getData();
             if (!isset($annotation['class']['Orm\\Entity'])) {
-                echo 'Orm warning: ' . $className . PHP_EOL;
                 continue;
             }
             $entity = $annotation['class']['Orm\\Entity'][0];

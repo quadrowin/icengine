@@ -20,11 +20,12 @@ class Helper_GeoIP
 		return $ip[3] + 256 * ($ip[2] + 256 * ($ip[1] + 256 * $ip[0]));
 	}
 
-	/**
-	 * Получить город, которому соответствует IP адрес текущего пользователя
+    /**
+     * Получить город, которому соответствует IP адрес текущего пользователя
      *
-	 * @return City|null
-	 */
+     * @param null $ip
+     * @return City|null
+     */
 	public function getCity($ip = null)
 	{
         $locator = IcEngine::serviceLocator();
