@@ -24,7 +24,7 @@ class Helper_Model_Acl_Table extends Helper_Abstract
             ->raw(array('id', 'name')); 
         $indexedRoles = $this->getService('helperArray')->reindex($roles, 'id');
         $preResourceQuery = $queryBuilder
-            ->select('id')
+            ->select('Acl_Resource.id')
             ->from('Acl_Resource')
             ->where('name LIKE ?', 'Table/' . $tableName . '/%');
         $preResourceIds = $dds->execute($preResourceQuery)->getResult()
@@ -91,7 +91,7 @@ class Helper_Model_Acl_Table extends Helper_Abstract
         $queryBuilder = $this->getService('query');
         $dds = $this->getService('dds');
         $resourceQuery = $queryBuilder
-            ->select('id')
+            ->select('Acl_Resource.id')
             ->from('Acl_Resource')
             ->where('name LIKE ?', 'Table/' . $tableName . '/%');
         $resourceIds = $dds->execute($resourceQuery)->getResult()->asColumn();
@@ -112,7 +112,7 @@ class Helper_Model_Acl_Table extends Helper_Abstract
         $unitOfWork = $this->getService('unitOfWork');
         $unitOfWork->setAutoflush(500);
         $maxResourceQuery = $queryBuilder
-            ->select('id')
+            ->select('Acl_Resource.id')
             ->from('Acl_Resource')
             ->order('id DESC')
             ->limit(1);

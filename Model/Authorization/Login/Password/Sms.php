@@ -174,7 +174,7 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
         $config = $this->config();
         $helperDate = $this->getService('helperDate');
         $activationQuery = $this->getService('query')
-            ->select('id')
+            ->select('Activation.id')
             ->from('Activation')
             ->where('type', $config->activation_type)
             ->where('code', $data['activation_code'])
@@ -288,7 +288,7 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 		$modelManager = $this->getService('modelManager');
         $helperDate = $this->getService('helperDate');
 		$activationQuery = $this->getService('query')
-            ->select('id')
+            ->select('Activation.id')
             ->from('Activation')
             ->where('User__id', $user->key())
             ->where('address', $user->phone)
