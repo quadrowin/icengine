@@ -186,7 +186,7 @@ var Helper_Form = {
 				}
 				if (this.tagName.toLowerCase() == 'select') {
                     value = $(this).val();
-                    if (!value || value == 0) {
+                    if ((!value || value == 0) && $(this).is(':visible')) {
                         $(this).addClass('errorRequired');
                         errorRequired = true;
                     } else {
