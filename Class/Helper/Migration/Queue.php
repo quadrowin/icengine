@@ -55,9 +55,13 @@ class Helper_Migration_Queue extends Helper_Abstract
      */
     protected function getFiles()
     {
-        $path = IcEngine::root() . 'Ice/Model/Migration';
-        $files = scadir($path);
-        return array_values(array_slice($files, 2));
+        $path = IcEngine::root() . 'Ice/Model/Migration/';
+        $files = scandir($path);
+        $resultFiles = array_values(array_slice($files, 2));
+        foreach ($resultFiles as $i => $filename) {
+            $resultFiles[$i] = $path . $filename;
+        }
+        return $resultFiles;
     }
     
     /**
@@ -69,7 +73,7 @@ class Helper_Migration_Queue extends Helper_Abstract
      */
     protected function getMatch($file, $annotation)
     {
-        $regexp = '#@' . $annotation . ' (.*?)';
+        $regexp = '#@' . $annotation . ' ([\d\w]+)#';
         $matches = array();
         $content = file_get_contents($file);
         preg_match_all($regexp, $content, $matches);
@@ -103,10 +107,13 @@ class Helper_Migration_Queue extends Helper_Abstract
         $migrationManager = $this->getService('migrationManager');
         foreach ($files as $file) {
             $migrationCategory = $this->getCategory($file);
-            if ($migrationCategory != $category) {
+            if (!$migrationCategory || $migrationCategory != $category) {
                 continue;
             }
             $migrationName = $this->getName($file);
+            if (!$migrationName) {
+                continue;
+            }
             $migration = $migrationManager->get($migrationName);
             $queue[$migrationName] = $this->lastFor($migration);
         }
@@ -131,7 +138,7 @@ class Helper_Migration_Queue extends Helper_Abstract
         );
         return array(
             'name'          => $migrationName,
-            'modelName'     => $migration->modelName,
+            'modelName'     => $migration->model,
             'isFinished'    => $status,
             'isMarked'      => $isMarked,
             'sequence'      => $sequence

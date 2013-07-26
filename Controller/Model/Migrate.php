@@ -9,6 +9,13 @@
 class Controller_Model_Migrate extends Controller_Abstract
 {
     /**
+     * @inheritdoc
+     */
+    protected $config = array(
+        'category'  => 'modelDiff'
+    );
+    
+    /**
      * Выполнить миграцию для всех моделей
      * 
      * @Context("controllerManager", "helperArray", "helperMigrationQueue")
@@ -42,7 +49,12 @@ class Controller_Model_Migrate extends Controller_Abstract
     public function index($name, $context, $mark = false)
     {
         $config = $this->config();
+        echo 'Preparing migrations for model "' . $name . '"...';
         $queue = $context->helperMigrationQueue->getQueue($config->category);
+        echo ' done.' . PHP_EOL;
+        if (!$queue) {
+            echo 'No actual migrations for model "' . $name . '".' . PHP_EOL;
+        }
         foreach ($queue as $queueData) {
             $migration = $context->migrationManager->get($queueData['name']);
             if ($queueData['modelName'] != $name || $queueData['isFinished']) {
@@ -52,7 +64,9 @@ class Controller_Model_Migrate extends Controller_Abstract
                 $migration->log('up');
                 continue;
             }
+            echo 'Applying "' . $migration->getName() . "...";
             $migration->up();
+            echo ' done.' . PHP_EOL;
             $migration->log('up');
             if ($mark) {
                 $context->helperMigrationMark->mark($queueData['name']);

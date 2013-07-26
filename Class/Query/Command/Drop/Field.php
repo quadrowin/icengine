@@ -24,7 +24,7 @@ class Query_Command_Drop_Field extends Query_Command_Abstract
     {
         $field = $data[0];
         $data = array(
-            Query::NAME => $field,
+            Query::FIELD => $field,
             Query::TYPE => Query::DROP
         );
         $this->data = array(Query::FIELD => $data);

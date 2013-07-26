@@ -17,7 +17,7 @@ class Controller_Model_Missing extends Controller_Abstract
      */
     public function create($context)
     {
-        $missing = $context->helperModelMissing();
+        $missing = $context->helperModelMissing->getMissings();
         foreach ($missing as $modelName) {
             $dto = $this->getService('dto')->newInstance('Model_Create')
                 ->setModelName($modelName);

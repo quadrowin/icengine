@@ -13,7 +13,7 @@ class Helper_Model_Missing extends Helper_Abstract
      * 
      * @return array
      */
-    protected function getClassNames()
+    public function getClassNames()
     {
         $path = IcEngine::root() . 'Ice/Config/Model/Mapper/';
 		$command = 'find ' . $path . '*';

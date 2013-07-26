@@ -84,7 +84,7 @@ class Helper_Migration extends Helper_Abstract
     public function getName($name)
     {
         $unique = substr($this->getService('helperUnique')->hash(), 3, 6);
-        $migrationName = $name . '_' . date('Y_m_d') . '_' . $unique;
+        $migrationName = $name . date('Ymd') . $unique; 
         return $migrationName;
     }
     

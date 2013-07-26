@@ -21,6 +21,13 @@ class Migration_Abstract
 	 */
 	const ST_DOWN = 0;
 
+    /**
+     * Имя модели
+     * 
+     * @var string
+     */
+    public $model;
+    
 	/**
 	 * Параметры, переданные в миграцию контроллером,
 	 * который ее запустил

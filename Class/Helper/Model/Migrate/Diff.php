@@ -12,7 +12,7 @@ class Helper_Model_Migrate_Diff extends Helper_Abstract
     /**
      * Создать поле
      * 
-     * @param string $modelName
+     * @param string $modelName 
      * @param string $fieldName
      * @param array $fieldAttrs
      * @return Query_Abstract
@@ -22,7 +22,7 @@ class Helper_Model_Migrate_Diff extends Helper_Abstract
         $newField = $this->newField($fieldName, $fieldAttrs);
         $query = $this->getService('query')
             ->alterTable($modelName)
-            ->add($newField);
+            ->addField($newField);
         return $query;
     }
     
@@ -40,12 +40,14 @@ class Helper_Model_Migrate_Diff extends Helper_Abstract
         ksort($sourceAttributes);
         $schemeAttributeNames = array_keys($schemeAttributes);
         $sourceAttributeNames = array_keys($sourceAttributes);
-        if (array_diff($schemeAttributeNames, $sourceAttributeNames)) {
+        if (array_diff($schemeAttributeNames, $sourceAttributeNames) ||
+            count($schemeAttributeNames) != count($sourceAttributeNames)) {
             return true;
         }
         if (array_diff($schemeAttributes, $sourceAttributes)) {
             return true;
         }
+        return false;
     }
     
     /**
@@ -61,7 +63,7 @@ class Helper_Model_Migrate_Diff extends Helper_Abstract
         $newField = $this->newField($fieldName, $fieldAttrs);
         $query = $this->getService('query')
             ->alterTable($modelName)
-            ->change($fieldName, $newField);
+            ->changeField($newField, $fieldName);
         return $query;
     }
     
@@ -78,7 +80,11 @@ class Helper_Model_Migrate_Diff extends Helper_Abstract
             ->setModelName($modelName);
         $dataScheme = new Data_Scheme($dataSchemeDto);
         $dataSource->getScheme($dataScheme);
-        $this->getService('helperModelMigrateSync')->resync($modelName);
+        $status = $this->getService('helperModelMigrateSync')
+            ->resync($modelName);
+        if (!$status) {
+            return false;
+        }
         $currentScheme = $modelScheme->scheme($modelName);
         $currentSchemeFields = $currentScheme->fields->__toArray();
         $resultMigrations = array();
@@ -123,10 +129,9 @@ class Helper_Model_Migrate_Diff extends Helper_Abstract
      */
     public function dropField($modelName, $fieldName)
     {
-        $field = new Model_Field($fieldName);
         $query = $this->getService('query')
             ->alterTable($modelName)
-            ->drop($field);
+            ->dropField($fieldName);
         return $query;
     }
     
@@ -143,6 +148,9 @@ class Helper_Model_Migrate_Diff extends Helper_Abstract
             $newField = array(
                 $field->getType(), array()
             );
+            if ($field->getComment()) {
+                $newField[1]['Comment'] = $field->getComment();
+            }
             if ($field->getSize()) {
                 $newField[1]['Size'] = $field->getSize();
             }

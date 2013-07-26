@@ -3,17 +3,23 @@ $dataSource = $this->getService('modelScheme')->dataSource($modelName);
 $queryBuilder = $this->getService('query');
 {foreach from=$migrations key="i" item="m"}
 {$data=$m->getPart(Query::ALTER_TABLE)}
-{$fullPart=$data[0]}
-{$method=key($fullPart)}
-{$part=reset($fullPart)} 
+{if !isset($data[Query::FIELD])}
+{$data=$m->getPart(Query::CREATE_TABLE)}
+{/if}
+{if isset($data[Query::FIELD][Query::FIELD])}
+{$method=Query::DROP}
+{$fieldName=$data[Query::FIELD][Query::FIELD]}
+{else}
+{$part=reset($data[Query::FIELD])}
+{$method=$part[Query::TYPE]}
 {$fieldName=$part[Query::FIELD]}
 {if $method==Query::CHANGE}
-    {$attr=$part[Query::ATTR]}
-    {$fieldName=$attr[Query::NAME]}
+    {$fieldName=$part[Query::NAME]}
 {/if}
-$field{$i} = new \Model_Field('{$fieldName}');
+{/if}
 {if $method!=Query::DROP} 
-{$attr=$part[Query::ATTR]}
+{$attr=$part['__ATTR__']}
+$field{$i} = new \Model_Field('{$fieldName}');
 $field{$i}->setType('{$attr[Model_Field::ATTR_TYPE]}');
 {if !empty($attr[Model_Field::ATTR_SIZE])}
 $field{$i}->setSize({$attr[Model_Field::ATTR_SIZE]});
@@ -39,12 +45,12 @@ $field{$i}->setUnsigned(true);
 $query{$i} = $queryBuilder
     ->alterTable($modelName)
 {if $method==Query::DROP}
-    ->drop($field{$i});
+    ->dropField('{$fieldName}');
 {elseif $method==Query::ADD}
-    ->add($field{$i});
+    ->addField($field{$i});
 {else}
     {$oldFieldName=$part[Query::FIELD]}
-    ->change('{$oldFieldName}', $field{$i});
+    ->changeField($field{$i},'{$oldFieldName}');
 {/if}
 $dataSource->execute($query{$i});
 {/foreach}
