@@ -88,7 +88,7 @@ class Metagraphy_Strategy_Default extends Metagraphy_Strategy_Abstract
 	 */
 	public function makeUrlLink($text)
 	{
-		$link = $this->translit($text, 'en');
+		$link = $this->process($text, 'en');
 		$linkReplaced = preg_replace('/([^0-9a-zA-Z_])+/', '', $link);
 		$linkReplaced2 = preg_replace('/[_]{2,}/', '_', $linkReplaced);
 		$linkReplaced3 = preg_replace('/^_/', '', $linkReplaced2);
