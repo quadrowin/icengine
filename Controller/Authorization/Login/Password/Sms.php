@@ -138,7 +138,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
             return $this->sendError('empty login',
 					'Data_Validator_Authorization_Login/invalid');
         }
-        if (empty($password)) {
+        if (empty($pass)) {
             return $this->sendError('empty login',
 					'Data_Validator_Authorization_Password/invalid');
         }
