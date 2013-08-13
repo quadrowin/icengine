@@ -14,7 +14,8 @@ class Controller_Admin_Action extends Controller_Abstract
             ->delete()
             ->from($table);
         if ($rowId) {
-            $query->where('rowId', $rowId);
+            $keyField = $this->getService('modelScheme')->keyField($table);
+            $query->where($keyField, $rowId);
         }
         $context->dds->execute($query);
     }
