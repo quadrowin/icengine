@@ -324,12 +324,13 @@ class Helper_Date
 		return self::$monthesRu[$form][(int) $monthNum];
 	}
 
-	/**
-	 * Получение даты и времени из строки.
+    /**
+     * Получение даты и времени из строки.
      *
-	 * @param mixed $date
-	 * @return DateTime|null
-	 */
+     * @param $str
+     * @internal param mixed $date
+     * @return DateTime|null
+     */
 	public function parseDateTime($str)
 	{
 		if (is_numeric($str)) {
