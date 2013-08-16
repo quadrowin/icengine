@@ -154,7 +154,7 @@ class Helper_Date
             $result =
                 (int) $day .
                 '&nbsp' .
-                $this->monthesRu [2][(int) $month] .
+                Helper_Date::$monthesRu [2][(int) $month] .
                 ($year != $currentYear ? ' ' . $year : '');
 
             return $result;
