@@ -583,11 +583,12 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		return $this->lastQuery;
 	}
 
-	/**
-	 * Загрузка данных
+    /**
+     * Загрузка данных
      *
-	 * @return Model_Collection
-	 */
+     * @param array $columns
+     * @return Model_Collection
+     */
 	public function load($columns = array())
 	{
         if (!is_null($this->items)) {
