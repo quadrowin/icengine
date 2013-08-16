@@ -318,6 +318,7 @@ class Helper_Array extends Helper_Abstract
 			for ($i = 0; $i < count($list); $i++) {
 				$listIds[$list[$i][$keyField]] = $i;
 			}
+            $parentId = 0;
 			for ($i = 0; $i < count($result); $i++) {
 				if (!$result[$i][$parentField]) {
 					$parentId = $result[$i][$keyField];
