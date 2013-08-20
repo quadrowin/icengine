@@ -27,35 +27,6 @@ class Helper_Model_Migrate_Diff extends Helper_Abstract
     }
     
     /**
-     * Сравнить два поля: из схему и из источника данных
-     * 
-     * @param array $schemeField
-     * @param array $sourceField
-     */
-    public function compareField($schemeField, $sourceField)
-    {
-        $schemeAttributes = $this->getAttributes($schemeField);
-        $sourceAttributes = $this->getAttributes($sourceField);
-        ksort($schemeAttributes);
-        ksort($sourceAttributes);
-        $schemeAttributeNames = array_keys($schemeAttributes);
-        $sourceAttributeNames = array_keys($sourceAttributes);
-        if (array_diff($schemeAttributeNames, $sourceAttributeNames) ||
-            count($schemeAttributeNames) != count($sourceAttributeNames)) {
-            return true;
-        }
-        foreach ($schemeAttributeNames as $key) {
-            if (!isset($sourceAttributes[$key])) {
-                return false;
-            }
-            if ($schemeAttributes[$key] != $sourceAttributes[$key]) {
-                return false;
-            }
-        }
-        return false;
-    }
-    
-    /**
      *  Изменить поле
      * 
      * @param string $modelName
@@ -144,55 +115,7 @@ class Helper_Model_Migrate_Diff extends Helper_Abstract
             ->dropField($fieldName);
         return $query;
     }
-    
-    /**
-     * Получить атрибуты поля
-     * 
-     * @param array $field
-     * @return array
-     */
-    public function getAttributes($field)
-    {
-        $result = array();
-        if (is_object($field)) {
-            $newField = array(
-                $field->getType(), array()
-            );
-            if ($field->getComment()) {
-                $newField[1]['Comment'] = $field->getComment();
-            }
-            if ($field->getSize()) {
-                $newField[1]['Size'] = $field->getSize();
-            }
-            if (!is_null($field->getDefault())) {
-                $newField[1]['Default'] = $field->getDefault();
-            }
-            if (!$field->getNullable()) {
-                $newField[1][] = 'Not_Null';
-            } else {
-                $newField[1][] = 'Null';
-            }
-            if ($field->getAutoIncrement()) {
-                $newField[1][] = 'Auto_Increment';
-            }
-            if ($field->getUnsigned()) {
-                $newField[1][] = 'Unsigned';
-            }
-            $field = $newField;
-        } 
-        $fieldAttributes = array_merge(
-            array('Type' => $field[0]), $field[1]
-        );
-        foreach ($fieldAttributes as $attributeName => $value) {
-            if (is_numeric($attributeName)) {
-                $attributeName = $value;
-                $value = true;
-            }
-            $result[$attributeName] = $value;
-        }
-        return $result;
-    }
-    
+
     /**
      * Создать новое поле модели
      * 
