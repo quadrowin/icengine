@@ -94,6 +94,8 @@ class Helper_Model_Migrate_Diff extends Helper_Abstract
         $currentSchemeFields = $currentScheme->fields->__toArray();
         $resultMigrations = array();
         $setStates = array();
+        $annotation = $this->getService('annotationModelManager')
+            ->get('Orm_Field');
         foreach ($currentSchemeFields as $fieldName => $fieldAttrs) {
             if (isset($fieldAttrs['Rename'])) {
                 $setStates[$fieldAttrs['Rename']] = $fieldName;
@@ -115,8 +117,11 @@ class Helper_Model_Migrate_Diff extends Helper_Abstract
                 $resultMigrations[] = $this->addField(
                     $modelName, $fieldName, $fieldAttrs
                 );
-            } elseif ($this->compareField(
-                $fieldAttrs, $dataSchemeDto->fields[$fieldName])) {
+                continue;    
+            }
+            $newDto = array($fieldName => $dataSchemeDto->fields[$fieldName]);
+            $newAttrs = array($fieldName => $fieldAttrs);
+            if (!$annotation->compare($newDto, $newAttrs)) {
                 $resultMigrations[] = $this->changeField(
                     $modelName, $fieldName, $currentSchemeFields[$fieldName]
                 );
