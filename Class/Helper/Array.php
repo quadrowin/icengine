@@ -46,6 +46,35 @@ class Helper_Array extends Helper_Abstract
 	}
 
     /**
+     * Рекурсивное сравнение двух ассоциативных массиовов
+     * 
+     * @param array $array1
+     * @param array $array2
+     * @return boolean
+     */
+    public function diffRecursive(array $array1, array $array2) 
+    {
+        $difference = array();
+        foreach ($array1 as $key => $value) {
+            if (is_array($value)) {
+                if (!array_key_exists($key, $array2) || 
+                    !is_array($array2[$key])) {
+                    $difference[$key] = $value;
+                } else {
+                    $newDiff = $this->diffRecursive($value, $array2[$key]);
+                    if ($newDiff) {
+                        $difference[$key] = $newDiff;
+                    }
+                }
+            } elseif (!array_key_exists($key, $array2) || 
+                $array2[$key] != $value) {
+                $difference[$key] = $value;
+            }
+        }
+        return $difference;
+    }
+    
+    /**
      * Фильтрация массива
      *
      * @param array $rows
