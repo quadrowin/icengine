@@ -155,5 +155,6 @@ class Dto
             }
             $this->fields[$key] = $value;
         }
+        return $this;
     }
 }
