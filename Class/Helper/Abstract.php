@@ -21,7 +21,7 @@ class Helper_Abstract
     protected $config = array();
     
     /**
-     * Загружает и возвращает конфиг для контроллера
+     * Загружает и возвращает конфиг для хелпера
      *
      * @return Objective
      */
