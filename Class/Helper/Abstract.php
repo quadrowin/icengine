@@ -14,7 +14,7 @@ class Helper_Abstract
     protected static $serviceLocator = null;
 
     /**
-     * Конфиг контроллера
+     * Конфиг 
      *
      * @var array
      */
