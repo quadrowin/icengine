@@ -103,10 +103,22 @@ class Helper_Image_Resize
         if (!$input) {
             return false;
         }
+        if (!is_file($input)) {
+            echo 'Not file' . PHP_EOL;
+            return false;
+        }
         if (!file_exists($input)) {
+            echo 'File not exists' . PHP_EOL;
+            return false;
+        }
+        if (!is_readable($input)) {
+            echo 'Access denied for read' . PHP_EOL;
             return false;
         }
         list($inputWidth, $inputHeight, $inputType) = getimageSize($input);
+        if (!$inputWidth || !$inputHeight) {
+            return false;
+        }
         //пропорционально
 		if ($proportional || $scale) {
             if (!$scale) {

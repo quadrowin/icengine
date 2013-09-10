@@ -240,13 +240,21 @@ class Helper_Date
 	 * @param integer $date Дата.
 	 * @return intger Номер недели.
 	 */
-	public static function eraMinNum($delta, $date = false)
+	public static function eraMinNum($delta = 1, $date = null)
 	{
 		if ($date === null) {
 			$date = time();
 		}
+        $parts = 60 / $delta;
+        $part = 1;
+        for ($i = $parts; $i >= 1; $i--) {
+            if ((int) date('i', $date) > ($i - 1) * $delta) {
+                $part = $i;
+                break;
+            }
+        }
 		return ((self::eraDayNum ($date) * 24 + (int) date('H', $date)) * 60 +
-			(int) date('i', $date)) * ((int) (60 / $delta));
+			$part * $delta);
 	}
 
 	/**
