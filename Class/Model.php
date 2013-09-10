@@ -376,14 +376,15 @@ abstract class Model implements ArrayAccess
 		return static::$config;
 	}
 
-	/**
-	 * Устанавливает или получает связанные данные объекта
+    /**
+     * Устанавливает или получает связанные данные объекта
      *
-	 * @param string $key Ключ.
-	 * @param mixed $value [optional] Значение (не обязательно).
-	 * @return mixed Текущее значение или null.
-	 */
-	public function &data($key = null, $value = null)
+     * @param string $key Ключ.
+     * @param mixed $value [optional] Значение (не обязательно).
+     * @throws ErrorException
+     * @return mixed Текущее значение или null.
+     */
+	public function &data($key, $value = null)
 	{
         if (!is_object($this->data)) {
             $this->data = $this->getData();
@@ -395,7 +396,9 @@ abstract class Model implements ArrayAccess
                     ? $data->__toArray() : $data;
                 return $result;
 			}
-			$this->data = array_merge($this->data->__toArray(), $key);
+
+            throw new ErrorException('Не удалось получить данные. Запрошено:' . print_r($key, true));
+			//$this->data = array_merge($this->data->__toArray(), $key); // Неведомая хуйня // dp
 		} elseif (func_num_args() == 2) {
 			$this->data[$key] = $value;
 		}
