@@ -397,8 +397,9 @@ abstract class Model implements ArrayAccess
                 return $result;
 			}
 
-            throw new ErrorException('Не удалось получить данные. Запрошено:' . print_r($key, true));
-			//$this->data = array_merge($this->data->__toArray(), $key); // Неведомая хуйня // dp
+			if (is_array($key)) {
+                $this->data = array_merge($this->data->__toArray(), $key); // Неведомая хуйня // dp
+            }
 		} elseif (func_num_args() == 2) {
 			$this->data[$key] = $value;
 		}
