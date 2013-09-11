@@ -381,10 +381,9 @@ abstract class Model implements ArrayAccess
      *
      * @param string $key Ключ.
      * @param mixed $value [optional] Значение (не обязательно).
-     * @throws ErrorException
      * @return mixed Текущее значение или null.
      */
-	public function &data($key, $value = null)
+	public function &data($key = null, $value = null)
 	{
         if (!is_object($this->data)) {
             $this->data = $this->getData();
@@ -439,14 +438,14 @@ abstract class Model implements ArrayAccess
 		return !is_null($index) ? $collection->item($index) : $collection;
 	}
 
-	/**
-	 * Получение или установка значения
+    /**
+     * Получение или установка значения
      *
-	 * @param string $key Поле
-	 * @param mixed $value Значение (не обязательно).
-	 * Если указано значение, оно будет записано в поле.
-	 * @return mixed Если $value не передан, будет возвращено значение поля.
-	 */
+     * @param string $key Поле
+     * @internal param mixed $value Значение (не обязательно).
+     * Если указано значение, оно будет записано в поле.
+     * @return mixed Если $value не передан, будет возвращено значение поля.
+     */
 	public function field($key)
 	{
 		if (func_num_args() > 1) {
@@ -554,11 +553,12 @@ abstract class Model implements ArrayAccess
 		return $this->updatedFields;
 	}
 
-	/**
-	 * Проверяет существование поля в модели
+    /**
+     * Проверяет существование поля в модели
      *
-	 * @return boolean
-	 */
+     * @param $field
+     * @return boolean
+     */
 	public function hasField($field)
 	{
         if (is_null($this->fields)) {
