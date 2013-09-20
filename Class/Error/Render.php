@@ -56,7 +56,7 @@ class Error_Render extends Manager_Abstract
 
         $msg = '<i>url: ' . $requestUri . "</i>\n" .
             '<i>referer: ' . $_SERVER['HTTP_REFERER'] . "</i>\n\n" .
-            '<b>[' . $e->getFile() . '@' .
+            '<b style="color: red;">[' . $e->getFile() . '@' .
             $e->getLine() . ':' .
             $e->getCode() . '] ' .
             $e->getMessage () . "</b>\n" .
