@@ -142,13 +142,10 @@ var Helper_Form = {
 							$(this).removeClass('errorRequired');
 						}
 					}
-					if ($(this).attr ('placeholder') == $(this).val ())
-					{
-						_setValue (this.name, '');
-					}
-					else
-					{
-						_setValue (this.name, $(this).val ());
+					if ($(this).attr ('placeholder') == $(this).val()) {
+						_setValue(this.name, '');
+					} else if (this.name.length) {
+						_setValue(this.name, $(this).val());
 					}
 				}
 			} else {
