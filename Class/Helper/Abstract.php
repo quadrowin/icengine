@@ -18,30 +18,7 @@ class Helper_Abstract
      * @var array
      */
     protected $config = array();
-    
-    /**
-     * Загружает и возвращает конфиг для хелпера
-     *
-     * @return Objective
-     */
-    public function config()
-    {
-        if (is_array($this->config)) {
-            $configManager = $this->getService('configManager');
-            $this->config = $configManager->get(
-                get_class($this), $this->config
-            );
-        }
-        return $this->config;
-    }
-    
-    /**
-     * Конфиг 
-     *
-     * @var array
-     */
-    protected $config = array();
-    
+
     /**
      * Загружает и возвращает конфиг для хелпера
      *
