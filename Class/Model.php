@@ -120,6 +120,7 @@ abstract class Model implements ArrayAccess
      *
      * @param string $method
      * @param array $args
+     * @throws Exception
      * @return mixed
      */
     public function __call($method, $args)
@@ -201,11 +202,13 @@ abstract class Model implements ArrayAccess
 	}
 
     /**
-	 * Изменяет значение поля
+     * Изменяет значение поля
      *
-	 * @param string $field Поле
-	 * @param mixed $value Значение
-	 */
+     * @param string $field Поле
+     * @param mixed $value Значение
+     * @throws Exception
+     * @return mixed
+     */
 	public function __set($field, $value)
 	{
         if (!$this->fields) {
@@ -373,13 +376,13 @@ abstract class Model implements ArrayAccess
 		return static::$config;
 	}
 
-	/**
-	 * Устанавливает или получает связанные данные объекта
+    /**
+     * Устанавливает или получает связанные данные объекта
      *
-	 * @param string $key Ключ.
-	 * @param mixed $value [optional] Значение (не обязательно).
-	 * @return mixed Текущее значение или null.
-	 */
+     * @param string $key Ключ.
+     * @param mixed $value [optional] Значение (не обязательно).
+     * @return mixed Текущее значение или null.
+     */
 	public function &data($key = null, $value = null)
 	{
         if (!is_object($this->data)) {
@@ -392,7 +395,10 @@ abstract class Model implements ArrayAccess
                     ? $data->__toArray() : $data;
                 return $result;
 			}
-			$this->data = array_merge($this->data->__toArray(), $key);
+
+			if (is_array($key)) {
+                $this->data = array_merge($this->data->__toArray(), $key); // Неведомая хуйня // dp
+            }
 		} elseif (func_num_args() == 2) {
 			$this->data[$key] = $value;
 		}
@@ -432,14 +438,14 @@ abstract class Model implements ArrayAccess
 		return !is_null($index) ? $collection->item($index) : $collection;
 	}
 
-	/**
-	 * Получение или установка значения
+    /**
+     * Получение или установка значения
      *
-	 * @param string $key Поле
-	 * @param mixed $value Значение (не обязательно).
-	 * Если указано значение, оно будет записано в поле.
-	 * @return mixed Если $value не передан, будет возвращено значение поля.
-	 */
+     * @param string $key Поле
+     * @internal param mixed $value Значение (не обязательно).
+     * Если указано значение, оно будет записано в поле.
+     * @return mixed Если $value не передан, будет возвращено значение поля.
+     */
 	public function field($key)
 	{
 		if (func_num_args() > 1) {
@@ -547,11 +553,12 @@ abstract class Model implements ArrayAccess
 		return $this->updatedFields;
 	}
 
-	/**
-	 * Проверяет существование поля в модели
+    /**
+     * Проверяет существование поля в модели
      *
-	 * @return boolean
-	 */
+     * @param $field
+     * @return boolean
+     */
 	public function hasField($field)
 	{
         if (is_null($this->fields)) {

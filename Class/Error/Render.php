@@ -52,16 +52,19 @@ class Error_Render extends Manager_Abstract
      */
 	public function render (Exception $e)
 	{
-        $msg = 'url: ' . $_SERVER['REQUEST_URI'] . "\n" .
-            '[' . $e->getFile() . '@' .
+        $requestUri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : './cli';
+
+        $msg = '<i>url: ' . $requestUri . "</i>\n" .
+            '<i>referer: ' . $_SERVER['HTTP_REFERER'] . "</i>\n\n" .
+            '<b style="color: red;">[' . $e->getFile() . '@' .
             $e->getLine() . ':' .
             $e->getCode() . '] ' .
-            $e->getMessage () . "\n" .
-            $e->getTraceAsString() . PHP_EOL;
+            $e->getMessage () . "</b>\n" .
+            $e->getTraceAsString() . "\n\n";
 
         $previous = $e->getPrevious();
         if ($previous) {
-           $msg .= $previous->getMessage() . "\n" . $previous->getTraceAsString();
+           $msg .= "<b>" . $previous->getMessage() . "</b>\n" . $previous->getTraceAsString();
         }
 
         $this->getService('debug')->log($msg, E_ERROR);
