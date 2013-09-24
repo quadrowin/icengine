@@ -91,7 +91,7 @@ class Page_Title extends Model
     /**
      * Получить тайтл по городу и урлу
      *
-     * @param string $cityId
+     * @param int $cityId
      * @param string $uri
      * @param null $host
      * @return null
@@ -135,7 +135,6 @@ class Page_Title extends Model
                 'field' => 'weight'
             )
         );
-
         if (!$page || !$page->siteTitle) {
             if (!$page) {
                 $page = $this->createEmpty();
@@ -144,8 +143,7 @@ class Page_Title extends Model
                 $route = $this->getService('router')->getRoute();
                 if (isset($route->params) && !empty($route->params['title'])) {
                     $data = $route->params['title'];
-                    static $keys = array('siteTitle', 'pageTitle',
-                        'controllerAction');
+                    static $keys = array('siteTitle', 'pageTitle', 'controllerAction');
                     foreach ($keys as $key) {
                         if (!empty($data[$key])) {
                             $page->set($key, $data[$key]);
