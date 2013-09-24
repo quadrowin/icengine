@@ -52,7 +52,7 @@ class Helper_Smarty_Filter_Acl
 				foreach ($roles as $role)
 				{
 					$role = Acl_Role::byName ($role);
-					if (!User::getCurrent ()->hasRole ($role))
+					if (!IcEngine::getServiceLocator()->getService('user')->getCurrent()->hasRole ($role))
 					{
 						// Пользователь не имеет указанной роли
 						return false;
@@ -66,7 +66,7 @@ class Helper_Smarty_Filter_Acl
 					'"\''
 				);
 				
-				if ($auth != User::authorized ())
+				if ($auth != IcEngine::getServiceLocator()->getService('user')->getCurrent()->authorized ())
 				{
 					return false;
 				}

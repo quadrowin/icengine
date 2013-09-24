@@ -7,19 +7,18 @@
  */
 class Helper_Abstract
 {
-
     /**
      * @var Service_Locator
      */
     protected static $serviceLocator = null;
 
     /**
-     * Конфиг 
+     * Конфиг хелпера
      *
      * @var array
      */
     protected $config = array();
-    
+
     /**
      * Загружает и возвращает конфиг для хелпера
      *

@@ -112,6 +112,25 @@ class Helper_Array extends Helper_Abstract
     }
 
     /**
+     * @desc Установить в качестве ключей массива значения из колонки $column
+     * @param array $input
+     * 		Входной массив.
+     * @param string $column
+     * 		Колонка, значения которой будут использованы в качестве ключей.
+     * @return array
+     */
+    public function setKeyColumn (array $input, $column)
+    {
+        if (!$input) {
+            return array();
+        }
+        return array_combine(
+            $this->column($input, $column),
+            $input
+        );
+    }
+
+    /**
      * Переиндексировать массив по полю
      *
      * @param array $array
