@@ -784,7 +784,11 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
                 $columns = array_keys($scheme->fields->asArray());
             }
             if (is_array($this->items) && !empty($this->items)){
-                $diff = array_diff(array_keys((array) current($this->items)), $columns);
+                $current = current($this->items);
+                if (!is_array($current)) {
+                    $current = $current->raw();
+                }
+                $diff = array_diff(array_keys($current), $columns);
                 $columns = array_merge($columns, $diff);
             }
         }
@@ -794,14 +798,9 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
         } elseif ($columns && !in_array($keyField, $columns)) {
             $keyField = reset($columns);
         }
-//        if (!empty($this->items)){
-//        fb($this->items[0]);
-//        }
-//        fb($columns);
+
         $result = $helperArray->column($this->items, $columns, $keyField);
-//        if (!empty($results)){
-//            fb($result[0]);
-//        }
+
         if (count($columns) == 1) {
             foreach ($result as $i => $row) {
                 unset($result[$i]);
@@ -846,7 +845,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
             }
             $this->rawFields = array();
         }
-
         $readyResult = array_values((array) $result);
         if ($index) {
             $readyResult = $helperArray->reindex($readyResult, $index);
