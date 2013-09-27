@@ -783,8 +783,8 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
             if ($scheme->fields) {
                 $columns = array_keys($scheme->fields->asArray());
             }
-            if (!empty($this->items)){
-                $diff = array_diff(array_keys($this->items[0]), $columns);
+            if (is_array($this->items) && !empty($this->items)){
+                $diff = array_diff(array_keys((array) current($this->items)), $columns);
                 $columns = array_merge($columns, $diff);
             }
         }
@@ -798,7 +798,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 //        fb($this->items[0]);
 //        }
 //        fb($columns);
-        $result = $helperArray->column($this->items, $columns);
+        $result = $helperArray->column($this->items, $columns, $keyField);
 //        if (!empty($results)){
 //            fb($result[0]);
 //        }
@@ -809,23 +809,23 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
             }
         }
 
-//        foreach ($this->items as $item) {
-//            if (!is_array($this->items) || !isset($item['data'])) {
-//                continue;
-//            }
-//            if (!isset($result[$item[$keyField]]['data'])) {
-//                $result[$item[$keyField]]['data'] = array();
-//            }
-//            $data = (array) $item['data'];
-//            foreach (array_keys($data) as $fieldName) {
-//                if (in_array($fieldName, (array) $this->rawFields)) {
-//                    unset($data[$fieldName]);
-//                }
-//            }
-//            $result[$item[$keyField]]['data'] = array_merge(
-//                (array) $result[$item[$keyField]]['data'], $data
-//            );
-//        }
+        foreach ($this->items as $item) {
+            if (!is_array($this->items) || !isset($item['data'])) {
+                continue;
+            }
+            if (!isset($result[$item[$keyField]]['data'])) {
+                $result[$item[$keyField]]['data'] = array();
+            }
+            $data = (array) $item['data'];
+            foreach (array_keys($data) as $fieldName) {
+                if (in_array($fieldName, (array) $this->rawFields)) {
+                    unset($data[$fieldName]);
+                }
+            }
+            $result[$item[$keyField]]['data'] = array_merge(
+                (array) $result[$item[$keyField]]['data'], $data
+            );
+        }
 
         if ($this->rawFields) {
             foreach ($this->items as $item) {
@@ -838,11 +838,11 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
                 if (!isset($result[$item[$keyField]])) {
                     $result[$item[$keyField]] = array();
                 }
-                foreach ($this->rawFields as $i => $fieldName) {
-                    $result[$item[$keyField]][$fieldName] =
-                        is_array($subColumns[0])
-                            ? $subColumns[0][$fieldName] : $subColumns[0];
-                }
+//                foreach ($this->rawFields as $i => $fieldName) {
+//                    $result[$item[$keyField]][$fieldName] =
+//                        is_array($subColumns[0])
+//                            ? $subColumns[0][$fieldName] : $subColumns[0];
+//                }
             }
             $this->rawFields = array();
         }
