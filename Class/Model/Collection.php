@@ -471,7 +471,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
     public function helper()
     {
         if (is_null($this->helper)) {
-            $this->helper = IcEngine::getServiceLocator()->getService('collectionManager')->create('Helper_Model');
+            $this->helper = new Helper_Model_Collection();
         }
         return $this->helper;
     }
