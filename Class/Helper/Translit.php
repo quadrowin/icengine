@@ -80,28 +80,32 @@ class Helper_Translit extends Helper_Abstract
         }
         return $this->strategies[$this->strategyName];
     }
-    
-	/**
-	 * Перевод строки в транслит
-	 *
-	 * @param string $value Исходна стока
-	 * @param string $lang [optional] Направление перевода
-	 * 		Если "en" - из русского на транслит,
-	 * 		если "ru" - из транслита на русский
-	 * @return Результат транслитации.
-	 */
+
+    /**
+     * Перевод строки в транслит
+     *
+     * @param $text
+     * @param string $lang [optional] Направление перевода
+     *        Если "en" - из русского на транслит,
+     *        если "ru" - из транслита на русский
+     * @param string $strategyName
+     * @internal param string $value Исходна стока
+     * @return mixed Результат транслитации.
+     */
 	public function translit($text, $lang = null, $strategyName = "Default")
 	{
         $this->setStrategy($strategyName);
         return $this->getStrategy()->translit($text, $lang);
 	}
 
-	/**
-	 * Формирует из названия статьи ссылку.
-	 *
-	 * @param string $value Исходное название
-	 * @return string Ссылка
-	 */
+    /**
+     * Формирует из названия статьи ссылку.
+     *
+     * @param $text
+     * @param string $strategyName
+     * @internal param string $value Исходное название
+     * @return string Ссылка
+     */
 	public function makeUrlLink($text, $strategyName = "Default")
 	{
         $this->setStrategy($strategyName);
