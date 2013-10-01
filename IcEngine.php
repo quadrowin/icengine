@@ -88,6 +88,14 @@ class IcEngine
 		return self::$_bootstrap;
 	}
 
+    /**
+     * Выполняется после работы всего
+     */
+    public static function end()
+    {
+        self::saveLocation();
+    }
+
 	/**
 	 * @desc Вывод результата работы.
 	 */
@@ -261,6 +269,17 @@ class IcEngine
 			self::$_task
 		);
 	}
+
+
+    public static function saveLocation()
+    {
+        $route = Router::getRoute();
+        $action = reset($route['actions']);
+        $provider = Data_Provider_Manager::get('Redis');
+        $session = User_Session::getCurrent();
+        $key = $session->key() . '_locationUrl';
+        $provider->set($key, $action);
+    }
 
 	public static function shutdownHandler ()
 	{
