@@ -15,6 +15,8 @@ class Data_Validator_Registration_Email
 
 	const REPEAT	= 'repeat';		// Уже используется
 
+    const NOTACTIVATE = 'notActivate'; //Пользователь не активирован
+
 	public function validateEx ($field, $data, $scheme)
 	{
 		if (empty ($data->$field))
@@ -56,7 +58,7 @@ class Data_Validator_Registration_Email
 
 		if ($reg)
 		{
-			return __CLASS__ . '/' . self::REPEAT;
+			return __CLASS__ . '/' . self::NOTACTIVATE;
 		}
 
 		return true;
