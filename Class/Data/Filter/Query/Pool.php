@@ -2,19 +2,19 @@
 
 /**
  * Фильтр запросов для группировки в сессию Unit of Work
- * 
+ *
  * @author morph
  */
 class Data_Filter_Query_Pool extends Data_Filter_Abstract
 {
     /**
      * Добавленные запросы
-     * 
+     *
      * @var array
      * @Generator
      */
     protected $queries = array();
-    
+
     /**
      * @inheritdoc
      */
@@ -22,7 +22,7 @@ class Data_Filter_Query_Pool extends Data_Filter_Abstract
     {
         $modelName = $query->tableName();
         $type = $query->type();
-        echo $type . ' ' . $query->translate('Mysql') . PHP_EOL;
+        //echo $type . ' ' . $query->translate('Mysql') . PHP_EOL;
         if (!isset($this->queries[$modelName]) || $type == Query::SELECT) {
             return $query;
         }
@@ -32,7 +32,7 @@ class Data_Filter_Query_Pool extends Data_Filter_Abstract
         $this->queries[$modelName][$type][] = $query;
         return null;
     }
-    
+
     /**
      * Getter for "queries"
      *
@@ -42,10 +42,10 @@ class Data_Filter_Query_Pool extends Data_Filter_Abstract
     {
         return $this->queries;
     }
-        
+
     /**
      * Добавить модель
-     * 
+     *
      * @param string $modelName
      */
     public function register($modelName)
@@ -54,7 +54,7 @@ class Data_Filter_Query_Pool extends Data_Filter_Abstract
             $this->queries[$modelName] = array();
         }
     }
-    
+
     /**
      * Setter for "queries"
      *
@@ -64,13 +64,13 @@ class Data_Filter_Query_Pool extends Data_Filter_Abstract
     {
         $this->queries = $queries;
     }
-    
+
     /**
      * Удалить модель
-     * 
+     *
      * @param string $modelName
      */
-    public function unregister($modelName) 
+    public function unregister($modelName)
     {
         if (isset($this->queries[$modelName])) {
             unset($this->queries[$modelName]);
