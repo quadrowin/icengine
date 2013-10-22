@@ -18,7 +18,8 @@ class Mail_Template extends Model_Child
 		'name'	    => 'empty',
 		'parentId'	=> 0,
 		'subject'	=> 'subj',
-		'body'	    => 'body'
+		'body'	    => 'body',
+        'footer'    => ''
 	);
 
 	/**
@@ -70,11 +71,45 @@ class Mail_Template extends Model_Child
 		if ($parent)
 		{
 		    $data ['body'] = $body;
+            $data['footer'] = $this->footer($data);
 		    $body = $parent->body ($data);
 		}
 
 		return $body;
 	}
+    
+    	/**
+	 * @desc Получение футера по шаблону.
+	 * @param array $data Переменные шаблона.
+	 * @return string
+	 */
+	public function footer (array $data = array ())
+	{
+		$smarty = View_Render_Manager::pushViewByName ('Smarty')->smarty ();
+		$smarty->assign ($data);
+
+		$tpl_name = 'Mail/Template/' . $this->name . '_footer.tpl';
+		if($smarty->templateExists($tpl_name))
+		{
+			$footer = $smarty->fetch ($tpl_name);
+		}
+		else
+		{
+			$footer = $smarty->fetch ('string:' . $this->footer);
+		}
+
+		View_Render_Manager::popView ();
+
+		/*$parent = $this->getParent ();
+
+		if ($parent)
+		{
+		    $data ['footer'] = $footer;
+		    $footer = $parent->footer ($data);
+		}*/
+     return $footer;
+	}
+    
 
 	/**
 	 * @desc Получение заголовка по шаблону.

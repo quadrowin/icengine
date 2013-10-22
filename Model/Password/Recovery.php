@@ -44,6 +44,8 @@ class Password_Recovery extends Model
 	 * @var integer
 	 */
 	const MAX_QUERY_PER_EMAIL	= 3;
+    //const MAX_QUERY_PER_EMAIL	= 999;
+    //const MAX_QUERY_PER_IP		= 999;
 	const MAX_QUERY_PER_IP		= 6;
 
 	/**
