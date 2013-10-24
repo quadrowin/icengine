@@ -912,9 +912,9 @@ abstract class Model implements ArrayAccess
             if (!isset($fields[$key])) {
                 continue;
             }
-            if ($value == $this->field($key)) {
-                continue;
-            }
+//            if ($value == $this->field($key)) {
+//                continue;
+//            }
             $this->updatedFields[$key] = $value;
         }
         if (!$this->updatedFields && $this->key() && !$hardUpdate) {
