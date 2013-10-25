@@ -9,7 +9,8 @@ var Loader = {
      */
     groups: {
         'engine':   '/IcEngine/Static/js/',
-        'ice':      '/Ice/Static/js/noPack/'
+        'ice':      '/Ice/Static/js/noPack/',
+        'cache':    '/cache/'
     },
 
     /**
@@ -28,8 +29,11 @@ var Loader = {
     /**
      * Загружает класс или классы
      */
-    load: function(className, group) {
+    load: function(className, group, async) {
         var names = className;
+        if (typeof(async) == 'undefined') {
+            async = false;
+        }
         if (typeof names == 'string') {
             names = [className];
         }
@@ -38,7 +42,7 @@ var Loader = {
             if (window[names[i]] !== undefined) {
                 continue;
             }
-            Loader.require(Loader.filename(names[i]), group);
+            Loader.require(Loader.filename(names[i]), group, async);
         }
     },
 
@@ -71,7 +75,7 @@ var Loader = {
     /**
      * Загрузить файл
      */
-    require: function(filename, group) {
+    require: function(filename, group, async) {
         if (!group) {
             group = 'ice';
         }
@@ -87,7 +91,7 @@ var Loader = {
                 $('<script></script>').attr('type', 'text/javascript').
                     html(text).appendTo($('head'));
             },
-            async: false
+            async: async
         });
     }
 };
