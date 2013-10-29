@@ -315,7 +315,7 @@ abstract class Model implements ArrayAccess
     {
         if (!is_null($key)) {
             $modelManager = $this->getService('modelManager');
-            $joinedModel = $modelManager->byKey($modelName, $key);
+            $joinedModel = $modelName::getModel($key);
             $this->joints[$modelName] = $joinedModel;
         }
         return $this->joints[$modelName];
