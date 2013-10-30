@@ -315,7 +315,7 @@ abstract class Model implements ArrayAccess
     {
         if (!is_null($key)) {
             $modelManager = $this->getService('modelManager');
-            $joinedModel = $modelManager->byKey($modelName, $key);
+            $joinedModel = $modelName::getModel($key);
             $this->joints[$modelName] = $joinedModel;
         }
         return $this->joints[$modelName];
@@ -397,8 +397,8 @@ abstract class Model implements ArrayAccess
             }
 
             if (is_array($key)) {
-            	$data = is_object($this->data()) ? $this->data()->__toArray() : $this->data();
-		$this->data = array_merge($data, $key);
+                $data = is_object($this->data()) ? $this->data()->__toArray() : $this->data();
+                $this->data = array_merge($data, $key);
             } else {
                 return isset($this->data[$key])
                     ? $this->data[$key]
@@ -912,9 +912,9 @@ abstract class Model implements ArrayAccess
             if (!isset($fields[$key])) {
                 continue;
             }
-            if ($value == $this->field($key)) {
-                continue;
-            }
+//            if ($value == $this->field($key)) {
+//                continue;
+//            }
             $this->updatedFields[$key] = $value;
         }
         if (!$this->updatedFields && $this->key() && !$hardUpdate) {
@@ -932,5 +932,30 @@ abstract class Model implements ArrayAccess
             }
         }
         return $result;
+    }
+
+    /**
+     * Обертка для получения модели по ключу
+     *
+     * @param $key
+     * @return Model
+     */
+    public static function getModel($key)
+    {
+        return IcEngine::getServiceLocator()
+            ->getService('modelManager')
+            ->byKey(get_called_class(), $key);
+    }
+
+    /**
+     * Обертка для создания коллекции моделей
+     *
+     * @return Model_Collection
+     */
+    public static function getCollection()
+    {
+        return IcEngine::getServiceLocator()
+            ->getService('collectionManager')
+            ->create(get_called_class());
     }
 }
