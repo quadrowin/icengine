@@ -25,6 +25,7 @@ class Model_Manager extends Manager_Abstract
 	);
 
 	/**
+     *
 	 * Получение модели по первичному ключу
      *
 	 * @param string $modelName Имя класса модели.
