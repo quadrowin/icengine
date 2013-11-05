@@ -317,6 +317,51 @@ class Helper_String
 		$result = substr ($text, 0, $space_pos);
 		return $result;
 	}
+    
+    	/**
+	 * Получение превью для текста.
+	 * @param string $text
+	 * @param integer $length
+     * 
+	 * 		Длина превью с учетом кодировки.
+	 * @return string
+	 */
+    /**
+     * Получение превью для текста.
+     * @param type $text
+     * @param string $allowedTags
+     * @param type $length
+     * @param type $wordsafe
+     * @param type $dots
+     * @return type Длина превью с учетом кодировки.
+     */
+	public static function SmartPreview2 ($text, $length = 150, 
+            $wordsafe = true, $dots = true)
+	{
+        $text = self::stripslashes_deep ($text);
+        $text = self::html2text($text);
+        $text = self::trim_deep($text);
+        return self::truncateUtf8($text, $length, $wordsafe, $dots);
+		
+	}
+    
+    /**
+     * @desc Перевод html в текст
+     * @param string $document Исходный текст с тэгами
+     * @return string Полученный чистый текст
+     */
+    public static function html2text ($document)
+    {
+        $search = array('@<script[^>]*?>.*?</script>@si',  // Strip out javascript
+               '@<[\/\!]*?[^<>]*?>@si',            // Strip out HTML tags
+               '@<style[^>]*?>.*?</style>@siU',    // Strip style tags properly
+               '@<![\s\S]*?--[ \t\n\r]*>@'         // Strip multi-line comments including CDATA
+        );
+        $text = preg_replace($search, '', $document);
+        return $text; 
+    }
+    
+    
 
 
 	/**
