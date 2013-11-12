@@ -39,7 +39,7 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 		'sms_provider'			=> 'First_Success',
 		// Параметры для провайдера
 		'sms_provider_params'	=> array (
-			'providers'			=> 'Sms_Littlesms,Sms_Dcnk,Sms_Yakoon'
+			'providers'			=> 'Sms_Smsru,Sms_Littlesms'
 		),
 		// Шабон СМСок
 		'sms_mail_template'		=> 'sms_activate',
