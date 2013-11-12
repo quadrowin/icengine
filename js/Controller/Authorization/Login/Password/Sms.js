@@ -2,14 +2,7 @@
  * @desc Контроллер для авторизации в универсальной админке
  */                                 
 var Authorization_Login_Password_Sms = {
-		
-	/**
-	 * @desc Провайдеры
-	 */	
-	_providers: ['First_Success', 'Sms_Littlesms', 'Sms_Dcnk', 'Sms_Yakoon' ],
-	
-	_currentProvider: 0,
-	
+    
 	_form: null,
 		
 	/**
@@ -55,18 +48,14 @@ var Authorization_Login_Password_Sms = {
 				window.location.href = result.redirect;
 			}
 		}
-		
-		var provider = cntr._providers [cntr._currentProvider];
-		
 		Controller.call (
 			'Authorization_Login_Password_Sms/login',
 			{
 				name: $form.find ('input[name=name]').val (),
 				pass: $form.find ('input[name=pass]').val (),
-				a_id: $form.find ('input[name=activation_id]').val (),
+				a_id: $form.find ('input[name=activation_id]').val(),
 				code: code,
 				href: window.location.href,
-				provider: provider,
 				send: send ? true : false
 			},
 			callback, true

@@ -234,7 +234,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 			'password'	=> $password,
 			'phone'		=> $user->phone,
 			'user'		=> $user,
-			'provider'	=> $provider,
+			'provider'	=> null,
 			'send'		=> $send
 		));
 
