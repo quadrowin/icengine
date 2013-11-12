@@ -19,7 +19,7 @@ var Authorization_Login_Password_Sms = {
 		
 		if (!code)
 		{
-			$btn.hide ();
+			$btn.hide();
 		}
 		
 		function callback (result)
@@ -90,14 +90,6 @@ var Authorization_Login_Password_Sms = {
 	rotate: function ()
 	{
 		var cntr = Authorization_Login_Password_Sms;
-		
-		cntr._currentProvider++;
-		
-		if (cntr._currentProvider >= cntr._providers.length)
-		{
-			cntr._currentProvider = 1;
-		}
-		
 		cntr.login (cntr._form, true);
 	}
 };
