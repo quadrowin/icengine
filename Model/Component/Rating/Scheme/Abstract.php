@@ -19,7 +19,7 @@ class Component_Rating_Scheme_Abstract extends Model_Factory_Delegate
 	 */
 	public function vote ($table, $row_id, $value)
 	{
-		$rating = Model_Manager::byQuery (
+		$rating = Model_Manager::byQuery(
 			'Component_Rating',
 			Query::instance ()
 			->where ('table', $table)
@@ -38,8 +38,18 @@ class Component_Rating_Scheme_Abstract extends Model_Factory_Delegate
 				)
 			);
 		}
-
-		return $rating->increment ($value);
+        $rating->increment($value);
+        return $this->strategy($rating);
 	}
 
+    /**
+     * Стратегия голосования
+     * 
+     * @return Rating $rating Возвращает
+     */
+    public function strategy(Rating $rating)
+    {
+        return $rating;
+    }
+    
 }
