@@ -831,7 +831,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
                 foreach ($this->rawFields as $i => $fieldName) {
                     $result[$item[$keyField]][$fieldName] = null;
 
-                    if (empty($subColumns[0])) {
+                    if (!empty($subColumns[0])) {
                         $result[$item[$keyField]][$fieldName] = isset($item[$fieldName])
                         ? $item[$fieldName]
                         : $item['data'][$fieldName];
