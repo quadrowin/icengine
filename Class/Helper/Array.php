@@ -12,23 +12,23 @@ class Helper_Array extends Helper_Abstract
 	 * Возвращает массив
      *
 	 * @param array $input Двумерный массив.
-	 * @param string $columns Название колонки.
-	 * @param string $index Имя индекса
+	 * @param string $columnNames Название колонки.
+	 * @param string $indexName Имя индекса
 	 * @return array Колонка $column исходного массива
 	 */
-	public function column($input, $columns, $index = null)
+	public function column($input, $columnNames, $indexName = null)
 	{
-        if (!$columns) {
+        if (!$columnNames) {
             return $input;
         }
         if (!is_array($input) || empty($input)) {
             return array();
         }
 		$result = array();
-        $count = count($columns);
+        $count = count($columnNames);
 		foreach ($input as $row) {
             $current = array();
-            foreach ((array) $columns as $column) {
+            foreach ((array) $columnNames as $column) {
                 $value = isset($row[$column]) ? $row[$column] : null;
                 if ($count > 1) {
                     $current[$column] = $value;
@@ -36,8 +36,8 @@ class Helper_Array extends Helper_Abstract
                     $current = $value;
                 }
             }
-			if ($index && isset($current[$index])) {
-				$result[$current[$index]] = $current;
+			if ($indexName && isset($row[$indexName])) {
+				$result[$row[$indexName]] = $current;
 			} else {
 				$result[] = $current;
 			}
@@ -112,6 +112,25 @@ class Helper_Array extends Helper_Abstract
     }
 
     /**
+     * @desc Установить в качестве ключей массива значения из колонки $column
+     * @param array $input
+     * 		Входной массив.
+     * @param string $column
+     * 		Колонка, значения которой будут использованы в качестве ключей.
+     * @return array
+     */
+    public function setKeyColumn (array $input, $column)
+    {
+        if (!$input) {
+            return array();
+        }
+        return array_combine(
+            $this->column($input, $column),
+            $input
+        );
+    }
+
+     /**
      * Группировка по полю
      * 
      * @param array $array Массив
@@ -195,7 +214,8 @@ class Helper_Array extends Helper_Abstract
      *
 	 * @param array $data Массив объектов
 	 * @param string $sortby Поля для сортировки
-	 */
+     * @return bool
+     */
 	public function mosort(&$data, $sortby)
 	{
 		if (count($data) <= 1) {
@@ -333,6 +353,7 @@ class Helper_Array extends Helper_Abstract
 			for ($i = 0; $i < count($list); $i++) {
 				$listIds[$list[$i][$keyField]] = $i;
 			}
+            $parentId = 0;
 			for ($i = 0; $i < count($result); $i++) {
 				if (!$result[$i][$parentField]) {
 					$parentId = $result[$i][$keyField];
