@@ -95,7 +95,8 @@ class Mail_Template extends Model_Child
 		}
 		else
 		{
-			$footer = $smarty->fetch ('string:' . $this->footer);
+			//$footer = $smarty->fetch ('string:' . $this->footer);
+            $footer = null;
 		}
 
 		View_Render_Manager::popView ();

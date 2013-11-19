@@ -288,6 +288,7 @@ class Registration extends Model
 				$data ['email'],
 				$data ['email'],
 				array (
+                    'user'      => $user,
 					'email'		=> $data ['email'],
 					'password'	=> $data ['password'],
 					'time'		=> $this->time,
