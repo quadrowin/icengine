@@ -28,7 +28,7 @@ class Controller_Authorization_Sms extends Controller_Abstract
 		'sms_auth_provider'			=> 'First_Success',
 		// Параметры СМС провайдера
 		'sms_auth_provider_config'	=> array (
-			'providers'	=> 'Sms_Dcnk,Sms_Littlesms,Sms_Yakoon'
+			'providers'	=> 'Sms_Smsru,Sms_Littlesms'
 		),
 		// Режим тестирования СМС (сообщения не отправляются и код отправляется
 		// в ответ на POST запрос отправки СМС)
