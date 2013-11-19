@@ -320,6 +320,7 @@ class Model_Manager extends Manager_Abstract
         $delegee->remove($model);
         if (isset($scheme['afterDelete'])) {
             $signalName = $scheme['afterDelete'];
+            /** @var Event_Signal $signal */
             $signal = $eventManager->getSignal($signalName);
             $signal->setData(array(
                 'model' => $model
