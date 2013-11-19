@@ -337,6 +337,7 @@ class Model_Manager extends Manager_Abstract
 	public function set(Model $model, $hardInsert = false)
 	{
         $config = $this->config();
+        /** @var Helper_Model_Manager $helperModelManager */
         $helperModelManager = $this->getService('helperModelManager');
         $parent = $helperModelManager->getParentClass(
             $model->modelName(), $config
