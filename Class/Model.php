@@ -923,8 +923,10 @@ abstract class Model implements ArrayAccess
         $this->set($this->updatedFields);
         $result = $this->save($hardUpdate);
         if (isset($scheme['updateSignal'])) {
+            /** @var Event_Manager $eventManager */
             $eventManager = $this->getService('eventManager');
             $signalName = 'update' . str_replace('_', '', $this->modelName());
+            /** @var Event_Signal $signal */
             $signal = $eventManager->getSignal($signalName);
             if ($signal) {
                 $signal->setData($this->getFields());
