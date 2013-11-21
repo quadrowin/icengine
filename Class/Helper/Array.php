@@ -171,7 +171,7 @@ class Helper_Array extends Helper_Abstract
 	 *
      * @param array $data Массив
 	 * @param string $sortby Поля сортировки через запятую
-	 * @return boolean true если успешно, иначе false.
+	 * @return array результат.
 	 */
 	public function masort($data, $sortby)
 	{
