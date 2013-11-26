@@ -56,20 +56,21 @@ class Helper_Array extends Helper_Abstract
     {
 		$firstFields = array();
 		foreach ($filter as $field => $value) {
-			$s = substr($field, -2, 2);
+			$s = substr(trim($field), -2, 2);
+            $s = trim($s);
 			if ($s[0] == '=' || ctype_alnum($s)) {
 				unset($filter[$field]);
 				$field = str_replace(' ', '', rtrim($field, '='));
 				$firstFields[$field] = $value;
 			}
 		}
-        $result = array();
+		$result = array();
 		foreach ($rows as $row) {
 			$valid = true;
 			if ($firstFields && !$this->validateRow($row, $firstFields)) {
                 continue;
             }
-			foreach ($filter as $field => $value) {
+            foreach ($filter as $field => $value) {
                 $fieldModificator = false;
                 if (strpos($field, '<') || strpos($field, '>') || strpos($field, '!')) {
                     $fieldModificator = true;
@@ -79,17 +80,14 @@ class Helper_Array extends Helper_Abstract
                     break;
                 }
                 $field = str_replace(' ', '', $field);
-                $s = substr($field, -2, 2);
-                $offset = 2;
-                if (ctype_alnum($s)) {
-                    $s = '=';
-                    $offset = 0;
-                } elseif(ctype_alnum($s [0])) {
-                    $s = $s[1];
+                $s = substr($field, -2);
+                $offset = 0;
+                if(ctype_alnum($s[0])) {
                     $offset = 1;
                 }
-                if ($offset) {
-                    $field = substr($field, 0, -1 * $offset);
+                $field = substr($field, 0, $offset - 2);
+                if($offset) {
+                    $s = substr($s, $offset);
                 }
                 $currentValid = 0;
                 switch ($s) {
@@ -97,7 +95,13 @@ class Helper_Array extends Helper_Abstract
                     case '>=': $currentValid = ($row[$field] >= $value); break;
                     case '<': $currentValid = ($row[$field] < $value); break;
                     case '<=': $currentValid = ($row[$field] <= $value); break;
-                    case '!=': $currentValid = ($row[$field] != $value); break;
+                    case '!=':
+                        if(!is_array($value)) {
+                            $currentValid = ($row[$field] != $value);
+                        } else {
+                            $currentValid = !in_array($row[$field], $value);
+                        }
+                        break;
                 }
                 $valid &= $currentValid;
                 if (!$valid) {
@@ -171,7 +175,7 @@ class Helper_Array extends Helper_Abstract
 	 *
      * @param array $data Массив
 	 * @param string $sortby Поля сортировки через запятую
-	 * @return boolean true если успешно, иначе false.
+	 * @return array результат.
 	 */
 	public function masort($data, $sortby)
 	{
