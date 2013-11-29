@@ -70,9 +70,7 @@ class Controller_Annotation_Schedule extends Controller_Abstract
                 if ($schedule['controllerAction'] != 'Service/run') {
                     continue;
                 }
-                $schedule['params'] = json_decode(
-                    urldecode($schedule['paramsJson']), true
-                );
+                $schedule['params'] = json_decode($schedule['paramsJson'], true);
                 unset($schedule['paramsJson']);
                 $existsServiceSchedule[] = $schedule;
             }
@@ -114,14 +112,10 @@ class Controller_Annotation_Schedule extends Controller_Abstract
                     $deltaSec = $context->helperAnnotationSchedule->delta(
                         $scheduleData
                     );
-                    $paramsJson = urlencode(
-                        json_encode($scheduleData['params'])
-                    );
+                    $paramsJson = json_encode($scheduleData['params'], JSON_UNESCAPED_UNICODE);
                     $priority = $scheduleData['priority'];
                     $oldScheduleData = $indexedExistsServiceSchedule[$schedule];
-                    $oldParamsJson = urlencode(
-                        json_encode($oldScheduleData['params'])
-                    );
+                    $oldParamsJson = json_encode($oldScheduleData['params'], JSON_UNESCAPED_UNICODE);
                     if ($deltaSec == $oldScheduleData['deltaSec'] &&
                         $paramsJson == $oldParamsJson &&
                         $priority == $oldScheduleData['priority']) {
@@ -159,9 +153,7 @@ class Controller_Annotation_Schedule extends Controller_Abstract
                     $deltaSec = $context->helperAnnotationSchedule->delta(
                         $scheduleData
                     );
-                    $paramsJson = urlencode(
-                        json_encode($scheduleData['params'])
-                    );
+                    $paramsJson = json_encode($scheduleData['params'], JSON_UNESCAPED_UNICODE);
                     $query = $queryBuilder
                         ->insert('Schedule')
                         ->values(array(
@@ -198,7 +190,7 @@ class Controller_Annotation_Schedule extends Controller_Abstract
                 $deltaSec = $context->helperAnnotationSchedule->delta(
                     $scheduleData
                 );
-                $paramsJson = urlencode(json_encode($scheduleData['params']));
+                $paramsJson = json_encode($scheduleData['params'], JSON_UNESCAPED_UNICODE);
                 $insertQuery = $queryBuilder
                     ->insert('Schedule')
                     ->values(array(

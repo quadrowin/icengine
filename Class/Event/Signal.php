@@ -13,14 +13,7 @@ class Event_Signal
 	 * @var array
 	 */
 	protected $data;
-    
-    /**
-     * Менеджер сигналов/слотов
-     * 
-     * @var Event_Manager
-     */
-    protected $manager;
-    
+
     /**
      * Название сигнала
      * 
@@ -38,8 +31,6 @@ class Event_Signal
 	{
 		$this->data = $data;
 		$this->name = $name;
-        $serviceLocator = IcEngine::serviceLocator();
-        $this->manager = $serviceLocator->getService('eventManager');
 	}
 
 	/**
@@ -52,7 +43,7 @@ class Event_Signal
 		if (is_string($slot)) {
 			$slot = $this->getSlot($slot);
 		}
-		$this->manager->bind($this, $slot);
+        IcEngine::eventManager()->bind($this, $slot);
 	}
 
 	/**
@@ -77,17 +68,7 @@ class Event_Signal
 		}
 		return $this->data;
 	}
-    
-    /**
-     * Получить менеджер событий
-     * 
-     * @return Event_Manager
-     */
-    public function getManager()
-    {
-        return $this->manager;
-    }
-    
+
 	/**
 	 * Получить имя сигнала
 	 *
@@ -101,25 +82,26 @@ class Event_Signal
 		return substr(get_class($this), strlen(__CLASS__) + 1);
 	}
 
-	/**
-	 * Получить слот по имени
-	 *
-	 * @param string $slogName
-	 * @return Event_Slot
-	 */
+    /**
+     * Получить слот по имени
+     *
+     * @param $slotName
+     * @internal param string $slogName
+     * @return Event_Slot
+     */
 	protected function getSlot($slotName)
 	{
-		return $this->manager->getSlot($slotName);
+		return IcEngine::eventManager()->getSlot($slotName);
 	}
 
-	/**
-	 * Выполнить сигнал
-	 *
-	 * @param array $data
-	 */
+    /**
+     * Выполнить сигнал
+     *
+     * @internal param array $data
+     */
 	public function notify()
 	{
-		$this->manager->notify($this, $this->getData());
+        IcEngine::eventManager()->notify($this, $this->getData());
 	}
 
 	/**
@@ -131,16 +113,6 @@ class Event_Signal
 	{
 		$this->data = $data;
 	}
-    
-    /**
-     * Изменить менеджер
-     * 
-     * @param Event_Manager $manager
-     */
-    public function setManager($manager)
-    {
-        $this->manager = $manager;
-    }
 
 	/**
 	 * Снимает регистрацию со слота
@@ -152,7 +124,7 @@ class Event_Signal
 		if (is_string($slot)) {
 			$slot = $this->getSlot($slot);
 		}
-		$this->manager->unbind($this, $slot);
+        IcEngine::eventManager()->unbind($this, $slot);
 	}
 
 	/**
@@ -160,6 +132,6 @@ class Event_Signal
 	 */
 	public function unbindAll()
 	{
-		$this->manager->removeSignal($this);
+        IcEngine::eventManager()->removeSignal($this);
 	}
 }

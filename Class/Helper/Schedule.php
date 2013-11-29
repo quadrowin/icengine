@@ -11,13 +11,14 @@ class Helper_Schedule
     /**
      * Получить сформированную строку аргументов
      *
-     * @param array $params
+     * @param $paramsJson
+     * @internal param array $params
      * @return array
      */
     public function get($paramsJson)
     {
         $output = '';
-        $params = json_decode(urldecode($paramsJson), true);
+        $params = json_decode($paramsJson, true);
         foreach ($params as $param => $value) {
             if (is_numeric($param)) {
                 $param = $value;
