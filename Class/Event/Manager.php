@@ -110,12 +110,12 @@ class Event_Manager
         return false;
     }
 
-	/**
-	 * Выполнить сигнал
-	 *
-	 * @param Event_Signal $signal
-	 * @param Event_Slog $data
-	 */
+    /**
+     * Выполнить сигнал
+     *
+     * @param Event_Signal $signal
+     * @param array|\Event_Slog $data
+     */
 	public function notify($signal, $data = array())
 	{
         $signal = $this->getSignal($signal);

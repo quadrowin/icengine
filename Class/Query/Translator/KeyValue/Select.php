@@ -138,13 +138,14 @@ class Query_Translator_KeyValue_Select extends Query_Translator_Abstract
 		return array();
 	}
 
-	/**
-	 * Формирование ключей для записи
-     * 
-	 * @param string $table
-	 * @param array $values
-	 * @return array
-	 */
+    /**
+     * Формирование ключей для записи
+     *
+     * @param string $table
+     * @param array $values
+     * @throws Exception
+     * @return array
+     */
 	public function compileKeys($table, array $values = array())
 	{
         $modelScheme = $this->modelScheme();

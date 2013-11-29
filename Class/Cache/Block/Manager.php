@@ -84,9 +84,7 @@ class Cache_Block_Manager extends Manager_Abstract
         $hash = $this->getHash($params);
         if (isset($this->data[$controllerAction])) {
             if (!is_array($this->data[$controllerAction])) {
-                $this->data[$controllerAction] = json_decode(
-                    urldecode($this->data[$controllerAction]), true
-                );
+                $this->data[$controllerAction] = json_decode($this->data[$controllerAction], true);
             }
             return $this->data[$controllerAction];
         } elseif (!empty($this->isFullLoaded[$hash])) {
@@ -122,9 +120,7 @@ class Cache_Block_Manager extends Manager_Abstract
             return array();
         }
         if (!is_array($this->data[$controllerAction])) {
-            $this->data[$controllerAction] = json_decode(
-                urldecode($this->data[$controllerAction]), true
-            );
+            $this->data[$controllerAction] = json_decode($this->data[$controllerAction], true);
         }
         return $this->data[$controllerAction];
     }
@@ -234,7 +230,7 @@ class Cache_Block_Manager extends Manager_Abstract
             ->values(array(
                 'controllerAction'  => $controllerAction,
                 'hash'              => $hash,
-                'json'              => urlencode(json_encode($json)),
+                'json'              => json_encode($json, JSON_UNESCAPED_UNICODE),
                 'createdAt'         => date('Y-m-d H:i:s')
             ));
         if ($throwUnitOfWork) {
