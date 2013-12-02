@@ -354,11 +354,21 @@ class Model_Manager extends Manager_Abstract
         $helperModelManager->notifySignal(
             $helperModelManager->getDefaultSignal(__METHOD__, $model), $model
         );
+        $eventManager = $this->getService('eventManager');
         if ($model->scheme()['signals']['beforeSet']) {
             $helperModelManager->notifySignal(
                 $model->scheme()['signals']['beforeSet']->__toArray(), $model
             );
         }
         $delegee->set($model, $hardInsert);
+        if (isset($scheme['afterSet'])) {
+            $signalName = $scheme['afterSet'];
+            /** @var Event_Signal $signal */
+            $signal = $eventManager->getSignal($signalName);
+            $signal->setData(array(
+                'model' => $model
+            ));
+            $signal->notify();
+        }
 	}
 }
