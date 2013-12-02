@@ -964,6 +964,10 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
         if ($paginator) {
             $this->paginator->total = is_array($this->items)
                 ? count($this->items) : 0;
+
+            if ($this->items) {
+                $this->slice($paginator->offset(), $paginator->perPage);
+            }
         }
     }
 
