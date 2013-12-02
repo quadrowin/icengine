@@ -10,8 +10,9 @@ class Helper_Model_Manager extends Helper_Abstract
 {
     /**
      * Применить генераторы к модели
-     * 
+     *
      * @param Model $model
+     * @throws ErrorException
      */
     public function applyGenerators($model)
     {
@@ -56,6 +57,7 @@ class Helper_Model_Manager extends Helper_Abstract
      * Получить имя родительского класса
      *
      * @param string $modelName
+     * @param $config
      * @return string
      */
     public function getParentClass($modelName, $config)
