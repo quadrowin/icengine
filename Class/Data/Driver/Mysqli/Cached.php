@@ -37,6 +37,7 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
         if ($method != 'executeSelect') {
             $this->sql = $query->translate('Mysql');
         }
+
         return parent::callMethod($query, $options);
     }
 
