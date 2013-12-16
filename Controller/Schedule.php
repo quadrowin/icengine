@@ -7,6 +7,10 @@
  */
 class Controller_Schedule extends Controller_Abstract
 {
+    protected $config = array(
+        'processLimit'  => 1
+    );
+    
     /**
      * Выполнить задания
      * 
@@ -16,6 +20,7 @@ class Controller_Schedule extends Controller_Abstract
      */
     public function index($context)
     {
+        $config = $this->config();
         $schedules = $context->collectionManager->create('Schedule')
             ->addOptions(array(
                 'name'  => '::Order_Desc',
@@ -23,6 +28,15 @@ class Controller_Schedule extends Controller_Abstract
             ));
         $currentTs = time();
         $helperDate = $this->getService('helperDate');
+        $inProcessCount = 0;
+        foreach ($schedules as $schedule) {
+            if ($schedule['inProcess']) {
+                $inProcessCount ++;
+            }
+        }
+        if ($inProcessCount >= $config->processLimit) {
+            return false;
+        }
         foreach ($schedules as $schedule) {
             $scheduleTs = $schedule['lastTs'] + $schedule['deltaSec'];
             if ($scheduleTs > $currentTs) {
@@ -30,7 +44,8 @@ class Controller_Schedule extends Controller_Abstract
             }
             $schedule->update(array(
                 'lastTs'    => $currentTs,
-                'lastDate'  => $helperDate->toUnix()
+                'lastDate'  => $helperDate->toUnix(),
+                'inProcess' => 1
             ));
             echo $schedule['controllerAction'] . PHP_EOL;
             $params = $schedule['paramsJson'] 
@@ -39,6 +54,9 @@ class Controller_Schedule extends Controller_Abstract
                 './ice ' . $schedule['controllerAction'] . 
                 ($params ? ' ' . $params : '')
             );
+            $schedule->update(array(
+                'inProcess' => 0
+            ));
         }
     }
 }
