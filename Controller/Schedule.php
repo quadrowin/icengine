@@ -38,6 +38,9 @@ class Controller_Schedule extends Controller_Abstract
             return false;
         }
         foreach ($schedules as $schedule) {
+            if ($schedule['inProcess']) {
+                continue;
+            }
             $scheduleTs = $schedule['lastTs'] + $schedule['deltaSec'];
             if ($scheduleTs > $currentTs) {
                 continue;
