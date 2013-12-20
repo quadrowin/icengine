@@ -8,6 +8,9 @@ return array (
     {if !empty($languageScheme)}
 		'languageScheme' => {$languageScheme},
 	{/if}
+    {if !empty($geoFields)}
+        'geoFields' => {$geoFields},
+    {/if}
     {if !empty($signals)}
 		'signals' => {$signals},
 	{/if}
