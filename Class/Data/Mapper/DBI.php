@@ -33,15 +33,17 @@ class Data_Mapper_DBI extends Data_Mapper_Abstract
 		$result = null;
 		$insert_id = null;
 
+        $mysqli = DDS::getDataSource()->getDataMapper()->linkIdentifier();
+
 		switch ($query->type()) {
 			case Query::DELETE:
 				DBI::doQuerySql ($sql);
-				$touched_rows = mysql_affected_rows ();
+				$touched_rows = mysqli_affected_rows($mysqli);
 				break;
 			case Query::INSERT:
 				DBI::doQuerySql ($sql);
 				$insert_id = DBI::getInsertId ();
-				$touched_rows = mysql_affected_rows ();
+				$touched_rows = mysqli_affected_rows($mysqli);
 				break;
 			case Query::SELECT; case Query::SHOW:
 				$result = DBI::doQueryAllSql ($sql);
@@ -49,12 +51,12 @@ class Data_Mapper_DBI extends Data_Mapper_Abstract
 				break;
 			case Query::UPDATE:
 				DBI::doQuerySql ($sql);
-				$touched_rows = mysql_affected_rows ();
+				$touched_rows = mysqli_affected_rows($mysqli);
 				break;
 		}
 
-		$errno = mysql_errno();
-		$error = mysql_error();
+		$errno = mysqli_errno(DDS::getDataSource()->getDataMapper()->linkIdentifier());
+		$error = mysqli_error(DDS::getDataSource()->getDataMapper()->linkIdentifier());
 
 		if (!empty($errno))
 		{

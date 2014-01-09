@@ -17,9 +17,9 @@ class View_Render_Smarty_Cacher_Mysql extends View_Render_Smarty_Cacher_Abstract
 		// clear cache info
 		if(empty($cache_id) && empty($compile_id) && empty($tpl_file)) {
 			// clear them all
-			$results = mysql_query('delete from CACHE_PAGES');
+			$results = mysqli_query(DDS::getDataSource()->getDataMapper()->linkIdentifier(), 'delete from CACHE_PAGES');
 		} else {
-			$results = mysql_query("delete from CACHE_PAGES where CacheID='$cache_id'");
+			$results = mysqli_query(DDS::getDataSource()->getDataMapper()->linkIdentifier(), "delete from CACHE_PAGES where CacheID='$cache_id'");
 		}
 		if(!$results) {
 			$smarty_obj->_trigger_error_msg('cache_handler: query failed.');
@@ -32,7 +32,7 @@ class View_Render_Smarty_Cacher_Mysql extends View_Render_Smarty_Cacher_Abstract
 	)
 	{
 		// read cache from database
-		$results = mysql_query("select CacheContents from CACHE_PAGES where CacheID='$CacheID'");
+		$results = mysqli_query(DDS::getDataSource()->getDataMapper()->linkIdentifier(), "select CacheContents from CACHE_PAGES where CacheID='$CacheID'");
 		if(!$results)
 		{
 			$smarty_obj->_trigger_error_msg('cache_handler: query failed.');
@@ -66,7 +66,8 @@ class View_Render_Smarty_Cacher_Mysql extends View_Render_Smarty_Cacher_Abstract
 		{
 			$contents = $cache_content;
 		}
-		$results = mysql_query("replace into CACHE_PAGES values(
+		$results = mysqli_query(
+            DDS::getDataSource()->getDataMapper()->linkIdentifier(), "replace into CACHE_PAGES values(
 						'$cache_id',
 						'".addslashes($contents)."')
 					");

@@ -26,7 +26,8 @@ class DDS
 	 */
 	public static function escape ($string)
 	{
-	    return mysql_real_escape_string ($string);
+        mysqli_set_charset(DDS::getDataSource()->getDataMapper()->linkIdentifier(), "utf8");
+        return mysqli_real_escape_string (DDS::getDataSource()->getDataMapper()->linkIdentifier(), $string);
 	}
 
 	/**
