@@ -32,18 +32,18 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	 */
 	protected function _executeChange (Query_Abstract $query, Query_Options $options)
 	{
-		if (!$this->_linkIdentifier) {
-			$this->connect();
-		}
+//		if (!$this->_linkIdentifier) {
+//			$this->connect();
+//		}
 
 		if (Tracer::$enabled) {
 			$startTime = microtime(true);
 		}
 
-		if (!mysql_query ($this->_sql, $this->_linkIdentifier))
+		if (!mysqli_query ($this->linkIdentifier(), $this->_sql))
 		{
-			$this->_errno = mysql_errno ($this->_linkIdentifier);
-			$this->_error = mysql_error ($this->_linkIdentifier);
+			$this->_errno = mysqli_errno ($this->linkIdentifier());
+			$this->_error = mysqli_error ($this->linkIdentifier());
 			return false;
 		}
 
@@ -60,7 +60,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 			Tracer::incDeltaQueryCount();
 		}
 
-		$this->_affectedRows = mysql_affected_rows ($this->_linkIdentifier);
+		$this->_affectedRows = mysqli_affected_rows ($this->linkIdentifier());
 
 		if ($this->_affectedRows > 0)
 		{
@@ -83,18 +83,18 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	 */
 	protected function _executeInsert (Query_Abstract $query, Query_Options $options)
 	{
-		if (!$this->_linkIdentifier) {
-			$this->connect();
-		}
+//		if (!$this->_linkIdentifier) {
+//			$this->connect();
+//		}
 
 		if (Tracer::$enabled) {
 			$startTime = microtime(true);
 		}
 
-		if (!mysql_query ($this->_sql, $this->_linkIdentifier))
+		if (!mysqli_query ($this->linkIdentifier(), $this->_sql))
 		{
-			$this->_errno = mysql_errno ($this->_linkIdentifier);
-			$this->_error = mysql_error ($this->_linkIdentifier);
+			$this->_errno = mysqli_errno ($this->linkIdentifier());
+			$this->_error = mysqli_error ($this->linkIdentifier());
 			return false;
 		}
 
@@ -106,8 +106,8 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 			Tracer::incDeltaQueryCount();
 		}
 
-		$this->_affectedRows = mysql_affected_rows ($this->_linkIdentifier);
-		$this->_insertId = mysql_insert_id ($this->_linkIdentifier);
+		$this->_affectedRows = mysqli_affected_rows ($this->linkIdentifier());
+		$this->_insertId = mysqli_insert_id ($this->linkIdentifier());
 
 		if ($this->_affectedRows > 0)
 		{
@@ -167,16 +167,16 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 			return $cache ['v'];
 		}
 
-		if (!$this->_linkIdentifier) {
-			$this->connect();
-		}
+//		if (!$this->_linkIdentifier) {
+//			$this->connect();
+//		}
 
 		if (Tracer::$enabled) {
 			$startTime = microtime(true);
 			Tracer::begin(__CLASS__, __METHOD__, __LINE__);
 		}
 
-		$result = mysql_query ($this->_sql, $this->_linkIdentifier);
+		$result = mysqli_query ($this->linkIdentifier(), $this->_sql);
 
 		if (Tracer::$enabled) {
 			$endTime = microtime(true);
@@ -188,35 +188,34 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 			}
 			Tracer::end(
                 $this->_sql,
-                is_resource($result) ? count(mysql_num_rows($result)) : 0,
+                ($result ? mysqli_num_rows($result) : 0),
 				memory_get_usage()
             );
 			Tracer::incDeltaQueryCount();
 		}
 
-
-		if (!is_resource ($result))
+		if (!$result)
 		{
-			$this->_errno = mysql_errno ($this->_linkIdentifier);
-			$this->_error = mysql_error ($this->_linkIdentifier);
-			return;
+			$this->_errno = mysqli_errno ($this->linkIdentifier());
+			$this->_error = mysqli_error ($this->linkIdentifier());
+			throw new ErrorException($this->_error, $this->_errno);
 		}
 
 		$rows = array ();
-		while (false != ($row = mysql_fetch_assoc ($result)))
+		while (false != ($row = mysqli_fetch_assoc ($result)))
 		{
 			$rows [] = $row;
 		}
-		mysql_free_result ($result);
+		mysqli_free_result ($result);
 
 		$this->_numRows = count ($rows);
 
 		if ($query->part (Query::CALC_FOUND_ROWS))
 		{
-			$result = mysql_query (self::SELECT_FOUND_ROWS_QUERY, $this->_linkIdentifier);
-			$row = mysql_fetch_row ($result);
+			$result = mysqli_query ($this->linkIdentifier(), self::SELECT_FOUND_ROWS_QUERY);
+			$row = mysqli_fetch_row ($result);
 			$this->_foundRows = reset ($row);
-			mysql_free_result ($result);
+			mysqli_free_result ($result);
 		}
 
 		$tags = $query->getTags ();

@@ -95,7 +95,7 @@ class Controller_Cli_Scheme extends Controller_Abstract
 
 		$sql .= ') ENGINE=InnoDB DEFAULT CHARSET=utf8';
 
-		mysql_query ($sql);
+		mysqli_query (DDS::getDataSource()->getDataMapper()->linkIdentifier(), $sql);
 	}
 
 	public function synsField ()
@@ -147,7 +147,7 @@ class Controller_Cli_Scheme extends Controller_Abstract
 				$sql .= '\'';
 			}
 
-			mysql_query ($sql);
+			mysqli_query (DDS::getDataSource()->getDataMapper()->linkIdentifier(), $sql);
 		}
 	}
 }
