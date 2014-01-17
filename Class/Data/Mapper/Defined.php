@@ -14,15 +14,16 @@ class Data_Mapper_Defined extends Data_Mapper_Abstract
 	 */
 	protected $_where;
 
-	/**
-	 * @desc
-	 * @param array $data
-	 * @param array $filter
-	 * @return array
-	 */
+    /**
+     * @desc
+     * @param array $row
+     * @internal param array $data
+     * @internal param array $filter
+     * @return array
+     */
 	public function filter (array $row)
 	{
-		$valid = true;
+        $valid = true;
 
 		foreach ($this->_where as $where)
 		{
