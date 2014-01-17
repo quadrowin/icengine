@@ -14,7 +14,7 @@ class Model_Option_Attach_Image extends Model_Option
 	{
         $ids = $this->collection->column('id');
         $modelName = $this->collection->modelName();
-        $images = Collection_Manager::create('Component_Image')
+        $images = Model_Collection_Manager::create('Component_Image')
             ->addOptions(
                 array(
                     'name'  => '::Table',
