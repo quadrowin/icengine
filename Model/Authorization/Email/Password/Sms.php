@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * @desc Аавторизация через отправку пользователю СМС сообщения с кодом.
@@ -9,289 +10,278 @@
 class Authorization_Email_Password_Sms extends Authorization_Abstract
 {
 
-	/**
-	 * @desc Config
-	 * @var array
-	 */
-	protected static $_config = array (
-		// Авторизовать только пользователей, имеющих одну из ролей.
-		// Роли перечисляются через запятую.
-		'auth_roles_names'			=> 'admin',
+    /**
+     * @desc Config
+     * @var array
+     */
+    protected static $_config = array(
+        // Авторизовать только пользователей, имеющих одну из ролей.
+        // Роли перечисляются через запятую.
+        'auth_roles_names' => 'admin',
 
-		// Минимальная длина кода
-		'code_min_length'		=> 4,
-		// Максимальная длина кода
-		'code_max_length'		=> 6,
-		// Время действительности СМС
-		'sms_expiration'		=> 3600,
-		// префикс кода в БД
-		'sms_prefix'			=> 'smsauth.',
-		// Провайдер СМСок
-		'sms_provider'			=> 'First_Success',
-		// Параметры для провайдера
-		'sms_provider_params'	=> array (
-			'providers'			=> 'Sms_Smsru,Sms_Littlesms',
-		// Шабон СМСок
-		'sms_mail_template'		=> 'sms_activate',
-		// Тестовый режим
-		'sms_test_mode'			=> true,
+        // Минимальная длина кода
+        'code_min_length' => 4,
+        // Максимальная длина кода
+        'code_max_length' => 6,
+        // Время действительности СМС
+        'sms_expiration' => 3600,
+        // префикс кода в БД
+        'sms_prefix' => 'smsauth.',
+        // Провайдер СМСок
+        'sms_provider' => 'First_Success',
+        // Параметры для провайдера
+        'sms_provider_params' => array(
+            'providers' => 'Sms_Smsru,Sms_Littlesms',
+            // Шабон СМСок
+            'sms_mail_template' => 'sms_activate',
+            // Тестовый режим
+            'sms_test_mode' => true,
 
-		// Колбэки на авторизацию и выход
-		'authorization_function'	=> 'Helper_Authorization_Admin::authorize',
-		'unauthorization_function'	=> 'Helper_Authorization_Admin::unauthorize',
+            // Колбэки на авторизацию и выход
+            'authorization_function' => 'Helper_Authorization_Admin::authorize',
+            'unauthorization_function' => 'Helper_Authorization_Admin::unauthorize',
 
-		/**
-		 * @desc можно перечислить логины, пароли и телефоны пользователей.
-		 * Если этот параметр array, то пользователи, не указанные в этом
-		 * массиве не могут быть авторизованы этим методом.
-		 * @tutorial
-		 * 	'users'	=> array (
-		 * 		'admin'	=> array (
-		 * 			'active'	=> true,
-		 * 			'password'	=> 'password',
-		 * 			'phone'		=> '+7 123 456 78 90'
-		 * 		)
-		 * 	)
-		 */
-		'users'	=> false
-	);
+            /**
+             * @desc можно перечислить логины, пароли и телефоны пользователей.
+             * Если этот параметр array, то пользователи, не указанные в этом
+             * массиве не могут быть авторизованы этим методом.
+             * @tutorial
+             *    'users'    => array (
+             *        'admin'    => array (
+             *            'active'    => true,
+             *            'password'    => 'password',
+             *            'phone'        => '+7 123 456 78 90'
+             *        )
+             *    )
+             */
 
-	/**
-	 * @desc Дополнительная проверка пользователя перед началом авторизации
-	 * до отправки кода СМС.
-	 * @param User $user Пользователь.
-	 * @param string $email Указанный логин.
-	 * @param string $password Указанный пароль.
-	 * @return boolean true, если нужно проверять дальше, иначе - false.
-	 */
-	protected function _prechekUser (User $user, $email, $password)
-	{
-		if (!$this->_userHasRole ($user))
-		{
-			return false;
-		}
+            'users' => false
+        )
+    );
 
-		$cfg_users = $this->config ()->users;
+    /**
+     * @desc Дополнительная проверка пользователя перед началом авторизации
+     * до отправки кода СМС.
+     * @param User $user Пользователь.
+     * @param string $email Указанный логин.
+     * @param string $password Указанный пароль.
+     * @return boolean true, если нужно проверять дальше, иначе - false.
+     */
+    protected function _prechekUser(User $user, $email, $password)
+    {
+        if (!$this->_userHasRole($user)) {
+            return false;
+        }
 
-		if ($cfg_users === false)
-		{
-			// нет проверки
-			return true;
-		}
+        $cfg_users = $this->config()->users;
 
-		// Приводим к нижнему регистру
-		$email = strtolower ($email);
+        if ($cfg_users === false) {
+            // нет проверки
+            return true;
+        }
 
-		return (
-			isset ($cfg_users [$email]) &&
-			$cfg_users [$email]['password']	== $password &&
-			$cfg_users [$email]['phone']	== $user->phone &&
-			$cfg_users [$email]['active']
-		);
-	}
+        // Приводим к нижнему регистру
+        $email = strtolower($email);
 
-	/**
-	 * @desc Дополнительная проверка пользователя перед авторизацией после
-	 * проверки кода СМС.
-	 * @param User $user Подходящий пользователь.
-	 * @param string $email Логин, указанный при авторизации.
-	 * @param string $password Пароль.
-	 * @return boolean true, если успешно, иначе - false.
-	 */
-	protected function _postcheckUser (User $user, $email, $password)
-	{
-		return $this->_prechekUser ($user, $email, $password);
-	}
+        return (
+            isset ($cfg_users [$email]) &&
+            $cfg_users [$email]['password'] == $password &&
+            $cfg_users [$email]['phone'] == $user->phone &&
+            $cfg_users [$email]['active']
+        );
+    }
 
-	/**
-	 * @desc Проверка на принадлежность пользователя к необходимой роли
-	 * @param User $user Пользователь
-	 * @return boolean
-	 */
-	protected function _userHasRole (User $user)
-	{
-		$roles = explode (',', $this->config ()->auth_roles_names);
+    /**
+     * @desc Дополнительная проверка пользователя перед авторизацией после
+     * проверки кода СМС.
+     * @param User $user Подходящий пользователь.
+     * @param string $email Логин, указанный при авторизации.
+     * @param string $password Пароль.
+     * @return boolean true, если успешно, иначе - false.
+     */
+    protected function _postcheckUser(User $user, $email, $password)
+    {
+        return $this->_prechekUser($user, $email, $password);
+    }
 
-		if (!$roles)
-		{
-			// Ролей не задано, авторизуем всех
-			return true;
-		}
+    /**
+     * @desc Проверка на принадлежность пользователя к необходимой роли
+     * @param User $user Пользователь
+     * @return boolean
+     */
+    protected function _userHasRole(User $user)
+    {
+        $roles = explode(',', $this->config()->auth_roles_names);
 
-		foreach ($roles as $role)
-		{
-			$role = Acl_Role::byName ($role);
-			if ($user->hasRole ($role))
-			{
-				return true;
-			}
-		}
+        if (!$roles) {
+            // Ролей не задано, авторизуем всех
+            return true;
+        }
 
-		return false;
-	}
+        foreach ($roles as $role) {
+            $role = Acl_Role::byName($role);
+            if ($user->hasRole($role)) {
+                return true;
+            }
+        }
 
-	/**
-	 * (non-PHPdoc)
-	 * @see Authorization_Abstract::authorize()
-	 */
-	public function authorize ($data)
-	{
-		$user = Model_Manager::byQuery (
-			'User',
-			Query::instance ()
-				->where ('email', $data ['email'])
-				->where ('password', $data ['password'])
-				->where ('md5(`password`)=md5(?)', $data ['password'])
-		);
+        return false;
+    }
 
-		if (!$user)
-		{
-			return 'Data_Validator_Authorization_Password/invalid';
-		}
+    /**
+     * (non-PHPdoc)
+     * @see Authorization_Abstract::authorize()
+     */
+    public function authorize($data)
+    {
+        $user = Model_Manager::byQuery(
+            'User',
+            Query::instance()
+                ->where('email', $data ['email'])
+                ->where('password', $data ['password'])
+                ->where('md5(`password`)=md5(?)', $data ['password'])
+        );
 
-		if (!$this->_postcheckUser($user, $data ['email'], $data ['password']))
-		{
-			return 'Data_Validator_Authorization_User/denied';
-		}
+        if (!$user) {
+            return 'Data_Validator_Authorization_Password/invalid';
+        }
 
-		$prefix = $this->config ()->sms_prefix;
+        if (!$this->_postcheckUser($user, $data ['email'], $data ['password'])) {
+            return 'Data_Validator_Authorization_User/denied';
+        }
 
-		$activation = Model_Manager::byQuery (
-			'Activation',
-			Query::instance ()
-				->where ('code', $prefix . $data ['activation_code'])
-				->where ('id', $data ['activation_id'])
-				->where ('User__id', $user->id)
-				->where ('finished', false)
-		);
+        $prefix = $this->config()->sms_prefix;
 
-		if (!$activation || $activation->finished)
-		{
-			return 'Data_Validator_Activation_Code/invalid';
-		}
+        $activation = Model_Manager::byQuery(
+            'Activation',
+            Query::instance()
+                ->where('code', $prefix . $data ['activation_code'])
+                ->where('id', $data ['activation_id'])
+                ->where('User__id', $user->id)
+                ->where('finished', false)
+        );
 
-		$activation->update (array (
-			'finished'	=> 1
-		));
+        if (!$activation || $activation->finished) {
+            return 'Data_Validator_Activation_Code/invalid';
+        }
 
-		return $user->authorize ();
-	}
+        $activation->update(array(
+            'finished' => 1
+        ));
 
-	/**
-	 * (non-PHPdoc)
-	 * @see Authorization_Abstract::isRegistered()
-	 */
-	public function isRegistered ($login)
-	{
-		$user = Model_Manager::byQuery (
-			'User',
-			Query::instance ()
-				->where ('email', $login)
-		);
+        return $user->authorize();
+    }
 
-		return (bool) $user;
-	}
+    /**
+     * (non-PHPdoc)
+     * @see Authorization_Abstract::isRegistered()
+     */
+    public function isRegistered($login)
+    {
+        $user = Model_Manager::byQuery(
+            'User',
+            Query::instance()
+                ->where('email', $login)
+        );
 
-	/**
-	 * (non-PHPdoc)
-	 * @see Authorization_Abstract::isValidLogin()
-	 */
-	public function isValidLogin ($login)
-	{
-		return Data_Validator_Manager::validate ('Email', $login);
-	}
+        return (bool)$user;
+    }
 
-	/**
-	 * (non-PHPdoc)
-	 * @see Authorization_Abstract::findUser()
-	 */
-	public function findUser ($data)
-	{
-		return Model_Manager::byQuery (
-			'User',
-			Query::instance ()
-				->where ('email', $data ['email'])
-		);
-	}
+    /**
+     * (non-PHPdoc)
+     * @see Authorization_Abstract::isValidLogin()
+     */
+    public function isValidLogin($login)
+    {
+        return Data_Validator_Manager::validate('Email', $login);
+    }
 
-	/**
-	 * @desc Отправляет пользователю СМС для авторизации
-	 * @param array $data
-	 * @param string $data ['email']
-	 * @param string $data ['password']
-	 * @param User $data ['user']
-	 * @return Activation
-	 */
-	public function sendActivationSms (array $data)
-	{
-		$user = $data ['user'];
+    /**
+     * (non-PHPdoc)
+     * @see Authorization_Abstract::findUser()
+     */
+    public function findUser($data)
+    {
+        return Model_Manager::byQuery(
+            'User',
+            Query::instance()
+                ->where('email', $data ['email'])
+        );
+    }
 
-		if ($user->email != $data ['email'])
-		{
-			return 'Data_Validator_Authorization_User/unexists';
-		}
+    /**
+     * @desc Отправляет пользователю СМС для авторизации
+     * @param array $data
+     * @param string $data ['email']
+     * @param string $data ['password']
+     * @param User $data ['user']
+     * @return Activation
+     */
+    public function sendActivationSms(array $data)
+    {
+        $user = $data ['user'];
 
-		if ($user->password != $data ['password'])
-		{
-			return 'Data_Validator_Authorization_Password/invalid';
-		}
+        if ($user->email != $data ['email']) {
+            return 'Data_Validator_Authorization_User/unexists';
+        }
 
-		if (!$user->active)
-		{
-			return 'Data_Validator_Authorization_User/unactive';
-		}
+        if ($user->password != $data ['password']) {
+            return 'Data_Validator_Authorization_Password/invalid';
+        }
 
-		if (!$this->_prechekUser ($user, $data ['email'], $data ['password']))
-		{
-			return 'Data_Validator_Authorization_User/denied';
-		}
+        if (!$user->active) {
+            return 'Data_Validator_Authorization_User/unactive';
+        }
 
-		$config = $this->config ();
+        if (!$this->_prechekUser($user, $data ['email'], $data ['password'])) {
+            return 'Data_Validator_Authorization_User/denied';
+        }
 
-		$clear_code = Helper_Activation::generateNumeric (
-			$config ['code_min_length'],
-			$config ['code_max_length']
-		);
+        $config = $this->config();
 
-		$activation_code = $config ['sms_prefix'] . $clear_code;
+        $clear_code = Helper_Activation::generateNumeric(
+            $config ['code_min_length'],
+            $config ['code_max_length']
+        );
 
-		$activation = Activation::create (array (
-			'address'			=> $user->phone,
-			'code'				=> $activation_code,
-			'expirationTime'	=>
-				Helper_Date::toUnix (time () + $config ['sms_expiration']),
-			'User__id'			=> $user->id
-		));
+        $activation_code = $config ['sms_prefix'] . $clear_code;
 
-		/**
-		 * @desc Провайдер
-		 * @var Mail_Provider_Abstract
-		 */
-		$provider = Model_Manager::byQuery (
-			'Mail_Provider',
-			Query::instance ()
-			->where ('name', $config ['sms_provider'])
-		);
+        $activation = Activation::create(array(
+            'address' => $user->phone,
+            'code' => $activation_code,
+            'expirationTime' =>
+                Helper_Date::toUnix(time() + $config ['sms_expiration']),
+            'User__id' => $user->id
+        ));
 
-		$message = Mail_Message::create (
-			$config ['sms_mail_template'],
-			$user->phone,
-			$user->name,
-			array (
-				'code'			=> $clear_code,
-				'session_id'	=> $activation->id
-			),
-			$user->id,
-			$provider->id,
-			$config ['sms_provider_params']->__toArray ()
-		)->save ();
+        /**
+         * @desc Провайдер
+         * @var Mail_Provider_Abstract
+         */
+        $provider = Model_Manager::byQuery(
+            'Mail_Provider',
+            Query::instance()
+                ->where('name', $config ['sms_provider'])
+        );
 
-		if (!$config ['sms_test_mode'])
-		{
-			$message->send ();
-		}
+        $message = Mail_Message::create(
+            $config ['sms_mail_template'],
+            $user->phone,
+            $user->name,
+            array(
+                'code' => $clear_code,
+                'session_id' => $activation->id
+            ),
+            $user->id,
+            $provider->id,
+            $config ['sms_provider_params']->__toArray()
+        )->save();
 
-		return $activation;
-	}
-	
+        if (!$config ['sms_test_mode']) {
+            $message->send();
+        }
+
+        return $activation;
+    }
+
 }

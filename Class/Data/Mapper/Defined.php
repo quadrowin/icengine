@@ -52,6 +52,10 @@ class Data_Mapper_Defined extends Data_Mapper_Abstract
 				$field = substr ($field, 0, -1 * $offset);
 			}
 
+            $pos = strpos($field, '.');
+
+            $field = substr($field, $pos === false ? 0 : $pos + 1);
+
 			switch ($s)
 			{
 				case '=':

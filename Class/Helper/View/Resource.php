@@ -226,8 +226,7 @@ class Helper_View_Resource
 		$config = Config_Manager::get('Controller_Resource');
 		$route = Router::getRoute();
 		$call = $route->actions[0];
-		$rules = $config->js->rules;
-		$path = $config->js->defaultPath;
+		$path = $config['js']['defaultPath'];
 		$out = '';
         $ruleParams = array();
         if ($config->js) {
@@ -254,8 +253,8 @@ class Helper_View_Resource
 				self::resetJs();
 			}
 		}
-		if (isset($rules[$call])) {
-			$rule = $rules[$call];
+		if (isset($config['js']['rules'][$call])) {
+			$rule = $config['js']['rules'][$call];
 			if (isset($rule['path'])) {
 				$path = $rule['path'];
 			}

@@ -40,7 +40,7 @@ class Router
 		}
 		if (!empty($route['params'])) {
 			foreach ($route['params'] as $paramName => $paramValue) {
-                if (strpos($paramValue, '::')) {
+                if (is_string($paramValue) && strpos($paramValue, '::')) {
                     $paramValue = call_user_func($paramValue);
                 }
 				Request::param($paramName, $paramValue);
