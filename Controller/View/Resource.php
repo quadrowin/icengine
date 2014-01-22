@@ -51,6 +51,9 @@ class Controller_View_Resource extends Controller_Abstract
 			if (!$config) {
 				return;
 			}
+
+            $reses = array();
+
 			foreach ($config->targets as $name => $target) {
 				if (
 					($type && $type != $target->type) ||
