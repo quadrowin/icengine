@@ -53,17 +53,18 @@ class Helper_Array
 				$firstFields[$field] = $value;
 			}
 		}
+		
         $result = array();
 		foreach ($rows as $row) {
 			$valid = true;
 			if ($firstFields && !self::validateRow($row, $firstFields)) {
+		
                 continue;
-            }
+            }	
+		
 			foreach ($filter as $field => $value) {
-                if (!isset($row[$field])) {
-                    $valid = false;
-                    break;
-                }
+               
+		
                 $field = str_replace(' ', '', $field);
                 $s = substr($field, -2, 2);
                 $offset = 2;
@@ -78,6 +79,12 @@ class Helper_Array
                     $field = substr($field, 0, -1 * $offset);
                 }
                 $currentValid = 0;
+		if (!isset($row[$field])) {
+                             
+                    $valid = false;
+                    break;
+                }
+	
                 switch ($s) {
                     case '>': $currentValid = ($row[$field] > $value); break;
                     case '>=': $currentValid = ($row[$field] >= $value); break;
