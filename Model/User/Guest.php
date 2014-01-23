@@ -22,7 +22,7 @@ class User_Guest extends User
 			'id'		=> 0,
 			'active'	=> 1,
 			'login'		=> '',
-			'name'		=> '',
+			'name'		=> 'Гость',
 			'email'		=> '',
 			'password'	=> ''
 		)
