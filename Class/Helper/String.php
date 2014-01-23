@@ -455,10 +455,10 @@ class Helper_String
 				$len = $end;
 			}
 		}
-		//if ((ord($string[$len]) < 0x80) || (ord($string[$len]) >= 0xC0))
-		//{
-		//	return substr($string, 0, $len) . ($dots ? ' ...' : '');
-		//}
+		if ((ord($string[$len]) < 0x80) || (ord($string[$len]) >= 0xC0))
+		{
+			return substr($string, 0, $len) . ($dots ? ' ...' : '');
+		}
 		$p = 0;
 		while ($len > 0 && $p < strlen ($string))
 		{
