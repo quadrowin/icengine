@@ -676,16 +676,19 @@ class Debug
             self::outputErrors($e);
         }
 
-        echo '<meta charset=utf-8/>';
+        echo '<meta charset="utf-8"/>';
         echo '<pre style="font-size: 10px;"><hr/>';
-        echo '<strong style="color: red;">' . $exception->getMessage() . '</strong>' . "\n";
+        echo '<strong style="color: red;">Error: ' . $exception->getMessage() . '</strong> ';
+        echo '<em style="color: blue;">(' . $exception->getFile() . ':' . $exception->getLine() . ')</em>' . "\n";
         if (!empty($errcontext)) {
             echo '<span style="color: green;">' . print_r($errcontext, true) . '</span>';
         }
         echo $exception->getTraceAsString();
         echo '<hr/></pre>';
         if (function_exists('fb') && !headers_sent()) {
-            fb($exception->getMessage() . "\n" . $exception->getTraceAsString());
+            fb('Error: ' . $exception->getMessage(), 'ERROR');
+            fb($errcontext, 'INFO');
+            fb(explode("\n", $exception->getTraceAsString()), 'WARN');
         }
     }
 }
