@@ -383,11 +383,13 @@ class Helper_Image
 				),
 				$key . 'Width'	=> $size ['width'],
 				$key . 'Height'	=> $size ['height']
-			);
+			);vvvvvvvv
 			$attributes = array_merge($attributes, $tmp);
 			$i++;
 		}
 		$image->update($attributes);
 		return $image;
 	}
+
+
 }
