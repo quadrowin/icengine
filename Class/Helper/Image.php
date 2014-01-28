@@ -390,4 +390,6 @@ class Helper_Image
 		$image->update($attributes);
 		return $image;
 	}
+
+
 }
