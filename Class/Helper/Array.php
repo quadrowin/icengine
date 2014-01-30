@@ -6,23 +6,27 @@
  */
 class Helper_Array
 {
-	/**
-	 * Возвращает массив
+    /**
+     * Возвращает массив
      *
-	 * @param array $input Двумерный массив.
-	 * @param string $columns Название колонки.
-	 * @return array Колонка $column исходного массива
-	 */
-	public static function column($input, $columns)
-	{
-        if (!$columns) {
+     * @param array $input Двумерный массив.
+     * @param string $columnNames Название колонки.
+     * @param string $indexName Имя индекса
+     * @return array Колонка $column исходного массива
+     */
+    public function column($input, $columnNames, $indexName = null)
+    {
+        if (!$columnNames) {
             return $input;
         }
-		$result = array();
-        $count = count($columns);
-		foreach ($input as $row) {
+        if (!is_array($input) || empty($input)) {
+            return array();
+        }
+        $result = array();
+        $count = count($columnNames);
+        foreach ($input as $row) {
             $current = array();
-            foreach ((array) $columns as $column) {
+            foreach ((array) $columnNames as $column) {
                 $value = isset($row[$column]) ? $row[$column] : null;
                 if ($count > 1) {
                     $current[$column] = $value;
@@ -30,10 +34,35 @@ class Helper_Array
                     $current = $value;
                 }
             }
-			$result[] = $current;
-		}
-		return $result;
-	}
+            if ($indexName && isset($row[$indexName])) {
+                $result[$row[$indexName]] = $current;
+            } else {
+                $result[] = $current;
+            }
+        }
+        return $result;
+    }
+
+
+    /**
+     * Переиндексировать массив по полю
+     *
+     * @param array $array
+     * @param string $field
+     * @return array
+     */
+    public function reindex($array, $field = 'id')
+    {
+        if (!is_array($array) || empty($array)) {
+            return $array;
+        }
+        $arrayElementFields = array_keys(reset($array));
+        $arrayElementFieldsFlipped = array_flip($arrayElementFields);
+        if (!isset($arrayElementFieldsFlipped[$field])) {
+            return $array;
+        }
+        return Helper_Array::column($array, $arrayElementFields, $field);
+    }
 
     /**
      * Фильтрация массива
