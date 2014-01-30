@@ -198,7 +198,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 		{
 			$this->_errno = mysqli_errno ($this->linkIdentifier());
 			$this->_error = mysqli_error ($this->linkIdentifier());
-			throw new ErrorException($this->_error, $this->_errno);
+			throw new ErrorException($this->_error . "\n" . $this->_sql . "\n", $this->_errno);
 		}
 
 		$rows = array ();
