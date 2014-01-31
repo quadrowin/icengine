@@ -14,7 +14,7 @@ class Helper_Array
      * @param string $indexName Имя индекса
      * @return array Колонка $column исходного массива
      */
-    public function column($input, $columnNames, $indexName = null)
+    public static function column($input, $columnNames, $indexName = null)
     {
         if (!$columnNames) {
             return $input;
@@ -51,7 +51,7 @@ class Helper_Array
      * @param string $field
      * @return array
      */
-    public function reindex($array, $field = 'id')
+    public static function reindex($array, $field = 'id')
     {
         if (!is_array($array) || empty($array)) {
             return $array;
