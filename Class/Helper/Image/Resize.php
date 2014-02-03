@@ -86,6 +86,8 @@ class Helper_Image_Resize
      */
     public static function newResize($params)
     {
+        ini_set('memory_limit', '512M');
+
         $width = isset($params['width']) ? $params['width'] : 0;
         $height = isset($params['height']) ? $params['height'] : 0;
         $crop = isset($params['crop']) ? $params['crop'] : false;
@@ -329,7 +331,9 @@ class Helper_Image_Resize
 		$proportional = false, $crop = true, $fit = false
 	)
 	{
-		if ($height <= 0 && $width <= 0 && !is_array($crop))
+		ini_set('memory_limit', '512M');
+
+        if ($height <= 0 && $width <= 0 && !is_array($crop))
 		{
 			return false;
 		}
