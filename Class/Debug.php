@@ -680,9 +680,9 @@ class Debug
         echo '<pre style="font-size: 10px;"><hr/>';
         echo '<strong style="color: red;">Error: ' . $exception->getMessage() . '</strong> ';
         echo '<em style="color: blue;">(' . $exception->getFile() . ':' . $exception->getLine() . ')</em>' . "\n";
-        if (!empty($errcontext)) {
-            echo '<span style="color: green;">' . print_r($errcontext, true) . '</span>';
-        }
+//        if (!empty($errcontext)) {
+//            echo '<span style="color: green;">' . print_r($errcontext, true) . '</span>';
+//        }
         echo $exception->getTraceAsString();
         echo '<hr/></pre>';
         if (function_exists('fb') && !headers_sent()) {
