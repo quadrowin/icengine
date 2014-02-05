@@ -85,7 +85,7 @@ class Temp_Content extends Model
 	 * @param integer $row_id
 	 * @return Temp_Content
 	 */
-	public static function create ($controller, $table = '',
+	public static function create ($controller = null, $table = '',
 		$row_id = 0, $data = null)
 	{
 		$utcode = self::genUtcode ();
@@ -93,10 +93,10 @@ class Temp_Content extends Model
 		$tc = new Temp_Content (array (
 			'time'			=> Helper_Date::toUnix (),
 			'utcode'		=> $utcode,
-			'data'			=> json_encode($data),
+			'data'			=> json_encode($data, JSON_UNESCAPED_UNICODE),
 			'ip'			=> Request::ip (),
 			'controller'	=>
-				$controller instanceof Controller_Abstract ?
+                isset($controller) && $controller instanceof Controller_Abstract ?
 				$controller->name () :
 				$controller,
 			'table'			=> $table,
