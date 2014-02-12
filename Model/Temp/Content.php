@@ -11,162 +11,160 @@
 class Temp_Content extends Model
 {
 
-	/**
-	 * Дата
-	 *
-	 * @var type
-	 */
-	protected $_data = null;
+    /**
+     * @desc Созданные за этот запрос
+     * @param 0 = name
+     * @param 1 = value
+     * @var array
+     */
+    protected static $_created = array();
+    /**
+     * Дата
+     *
+     * @var type
+     */
+    protected $_data = null;
 
-	/**
-	 * @desc Созданные за этот запрос
-	 * @param 0 = name
-	 * @param 1 = value
-	 * @var array
-	 */
-	protected static $_created = array ();
+    /**
+     * @desc Возвращет временный контент по коду
+     * @param string $utcode
+     * @return Temp_Content
+     */
+    public static function byUtcode($utcode)
+    {
+        return Model_Manager::byKey(
+            __CLASS__,
+            (string)$utcode
+        );
+    }
 
-	/**
-	 * Устанавливаем дату, ключ = значение
-	 *
-	 * @param string $key
-	 * @param string $value
-	 */
-	protected function _setAttr ($key, $value)
-	{
-		$this->_data[$key] = $value;
-		$this->update(array(
-			'data' => json_encode ($this->_data)
-		));
-	}
+    /**
+     * @desc Возвращает временный контент для модели на этом запросе
+     * @param Model $model
+     * @param Controller_Abstract $controller
+     * @return Temp_Content
+     */
+    public static function getFor(
+        Model $model,
+        Controller_Abstract $controller = null
+    ) {
+        $mname = $model->modelName();
+        $mkey = $model->key();
 
-	/**
-	 * Переопределяем аттрибуты
-	 *
-	 * @return type
-	 */
-	public function attr ($key)
-	{
-		if (is_null ($this->_data)) {
-			$this->_data = json_decode ($this->data, true);
-		}
+        if (!isset (self::$_created [$mname])) {
+            self::$_created [$mname] = array();
+        }
 
-		$args = func_get_args ();
+        if (!isset (self::$_created [$mname][$mkey])) {
+            self::$_created [$mname][$mkey] = self::create(
+                $controller ? $controller->name() : '',
+                $model->table(),
+                $mkey
+            );
+        }
 
-		if (count ($args) == 1 && !is_array ($args[0])) {
-			return isset($this->_data[$args[0]])
-					? $this->_data[$args[0]] : null;
-		} elseif (is_array ($args[0])) {
-			foreach ($args[0] as $key => $value) {
-				$this->_setAttr ($key, $value);
-			}
-		} elseif (count ($args) == 2) {
-			$this->_setAttr ($args[0], $args[1]);
-		}
-	}
+        return self::$_created [$mname][$mkey];
+    }
 
-	/**
-	 * @desc Возвращет временный контент по коду
-	 * @param string $utcode
-	 * @return Temp_Content
-	 */
-	public static function byUtcode ($utcode)
-	{
-		return Model_Manager::byKey (
-			__CLASS__,
-			(string) $utcode
-		);
-	}
+    /**
+     * @desc Создает новый временный контент
+     * @param string|Controller_Abstract $controller Контроллер или название
+     * @param string $table
+     * @param integer $row_id
+     * @return Temp_Content
+     */
+    public static function create($controller = null, $table = '', $row_id = 0, $data = null)
+    {
+        $utcode = self::genUtcode();
 
-	/**
-	 * @desc Создает новый временный контент
-	 * @param string|Controller_Abstract $controller Контроллер или название
-	 * @param string $table
-	 * @param integer $row_id
-	 * @return Temp_Content
-	 */
-	public static function create ($controller = null, $table = '',
-		$row_id = 0, $data = null)
-	{
-		$utcode = self::genUtcode ();
-
-		$tc = new Temp_Content (array (
-			'time'			=> Helper_Date::toUnix (),
-			'utcode'		=> $utcode,
-			'data'			=> json_encode($data, JSON_UNESCAPED_UNICODE),
-			'ip'			=> Request::ip (),
-			'controller'	=>
+        $tc = new Temp_Content (array(
+            'time' => Helper_Date::toUnix(),
+            'utcode' => $utcode,
+            'data' => json_encode($data, JSON_UNESCAPED_UNICODE),
+            'ip' => Request::ip(),
+            'controller' =>
                 isset($controller) && $controller instanceof Controller_Abstract ?
-				$controller->name () :
-				$controller,
-			'table'			=> $table,
-			'rowId'			=> (int) $row_id,
-			'day'			=> Helper_Date::eraDayNum (),
-			'User__id'		=> User::id ()
-		));
+                    $controller->name() :
+                    $controller,
+            'table' => $table,
+            'rowId' => (int)$row_id,
+            'day' => Helper_Date::eraDayNum(),
+            'User__id' => User::id()
+        ));
 
-		return $tc->save ();
-	}
+        return $tc->save();
+    }
 
-	/**
-	 * @desc Возвращает временный контент для модели на этом запросе
-	 * @param Model $model
-	 * @param Controller_Abstract $controller
-	 * @return Temp_Content
-	 */
-	public static function getFor (Model $model,
-		Controller_Abstract $controller = null)
-	{
-		$mname = $model->modelName ();
-		$mkey = $model->key ();
+    /**
+     * @desc Генерация уникального кода
+     * @return string
+     */
+    public static function genUtcode()
+    {
+        // ucac7fe407f8e5e1c683005867edd74439452c4.39068717
+        $u = uniqid('', true);
+        // Вырезаем точку
+        return md5(time()) . substr($u, 9, 5) . substr($u, 15);
+    }
 
-		if (!isset (self::$_created [$mname]))
-		{
-			self::$_created [$mname] = array ();
-		}
+    public static function idForNew(Temp_Content $tc)
+    {
+        return $tc->utcode;
+    }
 
-		if (!isset (self::$_created [$mname][$mkey]))
-		{
-			self::$_created [$mname][$mkey] = self::create (
-				$controller ? $controller->name () : '',
-				$model->table (),
-				$mkey
-			);
-		}
+    /**
+     * Переопределяем аттрибуты
+     *
+     * @return type
+     */
+    public function attr($key)
+    {
+        if (is_null($this->_data)) {
+            $this->_data = json_decode($this->data, true);
+        }
 
-		return self::$_created [$mname][$mkey];
-	}
+        $args = func_get_args();
 
-	/**
-	 * @desc Генерация уникального кода
-	 * @return string
-	 */
-	public static function genUtcode ()
-	{
-		// ucac7fe407f8e5e1c683005867edd74439452c4.39068717
-		$u = uniqid ('', true);
-		// Вырезаем точку
-		return md5 (time ()) . substr ($u, 9, 5) . substr ($u, 15);
-	}
+        if (count($args) == 1 && !is_array($args[0])) {
+            return isset($this->_data[$args[0]])
+                ? $this->_data[$args[0]] : null;
+        } elseif (is_array($args[0])) {
+            foreach ($args[0] as $key => $value) {
+                $this->_setAttr($key, $value);
+            }
+        } elseif (count($args) == 2) {
+            $this->_setAttr($args[0], $args[1]);
+        }
+    }
 
-	public static function idForNew (Temp_Content $tc)
-	{
-		return $tc->utcode;
-	}
+    /**
+     * Устанавливаем дату, ключ = значение
+     *
+     * @param string $key
+     * @param string $value
+     */
+    protected function _setAttr($key, $value)
+    {
+        $this->_data[$key] = $value;
+        $this->update(
+            array(
+                'data' => json_encode($this->_data)
+            )
+        );
+    }
 
-	/**
-	 *
-	 * @param Model $item
-	 * @param array $components
-	 * @return Temp_Content
-	 */
-	public function rejoinComponents (Model $item, array $components)
-	{
-		foreach ($components as $component)
-		{
-			$this->component ($component)->rejoin ($item);
-		}
-		return $this;
-	}
+    /**
+     *
+     * @param Model $item
+     * @param array $components
+     * @return Temp_Content
+     */
+    public function rejoinComponents(Model $item, array $components)
+    {
+        foreach ($components as $component) {
+            $this->component($component)->rejoin($item);
+        }
+        return $this;
+    }
 
 }
