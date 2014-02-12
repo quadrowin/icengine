@@ -68,7 +68,7 @@ class Data_Source_Manager
 	 */
 	public static function get ($name)
 	{
-		$config = self::config ();
+        $config = self::config ();
 
 		if ($config ['source_domain_alias'] == $name)
 		{
